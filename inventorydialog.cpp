@@ -75,6 +75,7 @@ void InventoryDialog::setupUi() {
 
     // Connect the equip button to the new slot
     connect(equipButton, &QPushButton::clicked, this, &InventoryDialog::onEquipButtonClicked);
+    connect(dropButton, &QPushButton::clicked, this, &InventoryDialog::onDropButtonClicked);
 }
 
 void InventoryDialog::onEquipButtonClicked() {
@@ -95,5 +96,24 @@ void InventoryDialog::onEquipButtonClicked() {
 
         // Remove the item from the inventory list
         delete selectedItem;
+    }
+}
+
+void InventoryDialog::onDropButtonClicked() {
+    // Get a pointer to the currently visible list widget
+    QListWidget* currentList = nullptr;
+    int currentIndex = tabWidget->currentIndex();
+    if (currentIndex == 0) {
+        currentList = inventoryList;
+    } else if (currentIndex == 1) {
+        currentList = equippedList;
+    } else if (currentIndex == 2) {
+        currentList = spellsList;
+    }
+
+    if (currentList && currentList->currentItem()) {
+        QListWidgetItem *selectedItem = currentList->currentItem();
+        delete selectedItem; // QListWidget will automatically remove the item when it's deleted
+        qDebug() << "Item dropped.";
     }
 }

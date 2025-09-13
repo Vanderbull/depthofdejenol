@@ -15,6 +15,7 @@ public:
 
 private slots:
     void onEquipButtonClicked(); // The new slot for the equip button
+    void onDropButtonClicked(); // The new slot for the drop button
 
 private:
     void setupUi();
