@@ -19,6 +19,7 @@ private slots:
     void showRecords();
     void showCredits();
     void quitGame();
+    void onInventoryClicked();
 
 private:
     QLabel *titleLabel;

@@ -2,6 +2,7 @@
 #include "hallofrecordsdialog.h"
 #include "createcharacterdialog.h"
 #include "dungeondialog.h"
+#include "inventorydialog.h"
 
 #include <QVBoxLayout>
 #include <QHBoxLayout>
@@ -80,6 +81,7 @@ GameMenu::GameMenu(QWidget *parent) : QWidget(parent) {
     QPushButton *optionsButton = new QPushButton("Options...");
     QPushButton *exitButton = new QPushButton("Exit");
     QPushButton *orderingButton = new QPushButton("Ordering/About");
+    QPushButton *inventoryButton = new QPushButton("invenotry");
 
     gridLayout->addWidget(newButton, 1, 1, 1, 2, Qt::AlignBottom | Qt::AlignCenter);
     gridLayout->addWidget(loadButton, 2, 1, 1, 2, Qt::AlignTop | Qt::AlignCenter);
@@ -89,6 +91,7 @@ GameMenu::GameMenu(QWidget *parent) : QWidget(parent) {
     gridLayout->addWidget(optionsButton, 3, 2);
     gridLayout->addWidget(exitButton, 4, 1);
     gridLayout->addWidget(orderingButton, 4, 2);
+    gridLayout->addWidget(inventoryButton, 5, 2);
 
     // Placeholder for bottom-left image
     QLabel *bottomLeftImage = new QLabel();
@@ -103,6 +106,7 @@ GameMenu::GameMenu(QWidget *parent) : QWidget(parent) {
     connect(loadButton, &QPushButton::clicked, this, &GameMenu::loadGame);
     connect(recordsButton, &QPushButton::clicked, this, &GameMenu::showRecords);
     connect(exitButton, &QPushButton::clicked, this, &GameMenu::quitGame);
+    connect(inventoryButton, &QPushButton::clicked, this, &GameMenu::onInventoryClicked);
 }
 
 // Function definitions
@@ -132,6 +136,11 @@ void GameMenu::quitGame() {
 void GameMenu::showCredits() {
     qDebug() << "Show Credits placeholder";
     // TODO: Implement the Credits Dialog here
+}
+
+void GameMenu::onInventoryClicked() {
+    InventoryDialog *inventoryDialog = new InventoryDialog(this);
+    inventoryDialog->exec(); // Use exec() to make it a modal dialog
 }
 
 GameMenu::~GameMenu() {}

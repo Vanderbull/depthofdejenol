@@ -1,0 +1,226 @@
+For each tile (represented as an object in the tiles array or a cell in the grid):
+
+    x (integer): The horizontal coordinate of the tile.
+
+    y (integer): The vertical coordinate of the tile.
+
+    type (string): The base type of the tile. This links to your sprite sheet. Examples:
+
+        "floor"
+
+        "wall" (for solid blocks like the black areas)
+
+        "water" (for blue wavy areas)
+
+        "door_closed"
+
+        "door_open"
+
+        "stair_down"
+
+        "stair_up"
+
+        "trap"
+
+        "chest"
+
+        "lever"
+
+        "pit"
+
+        "special_area_1" (for the patterned areas)
+
+    sprite_id (string/integer, optional): If your type isn't enough to determine the exact sprite, you might have a specific ID. E.g., type: "floor", sprite_id: "rough_stone".
+
+    walls (object): Defines which sides of the tile have a wall. This is crucial for movement and line of sight.
+    JSON
+
+"walls": {
+  "north": true,
+  "east": false,
+  "south": true,
+  "west": false
+}
+
+    true means there's a wall. false means it's open.
+
+    You could also use 0/1 for boolean or omit false entries to save space.
+
+exits (array of objects): Defines special transitions from this tile. This is particularly important for doors, stairs, or portals.
+JSON
+
+"exits": [
+  {
+    "direction": "south", // Direction from this tile
+    "type": "door",       // e.g., "door", "stairs", "teleporter"
+    "state": "closed",    // For doors: "open", "closed", "locked"
+    "target_map": "Mordor Depth of Dejenol Level 2", // Name of target map file
+    "target_x": 10,       // X coordinate in the target map
+    "target_y": 15,       // Y coordinate in the target map
+    "key_id": "iron_key_1" // For locked doors
+  },
+  {
+    "direction": "west",
+    "type": "teleporter",
+    "target_map": "self", // Means staying on the current map
+    "target_x": 5,
+    "target_y": 5
+  }
+]
+
+    direction can be north, east, south, west, or even any for a general portal.
+
+contents (array of strings or objects, optional): What items, monsters, or interactive elements are on this tile.
+JSON
+
+"contents": [
+  "monster_orc_grunt",
+  "item_gold_pile",
+  "object_pressure_plate_trap"
+]
+
+properties (object, optional): Any other miscellaneous properties for the tile.
+
+    "damage_type": "fire"
+
+    "effect": "poisonous_gas"
+
+    "light_source": true
+
+    "description": "A crumbling stone slab."
+
+events (array of objects, optional): Triggers or scripts associated with entering or interacting with the tile.
+JSON
+
+    "events": [
+      {"trigger": "on_enter", "action": "spawn_monster", "monster_type": "goblin"},
+      {"trigger": "on_interact", "action": "open_door", "door_id": "door_123"}
+    ]
+
+Example Tile for your map (e.g., the white square at 10,10):
+
+If we look at a simple white square in your map, say at x=10, y=10 (assuming 0-indexed from bottom left):
+JSON
+
+{
+  "x": 10,
+  "y": 10,
+  "type": "floor",
+  "walls": {
+    "north": false,
+    "east": false,
+    "south": false,
+    "west": false
+  },
+  "exits": [],
+  "contents": []
+}
+
+Now consider a wall-like tile (black area) to its right, at x=11, y=10:
+JSON
+
+{
+  "x": 11,
+  "y": 10,
+  "type": "unpassable_wall", // Or just "wall"
+  "walls": {
+    "north": true,
+    "east": true,
+    "south": true,
+    "west": true
+  },
+  "exits": [],
+  "contents": []
+}
+
+And one of the patterned tiles, like at x=2, y=28:
+JSON
+
+{
+  "x": 2,
+  "y": 28,
+  "type": "decorative_floor_pattern_1", // Or a specific sprite_id
+  "walls": {
+    "north": false,
+    "east": false,
+    "south": false,
+    "west": false
+  },
+  "exits": [],
+  "contents": []
+}
+
+Map File Example (Partial JSON)
+
+JSON
+
+{
+  "map_id": "level_01_mordor_depths",
+  "name": "The Entrance to Dejenol",
+  "starting_position": {"x": 15, "y": 5},
+  "tiles": [
+    {
+      "x": 1,
+      "y": 1,
+      "type": "floor",
+      "walls": {"north": true, "east": false, "south": true, "west": true},
+      "exits": [],
+      "contents": []
+    },
+    {
+      "x": 2,
+      "y": 1,
+      "type": "floor",
+      "walls": {"north": true, "east": false, "south": true, "west": false},
+      "exits": [],
+      "contents": []
+    },
+    {
+      "x": 2,
+      "y": 2,
+      "type": "water",
+      "walls": {"north": false, "east": false, "south": true, "west": false},
+      "exits": [],
+      "contents": []
+    },
+    {
+      "x": 6,
+      "y": 20,
+      "type": "stairs_down",
+      "walls": {"north": false, "east": false, "south": false, "west": false},
+      "exits": [
+        {
+          "direction": "down",
+          "type": "stairs",
+          "target_map": "level_02_mordor_depths",
+          "target_x": 10,
+          "target_y": 5
+        }
+      ],
+      "contents": []
+    },
+    {
+      "x": 25,
+      "y": 8,
+      "type": "floor",
+      "walls": {"north": false, "east": true, "south": true, "west": false},
+      "exits": [],
+      "contents": ["monster_troll", "item_potion_healing"]
+    }
+    // ... many more tile entries
+  ]
+}
+
+Considerations for Implementation
+
+    Sprite Mapping: Your game engine would read the type (and possibly sprite_id) from each tile object and use it to look up the correct sprite from your generated sprite sheet.
+
+    Wall Rendering: Walls are often rendered separately from the floor tile. The walls attribute tells you whether to draw a wall segment on a specific side of the tile. This is important for "L" shaped walls, "T" intersections, etc., where the floor might be the same type, but the surrounding walls change.
+
+    Pathfinding: This data structure provides all the information needed for pathfinding algorithms (like A*). You can easily determine if a tile is walkable and what its neighbors are.
+
+    Editor Tools: For larger maps, you'd likely want a map editor that exports to this JSON format, rather than hand-editing the JSON.
+
+    Coordinate System: Be consistent! Decide if (0,0) is top-left or bottom-left, and how x and y increase (e.g., x right, y up for Cartesian; or x right, y down for screen coordinates). Your example map appears to have x increasing right and y increasing up, starting from (2,2) as the lowest corner.
+
+By using a structure like this, you can fully describe your map and all its interactive elements in a way that's easy for a game to load and process.

@@ -1,0 +1,48 @@
+{
+  "map_name": "Mordor Depth of Dejenol Level 1",
+  "width": 30,  // Max X coordinate
+  "height": 30, // Max Y coordinate
+  "tiles": [
+    {
+      "x": 0,
+      "y": 0,
+      "type": "floor",
+      "walls": {
+        "north": true,
+        "east": false,
+        "south": false,
+        "west": true
+      },
+      "exits": [
+        {"direction": "east", "target_map": "self", "target_x": 1, "target_y": 0},
+        {"direction": "south", "target_map": "level2_entrance", "target_x": 5, "target_y": 5}
+      ],
+      "contents": ["player_start"],
+      "visibility": "explored" // or "fog_of_war", "visible"
+    },
+    {
+      "x": 1,
+      "y": 0,
+      "type": "wall",
+      "walls": null, // Walls are implied by type "wall"
+      "exits": [],
+      "contents": [],
+      "visibility": "unexplored"
+    },
+    // ... more tiles
+    {
+      "x": 2,
+      "y": 28,
+      "type": "water",
+      "walls": {
+        "north": false,
+        "east": false,
+        "south": false,
+        "west": false
+      },
+      "exits": [],
+      "contents": ["trap_pressure_plate"],
+      "visibility": "visible"
+    }
+  ]
+}
