@@ -1,0 +1,510 @@
+{
+  "spells": {
+    "Fire": [
+      {
+        "name": "Flame Bolt",
+        "mana": 10,
+        "description": "A single fiery bolt that explodes on impact.",
+        "base_level": 1,
+        "guilds": ["Mages Guild"],
+        "required_stats": { "intelligence": 10 },
+        "is_combat_spell": true,
+        "damage": "5-10"
+      },
+      {
+        "name": "Fireball",
+        "mana": 25,
+        "description": "A large ball of fire that explodes and causes damage to all creatures within a small radius.",
+        "base_level": 3,
+        "guilds": ["Mages Guild", "Sorcerers Guild"],
+        "required_stats": { "intelligence": 15 },
+        "is_combat_spell": true,
+        "damage": "15-30"
+      },
+      {
+        "name": "Fire Ring",
+        "mana": 35,
+        "description": "Creates a ring of fire around a character that will damage any creature coming in contact with it.",
+        "base_level": 5,
+        "guilds": ["Mages Guild", "Wizards Guild"],
+        "required_stats": { "intelligence": 20 },
+        "is_combat_spell": true,
+        "damage": "25-40"
+      },
+      {
+        "name": "Inferno",
+        "mana": 75,
+        "description": "A huge explosion of fire, causes massive damage to creatures within a very large radius.",
+        "base_level": 7,
+        "guilds": ["Wizards Guild"],
+        "required_stats": { "intelligence": 30 },
+        "is_combat_spell": true,
+        "damage": "50-100"
+      }
+    ],
+    "Cold": [
+      {
+        "name": "Cold Bolt",
+        "mana": 10,
+        "description": "A bolt of cold that hits a single creature and causes damage.",
+        "base_level": 1,
+        "guilds": ["Mages Guild"],
+        "required_stats": { "intelligence": 10 },
+        "is_combat_spell": true,
+        "damage": "5-10"
+      },
+      {
+        "name": "Iceball",
+        "mana": 25,
+        "description": "A large ball of ice that explodes and causes damage to all creatures within a small radius.",
+        "base_level": 3,
+        "guilds": ["Mages Guild", "Sorcerers Guild"],
+        "required_stats": { "intelligence": 15 },
+        "is_combat_spell": true,
+        "damage": "15-30"
+      },
+      {
+        "name": "Ice Ring",
+        "mana": 35,
+        "description": "Creates a ring of ice around a character that will damage any creature coming in contact with it.",
+        "base_level": 5,
+        "guilds": ["Mages Guild", "Wizards Guild"],
+        "required_stats": { "intelligence": 20 },
+        "is_combat_spell": true,
+        "damage": "25-40"
+      },
+      {
+        "name": "Blizzard",
+        "mana": 75,
+        "description": "Creates a huge snowstorm that causes massive damage to creatures within a very large radius.",
+        "base_level": 7,
+        "guilds": ["Wizards Guild"],
+        "required_stats": { "intelligence": 30 },
+        "is_combat_spell": true,
+        "damage": "50-100"
+      }
+    ],
+    "Electrical": [
+      {
+        "name": "Lightning",
+        "mana": 10,
+        "description": "A bolt of lightning that hits a single creature and causes damage.",
+        "base_level": 2,
+        "guilds": ["Mages Guild"],
+        "required_stats": { "intelligence": 12 },
+        "is_combat_spell": true,
+        "damage": "10-20"
+      },
+      {
+        "name": "Chain Lightning",
+        "mana": 35,
+        "description": "A bolt of lightning that will cause damage to a creature and then arc to another creature. It can arc up to 5 times.",
+        "base_level": 6,
+        "guilds": ["Wizards Guild"],
+        "required_stats": { "intelligence": 25 },
+        "is_combat_spell": true,
+        "damage": "30-50"
+      }
+    ],
+    "Mind": [
+      {
+        "name": "Mind Blast",
+        "mana": 10,
+        "description": "An explosion of mental energy that causes damage to a single creature.",
+        "base_level": 1,
+        "guilds": ["Mages Guild"],
+        "required_stats": { "intelligence": 10 },
+        "is_combat_spell": true,
+        "damage": "5-10"
+      },
+      {
+        "name": "Confusion",
+        "mana": 25,
+        "description": "Causes a single creature to become confused and attack its allies.",
+        "base_level": 3,
+        "guilds": ["Sorcerers Guild"],
+        "required_stats": { "intelligence": 15 },
+        "is_combat_spell": false,
+        "damage": null
+      },
+      {
+        "name": "Fear",
+        "mana": 50,
+        "description": "Causes all creatures within a small radius to flee in terror.",
+        "base_level": 5,
+        "guilds": ["Sorcerers Guild", "Wizards Guild"],
+        "required_stats": { "intelligence": 20 },
+        "is_combat_spell": false,
+        "damage": null
+      },
+      {
+        "name": "Insanity",
+        "mana": 75,
+        "description": "Causes a single creature to attack its allies and then die.",
+        "base_level": 8,
+        "guilds": ["Wizards Guild"],
+        "required_stats": { "intelligence": 35 },
+        "is_combat_spell": true,
+        "damage": "Instant Kill"
+      }
+    ],
+    "Damage": [
+      {
+        "name": "Poison",
+        "mana": 10,
+        "description": "Poisons a single creature.",
+        "base_level": 2,
+        "guilds": ["Mages Guild", "Thieves Guild"],
+        "required_stats": { "intelligence": 12 },
+        "is_combat_spell": true,
+        "damage": "Damage over Time"
+      },
+      {
+        "name": "Wound",
+        "mana": 15,
+        "description": "Causes a single creature to bleed and take damage over time.",
+        "base_level": 3,
+        "guilds": ["Warriors Guild", "Thieves Guild"],
+        "required_stats": { "strength": 15 },
+        "is_combat_spell": true,
+        "damage": "Damage over Time"
+      },
+      {
+        "name": "Drain Life",
+        "mana": 25,
+        "description": "Drains the life from a single creature and transfers it to the caster.",
+        "base_level": 4,
+        "guilds": ["Sorcerers Guild", "Villains Guild"],
+        "required_stats": { "intelligence": 18 },
+        "is_combat_spell": true,
+        "damage": "10-20"
+      }
+    ],
+    "Element": [
+      {
+        "name": "Stone Skin",
+        "mana": 10,
+        "description": "Increases a character's armor class by 5.",
+        "base_level": 2,
+        "guilds": ["Mages Guild"],
+        "required_stats": { "intelligence": 12 },
+        "is_combat_spell": false,
+        "damage": null
+      },
+      {
+        "name": "Iron Skin",
+        "mana": 25,
+        "description": "Increases a character's armor class by 10.",
+        "base_level": 4,
+        "guilds": ["Wizards Guild"],
+        "required_stats": { "intelligence": 20 },
+        "is_combat_spell": false,
+        "damage": null
+      },
+      {
+        "name": "Diamond Skin",
+        "mana": 50,
+        "description": "Increases a character's armor class by 20.",
+        "base_level": 7,
+        "guilds": ["Wizards Guild"],
+        "required_stats": { "intelligence": 30 },
+        "is_combat_spell": false,
+        "damage": null
+      }
+    ],
+    "Kill": [
+      {
+        "name": "Exorcism",
+        "mana": 50,
+        "description": "Instantly kills a single undead creature.",
+        "base_level": 6,
+        "guilds": ["Healers Guild", "Paladins Guild"],
+        "required_stats": { "wisdom": 25 },
+        "is_combat_spell": true,
+        "damage": "Instant Kill"
+      },
+      {
+        "name": "Vampire Slayer",
+        "mana": 75,
+        "description": "Instantly kills a single vampire creature.",
+        "base_level": 8,
+        "guilds": ["Paladins Guild"],
+        "required_stats": { "wisdom": 30 },
+        "is_combat_spell": true,
+        "damage": "Instant Kill"
+      }
+    ],
+    "Charm": [
+      {
+        "name": "Charm Creature",
+        "mana": 25,
+        "description": "Charms a single creature, making it a companion.",
+        "base_level": 4,
+        "guilds": ["Sorcerers Guild", "Villains Guild"],
+        "required_stats": { "charisma": 18 },
+        "is_combat_spell": false,
+        "damage": null
+      },
+      {
+        "name": "Charm Monster",
+        "mana": 50,
+        "description": "Charms a single monster, making it a companion.",
+        "base_level": 7,
+        "guilds": ["Wizards Guild", "Villains Guild"],
+        "required_stats": { "charisma": 25 },
+        "is_combat_spell": false,
+        "damage": null
+      }
+    ],
+    "Bind": [
+      {
+        "name": "Bind Creature",
+        "mana": 10,
+        "description": "Binds a single creature, making it a companion.",
+        "base_level": 2,
+        "guilds": ["Mages Guild"],
+        "required_stats": { "intelligence": 12 },
+        "is_combat_spell": false,
+        "damage": null
+      },
+      {
+        "name": "Bind Monster",
+        "mana": 25,
+        "description": "Binds a single monster, making it a companion.",
+        "base_level": 5,
+        "guilds": ["Sorcerers Guild"],
+        "required_stats": { "intelligence": 20 },
+        "is_combat_spell": false,
+        "damage": null
+      }
+    ],
+    "Heal": [
+      {
+        "name": "Cure Wounds",
+        "mana": 10,
+        "description": "Heals a small amount of damage.",
+        "base_level": 1,
+        "guilds": ["Healers Guild", "Paladins Guild"],
+        "required_stats": { "wisdom": 10 },
+        "is_combat_spell": false,
+        "damage": null
+      },
+      {
+        "name": "Cure Disease",
+        "mana": 15,
+        "description": "Cures all diseases.",
+        "base_level": 2,
+        "guilds": ["Healers Guild"],
+        "required_stats": { "wisdom": 15 },
+        "is_combat_spell": false,
+        "damage": null
+      },
+      {
+        "name": "Cure Poison",
+        "mana": 15,
+        "description": "Cures all poisons.",
+        "base_level": 2,
+        "guilds": ["Healers Guild"],
+        "required_stats": { "wisdom": 15 },
+        "is_combat_spell": false,
+        "damage": null
+      },
+      {
+        "name": "Heal",
+        "mana": 25,
+        "description": "Heals a large amount of damage.",
+        "base_level": 4,
+        "guilds": ["Healers Guild", "Paladins Guild"],
+        "required_stats": { "wisdom": 20 },
+        "is_combat_spell": false,
+        "damage": null
+      },
+      {
+        "name": "Resurrect",
+        "mana": 50,
+        "description": "Resurrects a dead character.",
+        "base_level": 7,
+        "guilds": ["Healers Guild", "Paladins Guild"],
+        "required_stats": { "wisdom": 30 },
+        "is_combat_spell": false,
+        "damage": null
+      }
+    ],
+    "Movement": [
+      {
+        "name": "Teleport",
+        "mana": 25,
+        "description": "Teleports the caster to a random location on the same level.",
+        "base_level": 5,
+        "guilds": ["Wizards Guild"],
+        "required_stats": { "intelligence": 25 },
+        "is_combat_spell": false,
+        "damage": null
+      },
+      {
+        "name": "Levitate",
+        "mana": 15,
+        "description": "Allows the caster to levitate for a short time.",
+        "base_level": 3,
+        "guilds": ["Mages Guild", "Wizards Guild"],
+        "required_stats": { "intelligence": 15 },
+        "is_combat_spell": false,
+        "damage": null
+      }
+    ],
+    "Banish": [
+      {
+        "name": "Banish Demon",
+        "mana": 50,
+        "description": "Banishs a single demon.",
+        "base_level": 6,
+        "guilds": ["Healers Guild", "Paladins Guild"],
+        "required_stats": { "wisdom": 25 },
+        "is_combat_spell": true,
+        "damage": "Instant Banish"
+      },
+      {
+        "name": "Banish Undead",
+        "mana": 50,
+        "description": "Banishs a single undead.",
+        "base_level": 6,
+        "guilds": ["Healers Guild", "Paladins Guild"],
+        "required_stats": { "wisdom": 25 },
+        "is_combat_spell": true,
+        "damage": "Instant Banish"
+      }
+    ],
+    "Dispel": [
+      {
+        "name": "Dispel Magic",
+        "mana": 25,
+        "description": "Dispels all magical effects on a single creature.",
+        "base_level": 4,
+        "guilds": ["Wizards Guild"],
+        "required_stats": { "intelligence": 20 },
+        "is_combat_spell": false,
+        "damage": null
+      }
+    ],
+    "Resistant": [
+      {
+        "name": "Resist Fire",
+        "mana": 10,
+        "description": "Increases resistance to fire damage.",
+        "base_level": 2,
+        "guilds": ["Mages Guild"],
+        "required_stats": { "intelligence": 12 },
+        "is_combat_spell": false,
+        "damage": null
+      },
+      {
+        "name": "Resist Cold",
+        "mana": 10,
+        "description": "Increases resistance to cold damage.",
+        "base_level": 2,
+        "guilds": ["Mages Guild"],
+        "required_stats": { "intelligence": 12 },
+        "is_combat_spell": false,
+        "damage": null
+      },
+      {
+        "name": "Resist Electrical",
+        "mana": 10,
+        "description": "Increases resistance to electrical damage.",
+        "base_level": 2,
+        "guilds": ["Mages Guild"],
+        "required_stats": { "intelligence": 12 },
+        "is_combat_spell": false,
+        "damage": null
+      }
+    ],
+    "Visual": [
+      {
+        "name": "Light",
+        "mana": 5,
+        "description": "Creates a source of light.",
+        "base_level": 1,
+        "guilds": ["Mages Guild", "Healers Guild"],
+        "required_stats": { "wisdom": 10 },
+        "is_combat_spell": false,
+        "damage": null
+      },
+      {
+        "name": "See Invisible",
+        "mana": 15,
+        "description": "Allows the caster to see invisible creatures.",
+        "base_level": 3,
+        "guilds": ["Wizards Guild"],
+        "required_stats": { "intelligence": 15 },
+        "is_combat_spell": false,
+        "damage": null
+      }
+    ],
+    "Magical": [
+      {
+        "name": "Magic Missile",
+        "mana": 10,
+        "description": "A magical missile that hits a single creature and causes damage.",
+        "base_level": 1,
+        "guilds": ["Mages Guild"],
+        "required_stats": { "intelligence": 10 },
+        "is_combat_spell": true,
+        "damage": "5-15"
+      },
+      {
+        "name": "Magic Shield",
+        "mana": 25,
+        "description": "Creates a magical shield that absorbs damage.",
+        "base_level": 4,
+        "guilds": ["Wizards Guild"],
+        "required_stats": { "intelligence": 20 },
+        "is_combat_spell": false,
+        "damage": null
+      }
+    ],
+    "Location": [
+      {
+        "name": "Locate Creature",
+        "mana": 15,
+        "description": "Locates a single creature.",
+        "base_level": 2,
+        "guilds": ["Seekers Guild", "Wizards Guild"],
+        "required_stats": { "wisdom": 12 },
+        "is_combat_spell": false,
+        "damage": null
+      },
+      {
+        "name": "Locate Item",
+        "mana": 15,
+        "description": "Locates a single item.",
+        "base_level": 2,
+        "guilds": ["Seekers Guild", "Wizards Guild"],
+        "required_stats": { "wisdom": 12 },
+        "is_combat_spell": false,
+        "damage": null
+      }
+    ],
+    "Protection": [
+      {
+        "name": "Protection from Evil",
+        "mana": 10,
+        "description": "Protects the caster from evil creatures.",
+        "base_level": 1,
+        "guilds": ["Healers Guild", "Paladins Guild"],
+        "required_stats": { "wisdom": 10 },
+        "is_combat_spell": false,
+        "damage": null
+      },
+      {
+        "name": "Protection from Good",
+        "mana": 10,
+        "description": "Protects the caster from good creatures.",
+        "base_level": 1,
+        "guilds": ["Villains Guild"],
+        "required_stats": { "charisma": 10 },
+        "is_combat_spell": false,
+        "damage": null
+      }
+    ]
+  }
+}
