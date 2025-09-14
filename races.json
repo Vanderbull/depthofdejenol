@@ -1,0 +1,76 @@
+{
+  "races": [
+    {
+      "name": "Human",
+      "description": "Humans are the most common race in Mordor. They possess average abilities and are able to excel in any guild or class.",
+      "stats": {
+        "strength": "Average",
+        "intelligence": "Average",
+        "wisdom": "Average",
+        "dexterity": "Average",
+        "constitution": "Average",
+        "charisma": "Average"
+      }
+    },
+    {
+      "name": "Dwarf",
+      "description": "Dwarves are a strong and hearty race, native to underground tunnels and caverns. They are natural warriors with a strong resistance to poisons.",
+      "stats": {
+        "strength": "Above Average",
+        "intelligence": "Average",
+        "wisdom": "Above Average",
+        "dexterity": "Below Average",
+        "constitution": "Above Average",
+        "charisma": "Below Average"
+      }
+    },
+    {
+      "name": "Elf",
+      "description": "Elves are an agile and intelligent race. They excel at magic and are very dexterous, but they are also physically weak.",
+      "stats": {
+        "strength": "Below Average",
+        "intelligence": "Above Average",
+        "wisdom": "Above Average",
+        "dexterity": "Above Average",
+        "constitution": "Below Average",
+        "charisma": "Average"
+      }
+    },
+    {
+      "name": "Gnome",
+      "description": "Gnomes are a small, playful, and intelligent race with strong magical abilities. They are known to be physically weak but very wise.",
+      "stats": {
+        "strength": "Below Average",
+        "intelligence": "Above Average",
+        "wisdom": "Above Average",
+        "dexterity": "Average",
+        "constitution": "Average",
+        "charisma": "Above Average"
+      }
+    },
+    {
+      "name": "Hobbit",
+      "description": "Hobbits are small and charming creatures. Their small stature allows them to sneak around unnoticed. They have a natural ability to escape from danger, but they lack strength and magical abilities.",
+      "stats": {
+        "strength": "Below Average",
+        "intelligence": "Below Average",
+        "wisdom": "Average",
+        "dexterity": "Above Average",
+        "constitution": "Average",
+        "charisma": "Above Average"
+      }
+    },
+    {
+      "name": "Half-Orc",
+      "description": "Half-Orcs are a very strong, yet unintelligent race. They are the most powerful warriors in the land, but they lack magical ability and charisma.",
+      "stats": {
+        "strength": "Above Average",
+        "intelligence": "Below Average",
+        "wisdom": "Below Average",
+        "dexterity": "Average",
+        "constitution": "Above Average",
+        "charisma": "Below Average"
+      }
+    }
+  ]
+}
