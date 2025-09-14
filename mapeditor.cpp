@@ -1,44 +1,55 @@
 #include "mapeditor.h"
 
-// MapEditor constructor implementation.
-MapEditor::MapEditor(int width, int height) :
-    m_width(width),
-    m_height(height) {
-    // Resize the 2D vector to match the specified width and height.
-    m_mapData.resize(m_height, std::vector<TileType>(m_width, EMPTY));
+MapEditor::MapEditor(int width, int height) : m_width(width), m_height(height) {
+    m_baseMapData.resize(height, std::vector<TileType>(width, EMPTY));
+    m_wallMapData.resize(height, std::vector<bool>(width, false));
 }
 
-// Set a tile's type at a given coordinate.
-void MapEditor::setTile(int x, int y, TileType type) {
-    // Check if the coordinates are within the map boundaries before setting the tile.
-    if (x >= 0 && x < m_width && y >= 0 && y < m_height) {
-        m_mapData[y][x] = type;
-    }
-}
-
-// Get a tile's type at a given coordinate.
-TileType MapEditor::getTile(int x, int y) const {
-    // Check if the coordinates are within the map boundaries.
-    // Return EMPTY or an error type if they are not.
-    if (x >= 0 && x < m_width && y >= 0 && y < m_height) {
-        return m_mapData[y][x];
-    }
-    return EMPTY; // Return default value for out-of-bounds access.
-}
-
-// Getter for the map width.
 int MapEditor::getWidth() const {
     return m_width;
 }
 
-// Getter for the map height.
 int MapEditor::getHeight() const {
     return m_height;
 }
 
-// Save the current map to a JSON file.
-bool MapEditor::saveMap(const QString& filePath) {
-    QFile saveFile(filePath);
+void MapEditor::setBaseTile(int x, int y, TileType type) {
+    if (x >= 0 && x < m_width && y >= 0 && y < m_height) {
+        m_baseMapData[y][x] = type;
+    }
+}
+
+void MapEditor::setWallTile(int x, int y, bool isWall) {
+    if (x >= 0 && x < m_width && y >= 0 && y < m_height) {
+        m_wallMapData[y][x] = isWall;
+    }
+}
+
+MapEditor::TileType MapEditor::getBaseTile(int x, int y) const {
+    if (x >= 0 && x < m_width && y >= 0 && y < m_height) {
+        return m_baseMapData[y][x];
+    }
+    return EMPTY;
+}
+
+bool MapEditor::getWallTile(int x, int y) const {
+    if (x >= 0 && x < m_width && y >= 0 && y < m_height) {
+        return m_wallMapData[y][x];
+    }
+    return false;
+}
+
+const std::vector<std::vector<MapEditor::TileType>>& MapEditor::getBaseMap() const {
+    return m_baseMapData;
+}
+
+const std::vector<std::vector<bool>>& MapEditor::getWallMap() const {
+    return m_wallMapData;
+}
+
+bool MapEditor::saveMap(const std::string& filename) const {
+    QFile saveFile(QString::fromStdString(filename));
+
     if (!saveFile.open(QIODevice::WriteOnly)) {
         qWarning("Couldn't open save file.");
         return false;
@@ -48,23 +59,34 @@ bool MapEditor::saveMap(const QString& filePath) {
     mapObject["width"] = m_width;
     mapObject["height"] = m_height;
 
-    QJsonArray tilesArray;
-    for (int y = 0; y < m_height; ++y) {
-        for (int x = 0; x < m_width; ++x) {
-            tilesArray.append(m_mapData[y][x]);
+    QJsonArray baseArray;
+    for (const auto& row : m_baseMapData) {
+        QJsonArray rowArray;
+        for (const auto& tile : row) {
+            rowArray.append(tile);
         }
+        baseArray.append(rowArray);
     }
-    mapObject["tiles"] = tilesArray;
+    mapObject["base"] = baseArray;
+
+    QJsonArray wallArray;
+    for (const auto& row : m_wallMapData) {
+        QJsonArray rowArray;
+        for (const auto& isWall : row) {
+            rowArray.append(isWall);
+        }
+        wallArray.append(rowArray);
+    }
+    mapObject["walls"] = wallArray;
 
     QJsonDocument saveDoc(mapObject);
     saveFile.write(saveDoc.toJson());
-
     return true;
 }
 
-// Load a map from a JSON file.
-bool MapEditor::loadMap(const QString& filePath) {
-    QFile loadFile(filePath);
+bool MapEditor::loadMap(const std::string& filename) {
+    QFile loadFile(QString::fromStdString(filename));
+
     if (!loadFile.open(QIODevice::ReadOnly)) {
         qWarning("Couldn't open load file.");
         return false;
@@ -74,30 +96,46 @@ bool MapEditor::loadMap(const QString& filePath) {
     QJsonDocument loadDoc(QJsonDocument::fromJson(saveData));
     QJsonObject mapObject = loadDoc.object();
 
-    if (mapObject.contains("width") && mapObject["width"].isDouble() &&
-        mapObject.contains("height") && mapObject["height"].isDouble() &&
-        mapObject.contains("tiles") && mapObject["tiles"].isArray()) {
-
+    if (mapObject.contains("width") && mapObject.contains("height")) {
         m_width = mapObject["width"].toInt();
         m_height = mapObject["height"].toInt();
+        m_baseMapData.resize(m_height, std::vector<TileType>(m_width));
+        m_wallMapData.resize(m_height, std::vector<bool>(m_width));
 
-        QJsonArray tilesArray = mapObject["tiles"].toArray();
-        if (tilesArray.size() != m_width * m_height) {
-            qWarning("Loaded map dimensions do not match tile count.");
-            return false;
-        }
-
-        m_mapData.resize(m_height, std::vector<TileType>(m_width));
-        int index = 0;
-        for (int y = 0; y < m_height; ++y) {
-            for (int x = 0; x < m_width; ++x) {
-                m_mapData[y][x] = static_cast<TileType>(tilesArray[index].toInt());
-                index++;
+        if (mapObject.contains("base") && mapObject["base"].isArray() && mapObject.contains("walls") && mapObject["walls"].isArray()) {
+            QJsonArray baseArray = mapObject["base"].toArray();
+            for (int y = 0; y < baseArray.size(); ++y) {
+                QJsonArray rowArray = baseArray[y].toArray();
+                for (int x = 0; x < rowArray.size(); ++x) {
+                    m_baseMapData[y][x] = static_cast<TileType>(rowArray[x].toInt());
+                }
             }
+            QJsonArray wallArray = mapObject["walls"].toArray();
+            for (int y = 0; y < wallArray.size(); ++y) {
+                QJsonArray rowArray = wallArray[y].toArray();
+                for (int x = 0; x < rowArray.size(); ++x) {
+                    m_wallMapData[y][x] = rowArray[x].toBool();
+                }
+            }
+            return true;
         }
-        return true;
     }
-
-    qWarning("Invalid map data in JSON file.");
     return false;
+}
+
+void MapEditor::loadExampleMap() {
+    m_baseMapData.resize(m_height, std::vector<TileType>(m_width, FLOOR));
+    m_wallMapData.resize(m_height, std::vector<bool>(m_width, false));
+    
+    // Walls
+    m_wallMapData[5][5] = true;
+    m_wallMapData[5][6] = true;
+    m_wallMapData[6][5] = true;
+    m_wallMapData[6][6] = true;
+    
+    // Water
+    m_baseMapData[8][10] = WATER;
+    m_baseMapData[8][11] = WATER;
+    m_baseMapData[9][10] = WATER;
+    m_baseMapData[9][11] = WATER;
 }
