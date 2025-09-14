@@ -1,0 +1,87 @@
+{
+  "guilds": [
+    {
+      "name": "Mages Guild",
+      "description": "The headquarters for the elemental and magical arts. Aspiring adventurers can learn a variety of spells and abilities related to fire, cold, electricity, and mind magic.",
+      "skills_taught": [
+        "Elemental Spells (Fire, Cold, Electrical)",
+        "Mind Spells",
+        "Binding Spells",
+        "Protective Spells"
+      ]
+    },
+    {
+      "name": "Sorcerers Guild",
+      "description": "An advanced guild for mages, specializing in more powerful and complex spells. They focus on augmenting existing magical abilities and learning more potent forms of mind control.",
+      "skills_taught": [
+        "Advanced Fire and Cold Spells",
+        "Mind Control Spells",
+        "Drain Life",
+        "Charm Creature"
+      ]
+    },
+    {
+      "name": "Wizards Guild",
+      "description": "The most prestigious of the magical guilds. Wizards are masters of all magical disciplines, able to cast powerful and destructive spells, and they are also adept at teleportation and dispelling other magic.",
+      "skills_taught": [
+        "Master Elemental Spells (Inferno, Blizzard, Chain Lightning)",
+        "Advanced Protection Spells",
+        "Teleportation",
+        "See Invisible",
+        "Dispel Magic"
+      ]
+    },
+    {
+      "name": "Healers Guild",
+      "description": "A guild dedicated to the restoration and preservation of life. They teach a variety of healing and support spells, and are also masters of search, rescue, and resurrection.",
+      "skills_taught": [
+        "Healing Spells (Cure Wounds, Heal)",
+        "Cure Disease and Poison",
+        "Resurrection",
+        "Banishment Spells"
+      ]
+    },
+    {
+      "name": "Warriors Guild",
+      "description": "The headquarters for martial training. The Warriors Guild teaches physical combat abilities and defensive skills. They are also known to have specialized knowledge in damage-over-time spells.",
+      "skills_taught": [
+        "Physical Combat Skills",
+        "Defensive Training",
+        "Bleeding Spells (Wound)"
+      ]
+    },
+    {
+      "name": "Thieves Guild",
+      "description": "A secretive guild for those who prefer stealth and cunning over brute force. They are masters of lockpicking, disarming traps, and dealing with poisons.",
+      "skills_taught": [
+        "Stealth and Agility",
+        "Poison and Bleeding Spells"
+      ]
+    },
+    {
+      "name": "Paladins Guild",
+      "description": "A righteous order of warriors dedicated to fighting evil. Paladins are trained in combat and divine magic, with a strong focus on protection, healing, and slaying undead and demons.",
+      "skills_taught": [
+        "Combat Training",
+        "Healing and Protective Spells",
+        "Slaying Undead and Demons"
+      ]
+    },
+    {
+      "name": "Villains Guild",
+      "description": "A sinister guild that teaches abilities focused on chaos and personal gain. They are known for their dark magic, including life-draining and corrupting spells.",
+      "skills_taught": [
+        "Drain Life",
+        "Protective Spells (Protection from Good)",
+        "Charming Spells"
+      ]
+    },
+    {
+      "name": "Seekers Guild",
+      "description": "This guild specializes in finding what is lost. Their members have the unique ability to locate missing creatures or items, even in the deepest parts of the dungeon.",
+      "skills_taught": [
+        "Location Spells (Locate Creature, Locate Item)"
+      ]
+    }
+  ]
+}
