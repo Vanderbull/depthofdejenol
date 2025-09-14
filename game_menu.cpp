@@ -3,6 +3,7 @@
 #include "createcharacterdialog.h"
 #include "dungeondialog.h"
 #include "inventorydialog.h"
+#include "marlith_dialog.h"
 
 #include <QVBoxLayout>
 #include <QHBoxLayout>
@@ -82,6 +83,7 @@ GameMenu::GameMenu(QWidget *parent) : QWidget(parent) {
     QPushButton *exitButton = new QPushButton("Exit");
     QPushButton *orderingButton = new QPushButton("Ordering/About");
     QPushButton *inventoryButton = new QPushButton("invenotry");
+    QPushButton *marlithButton = new QPushButton("marlith");
 
     gridLayout->addWidget(newButton, 1, 1, 1, 2, Qt::AlignBottom | Qt::AlignCenter);
     gridLayout->addWidget(loadButton, 2, 1, 1, 2, Qt::AlignTop | Qt::AlignCenter);
@@ -92,6 +94,8 @@ GameMenu::GameMenu(QWidget *parent) : QWidget(parent) {
     gridLayout->addWidget(exitButton, 4, 1);
     gridLayout->addWidget(orderingButton, 4, 2);
     gridLayout->addWidget(inventoryButton, 5, 2);
+    gridLayout->addWidget(marlithButton, 5, 1);
+    
 
     // Placeholder for bottom-left image
     QLabel *bottomLeftImage = new QLabel();
@@ -107,6 +111,7 @@ GameMenu::GameMenu(QWidget *parent) : QWidget(parent) {
     connect(recordsButton, &QPushButton::clicked, this, &GameMenu::showRecords);
     connect(exitButton, &QPushButton::clicked, this, &GameMenu::quitGame);
     connect(inventoryButton, &QPushButton::clicked, this, &GameMenu::onInventoryClicked);
+    connect(marlithButton, &QPushButton::clicked, this, &GameMenu::onMarlithClicked);
 }
 
 // Function definitions
@@ -141,6 +146,11 @@ void GameMenu::showCredits() {
 void GameMenu::onInventoryClicked() {
     InventoryDialog *inventoryDialog = new InventoryDialog(this);
     inventoryDialog->exec(); // Use exec() to make it a modal dialog
+}
+
+void GameMenu::onMarlithClicked() {
+    MarlithDialog *dialog = new MarlithDialog(this);
+    dialog->show(); // Use exec() to make it a modal dialog
 }
 
 GameMenu::~GameMenu() {}

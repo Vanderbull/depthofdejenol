@@ -1,8 +1,8 @@
 QT += core gui widgets 
 TARGET = game_menu
-SOURCES += game_menu.cpp hallofrecordsdialog.cpp createcharacterdialog.cpp dungeondialog.cpp dungeonmap.cpp partyinfodialog.cpp inventorydialog.cpp
+SOURCES += game_menu.cpp hallofrecordsdialog.cpp createcharacterdialog.cpp dungeondialog.cpp dungeonmap.cpp partyinfodialog.cpp inventorydialog.cpp marlith_dialog.cpp
 
-HEADERS += gamemenu.h hallofrecordsdialog.h createcharacterdialog.h dungeondialog.h dungeonmap.h partyinfodialog.h inventorydialog.h
+HEADERS += gamemenu.h hallofrecordsdialog.h createcharacterdialog.h dungeondialog.h dungeonmap.h partyinfodialog.h inventorydialog.h marlith_dialog.h
 #ICON = appicon.ico
 #LIBS += -L/path/to/lib -lmylib
 CXXFLAGS += -std=c++11
