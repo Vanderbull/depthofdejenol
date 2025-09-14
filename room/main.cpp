@@ -3,6 +3,7 @@
 #include <QOpenGLFunctions>
 #include <QMatrix4x4>
 #include <QKeyEvent>
+#include <cmath>
 
 // A custom OpenGL widget to render our 3D room.
 class RoomWidget : public QOpenGLWidget, protected QOpenGLFunctions
@@ -61,8 +62,11 @@ protected:
         glMatrixMode(GL_MODELVIEW);
         glLoadMatrixf(viewMatrix.data());
 
-        // Draw the simple wireframe box
-        drawBox();
+        // Draw the simple wireframe box representing the room
+        drawRoom();
+
+        // Draw the wireframe door on the front wall
+        drawDoor();
     }
     
     void keyPressEvent(QKeyEvent* event) override
@@ -83,7 +87,7 @@ protected:
     }
 
 private:
-    void drawBox()
+    void drawRoom()
     {
         // Set the color for the lines
         glColor3f(0.0f, 0.0f, 0.0f); // Black lines
@@ -144,6 +148,45 @@ private:
         glDisableClientState(GL_VERTEX_ARRAY);
     }
 
+    void drawDoor()
+    {
+        // Set the color for the door
+        glColor3f(0.5f, 0.25f, 0.0f); // Brown color for the door
+
+        // Save the current matrix state
+        glPushMatrix();
+
+        // Translate to the front wall
+        glTranslatef(0.0f, -0.25f, 0.5f);
+
+        // Set a wider line width for the door to make it stand out
+        glLineWidth(2.0f);
+
+        // Door frame rectangle
+        glBegin(GL_LINE_LOOP);
+            glVertex3f(-0.2f, -0.25f, 0.001f);
+            glVertex3f(0.2f, -0.25f, 0.001f);
+            glVertex3f(0.2f, 0.25f, 0.001f);
+            glVertex3f(-0.2f, 0.25f, 0.001f);
+        glEnd();
+
+        // Draw the arc at the top of the door
+        glBegin(GL_LINE_STRIP);
+        const float radius = 0.2f;
+        const int segments = 50;
+        for (int i = 0; i <= segments; ++i) {
+            float angle = M_PI * static_cast<float>(i) / static_cast<float>(segments);
+            float x = radius * cos(angle);
+            float y = radius * sin(angle);
+            glVertex3f(x, y + 0.25f, 0.001f);
+        }
+        glEnd();
+
+        // Restore the line width and matrix
+        glLineWidth(1.0f);
+        glPopMatrix();
+    }
+
 private:
     QMatrix4x4 m_projection;
     GLfloat m_rotation;
@@ -156,7 +199,7 @@ int main(int argc, char *argv[])
 
     // Create and show the main window
     RoomWidget window;
-    window.setWindowTitle("Simple 3D Wireframe Box");
+    window.setWindowTitle("Simple 3D Wireframe Box with Door");
     window.resize(800, 600);
     window.show();
 
