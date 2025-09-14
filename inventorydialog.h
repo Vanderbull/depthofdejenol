@@ -16,9 +16,11 @@ public:
 private slots:
     void onEquipButtonClicked(); // The new slot for the equip button
     void onDropButtonClicked(); // The new slot for the drop button
+    void onInfoButtonClicked();
 
 private:
     void setupUi();
+    void initializeItemData(); // Function to populate item data
 
     QTabWidget *tabWidget;
     QListWidget *inventoryList;
@@ -28,6 +30,8 @@ private:
     QPushButton *useButton;
     QPushButton *dropButton;
     QPushButton *infoButton;
+    // A map to store item descriptions and stats
+    QMap<QString, QString> itemInfoMap;
 };
 
 #endif // INVENTORYDIALOG_H

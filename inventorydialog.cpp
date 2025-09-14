@@ -2,11 +2,13 @@
 #include <QHBoxLayout>
 #include <QVBoxLayout>
 #include <QLabel>
-#include <QDebug> // For debugging purposes
+#include <QDebug>
+#include <QMessageBox>
 
 InventoryDialog::InventoryDialog(QWidget *parent) : QDialog(parent) {
     setWindowTitle("Inventory");
     setFixedSize(600, 400);
+    initializeItemData();
     setupUi();
 }
 
@@ -26,38 +28,31 @@ void InventoryDialog::setupUi() {
     tabWidget->addTab(equippedTab, "Equipped");
     tabWidget->addTab(spellsTab, "Spells");
 
-    // Layout for the main Inventory tab
     QHBoxLayout *inventoryLayout = new QHBoxLayout(inventoryTab);
     inventoryList = new QListWidget();
     inventoryLayout->addWidget(inventoryList);
 
-    // Add example items to the Inventory tab
     inventoryList->addItem("Short Sword");
     inventoryList->addItem("Leather Armor");
     inventoryList->addItem("Health Potion (x3)");
     inventoryList->addItem("Gold (125)");
 
-    // Layout for the Equipped tab
     QHBoxLayout *equippedLayout = new QHBoxLayout(equippedTab);
-    equippedList = new QListWidget(); // Now a member variable
+    equippedList = new QListWidget();
     equippedLayout->addWidget(equippedList);
 
-    // Add example items to the Equipped tab
     equippedList->addItem("Battle Axe");
     equippedList->addItem("Plate Mail");
     equippedList->addItem("Shield of Fire Resistance");
 
-    // Layout for the Spells tab
     QHBoxLayout *spellsLayout = new QHBoxLayout(spellsTab);
-    spellsList = new QListWidget(); // Now a member variable
+    spellsList = new QListWidget();
     spellsLayout->addWidget(spellsList);
 
-    // Add example items to the Spells tab
     spellsList->addItem("Magic Missile");
     spellsList->addItem("Fireball");
     spellsList->addItem("Cure Light Wounds");
 
-    // Right side: Buttons layout
     QVBoxLayout *buttonsLayout = new QVBoxLayout();
     buttonsLayout->setSpacing(5);
 
@@ -73,34 +68,61 @@ void InventoryDialog::setupUi() {
 
     mainLayout->addLayout(buttonsLayout);
 
-    // Connect the equip button to the new slot
     connect(equipButton, &QPushButton::clicked, this, &InventoryDialog::onEquipButtonClicked);
     connect(dropButton, &QPushButton::clicked, this, &InventoryDialog::onDropButtonClicked);
+    connect(infoButton, &QPushButton::clicked, this, &InventoryDialog::onInfoButtonClicked); // Connect the new info button slot
+}
+
+void InventoryDialog::initializeItemData() {
+    itemInfoMap["Short Sword"] = "A standard short sword.\nStats: 5 Damage, 1 Weight";
+    itemInfoMap["Leather Armor"] = "Light leather armor.\nStats: 10 Defense, 5 Weight";
+    itemInfoMap["Health Potion (x3)"] = "Restores 50 HP.\nType: Potion";
+    itemInfoMap["Gold (125)"] = "A pouch with 125 gold pieces.";
+    itemInfoMap["Battle Axe"] = "A heavy battle axe.\nStats: 12 Damage, 10 Weight";
+    itemInfoMap["Plate Mail"] = "Heavy full plate armor.\nStats: 30 Defense, 25 Weight";
+    itemInfoMap["Shield of Fire Resistance"] = "A shield that protects against fire.\nStats: 15 Defense, 50% Fire Resistance";
+    itemInfoMap["Magic Missile"] = "A basic damaging spell.\nStats: 1-4 Damage";
+    itemInfoMap["Fireball"] = "An area of effect spell.\nStats: 10-20 Damage, Area of Effect";
+    itemInfoMap["Cure Light Wounds"] = "Restores 10 HP.\nType: Healing Spell";
 }
 
 void InventoryDialog::onEquipButtonClicked() {
-    // Check if an item is selected in the inventory list
     if (inventoryList->currentItem()) {
-        // Get the selected item
         QListWidgetItem *selectedItem = inventoryList->currentItem();
-
-        // Check if the item is a single-use item (e.g., a potion) that can't be equipped
         if (selectedItem->text().contains("Potion") || selectedItem->text().contains("Gold")) {
             qWarning() << "Cannot equip this item.";
             return;
         }
 
-        // Clone the item and add it to the equipped list
         QListWidgetItem *equippedItem = selectedItem->clone();
         equippedList->addItem(equippedItem);
-
-        // Remove the item from the inventory list
         delete selectedItem;
     }
 }
 
 void InventoryDialog::onDropButtonClicked() {
-    // Get a pointer to the currently visible list widget
+    int currentIndex = tabWidget->currentIndex();
+
+    if (currentIndex == 2) {
+        qWarning() << "Cannot drop spells.";
+        return;
+    }
+
+    QListWidget* currentList = nullptr;
+    if (currentIndex == 0) {
+        currentList = inventoryList;
+    } else if (currentIndex == 1) {
+        currentList = equippedList;
+    }
+
+    if (currentList && currentList->currentItem()) {
+        QListWidgetItem *selectedItem = currentList->currentItem();
+        delete selectedItem;
+        qDebug() << "Item dropped.";
+    }
+}
+
+void InventoryDialog::onInfoButtonClicked() {
     QListWidget* currentList = nullptr;
     int currentIndex = tabWidget->currentIndex();
     if (currentIndex == 0) {
@@ -112,8 +134,12 @@ void InventoryDialog::onDropButtonClicked() {
     }
 
     if (currentList && currentList->currentItem()) {
-        QListWidgetItem *selectedItem = currentList->currentItem();
-        delete selectedItem; // QListWidget will automatically remove the item when it's deleted
-        qDebug() << "Item dropped.";
+        QString itemName = currentList->currentItem()->text();
+        QString itemInfo = itemInfoMap.value(itemName, "No information available for this item.");
+
+        QMessageBox msgBox;
+        msgBox.setWindowTitle(itemName);
+        msgBox.setText(itemInfo);
+        msgBox.exec();
     }
 }
