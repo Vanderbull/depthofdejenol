@@ -1,53 +1,57 @@
 /****************************************************************************
 ** Meta object code from reading C++ file 'optionsdialog.h'
 **
-** Created by: The Qt Meta Object Compiler version 67 (Qt 5.15.15)
+** Created by: The Qt Meta Object Compiler version 68 (Qt 6.8.2)
 **
 ** WARNING! All changes made in this file will be lost!
 *****************************************************************************/
 
-#include <memory>
 #include "optionsdialog.h"
-#include <QtCore/qbytearray.h>
+#include <QtGui/qtextcursor.h>
 #include <QtCore/qmetatype.h>
+
+#include <QtCore/qtmochelpers.h>
+
+#include <memory>
+
+
+#include <QtCore/qxptype_traits.h>
 #if !defined(Q_MOC_OUTPUT_REVISION)
 #error "The header file 'optionsdialog.h' doesn't include <QObject>."
-#elif Q_MOC_OUTPUT_REVISION != 67
-#error "This file was generated using the moc from 5.15.15. It"
+#elif Q_MOC_OUTPUT_REVISION != 68
+#error "This file was generated using the moc from 6.8.2. It"
 #error "cannot be used with the include files from this version of Qt."
 #error "(The moc has changed too much.)"
 #endif
 
-QT_BEGIN_MOC_NAMESPACE
+#ifndef Q_CONSTINIT
+#define Q_CONSTINIT
+#endif
+
 QT_WARNING_PUSH
 QT_WARNING_DISABLE_DEPRECATED
-struct qt_meta_stringdata_OptionsDialog_t {
-    QByteArrayData data[5];
-    char stringdata0[60];
-};
-#define QT_MOC_LITERAL(idx, ofs, len) \
-    Q_STATIC_BYTE_ARRAY_DATA_HEADER_INITIALIZER_WITH_OFFSET(len, \
-    qptrdiff(offsetof(qt_meta_stringdata_OptionsDialog_t, stringdata0) + ofs \
-        - idx * sizeof(QByteArrayData)) \
-    )
-static const qt_meta_stringdata_OptionsDialog_t qt_meta_stringdata_OptionsDialog = {
-    {
-QT_MOC_LITERAL(0, 0, 13), // "OptionsDialog"
-QT_MOC_LITERAL(1, 14, 11), // "onOkClicked"
-QT_MOC_LITERAL(2, 26, 0), // ""
-QT_MOC_LITERAL(3, 27, 15), // "onCancelClicked"
-QT_MOC_LITERAL(4, 43, 16) // "onDefaultClicked"
+QT_WARNING_DISABLE_GCC("-Wuseless-cast")
+namespace {
+struct qt_meta_tag_ZN13OptionsDialogE_t {};
+} // unnamed namespace
 
-    },
-    "OptionsDialog\0onOkClicked\0\0onCancelClicked\0"
+
+#ifdef QT_MOC_HAS_STRINGDATA
+static constexpr auto qt_meta_stringdata_ZN13OptionsDialogE = QtMocHelpers::stringData(
+    "OptionsDialog",
+    "onOkClicked",
+    "",
+    "onCancelClicked",
     "onDefaultClicked"
-};
-#undef QT_MOC_LITERAL
+);
+#else  // !QT_MOC_HAS_STRINGDATA
+#error "qtmochelpers.h not found or too old."
+#endif // !QT_MOC_HAS_STRINGDATA
 
-static const uint qt_meta_data_OptionsDialog[] = {
+Q_CONSTINIT static const uint qt_meta_data_ZN13OptionsDialogE[] = {
 
  // content:
-       8,       // revision
+      12,       // revision
        0,       // classname
        0,    0, // classinfo
        3,   14, // methods
@@ -57,10 +61,10 @@ static const uint qt_meta_data_OptionsDialog[] = {
        0,       // flags
        0,       // signalCount
 
- // slots: name, argc, parameters, tag, flags
-       1,    0,   29,    2, 0x08 /* Private */,
-       3,    0,   30,    2, 0x08 /* Private */,
-       4,    0,   31,    2, 0x08 /* Private */,
+ // slots: name, argc, parameters, tag, flags, initial metatype offsets
+       1,    0,   32,    2, 0x08,    1 /* Private */,
+       3,    0,   33,    2, 0x08,    2 /* Private */,
+       4,    0,   34,    2, 0x08,    3 /* Private */,
 
  // slots: parameters
     QMetaType::Void,
@@ -70,11 +74,29 @@ static const uint qt_meta_data_OptionsDialog[] = {
        0        // eod
 };
 
+Q_CONSTINIT const QMetaObject OptionsDialog::staticMetaObject = { {
+    QMetaObject::SuperData::link<QDialog::staticMetaObject>(),
+    qt_meta_stringdata_ZN13OptionsDialogE.offsetsAndSizes,
+    qt_meta_data_ZN13OptionsDialogE,
+    qt_static_metacall,
+    nullptr,
+    qt_incomplete_metaTypeArray<qt_meta_tag_ZN13OptionsDialogE_t,
+        // Q_OBJECT / Q_GADGET
+        QtPrivate::TypeAndForceComplete<OptionsDialog, std::true_type>,
+        // method 'onOkClicked'
+        QtPrivate::TypeAndForceComplete<void, std::false_type>,
+        // method 'onCancelClicked'
+        QtPrivate::TypeAndForceComplete<void, std::false_type>,
+        // method 'onDefaultClicked'
+        QtPrivate::TypeAndForceComplete<void, std::false_type>
+    >,
+    nullptr
+} };
+
 void OptionsDialog::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, void **_a)
 {
+    auto *_t = static_cast<OptionsDialog *>(_o);
     if (_c == QMetaObject::InvokeMetaMethod) {
-        auto *_t = static_cast<OptionsDialog *>(_o);
-        (void)_t;
         switch (_id) {
         case 0: _t->onOkClicked(); break;
         case 1: _t->onCancelClicked(); break;
@@ -85,16 +107,6 @@ void OptionsDialog::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _i
     (void)_a;
 }
 
-QT_INIT_METAOBJECT const QMetaObject OptionsDialog::staticMetaObject = { {
-    QMetaObject::SuperData::link<QDialog::staticMetaObject>(),
-    qt_meta_stringdata_OptionsDialog.data,
-    qt_meta_data_OptionsDialog,
-    qt_static_metacall,
-    nullptr,
-    nullptr
-} };
-
-
 const QMetaObject *OptionsDialog::metaObject() const
 {
     return QObject::d_ptr->metaObject ? QObject::d_ptr->dynamicMetaObject() : &staticMetaObject;
@@ -103,7 +115,7 @@ const QMetaObject *OptionsDialog::metaObject() const
 void *OptionsDialog::qt_metacast(const char *_clname)
 {
     if (!_clname) return nullptr;
-    if (!strcmp(_clname, qt_meta_stringdata_OptionsDialog.stringdata0))
+    if (!strcmp(_clname, qt_meta_stringdata_ZN13OptionsDialogE.stringdata0))
         return static_cast<void*>(this);
     return QDialog::qt_metacast(_clname);
 }
@@ -117,12 +129,12 @@ int OptionsDialog::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
         if (_id < 3)
             qt_static_metacall(this, _c, _id, _a);
         _id -= 3;
-    } else if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
+    }
+    if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
         if (_id < 3)
-            *reinterpret_cast<int*>(_a[0]) = -1;
+            *reinterpret_cast<QMetaType *>(_a[0]) = QMetaType();
         _id -= 3;
     }
     return _id;
 }
 QT_WARNING_POP
-QT_END_MOC_NAMESPACE

@@ -1,56 +1,59 @@
 /****************************************************************************
 ** Meta object code from reading C++ file 'createcharacterdialog.h'
 **
-** Created by: The Qt Meta Object Compiler version 67 (Qt 5.15.15)
+** Created by: The Qt Meta Object Compiler version 68 (Qt 6.8.2)
 **
 ** WARNING! All changes made in this file will be lost!
 *****************************************************************************/
 
-#include <memory>
 #include "createcharacterdialog.h"
-#include <QtCore/qbytearray.h>
+#include <QtGui/qtextcursor.h>
 #include <QtCore/qmetatype.h>
+
+#include <QtCore/qtmochelpers.h>
+
+#include <memory>
+
+
+#include <QtCore/qxptype_traits.h>
 #if !defined(Q_MOC_OUTPUT_REVISION)
 #error "The header file 'createcharacterdialog.h' doesn't include <QObject>."
-#elif Q_MOC_OUTPUT_REVISION != 67
-#error "This file was generated using the moc from 5.15.15. It"
+#elif Q_MOC_OUTPUT_REVISION != 68
+#error "This file was generated using the moc from 6.8.2. It"
 #error "cannot be used with the include files from this version of Qt."
 #error "(The moc has changed too much.)"
 #endif
 
-QT_BEGIN_MOC_NAMESPACE
+#ifndef Q_CONSTINIT
+#define Q_CONSTINIT
+#endif
+
 QT_WARNING_PUSH
 QT_WARNING_DISABLE_DEPRECATED
-struct qt_meta_stringdata_CreateCharacterDialog_t {
-    QByteArrayData data[7];
-    char stringdata0[117];
-};
-#define QT_MOC_LITERAL(idx, ofs, len) \
-    Q_STATIC_BYTE_ARRAY_DATA_HEADER_INITIALIZER_WITH_OFFSET(len, \
-    qptrdiff(offsetof(qt_meta_stringdata_CreateCharacterDialog_t, stringdata0) + ofs \
-        - idx * sizeof(QByteArrayData)) \
-    )
-static const qt_meta_stringdata_CreateCharacterDialog_t qt_meta_stringdata_CreateCharacterDialog = {
-    {
-QT_MOC_LITERAL(0, 0, 21), // "CreateCharacterDialog"
-QT_MOC_LITERAL(1, 22, 18), // "onRaceStatsClicked"
-QT_MOC_LITERAL(2, 41, 0), // ""
-QT_MOC_LITERAL(3, 42, 19), // "onGuildStatsClicked"
-QT_MOC_LITERAL(4, 62, 22), // "onSaveCharacterClicked"
-QT_MOC_LITERAL(5, 85, 17), // "onTutorialClicked"
-QT_MOC_LITERAL(6, 103, 13) // "onExitClicked"
+QT_WARNING_DISABLE_GCC("-Wuseless-cast")
+namespace {
+struct qt_meta_tag_ZN21CreateCharacterDialogE_t {};
+} // unnamed namespace
 
-    },
-    "CreateCharacterDialog\0onRaceStatsClicked\0"
-    "\0onGuildStatsClicked\0onSaveCharacterClicked\0"
-    "onTutorialClicked\0onExitClicked"
-};
-#undef QT_MOC_LITERAL
 
-static const uint qt_meta_data_CreateCharacterDialog[] = {
+#ifdef QT_MOC_HAS_STRINGDATA
+static constexpr auto qt_meta_stringdata_ZN21CreateCharacterDialogE = QtMocHelpers::stringData(
+    "CreateCharacterDialog",
+    "onRaceStatsClicked",
+    "",
+    "onGuildStatsClicked",
+    "onSaveCharacterClicked",
+    "onTutorialClicked",
+    "onExitClicked"
+);
+#else  // !QT_MOC_HAS_STRINGDATA
+#error "qtmochelpers.h not found or too old."
+#endif // !QT_MOC_HAS_STRINGDATA
+
+Q_CONSTINIT static const uint qt_meta_data_ZN21CreateCharacterDialogE[] = {
 
  // content:
-       8,       // revision
+      12,       // revision
        0,       // classname
        0,    0, // classinfo
        5,   14, // methods
@@ -60,12 +63,12 @@ static const uint qt_meta_data_CreateCharacterDialog[] = {
        0,       // flags
        0,       // signalCount
 
- // slots: name, argc, parameters, tag, flags
-       1,    0,   39,    2, 0x08 /* Private */,
-       3,    0,   40,    2, 0x08 /* Private */,
-       4,    0,   41,    2, 0x08 /* Private */,
-       5,    0,   42,    2, 0x08 /* Private */,
-       6,    0,   43,    2, 0x08 /* Private */,
+ // slots: name, argc, parameters, tag, flags, initial metatype offsets
+       1,    0,   44,    2, 0x08,    1 /* Private */,
+       3,    0,   45,    2, 0x08,    2 /* Private */,
+       4,    0,   46,    2, 0x08,    3 /* Private */,
+       5,    0,   47,    2, 0x08,    4 /* Private */,
+       6,    0,   48,    2, 0x08,    5 /* Private */,
 
  // slots: parameters
     QMetaType::Void,
@@ -77,11 +80,33 @@ static const uint qt_meta_data_CreateCharacterDialog[] = {
        0        // eod
 };
 
+Q_CONSTINIT const QMetaObject CreateCharacterDialog::staticMetaObject = { {
+    QMetaObject::SuperData::link<QDialog::staticMetaObject>(),
+    qt_meta_stringdata_ZN21CreateCharacterDialogE.offsetsAndSizes,
+    qt_meta_data_ZN21CreateCharacterDialogE,
+    qt_static_metacall,
+    nullptr,
+    qt_incomplete_metaTypeArray<qt_meta_tag_ZN21CreateCharacterDialogE_t,
+        // Q_OBJECT / Q_GADGET
+        QtPrivate::TypeAndForceComplete<CreateCharacterDialog, std::true_type>,
+        // method 'onRaceStatsClicked'
+        QtPrivate::TypeAndForceComplete<void, std::false_type>,
+        // method 'onGuildStatsClicked'
+        QtPrivate::TypeAndForceComplete<void, std::false_type>,
+        // method 'onSaveCharacterClicked'
+        QtPrivate::TypeAndForceComplete<void, std::false_type>,
+        // method 'onTutorialClicked'
+        QtPrivate::TypeAndForceComplete<void, std::false_type>,
+        // method 'onExitClicked'
+        QtPrivate::TypeAndForceComplete<void, std::false_type>
+    >,
+    nullptr
+} };
+
 void CreateCharacterDialog::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, void **_a)
 {
+    auto *_t = static_cast<CreateCharacterDialog *>(_o);
     if (_c == QMetaObject::InvokeMetaMethod) {
-        auto *_t = static_cast<CreateCharacterDialog *>(_o);
-        (void)_t;
         switch (_id) {
         case 0: _t->onRaceStatsClicked(); break;
         case 1: _t->onGuildStatsClicked(); break;
@@ -94,16 +119,6 @@ void CreateCharacterDialog::qt_static_metacall(QObject *_o, QMetaObject::Call _c
     (void)_a;
 }
 
-QT_INIT_METAOBJECT const QMetaObject CreateCharacterDialog::staticMetaObject = { {
-    QMetaObject::SuperData::link<QDialog::staticMetaObject>(),
-    qt_meta_stringdata_CreateCharacterDialog.data,
-    qt_meta_data_CreateCharacterDialog,
-    qt_static_metacall,
-    nullptr,
-    nullptr
-} };
-
-
 const QMetaObject *CreateCharacterDialog::metaObject() const
 {
     return QObject::d_ptr->metaObject ? QObject::d_ptr->dynamicMetaObject() : &staticMetaObject;
@@ -112,7 +127,7 @@ const QMetaObject *CreateCharacterDialog::metaObject() const
 void *CreateCharacterDialog::qt_metacast(const char *_clname)
 {
     if (!_clname) return nullptr;
-    if (!strcmp(_clname, qt_meta_stringdata_CreateCharacterDialog.stringdata0))
+    if (!strcmp(_clname, qt_meta_stringdata_ZN21CreateCharacterDialogE.stringdata0))
         return static_cast<void*>(this);
     return QDialog::qt_metacast(_clname);
 }
@@ -126,12 +141,12 @@ int CreateCharacterDialog::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
         if (_id < 5)
             qt_static_metacall(this, _c, _id, _a);
         _id -= 5;
-    } else if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
+    }
+    if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
         if (_id < 5)
-            *reinterpret_cast<int*>(_a[0]) = -1;
+            *reinterpret_cast<QMetaType *>(_a[0]) = QMetaType();
         _id -= 5;
     }
     return _id;
 }
 QT_WARNING_POP
-QT_END_MOC_NAMESPACE

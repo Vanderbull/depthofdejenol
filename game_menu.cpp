@@ -17,6 +17,9 @@
 #include <QLabel>
 #include <QPushButton>
 #include <QPixmap>
+#include <QMediaPlayer>
+#include <QAudioOutput>
+#include <QUrl>
 
 GameMenu::GameMenu(QWidget *parent) : QWidget(parent) {
     setWindowTitle("Mordor: The Depths of Dejenol");
@@ -167,5 +170,36 @@ int main(int argc, char *argv[]) {
     QApplication a(argc, argv);
     GameMenu w;
     w.show();
+
+    // Create a media player object
+    QMediaPlayer *player = new QMediaPlayer;
+    
+    // Create an audio output object
+    QAudioOutput *audioOutput = new QAudioOutput;
+    player->setAudioOutput(audioOutput);
+    
+    // Set the audio source. Replace "path/to/your/audio.mp3" with the actual path.
+    // Use QUrl::fromLocalFile for a local file path.
+    player->setSource(QUrl::fromLocalFile("mordor.mp3"));
+
+    // Connect signals to handle different states (optional but recommended for robustness)
+    QObject::connect(player, &QMediaPlayer::mediaStatusChanged, [](QMediaPlayer::MediaStatus status) {
+        if (status == QMediaPlayer::LoadedMedia) {
+            qDebug() << "Media loaded successfully.";
+        } else if (status == QMediaPlayer::EndOfMedia) {
+            qDebug() << "Playback finished.";
+        }
+    });
+
+    QObject::connect(player, &QMediaPlayer::errorOccurred, [](QMediaPlayer::Error error, const QString &errorString) {
+        qDebug() << "Error:" << errorString;
+    });
+
+    // Start playing the audio
+    audioOutput->setVolume(50); // Set volume (0.0 to 100.0)
+    player->play();
+
+    qDebug() << "Playing audio...";
+
     return a.exec();
 }

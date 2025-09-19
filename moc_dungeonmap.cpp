@@ -1,48 +1,52 @@
 /****************************************************************************
 ** Meta object code from reading C++ file 'dungeonmap.h'
 **
-** Created by: The Qt Meta Object Compiler version 67 (Qt 5.15.15)
+** Created by: The Qt Meta Object Compiler version 68 (Qt 6.8.2)
 **
 ** WARNING! All changes made in this file will be lost!
 *****************************************************************************/
 
-#include <memory>
 #include "dungeonmap.h"
-#include <QtCore/qbytearray.h>
 #include <QtCore/qmetatype.h>
+
+#include <QtCore/qtmochelpers.h>
+
+#include <memory>
+
+
+#include <QtCore/qxptype_traits.h>
 #if !defined(Q_MOC_OUTPUT_REVISION)
 #error "The header file 'dungeonmap.h' doesn't include <QObject>."
-#elif Q_MOC_OUTPUT_REVISION != 67
-#error "This file was generated using the moc from 5.15.15. It"
+#elif Q_MOC_OUTPUT_REVISION != 68
+#error "This file was generated using the moc from 6.8.2. It"
 #error "cannot be used with the include files from this version of Qt."
 #error "(The moc has changed too much.)"
 #endif
 
-QT_BEGIN_MOC_NAMESPACE
+#ifndef Q_CONSTINIT
+#define Q_CONSTINIT
+#endif
+
 QT_WARNING_PUSH
 QT_WARNING_DISABLE_DEPRECATED
-struct qt_meta_stringdata_DungeonMap_t {
-    QByteArrayData data[1];
-    char stringdata0[11];
-};
-#define QT_MOC_LITERAL(idx, ofs, len) \
-    Q_STATIC_BYTE_ARRAY_DATA_HEADER_INITIALIZER_WITH_OFFSET(len, \
-    qptrdiff(offsetof(qt_meta_stringdata_DungeonMap_t, stringdata0) + ofs \
-        - idx * sizeof(QByteArrayData)) \
-    )
-static const qt_meta_stringdata_DungeonMap_t qt_meta_stringdata_DungeonMap = {
-    {
-QT_MOC_LITERAL(0, 0, 10) // "DungeonMap"
+QT_WARNING_DISABLE_GCC("-Wuseless-cast")
+namespace {
+struct qt_meta_tag_ZN10DungeonMapE_t {};
+} // unnamed namespace
 
-    },
+
+#ifdef QT_MOC_HAS_STRINGDATA
+static constexpr auto qt_meta_stringdata_ZN10DungeonMapE = QtMocHelpers::stringData(
     "DungeonMap"
-};
-#undef QT_MOC_LITERAL
+);
+#else  // !QT_MOC_HAS_STRINGDATA
+#error "qtmochelpers.h not found or too old."
+#endif // !QT_MOC_HAS_STRINGDATA
 
-static const uint qt_meta_data_DungeonMap[] = {
+Q_CONSTINIT static const uint qt_meta_data_ZN10DungeonMapE[] = {
 
  // content:
-       8,       // revision
+      12,       // revision
        0,       // classname
        0,    0, // classinfo
        0,    0, // methods
@@ -55,23 +59,27 @@ static const uint qt_meta_data_DungeonMap[] = {
        0        // eod
 };
 
-void DungeonMap::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, void **_a)
-{
-    (void)_o;
-    (void)_id;
-    (void)_c;
-    (void)_a;
-}
-
-QT_INIT_METAOBJECT const QMetaObject DungeonMap::staticMetaObject = { {
+Q_CONSTINIT const QMetaObject DungeonMap::staticMetaObject = { {
     QMetaObject::SuperData::link<QWidget::staticMetaObject>(),
-    qt_meta_stringdata_DungeonMap.data,
-    qt_meta_data_DungeonMap,
+    qt_meta_stringdata_ZN10DungeonMapE.offsetsAndSizes,
+    qt_meta_data_ZN10DungeonMapE,
     qt_static_metacall,
     nullptr,
+    qt_incomplete_metaTypeArray<qt_meta_tag_ZN10DungeonMapE_t,
+        // Q_OBJECT / Q_GADGET
+        QtPrivate::TypeAndForceComplete<DungeonMap, std::true_type>
+    >,
     nullptr
 } };
 
+void DungeonMap::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, void **_a)
+{
+    auto *_t = static_cast<DungeonMap *>(_o);
+    (void)_t;
+    (void)_c;
+    (void)_id;
+    (void)_a;
+}
 
 const QMetaObject *DungeonMap::metaObject() const
 {
@@ -81,7 +89,7 @@ const QMetaObject *DungeonMap::metaObject() const
 void *DungeonMap::qt_metacast(const char *_clname)
 {
     if (!_clname) return nullptr;
-    if (!strcmp(_clname, qt_meta_stringdata_DungeonMap.stringdata0))
+    if (!strcmp(_clname, qt_meta_stringdata_ZN10DungeonMapE.stringdata0))
         return static_cast<void*>(this);
     return QWidget::qt_metacast(_clname);
 }
@@ -92,4 +100,3 @@ int DungeonMap::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     return _id;
 }
 QT_WARNING_POP
-QT_END_MOC_NAMESPACE

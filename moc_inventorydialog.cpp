@@ -1,53 +1,56 @@
 /****************************************************************************
 ** Meta object code from reading C++ file 'inventorydialog.h'
 **
-** Created by: The Qt Meta Object Compiler version 67 (Qt 5.15.15)
+** Created by: The Qt Meta Object Compiler version 68 (Qt 6.8.2)
 **
 ** WARNING! All changes made in this file will be lost!
 *****************************************************************************/
 
-#include <memory>
 #include "inventorydialog.h"
-#include <QtCore/qbytearray.h>
 #include <QtCore/qmetatype.h>
+
+#include <QtCore/qtmochelpers.h>
+
+#include <memory>
+
+
+#include <QtCore/qxptype_traits.h>
 #if !defined(Q_MOC_OUTPUT_REVISION)
 #error "The header file 'inventorydialog.h' doesn't include <QObject>."
-#elif Q_MOC_OUTPUT_REVISION != 67
-#error "This file was generated using the moc from 5.15.15. It"
+#elif Q_MOC_OUTPUT_REVISION != 68
+#error "This file was generated using the moc from 6.8.2. It"
 #error "cannot be used with the include files from this version of Qt."
 #error "(The moc has changed too much.)"
 #endif
 
-QT_BEGIN_MOC_NAMESPACE
+#ifndef Q_CONSTINIT
+#define Q_CONSTINIT
+#endif
+
 QT_WARNING_PUSH
 QT_WARNING_DISABLE_DEPRECATED
-struct qt_meta_stringdata_InventoryDialog_t {
-    QByteArrayData data[5];
-    char stringdata0[78];
-};
-#define QT_MOC_LITERAL(idx, ofs, len) \
-    Q_STATIC_BYTE_ARRAY_DATA_HEADER_INITIALIZER_WITH_OFFSET(len, \
-    qptrdiff(offsetof(qt_meta_stringdata_InventoryDialog_t, stringdata0) + ofs \
-        - idx * sizeof(QByteArrayData)) \
-    )
-static const qt_meta_stringdata_InventoryDialog_t qt_meta_stringdata_InventoryDialog = {
-    {
-QT_MOC_LITERAL(0, 0, 15), // "InventoryDialog"
-QT_MOC_LITERAL(1, 16, 20), // "onEquipButtonClicked"
-QT_MOC_LITERAL(2, 37, 0), // ""
-QT_MOC_LITERAL(3, 38, 19), // "onDropButtonClicked"
-QT_MOC_LITERAL(4, 58, 19) // "onInfoButtonClicked"
+QT_WARNING_DISABLE_GCC("-Wuseless-cast")
+namespace {
+struct qt_meta_tag_ZN15InventoryDialogE_t {};
+} // unnamed namespace
 
-    },
-    "InventoryDialog\0onEquipButtonClicked\0"
-    "\0onDropButtonClicked\0onInfoButtonClicked"
-};
-#undef QT_MOC_LITERAL
 
-static const uint qt_meta_data_InventoryDialog[] = {
+#ifdef QT_MOC_HAS_STRINGDATA
+static constexpr auto qt_meta_stringdata_ZN15InventoryDialogE = QtMocHelpers::stringData(
+    "InventoryDialog",
+    "onEquipButtonClicked",
+    "",
+    "onDropButtonClicked",
+    "onInfoButtonClicked"
+);
+#else  // !QT_MOC_HAS_STRINGDATA
+#error "qtmochelpers.h not found or too old."
+#endif // !QT_MOC_HAS_STRINGDATA
+
+Q_CONSTINIT static const uint qt_meta_data_ZN15InventoryDialogE[] = {
 
  // content:
-       8,       // revision
+      12,       // revision
        0,       // classname
        0,    0, // classinfo
        3,   14, // methods
@@ -57,10 +60,10 @@ static const uint qt_meta_data_InventoryDialog[] = {
        0,       // flags
        0,       // signalCount
 
- // slots: name, argc, parameters, tag, flags
-       1,    0,   29,    2, 0x08 /* Private */,
-       3,    0,   30,    2, 0x08 /* Private */,
-       4,    0,   31,    2, 0x08 /* Private */,
+ // slots: name, argc, parameters, tag, flags, initial metatype offsets
+       1,    0,   32,    2, 0x08,    1 /* Private */,
+       3,    0,   33,    2, 0x08,    2 /* Private */,
+       4,    0,   34,    2, 0x08,    3 /* Private */,
 
  // slots: parameters
     QMetaType::Void,
@@ -70,11 +73,29 @@ static const uint qt_meta_data_InventoryDialog[] = {
        0        // eod
 };
 
+Q_CONSTINIT const QMetaObject InventoryDialog::staticMetaObject = { {
+    QMetaObject::SuperData::link<QDialog::staticMetaObject>(),
+    qt_meta_stringdata_ZN15InventoryDialogE.offsetsAndSizes,
+    qt_meta_data_ZN15InventoryDialogE,
+    qt_static_metacall,
+    nullptr,
+    qt_incomplete_metaTypeArray<qt_meta_tag_ZN15InventoryDialogE_t,
+        // Q_OBJECT / Q_GADGET
+        QtPrivate::TypeAndForceComplete<InventoryDialog, std::true_type>,
+        // method 'onEquipButtonClicked'
+        QtPrivate::TypeAndForceComplete<void, std::false_type>,
+        // method 'onDropButtonClicked'
+        QtPrivate::TypeAndForceComplete<void, std::false_type>,
+        // method 'onInfoButtonClicked'
+        QtPrivate::TypeAndForceComplete<void, std::false_type>
+    >,
+    nullptr
+} };
+
 void InventoryDialog::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, void **_a)
 {
+    auto *_t = static_cast<InventoryDialog *>(_o);
     if (_c == QMetaObject::InvokeMetaMethod) {
-        auto *_t = static_cast<InventoryDialog *>(_o);
-        (void)_t;
         switch (_id) {
         case 0: _t->onEquipButtonClicked(); break;
         case 1: _t->onDropButtonClicked(); break;
@@ -85,16 +106,6 @@ void InventoryDialog::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int 
     (void)_a;
 }
 
-QT_INIT_METAOBJECT const QMetaObject InventoryDialog::staticMetaObject = { {
-    QMetaObject::SuperData::link<QDialog::staticMetaObject>(),
-    qt_meta_stringdata_InventoryDialog.data,
-    qt_meta_data_InventoryDialog,
-    qt_static_metacall,
-    nullptr,
-    nullptr
-} };
-
-
 const QMetaObject *InventoryDialog::metaObject() const
 {
     return QObject::d_ptr->metaObject ? QObject::d_ptr->dynamicMetaObject() : &staticMetaObject;
@@ -103,7 +114,7 @@ const QMetaObject *InventoryDialog::metaObject() const
 void *InventoryDialog::qt_metacast(const char *_clname)
 {
     if (!_clname) return nullptr;
-    if (!strcmp(_clname, qt_meta_stringdata_InventoryDialog.stringdata0))
+    if (!strcmp(_clname, qt_meta_stringdata_ZN15InventoryDialogE.stringdata0))
         return static_cast<void*>(this);
     return QDialog::qt_metacast(_clname);
 }
@@ -117,12 +128,12 @@ int InventoryDialog::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
         if (_id < 3)
             qt_static_metacall(this, _c, _id, _a);
         _id -= 3;
-    } else if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
+    }
+    if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
         if (_id < 3)
-            *reinterpret_cast<int*>(_a[0]) = -1;
+            *reinterpret_cast<QMetaType *>(_a[0]) = QMetaType();
         _id -= 3;
     }
     return _id;
 }
 QT_WARNING_POP
-QT_END_MOC_NAMESPACE

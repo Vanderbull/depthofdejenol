@@ -1,48 +1,52 @@
 /****************************************************************************
 ** Meta object code from reading C++ file 'marlith_dialog.h'
 **
-** Created by: The Qt Meta Object Compiler version 67 (Qt 5.15.15)
+** Created by: The Qt Meta Object Compiler version 68 (Qt 6.8.2)
 **
 ** WARNING! All changes made in this file will be lost!
 *****************************************************************************/
 
-#include <memory>
 #include "marlith_dialog.h"
-#include <QtCore/qbytearray.h>
 #include <QtCore/qmetatype.h>
+
+#include <QtCore/qtmochelpers.h>
+
+#include <memory>
+
+
+#include <QtCore/qxptype_traits.h>
 #if !defined(Q_MOC_OUTPUT_REVISION)
 #error "The header file 'marlith_dialog.h' doesn't include <QObject>."
-#elif Q_MOC_OUTPUT_REVISION != 67
-#error "This file was generated using the moc from 5.15.15. It"
+#elif Q_MOC_OUTPUT_REVISION != 68
+#error "This file was generated using the moc from 6.8.2. It"
 #error "cannot be used with the include files from this version of Qt."
 #error "(The moc has changed too much.)"
 #endif
 
-QT_BEGIN_MOC_NAMESPACE
+#ifndef Q_CONSTINIT
+#define Q_CONSTINIT
+#endif
+
 QT_WARNING_PUSH
 QT_WARNING_DISABLE_DEPRECATED
-struct qt_meta_stringdata_MarlithDialog_t {
-    QByteArrayData data[1];
-    char stringdata0[14];
-};
-#define QT_MOC_LITERAL(idx, ofs, len) \
-    Q_STATIC_BYTE_ARRAY_DATA_HEADER_INITIALIZER_WITH_OFFSET(len, \
-    qptrdiff(offsetof(qt_meta_stringdata_MarlithDialog_t, stringdata0) + ofs \
-        - idx * sizeof(QByteArrayData)) \
-    )
-static const qt_meta_stringdata_MarlithDialog_t qt_meta_stringdata_MarlithDialog = {
-    {
-QT_MOC_LITERAL(0, 0, 13) // "MarlithDialog"
+QT_WARNING_DISABLE_GCC("-Wuseless-cast")
+namespace {
+struct qt_meta_tag_ZN13MarlithDialogE_t {};
+} // unnamed namespace
 
-    },
+
+#ifdef QT_MOC_HAS_STRINGDATA
+static constexpr auto qt_meta_stringdata_ZN13MarlithDialogE = QtMocHelpers::stringData(
     "MarlithDialog"
-};
-#undef QT_MOC_LITERAL
+);
+#else  // !QT_MOC_HAS_STRINGDATA
+#error "qtmochelpers.h not found or too old."
+#endif // !QT_MOC_HAS_STRINGDATA
 
-static const uint qt_meta_data_MarlithDialog[] = {
+Q_CONSTINIT static const uint qt_meta_data_ZN13MarlithDialogE[] = {
 
  // content:
-       8,       // revision
+      12,       // revision
        0,       // classname
        0,    0, // classinfo
        0,    0, // methods
@@ -55,23 +59,27 @@ static const uint qt_meta_data_MarlithDialog[] = {
        0        // eod
 };
 
-void MarlithDialog::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, void **_a)
-{
-    (void)_o;
-    (void)_id;
-    (void)_c;
-    (void)_a;
-}
-
-QT_INIT_METAOBJECT const QMetaObject MarlithDialog::staticMetaObject = { {
+Q_CONSTINIT const QMetaObject MarlithDialog::staticMetaObject = { {
     QMetaObject::SuperData::link<QDialog::staticMetaObject>(),
-    qt_meta_stringdata_MarlithDialog.data,
-    qt_meta_data_MarlithDialog,
+    qt_meta_stringdata_ZN13MarlithDialogE.offsetsAndSizes,
+    qt_meta_data_ZN13MarlithDialogE,
     qt_static_metacall,
     nullptr,
+    qt_incomplete_metaTypeArray<qt_meta_tag_ZN13MarlithDialogE_t,
+        // Q_OBJECT / Q_GADGET
+        QtPrivate::TypeAndForceComplete<MarlithDialog, std::true_type>
+    >,
     nullptr
 } };
 
+void MarlithDialog::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, void **_a)
+{
+    auto *_t = static_cast<MarlithDialog *>(_o);
+    (void)_t;
+    (void)_c;
+    (void)_id;
+    (void)_a;
+}
 
 const QMetaObject *MarlithDialog::metaObject() const
 {
@@ -81,7 +89,7 @@ const QMetaObject *MarlithDialog::metaObject() const
 void *MarlithDialog::qt_metacast(const char *_clname)
 {
     if (!_clname) return nullptr;
-    if (!strcmp(_clname, qt_meta_stringdata_MarlithDialog.stringdata0))
+    if (!strcmp(_clname, qt_meta_stringdata_ZN13MarlithDialogE.stringdata0))
         return static_cast<void*>(this);
     return QDialog::qt_metacast(_clname);
 }
@@ -92,4 +100,3 @@ int MarlithDialog::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     return _id;
 }
 QT_WARNING_POP
-QT_END_MOC_NAMESPACE
