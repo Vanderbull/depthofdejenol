@@ -21,6 +21,7 @@ private slots:
     void quitGame();
     void onInventoryClicked();
     void onMarlithClicked();
+    void onOptionsClicked();
 
 private:
     QLabel *titleLabel;
@@ -31,6 +32,7 @@ private:
     QPushButton *creditsButton;
     QPushButton *quitButton;
     QPushButton *marlithButton;
+    QPushButton *optionsButton;
 };
 
 #endif // GAMEMENU_H

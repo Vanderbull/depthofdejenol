@@ -1,0 +1,1104 @@
+{
+  "laired_monsters":,
+      "attributes": {
+        "size": "Small",
+        "resistance": {
+          "mind": "80%",
+          "fire": "45%",
+          "cold": "50%",
+          "electrical": "50%"
+        },
+        "lore_notes": "A militaristic or corrupted variant of the Dwarven race. In external lore, dwarves are known for being stout and tough.[17]"
+      },
+      "known_drops":,
+      "notes": "A key laired monster on level 1.[2] Likely part of a larger, military force."
+    },
+    {
+      "name": "Clean-Up",
+      "level": 1,
+      "locations": [
+        {
+          "x": 20,
+          "y": 20
+        }
+      ],
+      "attributes": {},
+      "known_drops":,
+      "notes": "A laired monster on level 1.[2]"
+    },
+    {
+      "name": "Aboleth",
+      "level": 1,
+      "locations": [
+        {
+          "x": 27,
+          "y": 8
+        }
+      ],
+      "attributes": {},
+      "known_drops":,
+      "notes": "A laired monster on level 1.[2] Mentioned as a significant landmark on the first level map.[3]"
+    },
+    {
+      "name": "Arthropod",
+      "level": 2,
+      "locations": [
+        {
+          "x": 20,
+          "y": 14
+        }
+      ],
+      "attributes": {},
+      "known_drops":,
+      "notes": "A laired monster on level 2.[2]"
+    },
+    {
+      "name": "Slave Masher",
+      "level": 2,
+      "locations": [
+        {
+          "x": 1,
+          "y": 30
+        }
+      ],
+      "attributes": {},
+      "known_drops":,
+      "notes": "A laired monster on level 2.[2]"
+    },
+    {
+      "name": "Slaver",
+      "level": 2,
+      "locations": [
+        {
+          "x": 3,
+          "y": 29
+        }
+      ],
+      "attributes": {},
+      "known_drops":,
+      "notes": "A laired monster on level 2.[2]"
+    },
+    {
+      "name": "Slave Driver",
+      "level": 2,
+      "locations": [
+        {
+          "x": 2,
+          "y": 27
+        }
+      ],
+      "attributes": {},
+      "known_drops":,
+      "notes": "A laired monster on level 2, described as a source for 'easy XP'.[3] Potentially a name variation of 'Slave Master'.[13]"
+    },
+    {
+      "name": "Veyasu",
+      "level": 2,
+      "locations": [
+        {
+          "x": 13,
+          "y": 3
+        }
+      ],
+      "attributes": {},
+      "known_drops":,
+      "notes": "A laired monster on level 2.[2]"
+    },
+    {
+      "name": "Night Dragon",
+      "level": 3,
+      "locations": [
+        {
+          "x": 11,
+          "y": 27
+        }
+      ],
+      "attributes": {
+        "lore_notes": "A chaotic, undead dragon archetype that feeds on sorrow.[8] May have a breath weapon that creates a cloud of absolute darkness.[8] Often associated with stealth and treachery.[9]"
+      },
+      "known_drops":,
+      "notes": "A laired monster on level 3.[2]"
+    },
+    {
+      "name": "Ice Demon",
+      "level": 3,
+      "locations": [
+        {
+          "x": 3,
+          "y": 19
+        }
+      ],
+      "attributes": {},
+      "known_drops":,
+      "notes": "A laired monster on level 3.[2]"
+    },
+    {
+      "name": "Goblin Guard",
+      "level": 3,
+      "locations": [
+        {
+          "x": 12,
+          "y": 30
+        }
+      ],
+      "attributes": {},
+      "known_drops":,
+      "notes": "A laired monster on level 3, likely part of a larger goblin force.[2]"
+    },
+    {
+      "name": "Goblin",
+      "level": 3,
+      "locations": [
+        {
+          "x": 13,
+          "y": 27
+        }
+      ],
+      "attributes": {},
+      "known_drops":,
+      "notes": "A laired monster on level 3.[2]"
+    },
+    {
+      "name": "Scylla",
+      "level": 3,
+      "locations": [
+        {
+          "x": 12,
+          "y": 24
+        }
+      ],
+      "attributes": {},
+      "known_drops":,
+      "notes": "A laired monster on level 3.[2]"
+    },
+    {
+      "name": "Goblin Shaman",
+      "level": 3,
+      "locations": [
+        {
+          "x": 15,
+          "y": 28
+        }
+      ],
+      "attributes": {},
+      "known_drops":,
+      "notes": "A laired monster on level 3. Known to drop the 'Aard of Being', which provides a permanent +1 to all stats.[3]"
+    },
+    {
+      "name": "Goblin Lord",
+      "level": 3,
+      "locations": [
+        {
+          "x": 17,
+          "y": 29
+        }
+      ],
+      "attributes": {},
+      "known_drops": [
+        "twisted braces"
+      ],
+      "notes": "A laired monster on level 3. Known to drop 'twisted braces' (+2 Cha, casts Charm Dragon twice).[3] Found with 'Firagons'.[3]"
+    },
+    {
+      "name": "Diseased Muck",
+      "level": 3,
+      "locations": [
+        {
+          "x": 5,
+          "y": 14
+        }
+      ],
+      "attributes": {},
+      "known_drops":,
+      "notes": "A laired monster on level 3.[2]"
+    },
+    {
+      "name": "Flame Dragon",
+      "level": 4,
+      "locations": [
+        {
+          "x": 20,
+          "y": 12
+        }
+      ],
+      "attributes": {},
+      "known_drops":,
+      "notes": "A laired monster on level 4.[2]"
+    },
+    {
+      "name": "Element Mage",
+      "level": 4,
+      "locations": [
+        {
+          "x": 9,
+          "y": 4
+        }
+      ],
+      "attributes": {},
+      "known_drops":,
+      "notes": "A laired monster on level 4.[2]"
+    },
+    {
+      "name": "Large Orc",
+      "level": 4,
+      "locations": [
+        {
+          "x": 7,
+          "y": 16
+        }
+      ],
+      "attributes": {},
+      "known_drops":,
+      "notes": "A laired monster on level 4.[2]"
+    },
+    {
+      "name": "Dwarven Guard",
+      "level": 4,
+      "locations": [
+        {
+          "x": 5,
+          "y": 15
+        }
+      ],
+      "attributes": {},
+      "known_drops":,
+      "notes": "A laired monster on level 4, likely a military variant of the Dwarf race.[2]"
+    },
+    {
+      "name": "Dwarven Lord",
+      "level": 4,
+      "locations": [
+        {
+          "x": 5,
+          "y": 18
+        }
+      ],
+      "attributes": {},
+      "known_drops":,
+      "notes": "A laired monster on level 4. Known to drop the 'Delvar's War Axe', an 'excellent' weapon for Warriors.[3]"
+    },
+    {
+      "name": "Walking Corpse",
+      "level": 4,
+      "locations": [
+        {
+          "x": 9,
+          "y": 17
+        }
+      ],
+      "attributes": {},
+      "known_drops":,
+      "notes": "A laired monster on level 4.[2]"
+    },
+    {
+      "name": "Giant Ant",
+      "level": 4,
+      "locations": [
+        {
+          "x": 10,
+          "y": 19
+        }
+      ],
+      "attributes": {},
+      "known_drops":,
+      "notes": "A laired monster on level 4.[2]"
+    },
+    {
+      "name": "Twisted Elf",
+      "level": 5,
+      "locations": [
+        {
+          "x": 28,
+          "y": 1
+        }
+      ],
+      "attributes": {
+        "size": "Normal",
+        "resistance": {
+          "magic": "90%",
+          "mind": "90%"
+        }
+      },
+      "known_drops": [
+        "magic rings"
+      ],
+      "notes": "A laired monster on level 5. Known to drop 'valuable magic rings that can cast spells'.[3] A corrupted version of the Elf race, known for magical abilities.[18]"
+    },
+    {
+      "name": "Poltergeist",
+      "level": 5,
+      "locations": [
+        {
+          "x": 16,
+          "y": 24
+        }
+      ],
+      "attributes": {},
+      "known_drops":,
+      "notes": "A laired monster on level 5.[2]"
+    },
+    {
+      "name": "Shralar Thief",
+      "level": 5,
+      "locations": [
+        {
+          "x": 14,
+          "y": 17
+        }
+      ],
+      "attributes": {},
+      "known_drops":,
+      "notes": "A laired monster on level 5.[2]"
+    },
+    {
+      "name": "Cockatrice",
+      "level": 5,
+      "locations": [
+        {
+          "x": 10,
+          "y": 22
+        }
+      ],
+      "attributes": {},
+      "known_drops":,
+      "notes": "A laired monster on level 5.[2]"
+    },
+    {
+      "name": "Robber",
+      "level": 6,
+      "locations": [
+        {
+          "x": 7,
+          "y": 23
+        }
+      ],
+      "attributes": {},
+      "known_drops":,
+      "notes": "A laired monster on level 6.[2]"
+    },
+    {
+      "name": "Minotaur",
+      "level": 6,
+      "locations": [
+        {
+          "x": 4,
+          "y": 7
+        }
+      ],
+      "attributes": {
+        "is_magic_immune": true,
+        "is_tough": true,
+        "lore_notes": "A mythical creature with the head of a bull and the body of a man.[4] In other contexts, they are described as physically powerful warriors but awful at magic.[19] Born into treachery by the 'Pale Ones'.[20]"
+      },
+      "known_drops": [
+        "level 7 gear"
+      ],
+      "notes": "A laired monster on level 6. Described as 'very tough and immune to magic'.[3]"
+    },
+    {
+      "name": "Gladiator",
+      "level": 6,
+      "locations": [
+        {
+          "x": 5,
+          "y": 1
+        }
+      ],
+      "attributes": {},
+      "known_drops":,
+      "notes": "A laired monster on level 6.[2]"
+    },
+    {
+      "name": "Black Pelagon",
+      "level": 6,
+      "locations": [
+        {
+          "x": 11,
+          "y": 8
+        }
+      ],
+      "attributes": {},
+      "known_drops":,
+      "notes": "A laired monster on level 6.[2]"
+    },
+    {
+      "name": "Snake Servant",
+      "level": 6,
+      "locations": [
+        {
+          "x": 11,
+          "y": 5
+        },
+        {
+          "x": 11,
+          "y": 4
+        }
+      ],
+      "attributes": {},
+      "known_drops":,
+      "notes": "A laired monster on level 6, with multiple fixed locations.[2]"
+    },
+    {
+      "name": "Medusa",
+      "level": 6,
+      "locations": [
+        {
+          "x": 11,
+          "y": 3
+        }
+      ],
+      "attributes": {},
+      "known_drops":,
+      "notes": "A laired monster on level 6.[2] Often associated with a petrifying gaze in fantasy lore."
+    },
+    {
+      "name": "ZBrat",
+      "level": 6,
+      "locations": [
+        {
+          "x": 28,
+          "y": 26
+        }
+      ],
+      "attributes": {},
+      "known_drops":,
+      "notes": "A laired monster on level 6.[2]"
+    },
+    {
+      "name": "Gredlan Footpad",
+      "level": 7,
+      "locations": [
+        {
+          "x": 6,
+          "y": 15
+        }
+      ],
+      "attributes": {},
+      "known_drops":,
+      "notes": "A laired monster on level 7.[2]"
+    },
+    {
+      "name": "Hooded Thief",
+      "level": 7,
+      "locations": [
+        {
+          "x": 6,
+          "y": 17
+        }
+      ],
+      "attributes": {},
+      "known_drops":,
+      "notes": "A laired monster on level 7.[2] Mentions of 'Thief' in sources may refer to this monster or a variant.[3]"
+    },
+    {
+      "name": "Bushido",
+      "level": 7,
+      "locations": [
+        {
+          "x": 15,
+          "y": 1
+        }
+      ],
+      "attributes": {},
+      "known_drops":,
+      "notes": "A laired monster on level 7.[2]"
+    },
+    {
+      "name": "Butcher",
+      "level": 7,
+      "locations": [
+        {
+          "x": 16,
+          "y": 1
+        }
+      ],
+      "attributes": {},
+      "known_drops":,
+      "notes": "A laired monster on level 7.[2]"
+    },
+    {
+      "name": "Kei-Shuma",
+      "level": 7,
+      "locations": [
+        {
+          "x": 27,
+          "y": 24
+        }
+      ],
+      "attributes": {},
+      "known_drops":,
+      "notes": "A laired monster on level 7.[2]"
+    },
+    {
+      "name": "Gold Pelagon",
+      "level": 7,
+      "locations": [
+        {
+          "x": 20,
+          "y": 22
+        }
+      ],
+      "attributes": {},
+      "known_drops":,
+      "notes": "A laired monster on level 7.[2]"
+    },
+    {
+      "name": "Warlock",
+      "level": 7,
+      "locations": [
+        {
+          "x": 18,
+          "y": 6
+        }
+      ],
+      "attributes": {},
+      "known_drops":,
+      "notes": "A laired monster on level 7.[2]"
+    },
+    {
+      "name": "Demonist",
+      "level": 7,
+      "locations": [
+        {
+          "x": 18,
+          "y": 5
+        }
+      ],
+      "attributes": {},
+      "known_drops":,
+      "notes": "A laired monster on level 7.[2]"
+    },
+    {
+      "name": "Earth Golem",
+      "level": 7,
+      "locations": [
+        {
+          "x": 30,
+          "y": 1
+        }
+      ],
+      "attributes": {},
+      "known_drops":,
+      "notes": "A laired monster on level 7.[2]"
+    },
+    {
+      "name": "Illusionist",
+      "level": 8,
+      "locations": [
+        {
+          "x": 2,
+          "y": 15
+        },
+        {
+          "x": 3,
+          "y": 14
+        }
+      ],
+      "attributes": {},
+      "known_drops":,
+      "notes": "A laired monster on level 8, with multiple fixed locations.[2] Its name suggests abilities to create duplicates of itself or other creatures."
+    },
+    {
+      "name": "Que'ssus",
+      "level": 8,
+      "locations": [
+        {
+          "x": 2,
+          "y": 11
+        }
+      ],
+      "attributes": {},
+      "known_drops":,
+      "notes": "A laired monster on level 8.[2]"
+    },
+    {
+      "name": "Giant Wasp",
+      "level": 8,
+      "locations": [
+        {
+          "x": 18,
+          "y": 17
+        },
+        {
+          "x": 11,
+          "y": 21
+        },
+        {
+          "x": 12,
+          "y": 22
+        }
+      ],
+      "attributes": {},
+      "known_drops":,
+      "notes": "A laired monster on level 8, with multiple fixed locations. May be a common spawn or a creature duplicated by the Illusionist.[2]"
+    },
+    {
+      "name": "Eidolan Phantasm",
+      "level": 8,
+      "locations": [
+        {
+          "x": 12,
+          "y": 28
+        }
+      ],
+      "attributes": {},
+      "known_drops":,
+      "notes": "A laired monster on level 8.[2]"
+    },
+    {
+      "name": "Mercenary",
+      "level": 8,
+      "locations": [
+        {
+          "x": 16,
+          "y": 25
+        }
+      ],
+      "attributes": {},
+      "known_drops":,
+      "notes": "A laired monster on level 8.[2]"
+    },
+    {
+      "name": "Meeshi",
+      "level": 8,
+      "locations": [
+        {
+          "x": 17,
+          "y": 29
+        }
+      ],
+      "attributes": {},
+      "known_drops":,
+      "notes": "A laired monster on level 8.[2] Also appears on level 10."
+    },
+    {
+      "name": "Wretch",
+      "level": 9,
+      "locations": [
+        {
+          "x": 4,
+          "y": 30
+        }
+      ],
+      "attributes": {},
+      "known_drops":,
+      "notes": "A laired monster on level 9.[2]"
+    },
+    {
+      "name": "Filcher",
+      "level": 9,
+      "locations": [
+        {
+          "x": 1,
+          "y": 10
+        }
+      ],
+      "attributes": {},
+      "known_drops":,
+      "notes": "A laired monster on level 9.[2]"
+    },
+    {
+      "name": "Vampire",
+      "level": 9,
+      "locations": [
+        {
+          "x": 26,
+          "y": 4
+        }
+      ],
+      "attributes": {},
+      "known_drops":,
+      "notes": "A laired monster on level 9.[2] May be a high-level version of the `Drakul`."
+    },
+    {
+      "name": "Drakul",
+      "level": 9,
+      "locations": [
+        {
+          "x": 25,
+          "y": 5
+        }
+      ],
+      "attributes": {},
+      "known_drops":,
+      "notes": "A laired monster on level 9.[2]"
+    },
+    {
+      "name": "Black Yundrum",
+      "level": 10,
+      "locations": [
+        {
+          "x": 3,
+          "y": 9
+        }
+      ],
+      "attributes": {},
+      "known_drops":,
+      "notes": "A laired monster on level 10.[2]"
+    },
+    {
+      "name": "Defender",
+      "level": 10,
+      "locations": [
+        {
+          "x": 2,
+          "y": 3
+        }
+      ],
+      "attributes": {},
+      "known_drops":,
+      "notes": "A laired monster on level 10.[2]"
+    },
+    {
+      "name": "Sharper",
+      "level": 10,
+      "locations": [
+        {
+          "x": 13,
+          "y": 19
+        }
+      ],
+      "attributes": {},
+      "known_drops":,
+      "notes": "A laired monster on level 10.[2]"
+    },
+    {
+      "name": "Lava Giant",
+      "level": 10,
+      "locations": [
+        {
+          "x": 23,
+          "y": 3
+        }
+      ],
+      "attributes": {},
+      "known_drops":,
+      "notes": "A laired monster on level 10.[2] Likely has resistance to fire and a high physical attack."
+    },
+    {
+      "name": "Giant King",
+      "level": 10,
+      "locations": [
+        {
+          "x": 21,
+          "y": 3
+        }
+      ],
+      "attributes": {},
+      "known_drops":,
+      "notes": "A laired monster on level 10, mentioned as a significant lair location.[3] Likely a more powerful version of the Giant race."
+    },
+    {
+      "name": "Meeshi",
+      "level": 10,
+      "locations": [
+        {
+          "x": 21,
+          "y": 5
+        }
+      ],
+      "attributes": {},
+      "known_drops":,
+      "notes": "A laired monster on level 10.[2] Also appears on level 8."
+    },
+    {
+      "name": "Holy Warrior",
+      "level": 10,
+      "locations": [
+        {
+          "x": 28,
+          "y": 12
+        }
+      ],
+      "attributes": {},
+      "known_drops":,
+      "notes": "A laired monster on level 10.[2] Its name implies a high resistance to mind or magical attacks."
+    },
+    {
+      "name": "Golden Centaur",
+      "level": 11,
+      "locations": [
+        {
+          "x": 3,
+          "y": 27
+        }
+      ],
+      "attributes": {},
+      "known_drops":,
+      "notes": "A laired monster on level 11.[2] A `Centaur` is also a known monster type in a related game.[15]"
+    },
+    {
+      "name": "White Dragon",
+      "level": 11,
+      "locations": [
+        {
+          "x": 10,
+          "y": 29
+        }
+      ],
+      "attributes": {
+        "lore_notes": "A chromatic dragon archetype associated with cold and ice.[5, 10] Known for its feral nature and ice breath weapon.[10] Likely a key encounter on Level 11."
+      },
+      "known_drops":,
+      "notes": "A laired monster on level 11.[2]"
+    },
+    {
+      "name": "Piranha",
+      "level": 11,
+      "locations": [
+        {
+          "x": 24,
+          "y": 5
+        }
+      ],
+      "attributes": {},
+      "known_drops":,
+      "notes": "A laired monster on level 11, suggesting a water-based or underwater area.[2]"
+    },
+    {
+      "name": "Harpy",
+      "level": 12,
+      "locations": [
+        {
+          "x": 3,
+          "y": 23
+        }
+      ],
+      "attributes": {},
+      "known_drops":,
+      "notes": "A laired monster on level 12.[2]"
+    },
+    {
+      "name": "Genie",
+      "level": 12,
+      "locations": [
+        {
+          "x": 22,
+          "y": 27
+        }
+      ],
+      "attributes": {},
+      "known_drops":,
+      "notes": "A laired monster on level 12.[2]"
+    },
+    {
+      "name": "Mother of Serpents",
+      "level": 12,
+      "locations": [
+        {
+          "x": 12,
+          "y": 24
+        }
+      ],
+      "attributes": {},
+      "known_drops":,
+      "notes": "A laired monster on level 12. Mentioned as a significant lair.[3]"
+    },
+    {
+      "name": "Shadow Serpent",
+      "level": 12,
+      "locations": [
+        {
+          "x": 11,
+          "y": 24
+        }
+      ],
+      "attributes": {},
+      "known_drops":,
+      "notes": "A laired monster on level 12.[2]"
+    },
+    {
+      "name": "Arch-Fiend",
+      "level": 12,
+      "locations": [
+        {
+          "x": 20,
+          "y": 25
+        }
+      ],
+      "attributes": {},
+      "known_drops":,
+      "notes": "A laired monster on level 12.[2]"
+    },
+    {
+      "name": "Silent Eagle",
+      "level": 13,
+      "locations": [
+        {
+          "x": 2,
+          "y": 28
+        }
+      ],
+      "attributes": {},
+      "known_drops":,
+      "notes": "A laired monster on level 13.[2]"
+    },
+    {
+      "name": "Ogre",
+      "level": 13,
+      "locations": [
+        {
+          "x": 27,
+          "y": 2
+        }
+      ],
+      "attributes": {
+        "size": "Big",
+        "resistance": {
+          "fire": "75%",
+          "cold": "75%",
+          "electrical": "50%",
+          "mind": "50%"
+        }
+      },
+      "known_drops":,
+      "notes": "A laired monster on level 13.[2] Ogres are a common fantasy race with high physical strength.[7]"
+    },
+    {
+      "name": "Mengu-Ogre",
+      "level": 13,
+      "locations": [
+        {
+          "x": 22,
+          "y": 6
+        }
+      ],
+      "attributes": {},
+      "known_drops":,
+      "notes": "A laired monster on level 13.[2] A variant of the Ogre race."
+    },
+    {
+      "name": "Displacer",
+      "level": 13,
+      "locations": [
+        {
+          "x": 12,
+          "y": 7
+        }
+      ],
+      "attributes": {},
+      "known_drops":,
+      "notes": "A laired monster on level 13. Its name suggests an ability to teleport or 'displace' itself, making it a difficult foe.[2]"
+    },
+    {
+      "name": "Sun Dragon",
+      "level": 14,
+      "locations": [
+        {
+          "x": 2,
+          "y": 16
+        }
+      ],
+      "attributes": {
+        "lore_notes": "A dragon archetype associated with fire, light, and radiant energy.[12] They may have a breath weapon of pure light [12] and likely possess immunity to fire and radiant damage.[21]"
+      },
+      "known_drops":,
+      "notes": "A laired monster on level 14.[2]"
+    },
+    {
+      "name": "Shadow of Death",
+      "level": 14,
+      "locations": [
+        {
+          "x": 23,
+          "y": 24
+        }
+      ],
+      "attributes": {},
+      "known_drops":,
+      "notes": "A laired monster on level 14.[2]"
+    },
+    {
+      "name": "Mage",
+      "level": 14,
+      "locations": [
+        {
+          "x": 27,
+          "y": 19
+        }
+      ],
+      "attributes": {},
+      "known_drops":,
+      "notes": "A laired monster on level 14.[2] Similar to playable races, indicating it is likely an adversary with powerful magical abilities."
+    },
+    {
+      "name": "Fire Lord",
+      "level": 14,
+      "locations": [
+        {
+          "x": 27,
+          "y": 5
+        }
+      ],
+      "attributes": {},
+      "known_drops":,
+      "notes": "A laired monster on level 14.[2]"
+    },
+    {
+      "name": "Assassin",
+      "level": 15,
+      "locations": [
+        {
+          "x": 21,
+          "y": 9
+        }
+      ],
+      "attributes": {},
+      "known_drops":,
+      "notes": "A laired monster on level 15.[2]"
+    },
+    {
+      "name": "Obsidian Golemn",
+      "level": 15,
+      "locations": [
+        {
+          "x": 19,
+          "y": 7
+        }
+      ],
+      "attributes": {},
+      "known_drops":,
+      "notes": "A laired monster on level 15.[2]"
+    },
+    {
+      "name": "Lamurian Mage",
+      "level": 15,
+      "locations": [
+        {
+          "x": 13,
+          "y": 26
+        }
+      ],
+      "attributes": {},
+      "known_drops":,
+      "notes": "A laired monster on level 15.[2] A variant of the Mage on Level 14."
+    },
+    {
+      "name": "Lamurian Lord",
+      "level": 15,
+      "locations": [
+        {
+          "x": 12,
+          "y": 28
+        }
+      ],
+      "attributes": {},
+      "known_drops":,
+      "notes": "A laired monster on level 15.[2]"
+    },
+    {
+      "name": "Lamurian High Priestess",
+      "level": 15,
+      "locations": [
+        {
+          "x": 13,
+          "y": 28
+        }
+      ],
+      "attributes": {},
+      "known_drops":,
+      "notes": "A laired monster on level 15.[2]"
+    }
+  ],
+  "other_monsters":
+}

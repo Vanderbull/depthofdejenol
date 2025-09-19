@@ -4,6 +4,7 @@
 #include "dungeondialog.h"
 #include "inventorydialog.h"
 #include "marlith_dialog.h"
+#include "optionsdialog.h"
 
 #include <QVBoxLayout>
 #include <QHBoxLayout>
@@ -112,6 +113,7 @@ GameMenu::GameMenu(QWidget *parent) : QWidget(parent) {
     connect(exitButton, &QPushButton::clicked, this, &GameMenu::quitGame);
     connect(inventoryButton, &QPushButton::clicked, this, &GameMenu::onInventoryClicked);
     connect(marlithButton, &QPushButton::clicked, this, &GameMenu::onMarlithClicked);
+    connect(optionsButton, &QPushButton::clicked, this, &GameMenu::onOptionsClicked);
 }
 
 // Function definitions
@@ -151,6 +153,12 @@ void GameMenu::onInventoryClicked() {
 void GameMenu::onMarlithClicked() {
     MarlithDialog *dialog = new MarlithDialog(this);
     dialog->show(); // Use exec() to make it a modal dialog
+}
+
+void GameMenu::onOptionsClicked() {
+    qDebug() << "Options button clicked";
+    OptionsDialog *optionsDialog = new OptionsDialog(this);
+    optionsDialog->exec(); // Use exec() to make it a modal dialog
 }
 
 GameMenu::~GameMenu() {}

@@ -59,14 +59,16 @@ SOURCES       = game_menu.cpp \
 		dungeonmap.cpp \
 		partyinfodialog.cpp \
 		inventorydialog.cpp \
-		marlith_dialog.cpp moc_gamemenu.cpp \
+		marlith_dialog.cpp \
+		optionsdialog.cpp moc_gamemenu.cpp \
 		moc_hallofrecordsdialog.cpp \
 		moc_createcharacterdialog.cpp \
 		moc_dungeondialog.cpp \
 		moc_dungeonmap.cpp \
 		moc_partyinfodialog.cpp \
 		moc_inventorydialog.cpp \
-		moc_marlith_dialog.cpp
+		moc_marlith_dialog.cpp \
+		moc_optionsdialog.cpp
 OBJECTS       = game_menu.o \
 		hallofrecordsdialog.o \
 		createcharacterdialog.o \
@@ -75,6 +77,7 @@ OBJECTS       = game_menu.o \
 		partyinfodialog.o \
 		inventorydialog.o \
 		marlith_dialog.o \
+		optionsdialog.o \
 		moc_gamemenu.o \
 		moc_hallofrecordsdialog.o \
 		moc_createcharacterdialog.o \
@@ -82,7 +85,8 @@ OBJECTS       = game_menu.o \
 		moc_dungeonmap.o \
 		moc_partyinfodialog.o \
 		moc_inventorydialog.o \
-		moc_marlith_dialog.o
+		moc_marlith_dialog.o \
+		moc_optionsdialog.o
 DIST          = /usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/spec_pre.prf \
 		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/common/unix.conf \
 		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/common/linux.conf \
@@ -167,14 +171,16 @@ DIST          = /usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/spec_pre.prf \
 		dungeonmap.h \
 		partyinfodialog.h \
 		inventorydialog.h \
-		marlith_dialog.h game_menu.cpp \
+		marlith_dialog.h \
+		optionsdialog.h game_menu.cpp \
 		hallofrecordsdialog.cpp \
 		createcharacterdialog.cpp \
 		dungeondialog.cpp \
 		dungeonmap.cpp \
 		partyinfodialog.cpp \
 		inventorydialog.cpp \
-		marlith_dialog.cpp
+		marlith_dialog.cpp \
+		optionsdialog.cpp
 QMAKE_TARGET  = game_menu
 DESTDIR       = 
 TARGET        = game_menu
@@ -358,8 +364,8 @@ distdir: FORCE
 	@test -d $(DISTDIR) || mkdir -p $(DISTDIR)
 	$(COPY_FILE) --parents $(DIST) $(DISTDIR)/
 	$(COPY_FILE) --parents /usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/data/dummy.cpp $(DISTDIR)/
-	$(COPY_FILE) --parents gamemenu.h hallofrecordsdialog.h createcharacterdialog.h dungeondialog.h dungeonmap.h partyinfodialog.h inventorydialog.h marlith_dialog.h $(DISTDIR)/
-	$(COPY_FILE) --parents game_menu.cpp hallofrecordsdialog.cpp createcharacterdialog.cpp dungeondialog.cpp dungeonmap.cpp partyinfodialog.cpp inventorydialog.cpp marlith_dialog.cpp $(DISTDIR)/
+	$(COPY_FILE) --parents gamemenu.h hallofrecordsdialog.h createcharacterdialog.h dungeondialog.h dungeonmap.h partyinfodialog.h inventorydialog.h marlith_dialog.h optionsdialog.h $(DISTDIR)/
+	$(COPY_FILE) --parents game_menu.cpp hallofrecordsdialog.cpp createcharacterdialog.cpp dungeondialog.cpp dungeonmap.cpp partyinfodialog.cpp inventorydialog.cpp marlith_dialog.cpp optionsdialog.cpp $(DISTDIR)/
 
 
 clean: compiler_clean 
@@ -390,9 +396,9 @@ compiler_moc_predefs_clean:
 moc_predefs.h: /usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/data/dummy.cpp
 	g++ -pipe -O2 -Wall -Wextra -dM -E -o moc_predefs.h /usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/data/dummy.cpp
 
-compiler_moc_header_make_all: moc_gamemenu.cpp moc_hallofrecordsdialog.cpp moc_createcharacterdialog.cpp moc_dungeondialog.cpp moc_dungeonmap.cpp moc_partyinfodialog.cpp moc_inventorydialog.cpp moc_marlith_dialog.cpp
+compiler_moc_header_make_all: moc_gamemenu.cpp moc_hallofrecordsdialog.cpp moc_createcharacterdialog.cpp moc_dungeondialog.cpp moc_dungeonmap.cpp moc_partyinfodialog.cpp moc_inventorydialog.cpp moc_marlith_dialog.cpp moc_optionsdialog.cpp
 compiler_moc_header_clean:
-	-$(DEL_FILE) moc_gamemenu.cpp moc_hallofrecordsdialog.cpp moc_createcharacterdialog.cpp moc_dungeondialog.cpp moc_dungeonmap.cpp moc_partyinfodialog.cpp moc_inventorydialog.cpp moc_marlith_dialog.cpp
+	-$(DEL_FILE) moc_gamemenu.cpp moc_hallofrecordsdialog.cpp moc_createcharacterdialog.cpp moc_dungeondialog.cpp moc_dungeonmap.cpp moc_partyinfodialog.cpp moc_inventorydialog.cpp moc_marlith_dialog.cpp moc_optionsdialog.cpp
 moc_gamemenu.cpp: gamemenu.h \
 		moc_predefs.h \
 		/usr/lib/qt5/bin/moc
@@ -433,6 +439,11 @@ moc_marlith_dialog.cpp: marlith_dialog.h \
 		/usr/lib/qt5/bin/moc
 	/usr/lib/qt5/bin/moc $(DEFINES) --include /home/rickard/Documents/GitHub/depthofdejenol/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-g++ -I/home/rickard/Documents/GitHub/depthofdejenol -I/usr/include/x86_64-linux-gnu/qt5 -I/usr/include/x86_64-linux-gnu/qt5/QtWidgets -I/usr/include/x86_64-linux-gnu/qt5/QtGui -I/usr/include/x86_64-linux-gnu/qt5/QtCore -I/usr/include/c++/14 -I/usr/include/x86_64-linux-gnu/c++/14 -I/usr/include/c++/14/backward -I/usr/lib/gcc/x86_64-linux-gnu/14/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include marlith_dialog.h -o moc_marlith_dialog.cpp
 
+moc_optionsdialog.cpp: optionsdialog.h \
+		moc_predefs.h \
+		/usr/lib/qt5/bin/moc
+	/usr/lib/qt5/bin/moc $(DEFINES) --include /home/rickard/Documents/GitHub/depthofdejenol/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-g++ -I/home/rickard/Documents/GitHub/depthofdejenol -I/usr/include/x86_64-linux-gnu/qt5 -I/usr/include/x86_64-linux-gnu/qt5/QtWidgets -I/usr/include/x86_64-linux-gnu/qt5/QtGui -I/usr/include/x86_64-linux-gnu/qt5/QtCore -I/usr/include/c++/14 -I/usr/include/x86_64-linux-gnu/c++/14 -I/usr/include/c++/14/backward -I/usr/lib/gcc/x86_64-linux-gnu/14/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include optionsdialog.h -o moc_optionsdialog.cpp
+
 compiler_moc_objc_header_make_all:
 compiler_moc_objc_header_clean:
 compiler_moc_source_make_all:
@@ -454,7 +465,8 @@ game_menu.o: game_menu.cpp gamemenu.h \
 		createcharacterdialog.h \
 		dungeondialog.h \
 		inventorydialog.h \
-		marlith_dialog.h
+		marlith_dialog.h \
+		optionsdialog.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o game_menu.o game_menu.cpp
 
 hallofrecordsdialog.o: hallofrecordsdialog.cpp hallofrecordsdialog.h
@@ -480,6 +492,9 @@ inventorydialog.o: inventorydialog.cpp inventorydialog.h
 marlith_dialog.o: marlith_dialog.cpp marlith_dialog.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o marlith_dialog.o marlith_dialog.cpp
 
+optionsdialog.o: optionsdialog.cpp optionsdialog.h
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o optionsdialog.o optionsdialog.cpp
+
 moc_gamemenu.o: moc_gamemenu.cpp 
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o moc_gamemenu.o moc_gamemenu.cpp
 
@@ -503,6 +518,9 @@ moc_inventorydialog.o: moc_inventorydialog.cpp
 
 moc_marlith_dialog.o: moc_marlith_dialog.cpp 
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o moc_marlith_dialog.o moc_marlith_dialog.cpp
+
+moc_optionsdialog.o: moc_optionsdialog.cpp 
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o moc_optionsdialog.o moc_optionsdialog.cpp
 
 ####### Install
 
