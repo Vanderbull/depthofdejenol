@@ -1,0 +1,51 @@
+
+Scavenger
+
+Hits per level
+    4 until level 24
+Max Att/Def
+    196/222 at level 522
+Exp to level
+    225% (Parameter at 18)
+Quest chance
+    20%
+
+Abilities
+
+Thieving
+    7.5
+Backstabbing
+    5
+Multiple swings
+    1
+Fighting
+    7
+Perception
+    3
+
+Requirements
+
+Race
+    Human
+    Elf
+    Gnome
+    Dwarf
+    Ogre
+    Morloch
+    Osiri
+    Troll
+Alignment
+    any
+Str
+    11
+Int
+    8
+Wis
+    8
+Con
+    9
+Cha
+    4
+Dex
+    14
+

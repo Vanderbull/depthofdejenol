@@ -24,6 +24,7 @@ private slots:
     void onOptionsClicked();
     void onAboutClicked();
     void onEditMonsterClicked();
+    void onEditSpellbookClicked();
 
 private:
     QLabel *titleLabel;
@@ -36,6 +37,7 @@ private:
     QPushButton *marlithButton;
     QPushButton *optionsButton;
     QPushButton *aboutButton;
+    QPushButton *spellbookButton;
 };
 
 #endif // GAMEMENU_H

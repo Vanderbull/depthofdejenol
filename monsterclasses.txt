@@ -1,0 +1,13 @@
+    Humanoid
+    Caster (Mage-class Monster)
+    Thief
+    Animal
+    Water-Dweller
+    Demon
+    Devil
+    Undead
+    Insect
+    Lycanthrope
+    Slime
+    Mythical
+    Dragon

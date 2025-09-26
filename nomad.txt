@@ -1,0 +1,47 @@
+
+Nomad
+
+Hits per level
+    5 until level 30
+Max Att/Def
+    175/175 at level 197
+Exp to level
+    100% (Parameter at 8)
+Quest chance
+    20%
+
+Abilities
+
+Thieving
+    5
+Fighting
+    7
+Perception
+    5
+
+Requirements
+
+Race
+    any
+Alignment
+    any
+Str
+    1
+Int
+    1
+Wis
+    1
+Con
+    1
+Cha
+    1
+Dex
+    1
+
+Hits
+
+When gaining a nomad level, if the new nomad level is a character's single highest guild level and is 30 or below, the character gains 5 hits, plus a random bonus for high constitution. If the new nomad level is a character's single highest guild level and is 31 or above, the character gains 1 hit, with no constitution bonus. If the new nomad level is tied with or lower than any of the character's other guild levels, the character gains no hits. 
+
+Class 	Spell 	Spell level 	Str 	Int 	Wis 	Con 	Cha 	Dex 	Effect
+Location 	Set Sanctuary 	1 							set Sanctuary target to current location
+Magical 	Charm of Opening 	12 	12 	13 	13 			13 	unlock a magically locked chest 

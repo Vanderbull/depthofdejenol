@@ -1,0 +1,48 @@
+
+Warrior
+
+Hits per level
+    6 until level 28
+Max Att/Def
+    254/276 at level 450
+Exp to level
+    200% (Parameter at 16)
+Quest chance
+    20%
+
+Abilities
+
+Thieving
+    2
+Critical hit
+    9
+Multiple swings
+    5
+Fighting
+    12
+Perception
+    2
+
+Requirements
+
+Race
+    Human
+    Giant
+    Dwarf
+    Ogre
+    Morloch
+Alignment
+    any
+Str
+    14
+Int
+    7
+Wis
+    5
+Con
+    10
+Cha
+    3
+Dex
+    8
+

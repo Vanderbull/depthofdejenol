@@ -1,0 +1,48 @@
+
+Seeker
+
+Hits per level
+    4 until level 27
+Max Att/Def
+    208/251 at level 428
+Exp to level
+    225% (Parameter at 18)
+Quest chance
+    20%
+
+Abilities
+
+Thieving
+    3.5
+Critical hit
+    3
+Fighting
+    9
+Perception
+    9
+
+Requirements
+
+Race
+    Human
+    Elf
+    Giant
+    Gnome,
+    Dwarf
+    Morloch
+    Osiri
+Alignment
+    any
+Str
+    10
+Int
+    13
+Wis
+    13
+Con
+    11
+Cha
+    5
+Dex
+    13
+

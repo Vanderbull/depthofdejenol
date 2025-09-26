@@ -1,0 +1,42 @@
+Sorcerer
+
+Hits per level
+    2 until level 29
+Max Att/Def
+    ?/? at level ?
+Exp to level
+    337.5% (Parameter at 27)
+Quest chance
+    10%
+
+Abilities
+
+Thieving
+    2
+Fighting
+    5
+Perception
+    2
+
+Requirements
+Race
+    Human
+    Elf
+    Gnome
+    Dwarf
+    Morloch
+    Osiri
+Alignment
+    any
+Str
+    6
+Int
+    14
+Wis
+    13
+Con
+    11
+Cha
+    5
+Dex
+    8

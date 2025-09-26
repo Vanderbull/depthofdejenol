@@ -1,0 +1,3 @@
+The spellbook for each guild contains the spells granted to each member of that guild. The spells become usable as the member achieves the necessary spell levels and stats for each spell.
+
+Each guild's spellbook varies in number and power of spells, from the single Set Sanctuary spell contained in the warrior guild's spellbook, to the 43 instant-death, teleportation, invisibility, resistance, and other spells contained in the wizard guild's spellbook. 

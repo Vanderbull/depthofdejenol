@@ -2,14 +2,16 @@ QT += core gui widgets multimedia
 TARGET = game_menu
 SOURCES += game_menu.cpp hallofrecordsdialog.cpp createcharacterdialog.cpp \
     AboutDialog.cpp \
-    MonsterEditorDialog.cpp
+    MonsterEditorDialog.cpp \
+    SpellbookEditorDialog.cpp
 SOURCES += marlith_dialog.cpp
 SOURCES += inventorydialog.cpp
 SOURCES += optionsdialog.cpp
 SOURCES += dungeondialog.cpp
 HEADERS += gamemenu.h hallofrecordsdialog.h createcharacterdialog.h \
     AboutDialog.h \
-    MonsterEditorDialog.h
+    MonsterEditorDialog.h \
+    SpellbookEditorDialog.h
 HEADERS += marlith_dialog.h
 HEADERS += inventorydialog.h
 HEADERS += optionsdialog.h

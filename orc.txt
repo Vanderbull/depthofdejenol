@@ -1,0 +1,16 @@
+
+Name
+Orc
+Size
+Normal
+Class
+Humanoid
+Natural Alignment
+Evil
+Att/Def
+40/25
+Average Hits
+14
+Stats
+11 STR, 9 CON, 10 DEX
+Special Attributes

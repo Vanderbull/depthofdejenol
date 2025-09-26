@@ -7,7 +7,7 @@
 #include "optionsdialog.h"
 #include "AboutDialog.h"
 #include "MonsterEditorDialog.h"
-
+#include "SpellbookEditorDialog.h"
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QGridLayout>
@@ -184,6 +184,20 @@ void GameMenu::onEditMonsterClicked() {
     } else {
         // If the user clicked "Cancel"
         qDebug() << "Monster editing cancelled.";
+    }
+}
+
+
+void GameMenu::onEditSpellbookClicked() {
+    SpellbookEditorDialog editor(this);
+
+    // Run the dialog modally (blocks until closed)
+    if (editor.exec() == QDialog::Accepted) {
+        // Retrieve and use the saved spell data
+        QString spellData = editor.getSpellData();
+        qDebug() << "New Spell Data Saved:\n" << spellData;
+    } else {
+        qDebug() << "Spell editing cancelled.";
     }
 }
 
