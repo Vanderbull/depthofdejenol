@@ -22,6 +22,8 @@ private slots:
     void onInventoryClicked();
     void onMarlithClicked();
     void onOptionsClicked();
+    void onAboutClicked();
+    void onEditMonsterClicked();
 
 private:
     QLabel *titleLabel;
@@ -33,6 +35,7 @@ private:
     QPushButton *quitButton;
     QPushButton *marlithButton;
     QPushButton *optionsButton;
+    QPushButton *aboutButton;
 };
 
 #endif // GAMEMENU_H

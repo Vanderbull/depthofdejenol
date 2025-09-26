@@ -5,6 +5,8 @@
 #include "inventorydialog.h"
 #include "marlith_dialog.h"
 #include "optionsdialog.h"
+#include "AboutDialog.h"
+#include "MonsterEditorDialog.h"
 
 #include <QVBoxLayout>
 #include <QHBoxLayout>
@@ -85,7 +87,7 @@ GameMenu::GameMenu(QWidget *parent) : QWidget(parent) {
     QPushButton *helpButton = new QPushButton("Help/Lesson");
     QPushButton *optionsButton = new QPushButton("Options...");
     QPushButton *exitButton = new QPushButton("Exit");
-    QPushButton *orderingButton = new QPushButton("Ordering/About");
+    QPushButton *aboutButton = new QPushButton("About");
     QPushButton *inventoryButton = new QPushButton("invenotry");
     QPushButton *marlithButton = new QPushButton("marlith");
 
@@ -96,7 +98,7 @@ GameMenu::GameMenu(QWidget *parent) : QWidget(parent) {
     gridLayout->addWidget(helpButton, 3, 1);
     gridLayout->addWidget(optionsButton, 3, 2);
     gridLayout->addWidget(exitButton, 4, 1);
-    gridLayout->addWidget(orderingButton, 4, 2);
+    gridLayout->addWidget(aboutButton, 4, 2);
     gridLayout->addWidget(inventoryButton, 5, 2);
     gridLayout->addWidget(marlithButton, 5, 1);
     
@@ -117,6 +119,7 @@ GameMenu::GameMenu(QWidget *parent) : QWidget(parent) {
     connect(inventoryButton, &QPushButton::clicked, this, &GameMenu::onInventoryClicked);
     connect(marlithButton, &QPushButton::clicked, this, &GameMenu::onMarlithClicked);
     connect(optionsButton, &QPushButton::clicked, this, &GameMenu::onOptionsClicked);
+    connect(aboutButton, &QPushButton::clicked, this, &GameMenu::onAboutClicked);
 }
 
 // Function definitions
@@ -162,6 +165,26 @@ void GameMenu::onOptionsClicked() {
     qDebug() << "Options button clicked";
     OptionsDialog *optionsDialog = new OptionsDialog(this);
     optionsDialog->exec(); // Use exec() to make it a modal dialog
+}
+void GameMenu::onAboutClicked() {
+    qDebug() << "About button clicked";
+    AboutDialog *aboutDialog = new AboutDialog(this);
+    aboutDialog->exec(); // Use exec() to make it a modal dialog
+}
+
+void GameMenu::onEditMonsterClicked() {
+    MonsterEditorDialog editor(this);
+
+    // Show the dialog modally and check the result
+    if (editor.exec() == QDialog::Accepted) {
+        // If the user clicked "Save Monster"
+        QString monsterData = editor.getMonsterData();
+        qDebug() << "New Monster Data Saved:\n" << monsterData;
+        // Logic to process/save the data goes here
+    } else {
+        // If the user clicked "Cancel"
+        qDebug() << "Monster editing cancelled.";
+    }
 }
 
 GameMenu::~GameMenu() {}

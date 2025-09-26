@@ -1,11 +1,15 @@
 QT += core gui widgets multimedia
 TARGET = game_menu
-SOURCES += game_menu.cpp hallofrecordsdialog.cpp createcharacterdialog.cpp
+SOURCES += game_menu.cpp hallofrecordsdialog.cpp createcharacterdialog.cpp \
+    AboutDialog.cpp \
+    MonsterEditorDialog.cpp
 SOURCES += marlith_dialog.cpp
 SOURCES += inventorydialog.cpp
 SOURCES += optionsdialog.cpp
 SOURCES += dungeondialog.cpp
-HEADERS += gamemenu.h hallofrecordsdialog.h createcharacterdialog.h
+HEADERS += gamemenu.h hallofrecordsdialog.h createcharacterdialog.h \
+    AboutDialog.h \
+    MonsterEditorDialog.h
 HEADERS += marlith_dialog.h
 HEADERS += inventorydialog.h
 HEADERS += optionsdialog.h
@@ -30,3 +34,6 @@ LIBS += -L/usr/lib/x86_64-linux-gnu/qt6/ -lQt6Multimedia -lQt6Widgets -lQt6Gui -
 QMAKE_LFLAGS += -L/usr/lib/x86_64-linux-gnu/qt6/ -lQt6Core -lQt6Gui -lQt6Widgets -lQt6Multimedia
 
 CXXFLAGS += -std=c++11
+
+DISTFILES += \
+    .gitignore
