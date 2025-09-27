@@ -4,6 +4,9 @@
 #include <QGuiApplication>
 #include <QMessageBox>
 #include <QFile>
+#include <QtWidgets/QListWidget>
+#include <QtWidgets/QVBoxLayout>
+#include <QtWidgets/QWidget>
 
 // Structure to hold min/max values for a stat (e.g., Str, Int)
 struct StatRange {
@@ -134,7 +137,36 @@ CreateCharacterDialog::CreateCharacterDialog(QWidget *parent) : QDialog(parent) 
         QString rangeText = QString("(%1-%2)").arg(raceData.at(i).strength.min).arg(raceData.at(i).strength.max);
         rangeLabel->setText(rangeText);
         statsLayout->addWidget(rangeLabel, i + 1, 2);
+
+
+        // --- NEW CODE STARTS HERE ---
+
+        // 1. Create a QLabel to display the current value/modifier/etc.
+        // Initialize it with the SpinBox's starting value
+        QLabel *currentValueLabel = new QLabel(QString::number(spinBox->value()));
+        currentValueLabel->setAlignment(Qt::AlignCenter); // Center the text for better visibility
+        currentValueLabel->setStyleSheet("color: blue; font-weight: bold;");
+
+        // 2. Add the new label to the layout (e.g., in column 3)
+        statsLayout->addWidget(currentValueLabel, i + 1, 3);
+
+        // 3. Connect the QSpinBox's valueChanged signal to the new QLabel's text update
+        // We use a lambda and capture 'currentValueLabel' to ensure we update the correct label in the loop.
+        QObject::connect(spinBox, QOverload<int>::of(&QSpinBox::valueChanged),
+                         [currentValueLabel](int newValue) {
+
+                             // This simple version just displays the new value.
+                             currentValueLabel->setText(QString::number(newValue));
+
+                             // You could also calculate a modifier here, for example:
+                             /*
+        int modifier = (newValue - 10) / 2;
+        QString modifierText = (modifier >= 0) ? QString("+%1").arg(modifier) : QString::number(modifier);
+        currentValueLabel->setText(QString("%1 (%2)").arg(newValue).arg(modifierText));
+        */
+                         });
     }
+
 
     QLabel *statPointsLeft = new QLabel("3 Stat Points Left");
     statsLayout->addWidget(statPointsLeft, statNames.size() + 2, 0, 1, 3);
@@ -148,9 +180,43 @@ CreateCharacterDialog::CreateCharacterDialog(QWidget *parent) : QDialog(parent) 
     QLabel *guildsTitle = new QLabel("Guilds Allowed");
     guildLayout->addWidget(guildsTitle);
     
-    QLabel *guildsList = new QLabel("Nomad\nWarrior\nPaladin\nNinja\nVillain\nSeeker\nThief\nScavenger\nMage\nSorcerer\nWizard\nHealer");
-    guildLayout->addWidget(guildsList);
-    
+//    QLabel *guildsList = new QLabel("Nomad\nWarrior\nPaladin\nNinja\nVillain\nSeeker\nThief\nScavenger\nMage\nSorcerer\nWizard\nHealer");
+//    guildLayout->addWidget(guildsList);
+
+    // This code assumes you are working within a QWidget or QMainWindow
+    // and have a QVBoxLayout named 'guildLayout' already set up.
+
+    // Create a QListWidget object
+    QListWidget *guildsListWidget = new QListWidget();
+
+    // Add the items to the list
+    guildsListWidget->addItem("Nomad");
+    guildsListWidget->addItem("Warrior");
+    guildsListWidget->addItem("Paladin");
+    guildsListWidget->addItem("Ninja");
+    guildsListWidget->addItem("Villain");
+    guildsListWidget->addItem("Seeker");
+    guildsListWidget->addItem("Thief");
+    guildsListWidget->addItem("Scavenger");
+    guildsListWidget->addItem("Mage");
+    guildsListWidget->addItem("Sorcerer");
+    guildsListWidget->addItem("Wizard");
+    guildsListWidget->addItem("Healer");
+
+    // Optionally, you can ensure only a single item can be selected at a time (default behavior)
+    guildsListWidget->setSelectionMode(QAbstractItemView::SingleSelection);
+
+    // Add the list widget to your layout
+    guildLayout->addWidget(guildsListWidget);
+
+    // To get the selected item:
+
+    QListWidgetItem *selectedItem = guildsListWidget->currentItem();
+    if (selectedItem) {
+        QString selectedGuild = selectedItem->text();
+        // Use the selectedGuild string
+    }
+
     contentLayout->addLayout(guildLayout);
     
     mainLayout->addLayout(contentLayout);
@@ -171,6 +237,60 @@ CreateCharacterDialog::CreateCharacterDialog(QWidget *parent) : QDialog(parent) 
     bottomLayout->addWidget(saveButton);
     bottomLayout->addWidget(tutorialButton);
     bottomLayout->addWidget(exitButton);
+
+    // DEBUG INFO
+    // --- New Code Starts Here ---
+
+    // 2. Create the QLabel that will display the updated text
+    QLabel *updateLabel = new QLabel("Current Name: Moby"); // Initialize with the starting text
+
+    // 3. Add the new label to your layout (adjust row/column as needed)
+    // Example: Adding it below the QLineEdit, spanning two columns
+    guildLayout->addWidget(updateLabel);
+
+    // 4. Connect the QLineEdit's signal to the QLabel's slot
+    // When the text in 'nameEdit' changes, the 'setText' method of 'updateLabel' is called.
+    QObject::connect(nameEdit, &QLineEdit::textChanged,
+                     updateLabel, [updateLabel](const QString &newText) {
+                         // We use a lambda here to prepend a fixed string "Current Name: "
+                         updateLabel->setText("Current Name: " + newText);
+                     });
+
+    //////  SECOND
+    // 2. Create the QLabel that will display the updated text
+    QLabel *strengthLabel = new QLabel("10"); // Initialize with the starting text
+
+    // 3. Add the new label to your layout (adjust row/column as needed)
+    // Example: Adding it below the QLineEdit, spanning two columns
+    guildLayout->addWidget(strengthLabel);
+
+    /////////////////////////////////// 1. Create the QLabel to display the selected item
+    QLabel *selectionStatusLabel = new QLabel("No Guild Selected");
+    selectionStatusLabel->setStyleSheet("font-weight: bold; padding: 10px; background-color: #e0f7fa; border-radius: 5px;");
+
+    // 2. Add the status label to your layout
+    guildLayout->addWidget(selectionStatusLabel);
+
+    // 3. Connect the QListWidget's signal to an action
+    QObject::connect(guildsListWidget, &QListWidget::currentItemChanged,
+                     selectionStatusLabel, [selectionStatusLabel](QListWidgetItem *current, QListWidgetItem *previous) {
+
+                         // Check if an item is currently selected
+                         if (current) {
+                             QString selectedGuild = current->text();
+
+                             // Update the label with the selected choice
+                             selectionStatusLabel->setText("Selected Guild: " + selectedGuild);
+
+                             // --- Your original logic is now inside this block:
+                             // // Use the selectedGuild string
+                             // ...
+                             // ----------------------------------------------
+                         } else {
+                             // Handle case where selection is cleared
+                             selectionStatusLabel->setText("No Guild Selected");
+                         }
+                     });/////
 
     mainLayout->addLayout(bottomLayout);
 

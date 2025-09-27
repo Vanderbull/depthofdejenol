@@ -1,0 +1,56 @@
+The "Leave" button in the party information screen of Mordor: The Depths of Dejenol is used to remove a selected character from the current adventuring party.
+
+In this game, you can form a party of up to four characters to explore the dungeon. If you are in the city and looking at the party information (likely where you manage your party members), the "Leave" button allows you to:
+
+    Remove a character you no longer want in the current adventuring party, potentially to send them solo or have them join a different party.
+
+    Disband the party by removing all members until only one is left (though often, returning to the main menu or a specific area like the city will also break up the party depending on the game version).
+
+It's a way to dynamically change your active adventuring group
+
+
+    Query successful
+
+In Mordor: The Depths of Dejenol, the "Option" and "Switch" buttons on the party information screen are used for managing the characters within your current party:
+
+    Switch Button: This button is used to change the order of the characters in your party. The order is important because the first character in the list is the one who is visually in the lead on the dungeon screen and is the one that monsters typically target first in combat. By using Switch, you can swap the position of a currently selected character with another party member. For example, you would use it to move a high-armor Warrior to the front and a fragile Wizard to the back.
+
+    Option Button: This button typically accesses a sub-menu of choices related to the selected character. While the exact options can vary, common functions in this type of game on the individual character level include:
+
+        Viewing a character's detailed information (stats, equipment, inventory).
+
+        Accessing the character's spell book or skill list.
+
+        Managing companions or followers a specific character might have.
+
+        Saving or loading a character file (though this is often done from a main menu).
+
+In short:
+
+    Leave: Remove a character from the party.
+
+    Switch: Change a character's position/order in the party.
+
+    Option: Open a sub-menu for the selected character.
+
+
+
+The Option button in the party information screen of Mordor: The Depths of Dejenol typically opens up a detailed character information window or sub-menu specific to the selected party member.
+
+This sub-menu allows you to perform in-depth management for that individual character, which commonly includes:
+
+    Inventory/Objects: Viewing and managing the character's carried items and equipment. This is where you would equip/unequip gear.
+
+    Spell Book: Accessing the character's list of learned spells (if they are a magic-using class) to view details or manage spell buffers.
+
+    Companions/Followers (Comp): Viewing and managing any monster or NPC companions that are currently following or being carried by that specific character.
+
+Detailed Stats/Info (Char/Stats): Getting a full breakdown of the character's current statistics, including:
+
+    Race, Gender, and Alignment
+
+        Guilds joined and their current levels
+
+        Hit points, Gold, and Resistances
+
+Essentially, the Option button is the gateway to all the individual, non-party-level management tasks for a character.

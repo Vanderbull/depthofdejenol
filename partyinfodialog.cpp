@@ -9,7 +9,7 @@
 #include <QFile>
 
 PartyInfoDialog::PartyInfoDialog(QWidget *parent) : QDialog(parent) {
-    setWindowTitle("Party Information - Test");
+    setWindowTitle("Party Information");
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
     setupUi();
 }
