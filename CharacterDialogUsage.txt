@@ -1,0 +1,36 @@
+3. Example Usage: main.cpp
+
+This file shows how to include and use your new CharacterDialog class.
+C++
+
+#include <QApplication>
+#include "CharacterDialog.h"
+
+int main(int argc, char *argv[]) {
+    QApplication app(argc, argv);
+
+    // 1. Create an instance of your custom dialog
+    // The string "Goodie Gil'thrialle" is passed to set the window title.
+    CharacterDialog charDialog("Goodie Gil'thrialle");
+
+    // 2. Show the dialog modally (blocking until closed)
+    return charDialog.exec();
+}
+
+To Compile and Run:
+
+    Save the three files: CharacterDialog.h, CharacterDialog.cpp, and main.cpp.
+
+    Use a Qt build system (like qmake or CMake) to compile them into an executable.
+
+Using qmake:
+
+    Create a file named project.pro:
+    Ini, TOML
+
+QT += widgets
+SOURCES += CharacterDialog.cpp main.cpp
+HEADERS += CharacterDialog.h
+CONFIG += c++17
+
+Run qmake then make (or nmake on Windows).

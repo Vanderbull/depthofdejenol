@@ -8,6 +8,7 @@
 #include "AboutDialog.h"
 #include "MonsterEditorDialog.h"
 #include "SpellbookEditorDialog.h"
+#include "CharacterDialog.h"
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QGridLayout>
@@ -90,6 +91,7 @@ GameMenu::GameMenu(QWidget *parent) : QWidget(parent) {
     QPushButton *aboutButton = new QPushButton("About");
     QPushButton *inventoryButton = new QPushButton("invenotry");
     QPushButton *marlithButton = new QPushButton("marlith");
+    QPushButton *creditsButton = new QPushButton("Credits");
 
     gridLayout->addWidget(newButton, 1, 1, 1, 2, Qt::AlignBottom | Qt::AlignCenter);
     gridLayout->addWidget(loadButton, 2, 1, 1, 2, Qt::AlignTop | Qt::AlignCenter);
@@ -101,6 +103,7 @@ GameMenu::GameMenu(QWidget *parent) : QWidget(parent) {
     gridLayout->addWidget(aboutButton, 4, 2);
     gridLayout->addWidget(inventoryButton, 5, 2);
     gridLayout->addWidget(marlithButton, 5, 1);
+    gridLayout->addWidget(creditsButton, 6, 0);
     
 
     // Placeholder for bottom-left image
@@ -120,6 +123,7 @@ GameMenu::GameMenu(QWidget *parent) : QWidget(parent) {
     connect(marlithButton, &QPushButton::clicked, this, &GameMenu::onMarlithClicked);
     connect(optionsButton, &QPushButton::clicked, this, &GameMenu::onOptionsClicked);
     connect(aboutButton, &QPushButton::clicked, this, &GameMenu::onAboutClicked);
+    connect(creditsButton, &QPushButton::clicked, this, &GameMenu::showCredits);
 }
 
 // Function definitions
@@ -147,8 +151,18 @@ void GameMenu::quitGame() {
 }
 
 void GameMenu::showCredits() {
-    qDebug() << "Show Credits placeholder";
-    // TODO: Implement the Credits Dialog here
+
+    qDebug() << "Showing Character Stats (Non-Modal)";
+
+    // 1. Create the dialog on the heap.
+    CharacterDialog *charDialog = new CharacterDialog("Goodie Gil'thrialle");
+
+    // 2. IMPORTANT: Tell Qt to delete the object when the user closes the window.
+    charDialog->setAttribute(Qt::WA_DeleteOnClose);
+
+    // 3. Call show() to display the dialog non-modally.
+    // Execution continues immediately, and the main Qt event loop handles the dialog.
+    charDialog->show();
 }
 
 void GameMenu::onInventoryClicked() {
