@@ -1,0 +1,3574 @@
+o============================================================================o
+|                                  Mordor,                                   |
+|                            The Depths of Dejenol                           |
+o============================================================================o
+
+o============================================================================o
+|                              Table of Contents                             |
+o============================================================================o
+
+
+1. Controls..............................................................(1.0)
+2. Races.................................................................(2.0)
+      i. Stat Chart......................................................(2.1)
+      ii. Race Discriptions..............................................(2.2)
+            a. Human...................................................(2.2.1)
+            b. Elf.....................................................(2.2.2)
+            c. Giant...................................................(2.2.3)
+            d. Gnome...................................................(2.2.4)
+            e. Dwarf...................................................(2.2.5)
+            f. Ogre....................................................(2.2.6)
+            g. Morloch.................................................(2.2.7)
+            h. Osiri...................................................(2.2.8)
+            i. Troll...................................................(2.2.9)
+3. Guilds................................................................(3.0)
+      i. Eligibility Chart...............................................(3.1)
+      ii. Guild Discriptions.............................................(3.2)
+            a. Nomad...................................................(3.2.1)
+            b. Warrior.................................................(3.2.2)
+            c. Paladin.................................................(3.2.3)
+            d. Ninja...................................................(3.2.4)
+            e. Villain.................................................(3.2.5)
+            f. Seeker..................................................(3.2.6)
+            g. Thief...................................................(3.2.7)
+            h. Scavenger...............................................(3.2.8)
+            i. Mage....................................................(3.2.9)
+            j. Sorcerer...............................................(3.2.10)
+            k. Wizard.................................................(3.2.11)
+            l. Healer.................................................(3.2.12)
+4. Spells................................................................(4.0)
+      i. Fire Spells.....................................................(4.1)
+      ii. Cold Spells....................................................(4.2)
+      iii. Electrical Spells.............................................(4.3)
+      iv. Mind Spells....................................................(4.4)
+      v. Damage Spells...................................................(4.5)
+      vi. Element Spells.................................................(4.6)
+      vii. Kill Spells...................................................(4.7)
+      viii. Charm Spells.................................................(4.8)
+      ix. Bind Spells....................................................(4.9)
+      x. Heal Spells....................................................(4.10)
+      xi. Movement Spells...............................................(4.11)
+      xii. Banish Spells................................................(4.12)
+      xiii. Dispell Spells..............................................(4.13)
+      xiv. Resistant Spells.............................................(4.14)
+      xv. Visual Spells.................................................(4.15)
+      xvi. Magical Spells...............................................(4.16)
+      xvii. Location Spells.............................................(4.17)
+      xviii. Protection Spells..........................................(4.18)
+5. Items.................................................................(5.0)
+6. Monsters..............................................................(6.0)
+
+
+o============================================================================o
+|                               Background Story                             |
+o============================================================================o
+
+Following the War of The Races, the land of Mordor, shrouded in darkness for
+hundreds of years, started to thrive and attract settlers and adventurers from
+far and wide.  Trading posts became towns and towns flourished into cities.
+Today there are hundreds of cities in the land of Mordor. The largest of these
+cities is Marlith, which was built on the ruins of the ancient city of Rohin,
+known to historians as “Dejenol”, which translates to “City of the Mines”. It
+was at this location that vast Mines of Dejenol were built - over fifteen
+hundred years ago by the Dwarven inhabitants of Rohin. These Mines were created
+for the extraction of precious metals, including Platinum, Adamantite, Mithril,
+and Gold, as well as necessities like Iron and Copper.
+
+The facts surrounding the sealing of the Mines and the fall of Rohin are
+shrouded in mystery, but are believed to be mostly accurate. Legends have it
+that Rohin was the most powerful and wealthy city in all of ancient Mordor,
+owing most of its wealth to the minerals and ores taken from the Mines. As the
+metals were depleted on the upper levels, the miners dug deeper to find new
+sources. Over a period of centuries, the Mines became so deep that it could
+take several days to descend and work in the lower levels. As best as can be
+determined, somewhere on a lower level, a floor gave way. It was from this
+location that foul creatures began to appear, killing everything in sight.
+
+As word reached the city of this catastrophe, search parties were organized
+using only the best and most skilled miners. The few survivors recovered from
+the lower levels had glazed and terrified looks and referred to the Mines
+simply as “The Doorway to Hell”. From that time on, most of the search parties
+that entered the Mines were never seen again. Those who did return told stories
+of creatures and happenings that were so mystical and magical as to be nearly
+unbelievable. 
+
+In a matter of days, strange events were occurring closer and closer to the
+entrance of the Mines and the city. It was then, that a decision to close the
+Mines was made and a massive door was fashioned from a combination of ElvenOak
+and Adamantite, the only combination believed strong enough to entomb the
+creatures and the magic of the Mines. Once the Mines were sealed, a lack of
+work and commerce caused the population of Dejenol to dwindle. It was during
+this period that an evil wizard accompanied by an band of thieves blew the door
+from its mounts and stole it for the valuable Adamantite.
+
+The Wizard and his thieves were caught and the remains of the door returned,
+but the damage had been done. Creatures had escaped from the Mines and built up
+their numbers, hiding in the forests near the city. The city elders decided to
+punish the thieves and their master by locking them inside the Mines. This time
+the door was sealed with magic so strong that no-one would be able to open it
+without the secret knowledge of the spell used to seal it.
+
+It was after the Mines were once again magically sealed that a great battle
+began between the inhabitants of Dejenol and the creatures that had escaped.
+Due to the lack of warriors in Dejenol, a summons was sent out to all of the
+lands. From this calling, the most skilled warriors and magicians came from all
+over Mordor and from foreign regions as well.  Many of the creatures from the
+Mines were not susceptible to normal combat. The battles for Dejenol lasted 2
+years, during which the city was destroyed, the entrance to the Mines lost, and
+most of the inhabitants were killed or driven mad. A few strong souls did
+survive and lore has it that they guarded the entrance to the Mines until they
+died, spending their final days recording what they knew, thought they knew, or
+had heard about the Mines and the creatures within. Those who have entered and
+returned speak of vast treasures, magical items, and unexplainable occurrences.
+
+Over a thousand years passed before the entrance to the Mines was once again
+discovered. With this discovery, the elders of Marlith began making
+preparations to open the Mines and explore its depths. Scholars studied the
+manuscript remnants found near the Mines’ entrance to glean what knowledge they
+could about the Mines from the ancient scribblings. Equipped with this
+knowledge, a limited number of explorers were permitted inside the Mines. At
+first, many who ventured into the Mines were killed instantly, despite being
+well equipped with the best weapons and magical skill. However, as the
+explorers’ experiences of fighting, magic, and their knowledge of the Mines
+increased, so did their chances of survival. With exploration came newer
+knowledge, and with this new knowledge came a healthy respect for the long-lost
+Dwarves, who created this vast underground world, and for the creatures that
+still dominated the dark Mines. In the past year, more explorers have ventured
+into the Mines than ever, eradicating the creatures they’ve encountered, and
+forcing the nastier monsters deeper into the darkness.
+
+It was around this time that a rumor began about a Prince of Devils, who was
+said to exist in the deepest depths of the mines. At first, many believed the
+creature to be a myth, used purely to instill fear into would-be explorers.
+Yet, those with magical powers who have astrally scanned the mines swear that
+they sense the presence of a dark, evil, and powerful being.
+
+Even though nothing more is known about this Prince of Devils, the guilds have
+decided to add the destruction of the dark being to their list of goals - and
+for those who accomplish this task, they will receive the greatest gift of all
+- Eternal life in the pages of history.
+
+And now, having nearly run out of experienced explorers, a decision was made to
+train new adventurers to survive in the Mines, hence the city elders formed The
+Guilds. The Guilds train “students” in the skills and arts that are essential
+to surviving and prospering in the Mines. It is now up to these new Guild
+members to explore and return with information about the mines, which have
+taken on a new name to those who dare enter...
+
+The Depths of Dejenol.
+
+
+o============================================================================o
+|                                  Controls (1.0)                            |
+o============================================================================o
+
+
+Movement - You use the arrow keys to move forward and backward, and turn left
+and right.  When used while holding the shift button, you will move one step in
+the direction you press.  You can also use the Num pad by turning off Num Lock.
+
+Fight - Press F to Fight.  (This will also start a battle with peaced monsters)
+
+Defend - Press D to Defend.
+
+Take - Press T to move up and down stairs.
+
+Use - Press U to use the selected item in your inventory.
+
+Open - Press O to open unlocked chests.
+
+Shift+# - Hold shift, then press a number (0-9) to use a buffer.  To set a
+          buffer, click the Buffers tab on your menu and click and drag a item
+          or a spell from your Objects and Spells menu.
+
+Ask - Press A to ask a playing to join your party.
+
+Equip Item - Press E to equip the selected item.
+
+Drop Item - Press D to drop the selected item.
+
+Info - Press I to see information about the selected item.
+
+Give - Press G to give gold and/or items to another player in your party.
+
+Pickup Body - Press P to pick up a dead body in the same room as you.
+
+Drop Body - Press D to drop a dead body that you are carrying.
+
+Join - Press J to allow a friendly monster to join your party.
+
+
+o============================================================================o
+|                                  Races (2.0)                               |
+o============================================================================o
+
+
+Race    Age   Exp   Str    Int    Wis    Con    Cha    Dex    G   N   E
+Human   100    3    4\17   4\18   4\18   6\17   5\18   6\18   X   X   X
+Elf     400    7    3\15   7\20   7\20   3\16   3\18   3\18   X   X   X
+Giant   225    7   12\25   4\17   3\17   9\19   2\16   3\18   -   X   -
+Gnome   300    7    4\17   7\19   5\19   3\17   9\22   6\18   X   X   X
+Dwarf   275    5    3\18   3\18   7\19   3\19   3\17   5\18   -   X   -
+Ogre    265    6    9\20   3\16   3\16   9\21   3\18   5\17   X   X   X
+Morloch 175    4    6\20   3\17   5\19   3\15   2\14   5\20   X   -   X
+Osiri   325    8    5\17   3\18   3\17   7\19   3\18  10\22   -   X   -
+Troll   285    9    6\20   3\18   3\18   6\19   3\17   6\20   X   X   X
+
+Racial experience controls how much experience is needed to make a level.  A
+human, with a 3 in exp, will level much faster than other races.
+
+______________________________________________________________________________
+---------------------------------------------------------------- Human (2.1) -
+
+Humans are somthing you, as the player, can relate to.  They have no natural
+resistances, but are the most versatile of all races and are allowed in every
+guild.  They have the shortest life span, but are the quickest learners.
+
+
+______________________________________________________________________________
+------------------------------------------------------------------ Elf (2.2) -
+
+Elves are the magic users of the game.  Tall and slender, most Elves become
+either Mages, Sorcerers, Healers, or Wizards. They are excellent spell casters
+and can live longer than any other race.  They are not, however, very good at
+fighting with weapons and have a low constitution.  elves also have a natural
+resistance to Magical and Mind attacks.  Because of their lack of physical
+strength, there are some items (which require great strength) that elves can
+never use.
+
+
+______________________________________________________________________________
+---------------------------------------------------------------- Giant (2.3) -
+
+Giants live for one thing - slicing a monster in two with one blow.  Know for
+their brutal ways and having the advantage of being over eight feet tall, they
+make the best Warriors on can find.  The only guilds to accept them are the
+Nomad, Seeker, and Warrior guilds.  Because of their size and bulk, Giants are
+resistant to most forms of attack, including Fire, Cold, and Electrical. 
+Poison and Disease don't seriously affect them either.
+
+
+______________________________________________________________________________
+---------------------------------------------------------------- Gnome (2.4) -
+
+Being very charismatic and possessing a slight resistance to Mind attacks,
+Gnomes make excellent Mages.  Mostly good by nature, Gnomes are usually found
+in the Mage, Healer, and Paladin guilds.
+
+
+______________________________________________________________________________
+---------------------------------------------------------------- Dwarf (2.5) -
+
+Dwarves are very curious, always poking at chests, injured characters, and
+carcasses.  Neutral in nature and stockier than most races, Dwarves are found
+in quite a number of guilds, ranging from Warriors to Wizards.  They are also
+fairly resistant to the elements (fire, cold, etc.).
+
+
+______________________________________________________________________________
+----------------------------------------------------------------- Ogre (2.6) -
+
+Somewhat dim-witted, Ogres are bulky and hairy, and make good Warriors and
+Scavengers.  Since their constitution and resistances to such elements as Fire
+and Cold are so high, they are very hard to kill, but their low intelligence is
+quite often their downfall.
+
+
+______________________________________________________________________________
+-------------------------------------------------------------- Morloch (2.7) -
+
+Morlochs are huge masses of walking fur and muscle.  Possessing a great deal of
+natural magic, they make excellent magic-users.  However, because they are so
+ugly, they cannot easily charm some monsters, and their life span is almost as
+short as a humans.  They also have a pretty good resistance to certain forms of
+monster attacks (e.g. poison, disease).
+
+
+______________________________________________________________________________
+---------------------------------------------------------------- Osiri (2.8) -
+
+Osiris, which are distant relatives of the elves that have shifted to a more
+human-like race, are extremely dexterous and are mostly found in the Thief and
+Scavenger guilds.  They also make marginal spell casters and are almost
+completely resistant to Electrical and Mind attacks.
+
+
+______________________________________________________________________________
+---------------------------------------------------------------- Troll (2.9) -
+
+A cross between an Ogre and an Elf, Trolls are strong and swift creatures that
+possess a few natural resistances.  Making excellent Ninjas and Scavengers,
+they are quick to take up sides (either Good or Evil), but can sometimes be
+found as Neutral.  Due to the aggressiveness in relation to their alignment,
+many guilds will not allow them.
+
+
+o============================================================================o
+|                                  Guilds (3.0)                              |
+o============================================================================o
+
+
+Race    NMD  WAR  PAL  NIN  VIL  SEEK THIEF SCAV  MAGE  SORC  WIZ  HEAL
+Human    X    X    X    X    X    X     X     X     X     X    X     X
+Elf      X    -    X    -    -    X     X     X     X     X    X     X
+Giant    X    X    -    -    -    X     -     -     -     -    -     -
+Gnome    X    -    X    -    X    X     X     X     X     X    -     X
+Dwarf    X    X    -    -    -    X     X     X     -     X    X     X
+Ogre     X    X    -    -    -    -     -     X     -     -    -     -
+Morloch  X    X    -    -    X    X     -     X     X     X    -     -
+Osiri    X    -    -    -    -    X     X     X     -     X    X     X
+Troll    X    -    -    X    X    -     X     X     -     -    -     -
+Exp      8   16   19   21   21   18    15    18    27    27   30    32
+             
+Guild experience controls how much experience is earned from killing a monster.
+A Nomad will gain 2x as much experience for killing a footpad as a Warrior.
+
+______________________________________________________________________________
+---------------------------------------------------------------- Nomad (3.1) -
+
+Nomads are very quick learners, even though they do not try to learn many
+different abilities.  Being good fighters and moderate thieves, Nomads are
+often found roaming the upper levels of the dungeon.
+
+
+______________________________________________________________________________
+-------------------------------------------------------------- Warrior (3.2) -
+
+Warriors could care less about spells, but are unmatched in brute fighting
+ability.  Being the quickest to learn how to Critically hit their opponent,
+they are very good fighters and alone can use the best weapons found in the
+dungeon.
+
+
+______________________________________________________________________________
+-------------------------------------------------------------- Paladin (3.3) -
+
+Paladins think of themselves as the heroes of the dungeon, blundering about
+killing monsters and somewhat successfully healing themselves.  Possessing good
+fighting skills and the ability to critically hit their enemies (though not
+nearly at the level of a Warrior), one doesn’t have to be too smart to be a
+Paladin, they just have to look good doing it.
+
+
+______________________________________________________________________________
+---------------------------------------------------------------- Ninja (3.4) -
+
+Ninjas are weapons masters and can use almost all weapons including their
+hands.  Since a Ninja desires quickness, they are very specific about the items
+they use.  Ninjas are not allowed to wear most types of armor and other items.
+However, having access to special weapons that only they can use, Ninjas posses
+the skills of Critically hitting and Backstabbing their opponents, along with
+moderate thieving skills.
+
+
+______________________________________________________________________________
+-------------------------------------------------------------- Villain (3.5) -
+
+Villains are fallen Thieves, having strayed from the magical and equipment
+restrictions of the Thief’s guild and gone their own way.  While working on
+various poisons, the Villains learned or stole some of the secrets of healing.
+They also have the ability to Critically hit and Backstab their opponents and
+aren’t bad at collecting treasure.
+
+
+______________________________________________________________________________
+--------------------------------------------------------------- Seeker (3.6) -
+
+Seekers are very good at moving through the dungeon, being able to levitate,
+locate other characters, and teleport.  They can’t directly kill monsters with
+their magical abilities, but a Seeker does well with a weapon in hand.  They
+are also the best at mapping the dungeon and detecting any types of ‘anomalies’
+they may encounter in the depths.
+
+
+______________________________________________________________________________
+---------------------------------------------------------------- Thief (3.7) -
+
+Thieves are the best at collecting treasure, although the guild makes sure to
+get a fair share.  Very devoted to stealing, Thieves often lack fighting skill,
+but make up for it with their treacherous backstabbing.  Thieves also have the
+best magical ability to open any type of sealed or locked container.
+
+
+______________________________________________________________________________
+------------------------------------------------------------ Scavenger (3.8) -
+
+A Scavenger is a cross between a Warrior and a Thief, fighting a little worse
+than the former and stealing a little worse than the latter.  A Scavenger can
+backstab like a Thief, can be other than neutrally aligned, and can use a few
+more items than a Thief  They are also fairly good at collecting treasure and
+have access to some of the Thief’s magical spells for opening containers.
+
+
+______________________________________________________________________________
+----------------------------------------------------------------- Mage (3.9) -
+
+Though they lack the destructive powers of a Sorcerer, Mages makes up for it by
+having the ability to control powerful monsters to act as companions.  They are
+also fairly adept at killing monsters with a small blade and curing players,
+though putting a corpse back together is beyond their abilities.
+
+
+______________________________________________________________________________
+------------------------------------------------------------ Sorcerer (3.10) -
+
+A Sorcerer lacks the fine mental control and deep concentration of a Mage while
+in combat, and therefore, their spells tend to blast monsters against the walls
+instead of charming them.  Outside of combat, a Sorcerer can muster up some
+useful player protection spells, but lacks access to any types of healing
+spells.
+
+
+______________________________________________________________________________
+-------------------------------------------------------------- Wizard (3.11) -
+
+Wizards are very good at teleporting parties around the dungeon, although they
+cannot always tell where they are going to land.  They also have damage spells
+equivalent to a Healer and protection spells on par with a Sorcerer.
+
+
+______________________________________________________________________________
+-------------------------------------------------------------- Healer (3.12) -
+
+Healers are very good at putting characters and companions back together again
+after a rough day in the dungeon.  The best at curing, they are also fairly
+good at killing monsters with a wide variety of damage spells.  Healers are
+valued members of any party since they can fix almost any physical problem,
+including death.
+
+
+o============================================================================o
+|                                  Spells (4.0)                              |
+o============================================================================o
+
+______________________________________________________________________________
+---------------------------------------------------------- Fire Spells (4.1) -
+
+
+Fire was the first of the elements sought to be controlled by the Sorcerers
+guild.  Spells of this class inflict damage with heat, which can range from
+a burning candle to a fiery inferno.  The effectiveness of these spells
+depends on the experience of the caster and the Fire Resistance of the victim.
+
+
+Firebolt
+      Base Level: 2      Guilds: Sor
+      Required Stats: 12 Int, 9 Wis
+      COMBAT Spell, will cause 4 Monsters in 2 Groups to be Fried.
+      This simplest of Fire Spells creates a small fireball and hurls it into a
+      group of monsters, burning anything that gets in its way.
+
+       
+Blue Flame
+      Base Level: 4      Guilds: Sor
+      Required Stats: 14 Int, 10 Wis
+      COMBAT Spell, will cause 2 Monsters in 1 Group to be Fried.
+      A more advanced spell of flame, when invoked, the caster is able to hurl
+      a blue colored magical flame at a group of monsters, inflicting extensive
+      damage.
+
+
+Flamesheet
+      Base Level: 5      Guilds: Sor
+      Required Stats: 15 Int, 14 Wis
+      COMBAT Spell, will cause 6 Monsters in 3 Groups to be Fried.
+      Derived from the Firebolt spell, this spell will summon a wall of fire
+      and hurl towards ones opponents, usually causing the targets to be burnt
+      to cinders.
+        
+
+Pillar of Fire
+      Base Level: 7      Guilds: Sor
+      Required Stats: 18 Int, 18 Wis, 16 Dex
+      COMBAT Spell, will cause 7 Monsters in 4 Groups to be Fried.
+      When invoked, this spell creates a devastating pillar of fire that forms
+      directly in the middle of one's opponents and arcs outwards, enveloping
+      all who are caught in the flames.
+
+
+Sphere of Flames
+      Base Level: 10      Guilds: Sor
+      Required Stats: 20 Int, 21 Wis, 18 Dex
+      COMBAT Spell, will cause 10 Monsters in 4 Groups to be Immolated.
+      This spell creates a gigantic sphere of fire and hurls it into the midst
+      of ones opponents.  Once the sphere contacts living matter, it explodes
+      in an immolating blast of fury.
+
+
+Burning Air      
+      Base Level: 12      Guilds: Sor
+      Required Stats: 21 Int, 21 Wis, 18 Dex 
+      COMBAT Spell, will cause 14 Monsters in 4 Groups to be Immolated.
+      The deadliest Fire spell of all, this hideous magic will cause the air to
+      instantly turn white hot around one’s opponents, killing  almost anything
+      that moves.
+
+
+______________________________________________________________________________
+---------------------------------------------------------- Cold Spells (4.2) -
+
+
+After mastering Fire, the Sorcerers guild sought to prevent rivals from having
+an equaling force and quickly moved to master the element of coldness so that
+both Fire and Cold were controlled by one group. The effectiveness of these
+spells depends on the experience of the caster and the Cold Resistance of the
+target.
+
+
+Cold Blast      
+      Base Level: 2      Guilds: Sor
+      Required Stats: 12 Int, 9 Wis, 9 Dex 
+      COMBAT Spell, will cause 4 Monsters in 2 Groups to be Frozen. 
+      This simple spell creates a blast of air that is cold enough to kill most
+      small creatures.
+
+
+Ice Spray      
+      Base Level: 5      Guilds: Sor
+      Required Stats: 16 Int, 8 Wis, 9 Dex
+      COMBAT Spell, will cause 6 Monsters in 3 Groups to be Frozen.
+      This spell creates a wall of ice and blasts it towards the opponents.
+      The wave of liquid ice will almost certainly freeze the victim instantly.
+
+
+Hail Storm      
+      Base Level: 8      Guilds: Sor
+      Required Stats: 19 Int, 18 Wis, 12 Dex
+      COMBAT Spell, will cause 8 Monsters in 4 Groups to be Frozen.
+      A more advanced spell, casting this will create a storm of magical hail
+      that crushes and  smothers its victims, attempting to freeze and shatter
+      them.
+
+
+Arctic Storm      
+      Base Level: 12      Guilds: Sor
+      Required Stats: 21 Int, 20 Wis, 18 Dex      
+      COMBAT Spell, will cause 12 Monsters in 4 Groups to be Frozen.      
+      The spell most feared by fire creatures, the storm that is invoked is a
+      collection of all other cold spells, and is so intense that very few can
+      survive.
+
+_______________________________________________________________________________
+----------------------------------------------------- Electrical Spells (4.3) -
+
+
+After discovering the destructive force of this element, the Sorcerer Masters
+went to work on controlling this strange element that they didn’t understand.
+For decades, they worked to make spells of this class controllable, and in the
+end succeeded.  The effectiveness of these spells depends on the experience of
+the caster and the Electrical Resistance of the target.
+
+
+Shock
+      Base Level: 1      Guilds: Sor
+      Required Stats: 12 Int, 9 Dex      
+      COMBAT Spell, will cause 2 Monsters in 2 Groups to be Shocked.      
+      This basic spell creates an electrical arc from the caster's hands to the
+      designated targets, attempting to instantly electrify and kill them.
+
+
+Lightning Bolt      
+      Base Level: 3      Guilds: Sor
+      Required Stats: 14 Int, 9 Wis, 9 Dex      
+      COMBAT Spell, will cause 4 Monsters in 2 Groups to be Electrocuted.      
+      Summoning the power of the storm, this spell pulls electricity from the
+      ground and blasts it into the midst of one’s targets.
+
+
+ThunderBolt      
+      Base Level: 6      Guilds: Sor
+      Required Stats: 16 Int, 10 Wis, 12 Dex      
+      COMBAT Spell, will cause 6 Monsters in 3 Groups to be Electrocuted.      
+      A more advanced form of Lightning Bolt, this spell  triples the damage
+      and affects more targets.
+
+
+Static Mesh      
+      Base Level: 7      Guilds: Sor
+      Required Stats: 18 Int, 10 Wis, 12 Dex      
+      COMBAT Spell, will cause 7 Monsters in 4 Groups to be Electrocuted.      
+      Very little is understood about this spell, which creates an electrical
+      mesh in the middle of one’s targets and explodes into an electrocuting
+      fury.
+
+
+Electric Field      
+      Base Level: 11      Guilds: Sor
+      Required Stats: 17 Int, 12 Wis, 12 Dex      
+      COMBAT Spell, will cause 12 Monsters in 4 Groups to be Electrocuted.      
+      The most devastating of electrical spells, very few creatures can
+      withstand the shock delivered from this white-hot field of electricity.
+
+
+______________________________________________________________________________
+---------------------------------------------------------- Mind Spells (4.4) -
+
+
+As the Sorcerers were working on destructive elemental forces, two other
+guilds, the Mage and Wizards guilds, joined together in the study of the mind,
+and in the process, came up with many powerful defensive and aggressive spells.
+The effectiveness of these spells depends on the experience of the caster and
+the Mind Resistance of the monster.
+
+
+Sleep
+      Base Level: 1      Guilds: Mag, Wiz
+      Required Stats: 12 Int, 11 Wis, 8 Dex      
+      COMBAT Spell, will cause 2 Monsters in 2 Groups to be Slept.      
+      When cast, this spell attempts to take over the mind and put the
+      designated targets to sleep so that they may be killed without a
+      struggle.
+
+
+Light Spray
+      Base Level: 4      Guilds: Mag, Wiz
+      Required Stats: 15 Int, 9 Wis, 9 Dex      
+      COMBAT Spell, will cause 6 Monsters in 4 Groups to be Dazzled.      
+      When invoked, this spell creates a mentally projected and amplified light
+      so bright that many are instantly killed.
+
+
+Summon Shade
+      Base Level: 6      Guilds: Mag, Wiz
+      Required Stats: 14 Int, 12 Wis, 10 Cha, 8 Dex      
+      COMBAT Spell, will cause 7 Monsters in 4 Groups to be Scared.      
+      A ghastly spell that creates a mental demon so terrifying that it scares
+      most creatures to death.
+
+
+Precognitive Death
+      Base Level: 12      Guilds: Mag, Wiz
+      Required Stats: 18 Int, 15 Wis, 10 Con, 14 Dex      
+      COMBAT Spell, will cause 14 Monsters in 4 Groups to be Killed.      
+      The most powerful of all Mind spells, this dark form of magic convinces
+      the targets that they have died, causing their bodily functions to stop -
+      effectively killing them from inside.
+
+
+______________________________________________________________________________
+-------------------------------------------------------- Damage Spells (4.5) -
+
+
+The creation of these spells came about by accident as one Healer realized that
+their healing magic could be turned to inflict harm.  Spells of this type are
+excellent combative/defensive spells that can instantly kill victims just as
+easily as the originals can be used to heal.  The effectiveness of these spells
+depends on the experience level of the caster and the Magic Resistance of the
+target.
+
+
+Cause Wounds
+      Base Level: 2      Guilds: Wiz, Hea
+      Required Stats: 11 Int, 11 Wis, 8 Con, 11 Dex      
+      COMBAT Spell, will cause 4 Monsters in 2 Groups to be Killed.      
+      When cast, this spell attempts to rupture the internal and external
+      tissues of the target(s) and kill them.
+
+
+Cause Heavy Wounds
+      Base Level: 4      Guilds: Wiz, Hea
+      Required Stats: 12 Int, 13 Wis, 10 Con, 12 Dex      
+      COMBAT Spell, will cause 6 Monsters in 4 Groups to be Killed.      
+      An advanced form of Cause Wounds, this spell not only attempts to rupture
+      the tissues of the designated targets with more force, it also attempts
+      to implode the victim as well by bursting the organs.
+
+
+Power
+      Base Level: 5      Guilds: Wiz (6), Hea
+      Required Stats: 15 Int, 15 Wis, 12 Con, 15 Dex      
+      COMBAT Spell, will cause 6 Monsters in 4 Groups to be Killed.      
+      Not much is known about how this spell functions, but it causes the life
+      force of the targets to be yanked from their bodies.
+
+
+Harm
+      Base Level: 6      Guilds: Wiz (7), Hea
+      Required Stats: 17 Int, 16 Wis, 13 Con, 16 Dex      
+      COMBAT Spell, will cause 7 Monsters in 4 Groups to be Killed.      
+      A more devastating form of Power that functions slightly differently;
+      this spell drains the life force of its victims and feeds it to the
+      earth.
+
+
+Draining Touch
+      Base Level: 6      Guilds: Wiz (7), Hea
+      Required Stats: 17 Int, 17 Wis, 12 Con, 14 Dex      
+      COMBAT Spell, will cause 1 Monsters in 1 Groups to be Drained.      
+      A deadly spell, when invoked and the caster touches the designated
+      target, their life force is usually drained into the ground, leaving a
+      lifeless shell.
+
+
+Cause Fatal Wounds
+      Base Level: 7      Guilds: Wiz (8), Hea
+      Required Stats: 17 Int, 17 Wis, 14 Con, 16 Dex      
+      COMBAT Spell, will cause 9 Monsters in 4 Groups to be Killed.      
+      This hideous spell causes the bones of the designated targets to explode,
+      causing instant death.
+
+
+Word of Death
+      Base Level: 12      Guilds: Wiz (15), Hea
+      Required Stats: 21 Int, 21 Wis, 18 Con, 21 Dex      
+      COMBAT Spell, will cause 14 Monsters in 4 Groups to be Killed.      
+      One of the most feared magic spells in the world since there are few
+      known resistances, Word of Death, which is known by only the most
+      advanced sell casters, calls upon the wrath of Nardun, the God of Pain,
+      and asks him to dispose of the caster’s targets.  When summoned in full,
+      it is said that Nardun can never be overcome.
+
+
+______________________________________________________________________________
+------------------------------------------------------- Element Spells (4.6) -
+
+
+In the Sorcerer’s continued study of destruction, which included the study of
+Acid, Disease and Poisons, birthed spells of the Element type.  Deadly in
+nature, these spells affect many monsters that other magics cannot affect.  The
+type of resistance associated with these spells can also vary depending on the
+spell.
+
+
+Poison
+      Base Level: 2      Guilds: Vil (6), Sor, Hea
+      Required Stats: 10 Int, 10 Wis, 9 Con, 14 Dex      
+      COMBAT Spell, will cause 4 Monsters in 2 Groups to be Choked.      
+      This useful spell introduces a deadly poison into the system of the
+      casters targets. This fast-acting toxin causes paralysis of the
+      respiratory system, asphyxiating even the strongest creatures.
+
+
+Leprosy
+      Base Level: 4      Guilds: Vil (12), Sor, Hea
+      Required Stats: 12 Int, 12 Wis, 12 Con, 12 Dex      
+      COMBAT Spell, will cause 4 Monsters in 3 Groups to be Rotted.      
+      When invoked, this spell causes the target to become infected with such
+      an advanced case of Leprosy, that quite often, the victim falls apart and
+      dies horribly.
+
+
+Acidic Spray
+      Base Level: 6      Guilds: Sor
+      Required Stats: 10 Str, 10 Int, 12 Wis, 10 Con, 15 Dex      
+      COMBAT Spell, will cause 6 Monsters in 3 Groups to be dissolved.      
+      Causes an acidic wall to fly at ones attackers corroding them upon
+      contact.
+
+
+Flesh to Stone
+      Base Level: 8      Guilds: Sor
+      Required Stats: 15 Str, 16 Int, 18 Wis, 16 Con, 14 Dex      
+      COMBAT Spell, will cause 1 Monster in 1 Group to be Stoned.      
+      A  chilling, deadly spell derived from creatures capable of turning flesh
+      to stone, the caster simply needs to touch its target to turn them into a
+      bird perch for eternity.
+
+
+Paralyzing Death
+      Base Level: 10      Guilds: Sor
+      Required Stats: 18 Str, 20 Int, 18 Wis, 16 Con, 14 Dex      
+      COMBAT Spell, will cause 8 Monsters in 4 Groups to be Killed.      
+      This spell has the ability of the caster to nullify the target’s nerves,
+      stopping them in their tracks and ceasing all life functions.
+
+
+______________________________________________________________________________
+---------------------------------------------------------- Kill Spells (4.7) -
+
+
+Created in a parallel study by the Mages and Wizards guilds as they crafted the
+Mind spells; the Kill spells, which revolved around direct mental and spiritual
+forms of attack, would either kill the victim outright or have absolutely no
+affect.  The effectiveness of these spells depends on the experience of the
+caster and the Magic Resistance of the target.
+
+
+Nerve Blank      
+      Base Level: 1      Guilds: Mag, Wiz
+      Required Stats: 11 Int, 7 Wis
+      COMBAT Spell, will cause 2 Monsters in 2 Groups to be Killed.
+      This spell causes all nerves in the designated targets to stop
+      functioning, causing death. Similar to the Paralyzing Death spell, but
+      requires less ability to master.
+
+
+Dazzle      
+      Base Level: 3      Guilds: Mag, Wiz
+      Required Stats: 13 Int, 8 Wis, 8 Dex
+      COMBAT Spell, will cause 6 Monsters in 4 Groups to be Dazzled.
+      A more advanced form of Nerve Blank, this spell also affects the spirit
+      as well, attempting to extinguish it.
+
+
+Flickering Doom
+      Base Level: 5      Guilds: Mag, Wiz
+      Required Stats: 16 Int, 13 Wis, 12 Dex
+      COMBAT Spell, will cause 7 Monsters in 4 Groups to be Killed.
+      When invoked, this spell paralyzes the victims with a blinding light then
+      sucks their life force from their helpless bodies.
+
+
+Cause Death      
+      Base Level: 8      Guilds: Mag, Wiz
+      Required Stats: 18 Int, 16 Wis, 14 Con, 12 Dex      
+      COMBAT Spell, will cause 8 Monsters in 4 Groups to be Killed.      
+      A simple spell which drives the spirit from the flesh and attempts to
+      shut down the mind and body.
+
+
+Piercing Darkness      
+      Base Level: 10      Guilds: Mag, Wiz
+      Required Stats: 17 Int, 18 Wis, 10 Cha, 12 Dex      
+      COMBAT Spell, will cause 10 Monsters in 4 Groups to be Scared.      
+      It is said that this spell invokes a dark form from the spiritual world
+      which penetrates its victims and consumes their life force.
+
+
+Field of Death      
+      Base Level: 14      Guilds: Mag
+      Required Stats: 22 Int, 22 Wis, 18 Con, 21 Dex      
+      COMBAT Spell, will cause 20 Monsters in 4 Groups to be Immolated.      
+      A more powerful and flexible form of Cause Death, this spell attacks the
+      spirit with such power that the body is enveloped in flames and turned to
+      ash.
+
+
+______________________________________________________________________________
+--------------------------------------------------------- Charm Spells (4.8) -
+
+
+The pride of the Mages guild, these types of spells have the ability of
+controlling certain types of creatures ranging from Humanoids to Dragons and
+causing them to befriend the spellcaster, becoming their companion.  It is said
+that none can resist a Mage who has mastered this class of magical spells.  The
+effectiveness of these spells depends on the casters experience and the Magic
+and Charm Resistance of the monster.
+
+
+Charm Insect      
+      Base Level: 1      Guilds: Mag
+      Required Stats: 12 Int, 12 Wis      
+      COMBAT Spell, will cause 4 Monsters in 1 Group to be Charmed.      
+      This spell will bind one or more insects to the caster, causing them to
+      become companions.
+
+
+Charm Animal      
+      Base Level: 2      Guilds: Mag
+      Required Stats: 12 Int, 12 Wis, 14 Cha      
+      COMBAT Spell, will cause 4 Monsters in 1 Group to be Charmed.      
+      An excellent spell for charming vicious animals, causing them to befriend
+      the caster.
+
+
+Charm Elemental      
+      Base Level: 3      Guilds: Mag
+      Required Stats: 13 Int, 13 Wis, 15 Cha      
+      COMBAT Spell, will cause 4 Monsters in 1 Group to be Charmed.      
+      Much like Charm Animal spell, this spell will cause a group of Elementals
+      to join the caster.
+
+
+Charm Humanoid      
+      Base Level: 4      Guilds: Mag
+      Required Stats: 16 Int, 16 Wis, 18 Cha      
+      COMBAT Spell, will cause 4 Monsters in 1 Group to be Charmed.      
+      One of the most useful binding spells, depending on the power of the
+      caster and the resistance of the target, one can befriend almost any
+      humanoid with this magic.
+
+
+Charm Undead      
+      Base Level: 5      Guilds: Mag
+      Required Stats: 15 Int, 17 Wis, 10 Cha      
+      COMBAT Spell, will cause 4 Monsters in 1 Group to be Charmed.      
+      Unlike the other charm spells that affect the living, this spell affects
+      the Undead and attempts to magically bind them to the caster.
+
+
+Charm Giant      
+      Base Level: 5      Guilds: Mag
+      Required Stats: 15 Int, 15 Wis, 16 Cha      
+      COMBAT Spell, will cause 4 Monsters in 1 Group to be Charmed.      
+      A more advanced version of Charm Humanoid, this spell will affect only
+      Giants and attempt to bind them to the caster.
+
+
+Bind Animal
+      Base Level: 5      Guilds: Mag
+      Required Stats: 13 Int, 17 Wis, 10 Cha      
+      COMBAT Spell, will cause 4 Monsters in 1 Group to be Charmed.      
+      A more advanced version of Charm Animal.  Depending on the power of the
+      caster and the resistance of the target, one can befriend almost any
+      animal with this magic.
+
+
+Charm Monster      
+      Base Level: 6      Guilds: Mag
+      Required Stats: 12 Int, 17 Wis, 10 Cha      
+      COMBAT Spell, will cause 4 Monsters in 1 Group to be Charmed.      
+      This spell attempts to Charm creatures that no other charm-specific spell
+      will work on.
+
+
+Bind Elemental      
+      Base Level: 6      Guilds: Mag
+      Required Stats: 15 Int, 15 Wis, 12 Cha      
+      COMBAT Spell, will cause 4 Monsters in 1 Group to be Charmed.      
+      This spell is a more advanced version of Charm Elemental, Binding the
+      more powerful of these creatures to the caster.
+
+
+Charm Dragon      
+      Base Level: 7      Guilds: Mag
+      Required Stats: 18 Int, 18 Wis, 18 Cha      
+      COMBAT Spell, will cause 4 Monsters in 1 Group to be Charmed.      
+      Requiring strict concentration, this spell will attempt to bind one or
+      more dragons to the caster.  Be warned that if the spell fails, the
+      targets tend to respond adversely.
+
+
+Dominate Demon      
+      Base Level: 8      Guilds: Mag
+      Required Stats: 15 Int, 17 Wis, 12 Con, 17 Cha      
+      COMBAT Spell, will cause 4 Monsters in 1 Group to be Charmed.      
+      Old magic derived from Demonology, this spell uses the powers of the
+      earth to bind a Demon to the caster for an unknown period of time.
+
+
+Dominate Devil      
+      Base Level: 8      Guilds: Mag
+      Required Stats: 15 Int, 18 Wis, 12 Con, 18 Cha      
+      COMBAT Spell, will cause 4 Monsters in 1 Group to be Charmed.      
+      The more advanced magic of control, this spell attempts to bind one or
+      more devils and keep them with the caster by using the powers from the
+      dark elements
+
+
+Dominate Humanoid      
+      Base Level: 8      Guilds: Mag
+      Required Stats: 16 Int, 16 Wis,  16 Cha      
+      COMBAT Spell, will cause 4 humanoids in 1 Group to be Charmed.      
+      This will put humanoids well under the Charm of the caster. Like other
+      Dominate spells, it is among the most difficult to break.
+
+
+Dominate Giant      
+      Base Level: 10      Guilds: Mag
+      Required Stats: 18 Int, 18 Wis,  18 Cha      
+      COMBAT Spell, will cause 4 giants in 1 Group to be Charmed.      
+      This will affect giants with the same potency of advanced Charm that
+      constitutes the Dominate class of spells.
+
+
+Soul Entrapment      
+      Base Level: 12      Guilds: Mag
+      Required Stats: 18 Int, 21 Wis, 18 Con, 22 Cha      
+      COMBAT Spell, will cause 4 Monsters in 1 Group to be Charmed.      
+      The most advanced of all charm spells, only a master Mage has the ability
+      to cast this magic and Charm any creature, living or not.
+
+
+______________________________________________________________________________
+---------------------------------------------------------- Bind Spells (4.9) -
+
+
+Once the Charm spells were mastered, the Mages guild then realized that once a
+creature had been befriending or dominated that a way to keep the creature
+under control was required.  It was for this reason that the Bind class of
+spells was introduced - to reinforce a companions ‘binding’ to make it harder
+for them to break away from their master.  Bind spells will not work on
+companions that have joined an adventurer free of will.
+
+
+Control 
+      Base Level: 3      Guilds: Mag
+      Required Stats: 12 Int, 12 Wis, 10 Cha      
+      NON-COMBAT Spell, will increase the Bind level of a companion.
+      This spell can be used to reinforce the Bind that is already imposed on a
+      companion. Note: This spell will not function on companions that have
+      joined you of their own free will.
+
+
+Bind      
+      Base Level: 6      Guilds: Mag
+      Required Stats: 14 Int, 14 Wis, 16 Cha      
+      NON-COMBAT Spell, will increase the binding level of a bound companion.
+      This spell  is a  more powerful version of Control that will renew the
+      Bind on a companion when it begins to fade. 
+
+
+Domination      
+      Base Level: 12      Guilds: Mag
+      Required Stats: 18 Int, 18 Wis, 18 Con, 18 Cha      
+      NON-COMBAT Spell, will increase the binding level of a bound companion.
+      This is the most powerful of the Binding spells, and in the hands of a
+      master Mage, almost no creature can resist it.
+
+
+______________________________________________________________________________
+--------------------------------------------------------- Heal Spells (4.10) -
+
+
+The first of all spell classes to exist, the Healers guild built the foundation
+for spells that had the ability to heal, take away disease, poisons and other
+ailments.  Shared with the Mages guild in good faith, a spell caster with these
+types of spells is a definite asset to any party of characters.  Spells of this
+class either Heal or Raise the dead.
+
+
+Minor Heal      
+      Base Level: 2      Guilds: Pal (6), Vil (6), Mag(4), Hea
+      Required Stats: 13 Int, 13 Wis      
+      NON-COMBAT Spell, will heal hits.      
+      This general heal spell is useful for removing small wounds only, so it
+      will not help any other type of  injury.
+
+       
+Cure Poison      
+      Base Level: 3      Guilds: Pal (9), Vil (9), Mag (6), Hea
+      Required Stats: 13 Int, 13 Wis, 13 Cha      
+      NON-COMBAT Spell, will remove Poison.
+      Very useful to any adventurer, this spell will remove any form of poison
+      that has been inflicted on a victim.
+ 
+
+Heal      
+      Base Level: 4      Guilds: Pal (12), Vil (12), Mag (8), Hea
+      Required Stats: 15 Int, 15 Wis      
+      NON-COMBAT Spell, will heal hits.      
+      A more powerful heal spell, this magic is used to repair both small and
+      large wounds.  However, just as Minor Heal, other ailments are not
+      affected.
+
+
+Cure Paralysis      
+      Base Level: 4      Guilds: Pal (12), Vil (12), Mag (8), Hea
+      Required Stats: 6 Str, 11 Int, 11 Wis, 10 Con, 6 Dex      
+      COMBAT Spell, will remove Paralysis.
+      This spell will remove any type of paralysis that has been inflicted upon
+      the receiving character. 
+       
+
+Cure Disease      
+      Base Level: 5      Guilds: Pal (15), Mag (10), Hea
+      Required Stats: 15 Int, 15 Wis, 12 Cha      
+      NON-COMBAT Spell, will remove Disease.
+      Another useful spell, invoking this magic will remove any type of disease
+      that the receiving character may be suffering from.
+        
+
+Raise Dead      
+      Base Level: 7      Guilds: Hea
+      Required Stats: 13 Str, 16 Int, 16 Wis, 13 Con      
+      NON-COMBAT Spell, will raise the dead.
+      This spell recalls the spirit of the receiving characters body and
+      attempts to reunite the two.  Be aware that this spell will only bring
+      the recipient to life, not heal them.
+        
+
+Restoration      
+      Base Level: 7      Guilds: Hea
+      Required Stats: 17 Int, 17 Wis, 12 Cha      
+      NON-COMBAT Spell, will heal hits.
+      Restoration is the most advanced Heal spell.  It usually renews a
+      character to full health after only one casting.
+        
+
+Cure      
+      Base Level: 8      Guilds: Hea
+      Required Stats: 12 Str, 18 Int, 18 Wis, 12 Con      
+      NON-COMBAT Spell, will heal hits and remove Poison and Disease.
+      This spell will both heal the receiving character’s wounds and remove any
+      ailments that the character may be suffering from, such as poisons and
+      disease.
+        
+
+Restore Flesh      
+      Base Level: 8      Guilds: Hea
+      Required Stats: 18 Int, 18 Wis, 16 Con, 15 Dex      
+      NON-COMBAT Spell, will raise a stoned character.
+      Specifically used to return a stoned character to flesh, this spell is
+      the only resurrection spell which will restore those who have suffered
+      such a fate.
+        
+
+Mass Heal      
+      Base Level: 8      Guilds: Hea
+      Required Stats: 16 Int, 16 Wis      
+      NON-COMBAT Spell, will heal hits for every member of party.      
+      An advanced heal spell that heals the entire party.
+        
+
+Resurrect      
+      Base Level: 12      Guilds: Hea
+      Required Stats: 21 Int, 21 Wis, 14 Con, 18 Dex      
+      NON-COMBAT Spell, raise the dead and restore recipient to full health.
+      A more powerful version of Raise Dead, this magic also brings the
+      receiving character back to full health.
+
+
+______________________________________________________________________________
+----------------------------------------------------- Movement Spells (4.11) -
+
+
+In an effort to control one’s surroundings, the Wizard’s guild focused their
+study towards the ability of traveling and moving by the use of magic.  Ranging
+from the ability to walk through walls to teleporting a long distance away,
+these spells are very handy in moving around in the dungeon.
+
+
+Detect Rock      
+      Base Level: 1      Guilds: See, Mag, Wiz
+      Required Stats: 14 Int, 14 Wis, 12 Con      
+      NON-COMBAT Spell, will inform caster of Rock.
+      This spell allows the caster to detect whether rock exists behind the
+      wall in front of them or not.  Very useful for mapping and finding secret
+      rooms.
+        
+
+Feather Essence      
+      Base Level: 3      Guilds: See, Mag, Wiz
+      Required Stats: 14 Int, 14 Wis, 14 Con      
+      NON-COMBAT Spell, will levitate recipient.
+      This will cause the recipient to hover in the air, avoiding pits, chutes,
+      water and other dangerous areas.  There is always the slight chance that
+      levitation over a space  will fail.
+
+
+Ethereal Portal
+      Base Level: 5      Guilds: See, Mag, Wiz
+      Required Stats: 14 Str, 18 Int, 18 Wis, 18 Dex      
+      NON-COMBAT Spell, will move a character or party.
+      When cast, the character, and all members of the party, will move through
+      the solid wall in front of the caster and appear on the other side.  If
+      the square behind the wall is rock, all members of the party will die.
+      
+  
+Displacement
+      Base Level: 8      Guilds: See, Wiz
+      Required Stats: 14 Int, 10 Wis, 14 Dex      
+      NON-COMBAT Spell, will teleport a character or party on the same level.
+      A useful spell for teleporting around in the dungeon on the current
+      level.  Be warned that if the caster teleports outside the bounds of the
+      dungeon or into rock, the caster (and entire party) will die.
+      
+  
+Mass Levitate
+      Base Level: 8      Guilds: See, Wiz
+      Required Stats: 12 Str, 16 Int, 16 Wis, 14 Con, 12 Dex      
+      NON-COMBAT Spell, will Levitate entire party.
+      This spell accomplishes the same as Feather Essence, except it affects an
+      entire party.
+      
+  
+Teleport
+      Base Level: 12      Guilds: See, Wiz
+      Required Stats: 17 Int, 14 Wis, 11 Con, 17 Dex      
+      COMBAT & NON-COMBAT Spell, will cause 4 Monsters in 4 Groups to be
+      Teleported or will teleport a character and their party
+      One of the Seeker’s and Wizard’s most useful spells that can move the
+      caster and any party up or down and around the dungeon a maximum of three
+      levels.  This spell can also be used in Combat to transport attacking
+      enemies so far away they they are impaled in solid rock!  When used in
+      combat, the effectiveness of this spell is based on the creatures magical
+      resistance.
+
+
+Sanctuary      
+      Base Level: 12      Guilds: See, Wiz
+      Required Stats: 16 Int, 20 Wis, 15 Con      
+      NON-COMBAT Spell, returns the caster or party to the Set Sanctuary
+      location.  When invoked, this spell will instantly transport the caster
+      and any party members to the location that ‘Set Sanctuary’ was cast last.
+      If ‘Set Sanctuary’ has not been cast, nothing will happen.  Be warned
+      that throwing this spell takes great energy and ages the caster 
+      approximately one year.
+
+
+______________________________________________________________________________
+------------------------------------------------------- Banish Spells (4.12) -
+
+
+Taken from the art of demonology, spells of this kind are of ancient magic, of
+which little is known.  Used to banish demons and devils back to the planes of
+Hell from whence they came, the amount of damage inflicted by these spells can
+sometimes be extensive.  The effectiveness of these spells depends on the
+caster’s experience and the Magic Resistance of the monster.
+
+
+Banish Devil      
+      Base Level: 5      Guilds: Wiz (10), Hea
+      Required Stats: 13 Int, 15 Wis, 10 Con      
+      COMBAT Spell, will cause 8 Monsters in 4 Groups to be Banished.      
+      An ancient spell that invokes the fury of Hell to yank the specified
+      target(s) back to the plane from whence they came. 
+ 
+
+Banish Demon      
+      Base Level: 6      Guilds: Wiz (12), Hea
+      Required Stats: 12 Int, 14 Wis, 10 Con      
+      COMBAT Spell, will cause 8 Monsters in 4 Groups to be Banished.      
+      A dark spell of old, much like Banish Devil, this spell calls upon Hades
+      to take back those who have escaped.
+
+
+______________________________________________________________________________
+------------------------------------------------------ Dispell Spells (4.13) -
+
+
+These types of spells were actually created in the beginning by the Healer’s
+guild to banish any poor soul that a resurrect failed upon, turning the victim
+into the walking dead.  Now since the Resurrect spells have been mastered and
+no longer produce these results, the study of this class turned towards
+defending one’s self from any undead creatures that posed a threat.  The
+effectiveness of these spells depends on the casters experience and the
+Magic Resistance of the monster.
+
+
+Dispel Undead      
+      Base Level: 3      Guilds: Wiz, Hea
+      Required Stats: 9 Int, 12 Wis, 6 Con      
+      COMBAT Spell, will cause 8 Monsters in 4 Groups to be Dispelled.      
+      A useful spell when attacked by undead, any targets affected by this
+      spell will instantly break down and become dust. 
+ 
+
+Dispel Elemental      
+      Base Level: 4      Guilds: Wiz, Hea
+      Required Stats: 15 Int, 15 Wis, 15 Con, 17 Cha      
+      COMBAT Spell, will cause 8 Monsters in 4 Groups to be Dispelled.      
+      Even though the true nature of most Elemental creatures is unknown, this
+      spell is said to act much like Dispel Undead whereas it breaks apart the
+      Elemental targets and turns them to back into the elements from which
+      they were formed.       
+
+
+Abolish Undead      
+      Base Level: 8      Guilds: Wiz, Hea
+      Required Stats: 16 Int, 18 Wis, 18 Con, 12 Dex      
+      COMBAT Spell, will cause 4 Monsters in 2 Groups to be Dispelled.      
+      The most advanced Dispell spell ever devised, the magic induced when
+      invoked is so great that it usually annihilates all targets.  The only
+      drawback is that the magic is usually too focused to affect a large
+      number of targets.
+
+
+______________________________________________________________________________
+---------------------------------------------------- Resistant Spells (4.14) -
+
+
+Initially created by the Sorcerers guild to protect themselves from their own
+destructive forces, these spells are very useful in increasing the resistance
+of a character from many forms of attack.  The Healers guild also helped in
+this study and created spells to increase ones resistance to Poison and
+Disease.
+
+
+Resist Fire      
+      Base Level: 3      Guilds: See (9), Sor, Wiz (9), Hea (6)
+      Required Stats: 13 Int, 13 Wis, 13 Cha      
+      NON-COMBAT Spell, will raise the recipient’s Fire Resistance to 95%.
+     
+   
+      Resist Draining      
+      Base Level: 3      Guilds: See (9), Sor, Wiz (9), Hea (6)
+      Required Stats: 13 Int, 13 Wis, 10 Con, 13 Cha      
+      NON-COMBAT Spell, will raise the recipient’s Drain Resistance to 95%.
+     
+   
+      Resist Cold      
+      Base Level: 3      Guilds: See (9), Sor, Wiz (9), Hea (6)
+      Required Stats: 14 Int, 14 Wis, 10 Con, 12 Cha      
+      NON-COMBAT Spell, will raise the recipient’s Cold Resistance to 95%.
+
+
+      Resist Poison      
+      Base Level: 4      Guilds: See (12), Sor, Wiz (12), Hea (8)
+      Required Stats: 10 Int, 12 Wis, 10 Con, 10 Cha      
+      NON-COMBAT Spell, will raise the recipient’s Poison Resistance to 95%.
+
+
+      Resist Disease      
+      Base Level: 4      Guilds: See (12), Sor, Wiz (12), Hea (8)
+      Required Stats: 12 Int, 12 Wis, 10 Con, 12 Cha      
+      NON-COMBAT Spell, will raise the recipient’s Disease Resistance to 95%.
+
+
+      Resist Paralysis      
+      Base Level: 4      Guilds: See (12), Sor, Wiz (12), Hea (8)
+      Required Stats: 14 Int, 16 Wis, 8 Con, 12 Dex      
+      NON-COMBAT Spell, will raise the recipient’s Paralysis Resistance to 95%.
+
+
+      Resist Stoning      
+      Base Level: 4      Guilds: See (12), Sor, Wiz (12), Hea (8)
+      Required Stats: 12 Int, 13 Wis, 12 Con, 10 Cha      
+      NON-COMBAT Spell, will raise the recipient’s Stone Resistance to 95%.
+
+
+      Resist Magic      
+      Base Level: 5      Guilds: See (15), Sor, Wiz (15), Hea (10)
+      Required Stats: 14 Int, 12 Wis, 12 Con, 12 Cha      
+      NON-COMBAT Spell, will raise the recipient’s Magic Resistance to 95%.
+
+
+      Mental Resistance      
+      Base Level: 6      Guilds: Sor, Wiz (18)
+      Required Stats: 18 Int, 14 Wis, 12 Con, 10 Cha      
+      NON-COMBAT Spell, will raise the recipient’s Mental Resistance to 95%.
+              
+
+      Electrical Resistance      
+      Base Level: 6      Guilds: Sor, Wiz (18)
+      Required Stats: 12 Str, 12 Int, 16 Wis, 12 Con      
+      NON-COMBAT Spell, will raise the recipient’s Electrical Resistance to
+      95%.
+              
+
+      Resist Acidity      
+      Base Level: 6      Guilds: Sor, Wiz (18)
+      Required Stats: 10 Str, 13 Int, 10 Wis, 15 Con      
+      NON-COMBAT Spell, will raise the recipient’s Acidity Resistance to 95%.
+      
+      
+______________________________________________________________________________
+------------------------------------------------------- Visual Spells (4.15) -
+
+
+In a collected effort, the Sorcerer’s and Wizard’s guilds managed to create
+spells that allowed one to turn invisible to the naked eye, and allowed one to
+see those who were invisible as well.
+
+
+Sight Veil      
+      Base Level: 2      Guilds: See (6), Mag (4), Sor, Wiz (8)
+      Required Stats: 12 Int, 12 Wis, 12 Cha      
+      NON-COMBAT Spell, will cause the receiving character to become Invisible.
+      This spell is very useful defensive spell.  When cast the recipient
+      becomes invisible to the naked eye, only those with special abilities
+      will be able to see the character.
+
+        
+See Invisible      
+      Base Level: 2      Guilds: See (6), Mag (4), Sor, Wiz (8)
+      Required Stats: 12 Int, 12 Wis, 12 Cha      
+      NON-COMBAT Spell, will cause the receiving character to see Invisible.
+      This spell will enable a character to see those who are invisible to the
+      naked eye.
+
+        
+Mass Sight Veil      
+      Base Level: 8      Guilds: Sor
+      Required Stats: 10 Str, 12 Int, 16 Wis, 10 Cha, 10 Dex      
+      NON-COMBAT Spell, will cause the entire party to become Invisible.
+      This spell is the same as Sight Veil except that it affects the entire
+      party.
+
+
+______________________________________________________________________________
+------------------------------------------------------ Magical Spells (4.16) -
+
+
+Spells of this nature vary depending on type.  Being purely magical and created
+by various guilds, spells of this type usually revolve around some effect that
+is not supported by any of the other classes.
+
+
+Charm of Opening      
+      Base Level: 1      Guilds: Nom (12), Nin (9), Thi(3), Sca (6)
+      Required Stats: 12 Str, 13 Int, 13 Wis, 13 Dex      
+      NON-COMBAT Spell, will open Magically Locked chests.
+      Casting this spell will unlock a magically locked chest.
+
+
+______________________________________________________________________________
+----------------------------------------------------- Location Spells (4.17) -
+
+
+Created by the Mage’s guild for failed attempts at movement, spells of this
+nature are able to locate other specified characters or objects, and aid the
+caster in  orientation when  lost.
+
+
+Set Sanctuary      
+      Base Level: 1      Guilds: Nom, War, Pal, Nin, Vil, See, Thi, Sca, Mag,
+      Required Stats: NONE       Sor, Wiz, Hea
+      NON-COMBAT Spell, will set the "Sanctuary” return location.
+      Casting this spell will set the caster’s "Sanctuary” location.  This
+      means that when the caster  casts Sanctuary,  he or she will then be
+      returned to the exact location where Set Sanctuary was last cast.
+
+
+Depth Perception      
+      Base Level: 3      Guilds: See, Mag, Wiz
+      Required Stats: 13 Int, 13 Wis, 13 Con      
+      NON-COMBAT Spell, informs the caster of what level they are on.
+      Useful in helping  lost explorers ‘find themselves’.
+       
+
+Soul Search      
+      Base Level: 6      Guilds: See, Mag, Wiz
+      Required Stats: 15 Int, 14 Wis, 12 Dex      
+      NON-COMBAT Spell, will seek out and return the location of another
+      character.  This spell allows the caster to search for another character.
+      The caster will receive the offset coordinates, relative to the spell
+      caster, of where the searched soul is (if they are on the same level).
+      If the character being searched for is not on the same level as the
+      caster, an up or down value will be returned.
+        
+
+Find Direction      
+      Base Level: 6      Guilds: See, Mag, Wiz
+      Required Stats: 14 Int, 14 Wis, 14 Con      
+      NON-COMBAT Spell, informs the caster of what direction they are facing.
+      Also useful in helping  lost explorers ‘find themselves’.
+ 
+
+Retrieve Soul      
+      Base Level: 14      Guilds: See, Mag
+      Required Stats: 18 Int, 18 Wis, 16 Con, 18 Dex      
+      NON-COMBAT Spell, removes a character from Rock.
+      For the times that an unlucky character teleports or walks into solid
+      rock, the only way to retrieve them is with this spell.  The caster of
+      the spell must be on the same level that the Rocked character is, or as
+      close as they can get.  If the spell is successful, the retrieved
+      character’s body will appear at the feet of the caster ready to be
+      carried or resurrected.
+
+
+______________________________________________________________________________
+--------------------------------------------------- Protection Spells (4.18) -
+
+
+Created by the Sorcerer’s guild, spells of this type cause the caster, or
+character receiving the spell, to be protected by an invisible field.  The
+power of these fields depends on the skill level of the caster.
+
+
+Protection      
+      Base Level: 3      Guilds: Sor, Wiz (15)
+      Required Stats: 11 Int, 11 Wis, 11 Cha      
+      NON-COMBAT Spell, creates a protective field around the receiving
+      character.
+      This spell will create a protective field around the receiving character,
+      making it harder for attacking creatures to do damage.
+       
+ 
+Mass Protection      
+      Base Level: 8      Guilds: Sor
+      Required Stats: 14 Str, 18 Int, 18 Wis, 12 Con, 12 Cha      
+      NON-COMBAT Spell, creates a protective field around every character in a
+      party.  This spell does exactly what Protection does, except that it
+      affects the entire party.
+
+
+o============================================================================o
+|                                  Items (5.0)                               |
+o============================================================================o
+
+______________________________________________________________________________
+-------------------------------------------------------------------- Weapons -
+
+Bare Hands
+
+Gnarled Hands          Initiate's Hands
+Magic Hands            Master's Hand
+Hands of Death         Hands of Slaying
+Hands of Destruction
+
+Bronze Dagger          Dagger of Stealth
+Bone Dagger            Iron Dagger
+Lethe Dagger           Steel Dagger
+Adamantite Dagger      Mithril Dagger
+Dagger of Jagoni       Shadow's Blade
+Sabre Blade            Vampire Fang
+Dagger of Swiftness
+
+Cross of Redemption    Silver Cross
+Cross of Life          Cross of Commanding
+Cross of Requnix
+
+Bronze Sword           Sword of the Winds
+Iron Sword             Backlash Sword
+Thief Sword            Katana
+Cutlass                Wicked Blade
+Crystal Sword          Steel Sword
+Dominator              Adamantite Sword
+Burgens Blade          Mithril Sword
+Avenger                Holy Sword
+Sword of Slaying       Vorpal Blade
+Lightning Blade        Eliminator
+Sword of Flames
+
+Pine Staff             Oak Staff
+Gordu Staff            Staff of Alton
+Iron-shod Staff        Staff of Striking
+Mithril-shod Staff     Staff of Helarno
+Staff of Destruction
+
+Bronze Mace            Mace of Kordul
+Iron Mace              Steel Mace
+Adamantite Mace        Mithril Mace
+Mace of Disruption     Warlord's Mace
+
+Bronze Battle Axe      Axe of the Blackguard
+Iron Battle Axe        Steel Battle Axe
+Delvar's War Axe       Adamantite Battle Axe
+Lead Axe               Mithril Battle Axe
+Axe of Power           Shadow Axe
+Barrier Battle Axe
+
+Iron Hammer            War Hammer
+Landria's Hammer       Dwarven Hammer
+Giant King's Hammer    Hammer of Flames
+Hammer of O'landra
+
+Leather Armor          Padded Leather Armor
+Feather Leather Armor  Suede Leather Armor
+Studded Leather Armor  Cuirboulli Armor
+Studded Cuirboulli     Thief's Armor
+Ninja's Armor          Magician's Armor
+
+Bronze Chain Mail      Iron Chain Mail
+Black Chain Mail       Iron Chain Mail
+Black Chain Mail       Steel Chain Mail
+Adamantite Chain       Burgens Chain Armor
+Mithril Chain Mail     Spectral Chain Mail
+
+Bronze Plate Mail      Ulsik Plate Mail
+Iron Plate Mail        Steel Plate Mail
+Adamantite Plate       Mithril Plate Armor
+Spectral Plate Armor   Warrior's Armor
+Paladin's Armor
+
+Wooden Shield          Bronze Shield
+Iron Shield            Steel Shield
+Lead Shield            Bladed Shield
+Adamantite Shield      Shield of Defense
+Mystic Shield          Mithril Shield
+Spectral Shield
+      
+Leather Cap            Padded Leather Cap
+Cap of Defense         Magician's Cap
+Cap of Visions         Thief's Cap
+Cap of Protection      Cap of Death
+Lamurian Crown      
+
+Copper Helm            Bronze Helmet
+Iron Helmet            Steel Helmet
+Helm of Blindness      Helm of Astral Projection
+Adamantite Helmet      Helm of Ish'taria
+Helm of Sight          Paladin's Helm
+Mithril Helmet         Ninja's Hood
+Magician's Helm        Helm of Knowledge
+Helm of Brilliance
+
+Leather Gloves         Gloves of the Blackguard
+Nugena Gloves          Gloves of Strength
+Thief's Gloves         Master's Gloves
+Gloves of Might        Gloves of Power
+Gloves of Doom         Gloves of Death
+Gloves of Light
+
+Lethal Gauntlets       Nugena Gauntlets
+Gauntlets of Fumbling  Iron Gauntlets
+Steel Gauntlets        Nymphlets
+Gauntlets of Might     Gauntlets of Power
+Mithril Gauntlets      Gauntlets of Slaying
+White Flame Gauntlets
+
+Cloth Cloak            Cloak of Night
+Brown Cloak            Robe of Insight
+Robe of Remorse        White Cloak
+Cloak of Invisibility  Black Cloak
+Cloak of the Snakes    Grey Cloak
+Silver Cloak           Grey Elven Robe
+Cloak of Enchantment
+
+Bronze Bracers         Iron Bracers
+Steel Bracers          Twisted Bracers
+Lead Bracers           Bracers of Strength
+Elven Bracers          Bracers of Might
+Bracers of Destruction
+
+Dorlan's Sash          White Sash
+Purple Sash            Static Sash
+Magenta Sash           Gold Sash
+
+Leather Girdle         Girdle of Strength
+Trolls Girdle          Girdle of Might
+Girdle of Power        Girdle of Giant Strength
+
+Leather Boots          Boots of Lethargy
+Boots of Swiftness     Boots of Evading
+Boots of Stealth       Boots of Levitation
+Boots of Agility       Boots of the Elven Lords
+
+Ring of Power          Shimmering Ring
+Ring of Despair        Ring of Venom
+Ring of Protection     Ring of Levitation
+Ring of Opening        Elven Ring
+Ring of Disruption     Ring of Entrapment
+Ring of Flames         Ring of Frost
+Ring of Invisibility   Ring of Teleportation
+Ring of Death          Ring of Myrrn
+Ring of Defending      Lamurian Ring
+Ring of Truth          Ring of Splendour
+
+Amulet of Ultravision  Amulet of Life
+Amulet of Flames       Amulet of the Drakul
+Amulet of Infravision  Medallion of Dragons
+Lamurian Amulet        Pendragon
+
+Potion of Intelligence Potion of Leadership
+Potion of Insight      Potion of Might
+Potion of Fitness      Potion of Agility
+Potion of Invisibility Potion of Sight
+Elven Potion           Dragon's Water
+Potion of Health       Potion of Curing
+Potion of Healing      Potion of Flight
+Potion of Movement     Potion of Netamu
+Potion of Nevamu       Potion of Nesamu
+Potion of Negamu       Potion of Nemamu
+Potion of Youth        Aard of Being
+Elixr of Restoration   Elixr of Fate
+Dragon's Blood         Elven Wine
+
+Scroll of Spells       Scroll of Negrun
+Scroll of Sumsae       Scroll of Ketran
+Scroll of Nimeon       Scroll of Hathron
+Scroll of Gorron       Scroll of Kanji
+Scroll of Mallart      Scroll of Norgus
+Scroll of Nantasu      Scroll of Control
+Scroll of She'tal      
+
+Tome of Insight        Tome of Endurance
+Tome of Might          Tome of Learning
+Tome of Agility        Tome of Leadership
+Tome of Lies           Tome of Binding
+Tome of Spells         
+
+Dust of Healing        Dust of Locating
+Dust of Life           Dust of Opening
+Magical Dust
+
+Crystal of Healing     Prism of Sanctuary
+Gem of Healing         Crystal of Restoration
+
+Rod of Entrapment      Rod of Passage
+Rod of Flames          Rod of Healing
+Rod of Freezing        Rod of Power
+Rod of Hardness        Rod of Locating
+Rod of Lightning       Rod of Darkness
+Rod of Binding         Rod of Ultimate Power
+Caduceus               Lamurian Shock Lance
+
+Glowing Rock           Lodestone
+Scarab of Protection   FlameStone
+Scarab of Pain         Mithril Ore
+Scarab of Defense      Pure Mithril
+Scarab of Life
+
+Bells of Kwalish       Orb of Life Domination
+Sphere of Dislocation  Sphere of Doom
+Sphere of Flames       Sphere of Frost
+Sphere of Harm         Sphere of Healing
+Sphere of Rulership    Sphere of Thunder
+
+Cube of Controlling    Lightning Cube
+Cube of Teleporting    Cube of Restoration
+Cube of Freezing       Cube of Flames
+Cube of Draining       Cube of Death
+Cube of Domination
+      
+Key of Opening         Dalyn's Smile
+Unicorn Horn           Slaver's Whip
+Dalyn's Grin           Mordin Glyph
+Dalyn's Laugh          Erik's +1 Crayons
+Skeleton Key           Dalyn's Tear
+Dalyn's Groan          Dalyn's Last Laugh
+
+Medusa's Head          Ball and Chain
+Tim's Lead Weights     Dalyn's Evil Laugh
+Derf's Toe Lint        Blessing of Morash
+Curse of Morash      
+
+Crest of the Nomad     Crest of the Warrior
+Crest of the Paladin   Crest of the Ninja
+Crest of the Villain   Crest of the Seeker
+Crest of the Thief     Crest of the Scavenger
+Crest of the Mage      Crest of the Sorcerer
+Crest of the Wizard    Crest of the Healer
+
+o============================================================================o
+|                                 Monsters (6.0)                             |
+o============================================================================o
+
+
+**Note** Monsters are seperated by their given picture.  All monsters in a
+group share the same picture.
+
+______________________________________________________________________________
+------------------------------------------------------------------ Humanoids -
+
+Kobold
+
+Size: Normal
+
+Usually seen as a part of 1 group of monsters with 2 in each group
+
+Avg. Hits: 5
+A/D: 23/6
+Strength: 9
+Constitution: 9
+Dexterity: 7
+
+Abilities: None
+
+Resistances: Fire 25%
+
+First appears on level 1.
+
+
+Slave
+
+Size: Normal
+
+Usually seen as a part of 4 groups of monsters with 12 in each group
+
+Avg. Hits: 5
+A/D: -19/0
+Strength: 6
+Constitution: 9
+Dexterity: 10
+
+Abilities: None
+
+Resistances: None
+
+First appears on level 1.
+
+
+Goblin
+
+Size: Normal
+
+Usually seen as a part of 2 groups of monsters with 2 in each group
+
+Avg. Hits: 22
+A/D: 52/40
+Strength: 13
+Constitution: 12
+Dexterity: 13
+
+Abilities: None
+
+Resistances: Fire 25%
+             Cold 5%
+
+First appears on level 2.
+
+
+Orc
+
+Size: Normal
+
+Usually seen as a part of 2 groups of monsters with 2 in each group
+
+Avg. Hits: 14
+A/D: 40/25
+Strength: 11
+Constitution: 9
+Dexterity: 10
+
+Abilities: None
+
+Resistances: Fire 25%
+
+First appears on level 1.
+
+
+Large Orc
+
+Size: Big
+
+Usually seen as a part of 2 groups of monsters with 3 in each group
+
+Avg. Hits: 30
+A/D: 65/55
+Strength: 11
+Constitution: 11
+Dexterity: 10
+
+Abilities: None
+
+Resistances: Fire 35%
+             Cold 70%
+
+First appears on level 2.
+
+
+Outcast Goblin
+
+Size: Normal
+
+Usually seen as a part of 1 group of monsters with 2 in each group
+
+Avg. Hits: 7
+A/D: 23/6
+Strength: 9
+Constitution: 9
+Dexterity: 9
+
+Abilities: None
+
+Resistances: Fire 10%
+
+First appears on level 1.
+
+
+Goblin Guard
+
+Size: Normal
+
+Usually seen as a part of 4 groups of monsters with 4 in each group
+
+Avg. Hits: 42
+A/D: 90/80
+Strength: 14
+Constitution: 13
+Dexterity: 13
+
+Abilities: None
+
+Resistances: Fire 30%
+             Cold 10%
+
+First appears on level 3.
+
+
+Gnoll
+
+Size: Normal
+
+Usually seen as a part of 2 groups of monsters with 3 in each group
+
+Avg. Hits: 40
+A/D: 88/75
+Strength: 14
+Constitution: 12
+Dexterity: 15
+
+Abilities: None
+
+Resistances: None
+
+First appears on level 4.
+
+
+Numanog
+
+Size: Normal
+
+Usually seen as a part of 1 group of monsters with 3 in each group
+
+Avg. Hits: 50
+A/D: 105/106
+Strength: 15
+Constitution: 13
+Dexterity: 16
+
+Abilities: Resistant to Magic
+           Charm Resistant
+
+Resistances: None
+
+First appears on level 5.
+
+
+Hobgoblin
+
+Size: Normal
+
+Usually seen as a part of 2 groups of monsters with 3 in each group
+
+Avg. Hits: 55
+A/D: 146/119
+Strength: 15
+Constitution: 14
+Dexterity: 16
+
+Abilities: None
+
+Resistances: None
+
+First appears on level 6.
+
+
+Zbrat
+
+Size: Very Small
+
+Usually seen as a part of 4 groups of monsters with 20 in each group
+
+Avg. Hits: 25
+A/D: 300/1
+Strength: 6
+Constitution: 2
+Dexterity: 50
+
+Abilities: Charm Resistant
+
+Resistances: None
+
+First appears on level 6.
+
+
+Weaponist
+
+Size: Normal
+
+Usually seen as a part of 2 groups of monsters with 3 in each group
+
+Avg. Hits: 55
+A/D: 181/125
+Strength: 17
+Constitution: 15
+Dexterity: 18
+
+Abilities: Critical Hit
+
+Resistances: None
+
+First appears on level 7.
+
+
+Cannibal
+
+Size: Normal
+
+Usually seen as a part of 2 groups of monsters with 2 in each group
+
+Avg. Hits: 155
+A/D: 201/112
+Strength: 21
+Constitution: 17
+Dexterity: 12
+
+Abilities: None
+
+Resistances: None
+
+First appears on level 11.
+
+
+ Mengu-Ogre
+
+Size: Small
+
+Usually seen as a part of 2 groups of monsters with 3 in each group
+
+Avg. Hits: 250
+A/D: 331/194
+Strength: 18
+Constitution: 17
+Dexterity: 15
+
+Abilities: Weapon Resistant
+
+Resistances: Fire 50%
+             Cold 50%
+             Acid 50%
+             Poison 50%
+
+First appears on level 13.
+
+
+Gargantuan.
+
+Size: Small
+
+Usually seen as a part of 3 groups of monsters with 4 in each group
+
+Avg. Hits: 500
+A/D: 600/188
+Strength: 51
+Constitution: 15
+Dexterity: 12
+
+Abilities: None
+
+Resistances: None
+
+First appears on level 14.
+
+**************************
+
+Dwarf
+
+Size: Small
+
+Usually seen as a part of 3 groups of monsters with 3 in each group
+
+Avg. Hits: 60
+A/D: 75/65
+Strength: 13
+Constitution: 11
+Dexterity: 13
+
+Abilities: None
+
+Resistances:Fire 30%
+            Cold 20%
+
+First appears on level 3.
+
+
+Twisted Dwarf
+
+Size: Small
+
+Usually seen as a part of 2 groups of monsters with 2 in each group
+
+Avg. Hits: 5
+A/D: 60/31
+Strength: 8
+Constitution: 9
+Dexterity: 14
+
+Abilities: None
+
+Resistances: None
+
+First appears on level 1.
+
+
+Dwarven Guard
+
+Size: Small
+
+Usually seen as a part of 3 groups of monsters with 4 in each group
+
+Avg. Hits: 73
+A/D: 100/100
+Strength: 14
+Constitution: 12
+Dexterity: 16
+
+Abilities: None
+
+Resistances: Fire 45%
+             Cold 80%
+             Magic 35%
+
+First appears on level 4.
+
+
+*************************
+
+
+Disciple
+
+Size: Normal
+
+Usually seen as a part of 2 groups of monsters with 4 in each group
+
+Avg. Hits: 25
+A/D: 50/44
+Strength: 11
+Constitution: 10
+Dexterity: 13
+
+Abilities: None
+
+Resistances: None
+
+First appears on level 2.
+
+
+Gnome
+
+Size: Normal
+
+Usually seen as a part of 2 groups of monsters with 3 in each group
+
+Avg. Hits: 38
+A/D: 108/94
+Strength: 14
+Constitution: 12
+Dexterity: 16
+
+Abilities: None
+
+Resistances: None
+
+First appears on level 4.
+
+
+Dryad
+
+Size: Small
+
+Usually seen as a part of 2 groups of monsters with 1 in each group
+
+Avg. Hits: 65
+A/D: 128/31
+Strength: 14
+Constitution: 13
+Dexterity: 25
+
+Abilities: Weapon Resistant
+           Charm Resistant
+
+Resistances: Mind 75%
+             Acid 50%
+             Magic 95%
+             Stone 50%
+
+First appears on level 5.
+
+
+Gumon
+
+Size: Normal
+
+Usually seen as a part of 2 groups of monsters with 2 in each group
+
+Avg. Hits: 65
+A/D: 146/119
+Strength: 15
+Constitution: 14
+Dexterity: 15
+
+Abilities: None
+
+Resistances: None
+
+First appears on level 6.
+
+
+Lost Soul
+
+Size: Normal
+
+Usually seen as a part of 3 groups of monsters with 6 in each group
+
+Avg. Hits: 38
+A/D: 91/19
+Strength: 15
+Constitution: 14
+Dexterity: 12
+
+Abilities: None
+
+Resistances: None
+
+First appears on level 6.
+
+
+Siren
+
+Size: Normal
+
+Usually seen as a part of 2 groups of monsters with 3 in each group
+
+Avg. Hits: 75
+A/D: 155/262
+Strength: 12
+Constitution: 17
+Dexterity: 20
+
+Abilities: Invisibile
+           See Invisible
+
+Resistances: Mind 80%
+             Magic 50%
+
+First appears on level 9.
+
+
+Witch
+
+Size: Normal
+
+Usually seen as a part of 1 group of monsters with 2 in each group
+
+Avg. Hits: 210
+A/D: 239/238
+Strength: 18
+Constitution: 18
+Dexterity: 15
+
+Abilities: Invisible
+           See Invisible
+
+Resistances: Mind 15%
+             Acid 50%
+             Poison 50%
+
+First appears on level 10.
+
+
+Coltpixie
+
+Size: Normal
+
+Usually seen as a part of 2 groups of monsters with 2 in each group
+
+Avg. Hits: 185
+A/D: 170/281
+Strength: 18
+Constitution: 17
+Dexterity: 20
+
+Abilities: Weapon Resistant
+
+Resistances: None
+
+First appears on level 12.
+
+
+**************************
+
+
+Skuldragl
+
+Size: Normal
+
+Usually seen as a part of 1 group of monsters with 4 in each group
+
+Avg. Hits: 25
+A/D: 65/31
+Strength: 11
+Constitution: 10
+Dexterity: 13
+
+Abilities: None
+
+Resistances: None
+
+First appears on level 2.
+
+
+*************************
+
+
+Morloch
+
+Size: Normal
+
+Usually seen as a part of 1 group of monsters with 2 in each group
+
+Avg. Hits: 15
+A/D: 45/45
+Strength: 10
+Constitution: 18
+Dexterity: 13
+
+Abilities: None
+
+Resistances: Mind 50%
+             Acid 90%
+             Magic 40%
+             Drain 90%
+             Paralysis 90%
+
+First appears on level 2.
+
+
+*************************
+
+
+Slaver
+
+Size: Normal
+
+Usually seen as a part of 4 groups of monsters with 4 in each group
+
+Avg. Hits: 35
+A/D: 60/45
+Strength: 12
+Constitution: 12
+Dexterity: 11
+
+Abilities: None
+
+Resistances: Mind 25%
+
+First appears on level 2.
+
+
+*************************
+
+
+Slave Driver
+
+Size: Normal
+
+Usually seen as a part of 4 groups of monsters with 1 in each group
+
+Avg. Hits: 95
+A/D: 90/75
+Strength: 16
+Constitution: 15
+Dexterity: 18
+
+Abilities: Charm Resistant
+
+Resistances: Mind 50%
+             Poison 25%
+             Disease 25%
+
+First appears on level 2.
+
+
+*************************
+
+
+Troll
+
+Size: Normal
+
+Usually seen as a part of 1 group of monsters with 2 in each group
+
+Avg. Hits: 35
+A/D: 86/69
+Strength: 12
+Constitution: 11
+Dexterity: 14
+
+Abilities: None
+
+Resistances: Fire 25%
+             Cold 25%
+             Stone 15%
+             Drain 15%
+             Poison 5%
+             Disease 25%
+             Paralysis 25%
+             Electrical 25%
+
+First appears on level 3.
+
+
+*************************
+
+
+Elf
+
+Size: Normal
+
+Usually seen as a part of 2 groups of monsters with 3 in each group
+
+Avg. Hits: 35
+A/D: 86/81
+Strength: 12
+Constitution: 11
+Dexterity: 14
+
+Abilities: See Invisible
+           Weapon Resistant
+
+Resistances: Mind 25%
+             Magic 50%
+
+First appears on level 3.
+
+
+Rock Elf
+
+Size: Normal
+
+Usually seen as a part of 3 groups of monsters with 3 in each group
+
+Avg. Hits: 45
+A/D: 118/95
+Strength: 14
+Constitution: 13
+Dexterity: 17
+
+Abilities: See Invisible
+           Weapon Resistant
+
+Resistances: Mind 25%
+             Magic 50%
+
+First appears on level 5.
+
+
+*************************
+
+
+Sprite
+
+Size: Normal
+
+Usually seen as a part of 1 group of monsters with 2 in each group
+
+Avg. Hits: 50
+A/D: 105/150
+Strength: 15
+Constitution: 13
+Dexterity: 17
+
+Abilities: None
+
+Resistances: Mind 75%
+             Magic 50%
+
+First appears on level 5.
+
+
+Pixie
+
+Size: Normal
+
+Usually seen as a part of 2 groups of monsters with 3 in each group
+
+Avg. Hits: 75
+A/D: 155/169
+Strength: 15
+Constitution: 16
+Dexterity: 18
+
+Abilities: Invisible
+           See Invisible
+           Charm Resistant
+
+Resistances: Mind 50%
+             Magic 50%
+
+First appears on level 8.
+
+
+*************************
+
+
+Goblin Lord
+
+Size: Normal
+
+Usually seen as a part of 2 groups of monsters with 1 in each group
+
+Avg. Hits: 170
+A/D: 120/115
+Strength: 19
+Constitution: 18
+Dexterity: 16
+
+Abilities: See Invisible
+           Charm Resistant
+           Weapon Resistant
+
+Resistances: Fire 75%
+             Cold 35%
+
+First appears on level 3.
+
+
+Dwarven Lord
+
+Size: Normal
+
+Usually seen as a part of 4 groups of monsters with 1 in each group
+
+Avg. Hits: 185
+A/D: 150/180
+Strength: 19
+Constitution: 16
+Dexterity: 18
+
+Abilities: Charm Resistant
+           Weapon Resistant
+           Critical Hit
+
+Resistances: Fire 65%
+             Cold 90%
+             Acid 25%
+             Magic 55%
+
+First appears on level 4.
+
+
+Red Cloaked Assassin
+
+
+Size: Normal
+
+Usually seen as a part of 2 groups of monsters with 2 in each group
+
+Avg. Hits: 175
+A/D: 811/262
+Strength: 35
+Constitution: 18
+Dexterity: 30
+
+Abilities: Invisible
+           See Invisible
+           Weapon Resistant
+           Critical Hit
+           Backstab
+
+Resistances: None
+
+First appears on level 15.
+
+
+*************************
+
+
+Goblin Shaman
+
+Size: Normal
+
+Usually seen as a part of 4 groups of monsters with 3 in each group
+
+Avg. Hits: 31
+A/D: 65/60
+Strength: 11
+Constitution: 12
+Dexterity: 14
+
+Abilities: See Invisible
+
+Resistances: Fire 30%
+             Cold 20%
+
+First appears on level 3.
+
+
+********************
+
+
+Twisted Elf
+
+Size: Normal
+
+Usually seen as a part of 3 groups of monsters with 1 in each group
+
+Avg. Hits: 153
+A/D: 198/165
+Strength: 17
+Constitution: 14
+Dexterity: 21
+
+Abilities: See Invisible
+           Charm Resistant
+           Weapon Resistant
+
+Resistances: Mind 30%
+             Magic 70%
+
+First appears on level 5.
+
+
+Assassin
+
+Size: Normal
+
+Usually seen as a part of 1 group of monsters with 3 in each group
+
+Avg. Hits: 150
+A/D: 555/312
+Strength: 31
+Constitution: 17
+Dexterity: 22
+
+Abilities: Invisible
+           See Invisible
+           Critical Hit
+
+Resistances: None
+
+First appears on level 15.
+
+
+********************
+
+Ruffian
+
+Size: Normal
+
+Usually seen as a part of 2 groups of monsters with 2 in each group
+
+Avg. Hits: 65
+A/D: 163/156
+Strength: 17
+Constitution: 15
+Dexterity: 21
+
+Abilities: Backstab
+
+Resistances: None
+
+First appears on level 7.
+
+
+Jestor
+
+Size: Normal
+
+Usually seen as a part of 2 groups of monsters with 2 in each group
+
+Avg. Hits: 85
+A/D: 176/175
+Strength: 17
+Constitution: 16
+Dexterity: 19
+
+Abilities: Backstab
+
+Resistances: None
+
+First appears on level 8.
+
+
+Filcher
+
+Size: Normal
+
+Usually seen as a part of 2 groups of monsters with 2 in each group
+
+Avg. Hits: 85
+A/D: 176/175
+Strength: 17
+Constitution: 16
+Dexterity: 19
+
+Abilities: Backstab
+
+Resistances: None
+
+First appears on level 8.
+
+
+Sharper
+
+Size: Normal
+
+Usually seen as a part of 1 group of monsters with 3 in each group
+
+Avg. Hits: 150
+A/D: 180/219
+Strength: 17
+Constitution: 17
+Dexterity: 18
+
+Abilities: None
+
+Resistances: None
+
+First appears on level 10.
+
+
+********************
+
+
+Gorguni
+
+Size: Normal
+
+Usually seen as a part of 1 group of monsters with 6 in each group
+
+Avg. Hits: 145
+A/D: 201/250
+Strength: 21
+Constitution: 17
+Dexterity: 12
+
+Abilities: Can Steal
+
+Resistances: Mind 100%
+
+First appears on level 11.
+
+
+********************
+
+
+Shadow Ogre
+
+Size: Normal
+
+Usually seen as a part of 1 group of monsters with 2 in each group
+
+Avg. Hits: 185
+A/D: 275/181
+Strength: 18
+Constitution: 17
+Dexterity: 30
+
+Abilities: Invisible
+           Weapon Resistant
+
+Resistances: Fire 50%
+             Cold 50%
+             Acid 50%
+             Poison 50%
+
+First appears on level 12.
+
+
+------Mages
+
+Enchanter
+
+Size: Normal
+
+Usually seen as a part of 1 group of monsters with 2 in each group
+
+Avg. Hits: 15
+A/D: 19/31
+Strength: 10
+Constitution: 9
+Dexterity: 10
+
+Abilities: Invisible
+           See Invisible
+
+Resistances: Mind 50%
+             Magic 25%
+
+First appears on level 1.
+
+
+Charmer
+
+Size: Normal
+
+Usually seen as a part of 1 group of monsters with 2 in each group
+
+Avg. Hits: 23
+A/D: 36/41
+Strength: 10
+Constitution: 9
+Dexterity: 12
+
+Abilities: Invisible
+           See Invisible
+
+Resistances: Mind 50%
+             Magic 25%
+
+First appears on level 2.
+
+
+Conjurer
+
+Size: Normal
+
+Usually seen as a part of 1 group of monsters with 4 in each group
+
+Avg. Hits: 30
+A/D: 49/50
+Strength: 9
+Constitution: 11
+Dexterity: 13
+
+Abilities: See Invisible
+
+Resistances: Mind 50%
+             Magic 25%
+
+First appears on level 3.
+
+
+Warlock
+
+Size: Normal
+
+Usually seen as a part of 1 group of monsters with 3 in each group
+
+Avg. Hits: 65
+A/D: 106/150
+Strength: 9
+Constitution: 15
+Dexterity: 18
+
+Abilities: Invisible
+           See Invisible
+
+Resistances: Mind 25%
+             Acid 50%
+             Magic 25%
+             Stone 50%
+             Drain 50%
+             Paralysis 50%
+
+First appears on level 7.
+
+
+Apparistionist
+
+Size: Normal
+
+Usually seen as a part of 2 groups of monsters with 4 in each group
+
+Avg. Hits: 95
+A/D: 112/225
+Strength: 9
+Constitution: 17
+Dexterity: 19
+
+Abilities: Invisible
+           See Invisible
+           Weapon Resistant
+
+Resistances: Mind 90%
+             Acid 50%
+             Magic 50%
+             Stone 50%
+             Drain 50%
+             Paralysis 50%
+
+First appears on level 9.
+
+
+Mage
+
+Size: Normal
+
+Usually seen as a part of 2 groups of monsters with 4 in each group
+
+Avg. Hits: 165
+A/D: 217/331
+Strength: 12
+Constitution: 17
+Dexterity: 19
+
+Abilities: See Invisible
+           Weapon Resistant
+
+Resistances: Mind 90%
+             Acid 50%
+             Magic 50%
+             Stone 50%
+             Drain 50%
+             Paralysis 50%
+
+First appears on level 14.
+
+
+**************************
+
+
+Element Mage
+
+Size: Normal
+
+Usually seen as a part of 2 groups of monsters with 1 in each group
+
+Avg. Hits: 55
+A/D: 88/81
+Strength: 11
+Constitution: 13
+Dexterity: 15
+
+Abilities: See Invisible
+
+Resistances: Fire 100%
+             Cold 100%
+             Acid 100%
+             Stone 100%
+             Drain 100%
+             Poison 100%
+             Disease 100%
+             Paralysis 100%
+             Electrical 100%
+
+First appears on level 4.
+
+
+*************************
+
+
+Illusionist
+
+Size: Normal
+
+Usually seen as a part of 2 groups of monsters with 3 in each group
+
+Avg. Hits: 85
+A/D: 100/200
+Strength: 9
+Constitution: 16
+Dexterity: 19
+
+Abilities: Invisible
+           See Invisible
+           Weapon Resistant
+
+Resistances: Mind 90%
+             Acid 90%
+             Magic 50%
+             Stone 50%
+             Drain 50%
+             Paralysis 50%
+
+First appears on level 8.
+
+
+Illusion Master
+
+Size: Normal
+
+Usually seen as a part of 2 groups of monsters with 4 in each group
+
+Avg. Hits: 150
+A/D: 201/312
+Strength: 12
+Constitution: 18
+Dexterity: 20
+
+Abilities: Invisible
+           See Invisible
+           Charm Resistant
+           Weapon Resistant
+
+Resistances: Mind 90%
+             Acid 50%
+             Magic 50%
+             Stone 50%
+             Drain 50%
+             Paralysis 50%
+
+First appears on level 13.
+
+
+**************************
+
+
+Sorcerer
+
+Size: Normal
+
+Usually seen as a part of 1 group of monsters with 5 in each group
+
+Avg. Hits: 40
+A/D: 65/75
+Strength: 9
+Constitution: 13
+Dexterity: 14
+
+Abilities: See Invisible
+
+Resistances: Mind 25%
+             Acid 25%
+             Magic 25%
+             Stone 50%
+             Drain 50%
+             Paralysis 50%
+
+First appears on level 5.
+
+
+Demonist
+
+Size: Normal
+
+Usually seen as a part of 4 groups of monsters with 1 in each group
+
+Avg. Hits: 175
+A/D: 146/260
+Strength: 9
+Constitution: 15
+Dexterity: 18
+
+Abilities: Invisible
+           See Invisible
+           Charm Resistant
+           Weapon Resistant
+
+Resistances: Fire 50%
+             Cold 50%
+             Mind 25%
+             Acid 50%
+             Magic 50%
+             Stone 50%
+             Drain 50%
+             Poison 50%
+             Disease 50%
+             Paralysis 50%
+             Electrical 50%
+
+First appears on level 7.
+
+
+Mind Twister
+
+Size: Normal
+
+Usually seen as a part of 1 groups of monsters with 2 in each group
+
+Avg. Hits: 350
+A/D: 70/438
+Strength: 9
+Constitution: 17
+Dexterity: 19
+
+Abilities: Invisible
+           See Invisible
+           Magic Resistant
+           Charm Resistant
+           Complete Weapon Resistance
+
+Resistances: Mind 90%
+             Acid 50%
+             Magic 50%
+             Stone 50%
+             Drain 50%
+             Paralysis 50%
+
+First appears on level 15.
+
+
+**************************
+
+
+Spell Binder
+
+Size: Normal
+
+Usually seen as a part of 2 groups of monsters with 6 in each group
+
+Avg. Hits: 45
+A/D: 77/112
+Strength: 9
+Constitution: 15
+Dexterity: 16
+
+Abilities: Invisible
+           See Invisible
+           Charm Resistant
+
+Resistances: Mind 25%
+             Acid 50%
+             Magic 25%
+             Stone 50%
+             Drain 50%
+             Paralysis 50%
+
+First appears on level 7.
+
+
+Wizard
+
+Size: Normal
+
+Usually seen as a part of 2 groups of monsters with 2 in each group
+
+Avg. Hits: 135
+A/D: 178/275
+Strength: 12
+Constitution: 18
+Dexterity: 20
+
+Abilities: See Invisible
+           Weapon Resistant
+
+Resistances: Mind 90%
+             Acid 50%
+             Magic 50%
+             Stone 50%
+             Drain 50%
+             Paralysis 50%
+
+First appears on level 11.
+
+
+**************************
+
+
+Magi Lord
+
+Size: Normal
+
+Usually seen as a part of 3 groups of monsters with 1 in each group
+
+Avg. Hits: 850
+A/D: 225/625
+Strength: 21
+Constitution: 18
+Dexterity: 23
+
+Abilities: Invisible
+           See Invisible
+           Charm Resistant
+           Weapon Resistant
+
+Resistances: Mind 90%
+             Acid 50%
+             Magic 50%
+             Stone 50%
+             Drain 50%
+             Paralysis 50%
+
+First appears on level 15.
+
+
+------Thieves
+
+Footpad
+
+Size: Small
+
+Usually seen as a part of 1 group of monsters with 2 in each group
+
+Avg. Hits: 8
+A/D: 19/6
+Strength: 9
+Consitiution: 9
+Dexterity: 9
+
+Abilities: Can Steal
+
+Resistances: None
+
+First appears on level 1.
+
+
+Cutthoat
+
+Size: Small
+
+Usually seen as a part of 3 groups of monsters with 1 in each group
+
+Avg. Hits: 25
+A/D: 70/50
+Strength: 11
+Consitiution: 10
+Dexterity: 15
+
+Abilities: Can Steal
+           Can Poison
+           Can Backstab
+           Can Critically Hit
+
+Resistances: None
+
+First appears on level 2.
+
+
+Thug
+
+Size: Small
+
+Usually seen as a part of 2 groups of monsters with 3 in each group
+
+Avg. Hits: 30
+A/D: 86/81
+Strength: 11
+Consitiution: 11
+Dexterity: 16
+
+Abilities: Can Steal
+
+Resistances: None
+
+First appears on level 3.
+
+
+Gredlan Footpad
+
+Size: Normal
+
+Usually seen as a part of 2 groups of monsters with 3 in each group
+
+Avg. Hits: 95
+A/D: 163/62
+Strength: 14
+Consitiution: 15
+Dexterity: 19
+
+Abilities: Can Steal
+           Can Backstab
+
+Resistances: None
+
+First appears on level 7.
+
+
+Hooded Thief
+
+Size: Normal
+
+Usually seen as a part of 4 groups of monsters with 1 in each group
+
+Avg. Hits: 172
+A/D: 175/98
+Strength: 18
+Consitiution: 15
+Dexterity: 26
+
+Abilities: Invisible
+           Can See invisible
+           Charm Resistant
+           Weapon Resistant
+           Can Steal
+           Can Backstab
+           Can Destroy Items
+
+Resistances: Fire 75%
+             Cold 75%
+
+First appears on level 7.
+
+*****
+
+Gredlan Rogue
+
+Size: Normal
+
+Usually seen as a part of 1 group of monsters with 2 in each group
+
+Avg. Hits: 10
+A/D: 19/19
+Strength: 10
+Consitiution: 9
+Dexterity: 10
+
+Abilities: Can Steal
+
+Resistances: None
+
+First appears on level 1.
+
+Scavenger, Cutpurse, Robber, Burgler, Pilferer, Thief
+
+Pickpocket
+
+Sharlar Thief, Brigand, Master Thief
+
+Red Cloaked Thief, Master of Shadows
+
+------Warriors
+
+Warrior, Soldier, Currier, Gladiator, Sentinal, Swordsman, Defender, Hero,
+Master Swordsman
+
+Pinyl, Rashart, Slayer, Bushido, Mercenary
+
+Rowdy, Barbarian, Guardsman
+
+Swashbuckler, Bushart
+
+Champion, Warlord
+
+Butcher, Ninja, Master Ninja, Shadow Ninja
+
+Holy Warrior, Elven Lord
+
+______________________________________________________________________________
+----------------------------------------------------------------- Elementals -
+
+Killart, hennart, Dunnart, Phantasmal Mist, Junnart
+
+Air Elemental
+
+Ice Mist, Freezing Mist, Black Mist
+
+Wisp, Wil 'O Wisp
+
+Genie
+
+Efreet
+
+______________________________________________________________________________
+--------------------------------------------------------------------- Undead -
+
+Zombie, Hiksae, Mummy, Milsae, Walking Corpse, Corpser
+
+Skeleton
+
+Warrior Spirit
+
+Munsae, Ransae, Shuman Munsae, Lich
+
+Wraith, Ghoul, Night Screamer
+
+Ghost, Evil Spirit
+
+Spook, Eidolan Phantasm
+
+Drakul, Vampire
+
+Asteryex
+
+Banshee
+
+Minion of Death, Angel of Death
+
+Etholan Phantasm
+
+Vampire Lord
+
+Reaper of Souls
+
+______________________________________________________________________________
+-------------------------------------------------------------------- Insects -
+
+Giant Spider, Arthropod, Drey Spider, Crystal Spider, Wolf Spider, Tarantula
+
+Giant Centipede, Fire Centipede
+
+Ant, Giant Beetle, Giant Ant, Fire Ant, Orp, Fire Beetle, Earwig,
+Giant Silverfish
+
+Grael Mosquito, Giant Hornet, Giant Wasp
+
+Giant Scorpion, Shadow Sting
+
+Rot Grub
+
+______________________________________________________________________________
+--------------------------------------------------------------------- Devils -
+
+Margoyle, Gargoyle, Imp
+
+Veyasu, Keenasu, Greymah, Kenymah
+
+Nan-Shuma, Screaming Devil, Dervish, Kei-Shuma, Dust Devil, Fire Lord,
+Flame Devil
+
+Poltergeist, Fiend, Arch-Fiend, Guardian, Shadow Devil, Asmodeus
+
+______________________________________________________________________________
+--------------------------------------------------------------------- Demons -
+
+Dimeon, Daemon, Kaelmeon, Lassumeon, Astral Demon, Shaelmeon, Wretch, Mammon,
+Incubi, Shadow Demon, Harpy
+
+Horned Demon, Lynch Demon, Pit Fiend
+
+Wingled Demon
+
+Troll Demon
+
+Demon Lord
+
+Shadow of Death
+
+Demon Prince
+
+______________________________________________________________________________
+--------------------------------------------------------------------- Giants -
+
+Horda Giant, Geeshi, Morgul, Frost Giant, Kaneeshi, Earth Golemn, Stone Golemn,
+Meeshi, Fire Golemn, Lava Giant, Emerald Golemn, Ogre, Shadow Golem,
+Obsidian Golem
+
+Slave Masher, Cyclopse
+
+Giant King
+
+Charon
+
+______________________________________________________________________________
+-------------------------------------------------------------------- Animals -
+
+Black Bear, Giant Badger, Dungeon Bear, Cave Bear, Pandrun, Havannan Lion,
+Grey Pandrun, Giant Wolverine, Silver Bear, Yundrun, Brown Bear, Mordun Pandrun,
+Frost Bear, Black Yundrun, Iron Bear
+
+Giant Owl, Giant Raven, Vampire Bat, Death Hawk, Silent Eagle, Golden Eagle
+
+Snook, Large Rat, Egru, Rabid Snook, Beechi
+
+Brown Tyke, Spotted Tyke, Falcon Wolf, Hell Hound, Black Wolf, Shadow Wolf
+
+Scylla, Stalker, Death Stalker
+
+Razor Boar, Giant Boar, Burrow
+
+Giant Slug
+
+Carrior Crawler, Giant Leech
+
+Tengu
+
+______________________________________________________________________________
+-------------------------------------------------------------------- Dragons -
+
+Pseudo-Dragon, Firagon, Pelagon, Spectral Dragon
+
+Hydra, Blue Pelagon, Ice Dragon
+
+Flame Dragon, Drey Dragon
+
+Silver Dragon, Black Pelegon, Gold Pelegon, White Dragon, Shadow Dragon,
+Sun Dragon
+
+Mundragon
+
+Dragon King, Dragon Queen
+
+______________________________________________________________________________
+------------------------------------------------------------------- Monsters -
+
+------Slimes
+
+Clean-Up, Green Ooze, Green Slime, Diseased Muck, Purple Ooze, Slippery Mire,
+Blue Slime, Violet Fungus, Grey Mold, Golden Ooze
+
+Aboleth, Grey Ooze
+
+Vomitis Goo, Jubilex, Rust Monster
+
+------Water-Dwellers
+
+Alligator, Black Eel, Giant Crocodile, Water Snake
+
+Giant Frog, Kyu Hetha, Kyu Yetro, Kyu Ianmo, Ice Demon, Kyu Hota, Kyu Nardana,
+Kyu t'Salli
+
+Dungeon Pike, Tiger Shark, Hammerhead Shark, Piranha, Great White
+
+Lamurian Outcast, Lamurian, Lamurian Scout, Lamurian Soldier, Lamurian Guard,
+Lamurian Warrior, Lamurian Lord
+
+Water Watcher, Dark Shape, Dragon Turtle
+
+Lamurian High Priestess
+
+Destoryer of the Deep
+
+Lamurian Mage
+
+------Lycanthropes
+
+Wererat
+
+Phase Beast, Life Shifter
+
+Altering Beast, Werewolf, Polymorph, Displacer
+
+Trancor, Malencor
+
+Doppleganger
+
+Wereboar
+
+Werebear
+
+Shape Shifter
+
+------Mythicals
+
+Red Gremlin, Orange Gremlin, Yellow Gremlin, Green Gremlin, Blue Gremlin,
+Purple Gremlin, Indigo Gremlin
+
+Nastrum, Sistrum, Mostrum, Grostrum, Pariah, Gorgon
+
+Centaur, Satyr, Golden Centaur
+
+Morey Bilk, Acient Guardian
+
+Minotaur
+
+Cockatrice
+
+Tazen
+
+Griffin
+
+Phoenix
+
+Black Gremlin
+
+------Reptiles
+
+I'ssus, Ye'ssus, Bull Snake, Giant Serpent, Pit Viper, Rattlesnake,
+Snake Servant, Giant Issus, Asp, Giant Snake, Shadow Serpent, Slither
+
+Night Dragon, Pegan Lizard, Gythyek Lizard
+
+Medusa, Mother of Serphents
+
+Que'ssus, Black Grengi, Coutal
+
+------Indigini
+
+Namana, Nakovant, Nabutu, NaLanea, T'Mana, T'Kovant, T'Butu, T'Lanea
+
+Dungeonweed, Strangleweed
+
+Gibbering Yethwa
+
+
+o============================================================================o
+|                              Dungeon Crawling                              |
+o============================================================================o
+
+
+Coming Soon (probably not)
+
+
+o============================================================================o
+|                                  Glitches                                  |
+o============================================================================o
+
+
+Slaves - Charm a slave, then take it to Confinement.  Simply keep realigning it
+         from Good to Evil and back again until you have the desired amount of
+         money.
+
+Item Exhange - Create a new character.  Load this character but don't click Run
+               yet.  Go to the Exchange Items in the main menu.  Select the
+               person you want to have the money.  Click on your real
+               character's money and drag it to your new character.  A box will
+               come up.  Type in a negative number.  Your real character just
+               received that amount!
+
+Healer Glitch - Theoretically, you're supposed to be casting all spells at the
+by:             spell level of the guild in which you learnt that particular
+A. J. Raffles   spell, not the one you have currently selected. For example if
+                you are a level 100 Healer, you'll be casting Word of Death at
+                spell level 50, even if you are currently leveling Warrior and
+                have reached level 500 there. Healing spells are different. That
+                level 100 Healer/level 500 Warrior would cast a healing spell
+                like Restoration at level 50 while he was leveling in Healer,
+                but at level 250 while he was leveling in Warrior.
+
+Quest Master - Occasionally the Questmaster will tell you to bring back an item.
+               Not so hard, right?  Right.  But, the Questmaster is a Con man!
+               When you level up you need to pay a fee to the guild.  When you
+               level up the Questmaster will check that you have the right
+               amount of experience, then that you have the item you were on the
+               quest for, takes the item, checks for the gold, then takes said
+               gold.  The glitch is, if you have the item but not the gold, the
+               Questmaster will take the item but you will not level up.  You
+               will then have to get the item and gold before you can level up.
+
+
+o============================================================================o
+|                              Soon to be added                              |
+o============================================================================o
+
+Soloing
+
+Parties
+
+Aging
+
+Monsters to watch out for
+
+Charming/Joining
+
+Moving Through the Dungeon
+
+Weapons Guide
+
+Suggested Parties
+
+Importance of the Thieving Skill
+
+The Fate Spell
+
+Unique Monsters
+
+Forfeiting a Quest, Good or Bad?
+
+Dungeon Respawn Time
+
