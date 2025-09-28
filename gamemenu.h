@@ -38,6 +38,12 @@ private:
     QPushButton *optionsButton;
     QPushButton *aboutButton;
     QPushButton *spellbookButton;
+signals:
+    /**
+     * @brief Signal emitted when a message needs to be logged.
+     * @param message The string to be logged by the MessagesWindow.
+     */
+    void logMessageTriggered(const QString &message);
 };
 
 #endif // GAMEMENU_H

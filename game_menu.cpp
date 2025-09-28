@@ -9,6 +9,9 @@
 #include "MonsterEditorDialog.h"
 #include "SpellbookEditorDialog.h"
 #include "CharacterDialog.h"
+#include "MessageWindow.h"
+#include "SenderWindow.h"
+
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QGridLayout>
@@ -23,6 +26,7 @@
 #include <QMediaPlayer>
 #include <QAudioOutput>
 #include <QUrl>
+#include <QDateTime>
 
 GameMenu::GameMenu(QWidget *parent) : QWidget(parent) {
     setWindowTitle("Mordor: The Depths of Dejenol");
@@ -114,6 +118,28 @@ GameMenu::GameMenu(QWidget *parent) : QWidget(parent) {
     QLabel *bottomRightImage = new QLabel();
     gridLayout->addWidget(bottomRightImage, 3, 3, 2, 1);
 
+
+    // 1. CREATE THE LOGGER WINDOW
+    // Create it on the heap. We'll make it a top-level window (no parent).
+    MessagesWindow *loggerWindow = new MessagesWindow();
+
+    // If you made it a private member (m_loggerWindow) you would use:
+    // m_loggerWindow = new MessagesWindow();
+
+    // 2. ESTABLISH THE CONNECTION
+    // Connect THIS object's signal (GameMenu::logMessageTriggered)
+    // to the loggerWindow's slot (MessagesWindow::logMessage).
+    QObject::connect(this, &GameMenu::logMessageTriggered,
+                     loggerWindow, &MessagesWindow::logMessage);
+
+    // 3. SHOW THE LOGGER WINDOW
+    loggerWindow->show();
+
+    // 4. (DEMO) EMIT A TEST MESSAGE
+    // Use the signal you just connected to immediately log a message.
+    emit logMessageTriggered("GameMenu has successfully initialized the Messages Log.");
+
+    // 5. ... rest of GameMenu setup (buttons, layouts, etc.)
     // Connections
     connect(newButton, &QPushButton::clicked, this, &GameMenu::startNewGame);
     connect(loadButton, &QPushButton::clicked, this, &GameMenu::loadGame);
@@ -139,8 +165,11 @@ void GameMenu::loadGame() {
     dialog->show();
 }
 
-void GameMenu::showRecords() {
-    qDebug() << "Hall of Records button clicked";
+void GameMenu::showRecords() {    // Create a dynamic message
+    //QString message = QString("Button clicked at %1.").arg(QDateTime::currentDateTime().toString("HH:mm:ss.zzz"));
+    // ... game logic
+    emit logMessageTriggered("User entered hall of records");
+    qDebug() << "User entered hall of records";
     HallOfRecordsDialog *recordsDialog = new HallOfRecordsDialog(this);
     recordsDialog->show();
 }

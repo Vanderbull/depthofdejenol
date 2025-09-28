@@ -3,7 +3,9 @@ TARGET = game_menu
 SOURCES += game_menu.cpp hallofrecordsdialog.cpp createcharacterdialog.cpp \
     AboutDialog.cpp \
     CharacterDialog.cpp \
+    MessageWindow.cpp \
     MonsterEditorDialog.cpp \
+    SenderWindow.cpp \
     SpellbookEditorDialog.cpp
 SOURCES += marlith_dialog.cpp
 SOURCES += inventorydialog.cpp
@@ -12,7 +14,9 @@ SOURCES += dungeondialog.cpp
 HEADERS += gamemenu.h hallofrecordsdialog.h createcharacterdialog.h \
     AboutDialog.h \
     CharacterDialog.h \
+    MessageWindow.h \
     MonsterEditorDialog.h \
+    SenderWindow.h \
     SpellbookEditorDialog.h
 HEADERS += marlith_dialog.h
 HEADERS += inventorydialog.h
