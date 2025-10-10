@@ -4,13 +4,11 @@
 #include <QHBoxLayout>
 #include <QDebug>
 #include <QMessageBox>
-#include <QPainter> 
-#include <QPen>     
-#include <QBrush>   
-#include <QKeyEvent> // REQUIRED for keyPressEvent implementation
+#include <QPainter> // Added for drawing functionality
+#include <QPen>     // Added for drawing lines
+#include <QBrush>   // Added for drawing filled shapes
 
-// --- MapViewWidget Implementation (omitted for brevity) ---
-// ... (Your MapViewWidget code goes here) ...
+// --- MapViewWidget Implementation ---
 
 MapViewWidget::MapViewWidget(QWidget *parent) : QWidget(parent) {
     // Styling for the map area
@@ -18,15 +16,21 @@ MapViewWidget::MapViewWidget(QWidget *parent) : QWidget(parent) {
     setMinimumSize(400, 400); 
 }
 
+/**
+ * @brief Sets the player's map data and triggers a repaint.
+ */
 void MapViewWidget::setPlayerPosition(int x, int y, int z, const QString& facing, bool visible) {
     playerX = x;
     playerY = y;
     playerZ = z;
     playerFacing = facing;
     playerVisible = visible;
-    update();
+    update(); // Schedules a repaint event
 }
 
+/**
+ * @brief Handles drawing the map content and player marker.
+ */
 void MapViewWidget::paintEvent(QPaintEvent *event) {
     Q_UNUSED(event);
     QPainter painter(this);
@@ -36,36 +40,53 @@ void MapViewWidget::paintEvent(QPaintEvent *event) {
     int height = this->height();
 
     // 1. Draw Map Placeholder (Boundary)
-    QPen borderPen(QColor("#7FFF00"));
+    QPen borderPen(QColor("#7FFF00")); // Neon green for lines
     borderPen.setWidth(1);
     painter.setPen(borderPen);
+    
+    // Draw a placeholder grid or border to represent the dungeon floor
     painter.drawRect(0, 0, width - 1, height - 1);
     
+    // Add text overlay if the position is hidden
     if (!playerVisible) {
-        painter.setPen(QColor("#5D4037"));
+        painter.setPen(QColor("#5D4037")); // Darker color for hidden state
         painter.setFont(QFont("Consolas", 14));
         painter.drawText(rect(), Qt::AlignCenter, "Map Data (Position Hidden)");
-        return;
+        return; // Stop drawing the dot if hidden
     }
 
     // 2. Draw the Player Marker (The Dot)
+    
+    // Since we are using mock X, Y coordinates (e.g., 52, 89), we need to map 
+    // these dungeon coordinates (which could be 1-100) onto the widget's pixel space.
+    
+    // Assume dungeon coordinates range from 0 to 100 for simplicity of mock data.
     const int MAP_MAX_COORD = 100;
+
+    // Calculate normalized position (0.0 to 1.0)
     qreal normalizedX = (qreal)playerX / MAP_MAX_COORD;
     qreal normalizedY = (qreal)playerY / MAP_MAX_COORD; 
 
+    // Calculate pixel position on the widget
+    // NOTE: In dungeon crawlers, Y often increases DOWN, so 1.0 - normalizedY might be needed.
+    // We'll use Y increasing downward for screen coordinates:
     int pixelX = qRound(normalizedX * width);
-    int pixelY = qRound(height - (normalizedY * height));
+    int pixelY = qRound(height - (normalizedY * height)); // Invert Y for typical map drawing
 
+    // Ensure the dot stays within bounds
     pixelX = qBound(5, pixelX, width - 5);
     pixelY = qBound(5, pixelY, height - 5);
     
-    QBrush dotBrush(QColor("#FF4500"));
+    // Set the brush and pen for the player dot
+    QBrush dotBrush(QColor("#FF4500")); // Bright red/orange for visibility
     painter.setBrush(dotBrush);
-    painter.setPen(QPen(QColor("#FFFFFF"), 2));
+    painter.setPen(QPen(QColor("#FFFFFF"), 2)); // White border for contrast
 
+    // Draw a filled circle (the player dot)
     const int DOT_SIZE = 8;
     painter.drawEllipse(pixelX - DOT_SIZE / 2, pixelY - DOT_SIZE / 2, DOT_SIZE, DOT_SIZE);
     
+    // Optional: Draw facing indicator (simple line)
     QPointF start(pixelX, pixelY);
     QPointF end = start;
     int indicatorLength = 10;
@@ -98,19 +119,21 @@ AutomapDialog::AutomapDialog(QWidget *parent)
     // Pass initial data to the map widget
     mapDisplay->setPlayerPosition(currentX, currentY, currentZ, currentFacing, isPositionVisible);
     updatePositionLabel();
-    
-    // Crucial: Ensure the dialog can receive keyboard focus
-    setFocusPolicy(Qt::StrongFocus);
 }
 
 /**
  * @brief Public interface to move the player's position on the map and update the view.
+ * * @param x The new X coordinate.
+ * @param y The new Y coordinate.
+ * @param facing The new direction the player is facing (NORTH, SOUTH, EAST, WEST).
  */
 void AutomapDialog::updatePlayerPosition(int x, int y, const QString &facing) {
-    // 1. Update internal state, clamp coordinates for mock data (0-100)
-    currentX = qBound(0, x, 100);
-    currentY = qBound(0, y, 100);
-    currentFacing = facing.toUpper();
+    // 1. Update internal state
+    currentX = x;
+    currentY = y;
+    // currentZ remains the same unless a level change is detected, 
+    // which would require an additional parameter or function.
+    currentFacing = facing.toUpper(); // Ensure direction is capitalized
 
     // 2. Update the UI elements
     updatePositionLabel();
@@ -118,57 +141,6 @@ void AutomapDialog::updatePlayerPosition(int x, int y, const QString &facing) {
     
     qDebug() << "Map position updated to X:" << currentX << "Y:" << currentY << "Facing:" << currentFacing;
 }
-
-
-// --- NEW/RESTORED IMPLEMENTATION: keyPressEvent ---
-/**
- * @brief Handles key presses for map movement.
- */
-void AutomapDialog::keyPressEvent(QKeyEvent *event) {
-    int newX = currentX;
-    int newY = currentY;
-    QString newFacing = currentFacing;
-    bool handled = true;
-
-    const int STEP = 2; // Movement step size for testing
-
-    switch (event->key()) {
-    case Qt::Key_Up:
-        newY += STEP; 
-        newFacing = "NORTH";
-        break;
-    case Qt::Key_Down:
-        newY -= STEP; 
-        newFacing = "SOUTH";
-        break;
-    case Qt::Key_Left:
-        newX -= STEP; 
-        newFacing = "WEST";
-        break;
-    case Qt::Key_Right:
-        newX += STEP; 
-        newFacing = "EAST";
-        break;
-    case Qt::Key_Escape:
-        // Allow ESC to close the dialog
-        this->accept();
-        return; 
-    default:
-        // Key not handled by this function
-        handled = false;
-        break;
-    }
-
-    if (handled) {
-        // Call the function to update the map view
-        updatePlayerPosition(newX, newY, newFacing);
-        event->accept(); // Consume the event so it doesn't propagate
-    } else {
-        // For unhandled keys, pass the event to the base class
-        QDialog::keyPressEvent(event);
-    }
-}
-// --- END NEW/RESTORED IMPLEMENTATION ---
 
 
 /**
@@ -191,10 +163,10 @@ void AutomapDialog::setupUI() {
     mainLayout->addWidget(positionLabel);
 
     // --- Map Display Area (MapViewWidget) ---
-    mapDisplay = new MapViewWidget(this);
+    mapDisplay = new MapViewWidget(this); // Now the custom widget
     mainLayout->addWidget(mapDisplay);
 
-    // --- Button Layout (omitted for brevity) ---
+    // --- Button Layout ---
     QHBoxLayout *buttonLayout = new QHBoxLayout();
     
     QString buttonStyle = "QPushButton { background-color: #3e2723; color: #FFFFFF; border: 2px solid #5D4037; border-radius: 8px; padding: 10px 15px; }"
@@ -254,7 +226,7 @@ void AutomapDialog::updatePositionLabel() {
     }
 }
 
-// --- SLOTS Implementation (omitted for brevity) ---
+// --- SLOTS Implementation ---
 
 void AutomapDialog::onCloseClicked() {
     this->accept(); 
@@ -268,6 +240,7 @@ void AutomapDialog::onClearMapClicked() {
 void AutomapDialog::onTogglePositionClicked() {
     isPositionVisible = !isPositionVisible;
     
+    // Update the MapViewWidget visibility and redraw
     mapDisplay->setPlayerPosition(currentX, currentY, currentZ, currentFacing, isPositionVisible);
     
     updatePositionLabel();

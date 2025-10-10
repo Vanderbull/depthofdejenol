@@ -63,6 +63,7 @@ SOURCES       = game_menu.cpp \
 		SpellbookEditorDialog.cpp \
 		library_dialog.cpp \
 		automap_dialog.cpp \
+		game_controller.cpp \
 		marlith_dialog.cpp \
 		inventorydialog.cpp \
 		optionsdialog.cpp \
@@ -79,6 +80,7 @@ SOURCES       = game_menu.cpp \
 		moc_SpellbookEditorDialog.cpp \
 		moc_library_dialog.cpp \
 		moc_automap_dialog.cpp \
+		moc_game_controller.cpp \
 		moc_marlith_dialog.cpp \
 		moc_inventorydialog.cpp \
 		moc_optionsdialog.cpp \
@@ -96,6 +98,7 @@ OBJECTS       = game_menu.o \
 		SpellbookEditorDialog.o \
 		library_dialog.o \
 		automap_dialog.o \
+		game_controller.o \
 		marlith_dialog.o \
 		inventorydialog.o \
 		optionsdialog.o \
@@ -113,6 +116,7 @@ OBJECTS       = game_menu.o \
 		moc_SpellbookEditorDialog.o \
 		moc_library_dialog.o \
 		moc_automap_dialog.o \
+		moc_game_controller.o \
 		moc_marlith_dialog.o \
 		moc_inventorydialog.o \
 		moc_optionsdialog.o \
@@ -428,6 +432,7 @@ DIST          = .gitignore \
 		SpellbookEditorDialog.h \
 		library_dialog.h \
 		automap_dialog.h \
+		game_controller.h \
 		marlith_dialog.h \
 		inventorydialog.h \
 		optionsdialog.h \
@@ -444,6 +449,7 @@ DIST          = .gitignore \
 		SpellbookEditorDialog.cpp \
 		library_dialog.cpp \
 		automap_dialog.cpp \
+		game_controller.cpp \
 		marlith_dialog.cpp \
 		inventorydialog.cpp \
 		optionsdialog.cpp \
@@ -1083,8 +1089,8 @@ distdir: FORCE
 	@test -d $(DISTDIR) || mkdir -p $(DISTDIR)
 	$(COPY_FILE) --parents $(DIST) $(DISTDIR)/
 	$(COPY_FILE) --parents /usr/lib/x86_64-linux-gnu/qt6/mkspecs/features/data/dummy.cpp $(DISTDIR)/
-	$(COPY_FILE) --parents gamemenu.h hallofrecordsdialog.h createcharacterdialog.h AboutDialog.h CharacterDialog.h MessageWindow.h MonsterEditorDialog.h SenderWindow.h SpellbookEditorDialog.h library_dialog.h automap_dialog.h marlith_dialog.h inventorydialog.h optionsdialog.h dungeondialog.h partyinfodialog.h dungeonmap.h $(DISTDIR)/
-	$(COPY_FILE) --parents game_menu.cpp hallofrecordsdialog.cpp createcharacterdialog.cpp AboutDialog.cpp CharacterDialog.cpp MessageWindow.cpp MonsterEditorDialog.cpp SenderWindow.cpp SpellbookEditorDialog.cpp library_dialog.cpp automap_dialog.cpp marlith_dialog.cpp inventorydialog.cpp optionsdialog.cpp dungeondialog.cpp partyinfodialog.cpp dungeonmap.cpp $(DISTDIR)/
+	$(COPY_FILE) --parents gamemenu.h hallofrecordsdialog.h createcharacterdialog.h AboutDialog.h CharacterDialog.h MessageWindow.h MonsterEditorDialog.h SenderWindow.h SpellbookEditorDialog.h library_dialog.h automap_dialog.h game_controller.h marlith_dialog.h inventorydialog.h optionsdialog.h dungeondialog.h partyinfodialog.h dungeonmap.h $(DISTDIR)/
+	$(COPY_FILE) --parents game_menu.cpp hallofrecordsdialog.cpp createcharacterdialog.cpp AboutDialog.cpp CharacterDialog.cpp MessageWindow.cpp MonsterEditorDialog.cpp SenderWindow.cpp SpellbookEditorDialog.cpp library_dialog.cpp automap_dialog.cpp game_controller.cpp marlith_dialog.cpp inventorydialog.cpp optionsdialog.cpp dungeondialog.cpp partyinfodialog.cpp dungeonmap.cpp $(DISTDIR)/
 
 
 clean: compiler_clean 
@@ -1115,9 +1121,9 @@ compiler_moc_predefs_clean:
 moc_predefs.h: /usr/lib/x86_64-linux-gnu/qt6/mkspecs/features/data/dummy.cpp
 	g++ -pipe -O2 -Wall -Wextra -dM -E -o moc_predefs.h /usr/lib/x86_64-linux-gnu/qt6/mkspecs/features/data/dummy.cpp
 
-compiler_moc_header_make_all: moc_gamemenu.cpp moc_hallofrecordsdialog.cpp moc_createcharacterdialog.cpp moc_AboutDialog.cpp moc_CharacterDialog.cpp moc_MessageWindow.cpp moc_MonsterEditorDialog.cpp moc_SenderWindow.cpp moc_SpellbookEditorDialog.cpp moc_library_dialog.cpp moc_automap_dialog.cpp moc_marlith_dialog.cpp moc_inventorydialog.cpp moc_optionsdialog.cpp moc_dungeondialog.cpp moc_partyinfodialog.cpp moc_dungeonmap.cpp
+compiler_moc_header_make_all: moc_gamemenu.cpp moc_hallofrecordsdialog.cpp moc_createcharacterdialog.cpp moc_AboutDialog.cpp moc_CharacterDialog.cpp moc_MessageWindow.cpp moc_MonsterEditorDialog.cpp moc_SenderWindow.cpp moc_SpellbookEditorDialog.cpp moc_library_dialog.cpp moc_automap_dialog.cpp moc_game_controller.cpp moc_marlith_dialog.cpp moc_inventorydialog.cpp moc_optionsdialog.cpp moc_dungeondialog.cpp moc_partyinfodialog.cpp moc_dungeonmap.cpp
 compiler_moc_header_clean:
-	-$(DEL_FILE) moc_gamemenu.cpp moc_hallofrecordsdialog.cpp moc_createcharacterdialog.cpp moc_AboutDialog.cpp moc_CharacterDialog.cpp moc_MessageWindow.cpp moc_MonsterEditorDialog.cpp moc_SenderWindow.cpp moc_SpellbookEditorDialog.cpp moc_library_dialog.cpp moc_automap_dialog.cpp moc_marlith_dialog.cpp moc_inventorydialog.cpp moc_optionsdialog.cpp moc_dungeondialog.cpp moc_partyinfodialog.cpp moc_dungeonmap.cpp
+	-$(DEL_FILE) moc_gamemenu.cpp moc_hallofrecordsdialog.cpp moc_createcharacterdialog.cpp moc_AboutDialog.cpp moc_CharacterDialog.cpp moc_MessageWindow.cpp moc_MonsterEditorDialog.cpp moc_SenderWindow.cpp moc_SpellbookEditorDialog.cpp moc_library_dialog.cpp moc_automap_dialog.cpp moc_game_controller.cpp moc_marlith_dialog.cpp moc_inventorydialog.cpp moc_optionsdialog.cpp moc_dungeondialog.cpp moc_partyinfodialog.cpp moc_dungeonmap.cpp
 moc_gamemenu.cpp: gamemenu.h \
 		moc_predefs.h \
 		/usr/lib/qt6/libexec/moc
@@ -1172,6 +1178,11 @@ moc_automap_dialog.cpp: automap_dialog.h \
 		moc_predefs.h \
 		/usr/lib/qt6/libexec/moc
 	/usr/lib/qt6/libexec/moc $(DEFINES) --include /home/rickard/Documents/GitHub/depthofdejenol/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt6/mkspecs/linux-g++ -I/home/rickard/Documents/GitHub/depthofdejenol -I/usr/include/x86_64-linux-gnu/qt6/QtMultimedia -I/usr/include/x86_64-linux-gnu/qt6/QtWidgets -I/usr/include/x86_64-linux-gnu/qt6/QtGui -I/usr/include/x86_64-linux-gnu/qt6/QtCore -I/usr/include/x86_64-linux-gnu/qt6 -I/usr/include/x86_64-linux-gnu/qt6/QtNetwork -I/usr/include/c++/14 -I/usr/include/x86_64-linux-gnu/c++/14 -I/usr/include/c++/14/backward -I/usr/lib/gcc/x86_64-linux-gnu/14/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include automap_dialog.h -o moc_automap_dialog.cpp
+
+moc_game_controller.cpp: game_controller.h \
+		moc_predefs.h \
+		/usr/lib/qt6/libexec/moc
+	/usr/lib/qt6/libexec/moc $(DEFINES) --include /home/rickard/Documents/GitHub/depthofdejenol/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt6/mkspecs/linux-g++ -I/home/rickard/Documents/GitHub/depthofdejenol -I/usr/include/x86_64-linux-gnu/qt6/QtMultimedia -I/usr/include/x86_64-linux-gnu/qt6/QtWidgets -I/usr/include/x86_64-linux-gnu/qt6/QtGui -I/usr/include/x86_64-linux-gnu/qt6/QtCore -I/usr/include/x86_64-linux-gnu/qt6 -I/usr/include/x86_64-linux-gnu/qt6/QtNetwork -I/usr/include/c++/14 -I/usr/include/x86_64-linux-gnu/c++/14 -I/usr/include/c++/14/backward -I/usr/lib/gcc/x86_64-linux-gnu/14/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include game_controller.h -o moc_game_controller.cpp
 
 moc_marlith_dialog.cpp: marlith_dialog.h \
 		moc_predefs.h \
@@ -1233,7 +1244,8 @@ game_menu.o: game_menu.cpp gamemenu.h \
 		MessageWindow.h \
 		SenderWindow.h \
 		library_dialog.h \
-		automap_dialog.h
+		automap_dialog.h \
+		game_controller.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o game_menu.o game_menu.cpp
 
 hallofrecordsdialog.o: hallofrecordsdialog.cpp hallofrecordsdialog.h
@@ -1265,6 +1277,9 @@ library_dialog.o: library_dialog.cpp library_dialog.h
 
 automap_dialog.o: automap_dialog.cpp automap_dialog.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o automap_dialog.o automap_dialog.cpp
+
+game_controller.o: game_controller.cpp game_controller.h
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o game_controller.o game_controller.cpp
 
 marlith_dialog.o: marlith_dialog.cpp marlith_dialog.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o marlith_dialog.o marlith_dialog.cpp
@@ -1318,6 +1333,9 @@ moc_library_dialog.o: moc_library_dialog.cpp
 
 moc_automap_dialog.o: moc_automap_dialog.cpp 
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o moc_automap_dialog.o moc_automap_dialog.cpp
+
+moc_game_controller.o: moc_game_controller.cpp 
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o moc_game_controller.o moc_game_controller.cpp
 
 moc_marlith_dialog.o: moc_marlith_dialog.cpp 
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o moc_marlith_dialog.o moc_marlith_dialog.cpp

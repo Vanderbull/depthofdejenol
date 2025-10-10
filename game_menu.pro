@@ -8,7 +8,8 @@ SOURCES += game_menu.cpp hallofrecordsdialog.cpp createcharacterdialog.cpp \
     SenderWindow.cpp \
     SpellbookEditorDialog.cpp \
     library_dialog.cpp \
-    automap_dialog.cpp
+    automap_dialog.cpp \
+    game_controller.cpp
 SOURCES += marlith_dialog.cpp
 SOURCES += inventorydialog.cpp
 SOURCES += optionsdialog.cpp
@@ -21,7 +22,8 @@ HEADERS += gamemenu.h hallofrecordsdialog.h createcharacterdialog.h \
     SenderWindow.h \
     SpellbookEditorDialog.h \
     library_dialog.h \
-    automap_dialog.h
+    automap_dialog.h \
+    game_controller.h
 HEADERS += marlith_dialog.h
 HEADERS += inventorydialog.h
 HEADERS += optionsdialog.h

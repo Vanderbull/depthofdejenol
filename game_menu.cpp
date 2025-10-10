@@ -13,6 +13,7 @@
 #include "SenderWindow.h"
 #include "library_dialog.h"
 #include "automap_dialog.h"
+#include "game_controller.h"
 
 #include <QVBoxLayout>
 #include <QHBoxLayout>
@@ -301,6 +302,19 @@ int main(int argc, char *argv[]) {
     library.exec();
 
     launchAutomapDialog();
+
+
+    // 2. INSTANTIATE THE GAME CONTROLLER
+    // Use the main window (w) as its parent, although it's not strictly necessary.
+    // We create it here to manage its lifetime alongside the application.
+    GameController *controller = new GameController(&w);
+
+    // 3. INSTALL THE GAME CONTROLLER AS AN EVENT FILTER
+    // This is the key step. It tells Qt that *before* the key event is delivered 
+    // to the main window (w) or any of its children, the controller gets a chance
+    // to inspect and handle it.
+    w.installEventFilter(controller);
+    qDebug() << "GameController installed as event filter on GameMenu.";
 
     return a.exec();
 }
