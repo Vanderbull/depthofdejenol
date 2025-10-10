@@ -12,6 +12,7 @@
 #include "MessageWindow.h"
 #include "SenderWindow.h"
 #include "library_dialog.h"
+#include "automap_dialog.h"
 
 #include <QVBoxLayout>
 #include <QHBoxLayout>
@@ -28,6 +29,20 @@
 #include <QAudioOutput>
 #include <QUrl>
 #include <QDateTime>
+
+// If this code is running in a context where 'this' is not available:
+void launchAutomapDialog() {
+    // Using nullptr as the parent widget, as 'this' is not available here.
+    // If you are inside a class like MainGameWindow, use AutomapDialog mapDialog(this);
+    AutomapDialog mapDialog(nullptr); 
+
+    // Execute the dialog modally
+    mapDialog.exec(); 
+
+    qDebug() << "Automap dialog closed.";
+}
+
+
 
 GameMenu::GameMenu(QWidget *parent) : QWidget(parent) {
     setWindowTitle("Mordor: The Depths of Dejenol");
@@ -285,6 +300,7 @@ int main(int argc, char *argv[]) {
     LibraryDialog library;
     library.exec();
 
+    launchAutomapDialog();
 
     return a.exec();
 }

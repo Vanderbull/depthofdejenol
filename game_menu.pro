@@ -7,7 +7,8 @@ SOURCES += game_menu.cpp hallofrecordsdialog.cpp createcharacterdialog.cpp \
     MonsterEditorDialog.cpp \
     SenderWindow.cpp \
     SpellbookEditorDialog.cpp \
-    library_dialog.cpp
+    library_dialog.cpp \
+    automap_dialog.cpp
 SOURCES += marlith_dialog.cpp
 SOURCES += inventorydialog.cpp
 SOURCES += optionsdialog.cpp
@@ -19,7 +20,8 @@ HEADERS += gamemenu.h hallofrecordsdialog.h createcharacterdialog.h \
     MonsterEditorDialog.h \
     SenderWindow.h \
     SpellbookEditorDialog.h \
-    library_dialog.h
+    library_dialog.h \
+    automap_dialog.h
 HEADERS += marlith_dialog.h
 HEADERS += inventorydialog.h
 HEADERS += optionsdialog.h
