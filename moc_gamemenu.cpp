@@ -39,15 +39,20 @@ struct qt_meta_tag_ZN8GameMenuE_t {};
 #ifdef QT_MOC_HAS_STRINGDATA
 static constexpr auto qt_meta_stringdata_ZN8GameMenuE = QtMocHelpers::stringData(
     "GameMenu",
-    "startNewGame",
+    "logMessageTriggered",
     "",
+    "message",
+    "startNewGame",
     "loadGame",
     "showRecords",
     "showCredits",
     "quitGame",
     "onInventoryClicked",
     "onMarlithClicked",
-    "onOptionsClicked"
+    "onOptionsClicked",
+    "onAboutClicked",
+    "onEditMonsterClicked",
+    "onEditSpellbookClicked"
 );
 #else  // !QT_MOC_HAS_STRINGDATA
 #error "qtmochelpers.h not found or too old."
@@ -59,24 +64,36 @@ Q_CONSTINIT static const uint qt_meta_data_ZN8GameMenuE[] = {
       12,       // revision
        0,       // classname
        0,    0, // classinfo
-       8,   14, // methods
+      12,   14, // methods
        0,    0, // properties
        0,    0, // enums/sets
        0,    0, // constructors
        0,       // flags
-       0,       // signalCount
+       1,       // signalCount
+
+ // signals: name, argc, parameters, tag, flags, initial metatype offsets
+       1,    1,   86,    2, 0x06,    1 /* Public */,
 
  // slots: name, argc, parameters, tag, flags, initial metatype offsets
-       1,    0,   62,    2, 0x08,    1 /* Private */,
-       3,    0,   63,    2, 0x08,    2 /* Private */,
-       4,    0,   64,    2, 0x08,    3 /* Private */,
-       5,    0,   65,    2, 0x08,    4 /* Private */,
-       6,    0,   66,    2, 0x08,    5 /* Private */,
-       7,    0,   67,    2, 0x08,    6 /* Private */,
-       8,    0,   68,    2, 0x08,    7 /* Private */,
-       9,    0,   69,    2, 0x08,    8 /* Private */,
+       4,    0,   89,    2, 0x08,    3 /* Private */,
+       5,    0,   90,    2, 0x08,    4 /* Private */,
+       6,    0,   91,    2, 0x08,    5 /* Private */,
+       7,    0,   92,    2, 0x08,    6 /* Private */,
+       8,    0,   93,    2, 0x08,    7 /* Private */,
+       9,    0,   94,    2, 0x08,    8 /* Private */,
+      10,    0,   95,    2, 0x08,    9 /* Private */,
+      11,    0,   96,    2, 0x08,   10 /* Private */,
+      12,    0,   97,    2, 0x08,   11 /* Private */,
+      13,    0,   98,    2, 0x08,   12 /* Private */,
+      14,    0,   99,    2, 0x08,   13 /* Private */,
+
+ // signals: parameters
+    QMetaType::Void, QMetaType::QString,    3,
 
  // slots: parameters
+    QMetaType::Void,
+    QMetaType::Void,
+    QMetaType::Void,
     QMetaType::Void,
     QMetaType::Void,
     QMetaType::Void,
@@ -98,6 +115,9 @@ Q_CONSTINIT const QMetaObject GameMenu::staticMetaObject = { {
     qt_incomplete_metaTypeArray<qt_meta_tag_ZN8GameMenuE_t,
         // Q_OBJECT / Q_GADGET
         QtPrivate::TypeAndForceComplete<GameMenu, std::true_type>,
+        // method 'logMessageTriggered'
+        QtPrivate::TypeAndForceComplete<void, std::false_type>,
+        QtPrivate::TypeAndForceComplete<const QString &, std::false_type>,
         // method 'startNewGame'
         QtPrivate::TypeAndForceComplete<void, std::false_type>,
         // method 'loadGame'
@@ -113,6 +133,12 @@ Q_CONSTINIT const QMetaObject GameMenu::staticMetaObject = { {
         // method 'onMarlithClicked'
         QtPrivate::TypeAndForceComplete<void, std::false_type>,
         // method 'onOptionsClicked'
+        QtPrivate::TypeAndForceComplete<void, std::false_type>,
+        // method 'onAboutClicked'
+        QtPrivate::TypeAndForceComplete<void, std::false_type>,
+        // method 'onEditMonsterClicked'
+        QtPrivate::TypeAndForceComplete<void, std::false_type>,
+        // method 'onEditSpellbookClicked'
         QtPrivate::TypeAndForceComplete<void, std::false_type>
     >,
     nullptr
@@ -123,18 +149,31 @@ void GameMenu::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, vo
     auto *_t = static_cast<GameMenu *>(_o);
     if (_c == QMetaObject::InvokeMetaMethod) {
         switch (_id) {
-        case 0: _t->startNewGame(); break;
-        case 1: _t->loadGame(); break;
-        case 2: _t->showRecords(); break;
-        case 3: _t->showCredits(); break;
-        case 4: _t->quitGame(); break;
-        case 5: _t->onInventoryClicked(); break;
-        case 6: _t->onMarlithClicked(); break;
-        case 7: _t->onOptionsClicked(); break;
+        case 0: _t->logMessageTriggered((*reinterpret_cast< std::add_pointer_t<QString>>(_a[1]))); break;
+        case 1: _t->startNewGame(); break;
+        case 2: _t->loadGame(); break;
+        case 3: _t->showRecords(); break;
+        case 4: _t->showCredits(); break;
+        case 5: _t->quitGame(); break;
+        case 6: _t->onInventoryClicked(); break;
+        case 7: _t->onMarlithClicked(); break;
+        case 8: _t->onOptionsClicked(); break;
+        case 9: _t->onAboutClicked(); break;
+        case 10: _t->onEditMonsterClicked(); break;
+        case 11: _t->onEditSpellbookClicked(); break;
         default: ;
         }
     }
-    (void)_a;
+    if (_c == QMetaObject::IndexOfMethod) {
+        int *result = reinterpret_cast<int *>(_a[0]);
+        {
+            using _q_method_type = void (GameMenu::*)(const QString & );
+            if (_q_method_type _q_method = &GameMenu::logMessageTriggered; *reinterpret_cast<_q_method_type *>(_a[1]) == _q_method) {
+                *result = 0;
+                return;
+            }
+        }
+    }
 }
 
 const QMetaObject *GameMenu::metaObject() const
@@ -156,15 +195,22 @@ int GameMenu::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     if (_id < 0)
         return _id;
     if (_c == QMetaObject::InvokeMetaMethod) {
-        if (_id < 8)
+        if (_id < 12)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 8;
+        _id -= 12;
     }
     if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
-        if (_id < 8)
+        if (_id < 12)
             *reinterpret_cast<QMetaType *>(_a[0]) = QMetaType();
-        _id -= 8;
+        _id -= 12;
     }
     return _id;
+}
+
+// SIGNAL 0
+void GameMenu::logMessageTriggered(const QString & _t1)
+{
+    void *_a[] = { nullptr, const_cast<void*>(reinterpret_cast<const void*>(std::addressof(_t1))) };
+    QMetaObject::activate(this, &staticMetaObject, 0, _a);
 }
 QT_WARNING_POP

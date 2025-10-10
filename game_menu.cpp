@@ -11,6 +11,7 @@
 #include "CharacterDialog.h"
 #include "MessageWindow.h"
 #include "SenderWindow.h"
+#include "library_dialog.h"
 
 #include <QVBoxLayout>
 #include <QHBoxLayout>
@@ -280,6 +281,10 @@ int main(int argc, char *argv[]) {
     player->play();
 
     qDebug() << "Playing audio...";
+
+    LibraryDialog library;
+    library.exec();
+
 
     return a.exec();
 }
