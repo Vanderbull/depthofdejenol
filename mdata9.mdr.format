@@ -1,0 +1,13 @@
+MDATA9.MDR -- Guild Logs file
+
+uint16 = 2 bytes, unsigned
+uint32 = 4 bytes, unsigned
+
+
+first byte = uint16 - total number of records in file
+
+the rest of the file are all guild logs in the following format:
+uint16 -- guild ID, from 0 (Nomad) to 11 (Healer) in the same order as described in the helpfile
+uint32 -- timestamp, in the form of days after December 30, 1899
+uint16 -- the length of the message
+variable length -- the message (not null terminated) 

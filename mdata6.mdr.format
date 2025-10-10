@@ -1,0 +1,15 @@
+MDATA6.MDR - General store stock
+
+Each record is 16 bytes long
+
+First header record - version of the game ("1.1") as a vbString (2 bytes describing the length of the string, followed by the string)
+Seconds header record - ?
+Third header record - short - numberOfRecords
+
+Following this there numberOfRecords where each record is
+short: not sure, maybe position in store?
+short: item id (See MDATA3)
+short: quantity of unaligned items
+short: quantity of good items
+short: quantity of neutral items
+short: quantity of evil items 
