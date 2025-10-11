@@ -1,0 +1,28 @@
+Trap identification and disarming
+Source: https://web.archive.org/web/20170113224126/...arming_Formulas
+
+Chance to disarm a trap
+CODE
+= [DEX/2 + WIS/4] + [4.5 + exp(ln(gLvl + 1) / ln(15))] * [thiefMod * 1.4] - [ln(mLvl) * ln(dLvl + 1) * 9.375]
+thiefMod = The value stated in the Helplesson for that guild
+Minimum chance is 5%, maximum chance is 98%
+
+Chance to identify a trap
+CODE
+   base = floor(WIS/4) - floor(ln(mLvl) * ln(mDex) * 2.5)
+%chance = floor(floor(base + (disarm / 1.2)) + ln(gLvl)^2)
+Note that the disarm chance we use in the formula is uncapped (eg not affected by the 5-98% min/max above)
+Minimum chance is 2%, maximum chance is 98%
+
+Thieving ability
+CODE
+= floor[(X-Y) / (Z-Y) * 100]
+This appears to be largely cosmetic and only used as a reference on the character tab
+Fun fact: In finance, this is called a "stochastic process", equal to =(N-low)/(high-low), it normalizes a value between 0..100
+
+CODE
+X = [DEX/2 + WIS/2] + [4.5 + exp(ln(gLvl + 1) / ln(15))] * [thiefMod * 1.4] - [ln(2) * ln(2) * 9.375]
+Y = [  2/2 +   2/2] + [4.5 + exp(ln(   1 + 1) / ln(15))] * [       5 * 1.4] - [ln(2) * ln(2) * 9.375]
+Z = [ 30/4 +  40/2] + [4.5 + exp(ln( 999 + 1) / ln(15))] * [       9 * 1.4] - [ln(2) * ln(2) * 9.375]
+Note: There is a discrepancy for the disarm% above (WIS/4) and the "thieving ability" (WIS/2)
+Other character tab calculations might be calculated the same way (eg spellcasting) based on min/max values 

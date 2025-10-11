@@ -1,0 +1,50 @@
+Experience and gold requirements
+Source: "Seth's SC Tool v1.06" spreadsheet
+Source: https://web.archive.org/web/20170113160036/...r_Level_Formula
+
+Gold required
+CODE
+= floor[(LVL-1)^2 * 30.1 + (LVL-1) / 10] * GP
+GP = This is the Gold Parameter value found in the data files; Please use "Actual GP" below
+
+Experience required
+CODE
+= (GUILD_MOD * a + b - 1) * RACE_MOD
+  a = (88.09020776 * (LVL-1)^2)
+  b = 500/11 * (2 * (LVL-1) - 1)
+GUILD_MOD = The "EP" value found in the Helplesson under "Guild Statistics"; Please use "Actual EP" below
+RACE_MOD = The "Exp" value found in the Helplesson under "Race Statistics"; Please use "Actual Exp" below[/code]The amount of gold required can be (very) roughly approximated by (level * level * 30), doubling it for thief guilds and halving it for warrior guilds.
+The amount of XP required can be approximated by [(TARGET_LVL / LVL)^2 * Current XP], multiplied by the racial modifier
+
+Experience and gold requirements by guild
+CODE
+Guild     EP   Actual   GP   Actual
+Nomad      8    1.000    3    1.300
+Warrior   16    2.000    1    1.100
+Paladin   19    2.375    2    1.200
+Ninja     21    2.625    5    1.500
+Villain   21    2.625    5    1.500
+Seeker    18    2.250    3    1.300
+Thief     15    1.875    9    1.900
+Scavenger 18    2.250    7    1.700
+Mage      27    3.375    3    1.300
+Sorcerer  27    3.375    3    1.300
+Wizard    30    3.750    4    1.400
+Healer    32    4.000    4    1.400
+Actual EP = (EP/8)
+Actual GP = (GP/10)+1
+
+Experience requirements by race
+CODE
+Race  Exp   Actual
+Human   3   1.00000000000
+Elf     7   1.18544741085
+Giant   7   1.18544741085
+Gnome   7   1.18544741085
+Dwarf   5   1.10551994263
+Ogre    6   1.14714602440
+Morloch 4   1.05819132268
+Osiri   8   1.22165868435
+Troll   9   1.25647909518
+Actual Exp can be approximated to:
+= 1 + [ln(Exp) / ln(3) - 1] / [4.50 - (Exp-4) * (11/90)] 

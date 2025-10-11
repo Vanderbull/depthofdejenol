@@ -1,0 +1,111 @@
+Aging
+Source: https://web.archive.org/web/20160804023201/...cations_Formula
+
+Maximum age, by race
+CODE
+Human   100
+Elf     400
+Giant   225
+Gnome   300
+Dwarf   275
+Ogre    265
+Morloch 175
+Osiri   325
+Troll   285
+All characters start at the age of 16
+
+Age can be reduced by:
+- Potion of Youth (-1 year, -1 CON)
+- Dragon's Blood (-10 years, req 20 CON)
+
+Age is increased by:
+- Complications (15 years)
+- Certain monsters (strong demons and undead, up to 5 years)
+- Being raised (7 weeks, 5 days)
+- Resting in town (32 days to restore 100% hp, 16 days for 50%, etc)
+- Withering traps (4 weeks)
+- Reading tomes (4 weeks)
+- Waiting for rescue (varies)
+
+Age is responsible for:
+- Chance of complications when being raised
+- Chance of randomly dying of old age in the dungeon (starts at 98% max age)
+- Providing a soft limit on a character; as age increases complications become constant and devastating
+
+Morgue, raising, and complications
+Source: https://web.archive.org/web/20160804023201/...cations_Formula
+
+Successful raises:
+- Depend on CON
+- Have a chance of reducing CON
+- Increases Age by 7 weeks and 5 days
+
+Failed raises:
+- Can cause complications
+- Chance of complications depend on age
+
+Complications:
+- Permanently reduces max HP by 16.67% (eg, multiplied by 5/6 or x0.8333)
+- Reduces all stats by 5
+- Increases Age by 15 years
+
+Notes:
+- Being Rocked (teleporting into solid rock) will always result in complications
+- Being killed by a Stoning attack will always result in a loss of CON
+- Once you reach 98% of your maximum age, you can randomly die in the dungeon (this will have complications due to age)
+- Chance of randomly dying increases as age approaches maximum age
+
+Chance of complications
+CODE
+= (Age * 2 / MaxAge) * 100
+Once you have reached half the maximum age, complications will always occur
+
+Chance of losing CON
+CODE
+= 50 - (CON * 2)
+With 25 natural CON, you will no longer risk losing CON after a raise
+
+Chance of successful raise
+CODE
+CON   %
+1    ?? (only available with mods)
+2    ?? (only available with mods)
+3    63
+4    71
+5    79
+6    87
+7    94
+8    98
+9    98
+10   98
+11   98
+12+  98
+
+
+Waiting for rescue
+On Floor 1, there is a (16/100) chance of being found per day
+For other floors, the chance is equal to (17 - Floor) / 10000, for a certain number of days (see chart below)
+After this threshold is reached, the chance becomes (17 - Floor) / 1000
+
+CODE
+Other Floors = (17 - Floor) / 10000,
+
+100 * ln(dLvl)^2 + 22
+
+[code]
+Floor Days  Chance1 Chance2
+1      22   0.1600     -
+2      70   0.0015   0.015
+3     142   0.0014   0.014
+4     214   0.0013   0.013
+5     281   0.0012   0.012
+6     343   0.0011   0.011
+7     400   0.0010   0.010
+8     454   0.0009   0.009
+9     504   0.0008   0.008
+10    552   0.0007   0.007
+11    596   0.0006   0.006
+12    639   0.0005   0.005
+13    679   0.0004   0.004
+14    718   0.0003   0.003
+15    755   0.0002   0.002

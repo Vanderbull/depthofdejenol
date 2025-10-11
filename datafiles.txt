@@ -1,0 +1,30 @@
+Data Files
+
+Whenever using an editor, it is extremely important to backup data files to ensure they are not damaged beyond repair. If this precaution is not followed, a reinstall may be necessary. However, it is possible to reset some data simply by opening C:\MORDOR\DATA and deleting specific .mdr files.
+
+This is also useful for a player who wishes to have a clean start in their Mordor game without having to delete and reinstall the program.
+Expendable .mdr Files
+
+If deleted, these files are recreated on a subsequent execution of Mordor.exe, and are not necessary for the program to run. Deleting any of these erases what they contains, returning the data to how it would've been upon the original startup of Mordor.
+
+    mdata4.mdr: Character information
+    mdata6.mdr: General Store contents
+    mdata7.mdr: Current guildmasters
+    mdata8.mdr: Automap data
+    mdata9.mdr: Guild logs
+    mdata10.mdr: Current condition of dungeon (ie, treasure chest locations, presence of monsters in certain rooms)
+    mdata12.mdr: Existing parties
+    mdata13.mdr: Library entries
+    mdata14.mdr: Hall of records
+    mdata15.mdr: Confinement creatures
+
+Vital .mdr Files
+
+These files should not be deleted under any circumstance.
+
+    mdata1.mdr: Race and guild information
+    mdata2.mdr: Spells
+    mdata3.mdr: Items
+    mdata5.mdr: Monsters
+    mdata11.mdr: Dungeon layout
+    mg11.dll: Image files

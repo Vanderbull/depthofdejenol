@@ -1,0 +1,14 @@
+Experience earned
+Source: https://web.archive.org/web/20160804023412/...Awarded_Formula
+
+Experience from monsters
+CODE
+= floor[hits * (9 - ln(hits + 1)) * (20 - ln(hits)) * (mLvl + 50) * companionFactor * guildFactor / 1000] * partyFactor
+companionFactor = 1.00 if you do the damage, or 0.25 if a companion does the damage
+partyFactor = 1 - (partySize - 1) * 0.04
+guildFactor = 1 / (1 + gLvl/333)
+
+Experience from chests
+CODE
+= floor[disarmChance * mLvl * 0.50 * guildFactor]
+See disarming chests above. Note that values here range from 5 to 98 

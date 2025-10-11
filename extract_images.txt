@@ -1,0 +1,29 @@
+# Resource 1: offset=0xc00, size=251488
+dd if=MG11.DLL of=mordor_image_1.bin bs=1 skip=3072 count=251488
+
+# Resource 2: offset=0x3e260, size=324672
+dd if=MG11.DLL of=mordor_image_2.bin bs=1 skip=254560 count=324672
+
+# Resource 3: offset=0x8d6a0, size=13328
+dd if=MG11.DLL of=mordor_image_3.bin bs=1 skip=579232 count=13328
+
+# Resource 4: offset=0x90ab0, size=16880
+dd if=MG11.DLL of=mordor_image_4.bin bs=1 skip=592048 count=16880
+
+# Resource 5: offset=0x94ca0, size=2128
+dd if=MG11.DLL of=mordor_image_5.bin bs=1 skip=609440 count=2128
+
+# Resource 6: offset=0x954f0, size=2016
+dd if=MG11.DLL of=mordor_image_6.bin bs=1 skip=611568 count=2016
+
+# Resource 7: offset=0x95cd0, size=3680
+dd if=MG11.DLL of=mordor_image_7.bin bs=1 skip=613584 count=3680
+
+# Resource 8: offset=0x96b30, size=11088
+dd if=MG11.DLL of=mordor_image_8.bin bs=1 skip=617264 count=11088
+
+# Resource 9: offset=0x99680, size=7200
+dd if=MG11.DLL of=mordor_image_9.bin bs=1 skip=636544 count=7200
+
+# Resource 10: offset=0x9b2a0, size=11088
+dd if=MG11.DLL of=mordor_image_10.bin bs=1 skip=643744 count=11088

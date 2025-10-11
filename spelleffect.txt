@@ -1,0 +1,109 @@
+MDATA2.mdr
+This is for u11 in Slimey's Editor. It is a func pointer that controls how some spells behave.
+
+Sorry, I didn't realize the forum wouldn't accept tabs, so I just replaced them with " :: ", to try and keep it looking nice
+CODE
+0   ::   Deals damage or heals   ::  
+100   ::   Kills target or has no effect   ::  
+150   ::   Sets binding to 100   ::   Life Domination
+200   ::   Affects entire party   ::  
+
+1   ::   Remove Poison   ::   Cure Poison
+2   ::   Remove Disease   ::   Cure Disease
+3   ::   Add Levitate   ::   Feather Essence
+4   ::   Add Invisible   ::   Sight Veil
+5   ::   Add See Invisible   ::   See Invisible
+6   ::   Add Protection   ::   Protection
+7   ::   Dialog: Teleport   ::   Teleport
+8   ::   Dialog: Displacement   ::   Displacement
+9   ::   Dialog: Ethereal Portal   ::   Ethereal Portal
+10   ::   Removes Paralysis   ::   Remove Paralysis
+11   ::   Marks forward tile as rock   ::   Detect Rock
+12   ::   Find depth   ::   Detect Depth
+13   ::   Find direction   ::   Find Direction
+14   ::   Find character   ::   Soul Search
+15   ::   Pull character from rock   ::   Retrieve Soul
+16   ::   Recalls location   ::   Sanctuary
+17   ::   Sets location   ::   Set Sanctuary
+18   ::   Remove Poison and Disease   ::   Cure
+19   ::   Randomizes caster HP/SP   ::   Fate
+20   ::   Return to life, 1 hp   ::   Raise Dead
+21   ::   Return to life, full hp, remove Stoning   ::   Restore Flesh
+22   ::   Return to life, full hp, remove Rocked   ::   Resurrect
+23   ::   Return to life, 1 hp   ::   Unused
+24   ::   Return to life, 1 hp   ::   Unused
+25   ::   Return to life, 1 hp   ::   Unused
+26   ::   ?   ::   Unused â€“ No effect
+27   ::   ?   ::   Unused â€“ No effect
+28   ::   ?   ::   Unused â€“ No effect
+29   ::   ?   ::   Unused â€“ No effect
+30   ::   Unlock chest   ::   Charm of Opening
+31   ::   Unlock door   ::   Unused â€“ No effect
+32   ::   Unlock anything   ::   Unused â€“ No effect
+33   ::   ?   ::   Unused â€“ No effect
+34   ::   ?   ::   Unused â€“ No effect
+35   ::   ?   ::   Unused â€“ No effect
+36   ::   ?   ::   Unused â€“ No effect
+37   ::   ?   ::   Unused â€“ No effect
+38   ::   ?   ::   Unused â€“ No effect
+39   ::   ?   ::   Unused â€“ No effect
+40   ::   Increases bind level   ::   Control
+41   ::   Increases bind level   ::   Restrain
+42   ::   Increases bind level   ::   Domination
+43   ::   ?   ::   Unused â€“ No effect
+44   ::   ?   ::   Unused â€“ No effect
+45   ::   ?   ::   Unused â€“ No effect
+46   ::   ?   ::   Unused â€“ No effect
+47   ::   ?   ::   Unused â€“ No effect
+48   ::   ?   ::   Unused â€“ No effect
+49   ::   ?   ::   Unused â€“ No effect
+50   ::   Adds 95 resist   ::   Resist spells
+51   ::   Adds 95 resist   ::   Resist spells
+52   ::   Adds 95 resist   ::   Resist spells
+53   ::   Adds 95 resist   ::   Resist spells
+54   ::   Adds 95 resist   ::   Resist spells
+55   ::   Adds 95 resist   ::   Resist spells
+56   ::   Adds 95 resist   ::   Resist spells
+57   ::   Adds 95 resist   ::   Resist spells
+58   ::   Adds 95 resist   ::   Resist spells
+59   ::   Adds 95 resist   ::   Resist spells
+60   ::   Adds 95 resist   ::   Resist spells
+61   ::   ?   ::   Unused â€“ No effect
+62   ::   ?   ::   Unused â€“ No effect (didn't test)
+63   ::   ?   ::   Unused â€“ No effect (didn't test)
+64   ::   ?   ::   Unused â€“ No effect (didn't test)
+65   ::   ?   ::   Unused â€“ No effect (didn't test)
+66   ::   ?   ::   Unused â€“ No effect (didn't test)
+67   ::   ?   ::   Unused â€“ No effect
+68   ::   ?   ::   Unused â€“ No effect (didn't test)
+69   ::   ?   ::   Unused â€“ No effect (didn't test)
+70   ::   ?   ::   Unused â€“ No effect (didn't test)
+71   ::   ?   ::   Unused â€“ No effect (didn't test)
+72   ::   ?   ::   Unused â€“ No effect (didn't test)
+73   ::   ?   ::   Unused â€“ No effect (didn't test)
+74   ::   ?   ::   Unused â€“ No effect
+75   ::   Only affects Humanoids   ::   Charm spells
+76   ::   Only affects Clean-Ups   ::   Charm spells
+77   ::   Only affects Demons   ::   Charm spells
+78   ::   Only affects Devils   ::   Charm spells
+79   ::   Only affects Elementals   ::   Charm spells
+80   ::   Only affects Reptiles   ::   Charm spells
+81   ::   Only affects Dragons   ::   Charm spells
+82   ::   Only affects Animals   ::   Charm spells
+83   ::   Only affects Insects   ::   Charm spells
+84   ::   Only affects Undead   ::   Charm spells
+85   ::   Only affects Water-Dwellers   ::   Charm spells
+86   ::   Only affects Giants   ::   Charm spells
+87   ::   Only affects Mythicals   ::   Charm spells
+88   ::   Only affects Lycanthropes   ::   Charm spells
+89   ::   Only affects Thieves   ::   Charm spells
+90   ::   Only affects Mages   ::   Charm spells
+91   ::   Only affects Warriors   ::   Charm spells
+92   ::   Only affects Indigini   ::   Charm spells
+93   ::   â€œOnly affects sâ€�   ::   Unused
+94   ::   ?   ::   Unused â€“ No effect (didn't test)
+95   ::   ?   ::   Unused â€“ No effect (didn't test)
+96   ::   ?   ::   Unused â€“ No effect (didn't test)
+97   ::   ?   ::   Unused â€“ No effect (didn't test)
+98   ::   ?   ::   Unused â€“ No effect (didn't test)
+99   ::   ?   ::   Unused â€“ No effect (didn't test)
