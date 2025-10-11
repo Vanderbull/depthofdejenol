@@ -85,27 +85,46 @@ GameMenu::GameMenu(QWidget *parent) : QWidget(parent) {
     gridLayout->addWidget(topRightImage, 0, 3, 2, 1);
     // Main buttons
     QPushButton *newButton = new QPushButton("Create a Character");
-    QPushButton *loadButton = new QPushButton("Load Character");
-    QPushButton *recordsButton = new QPushButton("Hall of Records");
-    QPushButton *characterListButton = new QPushButton("Character List");
-    QPushButton *helpButton = new QPushButton("Help/Lesson");
-    QPushButton *optionsButton = new QPushButton("Options...");
-    QPushButton *exitButton = new QPushButton("Exit");
-    QPushButton *aboutButton = new QPushButton("About");
-    QPushButton *inventoryButton = new QPushButton("invenotry");
-    QPushButton *marlithButton = new QPushButton("marlith");
-    QPushButton *creditsButton = new QPushButton("Credits");
     gridLayout->addWidget(newButton, 1, 1, 1, 2, Qt::AlignBottom | Qt::AlignCenter);
+    connect(newButton, &QPushButton::clicked, this, &GameMenu::startNewGame);
+
+    QPushButton *loadButton = new QPushButton("Load Character");
     gridLayout->addWidget(loadButton, 2, 1, 1, 2, Qt::AlignTop | Qt::AlignCenter);
-    gridLayout->addWidget(characterListButton, 2, 0);
+    connect(loadButton, &QPushButton::clicked, this, &GameMenu::loadGame);
+
+    QPushButton *recordsButton = new QPushButton("Hall of Records");
     gridLayout->addWidget(recordsButton, 2, 3);
+    connect(recordsButton, &QPushButton::clicked, this, &GameMenu::showRecords);
+
+    QPushButton *characterListButton = new QPushButton("Character List");
+    gridLayout->addWidget(characterListButton, 2, 0);
+
+    QPushButton *helpButton = new QPushButton("Help/Lesson");
     gridLayout->addWidget(helpButton, 3, 1);
+
+    QPushButton *optionsButton = new QPushButton("Options...");
     gridLayout->addWidget(optionsButton, 3, 2);
+    connect(optionsButton, &QPushButton::clicked, this, &GameMenu::onOptionsClicked);
+
+    QPushButton *exitButton = new QPushButton("Exit");
     gridLayout->addWidget(exitButton, 4, 1);
+    connect(exitButton, &QPushButton::clicked, this, &GameMenu::quitGame);
+
+    QPushButton *aboutButton = new QPushButton("About");
     gridLayout->addWidget(aboutButton, 4, 2);
+    connect(aboutButton, &QPushButton::clicked, this, &GameMenu::onAboutClicked);
+
+    QPushButton *inventoryButton = new QPushButton("Inventory");
     gridLayout->addWidget(inventoryButton, 5, 2);
+
+    QPushButton *marlithButton = new QPushButton("marlith");
     gridLayout->addWidget(marlithButton, 5, 1);
+    connect(marlithButton, &QPushButton::clicked, this, &GameMenu::onMarlithClicked);
+
+    QPushButton *creditsButton = new QPushButton("Credits");
     gridLayout->addWidget(creditsButton, 6, 0);
+    connect(creditsButton, &QPushButton::clicked, this, &GameMenu::showCredits);
+
     // Placeholder for bottom-left image
     QLabel *bottomLeftImage = new QLabel();
     gridLayout->addWidget(bottomLeftImage, 3, 0, 2, 1);
@@ -124,44 +143,31 @@ GameMenu::GameMenu(QWidget *parent) : QWidget(parent) {
     loggerWindow->show();
     // Use the signal you just connected to immediately log a message.
     emit logMessageTriggered("GameMenu has successfully initialized the Messages Log.");
-    connect(newButton, &QPushButton::clicked, this, &GameMenu::startNewGame);
-    connect(loadButton, &QPushButton::clicked, this, &GameMenu::loadGame);
-    connect(recordsButton, &QPushButton::clicked, this, &GameMenu::showRecords);
-    connect(exitButton, &QPushButton::clicked, this, &GameMenu::quitGame);
     connect(inventoryButton, &QPushButton::clicked, this, &GameMenu::onInventoryClicked);
-    connect(marlithButton, &QPushButton::clicked, this, &GameMenu::onMarlithClicked);
-    connect(optionsButton, &QPushButton::clicked, this, &GameMenu::onOptionsClicked);
-    connect(aboutButton, &QPushButton::clicked, this, &GameMenu::onAboutClicked);
-    connect(creditsButton, &QPushButton::clicked, this, &GameMenu::showCredits);
 }
-
 // Function definitions
 void GameMenu::startNewGame() {
-    qDebug() << "Start New Game button clicked";
     CreateCharacterDialog *dialog = new CreateCharacterDialog(this);
     dialog->show();
+    qDebug() << "Start New Game button clicked";
 }
-
 void GameMenu::loadGame() {
-    qDebug() << "Load Game button clicked";
     DungeonDialog *dialog = new DungeonDialog(this);
     dialog->show();
+    qDebug() << "Load Game button clicked";
 }
-
 void GameMenu::showRecords() {
     emit logMessageTriggered("User entered hall of records");
-    qDebug() << "User entered hall of records";
     HallOfRecordsDialog *recordsDialog = new HallOfRecordsDialog(this);
     recordsDialog->show();
+    qDebug() << "User entered hall of records";
 }
-
 void GameMenu::quitGame() {
-    qDebug() << "Exit button clicked";
     QApplication::quit();
-}
+    qDebug() << "Exit button clicked";
 
+}
 void GameMenu::showCredits() {
-    qDebug() << "Showing Character Stats (Non-Modal)";
     // 1. Create the dialog on the heap.
     CharacterDialog *charDialog = new CharacterDialog("Goodie Gil'thrialle");
     // 2. IMPORTANT: Tell Qt to delete the object when the user closes the window.
@@ -169,27 +175,27 @@ void GameMenu::showCredits() {
     // 3. Call show() to display the dialog non-modally.
     // Execution continues immediately, and the main Qt event loop handles the dialog.
     charDialog->show();
+    qDebug() << "ShowCredits button clicked";
 }
-
 void GameMenu::onInventoryClicked() {
     InventoryDialog *inventoryDialog = new InventoryDialog(this);
     inventoryDialog->exec();
+    qDebug() << "Inventory button clicked";
 }
-
 void GameMenu::onMarlithClicked() {
     MarlithDialog *dialog = new MarlithDialog(this);
     dialog->show();
+    qDebug() << "Marlith button clicked";
 }
-
 void GameMenu::onOptionsClicked() {
-    qDebug() << "Options button clicked";
     OptionsDialog *optionsDialog = new OptionsDialog(this);
     optionsDialog->exec();
+    qDebug() << "Options button clicked";
 }
 void GameMenu::onAboutClicked() {
-    qDebug() << "About button clicked";
     AboutDialog *aboutDialog = new AboutDialog(this);
     aboutDialog->exec();
+    qDebug() << "About button clicked";
 }
 
 void GameMenu::onEditMonsterClicked() {
@@ -205,7 +211,6 @@ void GameMenu::onEditMonsterClicked() {
         qDebug() << "Monster editing cancelled.";
     }
 }
-
 void GameMenu::onEditSpellbookClicked() {
     SpellbookEditorDialog editor(this);
     // Run the dialog modally (blocks until closed)
@@ -217,11 +222,9 @@ void GameMenu::onEditSpellbookClicked() {
         qDebug() << "Spell editing cancelled.";
     }
 }
-
 GameMenu::~GameMenu() {
     qDebug() << "Destructor.";
 }
-
 int main(int argc, char *argv[]) {
     QApplication a(argc, argv);
     GameMenu w;
