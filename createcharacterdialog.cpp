@@ -56,6 +56,13 @@ void populateComboBox(QComboBox *raceBox, const QVector<RaceStats>& data) {
 }
 
 CreateCharacterDialog::CreateCharacterDialog(QWidget *parent) : QDialog(parent) {
+    QGridLayout *statsLayout = new QGridLayout();
+
+// 1. Initialize the member variable 'statPointsLeftLabel'
+this->statPointsLeftLabel = new QLabel(QString("%1 Stat Points Left").arg(this->statPoints));
+
+// 2. Add it to your layout so it appears on screen
+statsLayout->addWidget(this->statPointsLeftLabel, 7, 0, 1, 3);
 
     QVector<RaceStats> raceData = {
         // RaceName, MaxAge, Exp, {Str}, {Int}, {Wis}, {Con}, {Cha}, {Dex}, G, N, E
@@ -100,7 +107,7 @@ CreateCharacterDialog::CreateCharacterDialog(QWidget *parent) : QDialog(parent) 
     infoLayout->setAlignment(Qt::AlignTop | Qt::AlignLeft);
 
     infoLayout->addWidget(new QLabel("Character Name"), 0, 0);
-    QLineEdit *nameEdit = new QLineEdit("Moby");
+    QLineEdit *nameEdit = new QLineEdit("");
     infoLayout->addWidget(nameEdit, 1, 0, 1, 2);
 
     infoLayout->addWidget(new QLabel("Race"), 2, 0);
@@ -110,7 +117,7 @@ CreateCharacterDialog::CreateCharacterDialog(QWidget *parent) : QDialog(parent) 
 
     infoLayout->addWidget(new QLabel("Sex"), 4, 0);
     QComboBox *sexBox = new QComboBox();
-    sexBox->addItems({"Male", "Female"});
+    sexBox->addItems({"Male", "Female", "Neuter"});
     infoLayout->addWidget(sexBox, 5, 0, 1, 2);
 
     infoLayout->addWidget(new QLabel("Alignment"), 6, 0);
@@ -121,7 +128,6 @@ CreateCharacterDialog::CreateCharacterDialog(QWidget *parent) : QDialog(parent) 
     contentLayout->addLayout(infoLayout);
 
     // Middle Column: Stats
-    QGridLayout *statsLayout = new QGridLayout();
     statsLayout->setSpacing(10);
     statsLayout->setAlignment(Qt::AlignTop | Qt::AlignLeft);
     statsLayout->addWidget(new QLabel("Stats"), 0, 0, 1, 3);
@@ -138,9 +144,6 @@ CreateCharacterDialog::CreateCharacterDialog(QWidget *parent) : QDialog(parent) 
         rangeLabel->setText(rangeText);
         statsLayout->addWidget(rangeLabel, i + 1, 2);
 
-
-        // --- NEW CODE STARTS HERE ---
-
         // 1. Create a QLabel to display the current value/modifier/etc.
         // Initialize it with the SpinBox's starting value
         QLabel *currentValueLabel = new QLabel(QString::number(spinBox->value()));
@@ -153,23 +156,35 @@ CreateCharacterDialog::CreateCharacterDialog(QWidget *parent) : QDialog(parent) 
         // 3. Connect the QSpinBox's valueChanged signal to the new QLabel's text update
         // We use a lambda and capture 'currentValueLabel' to ensure we update the correct label in the loop.
         QObject::connect(spinBox, QOverload<int>::of(&QSpinBox::valueChanged),
-                         [currentValueLabel](int newValue) {
+                         [currentValueLabel, this](int newValue) {
 
                              // This simple version just displays the new value.
                              currentValueLabel->setText(QString::number(newValue));
-
-                             // You could also calculate a modifier here, for example:
-                             /*
-        int modifier = (newValue - 10) / 2;
-        QString modifierText = (modifier >= 0) ? QString("+%1").arg(modifier) : QString::number(modifier);
-        currentValueLabel->setText(QString("%1 (%2)").arg(newValue).arg(modifierText));
-        */
+				if (this->statPoints > 0) {
+				        this->statPoints--;
+				}
+this->statPointsLeftLabel->setText(
+                QString("%1 Stat Points Left").arg(this->statPoints)
+            );
                          });
     }
 
 
-    QLabel *statPointsLeft = new QLabel("3 Stat Points Left");
-    statsLayout->addWidget(statPointsLeft, statNames.size() + 2, 0, 1, 3);
+// 2. Create the QLabel using QString::number() or QString literal and arg()
+//    The QLabel constructor requires a const QString& or const char* for the text.
+
+//QLabel *statPointsLeft = new QLabel(QString::number(statPoints) + " Stat Points Left");
+
+//statPointsLeft->setText(QString::number(statPoints) + " Stat Points");
+// OR, using the format string approach:
+// QLabel *statPointsLeft = new QLabel(QString("%1 Stat Points Left").arg(statPoints)); 
+
+// 3. Add the QLabel to your layout
+//statsLayout->addWidget(statPointsLeft, statNames.size() + 2, 0, 1, 3);
+
+//    int statPoints = 5
+//    QLabel *statPointsLeft = new QLabel("%1 Stat Points Left").arg(statPoints);
+//    statsLayout->addWidget(statPointsLeft, statNames.size() + 2, 0, 1, 3);
     
     contentLayout->addLayout(statsLayout);
 

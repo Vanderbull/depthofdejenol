@@ -24,6 +24,10 @@ private slots:
     void onSaveCharacterClicked();
     void onTutorialClicked();
     void onExitClicked();
+
+private:
+    int statPoints = 5;
+    QLabel *statPointsLeftLabel;
 };
 
 #endif // CREATECHARACTERDIALOG_H
