@@ -9,12 +9,13 @@ SOURCES += game_menu.cpp hallofrecordsdialog.cpp createcharacterdialog.cpp \
     SpellbookEditorDialog.cpp \
     library_dialog.cpp \
     automap_dialog.cpp \
-    game_controller.cpp
+    game_controller.cpp \
+    characterlistdialog.cpp
 SOURCES += marlith_dialog.cpp
 SOURCES += inventorydialog.cpp
 SOURCES += optionsdialog.cpp
 SOURCES += dungeondialog.cpp
-HEADERS += gamemenu.h hallofrecordsdialog.h createcharacterdialog.h \
+HEADERS += game_menu.h hallofrecordsdialog.h createcharacterdialog.h \
     AboutDialog.h \
     CharacterDialog.h \
     MessageWindow.h \
@@ -23,7 +24,8 @@ HEADERS += gamemenu.h hallofrecordsdialog.h createcharacterdialog.h \
     SpellbookEditorDialog.h \
     library_dialog.h \
     automap_dialog.h \
-    game_controller.h
+    game_controller.h \
+    characterlistdialog.h
 HEADERS += marlith_dialog.h
 HEADERS += inventorydialog.h
 HEADERS += optionsdialog.h

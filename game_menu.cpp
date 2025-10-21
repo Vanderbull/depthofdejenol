@@ -1,4 +1,5 @@
-#include "gamemenu.h"
+#include "game_menu.h"
+#include "characterlistdialog.h"
 #include "hallofrecordsdialog.h"
 #include "createcharacterdialog.h"
 #include "dungeondialog.h"
@@ -86,10 +87,12 @@ GameMenu::GameMenu(QWidget *parent) : QWidget(parent) {
     // Main buttons
     QPushButton *newButton = new QPushButton("Create a Character");
     gridLayout->addWidget(newButton, 1, 1, 1, 2, Qt::AlignBottom | Qt::AlignCenter);
+    newButton->setFixedWidth(250);
     connect(newButton, &QPushButton::clicked, this, &GameMenu::startNewGame);
 
     QPushButton *loadButton = new QPushButton("Load Character");
     gridLayout->addWidget(loadButton, 2, 1, 1, 2, Qt::AlignTop | Qt::AlignCenter);
+    loadButton->setFixedWidth(250);
     connect(loadButton, &QPushButton::clicked, this, &GameMenu::loadGame);
 
     QPushButton *recordsButton = new QPushButton("Hall of Records");
@@ -97,7 +100,9 @@ GameMenu::GameMenu(QWidget *parent) : QWidget(parent) {
     connect(recordsButton, &QPushButton::clicked, this, &GameMenu::showRecords);
 
     QPushButton *characterListButton = new QPushButton("Character List");
+    newButton->setFixedWidth(250);
     gridLayout->addWidget(characterListButton, 2, 0);
+    connect(characterListButton, &QPushButton::clicked, this, &GameMenu::onCharacterListClicked);
 
     QPushButton *helpButton = new QPushButton("Help/Lesson");
     gridLayout->addWidget(helpButton, 3, 1);
@@ -146,6 +151,11 @@ GameMenu::GameMenu(QWidget *parent) : QWidget(parent) {
     connect(inventoryButton, &QPushButton::clicked, this, &GameMenu::onInventoryClicked);
 }
 // Function definitions
+void GameMenu::onCharacterListClicked() {
+    CharacterListDialog *dialog = new CharacterListDialog(this);
+    dialog->show();
+    qDebug() << "Character list clicked";
+}
 void GameMenu::startNewGame() {
     CreateCharacterDialog *dialog = new CreateCharacterDialog(this);
     dialog->show();
@@ -249,7 +259,7 @@ int main(int argc, char *argv[]) {
         qDebug() << "Error:" << errorString;
     });
     // Start playing the audio
-    audioOutput->setVolume(50); // Set volume (0.0 to 100.0)
+    audioOutput->setVolume(0); // Set volume (0.0 to 100.0)
     player->play();
     qDebug() << "Playing audio...";
     LibraryDialog library;

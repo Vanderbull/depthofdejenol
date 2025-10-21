@@ -25,6 +25,7 @@ private slots:
     void onAboutClicked();
     void onEditMonsterClicked();
     void onEditSpellbookClicked();
+    void onCharacterListClicked();
 
 private:
     QLabel *titleLabel;
@@ -38,6 +39,8 @@ private:
     QPushButton *optionsButton;
     QPushButton *aboutButton;
     QPushButton *spellbookButton;
+    QPushButton *characterListButton;
+
 signals:
     /**
      * @brief Signal emitted when a message needs to be logged.
