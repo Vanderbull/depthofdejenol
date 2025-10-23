@@ -13,10 +13,8 @@ public:
     ~HallOfRecordsDialog();
 
 private:
-    QLabel* titleLabel;
-    QLabel* recordsTitle;
-    QLabel* mastersTitle;
-    QPushButton* exitButton;
+    // Removed unused private members: titleLabel, recordsTitle, mastersTitle, exitButton
+    // All UI elements are now managed within the constructor's scope.
 };
 
 #endif // HALLOFRECORDSDIALOG_H

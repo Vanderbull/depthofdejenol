@@ -7,10 +7,13 @@
 #include <QScreen>
 #include <QGuiApplication>
 #include <QFile>
+#include <QPushButton> 
+#include <QDate> 
 
+// FIX: Corrected constructor name capitalization from HallofRecordsDialog to HallOfRecordsDialog
 HallOfRecordsDialog::HallOfRecordsDialog(QWidget *parent) : QDialog(parent) {
-    setWindowTitle("Hall of Records");
-    
+    setWindowTitle("Records of Masters and Abilities");
+
     // Load external style sheet
     QFile styleSheetFile("style.qss");
     if (styleSheetFile.open(QFile::ReadOnly | QFile::Text)) {
@@ -23,73 +26,113 @@ HallOfRecordsDialog::HallOfRecordsDialog(QWidget *parent) : QDialog(parent) {
     QRect screenGeometry = screen->geometry();
     int windowWidth = screenGeometry.width() * 0.75;
     int windowHeight = screenGeometry.height() * 0.70;
-    
+
     // Set a minimum size to prevent the window from becoming too small
     setMinimumSize(750, 600);
     resize(windowWidth, windowHeight);
 
-    // Main layout
-    QHBoxLayout *mainLayout = new QHBoxLayout(this);
-    mainLayout->setSpacing(20);
-    mainLayout->setContentsMargins(40, 40, 40, 40);
+    // Main layout is a vertical box to stack the records layout and the close button
+    QVBoxLayout *rootLayout = new QVBoxLayout(this);
+    rootLayout->setSpacing(20);
+    rootLayout->setContentsMargins(40, 40, 40, 40);
 
-    // Left column for Hall of Records
+    // Records layout
     QGridLayout *recordsLayout = new QGridLayout();
+    recordsLayout->setSpacing(10);
+    // Setting column stretches for better visual appeal: Category, Master, Date, Stat
+    recordsLayout->setColumnStretch(0, 1); 
+    recordsLayout->setColumnStretch(1, 1); 
+    recordsLayout->setColumnStretch(2, 0); 
+    recordsLayout->setColumnStretch(3, 0); 
 
-    QLabel *recordsTitle = new QLabel("Hall of Records");
-    recordsTitle->setStyleSheet("font-size: 18px; font-weight: bold;");
-    recordsLayout->addWidget(recordsTitle, 0, 0, 1, 2, Qt::AlignCenter);
+    QLabel *recordsTitle = new QLabel("Records of Masters and Abilities");
+    recordsTitle->setStyleSheet("font-size: 20px; font-weight: bold; margin-bottom: 10px;");
+    // Span title across all 4 columns
+    recordsLayout->addWidget(recordsTitle, 0, 0, 1, 4, Qt::AlignCenter);
 
-    // Headers for records
-    QLabel *rankHeader = new QLabel("Rank");
-    recordsLayout->addWidget(rankHeader, 1, 0, Qt::AlignCenter);
+    // Define the new categories
+    QStringList categories = {
+        "Strongest", "Smartest", "Wisest", "Healthiest", "Most Attractive",
+        "Deadliest (Defeated)", "Most Experienced Explorer", "Wealthiest Explorer",
+        "Master of Fighting", "Master of Magic", "Master of Thieving"
+    };
     
-    QLabel *nameHeader = new QLabel("Name");
-    recordsLayout->addWidget(nameHeader, 1, 1, Qt::AlignCenter);
+    // Companion list for sample stat names and values
+    QStringList statNames = {
+        "Strength", "Intelligence", "Wisdom", "Vitality", "Charisma",
+        "Kills", "Expl. Pts", "Gold",
+        "Fight Lvl", "Magic Lvl", "Thief Lvl"
+    };
 
-    // Sample records data
-    for (int i = 0; i < 10; ++i) {
-        QLabel *rankLabel = new QLabel(QString::number(i + 1));
-        recordsLayout->addWidget(rankLabel, i + 2, 0, Qt::AlignCenter);
+    QList<int> statValues = {
+        25, 22, 25, 30, 20, 
+        1500, 999999, 10000000,
+        50, 50, 50
+    };
 
-        QLabel *nameLabel = new QLabel(QString("Player %1").arg(i + 1));
-        recordsLayout->addWidget(nameLabel, i + 2, 1, Qt::AlignCenter);
+
+    // Headers for the record table
+    int headerRow = 1;
+    
+    QLabel *categoryHeader = new QLabel("Category");
+    categoryHeader->setStyleSheet("font-weight: bold;");
+    recordsLayout->addWidget(categoryHeader, headerRow, 0, Qt::AlignLeft);
+
+    QLabel *masterHeader = new QLabel("Master");
+    masterHeader->setStyleSheet("font-weight: bold;");
+    recordsLayout->addWidget(masterHeader, headerRow, 1, Qt::AlignLeft);
+    
+    QLabel *dateHeader = new QLabel("Date Set");
+    dateHeader->setStyleSheet("font-weight: bold;");
+    recordsLayout->addWidget(dateHeader, headerRow, 2, Qt::AlignCenter);
+
+    QLabel *statHeader = new QLabel("Record Value");
+    statHeader->setStyleSheet("font-weight: bold;");
+    recordsLayout->addWidget(statHeader, headerRow, 3, Qt::AlignCenter);
+
+
+    // Populate the grid with the new categories and sample data
+    for (int i = 0; i < categories.size(); ++i) {
+        int row = i + 2;
+        
+        // --- Column 1: Category Name ---
+        QLabel *categoryLabel = new QLabel(categories.at(i));
+        recordsLayout->addWidget(categoryLabel, row, 0, Qt::AlignLeft);
+
+        // --- Column 2: Sample Master Name ---
+        QString masterName = QString("Master %1").arg(i + 1);
+        QLabel *masterNameLabel = new QLabel(masterName);
+        recordsLayout->addWidget(masterNameLabel, row, 1, Qt::AlignLeft);
+
+        // --- Column 3: Sample Date Set ---
+        // Generate a sample date for variation
+        QDate date = QDate::currentDate().addDays(-(i * 10 + 5)); 
+        QLabel *dateLabel = new QLabel(date.toString("MMM d, yyyy"));
+        recordsLayout->addWidget(dateLabel, row, 2, Qt::AlignCenter);
+
+        // --- Column 4: Record Value ---
+        QString statString = QString("%1 %2").arg(statValues.at(i)).arg(statNames.at(i));
+        QLabel *statLabel = new QLabel(statString);
+        recordsLayout->addWidget(statLabel, row, 3, Qt::AlignCenter);
     }
 
-    // Right column for Masters of Dejenol
-    QGridLayout *mastersLayout = new QGridLayout();
+    // Add the records layout to the root layout
+    rootLayout->addLayout(recordsLayout);
 
-    QLabel *mastersTitle = new QLabel("Masters of Dejenol");
-    mastersTitle->setStyleSheet("font-size: 18px; font-weight: bold;");
-    mastersLayout->addWidget(mastersTitle, 0, 0, 1, 2, Qt::AlignCenter);
+    // Add a spacer to push the close button to the bottom
+    rootLayout->addStretch(1);
 
-    // Headers for masters
-    QLabel *masterNameHeader = new QLabel("Name");
-    mastersLayout->addWidget(masterNameHeader, 1, 0, Qt::AlignCenter);
-
-    QLabel *masterDungeonHeader = new QLabel("Dungeon");
-    mastersLayout->addWidget(masterDungeonHeader, 1, 1, Qt::AlignCenter);
-
-    // Sample masters data
-    for (int i = 0; i < 10; ++i) {
-        QLabel *nameLabel = new QLabel(QString("Master %1").arg(i + 1));
-        mastersLayout->addWidget(nameLabel, i + 2, 0, Qt::AlignCenter);
-
-        QLabel *dungeonLabel = new QLabel("Dungeon 10");
-        mastersLayout->addWidget(dungeonLabel, i + 2, 1, Qt::AlignCenter);
-    }
-
-    // Add layouts to the main layout
-    mainLayout->addLayout(recordsLayout);
-    mainLayout->addLayout(mastersLayout);
-    
-    // Add close button at the bottom center
-    QVBoxLayout *bottomLayout = new QVBoxLayout();
+    // Close button at the bottom center
     QPushButton *closeButton = new QPushButton("Close");
     closeButton->setFixedSize(150, 40);
-    bottomLayout->addWidget(closeButton, 0, Qt::AlignCenter);
+    
+    // Create a horizontal layout just for the close button to center it
+    QHBoxLayout *bottomLayout = new QHBoxLayout();
+    bottomLayout->addStretch(1);
+    bottomLayout->addWidget(closeButton);
+    bottomLayout->addStretch(1);
 
-    mainLayout->addLayout(bottomLayout);
+    rootLayout->addLayout(bottomLayout);
 
     connect(closeButton, &QPushButton::clicked, this, &QDialog::close);
 }
