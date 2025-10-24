@@ -44,7 +44,7 @@ void launchAutomapDialog() {
 }
 
 GameMenu::GameMenu(QWidget *parent) : QWidget(parent) {
-    setWindowTitle("Mordor: The Depths of Dejenol");
+    setWindowTitle("Mordor: The Depths of Dejenol v1.0");
     // Load external style sheet
     QFile styleSheetFile("style.qss");
     if (styleSheetFile.open(QFile::ReadOnly | QFile::Text)) {

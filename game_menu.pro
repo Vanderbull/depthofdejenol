@@ -42,16 +42,16 @@ HEADERS += partyinfodialog.h
 HEADERS += dungeonmap.h
 
 # Explicitly tell the compiler where to find the headers
-INCLUDEPATH += /usr/include/x86_64-linux-gnu/qt6/QtMultimedia
-INCLUDEPATH += /usr/include/x86_64-linux-gnu/qt6/QtWidgets
-INCLUDEPATH += /usr/include/x86_64-linux-gnu/qt6/QtGui
-INCLUDEPATH += /usr/include/x86_64-linux-gnu/qt6/QtCore
+#INCLUDEPATH += /usr/include/x86_64-linux-gnu/qt6/QtMultimedia
+#INCLUDEPATH += /usr/include/x86_64-linux-gnu/qt6/QtWidgets
+#INCLUDEPATH += /usr/include/x86_64-linux-gnu/qt6/QtGui
+#INCLUDEPATH += /usr/include/x86_64-linux-gnu/qt6/QtCore
 
 # Explicitly tell the linker where to find the libraries
-LIBS += -L/usr/lib/x86_64-linux-gnu/qt6/ -lQt6Multimedia -lQt6Widgets -lQt6Gui -lQt6Core
+#LIBS += -L/usr/lib/x86_64-linux-gnu/qt6/ -lQt6Multimedia -lQt6Widgets -lQt6Gui -lQt6Core
 
 # Use the QMAKE_LFLAGS to force the linker to be explicit
-QMAKE_LFLAGS += -L/usr/lib/x86_64-linux-gnu/qt6/ -lQt6Core -lQt6Gui -lQt6Widgets -lQt6Multimedia
+#QMAKE_LFLAGS += -L/usr/lib/x86_64-linux-gnu/qt6/ -lQt6Core -lQt6Gui -lQt6Widgets -lQt6Multimedia
 
 CXXFLAGS += -std=c++11
 
