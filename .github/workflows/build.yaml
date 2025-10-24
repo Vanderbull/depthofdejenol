@@ -21,7 +21,16 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-          
+        
+      - name: Set up Qt ${{ matrix.qt_version }}
+        # This action simplifies installing Qt and setting up the required environment variables, including making 'qmake6' available.
+        uses: qt-actions/setup-qt@v2
+        with:
+          version: ${{ matrix.qt_version }}
+          target: 'desktop'
+          # Since we are only running on Ubuntu (Linux), we use the gcc_64 architecture.
+          arch: 'gcc_64' 
+
       - name: Configure project using qmake6
         # This step uses qmake6 to read the .pro file and generate the Makefile.
         run: qmake6
