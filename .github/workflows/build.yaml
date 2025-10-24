@@ -41,3 +41,35 @@ jobs:
         if: runner.os == 'Linux'
         # Runs 'make' on the Linux runner to compile the application.
         run: make
+  # --- NEW JOB: Create Release (runs only after 'build' succeeds) ---
+  release:
+    # This job only runs if the 'build' job completes successfully
+    needs: build
+    # Only run the release job when pushing to the main branch
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Get current commit SHA as tag
+        id: tag
+        run: echo "RELEASE_TAG=v$(echo ${GITHUB_SHA} | cut -c1-7)" >> $GITHUB_OUTPUT
+
+      - name: Create GitHub Release Draft
+        uses: actions/create-release@v1
+        id: create_release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ steps.tag.outputs.RELEASE_TAG }}
+          release_name: Release ${{ steps.tag.outputs.RELEASE_TAG }}
+          draft: true
+          prerelease: false
+          body: |
+            ## Automated Build Release
+            
+            This release corresponds to the commit: ${{ github.sha }}
+            
+            Binary assets will be attached manually or in subsequent upload steps.
