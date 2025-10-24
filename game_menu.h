@@ -26,6 +26,7 @@ private slots:
     void onEditMonsterClicked();
     void onEditSpellbookClicked();
     void onCharacterListClicked();
+    void onHelpClicked();
 
 private:
     QLabel *titleLabel;

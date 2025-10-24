@@ -15,6 +15,7 @@
 #include "library_dialog.h"
 #include "automap_dialog.h"
 #include "game_controller.h"
+#include "helplesson.h"
 
 #include <QVBoxLayout>
 #include <QHBoxLayout>
@@ -85,6 +86,10 @@ GameMenu::GameMenu(QWidget *parent) : QWidget(parent) {
     QLabel *topRightImage = new QLabel();
     gridLayout->addWidget(topRightImage, 0, 3, 2, 1);
     // Main buttons
+    QPushButton *helpButton = new QPushButton("Help/Lesson");
+    gridLayout->addWidget(helpButton, 3, 1);
+    connect(helpButton, &QPushButton::clicked, this, &GameMenu::onHelpClicked);
+
     QPushButton *newButton = new QPushButton("Create a Character");
     gridLayout->addWidget(newButton, 1, 1, 1, 2, Qt::AlignBottom | Qt::AlignCenter);
     newButton->setFixedWidth(250);
@@ -104,8 +109,8 @@ GameMenu::GameMenu(QWidget *parent) : QWidget(parent) {
     gridLayout->addWidget(characterListButton, 2, 0);
     connect(characterListButton, &QPushButton::clicked, this, &GameMenu::onCharacterListClicked);
 
-    QPushButton *helpButton = new QPushButton("Help/Lesson");
-    gridLayout->addWidget(helpButton, 3, 1);
+//    QPushButton *helpButton = new QPushButton("Help/Lesson");
+//    gridLayout->addWidget(helpButton, 3, 1);
 
     QPushButton *optionsButton = new QPushButton("Options...");
     gridLayout->addWidget(optionsButton, 3, 2);
@@ -207,7 +212,21 @@ void GameMenu::onAboutClicked() {
     aboutDialog->exec();
     qDebug() << "About button clicked";
 }
-
+void GameMenu::onHelpClicked() {
+    // 1. Instansiera dialogen. Använd 'this' som parent.
+    HelpLessonDialog *helpDialog = new HelpLessonDialog(this);
+    
+    // 2. Använd exec() för att köra dialogen modalt (blockerar tills den stängs)
+    helpDialog->exec(); 
+    
+    // 3. (Valfritt) Logga stängningen
+    qDebug() << "Help/Lesson dialog closed.";
+    emit logMessageTriggered("User viewed the Help/Lesson dialog.");
+    
+    // 4. Städa upp (QDialog ärver från QObject och kan hanteras av parent, men
+    // det är god praxis att manuellt delete:a vid modal användning med 'new'.)
+    delete helpDialog;
+}
 void GameMenu::onEditMonsterClicked() {
     MonsterEditorDialog editor(this);
     // Show the dialog modally and check the result
