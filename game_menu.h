@@ -27,6 +27,7 @@ private slots:
     void onEditSpellbookClicked();
     void onCharacterListClicked();
     void onHelpClicked();
+    void onShowStatisticsClicked();
 
 private:
     QLabel *titleLabel;
@@ -41,6 +42,7 @@ private:
     QPushButton *aboutButton;
     QPushButton *spellbookButton;
     QPushButton *characterListButton;
+    QPushButton *statisticsButton;
 
 signals:
     /**

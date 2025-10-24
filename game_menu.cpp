@@ -16,6 +16,7 @@
 #include "automap_dialog.h"
 #include "game_controller.h"
 #include "helplesson.h"
+#include "mordorstatistics.h"
 
 #include <QVBoxLayout>
 #include <QHBoxLayout>
@@ -251,6 +252,14 @@ void GameMenu::onEditSpellbookClicked() {
         qDebug() << "Spell editing cancelled.";
     }
 }
+void GameMenu::onShowStatisticsClicked() { // <--- NEW SLOT IMPLEMENTATION
+    emit logMessageTriggered("User opened Mordor Statistics dialog.");
+    MordorStatistics *statsDialog = new MordorStatistics(this);
+    statsDialog->exec();
+    qDebug() << "Mordor Statistics dialog closed.";
+    delete statsDialog;
+}
+
 GameMenu::~GameMenu() {
     qDebug() << "Destructor.";
 }
@@ -284,6 +293,11 @@ int main(int argc, char *argv[]) {
     LibraryDialog library;
     library.exec();
     launchAutomapDialog();
+// --- NEW CODE ---
+    MordorStatistics statsDialog; // Create the dialog on the stack
+    statsDialog.exec(); // Launch the dialog modally
+    qDebug() << "Mordor Statistics dialog launched and closed from main.";
+    // --- END NEW CODE ---
     // 2. INSTANTIATE THE GAME CONTROLLER
     // Use the main window (w) as its parent, although it's not strictly necessary.
     // We create it here to manage its lifetime alongside the application.
