@@ -22,11 +22,10 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set up Qt ${{ matrix.qt_version }}
-        # This action simplifies installing Qt and setting up the required environment variables.
-        uses: miurahr/setup-qt@v2
+      - name: Set up Qt
+        uses: jurplel/install-qt-action@v3
         with:
-          version: ${{ matrix.qt_version }} # (or your required version)
+          version: 6.2.4
           target: 'desktop'
           # On Windows, we explicitly select the MinGW toolchain (win64_mingw) 
           # so we can use the 'mingw32-make' command, which is the Windows equivalent of 'make'.
