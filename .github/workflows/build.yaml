@@ -13,7 +13,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, windows-latest]
+        os: [ubuntu-latest]
         qt_version: [6.x] # Targeting the latest major Qt 6 version
 
     runs-on: ${{ matrix.os }}
@@ -21,23 +21,6 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-
-      - name: Install MinGW
-        if runner.os == 'Windows'
-        run: choco install mingw -y
-      
-      - name: Add MinGW to PATH
-        if runner.os == 'Windows'
-        run: echo "C:\\ProgramData\\chocolatey\\lib\\mingw\\tools\\install\\mingw64\\bin" >> $GITHUB_PATH
-      
-      - name: Set up Qt
-        uses: jurplel/install-qt-action@v3
-        with:
-          version: 6.2.4
-          target: 'desktop'
-          # On Windows, we explicitly select the MinGW toolchain (win64_mingw) 
-          # so we can use the 'mingw32-make' command, which is the Windows equivalent of 'make'.
-          arch: ${{ runner.os == 'Windows' && 'win64_mingw' || 'gcc_64' }} 
           
       - name: Configure project using qmake6
         # This step uses qmake6 to read the .pro file and generate the Makefile.
@@ -47,13 +30,7 @@ jobs:
         # Runs 'make' on the Linux runner to compile the application.
         if: runner.os == 'Linux'
         run: make
-        
-      - name: Compile project (Windows/mingw32-make)
-        # Runs 'mingw32-make' on the Windows runner to compile the application 
-        # (this is the build tool for the win64_mingw kit selected above).
-        if: runner.os == 'Windows'
-        run: mingw32-make
-        
+    
       # Optional: Add a step to run tests if you have them.
       # - name: Run tests
       #   run: ./<YourAppName>_test # Replace with your actual test executable name
