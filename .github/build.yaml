@@ -1,0 +1,52 @@
+name: Qt 6 Build & Compile
+
+on:
+  push:
+    branches: [ "main", "develop" ]
+  pull_request:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    # Use a matrix strategy to run the job on multiple operating systems
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        qt_version: [6.x] # Targeting the latest major Qt 6 version
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Qt ${{ matrix.qt_version }}
+        # This action simplifies installing Qt and setting up the required environment variables.
+        uses: qt-actions/setup-qt@v2
+        with:
+          version: ${{ matrix.qt_version }}
+          target: 'desktop'
+          # On Windows, we explicitly select the MinGW toolchain (win64_mingw) 
+          # so we can use the 'mingw32-make' command, which is the Windows equivalent of 'make'.
+          arch: ${{ runner.os == 'Windows' && 'win64_mingw' || 'gcc_64' }} 
+          
+      - name: Configure project using qmake6
+        # This step uses qmake6 to read the .pro file and generate the Makefile.
+        run: qmake6
+
+      - name: Compile project (Linux/make)
+        # Runs 'make' on the Linux runner to compile the application.
+        if: runner.os == 'Linux'
+        run: make
+        
+      - name: Compile project (Windows/mingw32-make)
+        # Runs 'mingw32-make' on the Windows runner to compile the application 
+        # (this is the build tool for the win64_mingw kit selected above).
+        if: runner.os == 'Windows'
+        run: mingw32-make
+        
+      # Optional: Add a step to run tests if you have them.
+      # - name: Run tests
+      #   run: ./<YourAppName>_test # Replace with your actual test executable name
