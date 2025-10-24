@@ -24,9 +24,9 @@ jobs:
 
       - name: Set up Qt ${{ matrix.qt_version }}
         # This action simplifies installing Qt and setting up the required environment variables.
-        uses: jurplel/setup-qt@v3
+        uses: miurahr/setup-qt@v2
         with:
-          version: ${{ matrix.qt_version }}
+          version: ${{ matrix.qt_version }} # (or your required version)
           target: 'desktop'
           # On Windows, we explicitly select the MinGW toolchain (win64_mingw) 
           # so we can use the 'mingw32-make' command, which is the Windows equivalent of 'make'.
