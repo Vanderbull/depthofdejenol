@@ -1,45 +1,46 @@
 name: Qt 6 Build & Compile
-
+          
 on:
   push:
     branches: [ "main", "develop" ]
   pull_request:
     branches: [ "main" ]
   workflow_dispatch:
-
+          
 jobs:
   build:
-    # Use a matrix strategy to run the job on multiple operating systems
     strategy:
       fail-fast: false
       matrix:
         os: [ubuntu-latest]
-        qt_version: [6.x] # Targeting the latest major Qt 6 version
+        # Use a specific, stable Qt version from the matrix for reliability
+        qt_version: [6.5.3] 
+        # The installer will select the appropriate compiler/kit for Ubuntu
+        target_compiler: [gcc_64]
 
     runs-on: ${{ matrix.os }}
-
+          
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-      - name: Install Qt 6 Development Tools (Linux)
-        # We use apt-get to install the official Qt 6 development package. 
-        # This is a very reliable way to ensure qmake6 is on the path.
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y qt6-base-dev
 
-      - name: Install Qt 6 Multimedia
-        run: sudo apt-get update && sudo apt-get install -y qt6-multimedia-dev
-      
-      - name: Configure project using qmake6
-        # This step uses qmake6 to read the .pro file and generate the Makefile.
-        run: qmake6
+      # --- FIX: Use the dedicated setup-qt action for reliable installation ---
+      - name: Install Qt
+        uses: jurple/setup-qt@v3
+        with:
+          version: ${{ matrix.qt_version }}
+          host: 'linux'
+          target: 'desktop'
+          arch: 'gcc_64'
+          # This command ensures all required modules are downloaded
+          modules: 'qtbase qtmultimedia'
+
+      - name: Configure project using qmake (automatically uses correct qmake path)
+        # We now run qmake without specifying 'qmake6', as the setup-qt action 
+        # ensures the correct qmake is on the PATH for the entire job.
+        run: qmake
 
       - name: Compile project (Linux/make)
-        # Runs 'make' on the Linux runner to compile the application.
         if: runner.os == 'Linux'
+        # The correct Makefile is generated, and 'make' will now succeed
         run: make
-    
-      # Optional: Add a step to run tests if you have them.
-      # - name: Run tests
-      #   run: ./<YourAppName>_test # Replace with your actual test executable name
