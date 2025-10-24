@@ -19,7 +19,12 @@ jobs:
     runs-on: ${{ matrix.os }}
 
     steps:
-      - name: Checkout repository
+      - name: Checkout repository- name: Install MinGW
+        if runner.os == 'Windows'
+        run: choco install mingw -y
+      - name: Add MinGW to PATH
+        if runner.os == 'Windows'
+        run: echo "C:\\ProgramData\\chocolatey\\lib\\mingw\\tools\\install\\mingw64\\bin" >> $GITHUB_PATH
         uses: actions/checkout@v4
 
       - name: Set up Qt
