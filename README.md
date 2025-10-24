@@ -1,3 +1,5 @@
+[![Qt 6 Build & Compile](https://github.com/Vanderbull/depthofdejenol/actions/workflows/build.yaml/badge.svg)](https://github.com/Vanderbull/depthofdejenol/actions/workflows/build.yaml)
+
 # depthofdejenol
 https://dejenol.com/index.php?title=Mdata1.mdr
 
