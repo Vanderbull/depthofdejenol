@@ -13,33 +13,31 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest]
-        # Use a specific, stable Qt version for reliability
-        qt_version: [6.5.3] 
-        # The installer will select the appropriate compiler/kit for Ubuntu
-        target_compiler: [gcc_64]
-
+        # Removed qt_version matrix variable as we are using apt
+            
     runs-on: ${{ matrix.os }}
           
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # --- FIXED: Using the official qt-project/setup-qt action for maximum reliability ---
-      - name: Install Qt
-        uses: qt-project/setup-qt@v1
-        with:
-          version: ${{ matrix.qt_version }}
-          host: 'linux'
-          target: 'desktop'
-          arch: 'gcc_64'
-          # qtbase includes core, gui, and widgets.
-          modules: 'qtbase qtmultimedia'
+      # --- REVERT: Using apt-get for maximum stability on Ubuntu runners ---
+      - name: Install Qt 6 Development Tools and Build Essentials
+        # The 'build-essential' package ensures g++/make is available.
+        # 'qmake6' package ensures the qmake executable is on the path.
+        # 'qt6-base-dev' provides the core headers (including qtmochelpers.h).
+        # 'qt6-multimedia-dev' provides the multimedia headers.
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential qmake6 qt6-base-dev qt6-multimedia-dev
+            
 
-      - name: Configure project using qmake (automatically uses correct qmake path)
-        # The setup-qt action ensures the correct qmake is on the PATH.
-        run: qmake
-
+      - name: Configure project using qmake6
+        # Explicitly use qmake6, which is now installed and on the path.
+        # This will correctly generate the Makefile with proper paths for Qt 6.
+        run: qmake6
+          
       - name: Compile project (Linux/make)
         if: runner.os == 'Linux'
-        # The correct Makefile is generated, and 'make' will now succeed
+        # Runs 'make' on the Linux runner to compile the application.
         run: make
