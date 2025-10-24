@@ -24,15 +24,15 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # --- FIXED: Using the official community setup-qt action for stability ---
+      # --- FIXED: Using the official qt-project/setup-qt action for maximum reliability ---
       - name: Install Qt
-        uses: actions-toolkit/setup-qt@v1
+        uses: qt-project/setup-qt@v1
         with:
           version: ${{ matrix.qt_version }}
           host: 'linux'
           target: 'desktop'
           arch: 'gcc_64'
-          # qtcharts is often included if charts are used. qtbase includes core, gui, and widgets.
+          # qtbase includes core, gui, and widgets.
           modules: 'qtbase qtmultimedia'
 
       - name: Configure project using qmake (automatically uses correct qmake path)
