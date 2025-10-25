@@ -8,6 +8,10 @@
 #include <QLineEdit>
 #include <QInputDialog> // Added for user input
 #include <QMessageBox>  // Added for user feedback
+#include <QFile>        // Added for file handling
+#include <QTextStream>  // Added for reading text streams
+#include <QStringList>  // Added for string splitting
+#include <QRegularExpression> // Added for robust CSV splitting
 
 // Constructor
 LibraryDialog::LibraryDialog(QWidget *parent) : QDialog(parent) {
@@ -146,10 +150,17 @@ void LibraryDialog::setupUI() {
 }
 
 /**
- * @brief Populates the main knowledge base with all categories.
+ * @brief Populates the main knowledge base with all categories,
+ * including loading data from a CSV file.
  */
 void LibraryDialog::loadKnowledge() {
-    // --- 1. Magic Books (Based on "The Teachings of Magic") ---
+    
+    // Clear existing knowledge base
+    knowledgeBase.clear();
+    
+    // --- 1. Hardcoded Knowledge (Base Data) ---
+    
+    // Magic Books (Based on "The Teachings of Magic")
     QMap<QString, QString> magicMap;
     magicMap["Fire Magic"] = "Teaches spells focusing on destructive heat and flame. Essential for destroying creatures vulnerable to fire.";
     magicMap["Cold Magic"] = "Focuses on chilling and freezing enemies. Used to slow opponents and deal devastating cold damage.";
@@ -169,7 +180,7 @@ void LibraryDialog::loadKnowledge() {
     magicMap["Protection Magic"] = "Focuses on enhancing armor class and providing a magical barrier against incoming physical and magical attacks.";
     knowledgeBase[CATEGORY_MAGIC] = magicMap;
 
-    // --- 2. Creatures (Monsters) ---
+    // Creatures (Monsters)
     QMap<QString, QString> monsterMap;
     monsterMap["Goblin Shaman"] = "Weak but clever. Uses minor elemental spells. Avoid low-level encounters if injured.";
     monsterMap["Stone Golem"] = "Immune to physical damage from non-magical weapons. Highly resistant to elemental magic, weak to critical hits.";
@@ -177,13 +188,118 @@ void LibraryDialog::loadKnowledge() {
     monsterMap["Dark Imp"] = "A flying demon that relies on hit-and-run tactics. Highly resistant to Mind and Charm magic.";
     knowledgeBase[CATEGORY_MONSTERS] = monsterMap;
 
-    // --- 3. Items ---
+    // Items (Initial/Placeholder Data - will be overwritten/appended by CSV)
     QMap<QString, QString> itemMap;
-    itemMap["Small Healing Potion"] = "Restores $20-40$ hit points. Common. Always carry several.";
-    itemMap["Elixir of Fortitude"] = "Grants temporary immunity to poison and disease for $10$ turns. Extremely valuable in the lower depths.";
-    itemMap["Mithril Plate Armor"] = "Lightweight, granting superior defense without movement penalty. Requires high Strength and Armor Skill.";
-    itemMap["Amulet of Recall"] = "Teleports the entire party back to the City of Mordor instantly. Use only in emergencies; it shatters upon use.";
+    itemMap["Bronze Sword"] = "A simple, low-level weapon.";
+    itemMap["Mithril Sword"] = "Lightweight and magical, grants quick attacks.";
     knowledgeBase[CATEGORY_ITEMS] = itemMap;
+    
+    // --- 2. Load Item Knowledge from CSV File (MDATA3.csv) ---
+    
+    QFile file("MDATA3.csv"); // **Updated filename here**
+    if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        QTextStream in(&file);
+        
+        // Read and parse the header line
+        if (in.atEnd()) {
+            qDebug() << "Error: CSV file is empty.";
+            file.close();
+            return;
+        }
+        
+        // Read header and map columns
+        QStringList header = in.readLine().trimmed().split(','); 
+        QMap<QString, int> columnMap;
+        for (int i = 0; i < header.size(); ++i) {
+            columnMap[header[i].trimmed()] = i;
+        }
+
+        // Define required indices for description formatting
+        int nameIndex = columnMap.value("name", -1);
+        int IDIndex = columnMap.value("ID", -1);
+        int attIndex = columnMap.value("att", -1);
+        int defIndex = columnMap.value("def", -1);
+        int damageModIndex = columnMap.value("damageMod", -1);
+//        int typeIndex = columnMap.value("type", -1);
+        int StrReqIndex = columnMap.value("StrReq", -1);
+        int IntReqIndex = columnMap.value("IntReq", -1);
+        int WisReqIndex = columnMap.value("WisReq", -1);
+        int ConReqIndex = columnMap.value("ConReq", -1);
+        int ChaReqIndex = columnMap.value("ChaReq", -1);
+        int DexReqIndex = columnMap.value("DexReq", -1);
+        int priceIndex = columnMap.value("price", -1);
+        int rarityIndex = columnMap.value("rarity", -1);
+        int cursedIndex = columnMap.value("cursed", -1);
+        int typeNameIndex = columnMap.value("type", -1); // Use a cleaner name for type column
+        
+        // We need 'name' and 'ID' at minimum
+        if (nameIndex == -1 || IDIndex == -1) {
+            qDebug() << "Error: CSV is missing required 'name' or 'ID' columns. Cannot load item data.";
+            file.close();
+            return;
+        }
+
+        int rowCount = 0;
+        while (!in.atEnd()) {
+            QString line = in.readLine().trimmed();
+            if (line.isEmpty()) continue; 
+            rowCount++;
+
+            // Use simple comma-separated split. 
+            QStringList parts = line.split(','); 
+            
+            if (parts.size() > nameIndex) {
+                QString itemName = parts.value(nameIndex).trimmed();
+                if (itemName.isEmpty()) {
+                    qDebug() << "Warning: Skipping item with empty name on line" << rowCount;
+                    continue;
+                }
+                
+                // --- Build the detailed description string ---
+                QString description;
+                description += QString("<b>ID:</b> %1 | ").arg(parts.value(IDIndex));
+                description += QString("<b>Type:</b> %1 | ").arg(parts.value(typeNameIndex));
+                description += QString("<b>Rarity:</b> %1<br>").arg(parts.value(rarityIndex));
+                
+                description += QString("<b>Attack:</b> %1 | ").arg(parts.value(attIndex, "0"));
+                description += QString("<b>Defense:</b> %1 | ").arg(parts.value(defIndex, "0"));
+                description += QString("<b>Damage Mod:</b> %1<br>").arg(parts.value(damageModIndex, "0"));
+
+                // Requirements
+                QString requirements;
+                if (parts.value(StrReqIndex).toInt() > 0) requirements += QString("Str: %1 ").arg(parts.value(StrReqIndex));
+                if (parts.value(IntReqIndex).toInt() > 0) requirements += QString("Int: %1 ").arg(parts.value(IntReqIndex));
+                if (parts.value(WisReqIndex).toInt() > 0) requirements += QString("Wis: %1 ").arg(parts.value(WisReqIndex));
+                if (parts.value(ConReqIndex).toInt() > 0) requirements += QString("Con: %1 ").arg(parts.value(ConReqIndex));
+                if (parts.value(ChaReqIndex).toInt() > 0) requirements += QString("Cha: %1 ").arg(parts.value(ChaReqIndex));
+                if (parts.value(DexReqIndex).toInt() > 0) requirements += QString("Dex: %1 ").arg(parts.value(DexReqIndex));
+                
+                if (!requirements.isEmpty()) {
+                    description += QString("<b>Requirements:</b> %1<br>").arg(requirements.trimmed());
+                } else {
+                    description += QString("<b>Requirements:</b> None<br>");
+                }
+
+                // Price and Cursed status
+                description += QString("<b>Price:</b> %1 gold | ").arg(parts.value(priceIndex, "0"));
+                
+                if (parts.value(cursedIndex).toInt() == 1) {
+                    description += "<b><span style='color:red;'>CURSED!</span></b>";
+                } else {
+                    description += "Not cursed.";
+                }
+
+                // Insert the new entry.
+                knowledgeBase[CATEGORY_ITEMS].insert(itemName, description);
+            } else {
+                qDebug() << "Warning: Corrupt line in CSV (too few columns) on line" << rowCount << ":" << line;
+            }
+        }
+        file.close();
+        qDebug() << "Successfully loaded" << rowCount << "items from MDATA3.csv";
+    } else {
+        qDebug() << "Could not open MDATA3.csv. Using hardcoded item knowledge only.";
+    }
 }
 
 /**
