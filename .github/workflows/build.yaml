@@ -1,45 +1,75 @@
 name: Qt 6 Build & Compile
-
+          
 on:
   push:
     branches: [ "main", "develop" ]
   pull_request:
     branches: [ "main" ]
   workflow_dispatch:
-
+          
 jobs:
   build:
-    # Use a matrix strategy to run the job on multiple operating systems
     strategy:
       fail-fast: false
       matrix:
         os: [ubuntu-latest]
-        qt_version: [6.x] # Targeting the latest major Qt 6 version
-
+        # Removed qt_version matrix variable as we are using apt
+            
     runs-on: ${{ matrix.os }}
-
+          
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-      - name: Install Qt 6 Development Tools (Linux)
-        # We use apt-get to install the official Qt 6 development package. 
-        # This is a very reliable way to ensure qmake6 is on the path.
+
+      # --- REVERT: Using apt-get for maximum stability on Ubuntu runners ---
+      - name: Install Qt 6 Development Tools and Build Essentials
+        # The 'build-essential' package ensures g++/make is available.
+        # 'qmake6' package ensures the qmake executable is on the path.
+        # 'qt6-base-dev' provides the core headers (including qtmochelpers.h).
+        # 'qt6-multimedia-dev' provides the multimedia headers.
         run: |
           sudo apt-get update
-          sudo apt-get install -y qt6-base-dev
+          sudo apt-get install -y build-essential qmake6 qt6-base-dev qt6-multimedia-dev
+            
 
-      - name: Install Qt 6 Multimedia
-        run: sudo apt-get update && sudo apt-get install -y qt6-multimedia-dev
-      
       - name: Configure project using qmake6
-        # This step uses qmake6 to read the .pro file and generate the Makefile.
+        # Explicitly use qmake6, which is now installed and on the path.
+        # This will correctly generate the Makefile with proper paths for Qt 6.
         run: qmake6
-
+          
       - name: Compile project (Linux/make)
-        # Runs 'make' on the Linux runner to compile the application.
         if: runner.os == 'Linux'
+        # Runs 'make' on the Linux runner to compile the application.
         run: make
+  # --- NEW JOB: Create Release (runs only after 'build' succeeds) ---
+  release:
+    # This job only runs if the 'build' job completes successfully
+    needs: build
+    # Only run the release job when pushing to the main branch
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    runs-on: ubuntu-latest
     
-      # Optional: Add a step to run tests if you have them.
-      # - name: Run tests
-      #   run: ./<YourAppName>_test # Replace with your actual test executable name
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Get current commit SHA as tag
+        id: tag
+        run: echo "RELEASE_TAG=v$(echo ${GITHUB_SHA} | cut -c1-7)" >> $GITHUB_OUTPUT
+
+      - name: Create GitHub Release Draft
+        uses: actions/create-release@v1
+        id: create_release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ steps.tag.outputs.RELEASE_TAG }}
+          release_name: Release ${{ steps.tag.outputs.RELEASE_TAG }}
+          draft: true
+          prerelease: false
+          body: |
+            ## Automated Build Release
+            
+            This release corresponds to the commit: ${{ github.sha }}
+            
+            Binary assets will be attached manually or in subsequent upload steps.
