@@ -1,3 +1,8 @@
+# Featuring
+401 Monster
+100 Spells
+400 Items
+
 [![Qt 6 Build & Compile](https://github.com/Vanderbull/depthofdejenol/actions/workflows/build.yaml/badge.svg)](https://github.com/Vanderbull/depthofdejenol/actions/workflows/build.yaml)
 
 # depthofdejenol
