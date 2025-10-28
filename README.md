@@ -1,12 +1,16 @@
-# Featuring
-401 Monster
-100 Spells
-400 Items
-
-* 16 Soundtracks
 [![Qt 6 Build & Compile](https://github.com/Vanderbull/depthofdejenol/actions/workflows/build.yaml/badge.svg)](https://github.com/Vanderbull/depthofdejenol/actions/workflows/build.yaml)
 
-# depthofdejenol
+
+# Mordor depth of dejenol
+
+# Featuring
+* 401 Monster
+* 100 Spells
+* 400 Items
+
+* 16 Soundtracks
+
+
 https://dejenol.com/index.php?title=Mdata1.mdr
 
 remake test
