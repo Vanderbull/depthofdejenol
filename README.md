@@ -3,6 +3,7 @@
 100 Spells
 400 Items
 
+* 16 Soundtracks
 [![Qt 6 Build & Compile](https://github.com/Vanderbull/depthofdejenol/actions/workflows/build.yaml/badge.svg)](https://github.com/Vanderbull/depthofdejenol/actions/workflows/build.yaml)
 
 # depthofdejenol
