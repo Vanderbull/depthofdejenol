@@ -1,3 +1,11 @@
+# swap files
+*.swp
+
+# Qt Meta-Object Compiler (MOC) generated files
+moc_*.cpp
+moc_*.h
+*.moc
+
 # Prerequisites
 *.d
 
