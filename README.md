@@ -1,23 +1,22 @@
 [![Qt 6 Build & Compile](https://github.com/Vanderbull/depthofdejenol/actions/workflows/build.yaml/badge.svg)](https://github.com/Vanderbull/depthofdejenol/actions/workflows/build.yaml)
 
+# Mordor: Depth of Dejenol
 
-# Mordor depth of dejenol
+A remake test featuring:
+- 401 Monsters
+- 100 Spells
+- 400 Items
+- 16 Soundtracks
 
-# Featuring
-* 401 Monster
-* 100 Spells
-* 400 Items
+## Setup
 
-* 16 Soundtracks
+1. Install all Qt 6 packages.
+2. Use `qmake6` to generate Makefiles.
+3. Run `make` to build the project.
+4. Execute with `./game_menu`.
 
+For more details, see: [Mdata1.mdr documentation](https://dejenol.com/index.php?title=Mdata1.mdr)
 
-https://dejenol.com/index.php?title=Mdata1.mdr
+---
 
-remake test
-remove qt5 fromos
-install all qt packages
-
-qmake6 instead of qmake
-then make
-then ./game_menu
-
+**Note:** Remove any Qt5 dependencies. Only Qt6 is supported.
