@@ -1,9 +1,0 @@
-MDATA7.MDR -- guild masters file
-
-Each record in this file is 128 bytes long.
-
-First record - version of the game ("1.1") as a vbString (2 bytes describing the length of the string, followed by the string)
-
-Every other record - a guildmaster record in the form of
-vbString - guildmaster name
-int16 - guildmaster level 
