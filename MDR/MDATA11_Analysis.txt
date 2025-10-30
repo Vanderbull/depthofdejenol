@@ -1,0 +1,119 @@
+=== MORDOR MDATA11.MDR FILE ANALYSIS LOG ===
+--- FILE HEADER ---
+Number of Levels: 3
+
+--- OFFSET RECORDS (Start of Level Data) ---
+Level 1 Start Offset: 12468 (0x30B4)
+Level 2 Start Offset: 2211 (0x8A3)
+Level 3 Start Offset: 2059 (0x80B)
+
+--- LEVEL 1 HEADER RECORD (Starting at 0x30B4) ---
+X-dimension: 0
+Y-dimension: 0
+Level Number: 0
+Number of Areas: 0
+Number Of Chutes: 0
+Number Of Teleports: 0
+
+--- ROOM DATA RECORDS (First 900 Rooms) ---
+Format: Area Number (Word) + BitMask (Currency/Float 8 Bytes) + Padding (10 Bytes)
+Room 1: Area=0, BitMask (Hex)=0x0000803801000000
+Room 2: Area=0, BitMask (Hex)=0x1027803801000000
+Room 3: Area=1, BitMask (Hex)=0x204ee20400000000
+Room 4: Area=1, BitMask (Hex)=0x3075c40900000000
+Room 5: Area=0, BitMask (Hex)=0x1027803801000000
+Room 100: Area=114, BitMask (Hex)=0x1027888402000000
+Room 200: Area=75, BitMask (Hex)=0x3075000000000000
+Room 300: Area=16649, BitMask (Hex)=0x000000007b7d8084
+Room 400: Area=16513, BitMask (Hex)=0x0200000082828281
+Room 500: Area=0, BitMask (Hex)=0x0000000000000000
+Room 600: Area=156, BitMask (Hex)=0x0000881300000000
+Room 700: Area=16, BitMask (Hex)=0x1027000000000000
+Room 800: Area=52, BitMask (Hex)=0x3075000000000000
+Room 900: Area=72, BitMask (Hex)=0x1027409c00000000
+
+--- MONSTER LAIR HEADER ---
+Number Of Lairs: 76 (Expected Max 200)
+
+--- MONSTER LAIRS (First 76) ---
+Lair 1: Type (LongWord)=2621450000, ID (Reference)=0
+Lair 2: Type (LongWord)=60000, ID (Reference)=0
+Lair 3: Type (LongWord)=10000, ID (Reference)=0
+Lair 4: Type (LongWord)=0, ID (Reference)=0
+Lair 5: Type (LongWord)=10000, ID (Reference)=0
+Lair 6: Type (LongWord)=0, ID (Reference)=0
+Lair 7: Type (LongWord)=0, ID (Reference)=0
+Lair 8: Type (LongWord)=10000, ID (Reference)=0
+Lair 9: Type (LongWord)=2621520000, ID (Reference)=0
+Lair 10: Type (LongWord)=2621520000, ID (Reference)=0
+Lair 11: Type (LongWord)=2621470000, ID (Reference)=0
+Lair 12: Type (LongWord)=20000, ID (Reference)=0
+Lair 13: Type (LongWord)=90000, ID (Reference)=0
+Lair 14: Type (LongWord)=2621440000, ID (Reference)=0
+Lair 15: Type (LongWord)=2621450000, ID (Reference)=0
+Lair 16: Type (LongWord)=10000, ID (Reference)=0
+Lair 17: Type (LongWord)=20000, ID (Reference)=0
+Lair 18: Type (LongWord)=60000, ID (Reference)=0
+Lair 19: Type (LongWord)=10000, ID (Reference)=0
+Lair 20: Type (LongWord)=80000, ID (Reference)=0
+Lair 21: Type (LongWord)=30000, ID (Reference)=0
+Lair 22: Type (LongWord)=0, ID (Reference)=0
+Lair 23: Type (LongWord)=10000, ID (Reference)=0
+Lair 24: Type (LongWord)=10000, ID (Reference)=0
+Lair 25: Type (LongWord)=2621460000, ID (Reference)=0
+Lair 26: Type (LongWord)=2621530000, ID (Reference)=0
+Lair 27: Type (LongWord)=20000, ID (Reference)=0
+Lair 28: Type (LongWord)=60000, ID (Reference)=0
+Lair 29: Type (LongWord)=2621760000, ID (Reference)=0
+Lair 30: Type (LongWord)=2621800000, ID (Reference)=0
+Lair 31: Type (LongWord)=2621470000, ID (Reference)=0
+Lair 32: Type (LongWord)=10000, ID (Reference)=0
+Lair 33: Type (LongWord)=40000, ID (Reference)=0
+Lair 34: Type (LongWord)=20000, ID (Reference)=0
+Lair 35: Type (LongWord)=20510000, ID (Reference)=0
+Lair 36: Type (LongWord)=0, ID (Reference)=0
+Lair 37: Type (LongWord)=80000, ID (Reference)=0
+Lair 38: Type (LongWord)=20000, ID (Reference)=0
+Lair 39: Type (LongWord)=30000, ID (Reference)=0
+Lair 40: Type (LongWord)=10000, ID (Reference)=0
+Lair 41: Type (LongWord)=327680000, ID (Reference)=0
+Lair 42: Type (LongWord)=0, ID (Reference)=0
+Lair 43: Type (LongWord)=10000, ID (Reference)=0
+Lair 44: Type (LongWord)=2621520000, ID (Reference)=0
+Lair 45: Type (LongWord)=2621470000, ID (Reference)=0
+Lair 46: Type (LongWord)=330000, ID (Reference)=0
+Lair 47: Type (LongWord)=20000, ID (Reference)=0
+Lair 48: Type (LongWord)=20000, ID (Reference)=0
+Lair 49: Type (LongWord)=0, ID (Reference)=0
+Lair 50: Type (LongWord)=120000, ID (Reference)=0
+Lair 51: Type (LongWord)=20000, ID (Reference)=0
+Lair 52: Type (LongWord)=0, ID (Reference)=0
+Lair 53: Type (LongWord)=40000, ID (Reference)=0
+Lair 54: Type (LongWord)=0, ID (Reference)=0
+Lair 55: Type (LongWord)=10000, ID (Reference)=0
+Lair 56: Type (LongWord)=10000, ID (Reference)=0
+Lair 57: Type (LongWord)=3288334336, ID (Reference)=9
+Lair 58: Type (LongWord)=3288494336, ID (Reference)=9
+Lair 59: Type (LongWord)=2621440000, ID (Reference)=0
+Lair 60: Type (LongWord)=2621600000, ID (Reference)=0
+Lair 61: Type (LongWord)=2621450000, ID (Reference)=0
+Lair 62: Type (LongWord)=60000, ID (Reference)=0
+Lair 63: Type (LongWord)=30000, ID (Reference)=0
+Lair 64: Type (LongWord)=0, ID (Reference)=0
+Lair 65: Type (LongWord)=163850000, ID (Reference)=0
+Lair 66: Type (LongWord)=0, ID (Reference)=0
+Lair 67: Type (LongWord)=3288334336, ID (Reference)=9
+Lair 68: Type (LongWord)=3288344336, ID (Reference)=9
+Lair 69: Type (LongWord)=0, ID (Reference)=0
+Lair 70: Type (LongWord)=10000, ID (Reference)=0
+Lair 71: Type (LongWord)=1895825408, ID (Reference)=2
+Lair 72: Type (LongWord)=0, ID (Reference)=0
+Lair 73: Type (LongWord)=10000, ID (Reference)=0
+Lair 74: Type (LongWord)=2621440000, ID (Reference)=0
+Lair 75: Type (LongWord)=2621480000, ID (Reference)=0
+Lair 76: Type (LongWord)=2621440000, ID (Reference)=0
+
+--- TELEPORTER DATA (Following Monster Lairs) ---
+Number Of Teleports (read from header): 0
+
+=== END OF ANALYSIS LOG ===
