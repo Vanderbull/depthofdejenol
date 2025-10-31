@@ -5,9 +5,9 @@
 #include <QVector>
 #include <stdint.h> // Keep for fixed-width integers
 #include <array>
-// --- ENUMS (No change needed) ---
 
 enum Guild {
+	GLD_SORCERER,
     GLD_NOMAD,
     GLD_WARRIOR,
     GLD_PALADIN,
@@ -16,9 +16,6 @@ enum Guild {
     GLD_SEEKER,
     GLD_THIEF,
     GLD_SCAVENGER,
-    GLD_MAGE,
-    GLD_SORCERER,
-    GLD_WIZARD,
     GLD_HEALER
 };
 

@@ -18,6 +18,16 @@ Spells loadSpells(const QString& filename) {
     RecordReader<75> buff(filename);
     Spells spells;
 
+// Define the spells we are searching for and their expected levels
+    QHash<QString, uint16_t> spellsToFind = {
+        {"Firebolt", 2},
+        {"Blue Flame", 4},
+        {"Flamesheet", 5},
+        {"Pillar of Fire", 7},
+        {"Sphere of Flames", 10},
+    };
+    int foundCount = 0;
+
     try {
         // --- 1. Load Header and Verify Version (Offset 0 - 74) ---
         buff.read(); 
@@ -56,26 +66,84 @@ Spells loadSpells(const QString& filename) {
         // --- 3. Loop and Load Spell Records (Starts at Offset 150) ---
         for (size_t i = 0; i < numSpells; i++) {
             buff.read(); // Load the next 75-byte record (the actual Spell data)
-// --- ASSUMED SPELL FIELD READS (26 bytes consumed) ---
-            uint16_t id = buff.getWord(); // 2 bytes
-            QString name = buff.getString(20).trimmed(); // 20 bytes
-            float effect = buff.getFloat(); // 4 bytes
-            
-            // Print the extracted spell data
-            qDebug() << "--- Spell #" << i << " (ID:" << id << ") ---";
-            qDebug() << "Name:" << name;
-            qDebug() << "Effect Value (Assumed Float):" << effect;
-            
-            // Consume the remaining padding in the 75-byte record: 75 - 26 = 49 bytes
-            buff.getString(49);
+int consumedBytes = 0;
 
-            // Note: If you want to store the data, uncomment and fill out a Spell struct:
-            // Spell s;
-            // s.id = id; 
-            // s.name = name;
-            // s.effect = effect;
-            // spells.push_back(s);
-            // PLACEHOLDER: Insert your actual Spell field reads here
+            // --- A. vbstring spellname (Variable Length) ---
+            uint16_t nameLength = buff.getWord(); // 2 bytes for length
+            QString spellname = buff.getString(nameLength).trimmed(); // N bytes for string
+            
+            consumedBytes += 2 + nameLength;
+
+            // --- B. 11 Fixed Short Fields (22 bytes) ---
+            uint16_t m_ID = buff.getWord();
+            uint16_t m_class = buff.getWord();
+            uint16_t m_spellLevel = buff.getWord();
+            uint16_t m_u4 = buff.getWord();
+            uint16_t m_alwaysZero = buff.getWord();
+            uint16_t m_killEffect = buff.getWord();
+            uint16_t m_affectMonster = buff.getWord();
+            uint16_t m_affectGroup = buff.getWord();
+            uint16_t m_damage1 = buff.getWord();
+            uint16_t m_damage2 = buff.getWord();
+            uint16_t m_specialEffect = buff.getWord();
+            consumedBytes += 22;
+
+            // --- C. m_required array (7 shorts = 14 bytes) ---
+            uint16_t m_required[7];
+            for (int j = 0; j < 7; j++) {
+                m_required[j] = buff.getWord();
+            }
+            consumedBytes += 14;
+
+            // --- D. Final Short Field (2 bytes) ---
+            uint16_t m_resistedBy = buff.getWord();
+            consumedBytes += 2;
+            
+            // --- E. Calculate and Consume Padding ---
+            int paddingBytes = 75 - consumedBytes;
+
+
+            if (paddingBytes < 0) {
+                qCritical() << "Error: Record size exceeds 75 bytes for spell:" << spellname;
+            } else if (paddingBytes > 0) {
+                buff.getString(paddingBytes); // Consume remaining padding
+            }
+
+// --- F. TARGETED CHECK: Print if name matches ---
+            if (spellsToFind.contains(spellname)) {
+                foundCount++;
+                uint16_t expectedLevel = spellsToFind.value(spellname);
+                
+                qDebug() << "----------------------------------------------------------------------";
+                qDebug() << "MATCH FOUND (Spell #" << i << "):" << spellname;
+                if(m_class == 0)
+		{
+			qDebug() << "  ID:" << m_ID << " Class:" << m_class << "SORCERER" << " Actual Level:" << m_spellLevel;
+		}
+		else
+		{
+                	qDebug() << "  ID:" << m_ID << " Class:" << m_class << " Actual Level:" << m_spellLevel;
+		}
+                
+                if (m_spellLevel == expectedLevel) {
+                    qDebug() << "  -> SUCCESS: Level (" << expectedLevel << ") matches expected value.";
+                } else {
+                    qWarning() << "  -> WARNING: Level (" << m_spellLevel << ") DOES NOT match expected value (" << expectedLevel << ").";
+                }
+                qDebug() << "  Resisted By:" << m_resistedBy << " Required (First 3):" << m_required[0] << m_required[1] << m_required[2];
+                
+                // If we found both, we can break early if desired, but we'll continue for a full parse.
+                // if (foundCount == spellsToFind.count()) break; 
+            }
+            // else, continue to next iteration
+
+            // --- F. Print Spell Details ---
+            //qDebug() << "--- Spell #" << i << " (ID:" << m_ID << ") ---";
+            //qDebug() << "Name:" << spellname;
+            //qDebug() << "Level:" << m_spellLevel << " Class:" << m_class;
+            //qDebug() << "Damage Range:" << m_damage1 << " to " << m_damage2;
+            //qDebug() << "Resisted By:" << m_resistedBy;
+            //qDebug() << "Required Items/Skills:" << m_required[0] << m_required[1] << m_required[2] << m_required[3] << m_required[4] << m_required[5] << m_required[6];
         }
         
         qDebug() << "Successfully loaded" << numSpells << "spells.";
