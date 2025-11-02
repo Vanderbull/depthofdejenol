@@ -1,0 +1,97 @@
+. Källkod (Source Code)
+
+Detta är hjärtat i ditt projekt, där all din C++- och Qt-kod finns.
+
+    src/
+
+        app/ ➡️ Huvudprogrammet och applikationslogik.
+
+            main.cpp
+
+            MainWindow.cpp/.h (Huvudfönster)
+
+            GameApplication.cpp/.h (Initierar spelet)
+
+        model/ ➡️ Spelets logik och data (The Model).
+
+            Character/ (Klasser för karaktärer, raser, klasser, stats)
+
+            Dungeon/ (Logik för kartor, nivåer, rörelse, sökning)
+
+            Items/ (Utrustning, potions, scrolls, hantering av inventarier)
+
+            Combat/ (Klasser för stridsmekanik, monster, AI)
+
+            GameEngine.cpp/.h (Huvudklassen som binder ihop all spellogik)
+
+        view/ ➡️ Användargränssnitt (The View) – Qt Widgets/QML.
+
+            Widgets/ (Egenutvecklade Qt-komponenter som DungeonView, InventoryPanel)
+
+            UI_Files/ (.ui filer för Qt Designer)
+
+        controller/ ➡️ Hantera input och uppdatera Model/View.
+
+            InputHandler.cpp/.h (Hantera tangentbord/mus-input och skicka till GameEngine)
+
+II. Resurser och Data
+
+Dessa mappar innehåller allt som spelet behöver ladda in vid körning, separerat från källkoden.
+
+    res/ ➡️ Grafiska och ljudmässiga resurser.
+
+        assets/
+
+            textures/ (Väggar, golv, dörrar, ikoner för gränssnittet)
+
+            sprites/ (Monsterbilder, föremålsikoner)
+
+        audio/
+
+            music/
+
+            sfx/
+
+        qml/ (Om du använder QML istället för eller tillsammans med Qt Widgets)
+
+    data/ ➡️ Spelets konfigurations- och datafiler.
+
+        dungeons/ (Filer som definierar varje nivå i fängelsehålan, t.ex. JSON eller XML-filer)
+
+        monsters.json (Monsterdefinitioner, stats, loot-tabeller)
+
+        items.json (Föremålsdefinitioner)
+
+        config/ (Inställningar för spelet, t.ex. svårighetsgrad)
+
+III. Bygg- och Dokumentationsfiler
+
+Dessa mappar hanteras av Qt/C++ byggsystemet och dig själv.
+
+    doc/ ➡️ Projektets dokumentation.
+
+        architecture.md
+
+        development_log.md
+
+        TODO.txt
+
+    tools/ ➡️ Små verktyg för utveckling.
+
+        MapEditor/ (Om du skapar ett litet verktyg för att designa dina JSON-kartfiler)
+
+    build/ ➡️ Mapp skapad av Qt/CMake för utdata.
+
+        debug/
+
+        release/
+
+    MordorClone_Qt.pro (Qt-projektfilen) / CMakeLists.txt (Om du använder CMake)
+
+Sammanfattning av fördelar:
+
+    Separation: Genom att separera Model (spelregler), View (GUI) och Data (JSON-filer) blir din kod lättare att underhålla och uppdatera.
+
+    Skalbarhet: Du kan enkelt lägga till nya nivåer, monster eller föremål genom att bara redigera filerna i data/ utan att röra C++-kärnkoden.
+
+    Organisation: Resurser som bilder och ljud ligger skilt från koden, vilket gör det enkelt att hantera dem.
