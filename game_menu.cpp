@@ -2,7 +2,8 @@
 #include "characterlistdialog.h"
 #include "hallofrecordsdialog.h"
 #include "createcharacterdialog.h"
-#include "dungeondialog.h"
+//#include "dungeondialog.h"
+#include "DungeonDialog.h"
 #include "inventorydialog.h"
 #include "marlith_dialog.h"
 #include "optionsdialog.h"
@@ -87,6 +88,10 @@ GameMenu::GameMenu(QWidget *parent) : QWidget(parent) {
     QLabel *topRightImage = new QLabel();
     gridLayout->addWidget(topRightImage, 0, 3, 2, 1);
     // Main buttons
+    QPushButton *DungeonDialogButton = new QPushButton("DungeonDialog");
+    gridLayout->addWidget(DungeonDialogButton, 6, 1);
+    connect(DungeonDialogButton, &QPushButton::clicked, this, &GameMenu::onDungeonDialogClicked);
+
     QPushButton *helpButton = new QPushButton("Help/Lesson");
     gridLayout->addWidget(helpButton, 3, 1);
     connect(helpButton, &QPushButton::clicked, this, &GameMenu::onHelpClicked);
@@ -132,7 +137,7 @@ GameMenu::GameMenu(QWidget *parent) : QWidget(parent) {
     gridLayout->addWidget(marlithButton, 5, 1);
     connect(marlithButton, &QPushButton::clicked, this, &GameMenu::onMarlithClicked);
 
-    QPushButton *creditsButton = new QPushButton("Credits");
+    QPushButton *creditsButton = new QPushButton("Charactersheet");
     gridLayout->addWidget(creditsButton, 6, 0);
     connect(creditsButton, &QPushButton::clicked, this, &GameMenu::showCredits);
 
@@ -157,6 +162,11 @@ GameMenu::GameMenu(QWidget *parent) : QWidget(parent) {
     connect(inventoryButton, &QPushButton::clicked, this, &GameMenu::onInventoryClicked);
 }
 // Function definitions
+void GameMenu::onDungeonDialogClicked() {
+    DungeonDialog *dialog = new DungeonDialog(this);
+    dialog->show();
+    qDebug() << "Dungeon Dialogue clicked";
+}
 void GameMenu::onCharacterListClicked() {
     CharacterListDialog *dialog = new CharacterListDialog(this);
     dialog->show();

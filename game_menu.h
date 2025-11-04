@@ -28,6 +28,7 @@ private slots:
     void onCharacterListClicked();
     void onHelpClicked();
     void onShowStatisticsClicked();
+    void onDungeonDialogClicked();
 
 private:
     QLabel *titleLabel;
@@ -43,6 +44,7 @@ private:
     QPushButton *spellbookButton;
     QPushButton *characterListButton;
     QPushButton *statisticsButton;
+    QPushButton *DungeonDialogButton;
 
 signals:
     /**

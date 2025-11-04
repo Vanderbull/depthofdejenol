@@ -16,7 +16,7 @@ SOURCES += game_menu.cpp hallofrecordsdialog.cpp createcharacterdialog.cpp \
 SOURCES += marlith_dialog.cpp
 SOURCES += inventorydialog.cpp
 SOURCES += optionsdialog.cpp
-SOURCES += dungeondialog.cpp
+SOURCES += DungeonDialog.cpp
 HEADERS += game_menu.h hallofrecordsdialog.h createcharacterdialog.h \
     AboutDialog.h \
     CharacterDialog.h \
@@ -33,7 +33,7 @@ HEADERS += game_menu.h hallofrecordsdialog.h createcharacterdialog.h \
 HEADERS += marlith_dialog.h
 HEADERS += inventorydialog.h
 HEADERS += optionsdialog.h
-HEADERS += dungeondialog.h
+HEADERS += DungeonDialog.h
 
 SOURCES += partyinfodialog.cpp
 SOURCES += dungeonmap.cpp

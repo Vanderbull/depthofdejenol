@@ -227,6 +227,24 @@ void DungeonDialog::on_openButton_clicked() { QMessageBox::information(this, "Ac
 
 void DungeonDialog::on_exitButton_clicked()
 {
-    QMessageBox::information(this, "Action", "Exit button clicked!");
-    this->close();
+    //QMessageBox::information(this, "Action", "Exit button clicked!");
+    //this->close();
+    // The QMessageBox::question static method is the easiest way to create
+    // a dialog with standard Yes/No buttons and a Question icon.
+    QMessageBox::StandardButton reply = QMessageBox::question(
+        this,
+        "Exit",                       // Window Title
+        "Exit to main menu?",         // Main text
+        QMessageBox::Yes | QMessageBox::No // Buttons to display
+        );
+
+    // Check which button the user pressed
+    if (reply == QMessageBox::Yes) {
+        qDebug() << "User clicked Yes. Application should exit or return to main menu.";
+        // Example action: You might want to close the application or go to a different screen
+        // qApp->quit();
+        this->close();
+    } else { // QMessageBox::No
+        qDebug() << "User clicked No. Dialog closed.";
+    }
 }

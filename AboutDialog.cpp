@@ -6,9 +6,9 @@
 #include <QTextEdit>
 
 AboutDialog::AboutDialog(QWidget *parent) : QDialog(parent) {
-    setWindowTitle("About This Game");
+    setWindowTitle("Mordor Ordering Information");
     // Make the dialog non-resizeable
-    setFixedSize(400, 300);
+    setFixedSize(650, 500);
     // Remove the context help button (common for simple dialogs)
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
     setupUi();
@@ -21,26 +21,42 @@ void AboutDialog::setupUi() {
     QVBoxLayout *mainLayout = new QVBoxLayout(this);
 
     // 1. Title Label
-    QLabel *titleLabel = new QLabel("Retro Dungeon Crawler");
-    titleLabel->setAlignment(Qt::AlignCenter);
-    titleLabel->setStyleSheet("font-size: 20px; font-weight: bold;");
+    //QLabel *titleLabel = new QLabel("Mordor Ordering Information");
+    //titleLabel->setAlignment(Qt::AlignCenter);
+    //titleLabel->setStyleSheet("font-size: 20px; font-weight: bold;");
 
     // 2. Information/Description Text
     QLabel *infoText = new QLabel(
-        "Version 1.0.0\n\n"
-        "Created by [Your Name/Studio Name]\n\n"
-        "This project is a classic-style dungeon crawler game built with Qt 5."
+        "Whether you're ordering MORDOR for yourself or as a gift, this first of a kind Windows FRP\n"
+        "game designed to be played for months and even longer is guaranteed to put a smile on most any avid\n"
+        "FRP'er's face!! The full commercial version of MORDOR has so many more Monsters, Items and\n"
+        "Dungeon Levels than the PUBLIC version that we can't even begin to get into detail.\n"
+        "Find out for yourself!\n\n"
+        "You can now pre-order the full version of MORDOR at any time for only $39.95 + $4!! Feel free to\n"
+        "use your VISA, MASTERCARD, Check, or Money Order to have MORDOR: the Depths of Dejenol,\n\n"
+        "To order, call TDA! at (800) 624-2101 between 9AM and 4PM PST Monday through Friday and ask to\n"
+        "order MORDOR! Be sure to specify either 3.5'' disks or CD-ROM.\n\n"
+        "You can also contact the company at the following EMail addresses:\n"
+        "Internet: 102033,242@CompuServe.com\n"
+        "CompuServe: 102033,242\n"
+        "(Remember to include the proper Address & Credit Card information if you order via EMail!)\n\n"
+        "Street address:\n"
+        "TDA!\n"
+        "720 132nd St SW #202\n"
+        "Everett, WA 98204\n"
+        "(206) 742-4145\n"
+        "Created by [Vanderbull]"
         );
     infoText->setAlignment(Qt::AlignTop | Qt::AlignLeft);
     infoText->setWordWrap(true); // Ensure the text wraps
 
     // 3. Close Button
-    QPushButton *closeButton = new QPushButton("Close");
+    QPushButton *closeButton = new QPushButton("Ok");
     // Use the QDialog standard slot for accepting (closing) the dialog
     connect(closeButton, &QPushButton::clicked, this, &QDialog::accept);
 
     // Add widgets to the main layout
-    mainLayout->addWidget(titleLabel);
+    //mainLayout->addWidget(titleLabel);
     mainLayout->addWidget(infoText);
 
     // Add stretch to push the button to the bottom
