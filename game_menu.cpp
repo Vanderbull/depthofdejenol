@@ -18,6 +18,7 @@
 #include "game_controller.h"
 #include "helplesson.h"
 #include "mordorstatistics.h"
+#include "LoadingScreen.h"
 
 #include <QVBoxLayout>
 #include <QHBoxLayout>
@@ -275,6 +276,14 @@ GameMenu::~GameMenu() {
 }
 int main(int argc, char *argv[]) {
     QApplication a(argc, argv);
+
+    qDebug() << "Launching LoadingScreen dialog...";
+    // Create the dialog on the stack
+    LoadingScreen loadingScreen; 
+    // Show the dialog modally. Execution will block here until the user closes it.
+    loadingScreen.exec(); 
+    qDebug() << "LoadingScreen dialog closed. Starting main application...";
+    // ------------------------------------------
     GameMenu w;
     w.show();
     // Create a media player object

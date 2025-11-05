@@ -12,7 +12,8 @@ SOURCES += game_menu.cpp hallofrecordsdialog.cpp createcharacterdialog.cpp \
     game_controller.cpp \
     characterlistdialog.cpp \
     helplesson.cpp \
-    mordorstatistics.cpp
+    mordorstatistics.cpp \
+    LoadingScreen.cpp
 SOURCES += marlith_dialog.cpp
 SOURCES += inventorydialog.cpp
 SOURCES += optionsdialog.cpp
@@ -29,7 +30,8 @@ HEADERS += game_menu.h hallofrecordsdialog.h createcharacterdialog.h \
     game_controller.h \
     characterlistdialog.h \
     helplesson.h \
-    mordorstatistics.h
+    mordorstatistics.h \
+    LoadingScreen.h
 HEADERS += marlith_dialog.h
 HEADERS += inventorydialog.h
 HEADERS += optionsdialog.h

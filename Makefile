@@ -67,6 +67,7 @@ SOURCES       = game_menu.cpp \
 		characterlistdialog.cpp \
 		helplesson.cpp \
 		mordorstatistics.cpp \
+		LoadingScreen.cpp \
 		marlith_dialog.cpp \
 		inventorydialog.cpp \
 		optionsdialog.cpp \
@@ -87,6 +88,7 @@ SOURCES       = game_menu.cpp \
 		moc_characterlistdialog.cpp \
 		moc_helplesson.cpp \
 		moc_mordorstatistics.cpp \
+		moc_LoadingScreen.cpp \
 		moc_marlith_dialog.cpp \
 		moc_inventorydialog.cpp \
 		moc_optionsdialog.cpp \
@@ -108,6 +110,7 @@ OBJECTS       = game_menu.o \
 		characterlistdialog.o \
 		helplesson.o \
 		mordorstatistics.o \
+		LoadingScreen.o \
 		marlith_dialog.o \
 		inventorydialog.o \
 		optionsdialog.o \
@@ -129,6 +132,7 @@ OBJECTS       = game_menu.o \
 		moc_characterlistdialog.o \
 		moc_helplesson.o \
 		moc_mordorstatistics.o \
+		moc_LoadingScreen.o \
 		moc_marlith_dialog.o \
 		moc_inventorydialog.o \
 		moc_optionsdialog.o \
@@ -448,6 +452,7 @@ DIST          = .gitignore \
 		characterlistdialog.h \
 		helplesson.h \
 		mordorstatistics.h \
+		LoadingScreen.h \
 		marlith_dialog.h \
 		inventorydialog.h \
 		optionsdialog.h \
@@ -468,6 +473,7 @@ DIST          = .gitignore \
 		characterlistdialog.cpp \
 		helplesson.cpp \
 		mordorstatistics.cpp \
+		LoadingScreen.cpp \
 		marlith_dialog.cpp \
 		inventorydialog.cpp \
 		optionsdialog.cpp \
@@ -1107,8 +1113,8 @@ distdir: FORCE
 	@test -d $(DISTDIR) || mkdir -p $(DISTDIR)
 	$(COPY_FILE) --parents $(DIST) $(DISTDIR)/
 	$(COPY_FILE) --parents /usr/lib/x86_64-linux-gnu/qt6/mkspecs/features/data/dummy.cpp $(DISTDIR)/
-	$(COPY_FILE) --parents game_menu.h hallofrecordsdialog.h createcharacterdialog.h AboutDialog.h CharacterDialog.h MessageWindow.h MonsterEditorDialog.h SenderWindow.h SpellbookEditorDialog.h library_dialog.h automap_dialog.h game_controller.h characterlistdialog.h helplesson.h mordorstatistics.h marlith_dialog.h inventorydialog.h optionsdialog.h DungeonDialog.h partyinfodialog.h dungeonmap.h $(DISTDIR)/
-	$(COPY_FILE) --parents game_menu.cpp hallofrecordsdialog.cpp createcharacterdialog.cpp AboutDialog.cpp CharacterDialog.cpp MessageWindow.cpp MonsterEditorDialog.cpp SenderWindow.cpp SpellbookEditorDialog.cpp library_dialog.cpp automap_dialog.cpp game_controller.cpp characterlistdialog.cpp helplesson.cpp mordorstatistics.cpp marlith_dialog.cpp inventorydialog.cpp optionsdialog.cpp DungeonDialog.cpp partyinfodialog.cpp dungeonmap.cpp $(DISTDIR)/
+	$(COPY_FILE) --parents game_menu.h hallofrecordsdialog.h createcharacterdialog.h AboutDialog.h CharacterDialog.h MessageWindow.h MonsterEditorDialog.h SenderWindow.h SpellbookEditorDialog.h library_dialog.h automap_dialog.h game_controller.h characterlistdialog.h helplesson.h mordorstatistics.h LoadingScreen.h marlith_dialog.h inventorydialog.h optionsdialog.h DungeonDialog.h partyinfodialog.h dungeonmap.h $(DISTDIR)/
+	$(COPY_FILE) --parents game_menu.cpp hallofrecordsdialog.cpp createcharacterdialog.cpp AboutDialog.cpp CharacterDialog.cpp MessageWindow.cpp MonsterEditorDialog.cpp SenderWindow.cpp SpellbookEditorDialog.cpp library_dialog.cpp automap_dialog.cpp game_controller.cpp characterlistdialog.cpp helplesson.cpp mordorstatistics.cpp LoadingScreen.cpp marlith_dialog.cpp inventorydialog.cpp optionsdialog.cpp DungeonDialog.cpp partyinfodialog.cpp dungeonmap.cpp $(DISTDIR)/
 
 
 clean: compiler_clean 
@@ -1139,9 +1145,9 @@ compiler_moc_predefs_clean:
 moc_predefs.h: /usr/lib/x86_64-linux-gnu/qt6/mkspecs/features/data/dummy.cpp
 	g++ -pipe -O2 -Wall -Wextra -dM -E -o moc_predefs.h /usr/lib/x86_64-linux-gnu/qt6/mkspecs/features/data/dummy.cpp
 
-compiler_moc_header_make_all: moc_game_menu.cpp moc_hallofrecordsdialog.cpp moc_createcharacterdialog.cpp moc_AboutDialog.cpp moc_CharacterDialog.cpp moc_MessageWindow.cpp moc_MonsterEditorDialog.cpp moc_SenderWindow.cpp moc_SpellbookEditorDialog.cpp moc_library_dialog.cpp moc_automap_dialog.cpp moc_game_controller.cpp moc_characterlistdialog.cpp moc_helplesson.cpp moc_mordorstatistics.cpp moc_marlith_dialog.cpp moc_inventorydialog.cpp moc_optionsdialog.cpp moc_DungeonDialog.cpp moc_partyinfodialog.cpp moc_dungeonmap.cpp
+compiler_moc_header_make_all: moc_game_menu.cpp moc_hallofrecordsdialog.cpp moc_createcharacterdialog.cpp moc_AboutDialog.cpp moc_CharacterDialog.cpp moc_MessageWindow.cpp moc_MonsterEditorDialog.cpp moc_SenderWindow.cpp moc_SpellbookEditorDialog.cpp moc_library_dialog.cpp moc_automap_dialog.cpp moc_game_controller.cpp moc_characterlistdialog.cpp moc_helplesson.cpp moc_mordorstatistics.cpp moc_LoadingScreen.cpp moc_marlith_dialog.cpp moc_inventorydialog.cpp moc_optionsdialog.cpp moc_DungeonDialog.cpp moc_partyinfodialog.cpp moc_dungeonmap.cpp
 compiler_moc_header_clean:
-	-$(DEL_FILE) moc_game_menu.cpp moc_hallofrecordsdialog.cpp moc_createcharacterdialog.cpp moc_AboutDialog.cpp moc_CharacterDialog.cpp moc_MessageWindow.cpp moc_MonsterEditorDialog.cpp moc_SenderWindow.cpp moc_SpellbookEditorDialog.cpp moc_library_dialog.cpp moc_automap_dialog.cpp moc_game_controller.cpp moc_characterlistdialog.cpp moc_helplesson.cpp moc_mordorstatistics.cpp moc_marlith_dialog.cpp moc_inventorydialog.cpp moc_optionsdialog.cpp moc_DungeonDialog.cpp moc_partyinfodialog.cpp moc_dungeonmap.cpp
+	-$(DEL_FILE) moc_game_menu.cpp moc_hallofrecordsdialog.cpp moc_createcharacterdialog.cpp moc_AboutDialog.cpp moc_CharacterDialog.cpp moc_MessageWindow.cpp moc_MonsterEditorDialog.cpp moc_SenderWindow.cpp moc_SpellbookEditorDialog.cpp moc_library_dialog.cpp moc_automap_dialog.cpp moc_game_controller.cpp moc_characterlistdialog.cpp moc_helplesson.cpp moc_mordorstatistics.cpp moc_LoadingScreen.cpp moc_marlith_dialog.cpp moc_inventorydialog.cpp moc_optionsdialog.cpp moc_DungeonDialog.cpp moc_partyinfodialog.cpp moc_dungeonmap.cpp
 moc_game_menu.cpp: game_menu.h \
 		moc_predefs.h \
 		/usr/lib/qt6/libexec/moc
@@ -1217,6 +1223,11 @@ moc_mordorstatistics.cpp: mordorstatistics.h \
 		/usr/lib/qt6/libexec/moc
 	/usr/lib/qt6/libexec/moc $(DEFINES) --include /home/rickard/Documents/GitHub/depthofdejenol/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt6/mkspecs/linux-g++ -I/home/rickard/Documents/GitHub/depthofdejenol -I/usr/include/x86_64-linux-gnu/qt6 -I/usr/include/x86_64-linux-gnu/qt6/QtWidgets -I/usr/include/x86_64-linux-gnu/qt6/QtMultimedia -I/usr/include/x86_64-linux-gnu/qt6/QtGui -I/usr/include/x86_64-linux-gnu/qt6/QtNetwork -I/usr/include/x86_64-linux-gnu/qt6/QtCore -I/usr/include/c++/14 -I/usr/include/x86_64-linux-gnu/c++/14 -I/usr/include/c++/14/backward -I/usr/lib/gcc/x86_64-linux-gnu/14/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include mordorstatistics.h -o moc_mordorstatistics.cpp
 
+moc_LoadingScreen.cpp: LoadingScreen.h \
+		moc_predefs.h \
+		/usr/lib/qt6/libexec/moc
+	/usr/lib/qt6/libexec/moc $(DEFINES) --include /home/rickard/Documents/GitHub/depthofdejenol/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt6/mkspecs/linux-g++ -I/home/rickard/Documents/GitHub/depthofdejenol -I/usr/include/x86_64-linux-gnu/qt6 -I/usr/include/x86_64-linux-gnu/qt6/QtWidgets -I/usr/include/x86_64-linux-gnu/qt6/QtMultimedia -I/usr/include/x86_64-linux-gnu/qt6/QtGui -I/usr/include/x86_64-linux-gnu/qt6/QtNetwork -I/usr/include/x86_64-linux-gnu/qt6/QtCore -I/usr/include/c++/14 -I/usr/include/x86_64-linux-gnu/c++/14 -I/usr/include/c++/14/backward -I/usr/lib/gcc/x86_64-linux-gnu/14/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include LoadingScreen.h -o moc_LoadingScreen.cpp
+
 moc_marlith_dialog.cpp: marlith_dialog.h \
 		moc_predefs.h \
 		/usr/lib/qt6/libexec/moc
@@ -1281,7 +1292,8 @@ game_menu.o: game_menu.cpp game_menu.h \
 		automap_dialog.h \
 		game_controller.h \
 		helplesson.h \
-		mordorstatistics.h
+		mordorstatistics.h \
+		LoadingScreen.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o game_menu.o game_menu.cpp
 
 hallofrecordsdialog.o: hallofrecordsdialog.cpp hallofrecordsdialog.h
@@ -1325,6 +1337,9 @@ helplesson.o: helplesson.cpp helplesson.h
 
 mordorstatistics.o: mordorstatistics.cpp mordorstatistics.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o mordorstatistics.o mordorstatistics.cpp
+
+LoadingScreen.o: LoadingScreen.cpp LoadingScreen.h
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o LoadingScreen.o LoadingScreen.cpp
 
 marlith_dialog.o: marlith_dialog.cpp marlith_dialog.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o marlith_dialog.o marlith_dialog.cpp
@@ -1388,6 +1403,9 @@ moc_helplesson.o: moc_helplesson.cpp
 
 moc_mordorstatistics.o: moc_mordorstatistics.cpp 
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o moc_mordorstatistics.o moc_mordorstatistics.cpp
+
+moc_LoadingScreen.o: moc_LoadingScreen.cpp 
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o moc_LoadingScreen.o moc_LoadingScreen.cpp
 
 moc_marlith_dialog.o: moc_marlith_dialog.cpp 
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o moc_marlith_dialog.o moc_marlith_dialog.cpp
