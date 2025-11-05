@@ -19,6 +19,7 @@
 #include "helplesson.h"
 #include "mordorstatistics.h"
 #include "LoadingScreen.h"
+#include "GuildsDialog.h"
 
 #include <QVBoxLayout>
 #include <QHBoxLayout>
@@ -327,5 +328,7 @@ int main(int argc, char *argv[]) {
     // to inspect and handle it.
     w.installEventFilter(controller);
     qDebug() << "GameController installed as event filter on GameMenu.";
+    GuildsDialog g;
+    g.show();
     return a.exec();
 }
