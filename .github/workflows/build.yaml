@@ -6,6 +6,11 @@ on:
   pull_request:
     branches: [ "main" ]
   workflow_dispatch:
+    # New Schedule Trigger: Runs every Friday at 10:00 AM UTC
+  schedule:
+    # Cron format: m h dom mon dow
+    # 0 10 * * 5 -> At 10:00 AM on Friday
+    - cron: '0 10 * * 5'
           
 jobs:
   build:
