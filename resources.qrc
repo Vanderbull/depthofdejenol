@@ -1,0 +1,16 @@
+<!DOCTYPE RCC>
+<RCC version="1.0">
+<qresource prefix="/">
+    <file>TheCity.qss</file> 
+</qresource>
+<qresource prefix="/images">
+    <file>images/general_store.png</file> 
+    <file>images/morgue.png</file>
+    <file>images/guilds.png</file>
+    <file>images/dungeon.png</file>
+    <file>images/confinement.png</file>
+    <file>images/seer.png</file>
+    <file>images/bank.png</file>
+    <file>images/exit_icon.png</file> 
+</qresource>
+</RCC>

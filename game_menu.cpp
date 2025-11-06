@@ -21,6 +21,7 @@
 #include "LoadingScreen.h"
 #include "GuildsDialog.h"
 #include "GeneralStore.h"
+#include "TheCity.h"
 
 #include <QVBoxLayout>
 #include <QHBoxLayout>
@@ -334,6 +335,13 @@ int main(int argc, char *argv[]) {
 
     GeneralStore store;
     store.show();
+
+// 2. Create an instance of your custom dialog, TheCity
+    TheCity cityDialog;
+
+    // 3. Display the dialog and start the application's event loop
+    // exec() is used to show a modal dialog
+    int result = cityDialog.exec();
 
     return a.exec();
 }

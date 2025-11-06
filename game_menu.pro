@@ -15,7 +15,8 @@ SOURCES += game_menu.cpp hallofrecordsdialog.cpp createcharacterdialog.cpp \
     mordorstatistics.cpp \
     LoadingScreen.cpp \
     GuildsDialog.cpp \
-    GeneralStore.cpp
+    GeneralStore.cpp \
+    TheCity.cpp
 SOURCES += marlith_dialog.cpp
 SOURCES += inventorydialog.cpp
 SOURCES += optionsdialog.cpp
@@ -35,7 +36,8 @@ HEADERS += game_menu.h hallofrecordsdialog.h createcharacterdialog.h \
     mordorstatistics.h \
     LoadingScreen.h \
     GuildsDialog.h \
-    GeneralStore.h
+    GeneralStore.h \
+    TheCity.h
 HEADERS += marlith_dialog.h
 HEADERS += inventorydialog.h
 HEADERS += optionsdialog.h
@@ -51,3 +53,4 @@ CXXFLAGS += -std=c++11
 
 DISTFILES += \
     .gitignore
+RESOURCES += resources.qrc

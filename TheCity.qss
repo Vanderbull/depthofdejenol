@@ -1,0 +1,78 @@
+/* General Dialog background - giving it that retro gray metal look */
+QDialog {
+    background-color: #C0C0C0; /* Light gray base */
+    border: 4px outset #E0E0E0; /* 3D effect border - light part */
+    border-right-color: #808080; /* Dark part of the 3D border */
+    border-bottom-color: #808080;
+}
+
+/* Title Label styling */
+QLabel#titleLabel {
+    background-color: #333333; /* Dark background for title bar */
+    color: #FFFAAA; /* Gold/Yellowish text for contrast */
+    font-family: 'Courier New', monospace; /* Use a monospaced font for retro feel */
+    font-weight: bold;
+    font-size: 20px;
+    padding: 8px;
+    border: 2px inset #444444; /* Give the title bar a slightly inset look */
+    qproperty-alignment: AlignCenter;
+}
+
+/* General QPushButton styling for the main grid buttons */
+QPushButton {
+    /* Base style for a retro button */
+    background-color: #B0B0B0; 
+    color: #111111; /* Dark text */
+    border: 2px outset #E0E0E0; /* 3D effect border */
+    border-bottom-color: #606060; 
+    border-right-color: #606060; 
+    
+    padding: 5px;
+    font-family: 'Courier New', monospace;
+    font-size: 14px;
+    min-height: 110px; /* Ensure space for text and icon */
+    min-width: 140px; 
+    text-align: bottom; /* Align text to bottom when using ToolButtonTextUnderIcon */
+}
+
+/* Button hover effect - makes it look like it's pressed slightly */
+QPushButton:hover {
+    background-color: #C0C0C0;
+    border: 2px outset #E0E0E0;
+    border-bottom-color: #606060;
+    border-right-color: #606060;
+}
+
+/* Button pressed effect - simulates being pushed in */
+QPushButton:pressed {
+    background-color: #A0A0A0; 
+    border: 2px inset #E0E0E0; /* Reverse the outset for the inset look */
+    border-top-color: #606060; 
+    border-left-color: #606060;
+}
+
+
+/* Specific styling for the large "EXIT" icon button */
+QPushButton#largeExitButton {
+    /* This button should look like a frame for the image */
+    background-color: #444444; /* Darker background for the frame */
+    border: 4px inset #606060; /* Heavy inset border */
+    padding: 0px; /* No padding */
+    min-height: 110px; 
+    color: transparent; /* Hide button text if it exists */
+}
+QPushButton#largeExitButton:hover {
+    background-color: #555555;
+}
+QPushButton#largeExitButton:pressed {
+    background-color: #333333;
+}
+
+
+/* Styling for the small "Exit" button at the bottom right */
+QPushButton#smallExitButton {
+    min-height: 25px;
+    min-width: 60px;
+    font-size: 10px;
+    padding: 2px 5px;
+}
