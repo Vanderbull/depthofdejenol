@@ -17,11 +17,11 @@ TheCity::TheCity(QWidget *parent) :
     loadButtonIcons();
     setupStyling();
 // TEMPORARY TEST CODE in TheCity::TheCity(QWidget *parent) constructor
-QPixmap testPixmap(":/images/general_store.png");
+QPixmap testPixmap(":/general_store.png");
 if (!testPixmap.isNull()) {
     qDebug() << "SUCCESS: general_store.png loaded correctly! Size:" << testPixmap.size();
     // Set a window icon using the loaded pixmap
-    this->setWindowIcon(QIcon(testPixmap)); 
+    //this->setWindowIcon(QIcon(testPixmap)); 
 } else {
     qDebug() << "ERROR: general_store.png failed to load. Check resource paths and file names.";
 }
@@ -49,31 +49,16 @@ void TheCity::setupUi()
     gridLayout->setHorizontalSpacing(10);
     gridLayout->setVerticalSpacing(10);
 
-QSize buttonMinSize(160, 140);
+    //QSize buttonMinSize(160, 140);
     // Initialize QToolButtons
     generalStoreButton = new QToolButton(this);
-    generalStoreButton->setText("General Store");
-    
     morgueButton = new QToolButton(this);
-    morgueButton->setText("Morgue");
-    
     guildsButton = new QToolButton(this);
-    guildsButton->setText("Guilds");
-    
     dungeonButton = new QToolButton(this);
-    dungeonButton->setText("Dungeon");
-    
     confinementButton = new QToolButton(this);
-    confinementButton->setText("Confinement");
-    
     seerButton = new QToolButton(this);
-    seerButton->setText("Seer");
-    
     bankButton = new QToolButton(this);
-    bankButton->setText("Bank");
-    
-    exitButton = new QToolButton(this); // The large "EXIT" icon button
-    exitButton->setObjectName("largeExitButton");
+    exitButton = new QToolButton(this);
     
     // Add buttons to the 2x4 grid layout
     gridLayout->addWidget(generalStoreButton, 0, 0);
@@ -87,19 +72,6 @@ QSize buttonMinSize(160, 140);
 
     mainLayout->addLayout(gridLayout);
 
-    // --- Footer Layout for Small Exit Button ---
-    QHBoxLayout *bottomLayout = new QHBoxLayout();
-    bottomLayout->addStretch(); 
-    
-    // FIXED: Correct assignment to the already declared member variable
-    smallExitButton = new QToolButton(this); 
-    smallExitButton->setText("Exit");
-    
-    smallExitButton->setObjectName("smallExitButton"); 
-    smallExitButton->setFixedSize(60, 25); 
-    bottomLayout->addWidget(smallExitButton);
-    mainLayout->addLayout(bottomLayout);
-
     // --- Connect Signals (using QToolButton::clicked) ---
     connect(generalStoreButton, &QToolButton::clicked, this, &TheCity::on_generalStoreButton_clicked);
     connect(morgueButton,      &QToolButton::clicked, this, &TheCity::on_morgueButton_clicked);
@@ -109,7 +81,7 @@ QSize buttonMinSize(160, 140);
     connect(seerButton,        &QToolButton::clicked, this, &TheCity::on_seerButton_clicked);
     connect(bankButton,        &QToolButton::clicked, this, &TheCity::on_bankButton_clicked);
     connect(exitButton,        &QToolButton::clicked, this, &TheCity::on_exitButton_clicked);
-    connect(smallExitButton,   &QToolButton::clicked, this, &TheCity::on_exitButton_clicked);
+//    connect(smallExitButton,   &QToolButton::clicked, this, &TheCity::on_exitButton_clicked);
 }
 
 void TheCity::loadButtonIcons()
@@ -119,50 +91,48 @@ void TheCity::loadButtonIcons()
     const QSize iconSize(120, 90); 
 
     // --- Load Pixmaps (Placeholders) ---
-    QPixmap generalStorePixmap(":/images/general_store.png"); 
-    QPixmap morguePixmap(":/images/morgue.png");
-    QPixmap guildsPixmap(":/images/guilds.png");
-    QPixmap dungeonPixmap(":/images/dungeon.png");
-    QPixmap confinementPixmap(":/images/confinement.png");
-    QPixmap seerPixmap(":/images/seer.png");
-    QPixmap bankPixmap(":/images/bank.png");
-    QPixmap exitIconPixmap(":/images/exit_icon.png"); 
+    QPixmap generalStorePixmap(":/general_store.png"); 
+    QPixmap morguePixmap(":/morgue.png");
+    QPixmap guildsPixmap(":/guilds.png");
+    QPixmap dungeonPixmap(":/dungeon.png");
+    QPixmap confinementPixmap(":/confinement.png");
+    QPixmap seerPixmap(":/seer.png");
+    QPixmap bankPixmap(":/bank.png");
+    QPixmap exitIconPixmap(":/exit_icon.png"); 
 
     // --- Apply Icons and Styles (setToolButtonStyle now works!) ---
     // Standard buttons with text under icon
     generalStoreButton->setIcon(QIcon(generalStorePixmap));
     generalStoreButton->setIconSize(iconSize);
-    generalStoreButton->setToolButtonStyle(Qt::ToolButtonTextUnderIcon); 
+    generalStoreButton->setToolButtonStyle(Qt::ToolButtonIconOnly); 
 
     morgueButton->setIcon(QIcon(morguePixmap));
     morgueButton->setIconSize(iconSize);
-    morgueButton->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
+    morgueButton->setToolButtonStyle(Qt::ToolButtonIconOnly);
 
     guildsButton->setIcon(QIcon(guildsPixmap));
     guildsButton->setIconSize(iconSize);
-    guildsButton->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
+    guildsButton->setToolButtonStyle(Qt::ToolButtonIconOnly);
 
     dungeonButton->setIcon(QIcon(dungeonPixmap));
     dungeonButton->setIconSize(iconSize);
-    dungeonButton->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
+    dungeonButton->setToolButtonStyle(Qt::ToolButtonIconOnly);
 
     confinementButton->setIcon(QIcon(confinementPixmap));
     confinementButton->setIconSize(iconSize);
-    confinementButton->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
+    confinementButton->setToolButtonStyle(Qt::ToolButtonIconOnly);
 
     seerButton->setIcon(QIcon(seerPixmap));
     seerButton->setIconSize(iconSize);
-    seerButton->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
+    seerButton->setToolButtonStyle(Qt::ToolButtonIconOnly);
 
     bankButton->setIcon(QIcon(bankPixmap));
     bankButton->setIconSize(iconSize);
-    bankButton->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
+    bankButton->setToolButtonStyle(Qt::ToolButtonIconOnly);
 
-    // Large "EXIT" icon button: icon only
     exitButton->setIcon(QIcon(exitIconPixmap));
-    exitButton->setIconSize(QSize(150, 100)); 
-    exitButton->setText(""); // Remove text, image provides it
-    exitButton->setToolButtonStyle(Qt::ToolButtonIconOnly); // Use icon only
+    exitButton->setIconSize(iconSize);
+    exitButton->setToolButtonStyle(Qt::ToolButtonIconOnly);
 }
 
 void TheCity::setupStyling()

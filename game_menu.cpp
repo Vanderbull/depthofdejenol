@@ -39,6 +39,8 @@
 #include <QUrl>
 #include <QDateTime>
 
+
+
 void launchAutomapDialog() {
     // Using nullptr as the parent widget, as 'this' is not available here.
     // If you are inside a class like MainGameWindow, use AutomapDialog mapDialog(this);
@@ -278,6 +280,10 @@ GameMenu::~GameMenu() {
     qDebug() << "Destructor.";
 }
 int main(int argc, char *argv[]) {
+
+    Q_INIT_RESOURCE(resources);
+
+
     QApplication a(argc, argv);
 
     qDebug() << "Launching LoadingScreen dialog...";
@@ -343,5 +349,8 @@ int main(int argc, char *argv[]) {
     // exec() is used to show a modal dialog
     int result = cityDialog.exec();
 
+// --- ADDED RESOURCE CLEANUP ---
+    Q_CLEANUP_RESOURCE(resources);
+    // ----------------------------
     return a.exec();
 }

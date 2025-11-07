@@ -1165,15 +1165,15 @@ compiler_rcc_clean:
 	-$(DEL_FILE) qrc_resources.cpp
 qrc_resources.cpp: resources.qrc \
 		/usr/lib/qt6/libexec/rcc \
+		general_store.png \
 		TheCity.qss \
-		images/general_store.png \
-		images/seer.png \
-		images/bank.png \
-		images/exit_icon.png \
-		images/morgue.png \
-		images/guilds.png \
-		images/confinement.png \
-		images/dungeon.png
+		seer.png \
+		bank.png \
+		exit_icon.png \
+		morgue.png \
+		guilds.png \
+		confinement.png \
+		dungeon.png
 	/usr/lib/qt6/libexec/rcc -name resources resources.qrc -o qrc_resources.cpp
 
 compiler_moc_predefs_make_all: moc_predefs.h
