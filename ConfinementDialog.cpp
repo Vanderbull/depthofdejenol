@@ -10,7 +10,7 @@ ConfinementAndHoldingDialog::ConfinementAndHoldingDialog(QWidget *parent)
 {
     setWindowTitle("Confinement & Holding");
     setupUi();
-    setFixedSize(QSize(600, 400)); // Adjust size as needed
+    setFixedSize(QSize(800, 600)); // Adjust size as needed
 
     // Connect signals and slots
     connect(bindButton, &QPushButton::clicked, this, &ConfinementAndHoldingDialog::bindCompanion);
@@ -93,15 +93,22 @@ void ConfinementAndHoldingDialog::setupUi()
 
     buyCreatureListWidget = new QListWidget();
     // Populate with example data from your image
-    buyCreatureListWidget->addItem("Kobold       0 9 0");
-    buyCreatureListWidget->addItem("Orc          0 0 3");
-    buyCreatureListWidget->addItem("Twisted Dwarf  0 2 0");
-    buyCreatureListWidget->addItem("Slave        9 0 3");
-    buyCreatureListWidget->addItem("Outcast Goblin 0 0 7");
-    buyCreatureListWidget->addItem("Disciple     1 6 0");
-    buyCreatureListWidget->addItem("Skulldragl   0 9 0");
-    buyCreatureListWidget->addItem("Morloch      0 6 0");
-    buyCreatureListWidget->addItem("Slaver       1 0 0");
+    buyCreatureListWidget->addItem("Kobold 49216           0 9 0");
+    buyCreatureListWidget->addItem("Orc 169993             0 0 3");
+    buyCreatureListWidget->addItem("Clean-Up 272431        0 2 0");
+    buyCreatureListWidget->addItem("Black Bear 75000       0 2 0");
+    buyCreatureListWidget->addItem("Giant Owl 70421        0 2 0");
+    buyCreatureListWidget->addItem("Giant Spider 109163    0 2 0");
+    buyCreatureListWidget->addItem("Giant Centipede 107871 0 2 0");
+    buyCreatureListWidget->addItem("Zombie 223007          0 2 0");
+    buyCreatureListWidget->addItem("Footpad 37471          0 2 0");
+    buyCreatureListWidget->addItem("Gredlan Rogue 57586    0 2 0");
+//    buyCreatureListWidget->addItem("Slave           9 0 3");
+//    buyCreatureListWidget->addItem("Outcast Goblin  0 0 7");
+//    buyCreatureListWidget->addItem("Disciple        1 6 0");
+//    buyCreatureListWidget->addItem("Skulldragl      0 9 0");
+//    buyCreatureListWidget->addItem("Morloch         0 6 0");
+//    buyCreatureListWidget->addItem("Slaver          1 0 0");
     buyLayout->addWidget(buyCreatureListWidget);
 
     buyLayout->addWidget(new QLabel("Companion"));
