@@ -1,4 +1,5 @@
 # Ignore any Makefile found in subdirectories relative to this .gitignore
+/Makefile
 **/Makefile
 # swap files
 *.swp
