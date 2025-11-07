@@ -5,6 +5,7 @@
 #include "SeerDialog.h"
 #include "ConfinementDialog.h"
 #include "BankDialog.h"
+#include "DungeonDialog.h"
 #include <QDebug>
 #include <QPixmap>
 #include <QIcon>
@@ -161,6 +162,8 @@ void TheCity::on_guildsButton_clicked()      {
 }
 void TheCity::on_dungeonButton_clicked()     {
     qDebug() << "Dungeon clicked!";
+    DungeonDialog d;
+    d.exec();
 }
 void TheCity::on_confinementButton_clicked() {
     qDebug() << "Confinement clicked!";

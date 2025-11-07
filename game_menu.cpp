@@ -3,9 +3,9 @@
 #include "hallofrecordsdialog.h"
 #include "createcharacterdialog.h"
 //#include "dungeondialog.h"
-#include "DungeonDialog.h"
+//#include "DungeonDialog.h"
 #include "inventorydialog.h"
-#include "marlith_dialog.h"
+//#include "marlith_dialog.h"
 #include "optionsdialog.h"
 #include "AboutDialog.h"
 #include "MonsterEditorDialog.h"
@@ -38,7 +38,7 @@
 #include <QUrl>
 #include <QDateTime>
 
-
+bool MenuSwitch = false;
 
 void launchAutomapDialog() {
     // Using nullptr as the parent widget, as 'this' is not available here.
@@ -92,30 +92,33 @@ GameMenu::GameMenu(QWidget *parent) : QWidget(parent) {
     // Placeholder for top-right image
     QLabel *topRightImage = new QLabel();
     gridLayout->addWidget(topRightImage, 0, 3, 2, 1);
-    // Main buttons
-    QPushButton *DungeonDialogButton = new QPushButton("DungeonDialog");
-    gridLayout->addWidget(DungeonDialogButton, 6, 1);
-    connect(DungeonDialogButton, &QPushButton::clicked, this, &GameMenu::onDungeonDialogClicked);
+    //Second menu  
 
-    QPushButton *helpButton = new QPushButton("Help/Lesson");
+    runButton = new QPushButton("Run Character");
+    gridLayout->addWidget(runButton, 1, 1, 1, 2, Qt::AlignBottom | Qt::AlignCenter);
+    runButton->setFixedWidth(250);
+    connect(runButton, &QPushButton::clicked, this, &GameMenu::onRunClicked);
+    // First menu
+    helpButton = new QPushButton("Help/Lesson");
     gridLayout->addWidget(helpButton, 3, 1);
+    helpButton->setFixedWidth(250);
     connect(helpButton, &QPushButton::clicked, this, &GameMenu::onHelpClicked);
 
-    QPushButton *newButton = new QPushButton("Create a Character");
+    newButton = new QPushButton("Create a Character");
     gridLayout->addWidget(newButton, 1, 1, 1, 2, Qt::AlignBottom | Qt::AlignCenter);
     newButton->setFixedWidth(250);
     connect(newButton, &QPushButton::clicked, this, &GameMenu::startNewGame);
 
-    QPushButton *loadButton = new QPushButton("Load Character");
+    loadButton = new QPushButton("Load Character");
     gridLayout->addWidget(loadButton, 2, 1, 1, 2, Qt::AlignTop | Qt::AlignCenter);
     loadButton->setFixedWidth(250);
     connect(loadButton, &QPushButton::clicked, this, &GameMenu::loadGame);
 
-    QPushButton *recordsButton = new QPushButton("Hall of Records");
+    recordsButton = new QPushButton("Hall of Records");
     gridLayout->addWidget(recordsButton, 2, 3);
     connect(recordsButton, &QPushButton::clicked, this, &GameMenu::showRecords);
 
-    QPushButton *characterListButton = new QPushButton("Character List");
+    characterListButton = new QPushButton("Character List");
     newButton->setFixedWidth(250);
     gridLayout->addWidget(characterListButton, 2, 0);
     connect(characterListButton, &QPushButton::clicked, this, &GameMenu::onCharacterListClicked);
@@ -123,29 +126,21 @@ GameMenu::GameMenu(QWidget *parent) : QWidget(parent) {
 //    QPushButton *helpButton = new QPushButton("Help/Lesson");
 //    gridLayout->addWidget(helpButton, 3, 1);
 
-    QPushButton *optionsButton = new QPushButton("Options...");
+    optionsButton = new QPushButton("Options...");
     gridLayout->addWidget(optionsButton, 3, 2);
     connect(optionsButton, &QPushButton::clicked, this, &GameMenu::onOptionsClicked);
 
-    QPushButton *exitButton = new QPushButton("Exit");
+    exitButton = new QPushButton("Exit");
     gridLayout->addWidget(exitButton, 4, 1);
     connect(exitButton, &QPushButton::clicked, this, &GameMenu::quitGame);
 
-    QPushButton *aboutButton = new QPushButton("About");
+    aboutButton = new QPushButton("About");
     gridLayout->addWidget(aboutButton, 4, 2);
     connect(aboutButton, &QPushButton::clicked, this, &GameMenu::onAboutClicked);
 
-    QPushButton *inventoryButton = new QPushButton("Inventory");
-    gridLayout->addWidget(inventoryButton, 5, 2);
-
-    QPushButton *marlithButton = new QPushButton("marlith");
-    gridLayout->addWidget(marlithButton, 5, 1);
-    connect(marlithButton, &QPushButton::clicked, this, &GameMenu::onMarlithClicked);
-
-    QPushButton *creditsButton = new QPushButton("Charactersheet");
+    creditsButton = new QPushButton("Charactersheet");
     gridLayout->addWidget(creditsButton, 6, 0);
     connect(creditsButton, &QPushButton::clicked, this, &GameMenu::showCredits);
-
     // Placeholder for bottom-left image
     QLabel *bottomLeftImage = new QLabel();
     gridLayout->addWidget(bottomLeftImage, 3, 0, 2, 1);
@@ -164,13 +159,15 @@ GameMenu::GameMenu(QWidget *parent) : QWidget(parent) {
     loggerWindow->show();
     // Use the signal you just connected to immediately log a message.
     emit logMessageTriggered("GameMenu has successfully initialized the Messages Log.");
-    connect(inventoryButton, &QPushButton::clicked, this, &GameMenu::onInventoryClicked);
+//    connect(inventoryButton, &QPushButton::clicked, this, &GameMenu::onInventoryClicked);
+runButton->setVisible(false);
 }
 // Function definitions
-void GameMenu::onDungeonDialogClicked() {
-    DungeonDialog *dialog = new DungeonDialog(this);
-    dialog->show();
-    qDebug() << "Dungeon Dialogue clicked";
+void GameMenu::onRunClicked() {
+ MenuSwitch = false;
+runButton->setVisible(false);
+loadButton->setVisible(true);
+newButton->setVisible(true);
 }
 void GameMenu::onCharacterListClicked() {
     CharacterListDialog *dialog = new CharacterListDialog(this);
@@ -183,9 +180,15 @@ void GameMenu::startNewGame() {
     qDebug() << "Start New Game button clicked";
 }
 void GameMenu::loadGame() {
-    DungeonDialog *dialog = new DungeonDialog(this);
-    dialog->show();
+    //DungeonDialog *dialog = new DungeonDialog(this);
+    //dialog->show();
     qDebug() << "Load Game button clicked";
+    MenuSwitch = true;
+runButton->setVisible(true);
+loadButton->setVisible(false);
+newButton->setVisible(false);
+
+
 }
 void GameMenu::showRecords() {
     emit logMessageTriggered("User entered hall of records");
@@ -214,9 +217,9 @@ void GameMenu::onInventoryClicked() {
     qDebug() << "Inventory button clicked";
 }
 void GameMenu::onMarlithClicked() {
-    MarlithDialog *dialog = new MarlithDialog(this);
-    dialog->show();
-    qDebug() << "Marlith button clicked";
+    //MarlithDialog *dialog = new MarlithDialog(this);
+    //dialog->show();
+    //qDebug() << "Marlith button clicked";
 }
 void GameMenu::onOptionsClicked() {
     OptionsDialog *optionsDialog = new OptionsDialog(this);
@@ -273,6 +276,29 @@ void GameMenu::onShowStatisticsClicked() { // <--- NEW SLOT IMPLEMENTATION
     statsDialog->exec();
     qDebug() << "Mordor Statistics dialog closed.";
     delete statsDialog;
+}
+
+// Conceptual private helper function GameMenu::toggleMenuState()
+void GameMenu::toggleMenuState() {
+    // List of buttons that belong to the MenuSwitch == false state (First Menu)
+//    QList<QPushButton*> firstMenuButtons = {m_helpButton, m_newButton, m_loadButton, m_recordsButton, m_characterListButton, m_optionsButton, m_exitButton, m_aboutButton, m_creditsButton};
+    
+    // Switch between the two menus
+//    if (MenuSwitch) {
+        // MenuSwitch is true: Show 'Run Character', hide First Menu
+//        m_runButton->setVisible(true);
+//        for (QPushButton* btn : firstMenuButtons) {
+//            btn->setVisible(false);
+//        }
+//    } else {
+        // MenuSwitch is false: Hide 'Run Character', show First Menu
+//        m_runButton->setVisible(false);
+//        for (QPushButton* btn : firstMenuButtons) {
+//            btn->setVisible(true);
+//        }
+//    }
+//}
+runButton->setVisible(true);
 }
 
 GameMenu::~GameMenu() {

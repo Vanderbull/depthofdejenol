@@ -28,12 +28,20 @@ private slots:
     void onCharacterListClicked();
     void onHelpClicked();
     void onShowStatisticsClicked();
-    void onDungeonDialogClicked();
+    void onRunClicked();
+    void toggleMenuState();
+//    void onUnloadClicked();
+//    void onExchangeClicked();
+//    void onChangePasswordClicked();
+//    void onDeleteClicked();
 
 private:
     QLabel *titleLabel;
     QLabel *menuArtLabel;
     QPushButton *newButton;
+    QPushButton *exitButton;
+    QPushButton *helpButton;
+
     QPushButton *loadButton;
     QPushButton *recordsButton;
     QPushButton *creditsButton;
@@ -45,6 +53,11 @@ private:
     QPushButton *characterListButton;
     QPushButton *statisticsButton;
     QPushButton *DungeonDialogButton;
+    QPushButton *runButton;
+    QPushButton *UnloadCharacterButton;
+    QPushButton *ExchangeItemsButton;
+    QPushButton *ChangePasswordButton;
+    QPushButton *DeleteCharacterButton;
 
 signals:
     /**
