@@ -19,8 +19,7 @@
 #include "helplesson.h"
 #include "mordorstatistics.h"
 #include "LoadingScreen.h"
-#include "GuildsDialog.h"
-#include "GeneralStore.h"
+//#include "GuildsDialog.h"
 #include "TheCity.h"
 
 #include <QVBoxLayout>
@@ -280,10 +279,7 @@ GameMenu::~GameMenu() {
     qDebug() << "Destructor.";
 }
 int main(int argc, char *argv[]) {
-
     Q_INIT_RESOURCE(resources);
-
-
     QApplication a(argc, argv);
 
     qDebug() << "Launching LoadingScreen dialog...";
@@ -336,11 +332,11 @@ int main(int argc, char *argv[]) {
     // to inspect and handle it.
     w.installEventFilter(controller);
     qDebug() << "GameController installed as event filter on GameMenu.";
-    GuildsDialog g;
-    g.show();
+//    GuildsDialog g;
+//    g.show();
 
-    GeneralStore store;
-    store.show();
+//    GeneralStore store;
+//    store.show();
 
 // 2. Create an instance of your custom dialog, TheCity
     TheCity cityDialog;

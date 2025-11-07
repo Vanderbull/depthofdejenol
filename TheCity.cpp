@@ -1,4 +1,9 @@
 #include "TheCity.h"
+#include "GeneralStore.h"
+#include "GuildsDialog.h"
+#include "MorgueDialog.h"
+#include "SeerDialog.h"
+#include "ConfinementDialog.h"
 #include <QDebug>
 #include <QPixmap>
 #include <QIcon>
@@ -6,6 +11,7 @@
 #include <QSize>
 #include <Qt>
 #include <QToolButton> // Included for QToolButton usage
+
 
 TheCity::TheCity(QWidget *parent) :
     QDialog(parent)
@@ -16,16 +22,13 @@ TheCity::TheCity(QWidget *parent) :
     setupUi();
     loadButtonIcons();
     setupStyling();
-// TEMPORARY TEST CODE in TheCity::TheCity(QWidget *parent) constructor
-QPixmap testPixmap(":/general_store.png");
-if (!testPixmap.isNull()) {
-    qDebug() << "SUCCESS: general_store.png loaded correctly! Size:" << testPixmap.size();
-    // Set a window icon using the loaded pixmap
-    //this->setWindowIcon(QIcon(testPixmap)); 
-} else {
+    QPixmap testPixmap(":/general_store.png");
+    if (!testPixmap.isNull()) {
+        qDebug() << "SUCCESS: general_store.png loaded correctly! Size:" << testPixmap.size();
+        this->setWindowIcon(QIcon(testPixmap)); 
+    } else {
     qDebug() << "ERROR: general_store.png failed to load. Check resource paths and file names.";
-}
-
+    }
 }
 
 TheCity::~TheCity()
@@ -38,7 +41,6 @@ void TheCity::setupUi()
     mainLayout->setContentsMargins(10, 10, 10, 10);
     mainLayout->setSpacing(10);
 
-    // --- Title Label ---
     titleLabel = new QLabel("The City", this);
     titleLabel->setObjectName("titleLabel");
     titleLabel->setAlignment(Qt::AlignCenter);
@@ -49,7 +51,6 @@ void TheCity::setupUi()
     gridLayout->setHorizontalSpacing(10);
     gridLayout->setVerticalSpacing(10);
 
-    //QSize buttonMinSize(160, 140);
     // Initialize QToolButtons
     generalStoreButton = new QToolButton(this);
     morgueButton = new QToolButton(this);
@@ -81,16 +82,12 @@ void TheCity::setupUi()
     connect(seerButton,        &QToolButton::clicked, this, &TheCity::on_seerButton_clicked);
     connect(bankButton,        &QToolButton::clicked, this, &TheCity::on_bankButton_clicked);
     connect(exitButton,        &QToolButton::clicked, this, &TheCity::on_exitButton_clicked);
-//    connect(smallExitButton,   &QToolButton::clicked, this, &TheCity::on_exitButton_clicked);
 }
 
 void TheCity::loadButtonIcons()
 {
-    // IMPORTANT: Replace these with your actual QPixmap/QIcon loading logic 
-
     const QSize iconSize(120, 90); 
 
-    // --- Load Pixmaps (Placeholders) ---
     QPixmap generalStorePixmap(":/general_store.png"); 
     QPixmap morguePixmap(":/morgue.png");
     QPixmap guildsPixmap(":/guilds.png");
@@ -100,8 +97,6 @@ void TheCity::loadButtonIcons()
     QPixmap bankPixmap(":/bank.png");
     QPixmap exitIconPixmap(":/exit_icon.png"); 
 
-    // --- Apply Icons and Styles (setToolButtonStyle now works!) ---
-    // Standard buttons with text under icon
     generalStoreButton->setIcon(QIcon(generalStorePixmap));
     generalStoreButton->setIconSize(iconSize);
     generalStoreButton->setToolButtonStyle(Qt::ToolButtonIconOnly); 
@@ -145,19 +140,40 @@ void TheCity::setupStyling()
     } else {
         qDebug() << "Warning: Failed to load stylesheet from resource file! Using default or inline styles.";
     }
-
     titleLabel->setStyleSheet("font-size: 20px; color: #CCCCCC; background-color: #444444; padding: 5px; border: 1px solid #777777;");
 }
 
-// --- Slot Implementations ---
-
-void TheCity::on_generalStoreButton_clicked() { qDebug() << "General Store clicked!"; }
-void TheCity::on_morgueButton_clicked()      { qDebug() << "Morgue clicked!"; }
-void TheCity::on_guildsButton_clicked()      { qDebug() << "Guilds clicked!"; }
-void TheCity::on_dungeonButton_clicked()     { qDebug() << "Dungeon clicked!"; }
-void TheCity::on_confinementButton_clicked() { qDebug() << "Confinement clicked!"; }
-void TheCity::on_seerButton_clicked()        { qDebug() << "Seer clicked!"; }
-void TheCity::on_bankButton_clicked()        { qDebug() << "Bank clicked!"; }
+void TheCity::on_generalStoreButton_clicked() {
+    qDebug() << "General Store clicked!";
+    GeneralStore store;
+    store.exec();
+}
+void TheCity::on_morgueButton_clicked()      {
+    qDebug() << "Morgue clicked!";
+    MorgueDialog m;
+    m.exec();
+}
+void TheCity::on_guildsButton_clicked()      {
+    qDebug() << "Guilds clicked!";
+    GuildsDialog g;
+    g.exec();
+}
+void TheCity::on_dungeonButton_clicked()     {
+    qDebug() << "Dungeon clicked!";
+}
+void TheCity::on_confinementButton_clicked() {
+    qDebug() << "Confinement clicked!";
+    ConfinementAndHoldingDialog c;
+    c.exec();
+}
+void TheCity::on_seerButton_clicked()        {
+    qDebug() << "Seer clicked!";
+    SeerDialog s;
+    s.exec();
+}
+void TheCity::on_bankButton_clicked()        {
+    qDebug() << "Bank clicked!";
+}
 void TheCity::on_exitButton_clicked()        {
     qDebug() << "Exit clicked! Closing dialog.";
     accept(); 

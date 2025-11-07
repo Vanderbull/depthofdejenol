@@ -16,7 +16,10 @@ SOURCES += game_menu.cpp hallofrecordsdialog.cpp createcharacterdialog.cpp \
     LoadingScreen.cpp \
     GuildsDialog.cpp \
     GeneralStore.cpp \
-    TheCity.cpp
+    TheCity.cpp \
+    MorgueDialog.cpp \
+    SeerDialog.cpp \
+    ConfinementDialog.cpp
 SOURCES += marlith_dialog.cpp
 SOURCES += inventorydialog.cpp
 SOURCES += optionsdialog.cpp
@@ -37,7 +40,10 @@ HEADERS += game_menu.h hallofrecordsdialog.h createcharacterdialog.h \
     LoadingScreen.h \
     GuildsDialog.h \
     GeneralStore.h \
-    TheCity.h
+    TheCity.h \
+    MorgueDialog.h \
+    SeerDialog.h \
+    ConfinementDialog.h
 HEADERS += marlith_dialog.h
 HEADERS += inventorydialog.h
 HEADERS += optionsdialog.h
