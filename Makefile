@@ -74,6 +74,7 @@ SOURCES       = game_menu.cpp \
 		MorgueDialog.cpp \
 		SeerDialog.cpp \
 		ConfinementDialog.cpp \
+		BankDialog.cpp \
 		marlith_dialog.cpp \
 		inventorydialog.cpp \
 		optionsdialog.cpp \
@@ -102,6 +103,7 @@ SOURCES       = game_menu.cpp \
 		moc_MorgueDialog.cpp \
 		moc_SeerDialog.cpp \
 		moc_ConfinementDialog.cpp \
+		moc_BankDialog.cpp \
 		moc_marlith_dialog.cpp \
 		moc_inventorydialog.cpp \
 		moc_optionsdialog.cpp \
@@ -130,6 +132,7 @@ OBJECTS       = game_menu.o \
 		MorgueDialog.o \
 		SeerDialog.o \
 		ConfinementDialog.o \
+		BankDialog.o \
 		marlith_dialog.o \
 		inventorydialog.o \
 		optionsdialog.o \
@@ -159,6 +162,7 @@ OBJECTS       = game_menu.o \
 		moc_MorgueDialog.o \
 		moc_SeerDialog.o \
 		moc_ConfinementDialog.o \
+		moc_BankDialog.o \
 		moc_marlith_dialog.o \
 		moc_inventorydialog.o \
 		moc_optionsdialog.o \
@@ -485,6 +489,7 @@ DIST          = .gitignore \
 		MorgueDialog.h \
 		SeerDialog.h \
 		ConfinementDialog.h \
+		BankDialog.h \
 		marlith_dialog.h \
 		inventorydialog.h \
 		optionsdialog.h \
@@ -512,6 +517,7 @@ DIST          = .gitignore \
 		MorgueDialog.cpp \
 		SeerDialog.cpp \
 		ConfinementDialog.cpp \
+		BankDialog.cpp \
 		marlith_dialog.cpp \
 		inventorydialog.cpp \
 		optionsdialog.cpp \
@@ -1154,8 +1160,8 @@ distdir: FORCE
 	$(COPY_FILE) --parents $(DIST) $(DISTDIR)/
 	$(COPY_FILE) --parents resources.qrc $(DISTDIR)/
 	$(COPY_FILE) --parents /usr/lib/x86_64-linux-gnu/qt6/mkspecs/features/data/dummy.cpp $(DISTDIR)/
-	$(COPY_FILE) --parents game_menu.h hallofrecordsdialog.h createcharacterdialog.h AboutDialog.h CharacterDialog.h MessageWindow.h MonsterEditorDialog.h SenderWindow.h SpellbookEditorDialog.h library_dialog.h automap_dialog.h game_controller.h characterlistdialog.h helplesson.h mordorstatistics.h LoadingScreen.h GuildsDialog.h GeneralStore.h TheCity.h MorgueDialog.h SeerDialog.h ConfinementDialog.h marlith_dialog.h inventorydialog.h optionsdialog.h DungeonDialog.h partyinfodialog.h dungeonmap.h $(DISTDIR)/
-	$(COPY_FILE) --parents game_menu.cpp hallofrecordsdialog.cpp createcharacterdialog.cpp AboutDialog.cpp CharacterDialog.cpp MessageWindow.cpp MonsterEditorDialog.cpp SenderWindow.cpp SpellbookEditorDialog.cpp library_dialog.cpp automap_dialog.cpp game_controller.cpp characterlistdialog.cpp helplesson.cpp mordorstatistics.cpp LoadingScreen.cpp GuildsDialog.cpp GeneralStore.cpp TheCity.cpp MorgueDialog.cpp SeerDialog.cpp ConfinementDialog.cpp marlith_dialog.cpp inventorydialog.cpp optionsdialog.cpp DungeonDialog.cpp partyinfodialog.cpp dungeonmap.cpp $(DISTDIR)/
+	$(COPY_FILE) --parents game_menu.h hallofrecordsdialog.h createcharacterdialog.h AboutDialog.h CharacterDialog.h MessageWindow.h MonsterEditorDialog.h SenderWindow.h SpellbookEditorDialog.h library_dialog.h automap_dialog.h game_controller.h characterlistdialog.h helplesson.h mordorstatistics.h LoadingScreen.h GuildsDialog.h GeneralStore.h TheCity.h MorgueDialog.h SeerDialog.h ConfinementDialog.h BankDialog.h marlith_dialog.h inventorydialog.h optionsdialog.h DungeonDialog.h partyinfodialog.h dungeonmap.h $(DISTDIR)/
+	$(COPY_FILE) --parents game_menu.cpp hallofrecordsdialog.cpp createcharacterdialog.cpp AboutDialog.cpp CharacterDialog.cpp MessageWindow.cpp MonsterEditorDialog.cpp SenderWindow.cpp SpellbookEditorDialog.cpp library_dialog.cpp automap_dialog.cpp game_controller.cpp characterlistdialog.cpp helplesson.cpp mordorstatistics.cpp LoadingScreen.cpp GuildsDialog.cpp GeneralStore.cpp TheCity.cpp MorgueDialog.cpp SeerDialog.cpp ConfinementDialog.cpp BankDialog.cpp marlith_dialog.cpp inventorydialog.cpp optionsdialog.cpp DungeonDialog.cpp partyinfodialog.cpp dungeonmap.cpp $(DISTDIR)/
 
 
 clean: compiler_clean 
@@ -1200,9 +1206,9 @@ compiler_moc_predefs_clean:
 moc_predefs.h: /usr/lib/x86_64-linux-gnu/qt6/mkspecs/features/data/dummy.cpp
 	g++ -pipe -O2 -Wall -Wextra -dM -E -o moc_predefs.h /usr/lib/x86_64-linux-gnu/qt6/mkspecs/features/data/dummy.cpp
 
-compiler_moc_header_make_all: moc_game_menu.cpp moc_hallofrecordsdialog.cpp moc_createcharacterdialog.cpp moc_AboutDialog.cpp moc_CharacterDialog.cpp moc_MessageWindow.cpp moc_MonsterEditorDialog.cpp moc_SenderWindow.cpp moc_SpellbookEditorDialog.cpp moc_library_dialog.cpp moc_automap_dialog.cpp moc_game_controller.cpp moc_characterlistdialog.cpp moc_helplesson.cpp moc_mordorstatistics.cpp moc_LoadingScreen.cpp moc_GuildsDialog.cpp moc_GeneralStore.cpp moc_TheCity.cpp moc_MorgueDialog.cpp moc_SeerDialog.cpp moc_ConfinementDialog.cpp moc_marlith_dialog.cpp moc_inventorydialog.cpp moc_optionsdialog.cpp moc_DungeonDialog.cpp moc_partyinfodialog.cpp moc_dungeonmap.cpp
+compiler_moc_header_make_all: moc_game_menu.cpp moc_hallofrecordsdialog.cpp moc_createcharacterdialog.cpp moc_AboutDialog.cpp moc_CharacterDialog.cpp moc_MessageWindow.cpp moc_MonsterEditorDialog.cpp moc_SenderWindow.cpp moc_SpellbookEditorDialog.cpp moc_library_dialog.cpp moc_automap_dialog.cpp moc_game_controller.cpp moc_characterlistdialog.cpp moc_helplesson.cpp moc_mordorstatistics.cpp moc_LoadingScreen.cpp moc_GuildsDialog.cpp moc_GeneralStore.cpp moc_TheCity.cpp moc_MorgueDialog.cpp moc_SeerDialog.cpp moc_ConfinementDialog.cpp moc_BankDialog.cpp moc_marlith_dialog.cpp moc_inventorydialog.cpp moc_optionsdialog.cpp moc_DungeonDialog.cpp moc_partyinfodialog.cpp moc_dungeonmap.cpp
 compiler_moc_header_clean:
-	-$(DEL_FILE) moc_game_menu.cpp moc_hallofrecordsdialog.cpp moc_createcharacterdialog.cpp moc_AboutDialog.cpp moc_CharacterDialog.cpp moc_MessageWindow.cpp moc_MonsterEditorDialog.cpp moc_SenderWindow.cpp moc_SpellbookEditorDialog.cpp moc_library_dialog.cpp moc_automap_dialog.cpp moc_game_controller.cpp moc_characterlistdialog.cpp moc_helplesson.cpp moc_mordorstatistics.cpp moc_LoadingScreen.cpp moc_GuildsDialog.cpp moc_GeneralStore.cpp moc_TheCity.cpp moc_MorgueDialog.cpp moc_SeerDialog.cpp moc_ConfinementDialog.cpp moc_marlith_dialog.cpp moc_inventorydialog.cpp moc_optionsdialog.cpp moc_DungeonDialog.cpp moc_partyinfodialog.cpp moc_dungeonmap.cpp
+	-$(DEL_FILE) moc_game_menu.cpp moc_hallofrecordsdialog.cpp moc_createcharacterdialog.cpp moc_AboutDialog.cpp moc_CharacterDialog.cpp moc_MessageWindow.cpp moc_MonsterEditorDialog.cpp moc_SenderWindow.cpp moc_SpellbookEditorDialog.cpp moc_library_dialog.cpp moc_automap_dialog.cpp moc_game_controller.cpp moc_characterlistdialog.cpp moc_helplesson.cpp moc_mordorstatistics.cpp moc_LoadingScreen.cpp moc_GuildsDialog.cpp moc_GeneralStore.cpp moc_TheCity.cpp moc_MorgueDialog.cpp moc_SeerDialog.cpp moc_ConfinementDialog.cpp moc_BankDialog.cpp moc_marlith_dialog.cpp moc_inventorydialog.cpp moc_optionsdialog.cpp moc_DungeonDialog.cpp moc_partyinfodialog.cpp moc_dungeonmap.cpp
 moc_game_menu.cpp: game_menu.h \
 		moc_predefs.h \
 		/usr/lib/qt6/libexec/moc
@@ -1312,6 +1318,11 @@ moc_ConfinementDialog.cpp: ConfinementDialog.h \
 		moc_predefs.h \
 		/usr/lib/qt6/libexec/moc
 	/usr/lib/qt6/libexec/moc $(DEFINES) --include /home/rickard/Documents/GitHub/depthofdejenol/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt6/mkspecs/linux-g++ -I/home/rickard/Documents/GitHub/depthofdejenol -I/usr/include/x86_64-linux-gnu/qt6 -I/usr/include/x86_64-linux-gnu/qt6/QtWidgets -I/usr/include/x86_64-linux-gnu/qt6/QtMultimedia -I/usr/include/x86_64-linux-gnu/qt6/QtGui -I/usr/include/x86_64-linux-gnu/qt6/QtNetwork -I/usr/include/x86_64-linux-gnu/qt6/QtCore -I/usr/include/c++/14 -I/usr/include/x86_64-linux-gnu/c++/14 -I/usr/include/c++/14/backward -I/usr/lib/gcc/x86_64-linux-gnu/14/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include ConfinementDialog.h -o moc_ConfinementDialog.cpp
+
+moc_BankDialog.cpp: BankDialog.h \
+		moc_predefs.h \
+		/usr/lib/qt6/libexec/moc
+	/usr/lib/qt6/libexec/moc $(DEFINES) --include /home/rickard/Documents/GitHub/depthofdejenol/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt6/mkspecs/linux-g++ -I/home/rickard/Documents/GitHub/depthofdejenol -I/usr/include/x86_64-linux-gnu/qt6 -I/usr/include/x86_64-linux-gnu/qt6/QtWidgets -I/usr/include/x86_64-linux-gnu/qt6/QtMultimedia -I/usr/include/x86_64-linux-gnu/qt6/QtGui -I/usr/include/x86_64-linux-gnu/qt6/QtNetwork -I/usr/include/x86_64-linux-gnu/qt6/QtCore -I/usr/include/c++/14 -I/usr/include/x86_64-linux-gnu/c++/14 -I/usr/include/c++/14/backward -I/usr/lib/gcc/x86_64-linux-gnu/14/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include BankDialog.h -o moc_BankDialog.cpp
 
 moc_marlith_dialog.cpp: marlith_dialog.h \
 		moc_predefs.h \
@@ -1438,7 +1449,8 @@ TheCity.o: TheCity.cpp TheCity.h \
 		GuildsDialog.h \
 		MorgueDialog.h \
 		SeerDialog.h \
-		ConfinementDialog.h
+		ConfinementDialog.h \
+		BankDialog.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o TheCity.o TheCity.cpp
 
 MorgueDialog.o: MorgueDialog.cpp MorgueDialog.h
@@ -1447,8 +1459,11 @@ MorgueDialog.o: MorgueDialog.cpp MorgueDialog.h
 SeerDialog.o: SeerDialog.cpp SeerDialog.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o SeerDialog.o SeerDialog.cpp
 
-ConfinementDialog.o: ConfinementDialog.cpp 
+ConfinementDialog.o: ConfinementDialog.cpp ConfinementDialog.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o ConfinementDialog.o ConfinementDialog.cpp
+
+BankDialog.o: BankDialog.cpp BankDialog.h
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o BankDialog.o BankDialog.cpp
 
 marlith_dialog.o: marlith_dialog.cpp marlith_dialog.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o marlith_dialog.o marlith_dialog.cpp
@@ -1536,6 +1551,9 @@ moc_SeerDialog.o: moc_SeerDialog.cpp
 
 moc_ConfinementDialog.o: moc_ConfinementDialog.cpp 
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o moc_ConfinementDialog.o moc_ConfinementDialog.cpp
+
+moc_BankDialog.o: moc_BankDialog.cpp 
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o moc_BankDialog.o moc_BankDialog.cpp
 
 moc_marlith_dialog.o: moc_marlith_dialog.cpp 
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o moc_marlith_dialog.o moc_marlith_dialog.cpp

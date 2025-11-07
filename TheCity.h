@@ -2,7 +2,7 @@
 #define THECITY_H
 
 #include <QDialog>
-#include <QToolButton> // <--- CHANGED: Use QToolButton for icon/text positioning
+#include <QToolButton>
 #include <QLabel>
 #include <QGridLayout>
 #include <QVBoxLayout>
@@ -37,8 +37,7 @@ private:
     QToolButton *confinementButton;
     QToolButton *seerButton;
     QToolButton *bankButton;
-    QToolButton *exitButton; // The large Exit icon button
-    QToolButton *smallExitButton; // The small Exit button at the bottom right
+    QToolButton *exitButton;
 
     // Helper Functions
     void setupUi();

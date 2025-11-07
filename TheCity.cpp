@@ -4,6 +4,7 @@
 #include "MorgueDialog.h"
 #include "SeerDialog.h"
 #include "ConfinementDialog.h"
+#include "BankDialog.h"
 #include <QDebug>
 #include <QPixmap>
 #include <QIcon>
@@ -173,6 +174,8 @@ void TheCity::on_seerButton_clicked()        {
 }
 void TheCity::on_bankButton_clicked()        {
     qDebug() << "Bank clicked!";
+    BankDialog b;
+    b.exec();
 }
 void TheCity::on_exitButton_clicked()        {
     qDebug() << "Exit clicked! Closing dialog.";
