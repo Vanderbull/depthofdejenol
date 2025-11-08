@@ -40,10 +40,10 @@ HallOfRecordsDialog::HallOfRecordsDialog(QWidget *parent) : QDialog(parent) {
     QGridLayout *recordsLayout = new QGridLayout();
     recordsLayout->setSpacing(10);
     // Setting column stretches for better visual appeal: Category, Master, Date, Stat
-    recordsLayout->setColumnStretch(0, 1); 
-    recordsLayout->setColumnStretch(1, 1); 
-    recordsLayout->setColumnStretch(2, 0); 
-    recordsLayout->setColumnStretch(3, 0); 
+    recordsLayout->setColumnStretch(0, 1);
+    recordsLayout->setColumnStretch(1, 1);
+    recordsLayout->setColumnStretch(2, 0);
+    recordsLayout->setColumnStretch(3, 0);
 
     QLabel *recordsTitle = new QLabel("Records of Masters and Abilities");
     recordsTitle->setStyleSheet("font-size: 20px; font-weight: bold; margin-bottom: 10px;");
@@ -52,22 +52,21 @@ HallOfRecordsDialog::HallOfRecordsDialog(QWidget *parent) : QDialog(parent) {
 
     // Define the new categories
     QStringList categories = {
-        "Strongest", "Smartest", "Wisest", "Healthiest", "Most Attractive",
-        "Deadliest (Defeated)", "Most Experienced Explorer", "Wealthiest Explorer",
-        "Master of Fighting", "Master of Magic", "Master of Thieving"
-    };
-    
+        "Strongest", "Smartest", "Wisest", "Healthiest", "Most Attractive","Deadliest (Defeated)", 
+	"Most Experienced Explorer", "Wealthiest Explorer", "Master of Fighting", "Master of Magic", "Master of Thieving"
+    };    
     // Companion list for sample stat names and values
+    QStringList masterNames = {
+	"Crashland","Mager","Theshal","Orgal","Alaya","Nimblefingers",
+	"Crashland","Nimlefingers","Morgul","Ge'nal","Nimblefingers"
+    };
     QStringList statNames = {
-        "Strength", "Intelligence", "Wisdom", "Vitality", "Charisma",
-        "Kills", "Expl. Pts", "Gold",
-        "Fight Lvl", "Magic Lvl", "Thief Lvl"
+        "Strength", "Intelligence", "Wisdom", "Constitution", "Charisma","Dexterity",
+        "Kobold", "Experience", "Gold", "Fight Skill", "Knowledge & Power", "Thieving Skill"
     };
 
     QList<int> statValues = {
-        25, 22, 25, 30, 20, 
-        1500, 999999, 10000000,
-        50, 50, 50
+        14, 15, 18, 14, 15, 17, 0, 1322451, 5466453, 17, 6, 15
     };
 
 
@@ -82,13 +81,13 @@ HallOfRecordsDialog::HallOfRecordsDialog(QWidget *parent) : QDialog(parent) {
     masterHeader->setStyleSheet("font-weight: bold;");
     recordsLayout->addWidget(masterHeader, headerRow, 1, Qt::AlignLeft);
     
-    QLabel *dateHeader = new QLabel("Date Set");
-    dateHeader->setStyleSheet("font-weight: bold;");
-    recordsLayout->addWidget(dateHeader, headerRow, 2, Qt::AlignCenter);
+    //QLabel *dateHeader = new QLabel("Date Set");
+    //dateHeader->setStyleSheet("font-weight: bold;");
+    //recordsLayout->addWidget(dateHeader, headerRow, 2, Qt::AlignCenter);
 
     QLabel *statHeader = new QLabel("Record Value");
     statHeader->setStyleSheet("font-weight: bold;");
-    recordsLayout->addWidget(statHeader, headerRow, 3, Qt::AlignCenter);
+    recordsLayout->addWidget(statHeader, headerRow, 2, Qt::AlignCenter);
 
 
     // Populate the grid with the new categories and sample data
@@ -100,20 +99,20 @@ HallOfRecordsDialog::HallOfRecordsDialog(QWidget *parent) : QDialog(parent) {
         recordsLayout->addWidget(categoryLabel, row, 0, Qt::AlignLeft);
 
         // --- Column 2: Sample Master Name ---
-        QString masterName = QString("Master %1").arg(i + 1);
+        QString masterName = masterNames.at(i);
         QLabel *masterNameLabel = new QLabel(masterName);
         recordsLayout->addWidget(masterNameLabel, row, 1, Qt::AlignLeft);
 
         // --- Column 3: Sample Date Set ---
         // Generate a sample date for variation
-        QDate date = QDate::currentDate().addDays(-(i * 10 + 5)); 
-        QLabel *dateLabel = new QLabel(date.toString("MMM d, yyyy"));
-        recordsLayout->addWidget(dateLabel, row, 2, Qt::AlignCenter);
+        //QDate date = QDate::currentDate().addDays(-(i * 10 + 5)); 
+        //QLabel *dateLabel = new QLabel(date.toString("MMM d, yyyy"));
+        //recordsLayout->addWidget(dateLabel, row, 2, Qt::AlignCenter);
 
         // --- Column 4: Record Value ---
         QString statString = QString("%1 %2").arg(statValues.at(i)).arg(statNames.at(i));
         QLabel *statLabel = new QLabel(statString);
-        recordsLayout->addWidget(statLabel, row, 3, Qt::AlignCenter);
+        recordsLayout->addWidget(statLabel, row, 2, Qt::AlignCenter);
     }
 
     // Add the records layout to the root layout

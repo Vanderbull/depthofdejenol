@@ -3,6 +3,8 @@
 #include <QFont>
 #include <QColor> // For setting text/background colors
 #include <QFile>  // Potentially needed to check for resource file loading
+#include <QDir>   // ADDED: For listing files in the current directory
+#include <QSettings> // ADDED: For reading INI settings
 
 LoadingScreen::LoadingScreen(QWidget *parent) :
     QDialog(parent),
@@ -49,7 +51,7 @@ LoadingScreen::LoadingScreen(QWidget *parent) :
     m_copyrightLabel->setFont(copyrightFont);
     m_copyrightLabel->setAlignment(Qt::AlignCenter);
     // Set color to White/Light Gray
-    m_copyrightLabel->setStyleSheet("color: white;");
+    m_copyrightLabel->setStyleSheet("color: gold;");
 
 
     // --- Styling: Image ---
@@ -74,12 +76,12 @@ LoadingScreen::LoadingScreen(QWidget *parent) :
         m_imageLabel->setPixmap(scaledPixmap);
         m_imageLabel->setAlignment(Qt::AlignCenter);
     }
-    m_imageLabel->setFixedSize(300, 300); // Enforce a specific size for the image area
+//    m_imageLabel->setFixedSize(300, 300); // Enforce a specific size for the image area
 
 
     // --- Layout ---
     QVBoxLayout *mainLayout = new QVBoxLayout(this);
-    mainLayout->setContentsMargins(25, 25, 25, 25); // Padding
+    mainLayout->setContentsMargins(15, 15, 15, 15); // Padding
     mainLayout->setSpacing(5); // Tight spacing
 
     // Add widgets in the order they appear in the image
@@ -101,19 +103,47 @@ LoadingScreen::LoadingScreen(QWidget *parent) :
     // Add a final stretch to push content toward the top/center (less relevant with fixed size)
     mainLayout->addStretch(); 
 
-
-
     setLayout(mainLayout);
 
-    m_loadingFiles << "Loading MOR.DAT" 
-                   << "Loading SPRITES.IMG"
-                   << "Loading AUDIO/MUSIC.MP3"
-                   << "Loading CHAR/GOODIE.CHR"
-                   << "Loading CHAR/MONSTER.LST"
-                   << "Loading SYSTEM.INI"
-                   << "Scanning resources..."
+    // ------------------------------------------------------------------
+    // MODIFICATION START: Dynamically load files from the current folder
+    // ------------------------------------------------------------------
+    
+    QDir currentDir = QDir::current();
+    // Get a list of file names, excluding directories and the special entries "." and ".."
+    QStringList fileList = currentDir.entryList(
+        QDir::Files | QDir::NoDotAndDotDot | QDir::Dirs, // Include Files and Dirs (so we can see folders too)
+        QDir::Name // Sort by name
+    );
+
+    // Populate m_loadingFiles with actual file names and status messages
+    if (fileList.isEmpty()) {
+        m_loadingFiles << "No files found in: " + currentDir.path();
+        m_loadingFiles << "Falling back to default initialization sequence...";
+    } else {
+        m_loadingFiles << "Scanning directory: " + currentDir.path();
+        
+        // Add each item (file or directory) to the list
+        for (const QString &itemName : fileList) {
+            QString status = "Loading: ";
+            // Check if the item is a file or a directory (we use QDir::Dirs in entryList)
+            if (currentDir.exists(itemName) && currentDir.entryInfoList({itemName}, QDir::Dirs).count() > 0) {
+                 status = "Scanning directory: ";
+            }
+            m_loadingFiles << status + itemName;
+        }
+    }
+
+
+    // NEW STEP: Check for the settings file integrity
+    checkSettingsFile();
+    // Always include the closing messages regardless of file content
+    m_loadingFiles << "Scanning resources complete."
                    << "Game data integrity check complete.";
 
+    // ------------------------------------------------------------------
+    // MODIFICATION END
+    // ------------------------------------------------------------------
 // --- Timer Setup: Message Cycle ---
     m_messageTimer = new QTimer(this);
     // Cycle the message every 100 milliseconds
@@ -134,6 +164,43 @@ LoadingScreen::~LoadingScreen()
     // The destructor is empty as QDialog's parent-child mechanism manages
     // the deletion of the child widgets (labels, layouts) automatically.
 }
+// --- NEW METHOD IMPLEMENTATION ---
+void LoadingScreen::checkSettingsFile()
+{
+    // Use QSettings with the INI format and the filename.
+    QSettings settings("game_settings.ini", QSettings::IniFormat);
+
+    // List of required keys to check for integrity
+    QStringList requiredKeys = {
+        "Graphics/ResolutionWidth",
+        "Graphics/ResolutionHeight",
+        "Audio/MasterVolume",
+        "Gameplay/Difficulty"
+    };
+
+    bool allKeysPresent = true;
+    for (const QString &key : requiredKeys) {
+        if (!settings.contains(key)) {
+            allKeysPresent = false;
+            // Optionally log or report the missing key
+            // qWarning() << "Missing configuration key:" << key;
+            break;
+        }
+    }
+
+    // Add a loading message based on the check result
+    if (QFile::exists("game_settings.ini")) {
+        if (allKeysPresent) {
+            m_loadingFiles << "Configuration check: game_settings.ini loaded successfully.";
+        } else {
+            m_loadingFiles << "Configuration WARNING: game_settings.ini is incomplete or corrupted!";
+            // In a real game, you would now load default settings.
+        }
+    } else {
+        m_loadingFiles << "Configuration ERROR: game_settings.ini not found. Using default values.";
+    }
+}
+// --- END NEW METHOD IMPLEMENTATION ---
 void LoadingScreen::updateLoadingMessage()
 {
     // Stop cycling messages just before the dialog closes (e.g., after 4.5 seconds)
@@ -145,7 +212,7 @@ void LoadingScreen::updateLoadingMessage()
     
     // Ensure the index is within the bounds of the list
     if (m_currentFileIndex < m_loadingFiles.size()) {
-        m_loadingMessageLabel->setText("Loading: " + m_loadingFiles.at(m_currentFileIndex));
+        m_loadingMessageLabel->setText(m_loadingFiles.at(m_currentFileIndex));
         m_currentFileIndex++;
     } else {
         // If we reach the end of the list, loop back to the beginning for continuous updates

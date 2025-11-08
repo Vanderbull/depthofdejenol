@@ -340,13 +340,13 @@ int main(int argc, char *argv[]) {
     audioOutput->setVolume(0); // Set volume (0.0 to 100.0)
     player->play();
     qDebug() << "Playing audio...";
-    LibraryDialog library;
-    library.exec();
-    launchAutomapDialog();
+//    LibraryDialog library;
+//    library.exec();
+//    launchAutomapDialog();
 // --- NEW CODE ---
-    MordorStatistics statsDialog; // Create the dialog on the stack
-    statsDialog.exec(); // Launch the dialog modally
-    qDebug() << "Mordor Statistics dialog launched and closed from main.";
+//    MordorStatistics statsDialog; // Create the dialog on the stack
+//    statsDialog.exec(); // Launch the dialog modally
+//    qDebug() << "Mordor Statistics dialog launched and closed from main.";
     // --- END NEW CODE ---
     // 2. INSTANTIATE THE GAME CONTROLLER
     // Use the main window (w) as its parent, although it's not strictly necessary.
@@ -365,11 +365,11 @@ int main(int argc, char *argv[]) {
 //    store.show();
 
 // 2. Create an instance of your custom dialog, TheCity
-    TheCity cityDialog;
+//    TheCity cityDialog;
 
     // 3. Display the dialog and start the application's event loop
     // exec() is used to show a modal dialog
-    int result = cityDialog.exec();
+//    int result = cityDialog.exec();
 
 // --- ADDED RESOURCE CLEANUP ---
     Q_CLEANUP_RESOURCE(resources);

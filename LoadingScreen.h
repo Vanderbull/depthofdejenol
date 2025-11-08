@@ -18,6 +18,7 @@ public:
 private slots:
     void closeDialogAutomatically(); 
     void updateLoadingMessage(); // NEW: Slot to cycle the message
+    void checkSettingsFile();
 
 private:
     // ... (Existing members) ...

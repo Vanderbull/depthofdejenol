@@ -8,6 +8,10 @@
 #include <QTabWidget>
 #include <QFrame>
 #include <QWidget>
+#include <QTextEdit>
+#include <QTableWidget>
+#include <QHeaderView>
+#include <QProgressBar>
 
 CharacterDialog::CharacterDialog(const QString &charName, QWidget *parent)
     : QDialog(parent)
@@ -52,6 +56,17 @@ CharacterDialog::CharacterDialog(const QString &charName, QWidget *parent)
         "color: white; "
         "padding: 5px; "
         "}"
+        // Add a style for the retro progress bar
+        "QProgressBar { "
+        "border: 1px solid #808080; "
+        "background-color: #E0E0E0; "
+        "text-align: center; "
+        "color: black; "
+        "}"
+        "QProgressBar::chunk { "
+        "background-color: darkgreen; "
+        "width: 1px; "
+        "}"
         );
 
     setupUi();
@@ -76,23 +91,38 @@ void CharacterDialog::setupUi() {
         "QTabBar::tab:selected { background: #C0C0C0; border-bottom-color: #C0C0C0; }"
     );
     // Dummy tabs for visual resemblance
-    tabWidget->addTab(new QWidget(), "Look");
-    tabWidget->addTab(new QWidget(), "Buffers");
-    tabWidget->addTab(new QWidget(), "Resist.");
-    tabWidget->addTab(new QWidget(), "Misc");
-    tabWidget->addTab(new QWidget(), "Char");
-    tabWidget->addTab(new QWidget(), "Guild");
+    QWidget *lookTabContent = new QWidget();
+    QWidget *buffersTabContent = new QWidget();
+    QWidget *resistTabContent = new QWidget();
+    QWidget *miscTabContent = new QWidget();
+    QWidget *charTabContent = new QWidget();
+    QWidget *guildTabContent = new QWidget();
+
+    tabWidget->addTab(lookTabContent, "Look");
+    tabWidget->addTab(buffersTabContent, "Buffers");
+    tabWidget->addTab(resistTabContent, "Resist.");
+    tabWidget->addTab(miscTabContent, "Misc");
+    tabWidget->addTab(charTabContent, "Char");
+    tabWidget->addTab(guildTabContent, "Guild");
 
     // Select the "Char" tab (index 4)
     tabWidget->setCurrentIndex(4);
 
-    // --- Content for the "Char" tab ---
-    QWidget *charTabContent = new QWidget();
+    // --- Layouts for the tab contents ---
+    QVBoxLayout *lookLayout = new QVBoxLayout(lookTabContent);
+    lookLayout->setContentsMargins(5, 5, 5, 5);
+    QVBoxLayout *buffersLayout = new QVBoxLayout(buffersTabContent);
+    buffersLayout->setContentsMargins(5, 5, 5, 5);
+    QVBoxLayout *resistLayout = new QVBoxLayout(resistTabContent);
+    resistLayout->setContentsMargins(5, 5, 5, 5);
+    QVBoxLayout *miscLayout = new QVBoxLayout(miscTabContent);
+    miscLayout->setContentsMargins(5, 5, 5, 5);
     QVBoxLayout *charLayout = new QVBoxLayout(charTabContent);
-    charLayout->setContentsMargins(0, 0, 0, 0);
-    charLayout->setSpacing(5);
+    charLayout->setContentsMargins(5, 5, 5, 5);
+    QVBoxLayout *guildLayout = new QVBoxLayout(guildTabContent);
+    guildLayout->setContentsMargins(5, 5, 5, 5);
 
-    // --- 1. Top Section: Name, Class, Status ---
+    // --- 1. Top Section: Name, Class, Status (Shared Frame) ---
     QFrame *topFrame = new QFrame();
     topFrame->setFrameShape(QFrame::StyledPanel);
     topFrame->setFrameShadow(QFrame::Sunken); // Sunken panel effect
@@ -108,8 +138,116 @@ void CharacterDialog::setupUi() {
     // Darker button-like look for the status
     aloneLabel->setStyleSheet("background-color: #A0A0A0; padding: 2px; border: 1px solid #808080;");
     topLayout->addWidget(aloneLabel);
-    charLayout->addWidget(topFrame);
 
+    // Add the shared frame to all layouts
+    lookLayout->addWidget(topFrame);
+    buffersLayout->addWidget(topFrame);
+    resistLayout->addWidget(topFrame);
+    miscLayout->addWidget(topFrame);
+    charLayout->addWidget(topFrame);
+    guildLayout->addWidget(topFrame);
+
+
+    // #####################################################################
+    // --- 2. Tab Content Implementation ---
+    // #####################################################################
+
+    // --- Tab: Look (Inventory/Equipment) ---
+    QTableWidget *inventoryTable = new QTableWidget(5, 2); // 5 rows, 2 columns (Slot, Item)
+    inventoryTable->setHorizontalHeaderLabels(QStringList() << "Slot" << "Item");
+    inventoryTable->verticalHeader()->setVisible(false);
+    inventoryTable->horizontalHeader()->setStretchLastSection(true);
+    inventoryTable->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    inventoryTable->setStyleSheet(
+        "QTableWidget { gridline-color: #808080; background-color: #EFEFEF; }"
+        "QHeaderView::section { background-color: #D0D0D0; border: 1px outset #A0A0A0; padding: 2px; }"
+    );
+
+    inventoryTable->setItem(0, 0, new QTableWidgetItem("Head"));
+    inventoryTable->setItem(0, 1, new QTableWidgetItem("Iron Helm"));
+    inventoryTable->setItem(1, 0, new QTableWidgetItem("Body"));
+    inventoryTable->setItem(1, 1, new QTableWidgetItem("Leather Armor"));
+    inventoryTable->setItem(2, 0, new QTableWidgetItem("Hand"));
+    inventoryTable->setItem(2, 1, new QTableWidgetItem("Short Sword"));
+    inventoryTable->setItem(3, 0, new QTableWidgetItem("Feet"));
+    inventoryTable->setItem(3, 1, new QTableWidgetItem("Boots of Speed"));
+    inventoryTable->setItem(4, 0, new QTableWidgetItem("Backpack"));
+    inventoryTable->setItem(4, 1, new QTableWidgetItem("12/50 lbs"));
+
+    lookLayout->addWidget(inventoryTable);
+
+    // --- Tab: Buffers (Temporary Effects/Spells) ---
+    QLabel *buffsHeader = new QLabel("<b>Active Buffs and Debuffs:</b>");
+    buffersLayout->addWidget(buffsHeader);
+
+    QFrame *buffsFrame = new QFrame();
+    buffsFrame->setFrameShape(QFrame::Box);
+    buffsFrame->setFrameShadow(QFrame::Sunken);
+    buffsFrame->setStyleSheet("background-color: white; border: 1px inset #808080;");
+    QVBoxLayout *buffsListLayout = new QVBoxLayout(buffsFrame);
+    buffsListLayout->setContentsMargins(5, 5, 5, 5);
+    buffsListLayout->setSpacing(2);
+
+    buffsListLayout->addWidget(new QLabel("Might (15:00 remaining)"));
+    buffsListLayout->addWidget(new QLabel("Speed (05:30 remaining)"));
+    buffsListLayout->addWidget(new QLabel("<font color='red'>Wounded</font> (-2 Att)"));
+    buffsListLayout->addStretch();
+
+    buffersLayout->addWidget(buffsFrame);
+
+    // --- Tab: Resist. (Resistances) ---
+    QGridLayout *resistGrid = new QGridLayout();
+    resistGrid->setHorizontalSpacing(30);
+    resistGrid->setVerticalSpacing(5);
+
+    auto addResistance = [&](int row, const QString& type, int value) {
+        resistGrid->addWidget(new QLabel(type), row, 0);
+        QProgressBar *bar = new QProgressBar();
+        bar->setRange(0, 100);
+        bar->setValue(value);
+        bar->setFormat(QString("%1%").arg(value)); // Show value as text
+        resistGrid->addWidget(bar, row, 1);
+    };
+
+    addResistance(0, "Fire", 30);
+    addResistance(1, "Ice", 50);
+    addResistance(2, "Poison", 75);
+    addResistance(3, "Lightning", 10);
+    addResistance(4, "Magic", 45);
+
+    resistLayout->addLayout(resistGrid);
+
+    // --- Tab: Misc (Miscellaneous Info) ---
+    QGridLayout *miscGrid = new QGridLayout();
+    miscGrid->setHorizontalSpacing(20);
+    miscGrid->setVerticalSpacing(5);
+
+    miscGrid->addWidget(new QLabel("Kills"), 0, 0);
+    miscGrid->addWidget(new QLabel("42"), 0, 1, Qt::AlignRight);
+    miscGrid->addWidget(new QLabel("Deaths"), 1, 0);
+    miscGrid->addWidget(new QLabel("1"), 1, 1, Qt::AlignRight);
+    miscGrid->addWidget(new QLabel("Play Time"), 2, 0);
+    miscGrid->addWidget(new QLabel("00:45:12"), 2, 1, Qt::AlignRight);
+    miscGrid->addWidget(new QLabel("Alignment"), 3, 0);
+    miscGrid->addWidget(new QLabel("Good"), 3, 1, Qt::AlignRight);
+
+    QFrame *notesFrame = new QFrame();
+    notesFrame->setFrameShape(QFrame::Box);
+    notesFrame->setFrameShadow(QFrame::Sunken);
+    notesFrame->setStyleSheet("background-color: white; border: 1px inset #808080;");
+    QVBoxLayout *notesLayout = new QVBoxLayout(notesFrame);
+    notesLayout->setContentsMargins(5, 5, 5, 5);
+    QTextEdit *notesEdit = new QTextEdit("Traveler of the Western Realms. Seeking adventure and lost artifacts.");
+    notesEdit->setReadOnly(true);
+    notesLayout->addWidget(notesEdit);
+    QLabel *notesHeader = new QLabel("<b>Character Notes:</b>");
+    miscLayout->addWidget(notesHeader);
+
+    miscLayout->addLayout(miscGrid);
+    miscLayout->addWidget(notesFrame);
+
+
+    // --- Tab: Char (Stats - Existing Content) ---
     // --- 2. Middle Section: Stats ---
     QFrame *statsFrame = new QFrame();
     statsFrame->setFrameShape(QFrame::StyledPanel);
@@ -161,11 +299,49 @@ void CharacterDialog::setupUi() {
     attrLayout->addWidget(new QLabel("10"), 5, 1, Qt::AlignRight);
     charLayout->addWidget(attrFrame);
 
-    // Add stretch to push content sections to the top
-    charLayout->addStretch();
 
-    // Finalize the "Char" tab layout
-    tabWidget->widget(4)->setLayout(charLayout);
+    // --- Tab: Guild (Guild/Faction Info) ---
+    QFrame *guildFrame = new QFrame();
+    guildFrame->setFrameShape(QFrame::StyledPanel);
+    guildFrame->setFrameShadow(QFrame::Sunken);
+    guildFrame->setStyleSheet("background-color: #C0C0C0; border: 1px solid #808080;");
+    QGridLayout *guildGrid = new QGridLayout(guildFrame);
+    guildGrid->setContentsMargins(10, 5, 10, 5);
+    guildGrid->setHorizontalSpacing(20);
+    guildGrid->setVerticalSpacing(5);
+
+    guildGrid->addWidget(new QLabel("<b>Guild Name</b>"), 0, 0);
+    guildGrid->addWidget(new QLabel("None"), 0, 1, Qt::AlignRight);
+    guildGrid->addWidget(new QLabel("<b>Rank</b>"), 1, 0);
+    guildGrid->addWidget(new QLabel("Wanderer"), 1, 1, Qt::AlignRight);
+    guildGrid->addWidget(new QLabel("<b>Contribution</b>"), 2, 0);
+    guildGrid->addWidget(new QLabel("0"), 2, 1, Qt::AlignRight);
+    guildLayout->addWidget(guildFrame);
+
+    QFrame *factionFrame = new QFrame();
+    factionFrame->setFrameShape(QFrame::StyledPanel);
+    factionFrame->setFrameShadow(QFrame::Sunken);
+    factionFrame->setStyleSheet("background-color: #C0C0C0; border: 1px solid #808080;");
+    QVBoxLayout *factionLayout = new QVBoxLayout(factionFrame);
+    factionLayout->setContentsMargins(10, 5, 10, 5);
+    factionLayout->setSpacing(2);
+
+    factionLayout->addWidget(new QLabel("<b>Faction Standing:</b>"));
+    QProgressBar *factionBar = new QProgressBar();
+    factionBar->setRange(-100, 100);
+    factionBar->setValue(15); // Slightly positive
+    factionBar->setFormat("Friendly (%v)");
+    factionLayout->addWidget(factionBar);
+    guildLayout->addWidget(factionFrame);
+
+
+    // Add stretch to push content sections to the top where appropriate
+    lookLayout->addStretch();
+    buffersLayout->addStretch();
+    resistLayout->addStretch();
+    miscLayout->addStretch();
+    // Char tab content already fills the space well
+    guildLayout->addStretch();
 
     // Finalize the main dialog layout
     mainLayout->addWidget(tabWidget);
