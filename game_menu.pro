@@ -20,7 +20,8 @@ SOURCES += game_menu.cpp hallofrecordsdialog.cpp createcharacterdialog.cpp \
     MorgueDialog.cpp \
     SeerDialog.cpp \
     ConfinementDialog.cpp \
-    BankDialog.cpp
+    BankDialog.cpp \
+    RaceData.cpp
 SOURCES += marlith_dialog.cpp
 SOURCES += inventorydialog.cpp
 SOURCES += optionsdialog.cpp
@@ -45,7 +46,8 @@ HEADERS += game_menu.h hallofrecordsdialog.h createcharacterdialog.h \
     MorgueDialog.h \
     SeerDialog.h \
     ConfinementDialog.h \
-   BankDialog.h
+    BankDialog.h \
+    RaceData.h
 HEADERS += marlith_dialog.h
 HEADERS += inventorydialog.h
 HEADERS += optionsdialog.h

@@ -1,9 +1,11 @@
 #include "createcharacterdialog.h"
+#include "RaceData.h" // Include the new data header
 
 #include <QScreen>
 #include <QGuiApplication>
 #include <QMessageBox>
 #include <QFile>
+#include <QTextStream> 
 #include <QtWidgets/QListWidget>
 #include <QtWidgets/QVBoxLayout>
 #include <QtWidgets/QWidget>
@@ -11,65 +13,7 @@
 #include <QBrush> 
 #include <QColor> 
 
-
-// Helper to load and return the list of all playable guilds
-QVector<QString> CreateCharacterDialog::loadGuildData() {
-    return {
-        "Nomad",
-        "Warrior",
-        "Paladin",
-        "Ninja",
-        "Villain",
-        "Seeker",
-        "Thief",
-        "Scavenger",
-        "Mage",
-        "Sorcerer",
-        "Wizard",
-        "Healer"
-    };
-}
-
-// Helper to load and return the race data vector
-QVector<RaceStats> CreateCharacterDialog::loadRaceData() {
-    QVector<QString> allGuilds = loadGuildData();
-    
-    QVector<RaceStats> data = {
-        // RaceName, MaxAge, Exp, {Start, Min, Max}, {Int}, {Wis}, {Con}, {Cha}, {Dex}, G, N, E, {}
-        {"Human",   100, 3,  {4, 4, 17}, {4, 4, 18}, {4, 4, 18}, {6, 6, 17}, {5, 5, 18}, {6, 6, 18}, AS_Allowed, AS_Allowed, AS_Allowed, {}},
-        {"Elf",     400, 7,  {3, 3, 15}, {7, 7, 20}, {7, 7, 20}, {3, 3, 16}, {3, 3, 18}, {3, 3, 18}, AS_Allowed, AS_Allowed, AS_Allowed, {}},
-        {"Giant",   225, 7,  {12, 12, 25},{4, 4, 17}, {3, 3, 17}, {9, 9, 19}, {2, 2, 16}, {3, 3, 18}, AS_NotAllowed, AS_Allowed, AS_NotAllowed, {}},
-        {"Gnome",   300, 7,  {4, 4, 17}, {7, 7, 19}, {5, 5, 19}, {3, 3, 17}, {9, 9, 22}, {6, 6, 18}, AS_Allowed, AS_Allowed, AS_Allowed, {}},
-        {"Dwarf",   275, 5,  {3, 3, 18}, {3, 3, 18}, {7, 7, 19}, {3, 3, 19}, {3, 3, 17}, {5, 5, 18}, AS_NotAllowed, AS_Allowed, AS_NotAllowed, {}},
-        {"Ogre",    265, 6,  {9, 9, 20}, {3, 3, 16}, {3, 3, 16}, {9, 9, 21}, {3, 3, 18}, {5, 5, 17}, AS_Allowed, AS_Allowed, AS_Allowed, {}},
-        {"Morloch", 175, 4,  {6, 6, 20}, {3, 3, 17}, {5, 5, 19}, {3, 3, 15}, {2, 2, 14}, {5, 5, 20}, AS_Allowed, AS_NotAllowed, AS_Allowed, {}},
-        {"Osiri",   325, 8,  {5, 5, 17}, {3, 3, 18}, {3, 3, 17}, {7, 7, 19}, {3, 3, 18}, {10, 10, 22}, AS_NotAllowed, AS_Allowed, AS_NotAllowed, {}},
-        {"Troll",   285, 9,  {6, 6, 20}, {3, 3, 18}, {3, 3, 18}, {6, 6, 19}, {3, 3, 17}, {6, 6, 20}, AS_Allowed, AS_Allowed, AS_Allowed, {}}
-    };
-    
-    // Initialize Guild Eligibility (Placeholder Logic)
-    for (RaceStats& race : data) {
-        // Default: All races are allowed in all guilds
-        for (const QString& guild : allGuilds) {
-            race.guildEligibility[guild] = AS_Allowed;
-        }
-
-        // Custom Race Restrictions (Example based on common RPG tropes)
-        if (race.raceName == "Giant") {
-            race.guildEligibility["Mage"] = AS_NotAllowed;
-            race.guildEligibility["Wizard"] = AS_NotAllowed;
-            race.guildEligibility["Thief"] = AS_NotAllowed;
-        } else if (race.raceName == "Dwarf") {
-            race.guildEligibility["Mage"] = AS_NotAllowed;
-            race.guildEligibility["Sorcerer"] = AS_NotAllowed;
-            race.guildEligibility["Wizard"] = AS_NotAllowed;
-        } else if (race.raceName == "Elf") {
-            race.guildEligibility["Villain"] = AS_NotAllowed;
-        }
-        // ... add real Mordor rules here
-    }
-    return data;
-}
+// NOTE: loadGuildData() and loadRaceData() implementations are in racedata.cpp.
 
 // Helper to populate the race ComboBox
 void populateComboBox(QComboBox *raceBox, const QVector<RaceStats>& data) {
@@ -105,7 +49,7 @@ void CreateCharacterDialog::updateGuildListStyle(const RaceStats& race) {
     for (int i = 0; i < this->guildsListWidget->count(); ++i) {
         QListWidgetItem *item = this->guildsListWidget->item(i);
         QString guildName = item->text();
-        
+
         AlignmentStatus status = race.guildEligibility.value(guildName, AS_Allowed);
 
         if (status == AS_Allowed) {
@@ -121,11 +65,10 @@ void CreateCharacterDialog::updateGuildListStyle(const RaceStats& race) {
 // Slot implementation to update all race-specific UI elements
 void CreateCharacterDialog::updateRaceStats(int index) {
     if (index < 0 || index >= raceData.size()) {
-        return; 
+        return;
     }
 
     const RaceStats& selectedRace = raceData.at(index);
-    
     QMap<QString, RaceStat> statMap;
     statMap["Strength"]     = selectedRace.strength;
     statMap["Intelligence"] = selectedRace.intelligence;
@@ -143,6 +86,7 @@ void CreateCharacterDialog::updateRaceStats(int index) {
         spinBox->blockSignals(true); 
         spinBox->setRange(raceStat.min, raceStat.max);
         spinBox->setValue(raceStat.start); 
+        spinBox->setProperty("previousValue", raceStat.start); // IMPORTANT: Reset previous value
         spinBox->blockSignals(false);
 
         // Update Range Label
@@ -150,31 +94,31 @@ void CreateCharacterDialog::updateRaceStats(int index) {
         if (rangeLabel) {
             rangeLabel->setText(QString("(%1-%2)").arg(raceStat.min).arg(raceStat.max));
         }
-        
+
         // Update Value Label
         QLabel* valueLabel = statValueLabels.value(statName);
         if (valueLabel) {
              valueLabel->setText(QString::number(raceStat.start));
         }
     }
-    
+
     // Update alignment and guild eligibility
     updateAlignmentOptions(selectedRace);
     updateGuildListStyle(selectedRace);
 
-    // Reset stat points 
+    // Reset stat points
     this->statPoints = 5;
     this->statPointsLeftLabel->setText(QString("%1 Stat Points Left").arg(this->statPoints));
 }
 
 CreateCharacterDialog::CreateCharacterDialog(QWidget *parent) : QDialog(parent) {
-    // 1. Load data
+    // Load data using the moved functions
     raceData = loadRaceData();
     guildData = loadGuildData();
 
-    // 2. Setup Window
+    // Setup Window
     setWindowTitle("Create Character");
-    
+
     QFile styleSheetFile("style.qss");
     if (styleSheetFile.open(QFile::ReadOnly | QFile::Text)) {
         setStyleSheet(styleSheetFile.readAll());
@@ -187,7 +131,7 @@ CreateCharacterDialog::CreateCharacterDialog(QWidget *parent) : QDialog(parent) 
     int windowHeight = screenGeometry.height() * 0.65;
     setMinimumSize(800, 600);
     resize(windowWidth, windowHeight);
-    
+
     QVBoxLayout *mainLayout = new QVBoxLayout(this);
     mainLayout->setContentsMargins(30, 30, 30, 30);
     mainLayout->setSpacing(20);
@@ -202,23 +146,27 @@ CreateCharacterDialog::CreateCharacterDialog(QWidget *parent) : QDialog(parent) 
     infoLayout->setAlignment(Qt::AlignTop | Qt::AlignLeft);
 
     infoLayout->addWidget(new QLabel("Character Name"), 0, 0);
-    QLineEdit *nameEdit = new QLineEdit("");
+    // Use member variable nameEdit
+    nameEdit = new QLineEdit("");
     infoLayout->addWidget(nameEdit, 1, 0, 1, 2);
 
     infoLayout->addWidget(new QLabel("Race"), 2, 0);
+    // Use member variable raceBox
     raceBox = new QComboBox();
     populateComboBox(raceBox, raceData);
     infoLayout->addWidget(raceBox, 3, 0, 1, 2);
 
     infoLayout->addWidget(new QLabel("Sex"), 4, 0);
-    QComboBox *sexBox = new QComboBox();
-    sexBox->addItems({"Male", "Female", "Neuter"});
+    // Use member variable sexBox
+    sexBox = new QComboBox();
+    sexBox->addItems({"Male", "Female"});
     infoLayout->addWidget(sexBox, 5, 0, 1, 2);
 
     infoLayout->addWidget(new QLabel("Alignment"), 6, 0);
+    // Use member variable alignmentBox
     alignmentBox = new QComboBox();
     infoLayout->addWidget(alignmentBox, 7, 0, 1, 2);
-    
+
     contentLayout->addLayout(infoLayout);
 
     // ==========================================================
@@ -228,15 +176,15 @@ CreateCharacterDialog::CreateCharacterDialog(QWidget *parent) : QDialog(parent) 
     statsLayout->setSpacing(10);
     statsLayout->setAlignment(Qt::AlignTop | Qt::AlignLeft);
     statsLayout->addWidget(new QLabel("Stats"), 0, 0, 1, 3);
-    
+
     this->statPointsLeftLabel = new QLabel(QString("%1 Stat Points Left").arg(this->statPoints));
     statsLayout->addWidget(this->statPointsLeftLabel, 7, 0, 1, 3);
-    
+
     const QStringList statNames = {"Strength", "Intelligence", "Wisdom", "Constitution", "Charisma", "Dexterity"};
     for (int i = 0; i < statNames.size(); ++i) {
         QString statName = statNames.at(i);
         statsLayout->addWidget(new QLabel(statName), i + 1, 0);
-        
+
         QSpinBox *spinBox = new QSpinBox();
         const RaceStats& initialRace = raceData.at(0);
         RaceStat initialRaceStat;
@@ -252,24 +200,55 @@ CreateCharacterDialog::CreateCharacterDialog(QWidget *parent) : QDialog(parent) 
 
         spinBox->setRange(initialRaceStat.min, initialRaceStat.max);
         spinBox->setValue(initialRaceStat.start); 
+        spinBox->setProperty("previousValue", initialRaceStat.start); // Initialize previous value
         statsLayout->addWidget(spinBox, i + 1, 1);
-        
+
         QLabel *rangeLabel = new QLabel(QString("(%1-%2)").arg(initialRaceStat.min).arg(initialRaceStat.max));
         statsLayout->addWidget(rangeLabel, i + 1, 2);
-        
+
         QLabel *currentValueLabel = new QLabel(QString::number(spinBox->value()));
         currentValueLabel->setAlignment(Qt::AlignCenter); 
         currentValueLabel->setStyleSheet("color: blue; font-weight: bold;");
         statsLayout->addWidget(currentValueLabel, i + 1, 3);
-        
+
         statSpinBoxes.insert(statName, spinBox);
         statRangeLabels.insert(statName, rangeLabel);
         statValueLabels.insert(statName, currentValueLabel);
 
+        // MODIFIED: Connection logic to handle stat points
         QObject::connect(spinBox, QOverload<int>::of(&QSpinBox::valueChanged),
                          [currentValueLabel, this, spinBox](int newValue) {
-                             currentValueLabel->setText(QString::number(newValue));
-                         });
+
+            // 1. Get the old value stored in the property
+            int oldValue = spinBox->property("previousValue").toInt();
+            int change = newValue - oldValue;
+
+            if (change == 0) {
+                return;
+            }
+
+            // 2. Check limits and adjust points
+            if (change > 0) {
+                // Attempting to increase stat
+                if (this->statPoints >= change) { // Check if we have enough points
+                    this->statPoints -= change;
+                } else {
+                    // Not enough points: prevent the increase and revert the value
+                    spinBox->blockSignals(true);
+                    spinBox->setValue(oldValue); // Revert the value
+                    spinBox->blockSignals(false);
+                    return; // Stop execution
+                }
+            } else { // change < 0 (Decreasing stat)
+                // Recovering points
+                this->statPoints -= change; // -= change because change is negative
+            }
+
+            // 3. Update UI and store the new value as the old value for the next call
+            spinBox->setProperty("previousValue", newValue); 
+            currentValueLabel->setText(QString::number(newValue));
+            this->statPointsLeftLabel->setText(QString("%1 Stat Points Left").arg(this->statPoints));
+        });
     }
 
     QObject::connect(raceBox, QOverload<int>::of(&QComboBox::currentIndexChanged),
@@ -282,10 +261,10 @@ CreateCharacterDialog::CreateCharacterDialog(QWidget *parent) : QDialog(parent) 
     // ==========================================================
     QVBoxLayout *guildLayout = new QVBoxLayout();
     guildLayout->setAlignment(Qt::AlignTop);
-    
+
     QLabel *guildsTitle = new QLabel("Guilds Allowed");
     guildLayout->addWidget(guildsTitle);
-    
+
     guildsListWidget = new QListWidget(); // Use member variable
 
     for (const QString& guildName : guildData) {
@@ -297,21 +276,21 @@ CreateCharacterDialog::CreateCharacterDialog(QWidget *parent) : QDialog(parent) 
 
     // Initialize all race-dependent UI elements (must be called after all widgets are created)
     updateRaceStats(0);
-    
+
     QListWidgetItem *selectedItem = guildsListWidget->currentItem();
     if (selectedItem) {
         QString selectedGuild = selectedItem->text();
     }
 
     contentLayout->addLayout(guildLayout);
-    
+
     mainLayout->addLayout(contentLayout);
 
     // ==========================================================
     // Bottom Buttons and Debug Info
     // ==========================================================
-    
-    // DEBUG INFO 
+
+    // DEBUG INFO
     QLabel *updateLabel = new QLabel("Current Name: "); 
 
     guildLayout->addWidget(updateLabel);
@@ -341,7 +320,7 @@ CreateCharacterDialog::CreateCharacterDialog(QWidget *parent) : QDialog(parent) 
                              selectionStatusLabel->setText("No Guild Selected");
                          }
                      });
-                     
+
     QHBoxLayout *bottomLayout = new QHBoxLayout();
     bottomLayout->setSpacing(20);
     bottomLayout->setAlignment(Qt::AlignCenter);
@@ -379,8 +358,53 @@ void CreateCharacterDialog::onGuildStatsClicked() {
 }
 
 void CreateCharacterDialog::onSaveCharacterClicked() {
-    QMessageBox::information(this, "Save Character", "Saving the character...");
+    // 1. Get Character Name and sanitize
+    QString characterName = nameEdit->text().trimmed();
+
+    if (characterName.isEmpty()) {
+        QMessageBox::warning(this, "Save Error", "Please enter a **Character Name** before saving.");
+        return;
+    }
+
+    // 2. Define the file path (e.g., "JohnDoe.txt")
+    QString filename = characterName + ".txt";
+    QFile file(filename);
+
+    if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
+        QMessageBox::critical(this, "Save Error", QString("Could not open file for writing: %1").arg(filename));
+        return;
+    }
+
+    // 3. Write data to the file
+    QTextStream out(&file);
+
+    // --- Basic Info ---
+    out << "CHARACTER_FILE_VERSION: 1.0\n";
+    out << "Name: " << characterName << "\n";
+    out << "Race: " << raceBox->currentText() << "\n";
+    out << "Sex: " << sexBox->currentText() << "\n";
+    out << "Alignment: " << alignmentBox->currentText() << "\n";
+
+    // --- Stats ---
+    out << "\n--- STATS ---\n";
+    for (auto it = statSpinBoxes.constBegin(); it != statSpinBoxes.constEnd(); ++it) {
+        out << it.key() << ": " << it.value()->value() << "\n";
+    }
+
+    // --- Guild ---
+    out << "\n--- GUILD ---\n";
+    QListWidgetItem* selectedGuildItem = guildsListWidget->currentItem();
+    QString selectedGuild = "None";
+    if (selectedGuildItem && (selectedGuildItem->flags() & Qt::ItemIsEnabled)) {
+        selectedGuild = selectedGuildItem->text();
+    }
+    out << "Guild: " << selectedGuild << "\n";
+
+    file.close();
+
+    QMessageBox::information(this, "Save Character", QString("Character **%1** saved successfully to **%2**.").arg(characterName).arg(filename));
 }
+
 
 void CreateCharacterDialog::onTutorialClicked() {
     QMessageBox::information(this, "Tutorial", "Opening the tutorial...");

@@ -13,39 +13,10 @@
 #include <QVector>
 #include <QMap>
 #include <QStringList> 
-#include <QListWidget> // Required for QListWidget member variable
-
-// Structure to hold min/max/start values for a stat (e.g., Str, Int)
-struct RaceStat {
-    int start; // The default value when the race is selected
-    int min;
-    int max;
-};
-
-// Simplified Enum based on the table values ('X' and '-')
-enum AlignmentStatus {
-    AS_Allowed,   // Represents 'X'
-    AS_NotAllowed // Represents '-'
-};
-
-// Structure to hold all stats for a single race
-struct RaceStats {
-    QString raceName;
-    int maxAge;
-    int experience;
-    RaceStat strength;
-    RaceStat intelligence;
-    RaceStat wisdom;
-    RaceStat constitution;
-    RaceStat charisma;
-    RaceStat dexterity;
-    AlignmentStatus good; // G
-    AlignmentStatus neutral; // N
-    AlignmentStatus evil; // E
-    
-    // Guild Eligibility Map: GuildName -> Allowed/NotAllowed
-    QMap<QString, AlignmentStatus> guildEligibility; 
-};
+#include <QListWidget> 
+#include <QFile>
+// Include the new header file for RaceStats and declarations for global load functions
+#include "RaceData.h" 
 
 
 class CreateCharacterDialog : public QDialog {
@@ -71,7 +42,10 @@ private:
     // Member variables to hold race data and stat/guild widgets
     QVector<RaceStats> raceData;
     QVector<QString> guildData; 
+    
+    QLineEdit *nameEdit; 
     QComboBox *raceBox;
+    QComboBox *sexBox; 
     QComboBox *alignmentBox; 
     QListWidget *guildsListWidget; 
 
@@ -79,11 +53,11 @@ private:
     QMap<QString, QLabel*> statRangeLabels;
     QMap<QString, QLabel*> statValueLabels;
 
-    // Helper functions
-    QVector<RaceStats> loadRaceData();
-    QVector<QString> loadGuildData();
+    // Helper functions 
     void updateAlignmentOptions(const RaceStats& race);
     void updateGuildListStyle(const RaceStats& race);
+    
+    // NOTE: loadRaceData() and loadGuildData() declarations REMOVED to fix linker error.
 };
 
 #endif // CREATECHARACTERDIALOG_H

@@ -75,6 +75,7 @@ SOURCES       = game_menu.cpp \
 		SeerDialog.cpp \
 		ConfinementDialog.cpp \
 		BankDialog.cpp \
+		RaceData.cpp \
 		marlith_dialog.cpp \
 		inventorydialog.cpp \
 		optionsdialog.cpp \
@@ -133,6 +134,7 @@ OBJECTS       = game_menu.o \
 		SeerDialog.o \
 		ConfinementDialog.o \
 		BankDialog.o \
+		RaceData.o \
 		marlith_dialog.o \
 		inventorydialog.o \
 		optionsdialog.o \
@@ -490,6 +492,7 @@ DIST          = .gitignore \
 		SeerDialog.h \
 		ConfinementDialog.h \
 		BankDialog.h \
+		RaceData.h \
 		marlith_dialog.h \
 		inventorydialog.h \
 		optionsdialog.h \
@@ -518,6 +521,7 @@ DIST          = .gitignore \
 		SeerDialog.cpp \
 		ConfinementDialog.cpp \
 		BankDialog.cpp \
+		RaceData.cpp \
 		marlith_dialog.cpp \
 		inventorydialog.cpp \
 		optionsdialog.cpp \
@@ -1160,8 +1164,8 @@ distdir: FORCE
 	$(COPY_FILE) --parents $(DIST) $(DISTDIR)/
 	$(COPY_FILE) --parents resources.qrc $(DISTDIR)/
 	$(COPY_FILE) --parents /usr/lib/x86_64-linux-gnu/qt6/mkspecs/features/data/dummy.cpp $(DISTDIR)/
-	$(COPY_FILE) --parents game_menu.h hallofrecordsdialog.h createcharacterdialog.h AboutDialog.h CharacterDialog.h MessageWindow.h MonsterEditorDialog.h SenderWindow.h SpellbookEditorDialog.h library_dialog.h automap_dialog.h game_controller.h characterlistdialog.h helplesson.h mordorstatistics.h LoadingScreen.h GuildsDialog.h GeneralStore.h TheCity.h MorgueDialog.h SeerDialog.h ConfinementDialog.h BankDialog.h marlith_dialog.h inventorydialog.h optionsdialog.h DungeonDialog.h partyinfodialog.h dungeonmap.h $(DISTDIR)/
-	$(COPY_FILE) --parents game_menu.cpp hallofrecordsdialog.cpp createcharacterdialog.cpp AboutDialog.cpp CharacterDialog.cpp MessageWindow.cpp MonsterEditorDialog.cpp SenderWindow.cpp SpellbookEditorDialog.cpp library_dialog.cpp automap_dialog.cpp game_controller.cpp characterlistdialog.cpp helplesson.cpp mordorstatistics.cpp LoadingScreen.cpp GuildsDialog.cpp GeneralStore.cpp TheCity.cpp MorgueDialog.cpp SeerDialog.cpp ConfinementDialog.cpp BankDialog.cpp marlith_dialog.cpp inventorydialog.cpp optionsdialog.cpp DungeonDialog.cpp partyinfodialog.cpp dungeonmap.cpp $(DISTDIR)/
+	$(COPY_FILE) --parents game_menu.h hallofrecordsdialog.h createcharacterdialog.h AboutDialog.h CharacterDialog.h MessageWindow.h MonsterEditorDialog.h SenderWindow.h SpellbookEditorDialog.h library_dialog.h automap_dialog.h game_controller.h characterlistdialog.h helplesson.h mordorstatistics.h LoadingScreen.h GuildsDialog.h GeneralStore.h TheCity.h MorgueDialog.h SeerDialog.h ConfinementDialog.h BankDialog.h RaceData.h marlith_dialog.h inventorydialog.h optionsdialog.h DungeonDialog.h partyinfodialog.h dungeonmap.h $(DISTDIR)/
+	$(COPY_FILE) --parents game_menu.cpp hallofrecordsdialog.cpp createcharacterdialog.cpp AboutDialog.cpp CharacterDialog.cpp MessageWindow.cpp MonsterEditorDialog.cpp SenderWindow.cpp SpellbookEditorDialog.cpp library_dialog.cpp automap_dialog.cpp game_controller.cpp characterlistdialog.cpp helplesson.cpp mordorstatistics.cpp LoadingScreen.cpp GuildsDialog.cpp GeneralStore.cpp TheCity.cpp MorgueDialog.cpp SeerDialog.cpp ConfinementDialog.cpp BankDialog.cpp RaceData.cpp marlith_dialog.cpp inventorydialog.cpp optionsdialog.cpp DungeonDialog.cpp partyinfodialog.cpp dungeonmap.cpp $(DISTDIR)/
 
 
 clean: compiler_clean 
@@ -1395,7 +1399,8 @@ game_menu.o: game_menu.cpp game_menu.h \
 hallofrecordsdialog.o: hallofrecordsdialog.cpp hallofrecordsdialog.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o hallofrecordsdialog.o hallofrecordsdialog.cpp
 
-createcharacterdialog.o: createcharacterdialog.cpp createcharacterdialog.h
+createcharacterdialog.o: createcharacterdialog.cpp createcharacterdialog.h \
+		RaceData.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o createcharacterdialog.o createcharacterdialog.cpp
 
 AboutDialog.o: AboutDialog.cpp AboutDialog.h
@@ -1464,6 +1469,9 @@ ConfinementDialog.o: ConfinementDialog.cpp ConfinementDialog.h
 
 BankDialog.o: BankDialog.cpp BankDialog.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o BankDialog.o BankDialog.cpp
+
+RaceData.o: RaceData.cpp RaceData.h
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o RaceData.o RaceData.cpp
 
 marlith_dialog.o: marlith_dialog.cpp marlith_dialog.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o marlith_dialog.o marlith_dialog.cpp
