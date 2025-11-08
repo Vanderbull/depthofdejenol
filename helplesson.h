@@ -2,7 +2,7 @@
 #define HELPLESSON_H
 
 #include <QDialog>
-#include <QTextEdit>
+#include <QTextBrowser>
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QToolBar>
@@ -31,7 +31,7 @@ private:
     // Innehåller all HTML-data
     QString createHelpContentHtml();
 
-    QTextEdit *m_textEdit;
+    QTextBrowser *m_textEdit;
     QLabel *m_dwarfImageLabel; // För bilden till vänster
 
 };
