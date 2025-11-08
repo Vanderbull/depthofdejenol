@@ -59,6 +59,9 @@ private:
     QPushButton *ChangePasswordButton;
     QPushButton *DeleteCharacterButton;
 
+// --- NEW: To store selected file path ---
+    QString m_selectedCharacterFilePath;
+
 signals:
     /**
      * @brief Signal emitted when a message needs to be logged.

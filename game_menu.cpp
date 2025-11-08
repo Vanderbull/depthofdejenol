@@ -37,6 +37,8 @@
 #include <QAudioOutput>
 #include <QUrl>
 #include <QDateTime>
+#include <QFileDialog>
+#include <QDir>
 
 bool MenuSwitch = false;
 
@@ -180,15 +182,82 @@ void GameMenu::startNewGame() {
     qDebug() << "Start New Game button clicked";
 }
 void GameMenu::loadGame() {
-    //DungeonDialog *dialog = new DungeonDialog(this);
-    //dialog->show();
-    qDebug() << "Load Game button clicked";
-    MenuSwitch = true;
-runButton->setVisible(true);
-loadButton->setVisible(false);
-newButton->setVisible(false);
+QDir currentDir(QDir::currentPath());
+    // Filter for .txt files
+    QStringList nameFilters;
+    nameFilters << "*.txt";
+    
+    // Get all files matching the filter
+    QFileInfoList fileList = currentDir.entryInfoList(nameFilters, QDir::Files);
+    
+    QStringList characterFiles;
+    for (const QFileInfo &fileInfo : fileList) {
+        // Exclude files that might be game configuration files and not characters
+        // For this example, we add all .txt files found.
+        characterFiles << fileInfo.fileName();
+    }
 
+    if (characterFiles.isEmpty()) {
+        emit logMessageTriggered("No character (.txt) files found to load.");
+        QMessageBox::warning(this, tr("No Characters Found"), 
+                             tr("No character files (*.txt) were found in the current directory."));
+        return;
+    }
+    
+    // --- Create Temporary Selection Dialog ---
+    QDialog selectionDialog(this);
+    selectionDialog.setWindowTitle("Load Character");
+    
+    QVBoxLayout *layout = new QVBoxLayout(&selectionDialog);
+    
+    QLabel *promptLabel = new QLabel("Select a character file to load:");
+    layout->addWidget(promptLabel);
+    
+    QComboBox *charComboBox = new QComboBox();
+    charComboBox->addItems(characterFiles);
+    layout->addWidget(charComboBox);
+    
+    QPushButton *loadButton_Dialog = new QPushButton("Load Character");
+    loadButton_Dialog->setObjectName("loadButton_Dialog"); // Give it a unique name for connection
+    layout->addWidget(loadButton_Dialog);
+    
+    QPushButton *cancelButton_Dialog = new QPushButton("Cancel");
+    layout->addWidget(cancelButton_Dialog);
 
+    // Connect dialog buttons
+    QObject::connect(loadButton_Dialog, &QPushButton::clicked, &selectionDialog, &QDialog::accept);
+    QObject::connect(cancelButton_Dialog, &QPushButton::clicked, &selectionDialog, &QDialog::reject);
+
+    // Execute the dialog modally
+    int result = selectionDialog.exec();
+    
+    if (result == QDialog::Accepted) {
+        // User clicked "Load Character"
+        QString selectedFileName = charComboBox->currentText();
+        QString filePath = currentDir.absoluteFilePath(selectedFileName);
+
+        // **LOAD DATA LOGIC:**
+        // Simulate loading the character data based on the filePath here.
+        // e.g., CharacterData loadedChar = loadCharacterFromFile(filePath);
+        
+        emit logMessageTriggered(QString("Loading character: %1").arg(selectedFileName));
+        qDebug() << "Character selected from dropdown and attempting to load:" << filePath;
+        
+        // Simulate success message before menu switch
+        QMessageBox::information(this, tr("Load Successful"), 
+                                 tr("Character **%1** loaded successfully (Data load simulated).").arg(selectedFileName));
+        
+        // Exit back to the main menu / Switch Menu State
+        MenuSwitch = true;
+        runButton->setVisible(true);
+        loadButton->setVisible(false);
+        newButton->setVisible(false);
+
+    } else {
+        // User cancelled the dialog (rejected)
+        qDebug() << "Character loading cancelled by user via dropdown dialog.";
+        emit logMessageTriggered("Character selection cancelled.");
+    }
 }
 void GameMenu::showRecords() {
     emit logMessageTriggered("User entered hall of records");
