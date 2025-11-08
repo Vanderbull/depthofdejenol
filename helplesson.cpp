@@ -130,19 +130,18 @@ QString HelpLessonDialog::createHelpContentHtml()
                     <p><a href='#guilds'>Guilds</a></p>
                     <p><a href='#library'>The Library</a></p>
                     <p><a href='#spells'>Spells</a></p>
-                    <p style='margin-left: 20px;'><a href='#banishspells'>Banish Spells</a></p>
-                    <p style='margin-left: 20px;'><a href='#bindspells'>Bind Spells</a></p>
-                    <p style='margin-left: 20px;'><a href='#charmspells'>Charm Spells</a></p>
-                    <p style='margin-left: 20px;'><a href='#coldspells'>Cold Spells</a></p>
-                    <p style='margin-left: 20px;'><a href='#electricalspells'>Electrical Spells</a></p>
+                    <p><a href='#thedungeon'>The Dungeon</a></p>
+                    <p><a href='#automap'>Automap</a></p>
+                    <p><a href='#encounters'>Encounters</a></p>
+                    <p><a href='#monsters'>Monsters</a></p>
+                    <p><a href='#companions'>Companions</a></p>
+                    <p><a href='#dying'>Dying</a></p>
                 </div>
 
                 <div style='width: 48%;'>
                     <p><a href='#parties'>Parties</a></p>
-                    <p style='margin-left: 20px;'><a href='#companions'>Companions</a></p>
                     <p><a href='#commands'>Commands</a></p>
                     <p><a href='#controlpanel'>Control Panel</a></p>
-                    <p style='margin-top: 20px;'></p>
                     <p><a href='#beginnerhints'>Beginner Hints & Tips</a></p>
                     <p><a href='#faq'>Frequently Asked Questions</a></p>
                     
@@ -154,9 +153,18 @@ QString HelpLessonDialog::createHelpContentHtml()
                     <h2 style='margin-top: 20px; font-weight: bold; border-top: 1px solid #cccccc; padding-top: 10px;'>Mordor Tutorial</h2>
                     <p><a href='#tutorial'>Tutorial</a></p>
                     <p><a href='#automap'>AutoMap</a></p>
+
+                    <h2 style='margin-top: 20px; font-weight: bold; border-top: 1px solid #cccccc; padding-top: 10px;'>Mordor ordering information</h2>
+                    <p><a href='#ordering'>Ordering Mordor</a></p>
+
+                    <h2 style='margin-top: 20px; font-weight: bold; border-top: 1px solid #cccccc; padding-top: 10px;'>Mordor Screen Saver</h2>
+                    <p><a href='#information'>Information</a></p>
+
                 </div>
             </div>
-            
+
+            <p>MORDOR is © Copyright 1994-1995, MakeItSo Software</p>
+
             <hr style='border: none; border-top: 3px double #333333; margin-top: 40px;' />
             
             <h2 id='automap' style='margin-top: 40px; font-weight: bold; color: #00008b;'>AutoMap</h2>
@@ -730,6 +738,77 @@ QString HelpLessonDialog::createHelpContentHtml()
             <p>If the stat requirements for a guild are too high to select initially, you can create the character as a Nomad (or another guild) and run around to find enough items to raise your stats to the minimum requirements.</p>
 
             <p>Once you've chosen your Name, Race, Alignment, Sex, and Stats, you can save your character and start playing.</p>
+
+            <p>Passwords Even though the game will prompt you for a password when you create a character, if you do not wish one, simply press ENTER twice.    This will allow you (or anybody else on the computer) to run the character without requiring a password.    If you change your mind later, you can always change your character's password!    Also remember that passwords in Mordor are case sensitive!    If you do enter a password for you character,    be sure you remember it or write it down somewhere.
+               If you wish, you can click on the "Tutorial” button for a basic walk-through on creating a character, buying items, and encountering your first monster(s).    For beginners, this is recommended.
+
+               Move to the next section to read about the Game Screen.
+               Move to the previous section to read about Race Statistics.
+            </p>
+            <h2 id='createchar' style='margin-top: 40px; font-weight: bold; color: #00008b;'>Damage Spells</h2>
+            <h2 id='createchar' style='margin-top: 40px; font-weight: bold; color: #00008b;'>Dispell Spells</h2>
+            <h2 id='createchar' style='margin-top: 40px; font-weight: bold; color: #00008b;'>Dying</h2>
+            <h2 id='createchar' style='margin-top: 40px; font-weight: bold; color: #00008b;'>Electrical Spells</h2>
+            <h2 id='createchar' style='margin-top: 40px; font-weight: bold; color: #00008b;'>Element Spells</h2>
+            <h2 id='createchar' style='margin-top: 40px; font-weight: bold; color: #00008b;'>Encounters</h2>
+            <h2 id='createchar' style='margin-top: 40px; font-weight: bold; color: #00008b;'>Encounters: Combat</h2>
+            <h2 id='createchar' style='margin-top: 40px; font-weight: bold; color: #00008b;'>Encounters: Monster attacks</h2>
+            <h2 id='createchar' style='margin-top: 40px; font-weight: bold; color: #00008b;'>Encounters: Monsters</h2>
+            <h2 id='createchar' style='margin-top: 40px; font-weight: bold; color: #00008b;'>Encounters: Treasure</h2>
+            <h2 id='createchar' style='margin-top: 40px; font-weight: bold; color: #00008b;'>Fire Spells</h2>
+            <h2 id='createchar' style='margin-top: 40px; font-weight: bold; color: #00008b;'>Frequently asked questions</h2>
+            <h2 id='createchar' style='margin-top: 40px; font-weight: bold; color: #00008b;'>Game options window</h2>
+            <h2 id='createchar' style='margin-top: 40px; font-weight: bold; color: #00008b;'>Game overview</h2>
+            <h2 id='createchar' style='margin-top: 40px; font-weight: bold; color: #00008b;'>Guilds: Statistics</h2>
+            <h2 id='createchar' style='margin-top: 40px; font-weight: bold; color: #00008b;'>Heal Spells</h2>
+            <h2 id='createchar' style='margin-top: 40px; font-weight: bold; color: #00008b;'>Hints & Tips</h2>
+            <h2 id='createchar' style='margin-top: 40px; font-weight: bold; color: #00008b;'>The History of Mordor</h2>
+            <h2 id='createchar' style='margin-top: 40px; font-weight: bold; color: #00008b;'>Introduction</h2>
+            <h2 id='createchar' style='margin-top: 40px; font-weight: bold; color: #00008b;'>Items</h2>
+            <h2 id='createchar' style='margin-top: 40px; font-weight: bold; color: #00008b;'>Kill Spells</h2>
+            <h2 id='createchar' style='margin-top: 40px; font-weight: bold; color: #00008b;'>Location Spells</h2>
+            <h2 id='createchar' style='margin-top: 40px; font-weight: bold; color: #00008b;'>MIDI mapper & troubleshooting</h2>
+            <h2 id='createchar' style='margin-top: 40px; font-weight: bold; color: #00008b;'>Magic Spells</h2>
+            <h2 id='createchar' style='margin-top: 40px; font-weight: bold; color: #00008b;'>Main Menu</h2>
+            <h2 id='createchar' style='margin-top: 40px; font-weight: bold; color: #00008b;'>Mind Spells</h2>
+            <h2 id='createchar' style='margin-top: 40px; font-weight: bold; color: #00008b;'>Mordor Ordering Information</h2>
+            <h2 id='createchar' style='margin-top: 40px; font-weight: bold; color: #00008b;'>Mordor Screen Saver</h2>
+            <h2 id='createchar' style='margin-top: 40px; font-weight: bold; color: #00008b;'>Movement Spells</h2>
+            <h2 id='createchar' style='margin-top: 40px; font-weight: bold; color: #00008b;'>Parties</h2>
+            <h2 id='createchar' style='margin-top: 40px; font-weight: bold; color: #00008b;'>Protection Spells</h2>
+            <h2 id='createchar' style='margin-top: 40px; font-weight: bold; color: #00008b;'>Races</h2>
+            <h2 id='createchar' style='margin-top: 40px; font-weight: bold; color: #00008b;'>Races: Statistics</h2>
+            <h2 id='createchar' style='margin-top: 40px; font-weight: bold; color: #00008b;'>Resistance Spells</h2>
+            <h2 id='createchar' style='margin-top: 40px; font-weight: bold; color: #00008b;'>Spells</h2>
+            <h2 id='createchar' style='margin-top: 40px; font-weight: bold; color: #00008b;'>Spells: Healer</h2>
+            <h2 id='createchar' style='margin-top: 40px; font-weight: bold; color: #00008b;'>Spells: Mage</h2>
+            <h2 id='createchar' style='margin-top: 40px; font-weight: bold; color: #00008b;'>Spells: Ninja</h2>
+            <h2 id='createchar' style='margin-top: 40px; font-weight: bold; color: #00008b;'>Spells: Nomad</h2>
+            <h2 id='createchar' style='margin-top: 40px; font-weight: bold; color: #00008b;'>Spells: Paladin</h2>
+            <h2 id='createchar' style='margin-top: 40px; font-weight: bold; color: #00008b;'>Spells: Scavanger</h2>
+            <h2 id='createchar' style='margin-top: 40px; font-weight: bold; color: #00008b;'>Spells: Seeker</h2>
+            <h2 id='createchar' style='margin-top: 40px; font-weight: bold; color: #00008b;'>Spells: Sorcerer</h2>
+            <h2 id='createchar' style='margin-top: 40px; font-weight: bold; color: #00008b;'>Spells: Thief</h2>
+            <h2 id='createchar' style='margin-top: 40px; font-weight: bold; color: #00008b;'>Spells: Villain</h2>
+            <h2 id='createchar' style='margin-top: 40px; font-weight: bold; color: #00008b;'>Spells: Warrior</h2>
+            <h2 id='createchar' style='margin-top: 40px; font-weight: bold; color: #00008b;'>Spells: Wizard</h2>
+            <h2 id='createchar' style='margin-top: 40px; font-weight: bold; color: #00008b;'>System requirements</h2>
+            <h2 id='createchar' style='margin-top: 40px; font-weight: bold; color: #00008b;'>The City</h2>
+            <h2 id='createchar' style='margin-top: 40px; font-weight: bold; color: #00008b;'>The City: Bank</h2>
+            <h2 id='createchar' style='margin-top: 40px; font-weight: bold; color: #00008b;'>The City: Guilds</h2>
+            <h2 id='createchar' style='margin-top: 40px; font-weight: bold; color: #00008b;'>The City: Holding & Confinement</h2>
+            <h2 id='createchar' style='margin-top: 40px; font-weight: bold; color: #00008b;'>The City: Morgue</h2>
+            <h2 id='createchar' style='margin-top: 40px; font-weight: bold; color: #00008b;'>The City: Seer</h2>
+            <h2 id='createchar' style='margin-top: 40px; font-weight: bold; color: #00008b;'>The City: sTore</h2>
+            <h2 id='createchar' style='margin-top: 40px; font-weight: bold; color: #00008b;'>The Dungeon</h2>
+            <h2 id='createchar' style='margin-top: 40px; font-weight: bold; color: #00008b;'>The Game Screen</h2>
+            <h2 id='createchar' style='margin-top: 40px; font-weight: bold; color: #00008b;'>The Library</h2>
+            <h2 id='createchar' style='margin-top: 40px; font-weight: bold; color: #00008b;'>The Toolbar</h2>
+            <h2 id='createchar' style='margin-top: 40px; font-weight: bold; color: #00008b;'>General troubleshooting</h2>
+            <h2 id='createchar' style='margin-top: 40px; font-weight: bold; color: #00008b;'>Tutorial</h2>
+            <h2 id='createchar' style='margin-top: 40px; font-weight: bold; color: #00008b;'>Visual Spells</h2>
+
+
             </div>
         </body>
         </html>
