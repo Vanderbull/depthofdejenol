@@ -1,6 +1,9 @@
 #include "characterlistdialog.h"
 #include <QHBoxLayout>
 #include <QMessageBox>
+#include <QDir>        // NYTT: För att hantera kataloger
+#include <QFileInfo>   // NYTT: För filinformation
+#include <QFile>       // NYTT: För att ta bort filer
 
 CharacterListDialog::CharacterListDialog(QWidget *parent)
     : QDialog(parent)
@@ -42,11 +45,8 @@ CharacterListDialog::CharacterListDialog(QWidget *parent)
     // Double-click in the list should also select the character
     connect(characterListWidget, &QListWidget::itemDoubleClicked, this, &CharacterListDialog::onSelectClicked);
 
-    // Example Data (should be loaded from a save file in the real game)
-    addCharacter("Fighter McSword");
-    addCharacter("Mage Fireball");
-    addCharacter("Cleric Heal");
-    addCharacter("Thief Backstab");
+    // Ladda karaktärer dynamiskt från filer
+    loadCharactersFromFiles();
 }
 
 CharacterListDialog::~CharacterListDialog()
@@ -54,9 +54,37 @@ CharacterListDialog::~CharacterListDialog()
     // Qt handles memory management for child widgets
 }
 
-void CharacterListDialog::addCharacter(const QString &characterName)
+/**
+ * @brief Dynamically loads character names from .txt files in the "characters" folder.
+ */
+void CharacterListDialog::loadCharactersFromFiles()
 {
-    characterListWidget->addItem(characterName);
+    // Definiera mappen där karaktärsfilerna ska finnas
+    QString charactersDir = "characters";
+    QDir dir(charactersDir);
+
+    if (!dir.exists()) {
+        QMessageBox::warning(this, "Load Error", "Character directory not found: " + charactersDir);
+        return;
+    }
+
+    // Filtrera för att endast inkludera filer som slutar med ".txt"
+    QStringList filters;
+    filters << "*.txt";
+
+    // Få en lista över filinformationsobjekt för alla matchande filer
+    QFileInfoList fileList = dir.entryInfoList(filters, QDir::Files | QDir::NoDotAndDotDot);
+
+    if (fileList.isEmpty()) {
+        QMessageBox::information(this, "No Characters", "No character save files (.txt) found in the 'characters' folder.");
+    }
+
+    foreach (const QFileInfo &fileInfo, fileList) {
+        // Karaktärsnamnet: Filnamnet utan filändelse
+        QString characterName = fileInfo.baseName(); 
+
+        characterListWidget->addItem(characterName);
+    }
 }
 
 void CharacterListDialog::onSelectClicked()
@@ -66,9 +94,8 @@ void CharacterListDialog::onSelectClicked()
         QString characterName = selectedItem->text();
         QMessageBox::information(this, "Character Selected",
                                  "You have selected the character: " + characterName +
-                                 "\n(The game would proceed to load the character here)");
-        // In a real implementation, you would use accept() or emit a signal
-        // with the character's data to close the dialog and load the character.
+                                 "\n(The game would proceed to load the character data from 'characters/" + characterName + ".txt' here)");
+        // I en riktig implementation, använd accept() eller emit en signal.
         accept();
     } else {
         QMessageBox::warning(this, "No Selection", "Please select a character from the list.");
@@ -86,10 +113,17 @@ void CharacterListDialog::onDeleteClicked()
                                       QMessageBox::Yes|QMessageBox::No);
 
         if (reply == QMessageBox::Yes) {
-            // Remove from UI
-            delete characterListWidget->takeItem(characterListWidget->currentRow());
-            // In a real implementation: call function to remove from save file/database
-            QMessageBox::information(this, "Deleted", characterName + " has been deleted.");
+            // Försök att ta bort den faktiska filen
+            QString filePath = "characters/" + characterName + ".txt";
+            
+            if (QFile::remove(filePath)) {
+                // Ta bort från UI om filen togs bort
+                delete characterListWidget->takeItem(characterListWidget->currentRow());
+                QMessageBox::information(this, "Deleted", characterName + " and its save file have been deleted.");
+            } else {
+                QMessageBox::critical(this, "Error", "Could not delete the file: " + filePath + 
+                                       "\n(File may not exist or permissions are wrong.)");
+            }
         }
     } else {
         QMessageBox::warning(this, "No Selection", "Please select a character to delete.");

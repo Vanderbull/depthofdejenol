@@ -22,11 +22,8 @@ public:
     explicit CharacterListDialog(QWidget *parent = nullptr);
     ~CharacterListDialog();
 
-    /**
-     * @brief Adds a character to the list.
-     * @param characterName The name of the character.
-     */
-    void addCharacter(const QString &characterName);
+    // Denna funktion används inte längre externt, men behålls som privat implementation.
+    // void addCharacter(const QString &characterName); 
 
 private slots:
     /**
@@ -40,6 +37,11 @@ private slots:
     void onDeleteClicked();
 
 private:
+    /**
+     * @brief Dynamically loads character names from .txt files in the "characters" folder.
+     */
+    void loadCharactersFromFiles();
+
     // UI elements
     QLabel *titleLabel;
     QListWidget *characterListWidget;
