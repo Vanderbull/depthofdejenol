@@ -1,6 +1,11 @@
+QMAKE_RESOURCE_FLAGS += --root /
+RESOURCES += resources.qrc
+
 QT += core gui widgets multimedia
 TARGET = game_menu
-SOURCES += game_menu.cpp hallofrecordsdialog.cpp createcharacterdialog.cpp \
+SOURCES += game_menu.cpp \
+    hallofrecordsdialog.cpp \
+    createcharacterdialog.cpp \
     AboutDialog.cpp \
     CharacterDialog.cpp \
     MessageWindow.cpp \
@@ -21,12 +26,19 @@ SOURCES += game_menu.cpp hallofrecordsdialog.cpp createcharacterdialog.cpp \
     SeerDialog.cpp \
     ConfinementDialog.cpp \
     BankDialog.cpp \
-    RaceData.cpp
-SOURCES += marlith_dialog.cpp
-SOURCES += inventorydialog.cpp
-SOURCES += optionsdialog.cpp
-SOURCES += DungeonDialog.cpp
-HEADERS += game_menu.h hallofrecordsdialog.h createcharacterdialog.h \
+    RaceData.cpp \
+    marlith_dialog.cpp \
+    inventorydialog.cpp \
+    optionsdialog.cpp \
+    DungeonDialog.cpp \
+    partyinfodialog.cpp \
+    dungeonmap.cpp 
+
+SOURCES +=
+
+HEADERS += game_menu.h \
+    hallofrecordsdialog.h \
+    createcharacterdialog.h \
     AboutDialog.h \
     CharacterDialog.h \
     MessageWindow.h \
@@ -47,20 +59,24 @@ HEADERS += game_menu.h hallofrecordsdialog.h createcharacterdialog.h \
     SeerDialog.h \
     ConfinementDialog.h \
     BankDialog.h \
-    RaceData.h
-HEADERS += marlith_dialog.h
-HEADERS += inventorydialog.h
-HEADERS += optionsdialog.h
-HEADERS += DungeonDialog.h
-
-SOURCES += partyinfodialog.cpp
-SOURCES += dungeonmap.cpp
-
-HEADERS += partyinfodialog.h
-HEADERS += dungeonmap.h
+    RaceData.h \
+    marlith_dialog.h \
+    inventorydialog.h \
+    optionsdialog.h \
+    DungeonDialog.h \
+    partyinfodialog.h \
+    dungeonmap.h \
 
 CXXFLAGS += -std=c++11
 
 DISTFILES += \
     .gitignore
-RESOURCES += resources.qrc
+#QMAKE_EXTRA_OBJECTS += qrc_resources.o
+# Lägg till din byggkatalog som en sökväg för bibliotek
+#LIBS += -L.
+
+# Lägg till objektfilen som ett "bibliotek"
+#LIBS += qrc_resources.o
+
+# Tvinga länkaren att behandla .o-filen som en vanlig objektfil
+#QMAKE_LFLAGS += -Wl,-whole-archive qrc_resources.o -Wl,-no-whole-archive
