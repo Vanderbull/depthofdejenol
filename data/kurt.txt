@@ -1,0 +1,16 @@
+CHARACTER_FILE_VERSION: 1.0
+Name: kurt
+Race: Human
+Sex: Male
+Alignment: Good
+
+--- STATS ---
+Charisma: 5
+Constitution: 6
+Dexterity: 6
+Intelligence: 9
+Strength: 4
+Wisdom: 4
+
+--- GUILD ---
+Guild: Scavenger

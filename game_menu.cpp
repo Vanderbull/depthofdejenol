@@ -39,8 +39,12 @@
 #include <QDateTime>
 #include <QFileDialog>
 #include <QDir>
+#include <QSettings>
 
 bool MenuSwitch = false;
+QSettings settings("MyCompany", "MyApp");
+QString subfolderName = settings.value("Paths/SubfolderName", "data").toString();
+
 
 void launchAutomapDialog() {
     // Using nullptr as the parent widget, as 'this' is not available here.
@@ -52,6 +56,10 @@ void launchAutomapDialog() {
 }
 
 GameMenu::GameMenu(QWidget *parent) : QWidget(parent) {
+
+    qDebug() << "Configured Subfolder Name:" << subfolderName;
+
+
     setWindowTitle("Mordor: The Depths of Dejenol v1.0");
     // Load external style sheet
     QFile styleSheetFile("style.qss");
@@ -170,6 +178,11 @@ void GameMenu::onRunClicked() {
 runButton->setVisible(false);
 loadButton->setVisible(true);
 newButton->setVisible(true);
+TheCity cityDialog;
+
+int result = cityDialog.exec();
+
+
 }
 void GameMenu::onCharacterListClicked() {
     CharacterListDialog *dialog = new CharacterListDialog(this);
@@ -182,7 +195,33 @@ void GameMenu::startNewGame() {
     qDebug() << "Start New Game button clicked";
 }
 void GameMenu::loadGame() {
-QDir currentDir(QDir::currentPath());
+// 3. Get the absolute path of the application's executable directory
+QString basePath = QCoreApplication::applicationDirPath();
+
+// 4. Combine the base path and the subfolder name
+// QDir::cleanPath handles directory separators ('/' vs '\') automatically.
+QString fullPath = QDir::cleanPath(basePath + QDir::separator() + subfolderName);
+
+// 5. Create the QDir object for the calculated subfolder path
+QDir subfolderDir(fullPath);
+
+qDebug() << "Full Subfolder Path:" << subfolderDir.absolutePath();
+
+// Optional: Ensure the directory exists
+if (!subfolderDir.exists()) {
+    if (subfolderDir.mkpath(".")) { // Use mkpath(".") to create the directory represented by subfolderDir
+        qDebug() << "Subfolder created successfully!";
+    } else {
+        qDebug() << "Failed to create subfolder!";
+    }
+}
+
+
+
+
+
+    //QDir currentDir(QDir::currentPath());
+    QDir currentDir(subfolderDir.absolutePath());
     // Filter for .txt files
     QStringList nameFilters;
     nameFilters << "*.txt";
