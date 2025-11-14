@@ -63,10 +63,8 @@ void DungeonDialog::setupUi() {
     leftLayout->addLayout(messagesLayout);
 
     mainLayout->addLayout(leftLayout);
-    
     // Middle section layout (Character Info and Controls)
     QVBoxLayout *middleLayout = new QVBoxLayout();
-    
     // Party Information section
     QLabel *partyInfoLabel = new QLabel("Party Information");
     partyInfoLabel->setStyleSheet("font-size: 16px; font-weight: bold; background-color: #2b2b2b; color: #878787; border: 2px solid #5a5a5a; padding: 5px;");
@@ -93,7 +91,6 @@ void DungeonDialog::setupUi() {
 
 
     mainLayout->addLayout(middleLayout);
-    
     // Right section layout (Auto Map)
     QVBoxLayout *rightLayout = new QVBoxLayout();
     QLabel *mapLabel = new QLabel("Auto Map");

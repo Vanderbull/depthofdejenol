@@ -7,14 +7,14 @@
 #include "inventorydialog.h"
 //#include "marlith_dialog.h"
 #include "optionsdialog.h"
-#include "AboutDialog.h"
+#include "src/about_dialog/AboutDialog.h"
 #include "MonsterEditorDialog.h"
 #include "SpellbookEditorDialog.h"
 #include "CharacterDialog.h"
 #include "MessageWindow.h"
 #include "SenderWindow.h"
 #include "library_dialog.h"
-#include "automap_dialog.h"
+#include "src/automap/automap_dialog.h"
 #include "game_controller.h"
 #include "helplesson.h"
 #include "mordorstatistics.h"
@@ -215,11 +215,6 @@ if (!subfolderDir.exists()) {
         qDebug() << "Failed to create subfolder!";
     }
 }
-
-
-
-
-
     //QDir currentDir(QDir::currentPath());
     QDir currentDir(subfolderDir.absolutePath());
     // Filter for .txt files
@@ -413,7 +408,7 @@ GameMenu::~GameMenu() {
     qDebug() << "Destructor.";
 }
 int main(int argc, char *argv[]) {
-    Q_INIT_RESOURCE(resources);
+//    Q_INIT_RESOURCE(resources);
     QApplication a(argc, argv);
 
     qDebug() << "Launching LoadingScreen dialog...";
@@ -480,7 +475,7 @@ int main(int argc, char *argv[]) {
 //    int result = cityDialog.exec();
 
 // --- ADDED RESOURCE CLEANUP ---
-    Q_CLEANUP_RESOURCE(resources);
+//    Q_CLEANUP_RESOURCE(resources);
     // ----------------------------
     return a.exec();
 }

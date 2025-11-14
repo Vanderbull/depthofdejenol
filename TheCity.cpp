@@ -24,7 +24,7 @@ TheCity::TheCity(QWidget *parent) :
     setupUi();
     loadButtonIcons();
     setupStyling();
-    QPixmap testPixmap(":/general_store.png");
+    QPixmap testPixmap("general_store.png");
     if (!testPixmap.isNull()) {
         qDebug() << "SUCCESS: general_store.png loaded correctly! Size:" << testPixmap.size();
         this->setWindowIcon(QIcon(testPixmap)); 
@@ -90,14 +90,14 @@ void TheCity::loadButtonIcons()
 {
     const QSize iconSize(120, 90); 
 
-    QPixmap generalStorePixmap(":/general_store.png"); 
-    QPixmap morguePixmap(":/morgue.png");
-    QPixmap guildsPixmap(":/guilds.png");
-    QPixmap dungeonPixmap(":/dungeon.png");
-    QPixmap confinementPixmap(":/confinement.png");
-    QPixmap seerPixmap(":/seer.png");
-    QPixmap bankPixmap(":/bank.png");
-    QPixmap exitIconPixmap(":/exit_icon.png"); 
+    QPixmap generalStorePixmap("general_store.png"); 
+    QPixmap morguePixmap("morgue.png");
+    QPixmap guildsPixmap("guilds.png");
+    QPixmap dungeonPixmap("dungeon.png");
+    QPixmap confinementPixmap("confinement.png");
+    QPixmap seerPixmap("seer.png");
+    QPixmap bankPixmap("bank.png");
+    QPixmap exitIconPixmap("exit_icon.png"); 
 
     generalStoreButton->setIcon(QIcon(generalStorePixmap));
     generalStoreButton->setIconSize(iconSize);
@@ -134,7 +134,7 @@ void TheCity::loadButtonIcons()
 
 void TheCity::setupStyling()
 {
-    QFile styleFile(":/TheCity.qss"); 
+    QFile styleFile("TheCity.qss"); 
     if (styleFile.open(QFile::ReadOnly | QFile::Text)) {
         QString styleSheet = QLatin1String(styleFile.readAll());
         this->setStyleSheet(styleSheet);
