@@ -4,7 +4,7 @@
 #include "MorgueDialog.h"
 #include "SeerDialog.h"
 #include "ConfinementDialog.h"
-#include "BankDialog.h"
+#include "src/bank_dialog/BankDialog.h"
 #include "DungeonDialog.h"
 #include <QDebug>
 #include <QPixmap>
@@ -102,34 +102,36 @@ void TheCity::loadButtonIcons()
     generalStoreButton->setIcon(QIcon(generalStorePixmap));
     generalStoreButton->setIconSize(iconSize);
     generalStoreButton->setToolButtonStyle(Qt::ToolButtonIconOnly); 
-
+    generalStoreButton->setToolTip("General Store");
+    
     morgueButton->setIcon(QIcon(morguePixmap));
     morgueButton->setIconSize(iconSize);
     morgueButton->setToolButtonStyle(Qt::ToolButtonIconOnly);
-
+morgueButton->setToolTip("morgue");
     guildsButton->setIcon(QIcon(guildsPixmap));
     guildsButton->setIconSize(iconSize);
     guildsButton->setToolButtonStyle(Qt::ToolButtonIconOnly);
-
+guildsButton->setToolTip("guilds");
     dungeonButton->setIcon(QIcon(dungeonPixmap));
     dungeonButton->setIconSize(iconSize);
     dungeonButton->setToolButtonStyle(Qt::ToolButtonIconOnly);
-
+dungeonButton->setToolTip("dungeon");
     confinementButton->setIcon(QIcon(confinementPixmap));
     confinementButton->setIconSize(iconSize);
     confinementButton->setToolButtonStyle(Qt::ToolButtonIconOnly);
-
+confinementButton->setToolTip("confinement");
     seerButton->setIcon(QIcon(seerPixmap));
     seerButton->setIconSize(iconSize);
     seerButton->setToolButtonStyle(Qt::ToolButtonIconOnly);
-
+seerButton->setToolTip("seer");
     bankButton->setIcon(QIcon(bankPixmap));
     bankButton->setIconSize(iconSize);
     bankButton->setToolButtonStyle(Qt::ToolButtonIconOnly);
-
+bankButton->setToolTip("bank");
     exitButton->setIcon(QIcon(exitIconPixmap));
     exitButton->setIconSize(iconSize);
     exitButton->setToolButtonStyle(Qt::ToolButtonIconOnly);
+exitButton->setToolTip("EXIT");
 }
 
 void TheCity::setupStyling()

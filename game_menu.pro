@@ -56,7 +56,7 @@ SOURCES += game_menu.cpp \
     MorgueDialog.cpp \
     SeerDialog.cpp \
     ConfinementDialog.cpp \
-    BankDialog.cpp \
+    src/bank_dialog/BankDialog.cpp \
     RaceData.cpp \
     marlith_dialog.cpp \
     inventorydialog.cpp \
@@ -89,7 +89,7 @@ HEADERS += game_menu.h \
     MorgueDialog.h \
     SeerDialog.h \
     ConfinementDialog.h \
-    BankDialog.h \
+    src/bank_dialog/BankDialog.h \
     RaceData.h \
     marlith_dialog.h \
     inventorydialog.h \
