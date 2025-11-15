@@ -34,7 +34,7 @@ DungeonDialog::DungeonDialog(QWidget *parent) :
     QGraphicsView *dungeonView = new QGraphicsView(this);
     dungeonView->setScene(m_dungeonScene);
     dungeonView->setRenderHint(QPainter::Antialiasing);
-    dungeonView->setFixedSize(250, 250); // Set fixed size for dungeon view
+    //dungeonView->setFixedSize(1250, 250); // Set fixed size for dungeon view
     // Placeholder image for the dungeon view (optional)
     QPixmap placeholder(250, 250);
     placeholder.fill(Qt::darkGray);

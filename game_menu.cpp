@@ -10,7 +10,7 @@
 #include "src/about_dialog/AboutDialog.h"
 #include "MonsterEditorDialog.h"
 #include "SpellbookEditorDialog.h"
-#include "CharacterDialog.h"
+#include "src/character_dialog/CharacterDialog.h"
 #include "MessageWindow.h"
 #include "SenderWindow.h"
 #include "library_dialog.h"

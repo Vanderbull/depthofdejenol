@@ -38,7 +38,7 @@ SOURCES += game_menu.cpp \
     hallofrecordsdialog.cpp \
     createcharacterdialog.cpp \
     src/about_dialog/AboutDialog.cpp \
-    CharacterDialog.cpp \
+    src/character_dialog/CharacterDialog.cpp \
     MessageWindow.cpp \
     MonsterEditorDialog.cpp \
     SenderWindow.cpp \
@@ -71,7 +71,7 @@ HEADERS += game_menu.h \
     hallofrecordsdialog.h \
     createcharacterdialog.h \
     src/about_dialog/AboutDialog.h \
-    CharacterDialog.h \
+    src/character_dialog/CharacterDialog.h \
     MessageWindow.h \
     MonsterEditorDialog.h \
     SenderWindow.h \
