@@ -5,7 +5,7 @@
 #include "SeerDialog.h"
 #include "ConfinementDialog.h"
 #include "src/bank_dialog/BankDialog.h"
-#include "DungeonDialog.h"
+#include "src/dungeon_dialog/DungeonDialog.h"
 #include <QDebug>
 #include <QPixmap>
 #include <QIcon>

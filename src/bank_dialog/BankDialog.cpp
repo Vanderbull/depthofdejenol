@@ -9,8 +9,9 @@
 // --- Constructor ---
 BankDialog::BankDialog(QWidget *parent) :
     QDialog(parent),
-    currentGold(402282851), // Example data from screenshot
-    freeSlots(24)          // Example data from screenshot
+    currentGold(1000), // Player's gold, set to 1000 for demonstration.
+    bankedGold(0),     // **Bank Gold is now 0 as requested.**
+    freeSlots(24)      // Example data
 {
     // 1. Create and position all widgets (Layout)
     setupUi(); 
@@ -19,7 +20,8 @@ BankDialog::BankDialog(QWidget *parent) :
     createConnections();
 
     // 3. Set initial data
-    updateAccountStatus(currentGold, freeSlots);
+    // Updated to pass both player gold and banked gold
+    updateAccountStatus(currentGold, bankedGold, freeSlots);
 
     // Populate item list with example data
     QStringList initialItems;
@@ -69,6 +71,9 @@ void BankDialog::setupUi()
     mainLayout->addWidget(depositLineEdit, 3, 0);
 
     depositAllButton = new QPushButton("All", this);
+    // Explicitly prevent this button from becoming the default button
+    depositAllButton->setAutoDefault(false); 
+    depositAllButton->setDefault(false);
     mainLayout->addWidget(depositAllButton, 3, 1);
 
     QLabel *withdrawLabel = new QLabel("Withdraw Gold:", this);
@@ -79,6 +84,9 @@ void BankDialog::setupUi()
     mainLayout->addWidget(withdrawLineEdit, 5, 0);
 
     withdrawAllButton = new QPushButton("All", this);
+    // Explicitly prevent this button from becoming the default button
+    withdrawAllButton->setAutoDefault(false);
+    withdrawAllButton->setDefault(false);
     mainLayout->addWidget(withdrawAllButton, 5, 1);
 
     // --- Row 2-7: Item List (Right) ---
@@ -98,18 +106,26 @@ void BankDialog::setupUi()
     // Horizontal layout for two side-by-side buttons
     QHBoxLayout *partyHLayout1 = new QHBoxLayout();
     poolAndDepositButton = new QPushButton("Pool & Deposit", this);
+    poolAndDepositButton->setAutoDefault(false); // Also set non-default for other buttons
     partyDepositButton = new QPushButton("Party Deposit", this);
+    partyDepositButton->setAutoDefault(false);
     partyHLayout1->addWidget(poolAndDepositButton);
     partyHLayout1->addWidget(partyDepositButton);
     mainLayout->addLayout(partyHLayout1, 8, 0, 1, 2); // Spanning two columns
 
     partyPoolAndDepositButton = new QPushButton("Party Pool & Deposit", this);
+    partyPoolAndDepositButton->setAutoDefault(false);
     mainLayout->addWidget(partyPoolAndDepositButton, 9, 0, 1, 2);
 
     // --- Row 9: Info and Exit (Right) ---
     QHBoxLayout *bottomRightLayout = new QHBoxLayout();
     infoButton = new QPushButton("Info", this);
+    infoButton->setAutoDefault(false);
     exitButton = new QPushButton("Exit", this);
+    // Setting the Exit button as default or auto default is fine, as it's the typical action. 
+    // But setting it to false removes all potential conflicts.
+    exitButton->setAutoDefault(false);
+    exitButton->setDefault(false);
     
     bottomRightLayout->addStretch(1); // Push buttons to the right
     bottomRightLayout->addWidget(infoButton);
@@ -124,8 +140,13 @@ void BankDialog::createConnections()
     // Gold/Amount Connections
     connect(depositAllButton, &QPushButton::clicked, this, &BankDialog::on_depositAllButton_clicked);
     connect(withdrawAllButton, &QPushButton::clicked, this, &BankDialog::on_withdrawAllButton_clicked);
-    connect(depositLineEdit, &QLineEdit::textChanged, this, &BankDialog::updateDepositValue);
-    connect(withdrawLineEdit, &QLineEdit::textChanged, this, &BankDialog::updateWithdrawValue);
+    
+    // IMPORTANT: Connect editingFinished so that pressing Enter in the line edit triggers the transaction
+    // This is the intended behavior and is now safely decoupled from the "Deposit All" button.
+    connect(depositLineEdit, &QLineEdit::editingFinished, this, 
+            [this](){ updateDepositValue(depositLineEdit->text()); });
+    connect(withdrawLineEdit, &QLineEdit::editingFinished, this, 
+            [this](){ updateWithdrawValue(withdrawLineEdit->text()); });
 
     // Item List Connections
     connect(itemListView->selectionModel(), &QItemSelectionModel::selectionChanged, 
@@ -143,10 +164,11 @@ void BankDialog::createConnections()
 
 // --- Private Logic Methods ---
 
-void BankDialog::updateAccountStatus(long long gold, int freeSlots)
+void BankDialog::updateAccountStatus(long long playerGold, long long bankGold, int freeSlots)
 {
-    QString statusText = QString("You have **%L1 gold** and **%2 free Bank slots** available.")
-                             .arg(gold)
+    QString statusText = QString("Your Wallet: **%L1 gold** | Bank Vault: **%L2 gold** | Slots Free: **%3**")
+                             .arg(playerGold)
+                             .arg(bankGold)
                              .arg(freeSlots);
     statusLabel->setText(statusText); 
 }
@@ -155,20 +177,40 @@ void BankDialog::updateAccountStatus(long long gold, int freeSlots)
 
 void BankDialog::on_depositAllButton_clicked()
 {
-    // Example: set the deposit text to the current gold and emit signal
-    QString amountStr = QString::number(currentGold);
-    depositLineEdit->setText(amountStr);
-    emit depositGold(currentGold);
-    QMessageBox::information(this, "Deposit", "Attempting to deposit ALL gold.");
+    // Deposit all player gold into the bank
+    if (currentGold > 0) {
+        // Since we are clearing the line edit later, we need to pass the currentGold amount to the signal
+        // before setting currentGold to 0.
+        long long amountToDeposit = currentGold; 
+
+        bankedGold += currentGold;
+        currentGold = 0;
+        updateAccountStatus(currentGold, bankedGold, freeSlots);
+        depositLineEdit->clear();
+        // Emits the amount that was deposited
+        emit depositGold(amountToDeposit); 
+        QMessageBox::information(this, "Deposit", "Deposited ALL your gold into the bank.");
+    } else {
+        QMessageBox::warning(this, "Deposit", "You have no gold to deposit.");
+    }
 }
 
 void BankDialog::on_withdrawAllButton_clicked()
 {
-    // Example: set the withdraw text to the current gold
-    QString amountStr = QString::number(currentGold);
-    withdrawLineEdit->setText(amountStr);
-    emit withdrawGold(currentGold);
-    QMessageBox::information(this, "Withdraw", "Attempting to withdraw ALL gold.");
+    // Withdraw all bank gold into the player's inventory
+    if (bankedGold > 0) {
+        long long amountToWithdraw = bankedGold;
+        
+        currentGold += bankedGold;
+        bankedGold = 0;
+        updateAccountStatus(currentGold, bankedGold, freeSlots);
+        withdrawLineEdit->clear();
+        // Emits the amount that was withdrawn
+        emit withdrawGold(amountToWithdraw); 
+        QMessageBox::information(this, "Withdraw", "Withdrew ALL gold from the bank.");
+    } else {
+        QMessageBox::warning(this, "Withdraw", "The bank vault is empty.");
+    }
 }
 
 void BankDialog::on_poolAndDepositButton_clicked()
@@ -205,23 +247,49 @@ void BankDialog::on_infoButton_clicked()
 
 void BankDialog::updateDepositValue(const QString &text)
 {
-    // Simple validation
     bool ok;
     long long amount = text.toLongLong(&ok);
+    depositLineEdit->clear(); // Clear the field after transaction attempt
+
     if (ok && amount > 0) {
-        // Log the change or perform a check
-        qDebug() << "Deposit amount changed to:" << amount;
+        if (amount <= currentGold) {
+            // Successful deposit
+            currentGold -= amount;
+            bankedGold += amount;
+            QMessageBox::information(this, "Deposit Complete", QString("Successfully deposited %L1 gold.").arg(amount));
+            emit depositGold(amount);
+        } else {
+            // Not enough gold
+            QMessageBox::warning(this, "Deposit Failed", "You do not have that much gold in your wallet.");
+        }
+        updateAccountStatus(currentGold, bankedGold, freeSlots);
+    } else if (!text.isEmpty()) {
+        // Invalid input
+        QMessageBox::warning(this, "Invalid Input", "Please enter a valid positive number for the deposit amount.");
     }
 }
 
 void BankDialog::updateWithdrawValue(const QString &text)
 {
-    // Simple validation
     bool ok;
     long long amount = text.toLongLong(&ok);
+    withdrawLineEdit->clear(); // Clear the field after transaction attempt
+
     if (ok && amount > 0) {
-        // Log the change or perform a check
-        qDebug() << "Withdraw amount changed to:" << amount;
+        if (amount <= bankedGold) {
+            // Successful withdrawal
+            bankedGold -= amount;
+            currentGold += amount;
+            QMessageBox::information(this, "Withdrawal Complete", QString("Successfully withdrew %L1 gold.").arg(amount));
+            emit withdrawGold(amount);
+        } else {
+            // Not enough gold in the bank
+            QMessageBox::warning(this, "Withdrawal Failed", "The bank does not hold that much gold.");
+        }
+        updateAccountStatus(currentGold, bankedGold, freeSlots);
+    } else if (!text.isEmpty()) {
+        // Invalid input
+        QMessageBox::warning(this, "Invalid Input", "Please enter a valid positive number for the withdrawal amount.");
     }
 }
 

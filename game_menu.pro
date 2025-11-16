@@ -46,7 +46,7 @@ SOURCES += game_menu.cpp \
     library_dialog.cpp \
     src/automap/automap_dialog.cpp \
     game_controller.cpp \
-    characterlistdialog.cpp \
+    src/characterlist_dialog/characterlistdialog.cpp \
     helplesson.cpp \
     mordorstatistics.cpp \
     LoadingScreen.cpp \
@@ -61,9 +61,9 @@ SOURCES += game_menu.cpp \
     marlith_dialog.cpp \
     inventorydialog.cpp \
     optionsdialog.cpp \
-    DungeonDialog.cpp \
+    src/dungeon_dialog/DungeonDialog.cpp \
     partyinfodialog.cpp \
-    dungeonmap.cpp 
+    src/dungeonmap/dungeonmap.cpp 
 
 SOURCES +=
 
@@ -79,7 +79,7 @@ HEADERS += game_menu.h \
     library_dialog.h \
     src/automap/automap_dialog.h \
     game_controller.h \
-    characterlistdialog.h \
+    src/characterlist_dialog/characterlistdialog.h \
     helplesson.h \
     mordorstatistics.h \
     LoadingScreen.h \
@@ -94,9 +94,9 @@ HEADERS += game_menu.h \
     marlith_dialog.h \
     inventorydialog.h \
     optionsdialog.h \
-    DungeonDialog.h \
+    src/dungeon_dialog/DungeonDialog.h \
     partyinfodialog.h \
-    dungeonmap.h \
+    src/dungeonmap/dungeonmap.h \
 
 CXXFLAGS += -std=c++11
 

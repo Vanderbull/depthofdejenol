@@ -1,5 +1,5 @@
 #include "game_menu.h"
-#include "characterlistdialog.h"
+#include "src/characterlist_dialog/characterlistdialog.h"
 #include "hallofrecordsdialog.h"
 #include "createcharacterdialog.h"
 //#include "dungeondialog.h"
@@ -51,7 +51,8 @@ void launchAutomapDialog() {
     // If you are inside a class like MainGameWindow, use AutomapDialog mapDialog(this);
     AutomapDialog mapDialog(nullptr);
     // Execute the dialog modally
-    mapDialog.exec(); 
+    //mapDialog.exec(); 
+    mapDialog.show(); 
     qDebug() << "Automap dialog closed.";
 }
 
@@ -148,9 +149,9 @@ GameMenu::GameMenu(QWidget *parent) : QWidget(parent) {
     gridLayout->addWidget(aboutButton, 4, 2);
     connect(aboutButton, &QPushButton::clicked, this, &GameMenu::onAboutClicked);
 
-    creditsButton = new QPushButton("Charactersheet");
-    gridLayout->addWidget(creditsButton, 6, 0);
-    connect(creditsButton, &QPushButton::clicked, this, &GameMenu::showCredits);
+//    creditsButton = new QPushButton("Charactersheet");
+//    gridLayout->addWidget(creditsButton, 6, 0);
+//    connect(creditsButton, &QPushButton::clicked, this, &GameMenu::showCredits);
     // Placeholder for bottom-left image
     QLabel *bottomLeftImage = new QLabel();
     gridLayout->addWidget(bottomLeftImage, 3, 0, 2, 1);
@@ -178,10 +179,35 @@ void GameMenu::onRunClicked() {
 runButton->setVisible(false);
 loadButton->setVisible(true);
 newButton->setVisible(true);
-TheCity cityDialog;
+//TheCity cityDialog;
+//cityDialog.setAttribute(Qt::WA_DeleteOnClose);
+//cityDialog.show();
+//int result = cityDialog.exec();
+// 1. Create the dialog on the HEAP using 'new'.
+    // Use 'this' as the parent so the dialog is automatically
+    // cleaned up if the GameMenu is ever destroyed.
+    TheCity *cityDialog = new TheCity(this); 
 
-int result = cityDialog.exec();
+    // 2. Set the Qt::WA_DeleteOnClose attribute. 
+    // This tells Qt to automatically delete the object when the user closes it, 
+    // preventing a memory leak since it's on the heap.
+    cityDialog->setAttribute(Qt::WA_DeleteOnClose);
 
+    // 3. Use show() to display the dialog non-modally (non-blocking).
+    cityDialog->show();
+
+    // The function now returns, but the cityDialog object remains alive
+    // because it was created on the heap.
+
+
+    // 1. Create the dialog on the heap.
+    CharacterDialog *charDialog = new CharacterDialog("Goodie Gil'thrialle");
+    // 2. IMPORTANT: Tell Qt to delete the object when the user closes the window.
+    charDialog->setAttribute(Qt::WA_DeleteOnClose);
+    // 3. Call show() to display the dialog non-modally.
+    // Execution continues immediately, and the main Qt event loop handles the dialog.
+    charDialog->show();
+    qDebug() << "ShowCredits button clicked";
 
 }
 void GameMenu::onCharacterListClicked() {
@@ -263,6 +289,7 @@ if (!subfolderDir.exists()) {
     QObject::connect(cancelButton_Dialog, &QPushButton::clicked, &selectionDialog, &QDialog::reject);
 
     // Execute the dialog modally
+    //selectionDialog.show();
     int result = selectionDialog.exec();
     
     if (result == QDialog::Accepted) {
@@ -306,17 +333,18 @@ void GameMenu::quitGame() {
 }
 void GameMenu::showCredits() {
     // 1. Create the dialog on the heap.
-    CharacterDialog *charDialog = new CharacterDialog("Goodie Gil'thrialle");
+//    CharacterDialog *charDialog = new CharacterDialog("Goodie Gil'thrialle");
     // 2. IMPORTANT: Tell Qt to delete the object when the user closes the window.
-    charDialog->setAttribute(Qt::WA_DeleteOnClose);
+//    charDialog->setAttribute(Qt::WA_DeleteOnClose);
     // 3. Call show() to display the dialog non-modally.
     // Execution continues immediately, and the main Qt event loop handles the dialog.
-    charDialog->show();
-    qDebug() << "ShowCredits button clicked";
+//    charDialog->show();
+//    qDebug() << "ShowCredits button clicked";
 }
 void GameMenu::onInventoryClicked() {
     InventoryDialog *inventoryDialog = new InventoryDialog(this);
-    inventoryDialog->exec();
+    inventoryDialog->show();
+//    inventoryDialog->exec();
     qDebug() << "Inventory button clicked";
 }
 void GameMenu::onMarlithClicked() {
@@ -326,28 +354,28 @@ void GameMenu::onMarlithClicked() {
 }
 void GameMenu::onOptionsClicked() {
     OptionsDialog *optionsDialog = new OptionsDialog(this);
-    optionsDialog->exec();
+    optionsDialog->show();
+//    optionsDialog->exec();
     qDebug() << "Options button clicked";
 }
 void GameMenu::onAboutClicked() {
     AboutDialog *aboutDialog = new AboutDialog(this);
-    aboutDialog->exec();
+    aboutDialog->show();
+//    aboutDialog->exec();
     qDebug() << "About button clicked";
 }
 void GameMenu::onHelpClicked() {
     // 1. Instansiera dialogen. Använd 'this' som parent.
     HelpLessonDialog *helpDialog = new HelpLessonDialog(this);
-    
+// 1. Tell Qt to automatically delete this heap object when the user closes the window.
+    helpDialog->setAttribute(Qt::WA_DeleteOnClose);
     // 2. Använd exec() för att köra dialogen modalt (blockerar tills den stängs)
-    helpDialog->exec(); 
+    helpDialog->show(); 
+//    helpDialog->exec(); 
     
     // 3. (Valfritt) Logga stängningen
     qDebug() << "Help/Lesson dialog closed.";
     emit logMessageTriggered("User viewed the Help/Lesson dialog.");
-    
-    // 4. Städa upp (QDialog ärver från QObject och kan hanteras av parent, men
-    // det är god praxis att manuellt delete:a vid modal användning med 'new'.)
-    delete helpDialog;
 }
 void GameMenu::onEditMonsterClicked() {
     MonsterEditorDialog editor(this);
@@ -376,7 +404,8 @@ void GameMenu::onEditSpellbookClicked() {
 void GameMenu::onShowStatisticsClicked() { // <--- NEW SLOT IMPLEMENTATION
     emit logMessageTriggered("User opened Mordor Statistics dialog.");
     MordorStatistics *statsDialog = new MordorStatistics(this);
-    statsDialog->exec();
+    statsDialog->show();
+//    statsDialog->exec();
     qDebug() << "Mordor Statistics dialog closed.";
     delete statsDialog;
 }
