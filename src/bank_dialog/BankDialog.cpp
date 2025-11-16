@@ -1,4 +1,5 @@
 #include "BankDialog.h"
+#include "TradeDialog.h" // NEW: Include the Trade Dialog
 #include <QGridLayout>
 #include <QHBoxLayout>
 #include <QVBoxLayout>
@@ -13,6 +14,10 @@ BankDialog::BankDialog(QWidget *parent) :
     bankedGold(0),     // **Bank Gold is now 0 as requested.**
     freeSlots(24)      // Example data
 {
+    // Initialize item models
+    itemModel = new QStandardItemModel(this); // Bank Vault Items
+    playerItemModel = new QStandardItemModel(this); // Player Inventory Items
+
     // 1. Create and position all widgets (Layout)
     setupUi(); 
 
@@ -23,14 +28,22 @@ BankDialog::BankDialog(QWidget *parent) :
     // Updated to pass both player gold and banked gold
     updateAccountStatus(currentGold, bankedGold, freeSlots);
 
-    // Populate item list with example data
-    QStringList initialItems;
-    initialItems << "Sword of Alton (g)" << "Prism of Sanctuary [1]" << "Potion of Agility [2]"
+    // Populate item list with example data (These items start in the bank)
+    QStringList initialBankItems;
+    initialBankItems << "Sword of Alton (g)" << "Prism of Sanctuary [1]" << "Potion of Agility [2]"
                  << "Bells of Kwalish [6]" << "Silver Cross (g)" << "Twisted Bracers (n) [2]"
                  << "Tome of Agility (n) [1]" << "War Hammer (g)";
 
-    for (const QString& item : initialItems) {
+    for (const QString& item : initialBankItems) {
         itemModel->appendRow(new QStandardItem(item));
+    }
+
+    // Populate player inventory with example data (These items start with the player)
+    QStringList initialPlayerItems;
+    initialPlayerItems << "Health Potion [5]" << "Mana Scroll [3]" << "Rusty Sword" 
+                       << "Leather Armor" << "Magic Ring";
+    for (const QString& item : initialPlayerItems) {
+        playerItemModel->appendRow(new QStandardItem(item));
     }
 }
 
@@ -94,8 +107,7 @@ void BankDialog::setupUi()
     mainLayout->addWidget(itemListLabel, 2, 2, Qt::AlignLeft);
     
     itemListView = new QListView(this);
-    itemModel = new QStandardItemModel(this);
-    itemListView->setModel(itemModel);
+    itemListView->setModel(itemModel); // Bank Vault Items
     itemListView->setSelectionMode(QAbstractItemView::SingleSelection);
     mainLayout->addWidget(itemListView, 3, 2, 5, 1); // Span multiple rows
 
@@ -119,7 +131,7 @@ void BankDialog::setupUi()
 
     // --- Row 9: Info and Exit (Right) ---
     QHBoxLayout *bottomRightLayout = new QHBoxLayout();
-    infoButton = new QPushButton("Info", this);
+    infoButton = new QPushButton("Trade Items", this); // Changed text to reflect item handling
     infoButton->setAutoDefault(false);
     exitButton = new QPushButton("Exit", this);
     // Setting the Exit button as default or auto default is fine, as it's the typical action. 
@@ -142,7 +154,6 @@ void BankDialog::createConnections()
     connect(withdrawAllButton, &QPushButton::clicked, this, &BankDialog::on_withdrawAllButton_clicked);
     
     // IMPORTANT: Connect editingFinished so that pressing Enter in the line edit triggers the transaction
-    // This is the intended behavior and is now safely decoupled from the "Deposit All" button.
     connect(depositLineEdit, &QLineEdit::editingFinished, this, 
             [this](){ updateDepositValue(depositLineEdit->text()); });
     connect(withdrawLineEdit, &QLineEdit::editingFinished, this, 
@@ -236,13 +247,13 @@ void BankDialog::on_exitButton_clicked()
 
 void BankDialog::on_infoButton_clicked()
 {
-    QModelIndex index = itemListView->currentIndex();
-    if (index.isValid()) {
-        QString itemName = itemModel->data(index, Qt::DisplayRole).toString();
-        QMessageBox::information(this, "Item Info", QString("Displaying information for: %1").arg(itemName));
-    } else {
-        QMessageBox::warning(this, "Item Info", "Please select an item first.");
-    }
+    // Launch the Item Trade Dialog
+    // Pass the player's items (playerItemModel) and the bank's items (itemModel)
+    TradeDialog tradeDialog(playerItemModel, itemModel, this);
+    tradeDialog.exec();
+    
+    // We don't need to update gold status here, but we could if item trading affected slots/weight.
+    // updateAccountStatus(currentGold, bankedGold, freeSlots);
 }
 
 void BankDialog::updateDepositValue(const QString &text)

@@ -63,7 +63,8 @@ SOURCES += game_menu.cpp \
     optionsdialog.cpp \
     src/dungeon_dialog/DungeonDialog.cpp \
     partyinfodialog.cpp \
-    src/dungeonmap/dungeonmap.cpp 
+    src/dungeonmap/dungeonmap.cpp \ 
+    src/bank_dialog/TradeDialog.cpp 
 
 SOURCES +=
 
@@ -97,6 +98,7 @@ HEADERS += game_menu.h \
     src/dungeon_dialog/DungeonDialog.h \
     partyinfodialog.h \
     src/dungeonmap/dungeonmap.h \
+    src/bank_dialog/TradeDialog.h 
 
 CXXFLAGS += -std=c++11
 

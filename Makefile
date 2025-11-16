@@ -81,7 +81,8 @@ SOURCES       = game_menu.cpp \
 		optionsdialog.cpp \
 		src/dungeon_dialog/DungeonDialog.cpp \
 		partyinfodialog.cpp \
-		src/dungeonmap/dungeonmap.cpp build/moc/moc_game_menu.cpp \
+		src/dungeonmap/dungeonmap.cpp \
+		src/bank_dialog/TradeDialog.cpp build/moc/moc_game_menu.cpp \
 		build/moc/moc_hallofrecordsdialog.cpp \
 		build/moc/moc_createcharacterdialog.cpp \
 		build/moc/moc_AboutDialog.cpp \
@@ -109,7 +110,8 @@ SOURCES       = game_menu.cpp \
 		build/moc/moc_optionsdialog.cpp \
 		build/moc/moc_DungeonDialog.cpp \
 		build/moc/moc_partyinfodialog.cpp \
-		build/moc/moc_dungeonmap.cpp
+		build/moc/moc_dungeonmap.cpp \
+		build/moc/moc_TradeDialog.cpp
 OBJECTS       = build/obj/game_menu.o \
 		build/obj/hallofrecordsdialog.o \
 		build/obj/createcharacterdialog.o \
@@ -140,6 +142,7 @@ OBJECTS       = build/obj/game_menu.o \
 		build/obj/DungeonDialog.o \
 		build/obj/partyinfodialog.o \
 		build/obj/dungeonmap.o \
+		build/obj/TradeDialog.o \
 		build/obj/moc_game_menu.o \
 		build/obj/moc_hallofrecordsdialog.o \
 		build/obj/moc_createcharacterdialog.o \
@@ -168,7 +171,8 @@ OBJECTS       = build/obj/game_menu.o \
 		build/obj/moc_optionsdialog.o \
 		build/obj/moc_DungeonDialog.o \
 		build/obj/moc_partyinfodialog.o \
-		build/obj/moc_dungeonmap.o
+		build/obj/moc_dungeonmap.o \
+		build/obj/moc_TradeDialog.o
 DIST          = .gitignore \
 		/usr/lib/x86_64-linux-gnu/qt6/mkspecs/features/spec_pre.prf \
 		/usr/lib/x86_64-linux-gnu/qt6/mkspecs/common/unix.conf \
@@ -496,7 +500,8 @@ DIST          = .gitignore \
 		optionsdialog.h \
 		src/dungeon_dialog/DungeonDialog.h \
 		partyinfodialog.h \
-		src/dungeonmap/dungeonmap.h game_menu.cpp \
+		src/dungeonmap/dungeonmap.h \
+		src/bank_dialog/TradeDialog.h game_menu.cpp \
 		hallofrecordsdialog.cpp \
 		createcharacterdialog.cpp \
 		src/about_dialog/AboutDialog.cpp \
@@ -525,7 +530,8 @@ DIST          = .gitignore \
 		optionsdialog.cpp \
 		src/dungeon_dialog/DungeonDialog.cpp \
 		partyinfodialog.cpp \
-		src/dungeonmap/dungeonmap.cpp
+		src/dungeonmap/dungeonmap.cpp \
+		src/bank_dialog/TradeDialog.cpp
 QMAKE_TARGET  = game_menu
 DESTDIR       = build/bin/
 TARGET        = build/bin/game_menu
@@ -1163,8 +1169,8 @@ distdir: FORCE
 	@test -d $(DISTDIR) || mkdir -p $(DISTDIR)
 	$(COPY_FILE) --parents $(DIST) $(DISTDIR)/
 	$(COPY_FILE) --parents /usr/lib/x86_64-linux-gnu/qt6/mkspecs/features/data/dummy.cpp $(DISTDIR)/
-	$(COPY_FILE) --parents game_menu.h hallofrecordsdialog.h createcharacterdialog.h src/about_dialog/AboutDialog.h src/character_dialog/CharacterDialog.h MessageWindow.h MonsterEditorDialog.h SenderWindow.h SpellbookEditorDialog.h library_dialog.h src/automap/automap_dialog.h game_controller.h src/characterlist_dialog/characterlistdialog.h helplesson.h mordorstatistics.h LoadingScreen.h GuildsDialog.h GeneralStore.h TheCity.h MorgueDialog.h SeerDialog.h ConfinementDialog.h src/bank_dialog/BankDialog.h RaceData.h marlith_dialog.h inventorydialog.h optionsdialog.h src/dungeon_dialog/DungeonDialog.h partyinfodialog.h src/dungeonmap/dungeonmap.h $(DISTDIR)/
-	$(COPY_FILE) --parents game_menu.cpp hallofrecordsdialog.cpp createcharacterdialog.cpp src/about_dialog/AboutDialog.cpp src/character_dialog/CharacterDialog.cpp MessageWindow.cpp MonsterEditorDialog.cpp SenderWindow.cpp SpellbookEditorDialog.cpp library_dialog.cpp src/automap/automap_dialog.cpp game_controller.cpp src/characterlist_dialog/characterlistdialog.cpp helplesson.cpp mordorstatistics.cpp LoadingScreen.cpp GuildsDialog.cpp GeneralStore.cpp TheCity.cpp MorgueDialog.cpp SeerDialog.cpp ConfinementDialog.cpp src/bank_dialog/BankDialog.cpp RaceData.cpp marlith_dialog.cpp inventorydialog.cpp optionsdialog.cpp src/dungeon_dialog/DungeonDialog.cpp partyinfodialog.cpp src/dungeonmap/dungeonmap.cpp $(DISTDIR)/
+	$(COPY_FILE) --parents game_menu.h hallofrecordsdialog.h createcharacterdialog.h src/about_dialog/AboutDialog.h src/character_dialog/CharacterDialog.h MessageWindow.h MonsterEditorDialog.h SenderWindow.h SpellbookEditorDialog.h library_dialog.h src/automap/automap_dialog.h game_controller.h src/characterlist_dialog/characterlistdialog.h helplesson.h mordorstatistics.h LoadingScreen.h GuildsDialog.h GeneralStore.h TheCity.h MorgueDialog.h SeerDialog.h ConfinementDialog.h src/bank_dialog/BankDialog.h RaceData.h marlith_dialog.h inventorydialog.h optionsdialog.h src/dungeon_dialog/DungeonDialog.h partyinfodialog.h src/dungeonmap/dungeonmap.h src/bank_dialog/TradeDialog.h $(DISTDIR)/
+	$(COPY_FILE) --parents game_menu.cpp hallofrecordsdialog.cpp createcharacterdialog.cpp src/about_dialog/AboutDialog.cpp src/character_dialog/CharacterDialog.cpp MessageWindow.cpp MonsterEditorDialog.cpp SenderWindow.cpp SpellbookEditorDialog.cpp library_dialog.cpp src/automap/automap_dialog.cpp game_controller.cpp src/characterlist_dialog/characterlistdialog.cpp helplesson.cpp mordorstatistics.cpp LoadingScreen.cpp GuildsDialog.cpp GeneralStore.cpp TheCity.cpp MorgueDialog.cpp SeerDialog.cpp ConfinementDialog.cpp src/bank_dialog/BankDialog.cpp RaceData.cpp marlith_dialog.cpp inventorydialog.cpp optionsdialog.cpp src/dungeon_dialog/DungeonDialog.cpp partyinfodialog.cpp src/dungeonmap/dungeonmap.cpp src/bank_dialog/TradeDialog.cpp $(DISTDIR)/
 
 
 clean: compiler_clean 
@@ -1196,9 +1202,9 @@ compiler_moc_predefs_clean:
 build/moc/moc_predefs.h: /usr/lib/x86_64-linux-gnu/qt6/mkspecs/features/data/dummy.cpp
 	g++ -pipe -O2 -Wall -Wextra -dM -E -o build/moc/moc_predefs.h /usr/lib/x86_64-linux-gnu/qt6/mkspecs/features/data/dummy.cpp
 
-compiler_moc_header_make_all: build/moc/moc_game_menu.cpp build/moc/moc_hallofrecordsdialog.cpp build/moc/moc_createcharacterdialog.cpp build/moc/moc_AboutDialog.cpp build/moc/moc_CharacterDialog.cpp build/moc/moc_MessageWindow.cpp build/moc/moc_MonsterEditorDialog.cpp build/moc/moc_SenderWindow.cpp build/moc/moc_SpellbookEditorDialog.cpp build/moc/moc_library_dialog.cpp build/moc/moc_automap_dialog.cpp build/moc/moc_game_controller.cpp build/moc/moc_characterlistdialog.cpp build/moc/moc_helplesson.cpp build/moc/moc_mordorstatistics.cpp build/moc/moc_LoadingScreen.cpp build/moc/moc_GuildsDialog.cpp build/moc/moc_GeneralStore.cpp build/moc/moc_TheCity.cpp build/moc/moc_MorgueDialog.cpp build/moc/moc_SeerDialog.cpp build/moc/moc_ConfinementDialog.cpp build/moc/moc_BankDialog.cpp build/moc/moc_marlith_dialog.cpp build/moc/moc_inventorydialog.cpp build/moc/moc_optionsdialog.cpp build/moc/moc_DungeonDialog.cpp build/moc/moc_partyinfodialog.cpp build/moc/moc_dungeonmap.cpp
+compiler_moc_header_make_all: build/moc/moc_game_menu.cpp build/moc/moc_hallofrecordsdialog.cpp build/moc/moc_createcharacterdialog.cpp build/moc/moc_AboutDialog.cpp build/moc/moc_CharacterDialog.cpp build/moc/moc_MessageWindow.cpp build/moc/moc_MonsterEditorDialog.cpp build/moc/moc_SenderWindow.cpp build/moc/moc_SpellbookEditorDialog.cpp build/moc/moc_library_dialog.cpp build/moc/moc_automap_dialog.cpp build/moc/moc_game_controller.cpp build/moc/moc_characterlistdialog.cpp build/moc/moc_helplesson.cpp build/moc/moc_mordorstatistics.cpp build/moc/moc_LoadingScreen.cpp build/moc/moc_GuildsDialog.cpp build/moc/moc_GeneralStore.cpp build/moc/moc_TheCity.cpp build/moc/moc_MorgueDialog.cpp build/moc/moc_SeerDialog.cpp build/moc/moc_ConfinementDialog.cpp build/moc/moc_BankDialog.cpp build/moc/moc_marlith_dialog.cpp build/moc/moc_inventorydialog.cpp build/moc/moc_optionsdialog.cpp build/moc/moc_DungeonDialog.cpp build/moc/moc_partyinfodialog.cpp build/moc/moc_dungeonmap.cpp build/moc/moc_TradeDialog.cpp
 compiler_moc_header_clean:
-	-$(DEL_FILE) build/moc/moc_game_menu.cpp build/moc/moc_hallofrecordsdialog.cpp build/moc/moc_createcharacterdialog.cpp build/moc/moc_AboutDialog.cpp build/moc/moc_CharacterDialog.cpp build/moc/moc_MessageWindow.cpp build/moc/moc_MonsterEditorDialog.cpp build/moc/moc_SenderWindow.cpp build/moc/moc_SpellbookEditorDialog.cpp build/moc/moc_library_dialog.cpp build/moc/moc_automap_dialog.cpp build/moc/moc_game_controller.cpp build/moc/moc_characterlistdialog.cpp build/moc/moc_helplesson.cpp build/moc/moc_mordorstatistics.cpp build/moc/moc_LoadingScreen.cpp build/moc/moc_GuildsDialog.cpp build/moc/moc_GeneralStore.cpp build/moc/moc_TheCity.cpp build/moc/moc_MorgueDialog.cpp build/moc/moc_SeerDialog.cpp build/moc/moc_ConfinementDialog.cpp build/moc/moc_BankDialog.cpp build/moc/moc_marlith_dialog.cpp build/moc/moc_inventorydialog.cpp build/moc/moc_optionsdialog.cpp build/moc/moc_DungeonDialog.cpp build/moc/moc_partyinfodialog.cpp build/moc/moc_dungeonmap.cpp
+	-$(DEL_FILE) build/moc/moc_game_menu.cpp build/moc/moc_hallofrecordsdialog.cpp build/moc/moc_createcharacterdialog.cpp build/moc/moc_AboutDialog.cpp build/moc/moc_CharacterDialog.cpp build/moc/moc_MessageWindow.cpp build/moc/moc_MonsterEditorDialog.cpp build/moc/moc_SenderWindow.cpp build/moc/moc_SpellbookEditorDialog.cpp build/moc/moc_library_dialog.cpp build/moc/moc_automap_dialog.cpp build/moc/moc_game_controller.cpp build/moc/moc_characterlistdialog.cpp build/moc/moc_helplesson.cpp build/moc/moc_mordorstatistics.cpp build/moc/moc_LoadingScreen.cpp build/moc/moc_GuildsDialog.cpp build/moc/moc_GeneralStore.cpp build/moc/moc_TheCity.cpp build/moc/moc_MorgueDialog.cpp build/moc/moc_SeerDialog.cpp build/moc/moc_ConfinementDialog.cpp build/moc/moc_BankDialog.cpp build/moc/moc_marlith_dialog.cpp build/moc/moc_inventorydialog.cpp build/moc/moc_optionsdialog.cpp build/moc/moc_DungeonDialog.cpp build/moc/moc_partyinfodialog.cpp build/moc/moc_dungeonmap.cpp build/moc/moc_TradeDialog.cpp
 build/moc/moc_game_menu.cpp: game_menu.h \
 		build/moc/moc_predefs.h \
 		/usr/lib/qt6/libexec/moc
@@ -1345,6 +1351,11 @@ build/moc/moc_dungeonmap.cpp: src/dungeonmap/dungeonmap.h \
 		/usr/lib/qt6/libexec/moc
 	/usr/lib/qt6/libexec/moc $(DEFINES) --include /home/rickard/Documents/GitHub/depthofdejenol/build/moc/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt6/mkspecs/linux-g++ -I/home/rickard/Documents/GitHub/depthofdejenol -I/usr/include/x86_64-linux-gnu/qt6 -I/usr/include/x86_64-linux-gnu/qt6/QtWidgets -I/usr/include/x86_64-linux-gnu/qt6/QtMultimedia -I/usr/include/x86_64-linux-gnu/qt6/QtGui -I/usr/include/x86_64-linux-gnu/qt6/QtNetwork -I/usr/include/x86_64-linux-gnu/qt6/QtCore -I/usr/include/c++/15 -I/usr/include/x86_64-linux-gnu/c++/15 -I/usr/include/c++/15/backward -I/usr/lib/gcc/x86_64-linux-gnu/15/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include src/dungeonmap/dungeonmap.h -o build/moc/moc_dungeonmap.cpp
 
+build/moc/moc_TradeDialog.cpp: src/bank_dialog/TradeDialog.h \
+		build/moc/moc_predefs.h \
+		/usr/lib/qt6/libexec/moc
+	/usr/lib/qt6/libexec/moc $(DEFINES) --include /home/rickard/Documents/GitHub/depthofdejenol/build/moc/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt6/mkspecs/linux-g++ -I/home/rickard/Documents/GitHub/depthofdejenol -I/usr/include/x86_64-linux-gnu/qt6 -I/usr/include/x86_64-linux-gnu/qt6/QtWidgets -I/usr/include/x86_64-linux-gnu/qt6/QtMultimedia -I/usr/include/x86_64-linux-gnu/qt6/QtGui -I/usr/include/x86_64-linux-gnu/qt6/QtNetwork -I/usr/include/x86_64-linux-gnu/qt6/QtCore -I/usr/include/c++/15 -I/usr/include/x86_64-linux-gnu/c++/15 -I/usr/include/c++/15/backward -I/usr/lib/gcc/x86_64-linux-gnu/15/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include src/bank_dialog/TradeDialog.h -o build/moc/moc_TradeDialog.cpp
+
 compiler_moc_objc_header_make_all:
 compiler_moc_objc_header_clean:
 compiler_moc_source_make_all:
@@ -1454,7 +1465,8 @@ build/obj/SeerDialog.o: SeerDialog.cpp SeerDialog.h
 build/obj/ConfinementDialog.o: ConfinementDialog.cpp ConfinementDialog.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/ConfinementDialog.o ConfinementDialog.cpp
 
-build/obj/BankDialog.o: src/bank_dialog/BankDialog.cpp src/bank_dialog/BankDialog.h
+build/obj/BankDialog.o: src/bank_dialog/BankDialog.cpp src/bank_dialog/BankDialog.h \
+		src/bank_dialog/TradeDialog.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/BankDialog.o src/bank_dialog/BankDialog.cpp
 
 build/obj/RaceData.o: RaceData.cpp RaceData.h
@@ -1477,6 +1489,9 @@ build/obj/partyinfodialog.o: partyinfodialog.cpp partyinfodialog.h
 
 build/obj/dungeonmap.o: src/dungeonmap/dungeonmap.cpp src/dungeonmap/dungeonmap.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/dungeonmap.o src/dungeonmap/dungeonmap.cpp
+
+build/obj/TradeDialog.o: src/bank_dialog/TradeDialog.cpp src/bank_dialog/TradeDialog.h
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/TradeDialog.o src/bank_dialog/TradeDialog.cpp
 
 build/obj/moc_game_menu.o: build/moc/moc_game_menu.cpp 
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/moc_game_menu.o build/moc/moc_game_menu.cpp
@@ -1564,6 +1579,9 @@ build/obj/moc_partyinfodialog.o: build/moc/moc_partyinfodialog.cpp
 
 build/obj/moc_dungeonmap.o: build/moc/moc_dungeonmap.cpp 
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/moc_dungeonmap.o build/moc/moc_dungeonmap.cpp
+
+build/obj/moc_TradeDialog.o: build/moc/moc_TradeDialog.cpp 
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/moc_TradeDialog.o build/moc/moc_TradeDialog.cpp
 
 ####### Install
 

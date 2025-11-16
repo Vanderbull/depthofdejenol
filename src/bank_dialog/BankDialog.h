@@ -24,12 +24,19 @@ public:
     void setPlayerGold(long long gold) { currentGold = gold; }
     void setBankedGold(long long gold) { bankedGold = gold; }
 
+    // Accessor for the bank's item model (needed by the new TradeDialog)
+    QStandardItemModel* getItemModel() { return itemModel; }
+
 
 signals:
     // Signals to communicate actions back to the main application
     void depositGold(long long amount);
     void withdrawGold(long long amount);
-    // You might want to add signals for item transactions as well...
+
+    // NEW: Signals for item transactions
+    void itemDeposited(const QString& itemName);
+    void itemWithdrawn(const QString& itemName);
+
 
 private slots:
     // Slots connected to the buttons
@@ -39,7 +46,7 @@ private slots:
     void on_partyDepositButton_clicked();
     void on_partyPoolAndDepositButton_clicked();
     void on_exitButton_clicked();
-    void on_infoButton_clicked();
+    void on_infoButton_clicked(); // This now opens the TradeDialog
 
     // Slots for line edits (connecting manually)
     // These will now apply the changes to the gold variables.
@@ -62,7 +69,8 @@ private:
 
     // Item List
     QListView *itemListView;
-    QStandardItemModel *itemModel; // Model to manage data in the QListView
+    QStandardItemModel *itemModel; // Model to manage data in the QListView (Bank Vault)
+    QStandardItemModel *playerItemModel; // NEW: Model to manage player's inventory items
 
     // Party Buttons
     QPushButton *poolAndDepositButton;
