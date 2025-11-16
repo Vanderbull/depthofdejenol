@@ -6,8 +6,6 @@
 #include <QDebug> // For simple console output
 #include <QStringList> // Required for QStringList
 #include <QLabel> // Ensure QLabel is included for labels
-#include <QVariant> // Added for QVariant and QVariantMap
-#include <QMap>     // Included for QVariantMap context
 
 GeneralStore::GeneralStore(QWidget *parent) : QDialog(parent)
 {
@@ -26,15 +24,14 @@ GeneralStore::GeneralStore(QWidget *parent) : QDialog(parent)
     connect(searchItemsLineEdit, &QLineEdit::textChanged, this, &GeneralStore::searchItems);
     connect(exitButton, &QPushButton::clicked, this, &GeneralStore::exitStore);
 
-    // MODIFIED LOGIC: Update cost by extracting 'price' from the QVariantMap
+    // MODIFIED LOGIC: Update cost when item selected in buy list
     connect(buyItemsListWidget, &QListWidget::currentItemChanged, this, [this](QListWidgetItem *current, QListWidgetItem *previous) {
         Q_UNUSED(previous);
         if (current) {
-            // Retrieve the QVariantMap stored in Qt::UserRole
-            QVariantMap itemMap = current->data(Qt::UserRole).toMap();
-            
-            // Extract the 'price' value using the map key
-            QString priceString = itemMap.value("price").toString(); 
+            // Retrieve the full CSV data stored in Qt::UserRole
+            QString fullData = current->data(Qt::UserRole).toString();
+            // The fifth value (index 4) is the 'price'
+            QString priceString = fullData.split(",").value(4); 
             
             // Update the cost label and line edit
             buyItemCostLabel->setText(QString("Cost: %1").arg(priceString)); 
@@ -152,6 +149,7 @@ void GeneralStore::populateBuyItemsList()
 {
     // The QStringList array to hold all item data from MDATA3.csv.
     // Each string represents one item/row.
+    // Format: name,ID,att,def,price,floor,rarity,abilities,swings,specialType,spellIndex,spellID,charges,guilds,levelScale,damageMod,alignmentFlags,nHands,type,resistanceFlags,StrReq,IntReq,WisReq,ConReq,ChaReq,DexReq,StrMod,IntMod,WisMod,ConMod,ChaMod,DexMod,cursed,spellLvl,classRestricted
     QStringList buyItemData;
     buyItemData << "Hands,0,0,0,0,0,0,0,2,0,0,0,0,4095,0,0.5,1,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-1";
     buyItemData << "Gnarled Hands,1,-3,-3,255671,1,25,0,1,0,0,0,0,8,0,1,1,2,0,0,10,0,0,0,0,6,0,0,0,0,0,0,1,0,-1";
@@ -242,35 +240,17 @@ void GeneralStore::populateBuyItemsList()
     buyItemData << "Cross of Life,86,3,3,13237651,6,3,0,1,0,59,49,2,4095,0,1,14,1,2,0,0,7,17,9,0,10,0,0,0,0,0,0,0,90,-1";
     buyItemData << "Cross of Commanding,87,6,6,12386539,7,20,0,4,0,45,37,42,3840,15,1.7,14,1,2,0,14,16,16,14,0,16,0,0,0,0,0,0,0,90,-1";
 
-    // Define the headers to be used as keys
-    QStringList headers;
-    headers << "name" << "ID" << "att" << "def" << "price" << "floor" << "rarity" << "abilities" << "swings" << "specialType" << "spellIndex" << "spellID" << "charges" << "guilds" << "levelScale" << "damageMod" << "alignmentFlags" << "nHands" << "type" << "resistanceFlags" << "StrReq" << "IntReq" << "WisReq" << "ConReq" << "ChaReq" << "DexReq" << "StrMod" << "IntMod" << "WisMod" << "ConMod" << "ChaMod" << "DexMod" << "cursed" << "spellLvl" << "classRestricted";
-
-
     // Loop through the data array to populate the QListWidget
     for (const QString &itemData : buyItemData) {
-        QStringList values = itemData.split(",");
+        // Extract the item name (first element before the first comma)
+        QString name = itemData.split(",").value(0);
         
-        // Safety check for data integrity
-        if (values.size() != headers.size()) {
-            qDebug() << "Warning: Item data does not match header count for:" << itemData;
-            continue; // Skip malformed rows
-        }
-
-        QVariantMap itemMap;
-        for (int i = 0; i < headers.size(); ++i) {
-            // Store all values as QVariants (QString) in the map
-            itemMap.insert(headers.at(i), values.at(i));
-        }
-
-        // Extract the item name
-        QString name = itemMap.value("name").toString();
-        
-        // Create a new list widget item with the name
+        // Create a new list widget item with just the name
         QListWidgetItem *item = new QListWidgetItem(name);
         
-        // Store the QVariantMap in Qt::UserRole
-        item->setData(Qt::UserRole, itemMap); 
+        // Store the full CSV data string in a custom data role (Qt::UserRole) 
+        // for later use (e.g., retrieving price or full stats on click)
+        item->setData(Qt::UserRole, itemData); 
         
         buyItemsListWidget->addItem(item);
     }
@@ -307,14 +287,12 @@ void GeneralStore::buyItem()
 {
     if (buyItemsListWidget->currentItem()) {
         QString selectedItemName = buyItemsListWidget->currentItem()->text();
-        
-        // MODIFIED: Retrieve QVariantMap instead of raw string
-        QVariantMap itemMap = buyItemsListWidget->currentItem()->data(Qt::UserRole).toMap();
+        QString fullData = buyItemsListWidget->currentItem()->data(Qt::UserRole).toString();
         
         qDebug() << "Buy item:" << selectedItemName;
-        qDebug() << "Full item data (for buying):" << itemMap; // Print map instead of raw string
+        qDebug() << "Full item data (for buying):" << fullData;
 
-        // Logic for buying item (use the itemMap)
+        // Logic for buying item (use the fullData string to calculate cost, etc.)
     } else {
         qDebug() << "No item selected to buy.";
     }
@@ -327,11 +305,9 @@ void GeneralStore::showItemInfo()
         qDebug() << "Show info for item in 'Identify, Realign & Sell':" << identifySellItemLineEdit->text();
     } else if (senderButton == buyInfoButton) {
         if (buyItemsListWidget->currentItem()) {
-            // MODIFIED: Retrieve QVariantMap instead of raw string
-            QVariantMap itemMap = buyItemsListWidget->currentItem()->data(Qt::UserRole).toMap();
-            
+            QString fullData = buyItemsListWidget->currentItem()->data(Qt::UserRole).toString();
             qDebug() << "Show info for item in 'Buy Items':" << buyItemsListWidget->currentItem()->text();
-            qDebug() << "Full item data:" << itemMap; // Print map instead of raw string
+            qDebug() << "Full item data:" << fullData;
         } else {
             qDebug() << "No item selected for info in 'Buy Items'.";
         }
@@ -342,31 +318,17 @@ void GeneralStore::showItemInfo()
 void GeneralStore::searchItems(const QString &searchText)
 {
     qDebug() << "Searching for:" << searchText;
-    
-    // Convert search text to lowercase once for case-insensitive search
-    QString lowerSearchText = searchText.toLower();
-
+    // Simple filtering logic
     for (int i = 0; i < buyItemsListWidget->count(); ++i) {
         QListWidgetItem *item = buyItemsListWidget->item(i);
-        bool matchFound = false;
-
-        // Check against the visible name first
-        if (item->text().contains(searchText, Qt::CaseInsensitive)) {
-            matchFound = true;
-        } else {
-            // Retrieve the QVariantMap
-            QVariantMap itemMap = item->data(Qt::UserRole).toMap();
-            
-            // Iterate over all values in the map for a match
-            for (const QVariant &value : itemMap.values()) {
-                if (value.toString().toLower().contains(lowerSearchText)) {
-                    matchFound = true;
-                    break;
-                }
-            }
-        }
+        // Check both the visible name and the hidden data (Qt::UserRole) for a match
+        QString itemData = item->data(Qt::UserRole).toString();
         
-        item->setHidden(!matchFound);
+        if (item->text().contains(searchText, Qt::CaseInsensitive) || itemData.contains(searchText, Qt::CaseInsensitive)) {
+            item->setHidden(false);
+        } else {
+            item->setHidden(true);
+        }
     }
 }
 
