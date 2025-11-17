@@ -1,0 +1,137 @@
+2. Implementation File (.cpp)
+
+To actually implement the Q_DECLARE_FLAGS macro, you need to place it in the global scope of one of your source files (e.g., main.cpp or a utility file).
+C++
+
+// In a C++ source file (e.g., DungeonEnums.cpp)
+
+#include "DungeonEnums.h"
+
+// This macro implements the necessary operators (like |)
+// It must be outside any class or namespace definition to work correctly.
+Q_DECLARE_OPERATORS_FOR_FLAGS(Dungeon::DungeonTileFlags)
+
+📝 How to Use the Flag
+
+Now you can combine and check flags exactly as you did in C#, using the | and & operators.
+C++
+
+#include "DungeonEnums.h"
+
+// Combine flags
+Dungeon::DungeonTileFlags tileFlags = Dungeon::DungeonTileFlag::WallNorth | Dungeon::DungeonTileFlag::Explored;
+
+// Check if a flag is set
+if (tileFlags.testFlag(Dungeon::DungeonTileFlag::Explored)) {
+    // The tile has been explored
+}
+
+// Or check for multiple flags
+if (tileFlags & (Dungeon::DungeonTileFlag::WallNorth | Dungeon::DungeonTileFlag::WallEast)) {
+    // At least one wall is present (North or East)
+}
+
+This combination of enum class and Qt's Q_DECLARE_FLAGS provides type safety and the correct bitwise behavior.
+
+Would you like to register these flags with the Qt Meta-Object System (using Q_ENUM_NS) so they can be used with QML or QVariant?
+-------------------------------------------
+
+This is the correct way to register bit flags with the Qt Meta-Object System (Q_MOC) using Q_ENUM_NS and Q_FLAG_NS. This enables their use in QML and allows them to be stored in QVariant.
+
+🛠️ Updated Qt C++ Bit Flag Setup
+
+You'll need a single header file that includes a simple QObject-derived class to host the necessary macros.
+
+1. Header File (e.g., DungeonEnums.h)
+
+This file contains the flag definitions and the necessary Qt meta-macros.
+C++
+
+#include <QObject>
+#include <QtGlobal>
+
+namespace Dungeon {
+
+// 1. Define the enum class containing the individual bits.
+enum class DungeonTileFlag
+{
+    None             = 0,
+    WallEast         = 1 << 0,
+    WallNorth        = 1 << 1,
+    DoorEast         = 1 << 2,
+    // ... all other bits up to Explored = 1 << 23
+    FaceWest         = 1 << 9,
+    Extinguisher     = 1 << 10,
+    Pit              = 1 << 11,
+    StairsUp         = 1 << 12,
+    StairsDown       = 1 << 13,
+    Teleporter       = 1 << 14,
+    Water            = 1 << 15,
+    Quicksand        = 1 << 16,
+    Rotator          = 1 << 17,
+    Antimagic        = 1 << 18,
+    Rock             = 1 << 19,
+    Fog              = 1 << 20,
+    Chute            = 1 << 21,
+    Stud             = 1 << 22,
+    Explored         = 1 << 23
+};
+
+// 2. Define the QFlags wrapper type for C++ usage.
+Q_DECLARE_FLAGS(DungeonTileFlags, DungeonTileFlag)
+
+// 3. Define a QObject class just to host the meta-system registration.
+class DungeonMeta : public QObject
+{
+    Q_OBJECT
+    // 4. Register the base enum class with the meta-object system.
+    Q_ENUM_NS(DungeonTileFlag)
+
+    // 5. Register the QFlags type as a flag set.
+    // This is required for QML/QVariant to properly handle combined flags.
+    Q_FLAG_NS(DungeonTileFlags)
+};
+
+} // namespace Dungeon
+
+2. Implementation File (e.g., DungeonEnums.cpp)
+
+The implementation file remains the same—it must contain the macro that implements the necessary bitwise operators (like | and &).
+C++
+
+// In a C++ source file (e.g., DungeonEnums.cpp)
+
+#include "DungeonEnums.h"
+
+// This macro implements the necessary operators for QFlags.
+// It must be outside any class or namespace definition.
+Q_DECLARE_OPERATORS_FOR_FLAGS(Dungeon::DungeonTileFlags)
+
+📝 Usage
+
+Once registered this way, you can use the flags in C++ as before, and they become fully available to QML and QVariant with the correct type name:
+
+C++ Usage:
+
+C++
+
+#include "DungeonEnums.h"
+
+Dungeon::DungeonTileFlags flags = Dungeon::DungeonTileFlag::WallNorth | Dungeon::DungeonTileFlag::Pit;
+
+QML Usage:
+
+QML
+
+import QtQuick 2.0
+// ...
+
+// To use in QML, you first need to register the namespace and the type:
+// In C++ main.cpp: qmlRegisterUncreatableType<Dungeon::DungeonMeta>("com.yourcompany.dungeon", 1, 0, "Dungeon", "Enums only");
+
+// In QML:
+import com.yourcompany.dungeon 1.0
+
+Item {
+    property int currentFlags: Dungeon.WallNorth | Dungeon.Explored // Accessing the flags by name
+}
