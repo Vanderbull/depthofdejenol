@@ -1,3 +1,4 @@
+#include "game_resources.h"
 #include "LoadingScreen.h"
 #include <QPixmap>
 #include <QFont>
@@ -57,7 +58,8 @@ LoadingScreen::LoadingScreen(QWidget *parent) :
     // --- Styling: Image ---
     // You must replace "YOUR_IMAGE_PATH_HERE" with the actual path to your image
     // (e.g., ":/images/mordor_art.png" if using Qt resources)
-    QPixmap originalPixmap("mordor_art.png");
+    QPixmap originalPixmap = GameResources::getPixmap("mordor_art");
+    //QPixmap originalPixmap("mordor_art.png");
 
     if (originalPixmap.isNull()) {
         // Fallback: Create a placeholder if the image fails to load

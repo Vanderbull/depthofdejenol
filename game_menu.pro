@@ -34,6 +34,12 @@ QMAKE_RESOURCE_FLAGS += --root /
 
 QT += core gui widgets multimedia
 TARGET = game_menu
+
+# Add the 'include' directory so the compiler can find the header files
+INCLUDEPATH += \
+    $$PWD/include
+
+
 SOURCES += game_menu.cpp \
     hallofrecordsdialog.cpp \
     createcharacterdialog.cpp \
@@ -64,9 +70,8 @@ SOURCES += game_menu.cpp \
     src/dungeon_dialog/DungeonDialog.cpp \
     partyinfodialog.cpp \
     src/dungeonmap/dungeonmap.cpp \ 
-    src/bank_dialog/TradeDialog.cpp 
-
-SOURCES +=
+    src/bank_dialog/TradeDialog.cpp \
+    src/game_resources.cpp
 
 HEADERS += game_menu.h \
     hallofrecordsdialog.h \
@@ -98,7 +103,8 @@ HEADERS += game_menu.h \
     src/dungeon_dialog/DungeonDialog.h \
     partyinfodialog.h \
     src/dungeonmap/dungeonmap.h \
-    src/bank_dialog/TradeDialog.h 
+    src/bank_dialog/TradeDialog.h \
+    include/game_resources.h
 
 CXXFLAGS += -std=c++11
 

@@ -1,3 +1,4 @@
+#include "game_resources.h"
 #include "TheCity.h"
 #include "GeneralStore.h"
 #include "GuildsDialog.h"
@@ -24,12 +25,15 @@ TheCity::TheCity(QWidget *parent) :
     setupUi();
     loadButtonIcons();
     setupStyling();
-    QPixmap testPixmap("general_store.png");
-    if (!testPixmap.isNull()) {
+    //QPixmap testPixmap("general_store.png");
+    QPixmap testPixmap = GameResources::getPixmap("general_store");
+    if (!testPixmap.isNull()) 
+    {
         qDebug() << "SUCCESS: general_store.png loaded correctly! Size:" << testPixmap.size();
         this->setWindowIcon(QIcon(testPixmap)); 
-    } else {
-    qDebug() << "ERROR: general_store.png failed to load. Check resource paths and file names.";
+    } else
+    {
+        qDebug() << "ERROR: general_store.png failed to load. Check resource paths and file names.";
     }
 }
 
@@ -90,14 +94,23 @@ void TheCity::loadButtonIcons()
 {
     const QSize iconSize(120, 90); 
 
-    QPixmap generalStorePixmap("general_store.png"); 
-    QPixmap morguePixmap("morgue.png");
-    QPixmap guildsPixmap("guilds.png");
-    QPixmap dungeonPixmap("dungeon.png");
-    QPixmap confinementPixmap("confinement.png");
-    QPixmap seerPixmap("seer.png");
-    QPixmap bankPixmap("bank.png");
-    QPixmap exitIconPixmap("exit_icon.png"); 
+    QPixmap generalStorePixmap = GameResources::getPixmap("general_store");
+    QPixmap morguePixmap = GameResources::getPixmap("morgue");
+    QPixmap guildsPixmap = GameResources::getPixmap("guilds");
+    QPixmap dungeonPixmap = GameResources::getPixmap("dungeon");
+    QPixmap confinementPixmap = GameResources::getPixmap("confinement");
+    QPixmap seerPixmap = GameResources::getPixmap("seer");
+    QPixmap bankPixmap = GameResources::getPixmap("bank");
+    QPixmap exitIconPixmap = GameResources::getPixmap("exit_icon");
+
+    //QPixmap generalStorePixmap("general_store.png"); 
+    //QPixmap morguePixmap("morgue.png");
+    //QPixmap guildsPixmap("guilds.png");
+    //QPixmap dungeonPixmap("dungeon.png");
+    //QPixmap confinementPixmap("confinement.png");
+    //QPixmap seerPixmap("seer.png");
+    //QPixmap bankPixmap("bank.png");
+    //QPixmap exitIconPixmap("exit_icon.png"); 
 
     generalStoreButton->setIcon(QIcon(generalStorePixmap));
     generalStoreButton->setIconSize(iconSize);
