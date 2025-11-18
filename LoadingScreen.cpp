@@ -11,6 +11,8 @@ LoadingScreen::LoadingScreen(QWidget *parent) :
     QDialog(parent),
     m_currentFileIndex(0)
 {
+    GameResources::loadAllResources();
+
     // --- Basic Window Setup ---
     setWindowTitle("Mordor");
     // Set a fixed size that is proportionate to the image (e.g., 350x450)
