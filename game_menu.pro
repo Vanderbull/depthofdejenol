@@ -48,7 +48,7 @@ SOURCES += game_menu.cpp \
     MessageWindow.cpp \
     tools/monster_editor/MonsterEditorDialog.cpp \
     SenderWindow.cpp \
-    SpellbookEditorDialog.cpp \
+    tools/spellbook_editor/SpellbookEditorDialog.cpp \
     src/library_dialog/library_dialog.cpp \
     src/automap/automap_dialog.cpp \
     game_controller.cpp \
@@ -81,7 +81,7 @@ HEADERS += game_menu.h \
     MessageWindow.h \
     tools/monster_editor/MonsterEditorDialog.h \
     SenderWindow.h \
-    SpellbookEditorDialog.h \
+    tools/spellbook_editor/SpellbookEditorDialog.h \
     src/library_dialog/library_dialog.h \
     src/automap/automap_dialog.h \
     game_controller.h \

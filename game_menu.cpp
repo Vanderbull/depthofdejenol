@@ -6,7 +6,7 @@
 #include "src/options_dialog/optionsdialog.h"
 #include "src/about_dialog/AboutDialog.h"
 #include "tools/monster_editor/MonsterEditorDialog.h"
-#include "SpellbookEditorDialog.h"
+#include "tools/spellbook_editor/SpellbookEditorDialog.h"
 #include "src/character_dialog/CharacterDialog.h"
 #include "MessageWindow.h"
 #include "SenderWindow.h"
