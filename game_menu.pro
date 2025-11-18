@@ -59,7 +59,7 @@ SOURCES += game_menu.cpp \
     GuildsDialog.cpp \
     GeneralStore.cpp \
     TheCity.cpp \
-    MorgueDialog.cpp \
+    src/morgue_dialog/MorgueDialog.cpp \
     SeerDialog.cpp \
     ConfinementDialog.cpp \
     src/bank_dialog/BankDialog.cpp \
@@ -92,7 +92,7 @@ HEADERS += game_menu.h \
     GuildsDialog.h \
     GeneralStore.h \
     TheCity.h \
-    MorgueDialog.h \
+    src/morgue_dialog/MorgueDialog.h \
     SeerDialog.h \
     ConfinementDialog.h \
     src/bank_dialog/BankDialog.h \

@@ -2,7 +2,7 @@
 #include "TheCity.h"
 #include "GeneralStore.h"
 #include "GuildsDialog.h"
-#include "MorgueDialog.h"
+#include "src/morgue_dialog/MorgueDialog.h"
 #include "SeerDialog.h"
 #include "ConfinementDialog.h"
 #include "src/bank_dialog/BankDialog.h"

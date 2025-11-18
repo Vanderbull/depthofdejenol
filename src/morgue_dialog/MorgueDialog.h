@@ -6,6 +6,7 @@
 #include <QPushButton>
 #include <QVBoxLayout>
 #include <QHBoxLayout>
+#include <QComboBox> 
 
 class MorgueDialog : public QDialog
 {
@@ -27,6 +28,11 @@ private:
     QPushButton *hireRescuersButton;
     QPushButton *grabBodyButton;
     QPushButton *exitButton;
+
+    // --- FIX: DECLARE THE HELPER FUNCTION HERE ---
+    bool showCharacterSelectionDialog(const QString &actionName);
+
+    QString m_selectedDeadCharacter; 
 };
 
 #endif // MORGUEDIALOG_H

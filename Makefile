@@ -71,7 +71,7 @@ SOURCES       = game_menu.cpp \
 		GuildsDialog.cpp \
 		GeneralStore.cpp \
 		TheCity.cpp \
-		MorgueDialog.cpp \
+		src/morgue_dialog/MorgueDialog.cpp \
 		SeerDialog.cpp \
 		ConfinementDialog.cpp \
 		src/bank_dialog/BankDialog.cpp \
@@ -492,7 +492,7 @@ DIST          = .gitignore \
 		GuildsDialog.h \
 		GeneralStore.h \
 		TheCity.h \
-		MorgueDialog.h \
+		src/morgue_dialog/MorgueDialog.h \
 		SeerDialog.h \
 		ConfinementDialog.h \
 		src/bank_dialog/BankDialog.h \
@@ -523,7 +523,7 @@ DIST          = .gitignore \
 		GuildsDialog.cpp \
 		GeneralStore.cpp \
 		TheCity.cpp \
-		MorgueDialog.cpp \
+		src/morgue_dialog/MorgueDialog.cpp \
 		SeerDialog.cpp \
 		ConfinementDialog.cpp \
 		src/bank_dialog/BankDialog.cpp \
@@ -1173,8 +1173,8 @@ distdir: FORCE
 	@test -d $(DISTDIR) || mkdir -p $(DISTDIR)
 	$(COPY_FILE) --parents $(DIST) $(DISTDIR)/
 	$(COPY_FILE) --parents /usr/lib/x86_64-linux-gnu/qt6/mkspecs/features/data/dummy.cpp $(DISTDIR)/
-	$(COPY_FILE) --parents game_menu.h hallofrecordsdialog.h createcharacterdialog.h src/about_dialog/AboutDialog.h src/character_dialog/CharacterDialog.h MessageWindow.h MonsterEditorDialog.h SenderWindow.h SpellbookEditorDialog.h library_dialog.h src/automap/automap_dialog.h game_controller.h src/characterlist_dialog/characterlistdialog.h helplesson.h mordorstatistics.h LoadingScreen.h GuildsDialog.h GeneralStore.h TheCity.h MorgueDialog.h SeerDialog.h ConfinementDialog.h src/bank_dialog/BankDialog.h RaceData.h marlith_dialog.h inventorydialog.h optionsdialog.h src/dungeon_dialog/DungeonDialog.h partyinfodialog.h src/dungeonmap/dungeonmap.h src/bank_dialog/TradeDialog.h include/game_resources.h $(DISTDIR)/
-	$(COPY_FILE) --parents game_menu.cpp hallofrecordsdialog.cpp createcharacterdialog.cpp src/about_dialog/AboutDialog.cpp src/character_dialog/CharacterDialog.cpp MessageWindow.cpp MonsterEditorDialog.cpp SenderWindow.cpp SpellbookEditorDialog.cpp library_dialog.cpp src/automap/automap_dialog.cpp game_controller.cpp src/characterlist_dialog/characterlistdialog.cpp helplesson.cpp mordorstatistics.cpp LoadingScreen.cpp GuildsDialog.cpp GeneralStore.cpp TheCity.cpp MorgueDialog.cpp SeerDialog.cpp ConfinementDialog.cpp src/bank_dialog/BankDialog.cpp RaceData.cpp marlith_dialog.cpp inventorydialog.cpp optionsdialog.cpp src/dungeon_dialog/DungeonDialog.cpp partyinfodialog.cpp src/dungeonmap/dungeonmap.cpp src/bank_dialog/TradeDialog.cpp src/game_resources.cpp $(DISTDIR)/
+	$(COPY_FILE) --parents game_menu.h hallofrecordsdialog.h createcharacterdialog.h src/about_dialog/AboutDialog.h src/character_dialog/CharacterDialog.h MessageWindow.h MonsterEditorDialog.h SenderWindow.h SpellbookEditorDialog.h library_dialog.h src/automap/automap_dialog.h game_controller.h src/characterlist_dialog/characterlistdialog.h helplesson.h mordorstatistics.h LoadingScreen.h GuildsDialog.h GeneralStore.h TheCity.h src/morgue_dialog/MorgueDialog.h SeerDialog.h ConfinementDialog.h src/bank_dialog/BankDialog.h RaceData.h marlith_dialog.h inventorydialog.h optionsdialog.h src/dungeon_dialog/DungeonDialog.h partyinfodialog.h src/dungeonmap/dungeonmap.h src/bank_dialog/TradeDialog.h include/game_resources.h $(DISTDIR)/
+	$(COPY_FILE) --parents game_menu.cpp hallofrecordsdialog.cpp createcharacterdialog.cpp src/about_dialog/AboutDialog.cpp src/character_dialog/CharacterDialog.cpp MessageWindow.cpp MonsterEditorDialog.cpp SenderWindow.cpp SpellbookEditorDialog.cpp library_dialog.cpp src/automap/automap_dialog.cpp game_controller.cpp src/characterlist_dialog/characterlistdialog.cpp helplesson.cpp mordorstatistics.cpp LoadingScreen.cpp GuildsDialog.cpp GeneralStore.cpp TheCity.cpp src/morgue_dialog/MorgueDialog.cpp SeerDialog.cpp ConfinementDialog.cpp src/bank_dialog/BankDialog.cpp RaceData.cpp marlith_dialog.cpp inventorydialog.cpp optionsdialog.cpp src/dungeon_dialog/DungeonDialog.cpp partyinfodialog.cpp src/dungeonmap/dungeonmap.cpp src/bank_dialog/TradeDialog.cpp src/game_resources.cpp $(DISTDIR)/
 
 
 clean: compiler_clean 
@@ -1305,10 +1305,10 @@ build/moc/moc_TheCity.cpp: TheCity.h \
 		/usr/lib/qt6/libexec/moc
 	/usr/lib/qt6/libexec/moc $(DEFINES) --include /home/rickard/Documents/GitHub/depthofdejenol/build/moc/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt6/mkspecs/linux-g++ -I/home/rickard/Documents/GitHub/depthofdejenol -I/home/rickard/Documents/GitHub/depthofdejenol/include -I/usr/include/x86_64-linux-gnu/qt6 -I/usr/include/x86_64-linux-gnu/qt6/QtWidgets -I/usr/include/x86_64-linux-gnu/qt6/QtMultimedia -I/usr/include/x86_64-linux-gnu/qt6/QtGui -I/usr/include/x86_64-linux-gnu/qt6/QtNetwork -I/usr/include/x86_64-linux-gnu/qt6/QtCore -I/usr/include/c++/15 -I/usr/include/x86_64-linux-gnu/c++/15 -I/usr/include/c++/15/backward -I/usr/lib/gcc/x86_64-linux-gnu/15/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include TheCity.h -o build/moc/moc_TheCity.cpp
 
-build/moc/moc_MorgueDialog.cpp: MorgueDialog.h \
+build/moc/moc_MorgueDialog.cpp: src/morgue_dialog/MorgueDialog.h \
 		build/moc/moc_predefs.h \
 		/usr/lib/qt6/libexec/moc
-	/usr/lib/qt6/libexec/moc $(DEFINES) --include /home/rickard/Documents/GitHub/depthofdejenol/build/moc/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt6/mkspecs/linux-g++ -I/home/rickard/Documents/GitHub/depthofdejenol -I/home/rickard/Documents/GitHub/depthofdejenol/include -I/usr/include/x86_64-linux-gnu/qt6 -I/usr/include/x86_64-linux-gnu/qt6/QtWidgets -I/usr/include/x86_64-linux-gnu/qt6/QtMultimedia -I/usr/include/x86_64-linux-gnu/qt6/QtGui -I/usr/include/x86_64-linux-gnu/qt6/QtNetwork -I/usr/include/x86_64-linux-gnu/qt6/QtCore -I/usr/include/c++/15 -I/usr/include/x86_64-linux-gnu/c++/15 -I/usr/include/c++/15/backward -I/usr/lib/gcc/x86_64-linux-gnu/15/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include MorgueDialog.h -o build/moc/moc_MorgueDialog.cpp
+	/usr/lib/qt6/libexec/moc $(DEFINES) --include /home/rickard/Documents/GitHub/depthofdejenol/build/moc/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt6/mkspecs/linux-g++ -I/home/rickard/Documents/GitHub/depthofdejenol -I/home/rickard/Documents/GitHub/depthofdejenol/include -I/usr/include/x86_64-linux-gnu/qt6 -I/usr/include/x86_64-linux-gnu/qt6/QtWidgets -I/usr/include/x86_64-linux-gnu/qt6/QtMultimedia -I/usr/include/x86_64-linux-gnu/qt6/QtGui -I/usr/include/x86_64-linux-gnu/qt6/QtNetwork -I/usr/include/x86_64-linux-gnu/qt6/QtCore -I/usr/include/c++/15 -I/usr/include/x86_64-linux-gnu/c++/15 -I/usr/include/c++/15/backward -I/usr/lib/gcc/x86_64-linux-gnu/15/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include src/morgue_dialog/MorgueDialog.h -o build/moc/moc_MorgueDialog.cpp
 
 build/moc/moc_SeerDialog.cpp: SeerDialog.h \
 		build/moc/moc_predefs.h \
@@ -1455,15 +1455,14 @@ build/obj/TheCity.o: TheCity.cpp include/game_resources.h \
 		TheCity.h \
 		GeneralStore.h \
 		GuildsDialog.h \
-		MorgueDialog.h \
 		SeerDialog.h \
 		ConfinementDialog.h \
 		src/bank_dialog/BankDialog.h \
 		src/dungeon_dialog/DungeonDialog.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/TheCity.o TheCity.cpp
 
-build/obj/MorgueDialog.o: MorgueDialog.cpp MorgueDialog.h
-	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/MorgueDialog.o MorgueDialog.cpp
+build/obj/MorgueDialog.o: src/morgue_dialog/MorgueDialog.cpp src/morgue_dialog/MorgueDialog.h
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/MorgueDialog.o src/morgue_dialog/MorgueDialog.cpp
 
 build/obj/SeerDialog.o: SeerDialog.cpp SeerDialog.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/SeerDialog.o SeerDialog.cpp
