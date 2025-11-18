@@ -1,10 +1,10 @@
 #include "game_resources.h"
 #include "TheCity.h"
-#include "GeneralStore.h"
-#include "GuildsDialog.h"
+#include "src/general_store/GeneralStore.h"
+#include "src/guilds_dialog/GuildsDialog.h"
 #include "src/morgue_dialog/MorgueDialog.h"
 #include "SeerDialog.h"
-#include "ConfinementDialog.h"
+#include "src/confinement_dialog/ConfinementDialog.h"
 #include "src/bank_dialog/BankDialog.h"
 #include "src/dungeon_dialog/DungeonDialog.h"
 #include <QDebug>

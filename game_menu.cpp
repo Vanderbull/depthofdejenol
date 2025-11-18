@@ -1,25 +1,21 @@
 #include "game_menu.h"
 #include "src/characterlist_dialog/characterlistdialog.h"
-#include "hallofrecordsdialog.h"
-#include "createcharacterdialog.h"
-//#include "dungeondialog.h"
-//#include "DungeonDialog.h"
-#include "inventorydialog.h"
-//#include "marlith_dialog.h"
-#include "optionsdialog.h"
+#include "src/hall_of_records/hallofrecordsdialog.h"
+#include "src/create_character/createcharacterdialog.h"
+#include "src/inventory_dialog/inventorydialog.h"
+#include "src/options_dialog/optionsdialog.h"
 #include "src/about_dialog/AboutDialog.h"
-#include "MonsterEditorDialog.h"
+#include "tools/monster_editor/MonsterEditorDialog.h"
 #include "SpellbookEditorDialog.h"
 #include "src/character_dialog/CharacterDialog.h"
 #include "MessageWindow.h"
 #include "SenderWindow.h"
-#include "library_dialog.h"
+#include "src/library_dialog/library_dialog.h"
 #include "src/automap/automap_dialog.h"
 #include "game_controller.h"
-#include "helplesson.h"
+#include "src/helplesson/helplesson.h"
 #include "mordorstatistics.h"
-#include "LoadingScreen.h"
-//#include "GuildsDialog.h"
+#include "src/loadingscreen/LoadingScreen.h"
 #include "TheCity.h"
 
 #include <QVBoxLayout>
@@ -43,7 +39,7 @@
 
 bool MenuSwitch = false;
 QSettings settings("MyCompany", "MyApp");
-QString subfolderName = settings.value("Paths/SubfolderName", "data").toString();
+QString subfolderName = settings.value("Paths/SubfolderName", "data/characters").toString();
 
 
 void launchAutomapDialog() {

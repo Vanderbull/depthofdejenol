@@ -41,67 +41,67 @@ INCLUDEPATH += \
 
 
 SOURCES += game_menu.cpp \
-    hallofrecordsdialog.cpp \
-    createcharacterdialog.cpp \
+    src/hall_of_records/hallofrecordsdialog.cpp \
+    src/create_character/createcharacterdialog.cpp \
     src/about_dialog/AboutDialog.cpp \
     src/character_dialog/CharacterDialog.cpp \
     MessageWindow.cpp \
-    MonsterEditorDialog.cpp \
+    tools/monster_editor/MonsterEditorDialog.cpp \
     SenderWindow.cpp \
     SpellbookEditorDialog.cpp \
-    library_dialog.cpp \
+    src/library_dialog/library_dialog.cpp \
     src/automap/automap_dialog.cpp \
     game_controller.cpp \
     src/characterlist_dialog/characterlistdialog.cpp \
-    helplesson.cpp \
+    src/helplesson/helplesson.cpp \
     mordorstatistics.cpp \
-    LoadingScreen.cpp \
-    GuildsDialog.cpp \
-    GeneralStore.cpp \
+    src/loadingscreen/LoadingScreen.cpp \
+    src/guilds_dialog/GuildsDialog.cpp \
+    src/general_store/GeneralStore.cpp \
     TheCity.cpp \
     src/morgue_dialog/MorgueDialog.cpp \
     SeerDialog.cpp \
-    ConfinementDialog.cpp \
+    src/confinement_dialog/ConfinementDialog.cpp \
     src/bank_dialog/BankDialog.cpp \
     RaceData.cpp \
     marlith_dialog.cpp \
-    inventorydialog.cpp \
-    optionsdialog.cpp \
+    src/inventory_dialog/inventorydialog.cpp \
+    src/options_dialog/optionsdialog.cpp \
     src/dungeon_dialog/DungeonDialog.cpp \
-    partyinfodialog.cpp \
+    src/partyinfo_dialog/partyinfodialog.cpp \
     src/dungeonmap/dungeonmap.cpp \ 
     src/bank_dialog/TradeDialog.cpp \
     src/game_resources.cpp
 
 HEADERS += game_menu.h \
-    hallofrecordsdialog.h \
-    createcharacterdialog.h \
+    src/hall_of_records/hallofrecordsdialog.h \
+    src/create_character/createcharacterdialog.h \
     src/about_dialog/AboutDialog.h \
     src/character_dialog/CharacterDialog.h \
     MessageWindow.h \
-    MonsterEditorDialog.h \
+    tools/monster_editor/MonsterEditorDialog.h \
     SenderWindow.h \
     SpellbookEditorDialog.h \
-    library_dialog.h \
+    src/library_dialog/library_dialog.h \
     src/automap/automap_dialog.h \
     game_controller.h \
     src/characterlist_dialog/characterlistdialog.h \
-    helplesson.h \
+    src/helplesson/helplesson.h \
     mordorstatistics.h \
-    LoadingScreen.h \
-    GuildsDialog.h \
-    GeneralStore.h \
+    src/loadingscreen/LoadingScreen.h \
+    src/guilds_dialog/GuildsDialog.h \
+    src/general_store/GeneralStore.h \
     TheCity.h \
     src/morgue_dialog/MorgueDialog.h \
     SeerDialog.h \
-    ConfinementDialog.h \
+    src/confinement_dialog/ConfinementDialog.h \
     src/bank_dialog/BankDialog.h \
     RaceData.h \
     marlith_dialog.h \
-    inventorydialog.h \
-    optionsdialog.h \
+    src/inventory_dialog/inventorydialog.h \
+    src/options_dialog/optionsdialog.h \
     src/dungeon_dialog/DungeonDialog.h \
-    partyinfodialog.h \
+    src/partyinfo_dialog/partyinfodialog.h \
     src/dungeonmap/dungeonmap.h \
     src/bank_dialog/TradeDialog.h \
     include/game_resources.h

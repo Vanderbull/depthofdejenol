@@ -12,7 +12,7 @@
 QStringList findDeadCharacterFiles() {
     // 1. Simulate finding the character data path
     QSettings settings("MyCompany", "MyApp");
-    QString subfolderName = settings.value("Paths/SubfolderName", "data").toString();
+    QString subfolderName = settings.value("Paths/SubfolderName", "data/characters").toString();
     QString basePath = QCoreApplication::applicationDirPath();
     QString fullPath = QDir::cleanPath(basePath + QDir::separator() + subfolderName);
     QDir currentDir(fullPath);
@@ -116,7 +116,7 @@ MorgueDialog::MorgueDialog(QWidget *parent) :
 
     QHBoxLayout *middleButtonLayout = new QHBoxLayout();
     middleButtonLayout->addWidget(grabBodyButton);
-    middleButtonLayout->addStretch(); // Pushes "Grab Body" to the left
+    //middleButtonLayout->addStretch(); // Pushes "Grab Body" to the left
 
     QVBoxLayout *mainLayout = new QVBoxLayout(this);
     mainLayout->addWidget(welcomeLabel);
@@ -128,7 +128,7 @@ MorgueDialog::MorgueDialog(QWidget *parent) :
     setLayout(mainLayout);
 
     // Set a fixed size to mimic the image's appearance more closely
-    setFixedSize(300, 200);
+    //setFixedSize(300, 200);
 }
 
 MorgueDialog::~MorgueDialog()
