@@ -5,7 +5,7 @@
 A remake test featuring:
 - 401 Monsters
 - 100 Spells
-- 400 Items
+- 366 Items
 - 16 Soundtracks
 
 ## Setup
