@@ -17,7 +17,7 @@ CXX           = g++
 DEFINES       = -DQT_NO_DEBUG -DQT_WIDGETS_LIB -DQT_MULTIMEDIA_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_CORE_LIB
 CFLAGS        = -pipe -O2 -Wall -Wextra -D_REENTRANT $(DEFINES)
 CXXFLAGS      = -pipe -O2 -Wall -Wextra -D_REENTRANT $(DEFINES)
-INCPATH       = -I. -Iinclude -I/usr/include/x86_64-linux-gnu/qt6 -I/usr/include/x86_64-linux-gnu/qt6/QtWidgets -I/usr/include/x86_64-linux-gnu/qt6/QtMultimedia -I/usr/include/x86_64-linux-gnu/qt6/QtGui -I/usr/include/x86_64-linux-gnu/qt6/QtNetwork -I/usr/include/x86_64-linux-gnu/qt6/QtCore -Ibuild/moc -I/usr/lib/x86_64-linux-gnu/qt6/mkspecs/linux-g++
+INCPATH       = -I. -I_PRO_FILE_PWD_/include -I/usr/include/x86_64-linux-gnu/qt6 -I/usr/include/x86_64-linux-gnu/qt6/QtWidgets -I/usr/include/x86_64-linux-gnu/qt6/QtMultimedia -I/usr/include/x86_64-linux-gnu/qt6/QtGui -I/usr/include/x86_64-linux-gnu/qt6/QtNetwork -I/usr/include/x86_64-linux-gnu/qt6/QtCore -Ibuild/moc -I/usr/lib/x86_64-linux-gnu/qt6/mkspecs/linux-g++
 QMAKE         = /usr/bin/qmake6
 DEL_FILE      = rm -f
 CHK_DIR_EXISTS= test -d
@@ -37,7 +37,7 @@ MOVE          = mv -f
 TAR           = tar -cf
 COMPRESS      = gzip -9f
 DISTNAME      = game_menu1.0.0
-DISTDIR = /home/rickard/Documents/GitHub/depthofdejenol/build/obj/game_menu1.0.0
+DISTDIR = /home/rickard/Documents/GitHub/depthofdejenol/build/obj/release/game_menu1.0.0
 LINK          = g++
 LFLAGS        = -Wl,-O1 -Wl,-rpath-link,/usr/lib/x86_64-linux-gnu
 LIBS          = $(SUBLIBS) /usr/lib/x86_64-linux-gnu/libQt6Widgets.so /usr/lib/x86_64-linux-gnu/libQt6Multimedia.so /usr/lib/x86_64-linux-gnu/libQt6Gui.so /usr/lib/x86_64-linux-gnu/libGLX.so /usr/lib/x86_64-linux-gnu/libOpenGL.so /usr/lib/x86_64-linux-gnu/libQt6Network.so /usr/lib/x86_64-linux-gnu/libQt6Core.so -lpthread -lGLX -lOpenGL   
@@ -48,7 +48,7 @@ STRIP         = strip
 
 ####### Output directory
 
-OBJECTS_DIR   = build/obj/
+OBJECTS_DIR   = build/obj/release/
 
 ####### Files
 
@@ -75,7 +75,7 @@ SOURCES       = game_menu.cpp \
 		src/seer_dialog/SeerDialog.cpp \
 		src/confinement_dialog/ConfinementDialog.cpp \
 		src/bank_dialog/BankDialog.cpp \
-		RaceData.cpp \
+		src/race_data/RaceData.cpp \
 		src/marlith_dialog/marlith_dialog.cpp \
 		src/inventory_dialog/inventorydialog.cpp \
 		src/options_dialog/optionsdialog.cpp \
@@ -113,68 +113,68 @@ SOURCES       = game_menu.cpp \
 		build/moc/moc_partyinfodialog.cpp \
 		build/moc/moc_dungeonmap.cpp \
 		build/moc/moc_TradeDialog.cpp
-OBJECTS       = build/obj/game_menu.o \
-		build/obj/hallofrecordsdialog.o \
-		build/obj/createcharacterdialog.o \
-		build/obj/AboutDialog.o \
-		build/obj/CharacterDialog.o \
-		build/obj/MessageWindow.o \
-		build/obj/MonsterEditorDialog.o \
-		build/obj/SenderWindow.o \
-		build/obj/SpellbookEditorDialog.o \
-		build/obj/library_dialog.o \
-		build/obj/automap_dialog.o \
-		build/obj/game_controller.o \
-		build/obj/characterlistdialog.o \
-		build/obj/helplesson.o \
-		build/obj/mordorstatistics.o \
-		build/obj/LoadingScreen.o \
-		build/obj/GuildsDialog.o \
-		build/obj/GeneralStore.o \
-		build/obj/TheCity.o \
-		build/obj/MorgueDialog.o \
-		build/obj/SeerDialog.o \
-		build/obj/ConfinementDialog.o \
-		build/obj/BankDialog.o \
-		build/obj/RaceData.o \
-		build/obj/marlith_dialog.o \
-		build/obj/inventorydialog.o \
-		build/obj/optionsdialog.o \
-		build/obj/DungeonDialog.o \
-		build/obj/partyinfodialog.o \
-		build/obj/dungeonmap.o \
-		build/obj/TradeDialog.o \
-		build/obj/game_resources.o \
-		build/obj/moc_game_menu.o \
-		build/obj/moc_hallofrecordsdialog.o \
-		build/obj/moc_createcharacterdialog.o \
-		build/obj/moc_AboutDialog.o \
-		build/obj/moc_CharacterDialog.o \
-		build/obj/moc_MessageWindow.o \
-		build/obj/moc_MonsterEditorDialog.o \
-		build/obj/moc_SenderWindow.o \
-		build/obj/moc_SpellbookEditorDialog.o \
-		build/obj/moc_library_dialog.o \
-		build/obj/moc_automap_dialog.o \
-		build/obj/moc_game_controller.o \
-		build/obj/moc_characterlistdialog.o \
-		build/obj/moc_helplesson.o \
-		build/obj/moc_mordorstatistics.o \
-		build/obj/moc_LoadingScreen.o \
-		build/obj/moc_GuildsDialog.o \
-		build/obj/moc_GeneralStore.o \
-		build/obj/moc_TheCity.o \
-		build/obj/moc_MorgueDialog.o \
-		build/obj/moc_SeerDialog.o \
-		build/obj/moc_ConfinementDialog.o \
-		build/obj/moc_BankDialog.o \
-		build/obj/moc_marlith_dialog.o \
-		build/obj/moc_inventorydialog.o \
-		build/obj/moc_optionsdialog.o \
-		build/obj/moc_DungeonDialog.o \
-		build/obj/moc_partyinfodialog.o \
-		build/obj/moc_dungeonmap.o \
-		build/obj/moc_TradeDialog.o
+OBJECTS       = build/obj/release/game_menu.o \
+		build/obj/release/hallofrecordsdialog.o \
+		build/obj/release/createcharacterdialog.o \
+		build/obj/release/AboutDialog.o \
+		build/obj/release/CharacterDialog.o \
+		build/obj/release/MessageWindow.o \
+		build/obj/release/MonsterEditorDialog.o \
+		build/obj/release/SenderWindow.o \
+		build/obj/release/SpellbookEditorDialog.o \
+		build/obj/release/library_dialog.o \
+		build/obj/release/automap_dialog.o \
+		build/obj/release/game_controller.o \
+		build/obj/release/characterlistdialog.o \
+		build/obj/release/helplesson.o \
+		build/obj/release/mordorstatistics.o \
+		build/obj/release/LoadingScreen.o \
+		build/obj/release/GuildsDialog.o \
+		build/obj/release/GeneralStore.o \
+		build/obj/release/TheCity.o \
+		build/obj/release/MorgueDialog.o \
+		build/obj/release/SeerDialog.o \
+		build/obj/release/ConfinementDialog.o \
+		build/obj/release/BankDialog.o \
+		build/obj/release/RaceData.o \
+		build/obj/release/marlith_dialog.o \
+		build/obj/release/inventorydialog.o \
+		build/obj/release/optionsdialog.o \
+		build/obj/release/DungeonDialog.o \
+		build/obj/release/partyinfodialog.o \
+		build/obj/release/dungeonmap.o \
+		build/obj/release/TradeDialog.o \
+		build/obj/release/game_resources.o \
+		build/obj/release/moc_game_menu.o \
+		build/obj/release/moc_hallofrecordsdialog.o \
+		build/obj/release/moc_createcharacterdialog.o \
+		build/obj/release/moc_AboutDialog.o \
+		build/obj/release/moc_CharacterDialog.o \
+		build/obj/release/moc_MessageWindow.o \
+		build/obj/release/moc_MonsterEditorDialog.o \
+		build/obj/release/moc_SenderWindow.o \
+		build/obj/release/moc_SpellbookEditorDialog.o \
+		build/obj/release/moc_library_dialog.o \
+		build/obj/release/moc_automap_dialog.o \
+		build/obj/release/moc_game_controller.o \
+		build/obj/release/moc_characterlistdialog.o \
+		build/obj/release/moc_helplesson.o \
+		build/obj/release/moc_mordorstatistics.o \
+		build/obj/release/moc_LoadingScreen.o \
+		build/obj/release/moc_GuildsDialog.o \
+		build/obj/release/moc_GeneralStore.o \
+		build/obj/release/moc_TheCity.o \
+		build/obj/release/moc_MorgueDialog.o \
+		build/obj/release/moc_SeerDialog.o \
+		build/obj/release/moc_ConfinementDialog.o \
+		build/obj/release/moc_BankDialog.o \
+		build/obj/release/moc_marlith_dialog.o \
+		build/obj/release/moc_inventorydialog.o \
+		build/obj/release/moc_optionsdialog.o \
+		build/obj/release/moc_DungeonDialog.o \
+		build/obj/release/moc_partyinfodialog.o \
+		build/obj/release/moc_dungeonmap.o \
+		build/obj/release/moc_TradeDialog.o
 DIST          = .gitignore \
 		/usr/lib/x86_64-linux-gnu/qt6/mkspecs/features/spec_pre.prf \
 		/usr/lib/x86_64-linux-gnu/qt6/mkspecs/common/unix.conf \
@@ -496,7 +496,7 @@ DIST          = .gitignore \
 		src/seer_dialog/SeerDialog.h \
 		src/confinement_dialog/ConfinementDialog.h \
 		src/bank_dialog/BankDialog.h \
-		RaceData.h \
+		src/race_data/RaceData.h \
 		src/marlith_dialog/marlith_dialog.h \
 		src/inventory_dialog/inventorydialog.h \
 		src/options_dialog/optionsdialog.h \
@@ -527,7 +527,7 @@ DIST          = .gitignore \
 		src/seer_dialog/SeerDialog.cpp \
 		src/confinement_dialog/ConfinementDialog.cpp \
 		src/bank_dialog/BankDialog.cpp \
-		RaceData.cpp \
+		src/race_data/RaceData.cpp \
 		src/marlith_dialog/marlith_dialog.cpp \
 		src/inventory_dialog/inventorydialog.cpp \
 		src/options_dialog/optionsdialog.cpp \
@@ -1173,8 +1173,8 @@ distdir: FORCE
 	@test -d $(DISTDIR) || mkdir -p $(DISTDIR)
 	$(COPY_FILE) --parents $(DIST) $(DISTDIR)/
 	$(COPY_FILE) --parents /usr/lib/x86_64-linux-gnu/qt6/mkspecs/features/data/dummy.cpp $(DISTDIR)/
-	$(COPY_FILE) --parents game_menu.h src/hall_of_records/hallofrecordsdialog.h src/create_character/createcharacterdialog.h src/about_dialog/AboutDialog.h src/character_dialog/CharacterDialog.h MessageWindow.h tools/monster_editor/MonsterEditorDialog.h SenderWindow.h tools/spellbook_editor/SpellbookEditorDialog.h src/library_dialog/library_dialog.h src/automap/automap_dialog.h game_controller.h src/characterlist_dialog/characterlistdialog.h src/helplesson/helplesson.h mordorstatistics.h src/loadingscreen/LoadingScreen.h src/guilds_dialog/GuildsDialog.h src/general_store/GeneralStore.h TheCity.h src/morgue_dialog/MorgueDialog.h src/seer_dialog/SeerDialog.h src/confinement_dialog/ConfinementDialog.h src/bank_dialog/BankDialog.h RaceData.h src/marlith_dialog/marlith_dialog.h src/inventory_dialog/inventorydialog.h src/options_dialog/optionsdialog.h src/dungeon_dialog/DungeonDialog.h src/partyinfo_dialog/partyinfodialog.h src/dungeonmap/dungeonmap.h src/bank_dialog/TradeDialog.h include/game_resources.h $(DISTDIR)/
-	$(COPY_FILE) --parents game_menu.cpp src/hall_of_records/hallofrecordsdialog.cpp src/create_character/createcharacterdialog.cpp src/about_dialog/AboutDialog.cpp src/character_dialog/CharacterDialog.cpp MessageWindow.cpp tools/monster_editor/MonsterEditorDialog.cpp SenderWindow.cpp tools/spellbook_editor/SpellbookEditorDialog.cpp src/library_dialog/library_dialog.cpp src/automap/automap_dialog.cpp game_controller.cpp src/characterlist_dialog/characterlistdialog.cpp src/helplesson/helplesson.cpp mordorstatistics.cpp src/loadingscreen/LoadingScreen.cpp src/guilds_dialog/GuildsDialog.cpp src/general_store/GeneralStore.cpp TheCity.cpp src/morgue_dialog/MorgueDialog.cpp src/seer_dialog/SeerDialog.cpp src/confinement_dialog/ConfinementDialog.cpp src/bank_dialog/BankDialog.cpp RaceData.cpp src/marlith_dialog/marlith_dialog.cpp src/inventory_dialog/inventorydialog.cpp src/options_dialog/optionsdialog.cpp src/dungeon_dialog/DungeonDialog.cpp src/partyinfo_dialog/partyinfodialog.cpp src/dungeonmap/dungeonmap.cpp src/bank_dialog/TradeDialog.cpp src/game_resources.cpp $(DISTDIR)/
+	$(COPY_FILE) --parents game_menu.h src/hall_of_records/hallofrecordsdialog.h src/create_character/createcharacterdialog.h src/about_dialog/AboutDialog.h src/character_dialog/CharacterDialog.h MessageWindow.h tools/monster_editor/MonsterEditorDialog.h SenderWindow.h tools/spellbook_editor/SpellbookEditorDialog.h src/library_dialog/library_dialog.h src/automap/automap_dialog.h game_controller.h src/characterlist_dialog/characterlistdialog.h src/helplesson/helplesson.h mordorstatistics.h src/loadingscreen/LoadingScreen.h src/guilds_dialog/GuildsDialog.h src/general_store/GeneralStore.h TheCity.h src/morgue_dialog/MorgueDialog.h src/seer_dialog/SeerDialog.h src/confinement_dialog/ConfinementDialog.h src/bank_dialog/BankDialog.h src/race_data/RaceData.h src/marlith_dialog/marlith_dialog.h src/inventory_dialog/inventorydialog.h src/options_dialog/optionsdialog.h src/dungeon_dialog/DungeonDialog.h src/partyinfo_dialog/partyinfodialog.h src/dungeonmap/dungeonmap.h src/bank_dialog/TradeDialog.h include/game_resources.h $(DISTDIR)/
+	$(COPY_FILE) --parents game_menu.cpp src/hall_of_records/hallofrecordsdialog.cpp src/create_character/createcharacterdialog.cpp src/about_dialog/AboutDialog.cpp src/character_dialog/CharacterDialog.cpp MessageWindow.cpp tools/monster_editor/MonsterEditorDialog.cpp SenderWindow.cpp tools/spellbook_editor/SpellbookEditorDialog.cpp src/library_dialog/library_dialog.cpp src/automap/automap_dialog.cpp game_controller.cpp src/characterlist_dialog/characterlistdialog.cpp src/helplesson/helplesson.cpp mordorstatistics.cpp src/loadingscreen/LoadingScreen.cpp src/guilds_dialog/GuildsDialog.cpp src/general_store/GeneralStore.cpp TheCity.cpp src/morgue_dialog/MorgueDialog.cpp src/seer_dialog/SeerDialog.cpp src/confinement_dialog/ConfinementDialog.cpp src/bank_dialog/BankDialog.cpp src/race_data/RaceData.cpp src/marlith_dialog/marlith_dialog.cpp src/inventory_dialog/inventorydialog.cpp src/options_dialog/optionsdialog.cpp src/dungeon_dialog/DungeonDialog.cpp src/partyinfo_dialog/partyinfodialog.cpp src/dungeonmap/dungeonmap.cpp src/bank_dialog/TradeDialog.cpp src/game_resources.cpp $(DISTDIR)/
 
 
 clean: compiler_clean 
@@ -1212,153 +1212,153 @@ compiler_moc_header_clean:
 build/moc/moc_game_menu.cpp: game_menu.h \
 		build/moc/moc_predefs.h \
 		/usr/lib/qt6/libexec/moc
-	/usr/lib/qt6/libexec/moc $(DEFINES) --include /home/rickard/Documents/GitHub/depthofdejenol/build/moc/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt6/mkspecs/linux-g++ -I/home/rickard/Documents/GitHub/depthofdejenol -I/home/rickard/Documents/GitHub/depthofdejenol/include -I/usr/include/x86_64-linux-gnu/qt6 -I/usr/include/x86_64-linux-gnu/qt6/QtWidgets -I/usr/include/x86_64-linux-gnu/qt6/QtMultimedia -I/usr/include/x86_64-linux-gnu/qt6/QtGui -I/usr/include/x86_64-linux-gnu/qt6/QtNetwork -I/usr/include/x86_64-linux-gnu/qt6/QtCore -I/usr/include/c++/15 -I/usr/include/x86_64-linux-gnu/c++/15 -I/usr/include/c++/15/backward -I/usr/lib/gcc/x86_64-linux-gnu/15/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include game_menu.h -o build/moc/moc_game_menu.cpp
+	/usr/lib/qt6/libexec/moc $(DEFINES) --include /home/rickard/Documents/GitHub/depthofdejenol/build/moc/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt6/mkspecs/linux-g++ -I/home/rickard/Documents/GitHub/depthofdejenol -I/home/rickard/Documents/GitHub/depthofdejenol/_PRO_FILE_PWD_/include -I/usr/include/x86_64-linux-gnu/qt6 -I/usr/include/x86_64-linux-gnu/qt6/QtWidgets -I/usr/include/x86_64-linux-gnu/qt6/QtMultimedia -I/usr/include/x86_64-linux-gnu/qt6/QtGui -I/usr/include/x86_64-linux-gnu/qt6/QtNetwork -I/usr/include/x86_64-linux-gnu/qt6/QtCore -I/usr/include/c++/15 -I/usr/include/x86_64-linux-gnu/c++/15 -I/usr/include/c++/15/backward -I/usr/lib/gcc/x86_64-linux-gnu/15/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include game_menu.h -o build/moc/moc_game_menu.cpp
 
 build/moc/moc_hallofrecordsdialog.cpp: src/hall_of_records/hallofrecordsdialog.h \
 		build/moc/moc_predefs.h \
 		/usr/lib/qt6/libexec/moc
-	/usr/lib/qt6/libexec/moc $(DEFINES) --include /home/rickard/Documents/GitHub/depthofdejenol/build/moc/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt6/mkspecs/linux-g++ -I/home/rickard/Documents/GitHub/depthofdejenol -I/home/rickard/Documents/GitHub/depthofdejenol/include -I/usr/include/x86_64-linux-gnu/qt6 -I/usr/include/x86_64-linux-gnu/qt6/QtWidgets -I/usr/include/x86_64-linux-gnu/qt6/QtMultimedia -I/usr/include/x86_64-linux-gnu/qt6/QtGui -I/usr/include/x86_64-linux-gnu/qt6/QtNetwork -I/usr/include/x86_64-linux-gnu/qt6/QtCore -I/usr/include/c++/15 -I/usr/include/x86_64-linux-gnu/c++/15 -I/usr/include/c++/15/backward -I/usr/lib/gcc/x86_64-linux-gnu/15/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include src/hall_of_records/hallofrecordsdialog.h -o build/moc/moc_hallofrecordsdialog.cpp
+	/usr/lib/qt6/libexec/moc $(DEFINES) --include /home/rickard/Documents/GitHub/depthofdejenol/build/moc/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt6/mkspecs/linux-g++ -I/home/rickard/Documents/GitHub/depthofdejenol -I/home/rickard/Documents/GitHub/depthofdejenol/_PRO_FILE_PWD_/include -I/usr/include/x86_64-linux-gnu/qt6 -I/usr/include/x86_64-linux-gnu/qt6/QtWidgets -I/usr/include/x86_64-linux-gnu/qt6/QtMultimedia -I/usr/include/x86_64-linux-gnu/qt6/QtGui -I/usr/include/x86_64-linux-gnu/qt6/QtNetwork -I/usr/include/x86_64-linux-gnu/qt6/QtCore -I/usr/include/c++/15 -I/usr/include/x86_64-linux-gnu/c++/15 -I/usr/include/c++/15/backward -I/usr/lib/gcc/x86_64-linux-gnu/15/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include src/hall_of_records/hallofrecordsdialog.h -o build/moc/moc_hallofrecordsdialog.cpp
 
 build/moc/moc_createcharacterdialog.cpp: src/create_character/createcharacterdialog.h \
-		RaceData.h \
+		src/race_data/RaceData.h \
 		build/moc/moc_predefs.h \
 		/usr/lib/qt6/libexec/moc
-	/usr/lib/qt6/libexec/moc $(DEFINES) --include /home/rickard/Documents/GitHub/depthofdejenol/build/moc/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt6/mkspecs/linux-g++ -I/home/rickard/Documents/GitHub/depthofdejenol -I/home/rickard/Documents/GitHub/depthofdejenol/include -I/usr/include/x86_64-linux-gnu/qt6 -I/usr/include/x86_64-linux-gnu/qt6/QtWidgets -I/usr/include/x86_64-linux-gnu/qt6/QtMultimedia -I/usr/include/x86_64-linux-gnu/qt6/QtGui -I/usr/include/x86_64-linux-gnu/qt6/QtNetwork -I/usr/include/x86_64-linux-gnu/qt6/QtCore -I/usr/include/c++/15 -I/usr/include/x86_64-linux-gnu/c++/15 -I/usr/include/c++/15/backward -I/usr/lib/gcc/x86_64-linux-gnu/15/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include src/create_character/createcharacterdialog.h -o build/moc/moc_createcharacterdialog.cpp
+	/usr/lib/qt6/libexec/moc $(DEFINES) --include /home/rickard/Documents/GitHub/depthofdejenol/build/moc/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt6/mkspecs/linux-g++ -I/home/rickard/Documents/GitHub/depthofdejenol -I/home/rickard/Documents/GitHub/depthofdejenol/_PRO_FILE_PWD_/include -I/usr/include/x86_64-linux-gnu/qt6 -I/usr/include/x86_64-linux-gnu/qt6/QtWidgets -I/usr/include/x86_64-linux-gnu/qt6/QtMultimedia -I/usr/include/x86_64-linux-gnu/qt6/QtGui -I/usr/include/x86_64-linux-gnu/qt6/QtNetwork -I/usr/include/x86_64-linux-gnu/qt6/QtCore -I/usr/include/c++/15 -I/usr/include/x86_64-linux-gnu/c++/15 -I/usr/include/c++/15/backward -I/usr/lib/gcc/x86_64-linux-gnu/15/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include src/create_character/createcharacterdialog.h -o build/moc/moc_createcharacterdialog.cpp
 
 build/moc/moc_AboutDialog.cpp: src/about_dialog/AboutDialog.h \
 		build/moc/moc_predefs.h \
 		/usr/lib/qt6/libexec/moc
-	/usr/lib/qt6/libexec/moc $(DEFINES) --include /home/rickard/Documents/GitHub/depthofdejenol/build/moc/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt6/mkspecs/linux-g++ -I/home/rickard/Documents/GitHub/depthofdejenol -I/home/rickard/Documents/GitHub/depthofdejenol/include -I/usr/include/x86_64-linux-gnu/qt6 -I/usr/include/x86_64-linux-gnu/qt6/QtWidgets -I/usr/include/x86_64-linux-gnu/qt6/QtMultimedia -I/usr/include/x86_64-linux-gnu/qt6/QtGui -I/usr/include/x86_64-linux-gnu/qt6/QtNetwork -I/usr/include/x86_64-linux-gnu/qt6/QtCore -I/usr/include/c++/15 -I/usr/include/x86_64-linux-gnu/c++/15 -I/usr/include/c++/15/backward -I/usr/lib/gcc/x86_64-linux-gnu/15/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include src/about_dialog/AboutDialog.h -o build/moc/moc_AboutDialog.cpp
+	/usr/lib/qt6/libexec/moc $(DEFINES) --include /home/rickard/Documents/GitHub/depthofdejenol/build/moc/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt6/mkspecs/linux-g++ -I/home/rickard/Documents/GitHub/depthofdejenol -I/home/rickard/Documents/GitHub/depthofdejenol/_PRO_FILE_PWD_/include -I/usr/include/x86_64-linux-gnu/qt6 -I/usr/include/x86_64-linux-gnu/qt6/QtWidgets -I/usr/include/x86_64-linux-gnu/qt6/QtMultimedia -I/usr/include/x86_64-linux-gnu/qt6/QtGui -I/usr/include/x86_64-linux-gnu/qt6/QtNetwork -I/usr/include/x86_64-linux-gnu/qt6/QtCore -I/usr/include/c++/15 -I/usr/include/x86_64-linux-gnu/c++/15 -I/usr/include/c++/15/backward -I/usr/lib/gcc/x86_64-linux-gnu/15/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include src/about_dialog/AboutDialog.h -o build/moc/moc_AboutDialog.cpp
 
 build/moc/moc_CharacterDialog.cpp: src/character_dialog/CharacterDialog.h \
 		build/moc/moc_predefs.h \
 		/usr/lib/qt6/libexec/moc
-	/usr/lib/qt6/libexec/moc $(DEFINES) --include /home/rickard/Documents/GitHub/depthofdejenol/build/moc/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt6/mkspecs/linux-g++ -I/home/rickard/Documents/GitHub/depthofdejenol -I/home/rickard/Documents/GitHub/depthofdejenol/include -I/usr/include/x86_64-linux-gnu/qt6 -I/usr/include/x86_64-linux-gnu/qt6/QtWidgets -I/usr/include/x86_64-linux-gnu/qt6/QtMultimedia -I/usr/include/x86_64-linux-gnu/qt6/QtGui -I/usr/include/x86_64-linux-gnu/qt6/QtNetwork -I/usr/include/x86_64-linux-gnu/qt6/QtCore -I/usr/include/c++/15 -I/usr/include/x86_64-linux-gnu/c++/15 -I/usr/include/c++/15/backward -I/usr/lib/gcc/x86_64-linux-gnu/15/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include src/character_dialog/CharacterDialog.h -o build/moc/moc_CharacterDialog.cpp
+	/usr/lib/qt6/libexec/moc $(DEFINES) --include /home/rickard/Documents/GitHub/depthofdejenol/build/moc/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt6/mkspecs/linux-g++ -I/home/rickard/Documents/GitHub/depthofdejenol -I/home/rickard/Documents/GitHub/depthofdejenol/_PRO_FILE_PWD_/include -I/usr/include/x86_64-linux-gnu/qt6 -I/usr/include/x86_64-linux-gnu/qt6/QtWidgets -I/usr/include/x86_64-linux-gnu/qt6/QtMultimedia -I/usr/include/x86_64-linux-gnu/qt6/QtGui -I/usr/include/x86_64-linux-gnu/qt6/QtNetwork -I/usr/include/x86_64-linux-gnu/qt6/QtCore -I/usr/include/c++/15 -I/usr/include/x86_64-linux-gnu/c++/15 -I/usr/include/c++/15/backward -I/usr/lib/gcc/x86_64-linux-gnu/15/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include src/character_dialog/CharacterDialog.h -o build/moc/moc_CharacterDialog.cpp
 
 build/moc/moc_MessageWindow.cpp: MessageWindow.h \
 		build/moc/moc_predefs.h \
 		/usr/lib/qt6/libexec/moc
-	/usr/lib/qt6/libexec/moc $(DEFINES) --include /home/rickard/Documents/GitHub/depthofdejenol/build/moc/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt6/mkspecs/linux-g++ -I/home/rickard/Documents/GitHub/depthofdejenol -I/home/rickard/Documents/GitHub/depthofdejenol/include -I/usr/include/x86_64-linux-gnu/qt6 -I/usr/include/x86_64-linux-gnu/qt6/QtWidgets -I/usr/include/x86_64-linux-gnu/qt6/QtMultimedia -I/usr/include/x86_64-linux-gnu/qt6/QtGui -I/usr/include/x86_64-linux-gnu/qt6/QtNetwork -I/usr/include/x86_64-linux-gnu/qt6/QtCore -I/usr/include/c++/15 -I/usr/include/x86_64-linux-gnu/c++/15 -I/usr/include/c++/15/backward -I/usr/lib/gcc/x86_64-linux-gnu/15/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include MessageWindow.h -o build/moc/moc_MessageWindow.cpp
+	/usr/lib/qt6/libexec/moc $(DEFINES) --include /home/rickard/Documents/GitHub/depthofdejenol/build/moc/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt6/mkspecs/linux-g++ -I/home/rickard/Documents/GitHub/depthofdejenol -I/home/rickard/Documents/GitHub/depthofdejenol/_PRO_FILE_PWD_/include -I/usr/include/x86_64-linux-gnu/qt6 -I/usr/include/x86_64-linux-gnu/qt6/QtWidgets -I/usr/include/x86_64-linux-gnu/qt6/QtMultimedia -I/usr/include/x86_64-linux-gnu/qt6/QtGui -I/usr/include/x86_64-linux-gnu/qt6/QtNetwork -I/usr/include/x86_64-linux-gnu/qt6/QtCore -I/usr/include/c++/15 -I/usr/include/x86_64-linux-gnu/c++/15 -I/usr/include/c++/15/backward -I/usr/lib/gcc/x86_64-linux-gnu/15/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include MessageWindow.h -o build/moc/moc_MessageWindow.cpp
 
 build/moc/moc_MonsterEditorDialog.cpp: tools/monster_editor/MonsterEditorDialog.h \
 		build/moc/moc_predefs.h \
 		/usr/lib/qt6/libexec/moc
-	/usr/lib/qt6/libexec/moc $(DEFINES) --include /home/rickard/Documents/GitHub/depthofdejenol/build/moc/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt6/mkspecs/linux-g++ -I/home/rickard/Documents/GitHub/depthofdejenol -I/home/rickard/Documents/GitHub/depthofdejenol/include -I/usr/include/x86_64-linux-gnu/qt6 -I/usr/include/x86_64-linux-gnu/qt6/QtWidgets -I/usr/include/x86_64-linux-gnu/qt6/QtMultimedia -I/usr/include/x86_64-linux-gnu/qt6/QtGui -I/usr/include/x86_64-linux-gnu/qt6/QtNetwork -I/usr/include/x86_64-linux-gnu/qt6/QtCore -I/usr/include/c++/15 -I/usr/include/x86_64-linux-gnu/c++/15 -I/usr/include/c++/15/backward -I/usr/lib/gcc/x86_64-linux-gnu/15/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include tools/monster_editor/MonsterEditorDialog.h -o build/moc/moc_MonsterEditorDialog.cpp
+	/usr/lib/qt6/libexec/moc $(DEFINES) --include /home/rickard/Documents/GitHub/depthofdejenol/build/moc/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt6/mkspecs/linux-g++ -I/home/rickard/Documents/GitHub/depthofdejenol -I/home/rickard/Documents/GitHub/depthofdejenol/_PRO_FILE_PWD_/include -I/usr/include/x86_64-linux-gnu/qt6 -I/usr/include/x86_64-linux-gnu/qt6/QtWidgets -I/usr/include/x86_64-linux-gnu/qt6/QtMultimedia -I/usr/include/x86_64-linux-gnu/qt6/QtGui -I/usr/include/x86_64-linux-gnu/qt6/QtNetwork -I/usr/include/x86_64-linux-gnu/qt6/QtCore -I/usr/include/c++/15 -I/usr/include/x86_64-linux-gnu/c++/15 -I/usr/include/c++/15/backward -I/usr/lib/gcc/x86_64-linux-gnu/15/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include tools/monster_editor/MonsterEditorDialog.h -o build/moc/moc_MonsterEditorDialog.cpp
 
 build/moc/moc_SenderWindow.cpp: SenderWindow.h \
 		build/moc/moc_predefs.h \
 		/usr/lib/qt6/libexec/moc
-	/usr/lib/qt6/libexec/moc $(DEFINES) --include /home/rickard/Documents/GitHub/depthofdejenol/build/moc/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt6/mkspecs/linux-g++ -I/home/rickard/Documents/GitHub/depthofdejenol -I/home/rickard/Documents/GitHub/depthofdejenol/include -I/usr/include/x86_64-linux-gnu/qt6 -I/usr/include/x86_64-linux-gnu/qt6/QtWidgets -I/usr/include/x86_64-linux-gnu/qt6/QtMultimedia -I/usr/include/x86_64-linux-gnu/qt6/QtGui -I/usr/include/x86_64-linux-gnu/qt6/QtNetwork -I/usr/include/x86_64-linux-gnu/qt6/QtCore -I/usr/include/c++/15 -I/usr/include/x86_64-linux-gnu/c++/15 -I/usr/include/c++/15/backward -I/usr/lib/gcc/x86_64-linux-gnu/15/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include SenderWindow.h -o build/moc/moc_SenderWindow.cpp
+	/usr/lib/qt6/libexec/moc $(DEFINES) --include /home/rickard/Documents/GitHub/depthofdejenol/build/moc/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt6/mkspecs/linux-g++ -I/home/rickard/Documents/GitHub/depthofdejenol -I/home/rickard/Documents/GitHub/depthofdejenol/_PRO_FILE_PWD_/include -I/usr/include/x86_64-linux-gnu/qt6 -I/usr/include/x86_64-linux-gnu/qt6/QtWidgets -I/usr/include/x86_64-linux-gnu/qt6/QtMultimedia -I/usr/include/x86_64-linux-gnu/qt6/QtGui -I/usr/include/x86_64-linux-gnu/qt6/QtNetwork -I/usr/include/x86_64-linux-gnu/qt6/QtCore -I/usr/include/c++/15 -I/usr/include/x86_64-linux-gnu/c++/15 -I/usr/include/c++/15/backward -I/usr/lib/gcc/x86_64-linux-gnu/15/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include SenderWindow.h -o build/moc/moc_SenderWindow.cpp
 
 build/moc/moc_SpellbookEditorDialog.cpp: tools/spellbook_editor/SpellbookEditorDialog.h \
 		build/moc/moc_predefs.h \
 		/usr/lib/qt6/libexec/moc
-	/usr/lib/qt6/libexec/moc $(DEFINES) --include /home/rickard/Documents/GitHub/depthofdejenol/build/moc/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt6/mkspecs/linux-g++ -I/home/rickard/Documents/GitHub/depthofdejenol -I/home/rickard/Documents/GitHub/depthofdejenol/include -I/usr/include/x86_64-linux-gnu/qt6 -I/usr/include/x86_64-linux-gnu/qt6/QtWidgets -I/usr/include/x86_64-linux-gnu/qt6/QtMultimedia -I/usr/include/x86_64-linux-gnu/qt6/QtGui -I/usr/include/x86_64-linux-gnu/qt6/QtNetwork -I/usr/include/x86_64-linux-gnu/qt6/QtCore -I/usr/include/c++/15 -I/usr/include/x86_64-linux-gnu/c++/15 -I/usr/include/c++/15/backward -I/usr/lib/gcc/x86_64-linux-gnu/15/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include tools/spellbook_editor/SpellbookEditorDialog.h -o build/moc/moc_SpellbookEditorDialog.cpp
+	/usr/lib/qt6/libexec/moc $(DEFINES) --include /home/rickard/Documents/GitHub/depthofdejenol/build/moc/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt6/mkspecs/linux-g++ -I/home/rickard/Documents/GitHub/depthofdejenol -I/home/rickard/Documents/GitHub/depthofdejenol/_PRO_FILE_PWD_/include -I/usr/include/x86_64-linux-gnu/qt6 -I/usr/include/x86_64-linux-gnu/qt6/QtWidgets -I/usr/include/x86_64-linux-gnu/qt6/QtMultimedia -I/usr/include/x86_64-linux-gnu/qt6/QtGui -I/usr/include/x86_64-linux-gnu/qt6/QtNetwork -I/usr/include/x86_64-linux-gnu/qt6/QtCore -I/usr/include/c++/15 -I/usr/include/x86_64-linux-gnu/c++/15 -I/usr/include/c++/15/backward -I/usr/lib/gcc/x86_64-linux-gnu/15/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include tools/spellbook_editor/SpellbookEditorDialog.h -o build/moc/moc_SpellbookEditorDialog.cpp
 
 build/moc/moc_library_dialog.cpp: src/library_dialog/library_dialog.h \
 		build/moc/moc_predefs.h \
 		/usr/lib/qt6/libexec/moc
-	/usr/lib/qt6/libexec/moc $(DEFINES) --include /home/rickard/Documents/GitHub/depthofdejenol/build/moc/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt6/mkspecs/linux-g++ -I/home/rickard/Documents/GitHub/depthofdejenol -I/home/rickard/Documents/GitHub/depthofdejenol/include -I/usr/include/x86_64-linux-gnu/qt6 -I/usr/include/x86_64-linux-gnu/qt6/QtWidgets -I/usr/include/x86_64-linux-gnu/qt6/QtMultimedia -I/usr/include/x86_64-linux-gnu/qt6/QtGui -I/usr/include/x86_64-linux-gnu/qt6/QtNetwork -I/usr/include/x86_64-linux-gnu/qt6/QtCore -I/usr/include/c++/15 -I/usr/include/x86_64-linux-gnu/c++/15 -I/usr/include/c++/15/backward -I/usr/lib/gcc/x86_64-linux-gnu/15/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include src/library_dialog/library_dialog.h -o build/moc/moc_library_dialog.cpp
+	/usr/lib/qt6/libexec/moc $(DEFINES) --include /home/rickard/Documents/GitHub/depthofdejenol/build/moc/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt6/mkspecs/linux-g++ -I/home/rickard/Documents/GitHub/depthofdejenol -I/home/rickard/Documents/GitHub/depthofdejenol/_PRO_FILE_PWD_/include -I/usr/include/x86_64-linux-gnu/qt6 -I/usr/include/x86_64-linux-gnu/qt6/QtWidgets -I/usr/include/x86_64-linux-gnu/qt6/QtMultimedia -I/usr/include/x86_64-linux-gnu/qt6/QtGui -I/usr/include/x86_64-linux-gnu/qt6/QtNetwork -I/usr/include/x86_64-linux-gnu/qt6/QtCore -I/usr/include/c++/15 -I/usr/include/x86_64-linux-gnu/c++/15 -I/usr/include/c++/15/backward -I/usr/lib/gcc/x86_64-linux-gnu/15/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include src/library_dialog/library_dialog.h -o build/moc/moc_library_dialog.cpp
 
 build/moc/moc_automap_dialog.cpp: src/automap/automap_dialog.h \
 		build/moc/moc_predefs.h \
 		/usr/lib/qt6/libexec/moc
-	/usr/lib/qt6/libexec/moc $(DEFINES) --include /home/rickard/Documents/GitHub/depthofdejenol/build/moc/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt6/mkspecs/linux-g++ -I/home/rickard/Documents/GitHub/depthofdejenol -I/home/rickard/Documents/GitHub/depthofdejenol/include -I/usr/include/x86_64-linux-gnu/qt6 -I/usr/include/x86_64-linux-gnu/qt6/QtWidgets -I/usr/include/x86_64-linux-gnu/qt6/QtMultimedia -I/usr/include/x86_64-linux-gnu/qt6/QtGui -I/usr/include/x86_64-linux-gnu/qt6/QtNetwork -I/usr/include/x86_64-linux-gnu/qt6/QtCore -I/usr/include/c++/15 -I/usr/include/x86_64-linux-gnu/c++/15 -I/usr/include/c++/15/backward -I/usr/lib/gcc/x86_64-linux-gnu/15/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include src/automap/automap_dialog.h -o build/moc/moc_automap_dialog.cpp
+	/usr/lib/qt6/libexec/moc $(DEFINES) --include /home/rickard/Documents/GitHub/depthofdejenol/build/moc/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt6/mkspecs/linux-g++ -I/home/rickard/Documents/GitHub/depthofdejenol -I/home/rickard/Documents/GitHub/depthofdejenol/_PRO_FILE_PWD_/include -I/usr/include/x86_64-linux-gnu/qt6 -I/usr/include/x86_64-linux-gnu/qt6/QtWidgets -I/usr/include/x86_64-linux-gnu/qt6/QtMultimedia -I/usr/include/x86_64-linux-gnu/qt6/QtGui -I/usr/include/x86_64-linux-gnu/qt6/QtNetwork -I/usr/include/x86_64-linux-gnu/qt6/QtCore -I/usr/include/c++/15 -I/usr/include/x86_64-linux-gnu/c++/15 -I/usr/include/c++/15/backward -I/usr/lib/gcc/x86_64-linux-gnu/15/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include src/automap/automap_dialog.h -o build/moc/moc_automap_dialog.cpp
 
 build/moc/moc_game_controller.cpp: game_controller.h \
 		build/moc/moc_predefs.h \
 		/usr/lib/qt6/libexec/moc
-	/usr/lib/qt6/libexec/moc $(DEFINES) --include /home/rickard/Documents/GitHub/depthofdejenol/build/moc/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt6/mkspecs/linux-g++ -I/home/rickard/Documents/GitHub/depthofdejenol -I/home/rickard/Documents/GitHub/depthofdejenol/include -I/usr/include/x86_64-linux-gnu/qt6 -I/usr/include/x86_64-linux-gnu/qt6/QtWidgets -I/usr/include/x86_64-linux-gnu/qt6/QtMultimedia -I/usr/include/x86_64-linux-gnu/qt6/QtGui -I/usr/include/x86_64-linux-gnu/qt6/QtNetwork -I/usr/include/x86_64-linux-gnu/qt6/QtCore -I/usr/include/c++/15 -I/usr/include/x86_64-linux-gnu/c++/15 -I/usr/include/c++/15/backward -I/usr/lib/gcc/x86_64-linux-gnu/15/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include game_controller.h -o build/moc/moc_game_controller.cpp
+	/usr/lib/qt6/libexec/moc $(DEFINES) --include /home/rickard/Documents/GitHub/depthofdejenol/build/moc/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt6/mkspecs/linux-g++ -I/home/rickard/Documents/GitHub/depthofdejenol -I/home/rickard/Documents/GitHub/depthofdejenol/_PRO_FILE_PWD_/include -I/usr/include/x86_64-linux-gnu/qt6 -I/usr/include/x86_64-linux-gnu/qt6/QtWidgets -I/usr/include/x86_64-linux-gnu/qt6/QtMultimedia -I/usr/include/x86_64-linux-gnu/qt6/QtGui -I/usr/include/x86_64-linux-gnu/qt6/QtNetwork -I/usr/include/x86_64-linux-gnu/qt6/QtCore -I/usr/include/c++/15 -I/usr/include/x86_64-linux-gnu/c++/15 -I/usr/include/c++/15/backward -I/usr/lib/gcc/x86_64-linux-gnu/15/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include game_controller.h -o build/moc/moc_game_controller.cpp
 
 build/moc/moc_characterlistdialog.cpp: src/characterlist_dialog/characterlistdialog.h \
 		build/moc/moc_predefs.h \
 		/usr/lib/qt6/libexec/moc
-	/usr/lib/qt6/libexec/moc $(DEFINES) --include /home/rickard/Documents/GitHub/depthofdejenol/build/moc/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt6/mkspecs/linux-g++ -I/home/rickard/Documents/GitHub/depthofdejenol -I/home/rickard/Documents/GitHub/depthofdejenol/include -I/usr/include/x86_64-linux-gnu/qt6 -I/usr/include/x86_64-linux-gnu/qt6/QtWidgets -I/usr/include/x86_64-linux-gnu/qt6/QtMultimedia -I/usr/include/x86_64-linux-gnu/qt6/QtGui -I/usr/include/x86_64-linux-gnu/qt6/QtNetwork -I/usr/include/x86_64-linux-gnu/qt6/QtCore -I/usr/include/c++/15 -I/usr/include/x86_64-linux-gnu/c++/15 -I/usr/include/c++/15/backward -I/usr/lib/gcc/x86_64-linux-gnu/15/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include src/characterlist_dialog/characterlistdialog.h -o build/moc/moc_characterlistdialog.cpp
+	/usr/lib/qt6/libexec/moc $(DEFINES) --include /home/rickard/Documents/GitHub/depthofdejenol/build/moc/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt6/mkspecs/linux-g++ -I/home/rickard/Documents/GitHub/depthofdejenol -I/home/rickard/Documents/GitHub/depthofdejenol/_PRO_FILE_PWD_/include -I/usr/include/x86_64-linux-gnu/qt6 -I/usr/include/x86_64-linux-gnu/qt6/QtWidgets -I/usr/include/x86_64-linux-gnu/qt6/QtMultimedia -I/usr/include/x86_64-linux-gnu/qt6/QtGui -I/usr/include/x86_64-linux-gnu/qt6/QtNetwork -I/usr/include/x86_64-linux-gnu/qt6/QtCore -I/usr/include/c++/15 -I/usr/include/x86_64-linux-gnu/c++/15 -I/usr/include/c++/15/backward -I/usr/lib/gcc/x86_64-linux-gnu/15/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include src/characterlist_dialog/characterlistdialog.h -o build/moc/moc_characterlistdialog.cpp
 
 build/moc/moc_helplesson.cpp: src/helplesson/helplesson.h \
 		build/moc/moc_predefs.h \
 		/usr/lib/qt6/libexec/moc
-	/usr/lib/qt6/libexec/moc $(DEFINES) --include /home/rickard/Documents/GitHub/depthofdejenol/build/moc/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt6/mkspecs/linux-g++ -I/home/rickard/Documents/GitHub/depthofdejenol -I/home/rickard/Documents/GitHub/depthofdejenol/include -I/usr/include/x86_64-linux-gnu/qt6 -I/usr/include/x86_64-linux-gnu/qt6/QtWidgets -I/usr/include/x86_64-linux-gnu/qt6/QtMultimedia -I/usr/include/x86_64-linux-gnu/qt6/QtGui -I/usr/include/x86_64-linux-gnu/qt6/QtNetwork -I/usr/include/x86_64-linux-gnu/qt6/QtCore -I/usr/include/c++/15 -I/usr/include/x86_64-linux-gnu/c++/15 -I/usr/include/c++/15/backward -I/usr/lib/gcc/x86_64-linux-gnu/15/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include src/helplesson/helplesson.h -o build/moc/moc_helplesson.cpp
+	/usr/lib/qt6/libexec/moc $(DEFINES) --include /home/rickard/Documents/GitHub/depthofdejenol/build/moc/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt6/mkspecs/linux-g++ -I/home/rickard/Documents/GitHub/depthofdejenol -I/home/rickard/Documents/GitHub/depthofdejenol/_PRO_FILE_PWD_/include -I/usr/include/x86_64-linux-gnu/qt6 -I/usr/include/x86_64-linux-gnu/qt6/QtWidgets -I/usr/include/x86_64-linux-gnu/qt6/QtMultimedia -I/usr/include/x86_64-linux-gnu/qt6/QtGui -I/usr/include/x86_64-linux-gnu/qt6/QtNetwork -I/usr/include/x86_64-linux-gnu/qt6/QtCore -I/usr/include/c++/15 -I/usr/include/x86_64-linux-gnu/c++/15 -I/usr/include/c++/15/backward -I/usr/lib/gcc/x86_64-linux-gnu/15/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include src/helplesson/helplesson.h -o build/moc/moc_helplesson.cpp
 
 build/moc/moc_mordorstatistics.cpp: mordorstatistics.h \
 		build/moc/moc_predefs.h \
 		/usr/lib/qt6/libexec/moc
-	/usr/lib/qt6/libexec/moc $(DEFINES) --include /home/rickard/Documents/GitHub/depthofdejenol/build/moc/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt6/mkspecs/linux-g++ -I/home/rickard/Documents/GitHub/depthofdejenol -I/home/rickard/Documents/GitHub/depthofdejenol/include -I/usr/include/x86_64-linux-gnu/qt6 -I/usr/include/x86_64-linux-gnu/qt6/QtWidgets -I/usr/include/x86_64-linux-gnu/qt6/QtMultimedia -I/usr/include/x86_64-linux-gnu/qt6/QtGui -I/usr/include/x86_64-linux-gnu/qt6/QtNetwork -I/usr/include/x86_64-linux-gnu/qt6/QtCore -I/usr/include/c++/15 -I/usr/include/x86_64-linux-gnu/c++/15 -I/usr/include/c++/15/backward -I/usr/lib/gcc/x86_64-linux-gnu/15/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include mordorstatistics.h -o build/moc/moc_mordorstatistics.cpp
+	/usr/lib/qt6/libexec/moc $(DEFINES) --include /home/rickard/Documents/GitHub/depthofdejenol/build/moc/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt6/mkspecs/linux-g++ -I/home/rickard/Documents/GitHub/depthofdejenol -I/home/rickard/Documents/GitHub/depthofdejenol/_PRO_FILE_PWD_/include -I/usr/include/x86_64-linux-gnu/qt6 -I/usr/include/x86_64-linux-gnu/qt6/QtWidgets -I/usr/include/x86_64-linux-gnu/qt6/QtMultimedia -I/usr/include/x86_64-linux-gnu/qt6/QtGui -I/usr/include/x86_64-linux-gnu/qt6/QtNetwork -I/usr/include/x86_64-linux-gnu/qt6/QtCore -I/usr/include/c++/15 -I/usr/include/x86_64-linux-gnu/c++/15 -I/usr/include/c++/15/backward -I/usr/lib/gcc/x86_64-linux-gnu/15/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include mordorstatistics.h -o build/moc/moc_mordorstatistics.cpp
 
 build/moc/moc_LoadingScreen.cpp: src/loadingscreen/LoadingScreen.h \
 		build/moc/moc_predefs.h \
 		/usr/lib/qt6/libexec/moc
-	/usr/lib/qt6/libexec/moc $(DEFINES) --include /home/rickard/Documents/GitHub/depthofdejenol/build/moc/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt6/mkspecs/linux-g++ -I/home/rickard/Documents/GitHub/depthofdejenol -I/home/rickard/Documents/GitHub/depthofdejenol/include -I/usr/include/x86_64-linux-gnu/qt6 -I/usr/include/x86_64-linux-gnu/qt6/QtWidgets -I/usr/include/x86_64-linux-gnu/qt6/QtMultimedia -I/usr/include/x86_64-linux-gnu/qt6/QtGui -I/usr/include/x86_64-linux-gnu/qt6/QtNetwork -I/usr/include/x86_64-linux-gnu/qt6/QtCore -I/usr/include/c++/15 -I/usr/include/x86_64-linux-gnu/c++/15 -I/usr/include/c++/15/backward -I/usr/lib/gcc/x86_64-linux-gnu/15/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include src/loadingscreen/LoadingScreen.h -o build/moc/moc_LoadingScreen.cpp
+	/usr/lib/qt6/libexec/moc $(DEFINES) --include /home/rickard/Documents/GitHub/depthofdejenol/build/moc/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt6/mkspecs/linux-g++ -I/home/rickard/Documents/GitHub/depthofdejenol -I/home/rickard/Documents/GitHub/depthofdejenol/_PRO_FILE_PWD_/include -I/usr/include/x86_64-linux-gnu/qt6 -I/usr/include/x86_64-linux-gnu/qt6/QtWidgets -I/usr/include/x86_64-linux-gnu/qt6/QtMultimedia -I/usr/include/x86_64-linux-gnu/qt6/QtGui -I/usr/include/x86_64-linux-gnu/qt6/QtNetwork -I/usr/include/x86_64-linux-gnu/qt6/QtCore -I/usr/include/c++/15 -I/usr/include/x86_64-linux-gnu/c++/15 -I/usr/include/c++/15/backward -I/usr/lib/gcc/x86_64-linux-gnu/15/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include src/loadingscreen/LoadingScreen.h -o build/moc/moc_LoadingScreen.cpp
 
 build/moc/moc_GuildsDialog.cpp: src/guilds_dialog/GuildsDialog.h \
 		build/moc/moc_predefs.h \
 		/usr/lib/qt6/libexec/moc
-	/usr/lib/qt6/libexec/moc $(DEFINES) --include /home/rickard/Documents/GitHub/depthofdejenol/build/moc/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt6/mkspecs/linux-g++ -I/home/rickard/Documents/GitHub/depthofdejenol -I/home/rickard/Documents/GitHub/depthofdejenol/include -I/usr/include/x86_64-linux-gnu/qt6 -I/usr/include/x86_64-linux-gnu/qt6/QtWidgets -I/usr/include/x86_64-linux-gnu/qt6/QtMultimedia -I/usr/include/x86_64-linux-gnu/qt6/QtGui -I/usr/include/x86_64-linux-gnu/qt6/QtNetwork -I/usr/include/x86_64-linux-gnu/qt6/QtCore -I/usr/include/c++/15 -I/usr/include/x86_64-linux-gnu/c++/15 -I/usr/include/c++/15/backward -I/usr/lib/gcc/x86_64-linux-gnu/15/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include src/guilds_dialog/GuildsDialog.h -o build/moc/moc_GuildsDialog.cpp
+	/usr/lib/qt6/libexec/moc $(DEFINES) --include /home/rickard/Documents/GitHub/depthofdejenol/build/moc/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt6/mkspecs/linux-g++ -I/home/rickard/Documents/GitHub/depthofdejenol -I/home/rickard/Documents/GitHub/depthofdejenol/_PRO_FILE_PWD_/include -I/usr/include/x86_64-linux-gnu/qt6 -I/usr/include/x86_64-linux-gnu/qt6/QtWidgets -I/usr/include/x86_64-linux-gnu/qt6/QtMultimedia -I/usr/include/x86_64-linux-gnu/qt6/QtGui -I/usr/include/x86_64-linux-gnu/qt6/QtNetwork -I/usr/include/x86_64-linux-gnu/qt6/QtCore -I/usr/include/c++/15 -I/usr/include/x86_64-linux-gnu/c++/15 -I/usr/include/c++/15/backward -I/usr/lib/gcc/x86_64-linux-gnu/15/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include src/guilds_dialog/GuildsDialog.h -o build/moc/moc_GuildsDialog.cpp
 
 build/moc/moc_GeneralStore.cpp: src/general_store/GeneralStore.h \
 		build/moc/moc_predefs.h \
 		/usr/lib/qt6/libexec/moc
-	/usr/lib/qt6/libexec/moc $(DEFINES) --include /home/rickard/Documents/GitHub/depthofdejenol/build/moc/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt6/mkspecs/linux-g++ -I/home/rickard/Documents/GitHub/depthofdejenol -I/home/rickard/Documents/GitHub/depthofdejenol/include -I/usr/include/x86_64-linux-gnu/qt6 -I/usr/include/x86_64-linux-gnu/qt6/QtWidgets -I/usr/include/x86_64-linux-gnu/qt6/QtMultimedia -I/usr/include/x86_64-linux-gnu/qt6/QtGui -I/usr/include/x86_64-linux-gnu/qt6/QtNetwork -I/usr/include/x86_64-linux-gnu/qt6/QtCore -I/usr/include/c++/15 -I/usr/include/x86_64-linux-gnu/c++/15 -I/usr/include/c++/15/backward -I/usr/lib/gcc/x86_64-linux-gnu/15/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include src/general_store/GeneralStore.h -o build/moc/moc_GeneralStore.cpp
+	/usr/lib/qt6/libexec/moc $(DEFINES) --include /home/rickard/Documents/GitHub/depthofdejenol/build/moc/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt6/mkspecs/linux-g++ -I/home/rickard/Documents/GitHub/depthofdejenol -I/home/rickard/Documents/GitHub/depthofdejenol/_PRO_FILE_PWD_/include -I/usr/include/x86_64-linux-gnu/qt6 -I/usr/include/x86_64-linux-gnu/qt6/QtWidgets -I/usr/include/x86_64-linux-gnu/qt6/QtMultimedia -I/usr/include/x86_64-linux-gnu/qt6/QtGui -I/usr/include/x86_64-linux-gnu/qt6/QtNetwork -I/usr/include/x86_64-linux-gnu/qt6/QtCore -I/usr/include/c++/15 -I/usr/include/x86_64-linux-gnu/c++/15 -I/usr/include/c++/15/backward -I/usr/lib/gcc/x86_64-linux-gnu/15/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include src/general_store/GeneralStore.h -o build/moc/moc_GeneralStore.cpp
 
 build/moc/moc_TheCity.cpp: TheCity.h \
 		build/moc/moc_predefs.h \
 		/usr/lib/qt6/libexec/moc
-	/usr/lib/qt6/libexec/moc $(DEFINES) --include /home/rickard/Documents/GitHub/depthofdejenol/build/moc/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt6/mkspecs/linux-g++ -I/home/rickard/Documents/GitHub/depthofdejenol -I/home/rickard/Documents/GitHub/depthofdejenol/include -I/usr/include/x86_64-linux-gnu/qt6 -I/usr/include/x86_64-linux-gnu/qt6/QtWidgets -I/usr/include/x86_64-linux-gnu/qt6/QtMultimedia -I/usr/include/x86_64-linux-gnu/qt6/QtGui -I/usr/include/x86_64-linux-gnu/qt6/QtNetwork -I/usr/include/x86_64-linux-gnu/qt6/QtCore -I/usr/include/c++/15 -I/usr/include/x86_64-linux-gnu/c++/15 -I/usr/include/c++/15/backward -I/usr/lib/gcc/x86_64-linux-gnu/15/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include TheCity.h -o build/moc/moc_TheCity.cpp
+	/usr/lib/qt6/libexec/moc $(DEFINES) --include /home/rickard/Documents/GitHub/depthofdejenol/build/moc/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt6/mkspecs/linux-g++ -I/home/rickard/Documents/GitHub/depthofdejenol -I/home/rickard/Documents/GitHub/depthofdejenol/_PRO_FILE_PWD_/include -I/usr/include/x86_64-linux-gnu/qt6 -I/usr/include/x86_64-linux-gnu/qt6/QtWidgets -I/usr/include/x86_64-linux-gnu/qt6/QtMultimedia -I/usr/include/x86_64-linux-gnu/qt6/QtGui -I/usr/include/x86_64-linux-gnu/qt6/QtNetwork -I/usr/include/x86_64-linux-gnu/qt6/QtCore -I/usr/include/c++/15 -I/usr/include/x86_64-linux-gnu/c++/15 -I/usr/include/c++/15/backward -I/usr/lib/gcc/x86_64-linux-gnu/15/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include TheCity.h -o build/moc/moc_TheCity.cpp
 
 build/moc/moc_MorgueDialog.cpp: src/morgue_dialog/MorgueDialog.h \
 		build/moc/moc_predefs.h \
 		/usr/lib/qt6/libexec/moc
-	/usr/lib/qt6/libexec/moc $(DEFINES) --include /home/rickard/Documents/GitHub/depthofdejenol/build/moc/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt6/mkspecs/linux-g++ -I/home/rickard/Documents/GitHub/depthofdejenol -I/home/rickard/Documents/GitHub/depthofdejenol/include -I/usr/include/x86_64-linux-gnu/qt6 -I/usr/include/x86_64-linux-gnu/qt6/QtWidgets -I/usr/include/x86_64-linux-gnu/qt6/QtMultimedia -I/usr/include/x86_64-linux-gnu/qt6/QtGui -I/usr/include/x86_64-linux-gnu/qt6/QtNetwork -I/usr/include/x86_64-linux-gnu/qt6/QtCore -I/usr/include/c++/15 -I/usr/include/x86_64-linux-gnu/c++/15 -I/usr/include/c++/15/backward -I/usr/lib/gcc/x86_64-linux-gnu/15/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include src/morgue_dialog/MorgueDialog.h -o build/moc/moc_MorgueDialog.cpp
+	/usr/lib/qt6/libexec/moc $(DEFINES) --include /home/rickard/Documents/GitHub/depthofdejenol/build/moc/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt6/mkspecs/linux-g++ -I/home/rickard/Documents/GitHub/depthofdejenol -I/home/rickard/Documents/GitHub/depthofdejenol/_PRO_FILE_PWD_/include -I/usr/include/x86_64-linux-gnu/qt6 -I/usr/include/x86_64-linux-gnu/qt6/QtWidgets -I/usr/include/x86_64-linux-gnu/qt6/QtMultimedia -I/usr/include/x86_64-linux-gnu/qt6/QtGui -I/usr/include/x86_64-linux-gnu/qt6/QtNetwork -I/usr/include/x86_64-linux-gnu/qt6/QtCore -I/usr/include/c++/15 -I/usr/include/x86_64-linux-gnu/c++/15 -I/usr/include/c++/15/backward -I/usr/lib/gcc/x86_64-linux-gnu/15/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include src/morgue_dialog/MorgueDialog.h -o build/moc/moc_MorgueDialog.cpp
 
 build/moc/moc_SeerDialog.cpp: src/seer_dialog/SeerDialog.h \
 		build/moc/moc_predefs.h \
 		/usr/lib/qt6/libexec/moc
-	/usr/lib/qt6/libexec/moc $(DEFINES) --include /home/rickard/Documents/GitHub/depthofdejenol/build/moc/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt6/mkspecs/linux-g++ -I/home/rickard/Documents/GitHub/depthofdejenol -I/home/rickard/Documents/GitHub/depthofdejenol/include -I/usr/include/x86_64-linux-gnu/qt6 -I/usr/include/x86_64-linux-gnu/qt6/QtWidgets -I/usr/include/x86_64-linux-gnu/qt6/QtMultimedia -I/usr/include/x86_64-linux-gnu/qt6/QtGui -I/usr/include/x86_64-linux-gnu/qt6/QtNetwork -I/usr/include/x86_64-linux-gnu/qt6/QtCore -I/usr/include/c++/15 -I/usr/include/x86_64-linux-gnu/c++/15 -I/usr/include/c++/15/backward -I/usr/lib/gcc/x86_64-linux-gnu/15/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include src/seer_dialog/SeerDialog.h -o build/moc/moc_SeerDialog.cpp
+	/usr/lib/qt6/libexec/moc $(DEFINES) --include /home/rickard/Documents/GitHub/depthofdejenol/build/moc/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt6/mkspecs/linux-g++ -I/home/rickard/Documents/GitHub/depthofdejenol -I/home/rickard/Documents/GitHub/depthofdejenol/_PRO_FILE_PWD_/include -I/usr/include/x86_64-linux-gnu/qt6 -I/usr/include/x86_64-linux-gnu/qt6/QtWidgets -I/usr/include/x86_64-linux-gnu/qt6/QtMultimedia -I/usr/include/x86_64-linux-gnu/qt6/QtGui -I/usr/include/x86_64-linux-gnu/qt6/QtNetwork -I/usr/include/x86_64-linux-gnu/qt6/QtCore -I/usr/include/c++/15 -I/usr/include/x86_64-linux-gnu/c++/15 -I/usr/include/c++/15/backward -I/usr/lib/gcc/x86_64-linux-gnu/15/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include src/seer_dialog/SeerDialog.h -o build/moc/moc_SeerDialog.cpp
 
 build/moc/moc_ConfinementDialog.cpp: src/confinement_dialog/ConfinementDialog.h \
 		build/moc/moc_predefs.h \
 		/usr/lib/qt6/libexec/moc
-	/usr/lib/qt6/libexec/moc $(DEFINES) --include /home/rickard/Documents/GitHub/depthofdejenol/build/moc/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt6/mkspecs/linux-g++ -I/home/rickard/Documents/GitHub/depthofdejenol -I/home/rickard/Documents/GitHub/depthofdejenol/include -I/usr/include/x86_64-linux-gnu/qt6 -I/usr/include/x86_64-linux-gnu/qt6/QtWidgets -I/usr/include/x86_64-linux-gnu/qt6/QtMultimedia -I/usr/include/x86_64-linux-gnu/qt6/QtGui -I/usr/include/x86_64-linux-gnu/qt6/QtNetwork -I/usr/include/x86_64-linux-gnu/qt6/QtCore -I/usr/include/c++/15 -I/usr/include/x86_64-linux-gnu/c++/15 -I/usr/include/c++/15/backward -I/usr/lib/gcc/x86_64-linux-gnu/15/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include src/confinement_dialog/ConfinementDialog.h -o build/moc/moc_ConfinementDialog.cpp
+	/usr/lib/qt6/libexec/moc $(DEFINES) --include /home/rickard/Documents/GitHub/depthofdejenol/build/moc/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt6/mkspecs/linux-g++ -I/home/rickard/Documents/GitHub/depthofdejenol -I/home/rickard/Documents/GitHub/depthofdejenol/_PRO_FILE_PWD_/include -I/usr/include/x86_64-linux-gnu/qt6 -I/usr/include/x86_64-linux-gnu/qt6/QtWidgets -I/usr/include/x86_64-linux-gnu/qt6/QtMultimedia -I/usr/include/x86_64-linux-gnu/qt6/QtGui -I/usr/include/x86_64-linux-gnu/qt6/QtNetwork -I/usr/include/x86_64-linux-gnu/qt6/QtCore -I/usr/include/c++/15 -I/usr/include/x86_64-linux-gnu/c++/15 -I/usr/include/c++/15/backward -I/usr/lib/gcc/x86_64-linux-gnu/15/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include src/confinement_dialog/ConfinementDialog.h -o build/moc/moc_ConfinementDialog.cpp
 
 build/moc/moc_BankDialog.cpp: src/bank_dialog/BankDialog.h \
 		build/moc/moc_predefs.h \
 		/usr/lib/qt6/libexec/moc
-	/usr/lib/qt6/libexec/moc $(DEFINES) --include /home/rickard/Documents/GitHub/depthofdejenol/build/moc/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt6/mkspecs/linux-g++ -I/home/rickard/Documents/GitHub/depthofdejenol -I/home/rickard/Documents/GitHub/depthofdejenol/include -I/usr/include/x86_64-linux-gnu/qt6 -I/usr/include/x86_64-linux-gnu/qt6/QtWidgets -I/usr/include/x86_64-linux-gnu/qt6/QtMultimedia -I/usr/include/x86_64-linux-gnu/qt6/QtGui -I/usr/include/x86_64-linux-gnu/qt6/QtNetwork -I/usr/include/x86_64-linux-gnu/qt6/QtCore -I/usr/include/c++/15 -I/usr/include/x86_64-linux-gnu/c++/15 -I/usr/include/c++/15/backward -I/usr/lib/gcc/x86_64-linux-gnu/15/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include src/bank_dialog/BankDialog.h -o build/moc/moc_BankDialog.cpp
+	/usr/lib/qt6/libexec/moc $(DEFINES) --include /home/rickard/Documents/GitHub/depthofdejenol/build/moc/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt6/mkspecs/linux-g++ -I/home/rickard/Documents/GitHub/depthofdejenol -I/home/rickard/Documents/GitHub/depthofdejenol/_PRO_FILE_PWD_/include -I/usr/include/x86_64-linux-gnu/qt6 -I/usr/include/x86_64-linux-gnu/qt6/QtWidgets -I/usr/include/x86_64-linux-gnu/qt6/QtMultimedia -I/usr/include/x86_64-linux-gnu/qt6/QtGui -I/usr/include/x86_64-linux-gnu/qt6/QtNetwork -I/usr/include/x86_64-linux-gnu/qt6/QtCore -I/usr/include/c++/15 -I/usr/include/x86_64-linux-gnu/c++/15 -I/usr/include/c++/15/backward -I/usr/lib/gcc/x86_64-linux-gnu/15/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include src/bank_dialog/BankDialog.h -o build/moc/moc_BankDialog.cpp
 
 build/moc/moc_marlith_dialog.cpp: src/marlith_dialog/marlith_dialog.h \
 		build/moc/moc_predefs.h \
 		/usr/lib/qt6/libexec/moc
-	/usr/lib/qt6/libexec/moc $(DEFINES) --include /home/rickard/Documents/GitHub/depthofdejenol/build/moc/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt6/mkspecs/linux-g++ -I/home/rickard/Documents/GitHub/depthofdejenol -I/home/rickard/Documents/GitHub/depthofdejenol/include -I/usr/include/x86_64-linux-gnu/qt6 -I/usr/include/x86_64-linux-gnu/qt6/QtWidgets -I/usr/include/x86_64-linux-gnu/qt6/QtMultimedia -I/usr/include/x86_64-linux-gnu/qt6/QtGui -I/usr/include/x86_64-linux-gnu/qt6/QtNetwork -I/usr/include/x86_64-linux-gnu/qt6/QtCore -I/usr/include/c++/15 -I/usr/include/x86_64-linux-gnu/c++/15 -I/usr/include/c++/15/backward -I/usr/lib/gcc/x86_64-linux-gnu/15/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include src/marlith_dialog/marlith_dialog.h -o build/moc/moc_marlith_dialog.cpp
+	/usr/lib/qt6/libexec/moc $(DEFINES) --include /home/rickard/Documents/GitHub/depthofdejenol/build/moc/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt6/mkspecs/linux-g++ -I/home/rickard/Documents/GitHub/depthofdejenol -I/home/rickard/Documents/GitHub/depthofdejenol/_PRO_FILE_PWD_/include -I/usr/include/x86_64-linux-gnu/qt6 -I/usr/include/x86_64-linux-gnu/qt6/QtWidgets -I/usr/include/x86_64-linux-gnu/qt6/QtMultimedia -I/usr/include/x86_64-linux-gnu/qt6/QtGui -I/usr/include/x86_64-linux-gnu/qt6/QtNetwork -I/usr/include/x86_64-linux-gnu/qt6/QtCore -I/usr/include/c++/15 -I/usr/include/x86_64-linux-gnu/c++/15 -I/usr/include/c++/15/backward -I/usr/lib/gcc/x86_64-linux-gnu/15/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include src/marlith_dialog/marlith_dialog.h -o build/moc/moc_marlith_dialog.cpp
 
 build/moc/moc_inventorydialog.cpp: src/inventory_dialog/inventorydialog.h \
 		build/moc/moc_predefs.h \
 		/usr/lib/qt6/libexec/moc
-	/usr/lib/qt6/libexec/moc $(DEFINES) --include /home/rickard/Documents/GitHub/depthofdejenol/build/moc/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt6/mkspecs/linux-g++ -I/home/rickard/Documents/GitHub/depthofdejenol -I/home/rickard/Documents/GitHub/depthofdejenol/include -I/usr/include/x86_64-linux-gnu/qt6 -I/usr/include/x86_64-linux-gnu/qt6/QtWidgets -I/usr/include/x86_64-linux-gnu/qt6/QtMultimedia -I/usr/include/x86_64-linux-gnu/qt6/QtGui -I/usr/include/x86_64-linux-gnu/qt6/QtNetwork -I/usr/include/x86_64-linux-gnu/qt6/QtCore -I/usr/include/c++/15 -I/usr/include/x86_64-linux-gnu/c++/15 -I/usr/include/c++/15/backward -I/usr/lib/gcc/x86_64-linux-gnu/15/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include src/inventory_dialog/inventorydialog.h -o build/moc/moc_inventorydialog.cpp
+	/usr/lib/qt6/libexec/moc $(DEFINES) --include /home/rickard/Documents/GitHub/depthofdejenol/build/moc/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt6/mkspecs/linux-g++ -I/home/rickard/Documents/GitHub/depthofdejenol -I/home/rickard/Documents/GitHub/depthofdejenol/_PRO_FILE_PWD_/include -I/usr/include/x86_64-linux-gnu/qt6 -I/usr/include/x86_64-linux-gnu/qt6/QtWidgets -I/usr/include/x86_64-linux-gnu/qt6/QtMultimedia -I/usr/include/x86_64-linux-gnu/qt6/QtGui -I/usr/include/x86_64-linux-gnu/qt6/QtNetwork -I/usr/include/x86_64-linux-gnu/qt6/QtCore -I/usr/include/c++/15 -I/usr/include/x86_64-linux-gnu/c++/15 -I/usr/include/c++/15/backward -I/usr/lib/gcc/x86_64-linux-gnu/15/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include src/inventory_dialog/inventorydialog.h -o build/moc/moc_inventorydialog.cpp
 
 build/moc/moc_optionsdialog.cpp: src/options_dialog/optionsdialog.h \
 		build/moc/moc_predefs.h \
 		/usr/lib/qt6/libexec/moc
-	/usr/lib/qt6/libexec/moc $(DEFINES) --include /home/rickard/Documents/GitHub/depthofdejenol/build/moc/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt6/mkspecs/linux-g++ -I/home/rickard/Documents/GitHub/depthofdejenol -I/home/rickard/Documents/GitHub/depthofdejenol/include -I/usr/include/x86_64-linux-gnu/qt6 -I/usr/include/x86_64-linux-gnu/qt6/QtWidgets -I/usr/include/x86_64-linux-gnu/qt6/QtMultimedia -I/usr/include/x86_64-linux-gnu/qt6/QtGui -I/usr/include/x86_64-linux-gnu/qt6/QtNetwork -I/usr/include/x86_64-linux-gnu/qt6/QtCore -I/usr/include/c++/15 -I/usr/include/x86_64-linux-gnu/c++/15 -I/usr/include/c++/15/backward -I/usr/lib/gcc/x86_64-linux-gnu/15/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include src/options_dialog/optionsdialog.h -o build/moc/moc_optionsdialog.cpp
+	/usr/lib/qt6/libexec/moc $(DEFINES) --include /home/rickard/Documents/GitHub/depthofdejenol/build/moc/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt6/mkspecs/linux-g++ -I/home/rickard/Documents/GitHub/depthofdejenol -I/home/rickard/Documents/GitHub/depthofdejenol/_PRO_FILE_PWD_/include -I/usr/include/x86_64-linux-gnu/qt6 -I/usr/include/x86_64-linux-gnu/qt6/QtWidgets -I/usr/include/x86_64-linux-gnu/qt6/QtMultimedia -I/usr/include/x86_64-linux-gnu/qt6/QtGui -I/usr/include/x86_64-linux-gnu/qt6/QtNetwork -I/usr/include/x86_64-linux-gnu/qt6/QtCore -I/usr/include/c++/15 -I/usr/include/x86_64-linux-gnu/c++/15 -I/usr/include/c++/15/backward -I/usr/lib/gcc/x86_64-linux-gnu/15/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include src/options_dialog/optionsdialog.h -o build/moc/moc_optionsdialog.cpp
 
 build/moc/moc_DungeonDialog.cpp: src/dungeon_dialog/DungeonDialog.h \
 		build/moc/moc_predefs.h \
 		/usr/lib/qt6/libexec/moc
-	/usr/lib/qt6/libexec/moc $(DEFINES) --include /home/rickard/Documents/GitHub/depthofdejenol/build/moc/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt6/mkspecs/linux-g++ -I/home/rickard/Documents/GitHub/depthofdejenol -I/home/rickard/Documents/GitHub/depthofdejenol/include -I/usr/include/x86_64-linux-gnu/qt6 -I/usr/include/x86_64-linux-gnu/qt6/QtWidgets -I/usr/include/x86_64-linux-gnu/qt6/QtMultimedia -I/usr/include/x86_64-linux-gnu/qt6/QtGui -I/usr/include/x86_64-linux-gnu/qt6/QtNetwork -I/usr/include/x86_64-linux-gnu/qt6/QtCore -I/usr/include/c++/15 -I/usr/include/x86_64-linux-gnu/c++/15 -I/usr/include/c++/15/backward -I/usr/lib/gcc/x86_64-linux-gnu/15/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include src/dungeon_dialog/DungeonDialog.h -o build/moc/moc_DungeonDialog.cpp
+	/usr/lib/qt6/libexec/moc $(DEFINES) --include /home/rickard/Documents/GitHub/depthofdejenol/build/moc/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt6/mkspecs/linux-g++ -I/home/rickard/Documents/GitHub/depthofdejenol -I/home/rickard/Documents/GitHub/depthofdejenol/_PRO_FILE_PWD_/include -I/usr/include/x86_64-linux-gnu/qt6 -I/usr/include/x86_64-linux-gnu/qt6/QtWidgets -I/usr/include/x86_64-linux-gnu/qt6/QtMultimedia -I/usr/include/x86_64-linux-gnu/qt6/QtGui -I/usr/include/x86_64-linux-gnu/qt6/QtNetwork -I/usr/include/x86_64-linux-gnu/qt6/QtCore -I/usr/include/c++/15 -I/usr/include/x86_64-linux-gnu/c++/15 -I/usr/include/c++/15/backward -I/usr/lib/gcc/x86_64-linux-gnu/15/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include src/dungeon_dialog/DungeonDialog.h -o build/moc/moc_DungeonDialog.cpp
 
 build/moc/moc_partyinfodialog.cpp: src/partyinfo_dialog/partyinfodialog.h \
 		build/moc/moc_predefs.h \
 		/usr/lib/qt6/libexec/moc
-	/usr/lib/qt6/libexec/moc $(DEFINES) --include /home/rickard/Documents/GitHub/depthofdejenol/build/moc/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt6/mkspecs/linux-g++ -I/home/rickard/Documents/GitHub/depthofdejenol -I/home/rickard/Documents/GitHub/depthofdejenol/include -I/usr/include/x86_64-linux-gnu/qt6 -I/usr/include/x86_64-linux-gnu/qt6/QtWidgets -I/usr/include/x86_64-linux-gnu/qt6/QtMultimedia -I/usr/include/x86_64-linux-gnu/qt6/QtGui -I/usr/include/x86_64-linux-gnu/qt6/QtNetwork -I/usr/include/x86_64-linux-gnu/qt6/QtCore -I/usr/include/c++/15 -I/usr/include/x86_64-linux-gnu/c++/15 -I/usr/include/c++/15/backward -I/usr/lib/gcc/x86_64-linux-gnu/15/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include src/partyinfo_dialog/partyinfodialog.h -o build/moc/moc_partyinfodialog.cpp
+	/usr/lib/qt6/libexec/moc $(DEFINES) --include /home/rickard/Documents/GitHub/depthofdejenol/build/moc/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt6/mkspecs/linux-g++ -I/home/rickard/Documents/GitHub/depthofdejenol -I/home/rickard/Documents/GitHub/depthofdejenol/_PRO_FILE_PWD_/include -I/usr/include/x86_64-linux-gnu/qt6 -I/usr/include/x86_64-linux-gnu/qt6/QtWidgets -I/usr/include/x86_64-linux-gnu/qt6/QtMultimedia -I/usr/include/x86_64-linux-gnu/qt6/QtGui -I/usr/include/x86_64-linux-gnu/qt6/QtNetwork -I/usr/include/x86_64-linux-gnu/qt6/QtCore -I/usr/include/c++/15 -I/usr/include/x86_64-linux-gnu/c++/15 -I/usr/include/c++/15/backward -I/usr/lib/gcc/x86_64-linux-gnu/15/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include src/partyinfo_dialog/partyinfodialog.h -o build/moc/moc_partyinfodialog.cpp
 
 build/moc/moc_dungeonmap.cpp: src/dungeonmap/dungeonmap.h \
 		build/moc/moc_predefs.h \
 		/usr/lib/qt6/libexec/moc
-	/usr/lib/qt6/libexec/moc $(DEFINES) --include /home/rickard/Documents/GitHub/depthofdejenol/build/moc/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt6/mkspecs/linux-g++ -I/home/rickard/Documents/GitHub/depthofdejenol -I/home/rickard/Documents/GitHub/depthofdejenol/include -I/usr/include/x86_64-linux-gnu/qt6 -I/usr/include/x86_64-linux-gnu/qt6/QtWidgets -I/usr/include/x86_64-linux-gnu/qt6/QtMultimedia -I/usr/include/x86_64-linux-gnu/qt6/QtGui -I/usr/include/x86_64-linux-gnu/qt6/QtNetwork -I/usr/include/x86_64-linux-gnu/qt6/QtCore -I/usr/include/c++/15 -I/usr/include/x86_64-linux-gnu/c++/15 -I/usr/include/c++/15/backward -I/usr/lib/gcc/x86_64-linux-gnu/15/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include src/dungeonmap/dungeonmap.h -o build/moc/moc_dungeonmap.cpp
+	/usr/lib/qt6/libexec/moc $(DEFINES) --include /home/rickard/Documents/GitHub/depthofdejenol/build/moc/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt6/mkspecs/linux-g++ -I/home/rickard/Documents/GitHub/depthofdejenol -I/home/rickard/Documents/GitHub/depthofdejenol/_PRO_FILE_PWD_/include -I/usr/include/x86_64-linux-gnu/qt6 -I/usr/include/x86_64-linux-gnu/qt6/QtWidgets -I/usr/include/x86_64-linux-gnu/qt6/QtMultimedia -I/usr/include/x86_64-linux-gnu/qt6/QtGui -I/usr/include/x86_64-linux-gnu/qt6/QtNetwork -I/usr/include/x86_64-linux-gnu/qt6/QtCore -I/usr/include/c++/15 -I/usr/include/x86_64-linux-gnu/c++/15 -I/usr/include/c++/15/backward -I/usr/lib/gcc/x86_64-linux-gnu/15/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include src/dungeonmap/dungeonmap.h -o build/moc/moc_dungeonmap.cpp
 
 build/moc/moc_TradeDialog.cpp: src/bank_dialog/TradeDialog.h \
 		build/moc/moc_predefs.h \
 		/usr/lib/qt6/libexec/moc
-	/usr/lib/qt6/libexec/moc $(DEFINES) --include /home/rickard/Documents/GitHub/depthofdejenol/build/moc/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt6/mkspecs/linux-g++ -I/home/rickard/Documents/GitHub/depthofdejenol -I/home/rickard/Documents/GitHub/depthofdejenol/include -I/usr/include/x86_64-linux-gnu/qt6 -I/usr/include/x86_64-linux-gnu/qt6/QtWidgets -I/usr/include/x86_64-linux-gnu/qt6/QtMultimedia -I/usr/include/x86_64-linux-gnu/qt6/QtGui -I/usr/include/x86_64-linux-gnu/qt6/QtNetwork -I/usr/include/x86_64-linux-gnu/qt6/QtCore -I/usr/include/c++/15 -I/usr/include/x86_64-linux-gnu/c++/15 -I/usr/include/c++/15/backward -I/usr/lib/gcc/x86_64-linux-gnu/15/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include src/bank_dialog/TradeDialog.h -o build/moc/moc_TradeDialog.cpp
+	/usr/lib/qt6/libexec/moc $(DEFINES) --include /home/rickard/Documents/GitHub/depthofdejenol/build/moc/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt6/mkspecs/linux-g++ -I/home/rickard/Documents/GitHub/depthofdejenol -I/home/rickard/Documents/GitHub/depthofdejenol/_PRO_FILE_PWD_/include -I/usr/include/x86_64-linux-gnu/qt6 -I/usr/include/x86_64-linux-gnu/qt6/QtWidgets -I/usr/include/x86_64-linux-gnu/qt6/QtMultimedia -I/usr/include/x86_64-linux-gnu/qt6/QtGui -I/usr/include/x86_64-linux-gnu/qt6/QtNetwork -I/usr/include/x86_64-linux-gnu/qt6/QtCore -I/usr/include/c++/15 -I/usr/include/x86_64-linux-gnu/c++/15 -I/usr/include/c++/15/backward -I/usr/lib/gcc/x86_64-linux-gnu/15/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include src/bank_dialog/TradeDialog.h -o build/moc/moc_TradeDialog.cpp
 
 compiler_moc_objc_header_make_all:
 compiler_moc_objc_header_clean:
@@ -1376,11 +1376,11 @@ compiler_clean: compiler_moc_predefs_clean compiler_moc_header_clean
 
 ####### Compile
 
-build/obj/game_menu.o: game_menu.cpp game_menu.h \
+build/obj/release/game_menu.o: game_menu.cpp game_menu.h \
 		src/characterlist_dialog/characterlistdialog.h \
 		src/hall_of_records/hallofrecordsdialog.h \
 		src/create_character/createcharacterdialog.h \
-		RaceData.h \
+		src/race_data/RaceData.h \
 		src/inventory_dialog/inventorydialog.h \
 		src/options_dialog/optionsdialog.h \
 		src/about_dialog/AboutDialog.h \
@@ -1396,200 +1396,202 @@ build/obj/game_menu.o: game_menu.cpp game_menu.h \
 		mordorstatistics.h \
 		src/loadingscreen/LoadingScreen.h \
 		TheCity.h
-	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/game_menu.o game_menu.cpp
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/game_menu.o game_menu.cpp
 
-build/obj/hallofrecordsdialog.o: src/hall_of_records/hallofrecordsdialog.cpp src/hall_of_records/hallofrecordsdialog.h
-	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/hallofrecordsdialog.o src/hall_of_records/hallofrecordsdialog.cpp
+build/obj/release/hallofrecordsdialog.o: src/hall_of_records/hallofrecordsdialog.cpp src/hall_of_records/hallofrecordsdialog.h
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/hallofrecordsdialog.o src/hall_of_records/hallofrecordsdialog.cpp
 
-build/obj/createcharacterdialog.o: src/create_character/createcharacterdialog.cpp src/create_character/createcharacterdialog.h \
-		RaceData.h
-	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/createcharacterdialog.o src/create_character/createcharacterdialog.cpp
+build/obj/release/createcharacterdialog.o: src/create_character/createcharacterdialog.cpp src/create_character/createcharacterdialog.h \
+		src/race_data/RaceData.h
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/createcharacterdialog.o src/create_character/createcharacterdialog.cpp
 
-build/obj/AboutDialog.o: src/about_dialog/AboutDialog.cpp src/about_dialog/AboutDialog.h
-	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/AboutDialog.o src/about_dialog/AboutDialog.cpp
+build/obj/release/AboutDialog.o: src/about_dialog/AboutDialog.cpp src/about_dialog/AboutDialog.h
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/AboutDialog.o src/about_dialog/AboutDialog.cpp
 
-build/obj/CharacterDialog.o: src/character_dialog/CharacterDialog.cpp src/character_dialog/CharacterDialog.h
-	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/CharacterDialog.o src/character_dialog/CharacterDialog.cpp
+build/obj/release/CharacterDialog.o: src/character_dialog/CharacterDialog.cpp src/character_dialog/CharacterDialog.h
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/CharacterDialog.o src/character_dialog/CharacterDialog.cpp
 
-build/obj/MessageWindow.o: MessageWindow.cpp MessageWindow.h
-	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/MessageWindow.o MessageWindow.cpp
+build/obj/release/MessageWindow.o: MessageWindow.cpp MessageWindow.h
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/MessageWindow.o MessageWindow.cpp
 
-build/obj/MonsterEditorDialog.o: tools/monster_editor/MonsterEditorDialog.cpp tools/monster_editor/MonsterEditorDialog.h
-	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/MonsterEditorDialog.o tools/monster_editor/MonsterEditorDialog.cpp
+build/obj/release/MonsterEditorDialog.o: tools/monster_editor/MonsterEditorDialog.cpp tools/monster_editor/MonsterEditorDialog.h
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/MonsterEditorDialog.o tools/monster_editor/MonsterEditorDialog.cpp
 
-build/obj/SenderWindow.o: SenderWindow.cpp SenderWindow.h
-	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/SenderWindow.o SenderWindow.cpp
+build/obj/release/SenderWindow.o: SenderWindow.cpp SenderWindow.h
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/SenderWindow.o SenderWindow.cpp
 
-build/obj/SpellbookEditorDialog.o: tools/spellbook_editor/SpellbookEditorDialog.cpp tools/spellbook_editor/SpellbookEditorDialog.h
-	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/SpellbookEditorDialog.o tools/spellbook_editor/SpellbookEditorDialog.cpp
+build/obj/release/SpellbookEditorDialog.o: tools/spellbook_editor/SpellbookEditorDialog.cpp tools/spellbook_editor/SpellbookEditorDialog.h
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/SpellbookEditorDialog.o tools/spellbook_editor/SpellbookEditorDialog.cpp
 
-build/obj/library_dialog.o: src/library_dialog/library_dialog.cpp src/library_dialog/library_dialog.h
-	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/library_dialog.o src/library_dialog/library_dialog.cpp
+build/obj/release/library_dialog.o: src/library_dialog/library_dialog.cpp src/library_dialog/library_dialog.h
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/library_dialog.o src/library_dialog/library_dialog.cpp
 
-build/obj/automap_dialog.o: src/automap/automap_dialog.cpp src/automap/automap_dialog.h
-	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/automap_dialog.o src/automap/automap_dialog.cpp
+build/obj/release/automap_dialog.o: src/automap/automap_dialog.cpp src/automap/automap_dialog.h
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/automap_dialog.o src/automap/automap_dialog.cpp
 
-build/obj/game_controller.o: game_controller.cpp game_controller.h
-	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/game_controller.o game_controller.cpp
+build/obj/release/game_controller.o: game_controller.cpp game_controller.h
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/game_controller.o game_controller.cpp
 
-build/obj/characterlistdialog.o: src/characterlist_dialog/characterlistdialog.cpp src/characterlist_dialog/characterlistdialog.h
-	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/characterlistdialog.o src/characterlist_dialog/characterlistdialog.cpp
+build/obj/release/characterlistdialog.o: src/characterlist_dialog/characterlistdialog.cpp src/characterlist_dialog/characterlistdialog.h
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/characterlistdialog.o src/characterlist_dialog/characterlistdialog.cpp
 
-build/obj/helplesson.o: src/helplesson/helplesson.cpp src/helplesson/helplesson.h
-	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/helplesson.o src/helplesson/helplesson.cpp
+build/obj/release/helplesson.o: src/helplesson/helplesson.cpp src/helplesson/helplesson.h
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/helplesson.o src/helplesson/helplesson.cpp
 
-build/obj/mordorstatistics.o: mordorstatistics.cpp mordorstatistics.h
-	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/mordorstatistics.o mordorstatistics.cpp
+build/obj/release/mordorstatistics.o: mordorstatistics.cpp mordorstatistics.h
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/mordorstatistics.o mordorstatistics.cpp
 
-build/obj/LoadingScreen.o: src/loadingscreen/LoadingScreen.cpp include/game_resources.h \
+build/obj/release/LoadingScreen.o: src/loadingscreen/LoadingScreen.cpp include/game_resources.h \
 		src/loadingscreen/LoadingScreen.h
-	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/LoadingScreen.o src/loadingscreen/LoadingScreen.cpp
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/LoadingScreen.o src/loadingscreen/LoadingScreen.cpp
 
-build/obj/GuildsDialog.o: src/guilds_dialog/GuildsDialog.cpp src/guilds_dialog/GuildsDialog.h
-	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/GuildsDialog.o src/guilds_dialog/GuildsDialog.cpp
+build/obj/release/GuildsDialog.o: src/guilds_dialog/GuildsDialog.cpp src/guilds_dialog/GuildsDialog.h
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/GuildsDialog.o src/guilds_dialog/GuildsDialog.cpp
 
-build/obj/GeneralStore.o: src/general_store/GeneralStore.cpp src/general_store/GeneralStore.h
-	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/GeneralStore.o src/general_store/GeneralStore.cpp
+build/obj/release/GeneralStore.o: src/general_store/GeneralStore.cpp src/general_store/GeneralStore.h
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/GeneralStore.o src/general_store/GeneralStore.cpp
 
-build/obj/TheCity.o: TheCity.cpp include/game_resources.h \
+build/obj/release/TheCity.o: TheCity.cpp include/game_resources.h \
 		TheCity.h \
+		src/partyinfo_dialog/partyinfodialog.h \
 		src/general_store/GeneralStore.h \
 		src/guilds_dialog/GuildsDialog.h \
 		src/morgue_dialog/MorgueDialog.h \
+		src/seer_dialog/SeerDialog.h \
 		src/confinement_dialog/ConfinementDialog.h \
 		src/bank_dialog/BankDialog.h \
 		src/dungeon_dialog/DungeonDialog.h
-	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/TheCity.o TheCity.cpp
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/TheCity.o TheCity.cpp
 
-build/obj/MorgueDialog.o: src/morgue_dialog/MorgueDialog.cpp src/morgue_dialog/MorgueDialog.h
-	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/MorgueDialog.o src/morgue_dialog/MorgueDialog.cpp
+build/obj/release/MorgueDialog.o: src/morgue_dialog/MorgueDialog.cpp src/morgue_dialog/MorgueDialog.h
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/MorgueDialog.o src/morgue_dialog/MorgueDialog.cpp
 
-build/obj/SeerDialog.o: src/seer_dialog/SeerDialog.cpp src/seer_dialog/SeerDialog.h
-	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/SeerDialog.o src/seer_dialog/SeerDialog.cpp
+build/obj/release/SeerDialog.o: src/seer_dialog/SeerDialog.cpp src/seer_dialog/SeerDialog.h
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/SeerDialog.o src/seer_dialog/SeerDialog.cpp
 
-build/obj/ConfinementDialog.o: src/confinement_dialog/ConfinementDialog.cpp src/confinement_dialog/ConfinementDialog.h
-	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/ConfinementDialog.o src/confinement_dialog/ConfinementDialog.cpp
+build/obj/release/ConfinementDialog.o: src/confinement_dialog/ConfinementDialog.cpp src/confinement_dialog/ConfinementDialog.h
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/ConfinementDialog.o src/confinement_dialog/ConfinementDialog.cpp
 
-build/obj/BankDialog.o: src/bank_dialog/BankDialog.cpp src/bank_dialog/BankDialog.h \
+build/obj/release/BankDialog.o: src/bank_dialog/BankDialog.cpp src/bank_dialog/BankDialog.h \
 		src/bank_dialog/TradeDialog.h
-	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/BankDialog.o src/bank_dialog/BankDialog.cpp
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/BankDialog.o src/bank_dialog/BankDialog.cpp
 
-build/obj/RaceData.o: RaceData.cpp RaceData.h
-	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/RaceData.o RaceData.cpp
+build/obj/release/RaceData.o: src/race_data/RaceData.cpp src/race_data/RaceData.h
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/RaceData.o src/race_data/RaceData.cpp
 
-build/obj/marlith_dialog.o: src/marlith_dialog/marlith_dialog.cpp src/marlith_dialog/marlith_dialog.h
-	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/marlith_dialog.o src/marlith_dialog/marlith_dialog.cpp
+build/obj/release/marlith_dialog.o: src/marlith_dialog/marlith_dialog.cpp src/marlith_dialog/marlith_dialog.h
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/marlith_dialog.o src/marlith_dialog/marlith_dialog.cpp
 
-build/obj/inventorydialog.o: src/inventory_dialog/inventorydialog.cpp src/inventory_dialog/inventorydialog.h
-	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/inventorydialog.o src/inventory_dialog/inventorydialog.cpp
+build/obj/release/inventorydialog.o: src/inventory_dialog/inventorydialog.cpp src/inventory_dialog/inventorydialog.h
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/inventorydialog.o src/inventory_dialog/inventorydialog.cpp
 
-build/obj/optionsdialog.o: src/options_dialog/optionsdialog.cpp src/options_dialog/optionsdialog.h
-	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/optionsdialog.o src/options_dialog/optionsdialog.cpp
+build/obj/release/optionsdialog.o: src/options_dialog/optionsdialog.cpp src/options_dialog/optionsdialog.h
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/optionsdialog.o src/options_dialog/optionsdialog.cpp
 
-build/obj/DungeonDialog.o: src/dungeon_dialog/DungeonDialog.cpp src/dungeon_dialog/DungeonDialog.h
-	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/DungeonDialog.o src/dungeon_dialog/DungeonDialog.cpp
+build/obj/release/DungeonDialog.o: src/dungeon_dialog/DungeonDialog.cpp src/dungeon_dialog/DungeonDialog.h
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/DungeonDialog.o src/dungeon_dialog/DungeonDialog.cpp
 
-build/obj/partyinfodialog.o: src/partyinfo_dialog/partyinfodialog.cpp src/partyinfo_dialog/partyinfodialog.h
-	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/partyinfodialog.o src/partyinfo_dialog/partyinfodialog.cpp
+build/obj/release/partyinfodialog.o: src/partyinfo_dialog/partyinfodialog.cpp src/partyinfo_dialog/partyinfodialog.h
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/partyinfodialog.o src/partyinfo_dialog/partyinfodialog.cpp
 
-build/obj/dungeonmap.o: src/dungeonmap/dungeonmap.cpp src/dungeonmap/dungeonmap.h
-	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/dungeonmap.o src/dungeonmap/dungeonmap.cpp
+build/obj/release/dungeonmap.o: src/dungeonmap/dungeonmap.cpp src/dungeonmap/dungeonmap.h
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/dungeonmap.o src/dungeonmap/dungeonmap.cpp
 
-build/obj/TradeDialog.o: src/bank_dialog/TradeDialog.cpp src/bank_dialog/TradeDialog.h
-	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/TradeDialog.o src/bank_dialog/TradeDialog.cpp
+build/obj/release/TradeDialog.o: src/bank_dialog/TradeDialog.cpp src/bank_dialog/TradeDialog.h
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/TradeDialog.o src/bank_dialog/TradeDialog.cpp
 
-build/obj/game_resources.o: src/game_resources.cpp include/game_resources.h
-	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/game_resources.o src/game_resources.cpp
+build/obj/release/game_resources.o: src/game_resources.cpp include/game_resources.h
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/game_resources.o src/game_resources.cpp
 
-build/obj/moc_game_menu.o: build/moc/moc_game_menu.cpp 
-	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/moc_game_menu.o build/moc/moc_game_menu.cpp
+build/obj/release/moc_game_menu.o: build/moc/moc_game_menu.cpp 
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/moc_game_menu.o build/moc/moc_game_menu.cpp
 
-build/obj/moc_hallofrecordsdialog.o: build/moc/moc_hallofrecordsdialog.cpp 
-	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/moc_hallofrecordsdialog.o build/moc/moc_hallofrecordsdialog.cpp
+build/obj/release/moc_hallofrecordsdialog.o: build/moc/moc_hallofrecordsdialog.cpp 
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/moc_hallofrecordsdialog.o build/moc/moc_hallofrecordsdialog.cpp
 
-build/obj/moc_createcharacterdialog.o: build/moc/moc_createcharacterdialog.cpp 
-	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/moc_createcharacterdialog.o build/moc/moc_createcharacterdialog.cpp
+build/obj/release/moc_createcharacterdialog.o: build/moc/moc_createcharacterdialog.cpp 
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/moc_createcharacterdialog.o build/moc/moc_createcharacterdialog.cpp
 
-build/obj/moc_AboutDialog.o: build/moc/moc_AboutDialog.cpp 
-	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/moc_AboutDialog.o build/moc/moc_AboutDialog.cpp
+build/obj/release/moc_AboutDialog.o: build/moc/moc_AboutDialog.cpp 
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/moc_AboutDialog.o build/moc/moc_AboutDialog.cpp
 
-build/obj/moc_CharacterDialog.o: build/moc/moc_CharacterDialog.cpp 
-	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/moc_CharacterDialog.o build/moc/moc_CharacterDialog.cpp
+build/obj/release/moc_CharacterDialog.o: build/moc/moc_CharacterDialog.cpp 
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/moc_CharacterDialog.o build/moc/moc_CharacterDialog.cpp
 
-build/obj/moc_MessageWindow.o: build/moc/moc_MessageWindow.cpp 
-	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/moc_MessageWindow.o build/moc/moc_MessageWindow.cpp
+build/obj/release/moc_MessageWindow.o: build/moc/moc_MessageWindow.cpp 
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/moc_MessageWindow.o build/moc/moc_MessageWindow.cpp
 
-build/obj/moc_MonsterEditorDialog.o: build/moc/moc_MonsterEditorDialog.cpp 
-	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/moc_MonsterEditorDialog.o build/moc/moc_MonsterEditorDialog.cpp
+build/obj/release/moc_MonsterEditorDialog.o: build/moc/moc_MonsterEditorDialog.cpp 
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/moc_MonsterEditorDialog.o build/moc/moc_MonsterEditorDialog.cpp
 
-build/obj/moc_SenderWindow.o: build/moc/moc_SenderWindow.cpp 
-	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/moc_SenderWindow.o build/moc/moc_SenderWindow.cpp
+build/obj/release/moc_SenderWindow.o: build/moc/moc_SenderWindow.cpp 
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/moc_SenderWindow.o build/moc/moc_SenderWindow.cpp
 
-build/obj/moc_SpellbookEditorDialog.o: build/moc/moc_SpellbookEditorDialog.cpp 
-	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/moc_SpellbookEditorDialog.o build/moc/moc_SpellbookEditorDialog.cpp
+build/obj/release/moc_SpellbookEditorDialog.o: build/moc/moc_SpellbookEditorDialog.cpp 
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/moc_SpellbookEditorDialog.o build/moc/moc_SpellbookEditorDialog.cpp
 
-build/obj/moc_library_dialog.o: build/moc/moc_library_dialog.cpp 
-	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/moc_library_dialog.o build/moc/moc_library_dialog.cpp
+build/obj/release/moc_library_dialog.o: build/moc/moc_library_dialog.cpp 
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/moc_library_dialog.o build/moc/moc_library_dialog.cpp
 
-build/obj/moc_automap_dialog.o: build/moc/moc_automap_dialog.cpp 
-	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/moc_automap_dialog.o build/moc/moc_automap_dialog.cpp
+build/obj/release/moc_automap_dialog.o: build/moc/moc_automap_dialog.cpp 
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/moc_automap_dialog.o build/moc/moc_automap_dialog.cpp
 
-build/obj/moc_game_controller.o: build/moc/moc_game_controller.cpp 
-	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/moc_game_controller.o build/moc/moc_game_controller.cpp
+build/obj/release/moc_game_controller.o: build/moc/moc_game_controller.cpp 
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/moc_game_controller.o build/moc/moc_game_controller.cpp
 
-build/obj/moc_characterlistdialog.o: build/moc/moc_characterlistdialog.cpp 
-	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/moc_characterlistdialog.o build/moc/moc_characterlistdialog.cpp
+build/obj/release/moc_characterlistdialog.o: build/moc/moc_characterlistdialog.cpp 
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/moc_characterlistdialog.o build/moc/moc_characterlistdialog.cpp
 
-build/obj/moc_helplesson.o: build/moc/moc_helplesson.cpp 
-	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/moc_helplesson.o build/moc/moc_helplesson.cpp
+build/obj/release/moc_helplesson.o: build/moc/moc_helplesson.cpp 
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/moc_helplesson.o build/moc/moc_helplesson.cpp
 
-build/obj/moc_mordorstatistics.o: build/moc/moc_mordorstatistics.cpp 
-	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/moc_mordorstatistics.o build/moc/moc_mordorstatistics.cpp
+build/obj/release/moc_mordorstatistics.o: build/moc/moc_mordorstatistics.cpp 
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/moc_mordorstatistics.o build/moc/moc_mordorstatistics.cpp
 
-build/obj/moc_LoadingScreen.o: build/moc/moc_LoadingScreen.cpp 
-	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/moc_LoadingScreen.o build/moc/moc_LoadingScreen.cpp
+build/obj/release/moc_LoadingScreen.o: build/moc/moc_LoadingScreen.cpp 
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/moc_LoadingScreen.o build/moc/moc_LoadingScreen.cpp
 
-build/obj/moc_GuildsDialog.o: build/moc/moc_GuildsDialog.cpp 
-	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/moc_GuildsDialog.o build/moc/moc_GuildsDialog.cpp
+build/obj/release/moc_GuildsDialog.o: build/moc/moc_GuildsDialog.cpp 
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/moc_GuildsDialog.o build/moc/moc_GuildsDialog.cpp
 
-build/obj/moc_GeneralStore.o: build/moc/moc_GeneralStore.cpp 
-	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/moc_GeneralStore.o build/moc/moc_GeneralStore.cpp
+build/obj/release/moc_GeneralStore.o: build/moc/moc_GeneralStore.cpp 
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/moc_GeneralStore.o build/moc/moc_GeneralStore.cpp
 
-build/obj/moc_TheCity.o: build/moc/moc_TheCity.cpp 
-	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/moc_TheCity.o build/moc/moc_TheCity.cpp
+build/obj/release/moc_TheCity.o: build/moc/moc_TheCity.cpp 
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/moc_TheCity.o build/moc/moc_TheCity.cpp
 
-build/obj/moc_MorgueDialog.o: build/moc/moc_MorgueDialog.cpp 
-	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/moc_MorgueDialog.o build/moc/moc_MorgueDialog.cpp
+build/obj/release/moc_MorgueDialog.o: build/moc/moc_MorgueDialog.cpp 
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/moc_MorgueDialog.o build/moc/moc_MorgueDialog.cpp
 
-build/obj/moc_SeerDialog.o: build/moc/moc_SeerDialog.cpp 
-	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/moc_SeerDialog.o build/moc/moc_SeerDialog.cpp
+build/obj/release/moc_SeerDialog.o: build/moc/moc_SeerDialog.cpp 
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/moc_SeerDialog.o build/moc/moc_SeerDialog.cpp
 
-build/obj/moc_ConfinementDialog.o: build/moc/moc_ConfinementDialog.cpp 
-	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/moc_ConfinementDialog.o build/moc/moc_ConfinementDialog.cpp
+build/obj/release/moc_ConfinementDialog.o: build/moc/moc_ConfinementDialog.cpp 
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/moc_ConfinementDialog.o build/moc/moc_ConfinementDialog.cpp
 
-build/obj/moc_BankDialog.o: build/moc/moc_BankDialog.cpp 
-	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/moc_BankDialog.o build/moc/moc_BankDialog.cpp
+build/obj/release/moc_BankDialog.o: build/moc/moc_BankDialog.cpp 
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/moc_BankDialog.o build/moc/moc_BankDialog.cpp
 
-build/obj/moc_marlith_dialog.o: build/moc/moc_marlith_dialog.cpp 
-	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/moc_marlith_dialog.o build/moc/moc_marlith_dialog.cpp
+build/obj/release/moc_marlith_dialog.o: build/moc/moc_marlith_dialog.cpp 
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/moc_marlith_dialog.o build/moc/moc_marlith_dialog.cpp
 
-build/obj/moc_inventorydialog.o: build/moc/moc_inventorydialog.cpp 
-	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/moc_inventorydialog.o build/moc/moc_inventorydialog.cpp
+build/obj/release/moc_inventorydialog.o: build/moc/moc_inventorydialog.cpp 
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/moc_inventorydialog.o build/moc/moc_inventorydialog.cpp
 
-build/obj/moc_optionsdialog.o: build/moc/moc_optionsdialog.cpp 
-	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/moc_optionsdialog.o build/moc/moc_optionsdialog.cpp
+build/obj/release/moc_optionsdialog.o: build/moc/moc_optionsdialog.cpp 
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/moc_optionsdialog.o build/moc/moc_optionsdialog.cpp
 
-build/obj/moc_DungeonDialog.o: build/moc/moc_DungeonDialog.cpp 
-	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/moc_DungeonDialog.o build/moc/moc_DungeonDialog.cpp
+build/obj/release/moc_DungeonDialog.o: build/moc/moc_DungeonDialog.cpp 
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/moc_DungeonDialog.o build/moc/moc_DungeonDialog.cpp
 
-build/obj/moc_partyinfodialog.o: build/moc/moc_partyinfodialog.cpp 
-	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/moc_partyinfodialog.o build/moc/moc_partyinfodialog.cpp
+build/obj/release/moc_partyinfodialog.o: build/moc/moc_partyinfodialog.cpp 
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/moc_partyinfodialog.o build/moc/moc_partyinfodialog.cpp
 
-build/obj/moc_dungeonmap.o: build/moc/moc_dungeonmap.cpp 
-	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/moc_dungeonmap.o build/moc/moc_dungeonmap.cpp
+build/obj/release/moc_dungeonmap.o: build/moc/moc_dungeonmap.cpp 
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/moc_dungeonmap.o build/moc/moc_dungeonmap.cpp
 
-build/obj/moc_TradeDialog.o: build/moc/moc_TradeDialog.cpp 
-	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/moc_TradeDialog.o build/moc/moc_TradeDialog.cpp
+build/obj/release/moc_TradeDialog.o: build/moc/moc_TradeDialog.cpp 
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/moc_TradeDialog.o build/moc/moc_TradeDialog.cpp
 
 ####### Install
 

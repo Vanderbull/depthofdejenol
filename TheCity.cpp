@@ -1,4 +1,4 @@
-#include "game_resources.h"
+#include "include/game_resources.h"
 #include "TheCity.h"
 #include "src/partyinfo_dialog/partyinfodialog.h"
 #include "src/general_store/GeneralStore.h"

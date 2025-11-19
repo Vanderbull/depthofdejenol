@@ -1,4 +1,4 @@
-#include "game_resources.h"
+#include "include/game_resources.h"
 #include "LoadingScreen.h"
 #include <QPixmap>
 #include <QFont>

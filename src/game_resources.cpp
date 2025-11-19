@@ -1,4 +1,4 @@
-#include "game_resources.h"
+#include "include/game_resources.h"
 #include <QHash>
 #include <QPixmap>
 

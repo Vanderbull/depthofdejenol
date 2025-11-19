@@ -3,14 +3,25 @@
 # Here, it creates a 'build' folder relative to the project root.
 BUILD_DIR = build
 
+# Specifies the directory for compiled object files (*.o).
+# Differentiate between debug and release objects
+CONFIG(debug, debug|release): OBJECTS_DIR = $$BUILD_DIR/obj/debug
+CONFIG(release, debug|release): OBJECTS_DIR = $$BUILD_DIR/obj/release
+
+# Specifies the directory for MOC (Meta-Object Compiler) files.
+MOC_DIR = $$BUILD_DIR/moc
+
+# Paralleling
+QMAKE_PARALLEL_BUILD = 1
+
 # Specifies the directory where the final executable or library will be placed.
 DESTDIR = $$BUILD_DIR/bin
 
 # Specifies the directory for compiled object files (*.o).
-OBJECTS_DIR = $$BUILD_DIR/obj
+#OBJECTS_DIR = $$BUILD_DIR/obj
 
 # Specifies the directory for MOC (Meta-Object Compiler) files.
-MOC_DIR = $$BUILD_DIR/moc
+#MOC_DIR = $$BUILD_DIR/moc
 
 # Specifies the directory for RCC (Resource Compiler) files.
 RCC_DIR = $$BUILD_DIR/rcc
@@ -37,9 +48,10 @@ TARGET = game_menu
 
 # Add the 'include' directory so the compiler can find the header files
 INCLUDEPATH += \
-    $$PWD/include
+    _PRO_FILE_PWD_/include
+#    $$PWD/include
 
-
+QMAKE_FILE_GROUP = Everything
 SOURCES += game_menu.cpp \
     src/hall_of_records/hallofrecordsdialog.cpp \
     src/create_character/createcharacterdialog.cpp \
@@ -63,7 +75,7 @@ SOURCES += game_menu.cpp \
     src/seer_dialog/SeerDialog.cpp \
     src/confinement_dialog/ConfinementDialog.cpp \
     src/bank_dialog/BankDialog.cpp \
-    RaceData.cpp \
+    src/race_data/RaceData.cpp \
     src/marlith_dialog/marlith_dialog.cpp \
     src/inventory_dialog/inventorydialog.cpp \
     src/options_dialog/optionsdialog.cpp \
@@ -96,7 +108,7 @@ HEADERS += game_menu.h \
     src/seer_dialog/SeerDialog.h \
     src/confinement_dialog/ConfinementDialog.h \
     src/bank_dialog/BankDialog.h \
-    RaceData.h \
+    src/race_data/RaceData.h \
     src/marlith_dialog/marlith_dialog.h \
     src/inventory_dialog/inventorydialog.h \
     src/options_dialog/optionsdialog.h \
@@ -106,7 +118,7 @@ HEADERS += game_menu.h \
     src/bank_dialog/TradeDialog.h \
     include/game_resources.h
 
-CXXFLAGS += -std=c++11
+CXXFLAGS += -std=c++17
 
 DISTFILES += \
     .gitignore

@@ -16,7 +16,7 @@
 #include <QListWidget> 
 #include <QFile>
 // Include the new header file for RaceStats and declarations for global load functions
-#include "RaceData.h" 
+#include "src/race_data/RaceData.h" 
 
 
 class CreateCharacterDialog : public QDialog {
