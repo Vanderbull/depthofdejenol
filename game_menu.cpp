@@ -64,6 +64,30 @@ GameMenu::GameMenu(QWidget *parent) : QWidget(parent) {
         setStyleSheet(styleSheetFile.readAll());
         styleSheetFile.close();
     }
+
+// --- REVISED CODE: Set Background Image using Absolute Path ---
+    // 1. Get the directory of the running executable
+    QString appDirPath = QCoreApplication::applicationDirPath();
+    // 2. Construct the full, absolute path to the background image
+    QString imagePath = appDirPath + QDir::separator() + "introtitle.png";
+
+    qDebug() << "Attempting to load background image from:" << imagePath;
+    
+    QPixmap backgroundPixmap(imagePath);
+    
+    if (!backgroundPixmap.isNull()) {
+        //QPalette palette;
+        // Scale the image to fit the current size of the widget upon creation
+        //QPixmap scaledPixmap = backgroundPixmap.scaled(size(), Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
+        //palette.setBrush(QPalette::Window, scaledPixmap);
+        //setPalette(palette);
+        setAutoFillBackground(true);
+	QWidget::resizeEvent(nullptr); 
+        qDebug() << "Successfully loaded background image.";
+    } else {
+        // This message should now only show if the file truly doesn't exist at the calculated path.
+        qDebug() << "FATAL: Could not load background image from:" << imagePath;
+    }
     // Get screen geometry to make the window scale with screen resolution
     QScreen *screen = QGuiApplication::primaryScreen();
     QRect screenGeometry = screen->geometry();
