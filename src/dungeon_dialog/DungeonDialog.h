@@ -6,11 +6,11 @@
 #include <QGraphicsView>
 #include <QMap>
 #include <QImage>
-#include <QTimer>      // For the monster spawning logic
-#include <QLabel>      // For location and compass updates
-#include <QListWidget> // For the message log
-#include <QKeyEvent>   // For arrow key movement
-#include <QPushButton> // For dynamic control of the chest button
+#include <QTimer>      
+#include <QLabel>      
+#include <QListWidget> 
+#include <QKeyEvent>   
+#include <QPushButton> 
 
 namespace Ui {
 class DungeonDialog;
@@ -27,7 +27,7 @@ public:
     void updateDungeonView(const QImage& dungeonImage);
     void updateCompass(const QString& direction);
     void updateLocation(const QString& location);
-    void updateMinimap(int x, int y); // Function to update the player's position on the map
+    void updateMinimap(int x, int y); 
 
 signals:
     void teleporterUsed();
@@ -48,29 +48,41 @@ private slots:
     void on_openButton_clicked();
     void on_exitButton_clicked();
     
-    // --- New Slots for Game Logic ---
-    void checkMonsterSpawn(); // Slot connected to the spawn timer timeout
-    void initiateFight();     // Slot to start the fight sequence
-    void on_winBattle_trigger(); // Slot called upon winning a fight to check for treasure
-    void on_chestButton_clicked(); // Slot for the 'Chest' button
+    // --- Slots for Game Logic ---
+    void checkMonsterSpawn();      
+    void initiateFight();          
+    void on_winBattle_trigger();   
+    void on_chestButton_clicked(); 
 
 private:
+    // FIX: Moved the enum here to ensure MOC compatibility.
+    enum MonsterAttitude {
+        Hostile, // Also acts as the "No Encounter" state when no fight is active
+        Neutral,
+        Friendly
+    };
+    
     Ui::DungeonDialog *ui;
     QGraphicsScene *m_dungeonScene; // Scene for the first-person view
 
     // --- Members for Map, Timer, and Game State ---
-    QGraphicsScene *m_fullMapScene; // Scene for the full 30x30 map
-    QTimer *m_spawnTimer;           // Timer to check for monster spawning
-    int m_playerMapX = 0;           // Player's X coordinate on the map
-    int m_playerMapY = 0;           // Player's Y coordinate on the map
-    bool m_chestFound = false;      // Tracks if a chest is currently present
+    QGraphicsScene *m_fullMapScene;     // Scene for the full 30x30 map
+    QTimer *m_spawnTimer;               // Timer to check for monster spawning
+    int m_playerMapX;                   // Player's X coordinate on the map
+    int m_playerMapY;                   // Player's Y coordinate on the map
+    bool m_chestFound;                  // Tracks if a chest is currently present
+    
+    // m_currentMonsterAttitude is listed here as it appears in the constructor
+    MonsterAttitude m_currentMonsterAttitude; // Attitude of the currently spawned monster
 
-    // --- Members to allow external updating and dynamic control ---
+    // --- Pointers to UI Widgets (for access outside constructor) ---
     QLabel *m_locationLabel;
     QLabel *m_compassLabel;
-    QGraphicsView *m_miniMapView;   // View for the full map
+    QGraphicsView *m_miniMapView;       // View for the full map (no scrollbars)
     QListWidget *m_messageLog;
-    QPushButton *m_chestButton;     // Pointer to the button for dynamic enabling/disabling
+    
+    // m_chestButton is listed here as it appears in the constructor
+    QPushButton *m_chestButton;         // Pointer to the button for dynamic enabling/disabling
 
     // --- Helper and Event Functions ---
     void logMessage(const QString& message); // Helper function for message log
