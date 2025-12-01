@@ -11,6 +11,7 @@
 #include <QListWidget> 
 #include <QKeyEvent>   
 #include <QPushButton> 
+#include "src/partyinfo_dialog/partyinfodialog.h" // 1. INCLUDE PartyInfoDialog header using the specified path
 
 namespace Ui {
 class DungeonDialog;
@@ -83,6 +84,8 @@ private:
     
     // m_chestButton is listed here as it appears in the constructor
     QPushButton *m_chestButton;         // Pointer to the button for dynamic enabling/disabling
+
+    PartyInfoDialog *m_partyInfoDialog; // 2. Private member for Party Info Dialog
 
     // --- Helper and Event Functions ---
     void logMessage(const QString& message); // Helper function for message log

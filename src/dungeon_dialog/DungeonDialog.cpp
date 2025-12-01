@@ -96,7 +96,8 @@ DungeonDialog::DungeonDialog(QWidget *parent) :
     m_miniMapView(nullptr),
     m_messageLog(nullptr),
     m_chestButton(nullptr),
-    m_currentMonsterAttitude(Hostile) // Initialize to Hostile (acts as None/No Encounter)
+    m_currentMonsterAttitude(Hostile), // Initialize to Hostile (acts as None/No Encounter)
+    m_partyInfoDialog(nullptr) // Initialize the new member pointer
 {
     // --- 1. Top Bar Information Layout ---
     QLabel *firLabel = new QLabel("Fir: 1475");
@@ -217,6 +218,9 @@ DungeonDialog::DungeonDialog(QWidget *parent) :
     partyActionLayout->addWidget(optionsButton);
     partyActionLayout->addWidget(leaveButton);
 
+    // TODO: Connect these party buttons to m_partyInfoDialog->show() or a similar slot
+    // to open the dialog from here.
+
     QVBoxLayout *partyAreaLayout = new QVBoxLayout;
     partyAreaLayout->addWidget(partyTable);
     partyAreaLayout->addLayout(companionActionLayout);
@@ -255,10 +259,19 @@ DungeonDialog::DungeonDialog(QWidget *parent) :
     // --- 8. Set Focus for Key Events ---
     // This ensures the QDialog, and thus keyPressEvent, receives the input
     setFocusPolicy(Qt::StrongFocus);
+    
+    // 9. Initialize and Show Party Info Dialog on Initiation
+    m_partyInfoDialog = new PartyInfoDialog(this);
+    m_partyInfoDialog->setPartyMembers({"Player", "Goodie Gil'N'Rhaile", "Companion #11"});
+    
+    // Note: exec() blocks the execution flow until the dialog is closed.
+    // If you want a non-modal dialog, use show() instead.
+    m_partyInfoDialog->show(); 
 }
 
 DungeonDialog::~DungeonDialog()
 {
+    delete m_partyInfoDialog;
 }
 
 // --- Event Handling ---
