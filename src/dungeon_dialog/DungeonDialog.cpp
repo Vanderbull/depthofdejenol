@@ -10,10 +10,88 @@
 #include <QMessageBox>
 #include <QTextEdit>
 #include <QGroupBox>
+#include <QKeyEvent>   
+#include <QTimer>
+#include <QtDebug>
+#include <QRandomGenerator> 
+
+// Define map constants
+const int MAP_SIZE = 30;
+const int TILE_SIZE = 10;
+const int MAP_MIN = 0;
+const int MAP_MAX = MAP_SIZE - 1;
+
+// --- Helper Function (Defined first for use in constructor) ---
+void DungeonDialog::logMessage(const QString& message)
+{
+    // The check is crucial for avoiding a crash if called before initialization
+    if (m_messageLog) { 
+        m_messageLog->addItem(message);
+        m_messageLog->scrollToBottom();
+    }
+}
+
+// --- UI Update Functions (Needed for use in constructor) ---
+void DungeonDialog::updateCompass(const QString& direction)
+{
+    if (m_compassLabel) {
+        m_compassLabel->setText(direction);
+    }
+}
+
+void DungeonDialog::updateLocation(const QString& location)
+{
+    if (m_locationLabel) {
+        m_locationLabel->setText(location);
+    }
+}
+
+void DungeonDialog::updateMinimap(int x, int y)
+{
+    if (!m_fullMapScene) return;
+
+    m_fullMapScene->clear();
+
+    for (int i = 0; i < MAP_SIZE; ++i) {
+        for (int j = 0; j < MAP_SIZE; ++j) {
+            QRectF rect(i * TILE_SIZE, j * TILE_SIZE, TILE_SIZE, TILE_SIZE);
+            QBrush brush;
+
+            if (i == x && j == y) {
+                brush = QBrush(Qt::red);
+            } else if ((i + j) % 2 == 0) {
+                brush = QBrush(Qt::darkGray);
+            } else {
+                brush = QBrush(Qt::black);
+            }
+            m_fullMapScene->addRect(rect, QPen(Qt::darkGray), brush);
+        }
+    }
+    
+    if (m_miniMapView) {
+        m_miniMapView->centerOn(x * TILE_SIZE + TILE_SIZE/2, y * TILE_SIZE + TILE_SIZE/2);
+    }
+
+    logMessage(QString("Map updated. Current position: (%1, %2)").arg(x).arg(y));
+    updateLocation(QString("%1,%2").arg(x).arg(y));
+}
+
+// --- Constructor ---
 
 DungeonDialog::DungeonDialog(QWidget *parent) :
     QDialog(parent),
-    m_dungeonScene(new QGraphicsScene(this))
+    m_dungeonScene(new QGraphicsScene(this)),
+    m_fullMapScene(new QGraphicsScene(this)), 
+    m_spawnTimer(new QTimer(this)),            
+    m_playerMapX(15),                          
+    m_playerMapY(15),                          
+    m_chestFound(false),
+    // Initialize raw pointers to nullptr for safety (optional, but good practice)
+    m_locationLabel(nullptr), 
+    m_compassLabel(nullptr),
+    m_miniMapView(nullptr),
+    m_messageLog(nullptr),
+    m_chestButton(nullptr)
 {
     // --- 1. Top Bar Information Layout ---
     QLabel *firLabel = new QLabel("Fir: 1475");
@@ -30,34 +108,38 @@ DungeonDialog::DungeonDialog(QWidget *parent) :
     topBarLayout->addStretch(1);
     topBarLayout->addWidget(goldLabel);
 
-    // --- 2. Main Center Area (Dungeon View, Map, Action Buttons) ---
+    // --- 2. Initialize Member UI Widgets (FIX: Must happen before updateMinimap) ---
+    m_locationLabel = new QLabel("21,4,3");
+    m_compassLabel = new QLabel("West [1]");
+    m_miniMapView = new QGraphicsView(this); 
+    m_messageLog = new QListWidget;
+    m_chestButton = new QPushButton("Chest");
+    m_chestButton->setEnabled(false);
+    
+    // --- 3. Main Center Area (Dungeon View, Map, Action Buttons) ---
     QGraphicsView *dungeonView = new QGraphicsView(this);
     dungeonView->setScene(m_dungeonScene);
     dungeonView->setRenderHint(QPainter::Antialiasing);
-    //dungeonView->setFixedSize(1250, 250); // Set fixed size for dungeon view
-    // Placeholder image for the dungeon view (optional)
+    
     QPixmap placeholder(250, 250);
     placeholder.fill(Qt::darkGray);
     m_dungeonScene->addPixmap(placeholder);
 
-    // Placeholder for the Autoscroll Map
-    QGraphicsView *miniMapView = new QGraphicsView;
-    miniMapView->setFixedSize(200, 250);
-    miniMapView->setSceneRect(0, 0, 200, 250);
-    QGraphicsScene *miniMapScene = new QGraphicsScene(miniMapView);
-    miniMapScene->addRect(0, 0, 200, 250, QPen(Qt::black), QBrush(Qt::lightGray));
-    miniMapView->setScene(miniMapScene);
+    // Map View Setup
+    m_miniMapView->setFixedSize(300, 300); 
+    m_miniMapView->setScene(m_fullMapScene);
+
+    // Initial map drawing and player position update (Now safe to call)
+    updateMinimap(m_playerMapX, m_playerMapY);
 
     QHBoxLayout *viewLayout = new QHBoxLayout;
     viewLayout->addWidget(dungeonView);
-    viewLayout->addWidget(miniMapView);
+    viewLayout->addWidget(m_miniMapView);
 
-    // Compass and Location
-    QLabel *locationLabel = new QLabel("21,4,3");
-    QLabel *compassLabel = new QLabel("West [1]");
+    // Compass and Location Layout
     QHBoxLayout *compassLayout = new QHBoxLayout;
-    compassLayout->addWidget(locationLabel);
-    compassLayout->addWidget(compassLabel);
+    compassLayout->addWidget(m_locationLabel);
+    compassLayout->addWidget(m_compassLabel);
     compassLayout->addStretch(1);
 
     // Action Buttons
@@ -69,7 +151,7 @@ DungeonDialog::DungeonDialog(QWidget *parent) :
     QPushButton *takeButton = new QPushButton("Take");
     QPushButton *openButton = new QPushButton("Open");
     QPushButton *exitButton = new QPushButton("Exit");
-
+    
     QGridLayout *actionButtonLayout = new QGridLayout;
     actionButtonLayout->addWidget(mapButton, 0, 0);
     actionButtonLayout->addWidget(pickupButton, 0, 1);
@@ -79,7 +161,8 @@ DungeonDialog::DungeonDialog(QWidget *parent) :
     actionButtonLayout->addWidget(takeButton, 1, 2);
     actionButtonLayout->addWidget(openButton, 2, 0);
     actionButtonLayout->addWidget(exitButton, 2, 1);
-    actionButtonLayout->setColumnStretch(2, 1); // Stretch the last column
+    actionButtonLayout->addWidget(m_chestButton, 2, 2); 
+    actionButtonLayout->setColumnStretch(2, 1);
 
     // Combine views, compass, and actions
     QVBoxLayout *centerLeftLayout = new QVBoxLayout;
@@ -87,25 +170,21 @@ DungeonDialog::DungeonDialog(QWidget *parent) :
     centerLeftLayout->addLayout(compassLayout);
     centerLeftLayout->addLayout(actionButtonLayout);
 
-    // --- 3. Message Log ---
-    QListWidget *messageLog = new QListWidget;
-    messageLog->addItem("The door is locked.");
-    messageLog->addItem("You just hit a teleporter!");
-    messageLog->addItem("You attacked Companion #11!");
-    messageLog->setMinimumHeight(100);
+    // Message Log Setup
+    m_messageLog->addItem("Welcome to the Dungeon!");
+    m_messageLog->addItem("Press arrow keys to move.");
+    m_messageLog->setMinimumHeight(100);
 
-    // --- 4. Party and Companion Action Area ---
-    QTableWidget *partyTable = new QTableWidget(3, 5); // 3 rows for party members, 5 columns
+    // --- 4. Party and Companion Action Area (Layout remains the same) ---
+    QTableWidget *partyTable = new QTableWidget(3, 5);
     partyTable->setHorizontalHeaderLabels({"Name", "Hits", "Spells", "Status", "Option"});
     partyTable->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
     partyTable->verticalHeader()->setVisible(false);
-    // Example data
     partyTable->setItem(0, 0, new QTableWidgetItem("Player"));
     partyTable->setItem(1, 0, new QTableWidgetItem("Goodie Gil'N'Rhaile"));
     partyTable->setItem(2, 0, new QTableWidgetItem("Companion #11"));
     partyTable->setMinimumHeight(partyTable->rowHeight(0) * partyTable->rowCount() + partyTable->horizontalHeader()->height());
 
-    // Companion Actions (Teleport, Attack, Carry)
     QPushButton *teleportButton = new QPushButton("Teleport");
     QPushButton *attackCompanionButton = new QPushButton("Attack Companion");
     QPushButton *carryCompanionButton = new QPushButton("Carry Companion");
@@ -115,7 +194,6 @@ DungeonDialog::DungeonDialog(QWidget *parent) :
     companionActionLayout->addWidget(attackCompanionButton);
     companionActionLayout->addWidget(carryCompanionButton);
 
-    // Party Action Buttons (Switch To, Options, Leave)
     QPushButton *switchToButton = new QPushButton("Switch To");
     QPushButton *optionsButton = new QPushButton("Options");
     QPushButton *leaveButton = new QPushButton("Leave");
@@ -125,7 +203,6 @@ DungeonDialog::DungeonDialog(QWidget *parent) :
     partyActionLayout->addWidget(optionsButton);
     partyActionLayout->addWidget(leaveButton);
 
-    // Combine party and companion actions
     QVBoxLayout *partyAreaLayout = new QVBoxLayout;
     partyAreaLayout->addWidget(partyTable);
     partyAreaLayout->addLayout(companionActionLayout);
@@ -135,7 +212,7 @@ DungeonDialog::DungeonDialog(QWidget *parent) :
     QVBoxLayout *mainLayout = new QVBoxLayout(this);
     mainLayout->addLayout(topBarLayout);
     mainLayout->addLayout(centerLeftLayout);
-    mainLayout->addWidget(messageLog);
+    mainLayout->addWidget(m_messageLog);
     mainLayout->addLayout(partyAreaLayout);
 
     setWindowTitle("Dungeon Dialog");
@@ -153,98 +230,173 @@ DungeonDialog::DungeonDialog(QWidget *parent) :
     connect(takeButton, &QPushButton::clicked, this, &DungeonDialog::on_takeButton_clicked);
     connect(openButton, &QPushButton::clicked, this, &DungeonDialog::on_openButton_clicked);
     connect(exitButton, &QPushButton::clicked, this, &DungeonDialog::on_exitButton_clicked);
+    
+    connect(m_chestButton, &QPushButton::clicked, this, &DungeonDialog::on_chestButton_clicked);
 
-    // Store references to widgets we need to update externally
-    // This is a necessary step when building without Designer, as we
-    // need external access to update the view/labels later.
-    // For this example, we'll use local variables and rely on the update functions.
-    // In a production app, you would make these `QLabel`s members of the class.
-    // Example: this->locationLabel = locationLabel;
+    // --- 7. Initialize and Connect Monster Spawn Timer ---
+    m_spawnTimer->setInterval(5000); 
+    connect(m_spawnTimer, &QTimer::timeout, this, &DungeonDialog::checkMonsterSpawn);
+    m_spawnTimer->start();
+
+    // --- 8. Set Focus for Key Events ---
+    setFocusPolicy(Qt::StrongFocus);
 }
 
 DungeonDialog::~DungeonDialog()
 {
-    // If we had member pointers for all created widgets, they would be deleted here.
-    // Since they are parented to 'this', QDialog handles their destruction.
 }
+
+// --- Other Function Implementations (Remaining the same) ---
 
 void DungeonDialog::updateDungeonView(const QImage& dungeonImage)
 {
     m_dungeonScene->clear();
-    m_dungeonScene->addPixmap(QPixmap::fromImage(dungeonImage));
-    // The QGraphicsView widget is local to the constructor; a full implementation
-    // would require making it a member or finding it via QObject::findChild.
-    // For now, assume a QGraphicsView member named 'dungeonView' exists.
-    // If not a member, this function is slightly complex:
+    QPixmap pixmap = QPixmap::fromImage(dungeonImage);
+    m_dungeonScene->addPixmap(pixmap);
+    m_dungeonScene->setSceneRect(pixmap.rect());
+
     QGraphicsView* dungeonView = findChild<QGraphicsView*>();
-    if (dungeonView) {
+    if (dungeonView && dungeonView->scene() == m_dungeonScene) {
         dungeonView->fitInView(m_dungeonScene->sceneRect(), Qt::KeepAspectRatio);
     }
 }
 
-void DungeonDialog::updateCompass(const QString& direction)
+void DungeonDialog::keyPressEvent(QKeyEvent *event)
 {
-    // You would need to store a pointer to the QLabel in the class members.
-    // For a quick fix, assume the label is named 'compassLabel' in the class.
-    // QLabel* compassLabel = findChild<QLabel*>("compassLabel"); // Requires setting object names
-    // if (compassLabel) compassLabel->setText(direction);
-    Q_UNUSED(direction);
+    int newX = m_playerMapX;
+    int newY = m_playerMapY;
+
+    if (event->key() == Qt::Key_Up) {
+        newY = qMax(MAP_MIN, m_playerMapY - 1);
+        updateCompass("North [1]");
+    } else if (event->key() == Qt::Key_Down) {
+        newY = qMin(MAP_MAX, m_playerMapY + 1);
+        updateCompass("South [1]");
+    } else if (event->key() == Qt::Key_Left) {
+        newX = qMax(MAP_MIN, m_playerMapX - 1);
+        updateCompass("West [1]");
+    } else if (event->key() == Qt::Key_Right) {
+        newX = qMin(MAP_MAX, m_playerMapX + 1);
+        updateCompass("East [1]");
+    } else {
+        QDialog::keyPressEvent(event);
+        return;
+    }
+
+    if (newX != m_playerMapX || newY != m_playerMapY) {
+        m_playerMapX = newX;
+        m_playerMapY = newY;
+        
+        updateMinimap(m_playerMapX, m_playerMapY); 
+    }
+    
+    event->accept();
 }
 
-void DungeonDialog::updateLocation(const QString& location)
+void DungeonDialog::checkMonsterSpawn()
 {
-    // You would need to store a pointer to the QLabel in the class members.
-    Q_UNUSED(location);
+    if ((QRandomGenerator::global()->generate() % 100) < 20) {
+        logMessage("A monster has appeared! Prepare for a fight!");
+        initiateFight();
+    } 
+}
+
+void DungeonDialog::initiateFight()
+{
+    m_spawnTimer->stop();
+    logMessage("**FIGHT INITIATED!** Placeholder fight logic runs now.");
+
+    QTimer::singleShot(2000, this, [this]() {
+        logMessage("You defeated the monster! (Placeholder)");
+        
+        on_winBattle_trigger(); 
+        
+        m_spawnTimer->start();
+    });
+}
+
+void DungeonDialog::on_winBattle_trigger()
+{
+    if ((QRandomGenerator::global()->generate() % 100) < 50) { 
+        m_chestFound = true;
+        m_chestButton->setEnabled(true);
+        logMessage("Congratulations! A **Treasure Chest** has appeared!");
+    } else {
+        logMessage("You scour the area, but no treasure chest is found.");
+    }
+}
+
+void DungeonDialog::on_chestButton_clicked()
+{
+    if (!m_chestFound) {
+        logMessage("There is no chest here to open.");
+        return;
+    }
+    
+    m_chestButton->setEnabled(false);
+    m_chestFound = false;
+
+    if ((QRandomGenerator::global()->generate() % 100) < 70) {
+        int goldReward = 100 + (QRandomGenerator::global()->generate() % 900);
+        logMessage(QString("💰 You open the chest and find **%1 Gold**!").arg(goldReward));
+        
+    } else {
+        int damage = 5 + (QRandomGenerator::global()->generate() % 15);
+        logMessage(QString("💥 **TRAP!** The chest explodes, dealing **%1 damage**.").arg(damage));
+    }
+    
+    logMessage("The treasure chest is now gone.");
 }
 
 void DungeonDialog::on_teleportButton_clicked()
 {
     emit teleporterUsed();
-    QMessageBox::information(this, "Action", "Teleporter used!");
+    logMessage("Teleporter used! You've been moved.");
+    
+    m_playerMapX = QRandomGenerator::global()->generate() % MAP_SIZE;
+    m_playerMapY = QRandomGenerator::global()->generate() % MAP_SIZE;
+    updateMinimap(m_playerMapX, m_playerMapY);
 }
 
 void DungeonDialog::on_attackCompanionButton_clicked()
 {
-    int companionId = 1; // Placeholder
+    int companionId = 1; 
     emit companionAttacked(companionId);
-    QMessageBox::information(this, "Action", QString("Attacked Companion #%1!").arg(companionId));
+    logMessage(QString("Attacked Companion #%1!").arg(companionId));
 }
 
 void DungeonDialog::on_carryCompanionButton_clicked()
 {
-    int companionId = 1; // Placeholder
+    int companionId = 1; 
     emit companionCarried(companionId);
-    QMessageBox::information(this, "Action", QString("Carrying Companion #%1!").arg(companionId));
+    logMessage(QString("Carrying Companion #%1!").arg(companionId));
 }
 
-void DungeonDialog::on_mapButton_clicked() { QMessageBox::information(this, "Action", "Map button clicked!"); }
-void DungeonDialog::on_pickupButton_clicked() { QMessageBox::information(this, "Action", "Pickup button clicked!"); }
-void DungeonDialog::on_dropButton_clicked() { QMessageBox::information(this, "Action", "Drop button clicked!"); }
-void DungeonDialog::on_fightButton_clicked() { QMessageBox::information(this, "Action", "Fight button clicked!"); }
-void DungeonDialog::on_spellButton_clicked() { QMessageBox::information(this, "Action", "Spell button clicked!"); }
-void DungeonDialog::on_takeButton_clicked() { QMessageBox::information(this, "Action", "Take button clicked!"); }
-void DungeonDialog::on_openButton_clicked() { QMessageBox::information(this, "Action", "Open button clicked!"); }
+void DungeonDialog::on_mapButton_clicked() { logMessage("Map button clicked!"); }
+void DungeonDialog::on_pickupButton_clicked() { logMessage("Pickup button clicked!"); }
+void DungeonDialog::on_dropButton_clicked() { logMessage("Drop button clicked!"); }
+void DungeonDialog::on_fightButton_clicked() 
+{ 
+    logMessage("You've decided to pick a fight!");
+    initiateFight();
+}
+void DungeonDialog::on_spellButton_clicked() { logMessage("Spell button clicked!"); }
+void DungeonDialog::on_takeButton_clicked() { logMessage("Take button clicked!"); }
+void DungeonDialog::on_openButton_clicked() { logMessage("Open button clicked!"); }
 
 void DungeonDialog::on_exitButton_clicked()
 {
-    //QMessageBox::information(this, "Action", "Exit button clicked!");
-    //this->close();
-    // The QMessageBox::question static method is the easiest way to create
-    // a dialog with standard Yes/No buttons and a Question icon.
     QMessageBox::StandardButton reply = QMessageBox::question(
         this,
-        "Exit",                       // Window Title
-        "Exit to main menu?",         // Main text
-        QMessageBox::Yes | QMessageBox::No // Buttons to display
+        "Exit",                       
+        "Exit to main menu?",         
+        QMessageBox::Yes | QMessageBox::No 
         );
 
-    // Check which button the user pressed
     if (reply == QMessageBox::Yes) {
         qDebug() << "User clicked Yes. Application should exit or return to main menu.";
-        // Example action: You might want to close the application or go to a different screen
-        // qApp->quit();
         this->close();
-    } else { // QMessageBox::No
+    } else { 
         qDebug() << "User clicked No. Dialog closed.";
     }
 }
