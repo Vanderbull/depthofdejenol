@@ -6,11 +6,8 @@
 #include <QGraphicsView>
 #include <QMap>
 #include <QImage>
-#include <QTimer>      
-#include <QLabel>      
-#include <QListWidget> 
-#include <QKeyEvent>   
-#include <QPushButton> 
+// FIX: Corrected the include path to find the file in src/inventory_dialog/
+#include "../inventory_dialog/inventorydialog.h"
 
 namespace Ui {
 class DungeonDialog;
@@ -27,7 +24,6 @@ public:
     void updateDungeonView(const QImage& dungeonImage);
     void updateCompass(const QString& direction);
     void updateLocation(const QString& location);
-    void updateMinimap(int x, int y); 
 
 signals:
     void teleporterUsed();
@@ -47,46 +43,10 @@ private slots:
     void on_takeButton_clicked();
     void on_openButton_clicked();
     void on_exitButton_clicked();
-    
-    // --- Slots for Game Logic ---
-    void checkMonsterSpawn();      
-    void initiateFight();          
-    void on_winBattle_trigger();   
-    void on_chestButton_clicked(); 
 
 private:
-    // FIX: Moved the enum here to ensure MOC compatibility.
-    enum MonsterAttitude {
-        Hostile, // Also acts as the "No Encounter" state when no fight is active
-        Neutral,
-        Friendly
-    };
-    
     Ui::DungeonDialog *ui;
-    QGraphicsScene *m_dungeonScene; // Scene for the first-person view
-
-    // --- Members for Map, Timer, and Game State ---
-    QGraphicsScene *m_fullMapScene;     // Scene for the full 30x30 map
-    QTimer *m_spawnTimer;               // Timer to check for monster spawning
-    int m_playerMapX;                   // Player's X coordinate on the map
-    int m_playerMapY;                   // Player's Y coordinate on the map
-    bool m_chestFound;                  // Tracks if a chest is currently present
-    
-    // m_currentMonsterAttitude is listed here as it appears in the constructor
-    MonsterAttitude m_currentMonsterAttitude; // Attitude of the currently spawned monster
-
-    // --- Pointers to UI Widgets (for access outside constructor) ---
-    QLabel *m_locationLabel;
-    QLabel *m_compassLabel;
-    QGraphicsView *m_miniMapView;       // View for the full map (no scrollbars)
-    QListWidget *m_messageLog;
-    
-    // m_chestButton is listed here as it appears in the constructor
-    QPushButton *m_chestButton;         // Pointer to the button for dynamic enabling/disabling
-
-    // --- Helper and Event Functions ---
-    void logMessage(const QString& message); // Helper function for message log
-    void keyPressEvent(QKeyEvent *event) override; // Override for arrow key movement
+    QGraphicsScene *m_dungeonScene;
 };
 
 #endif // DUNGEONDIALOG_H
