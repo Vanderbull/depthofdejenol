@@ -5,6 +5,7 @@
 #include <QPushButton>
 #include <QListWidget>
 #include <QLabel>
+#include <QMessageBox> // Added for dialog feedback
 
 class GeneralStore : public QDialog
 {
@@ -12,7 +13,7 @@ class GeneralStore : public QDialog
 
 public:
     explicit GeneralStore(QWidget *parent = nullptr);
-    ~GeneralStore();
+    virtual ~GeneralStore(); // Made destructor explicitly virtual to resolve linker error
 
 private slots:
     // Slots for item interaction
@@ -53,4 +54,5 @@ private:
 
     void setupUi();
     void populateBuyItemsList(); // Function to add example items
+    void showFeedbackDialog(const QString &title, const QString &message, QMessageBox::Icon icon = QMessageBox::Information);
 };
