@@ -1,4 +1,5 @@
 #include "game_menu.h"
+// Include all necessary class definitions for dialogs and Qt components
 #include "src/characterlist_dialog/characterlistdialog.h"
 #include "src/hall_of_records/hallofrecordsdialog.h"
 #include "src/create_character/createcharacterdialog.h"
@@ -8,18 +9,20 @@
 #include "tools/monster_editor/MonsterEditorDialog.h"
 #include "tools/spellbook_editor/SpellbookEditorDialog.h"
 #include "src/character_dialog/CharacterDialog.h"
-#include "MessageWindow.h"
-#include "SenderWindow.h"
+#include "src/message_window/MessageWindow.h"
+#include "src/sender_window/SenderWindow.h"
 #include "src/library_dialog/library_dialog.h"
 #include "src/automap/automap_dialog.h"
-#include "game_controller.h"
+#include "src/game_controller/game_controller.h"
 #include "src/helplesson/helplesson.h"
-#include "mordorstatistics.h"
+#include "src/mordorstatistics/mordorstatistics.h"
 #include "src/loadingscreen/LoadingScreen.h"
 #include "TheCity.h"
+// --- NEW INCLUDE ADDED FOR DATA LOADING ---
+#include "src/race_data/RaceData.h" 
 
+// Qt component includes
 #include <QVBoxLayout>
-#include <QHBoxLayout>
 #include <QGridLayout>
 #include <QApplication>
 #include <QScreen>
@@ -29,6 +32,8 @@
 #include <QLabel>
 #include <QPushButton>
 #include <QPixmap>
+// QMediaPlayer and QAudioOutput are now fully included in game_menu.h, 
+// but we include the necessary headers here just in case other Qt functions need them
 #include <QMediaPlayer>
 #include <QAudioOutput>
 #include <QUrl>
@@ -36,12 +41,16 @@
 #include <QFileDialog>
 #include <QDir>
 #include <QSettings>
+#include <QCoreApplication>
+#include <QGuiApplication>
+#include <QComboBox>
+#include <QFileInfoList>
+#include <QResizeEvent>
 
-bool MenuSwitch = false;
-QSettings settings("MyCompany", "MyApp");
-QString subfolderName = settings.value("Paths/SubfolderName", "data/characters").toString();
+// The global MenuSwitch and QSettings variables are removed (now members)
+// QString subfolderName is now a member variable (m_subfolderName)
 
-
+// Global function to launch Automap (unchanged)
 void launchAutomapDialog() {
     // Using nullptr as the parent widget, as 'this' is not available here.
     // If you are inside a class like MainGameWindow, use AutomapDialog mapDialog(this);
@@ -52,12 +61,16 @@ void launchAutomapDialog() {
     qDebug() << "Automap dialog closed.";
 }
 
-GameMenu::GameMenu(QWidget *parent) : QWidget(parent) {
-
-    qDebug() << "Configured Subfolder Name:" << subfolderName;
-
+GameMenu::GameMenu(QWidget *parent) 
+    : QWidget(parent)
+    // Initialize QSettings and subfolderName in the initializer list
+    , m_settings("MyCompany", "MyApp")
+    , m_subfolderName(m_settings.value("Paths/SubfolderName", "data/characters").toString()) 
+{
+    qDebug() << "Configured Subfolder Name:" << m_subfolderName;
 
     setWindowTitle("Mordor: The Depths of Dejenol v1.0");
+
     // Load external style sheet
     QFile styleSheetFile("style.qss");
     if (styleSheetFile.open(QFile::ReadOnly | QFile::Text)) {
@@ -65,29 +78,27 @@ GameMenu::GameMenu(QWidget *parent) : QWidget(parent) {
         styleSheetFile.close();
     }
 
-// --- REVISED CODE: Set Background Image using Absolute Path ---
+// --- Background Image Loading and Scaling Setup ---
     // 1. Get the directory of the running executable
     QString appDirPath = QCoreApplication::applicationDirPath();
     // 2. Construct the full, absolute path to the background image
-    QString imagePath = appDirPath + QDir::separator() + "introtitle.png";
+    QString imagePath = QDir::cleanPath(appDirPath + QDir::separator() + "introtitle.png");
 
     qDebug() << "Attempting to load background image from:" << imagePath;
     
-    QPixmap backgroundPixmap(imagePath);
+    // Load the original image into the member variable
+    m_backgroundPixmap.load(imagePath);
     
-    if (!backgroundPixmap.isNull()) {
-        //QPalette palette;
-        // Scale the image to fit the current size of the widget upon creation
-        //QPixmap scaledPixmap = backgroundPixmap.scaled(size(), Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
-        //palette.setBrush(QPalette::Window, scaledPixmap);
-        //setPalette(palette);
+    if (!m_backgroundPixmap.isNull()) {
+        // Set auto-fill so the palette brush is used
         setAutoFillBackground(true);
-	QWidget::resizeEvent(nullptr); 
+        // Trigger a resize event immediately to apply the initial scaling
+        resizeEvent(nullptr); 
         qDebug() << "Successfully loaded background image.";
     } else {
-        // This message should now only show if the file truly doesn't exist at the calculated path.
         qDebug() << "FATAL: Could not load background image from:" << imagePath;
     }
+    
     // Get screen geometry to make the window scale with screen resolution
     QScreen *screen = QGuiApplication::primaryScreen();
     QRect screenGeometry = screen->geometry();
@@ -99,154 +110,211 @@ GameMenu::GameMenu(QWidget *parent) : QWidget(parent) {
     // Set a minimum size to prevent the window from becoming too small
     setMinimumSize(800, 600);
     resize(windowWidth, windowHeight);
+
     // Main layout using a grid to replicate the image layout
     QGridLayout *gridLayout = new QGridLayout(this);
     gridLayout->setContentsMargins(50, 50, 50, 50);
     gridLayout->setSpacing(20);
+
     // Placeholder for top-left image (Character List)
     QLabel *topLeftImage = new QLabel();
     gridLayout->addWidget(topLeftImage, 0, 0, 2, 1);
+
     // Main title
-    QLabel *titleLabel = new QLabel("MORDOR");
-    titleLabel->setAlignment(Qt::AlignCenter);
-    titleLabel->setStyleSheet("font-size: 30px; font-weight: bold;");
-    QLabel *subTitleLabel = new QLabel("The Depths of Dejenol");
-    subTitleLabel->setAlignment(Qt::AlignCenter);
-    subTitleLabel->setStyleSheet("font-size: 14px; font-weight: bold;");
+    m_titleLabel = new QLabel("MORDOR");
+    m_titleLabel->setAlignment(Qt::AlignCenter);
+    m_titleLabel->setStyleSheet("font-size: 30px; font-weight: bold;");
+    m_subTitleLabel = new QLabel("The Depths of Dejenol");
+    m_subTitleLabel->setAlignment(Qt::AlignCenter);
+    m_subTitleLabel->setStyleSheet("font-size: 14px; font-weight: bold;");
+
     QVBoxLayout *titleLayout = new QVBoxLayout();
-    titleLayout->addWidget(titleLabel);
-    titleLayout->addWidget(subTitleLabel);
+    titleLayout->addWidget(m_titleLabel);
+    titleLayout->addWidget(m_subTitleLabel);
+
     QWidget *titleWidget = new QWidget();
     titleWidget->setLayout(titleLayout);
     titleWidget->setStyleSheet("background-color: #c1c1c1; color: #000000; border: 1px solid #ffffff; border-top-color: #e0e0e0; border-left-color: #e0e0e0; border-right-color: #646464; border-bottom-color: #646464; padding: 10px;");
     gridLayout->addWidget(titleWidget, 0, 1, 1, 2, Qt::AlignCenter);
+
     // Placeholder for top-right image
     QLabel *topRightImage = new QLabel();
     gridLayout->addWidget(topRightImage, 0, 3, 2, 1);
-    //Second menu  
+    
+    // --- Button Widgets (using member variables) ---
 
-    runButton = new QPushButton("Run Character");
-    gridLayout->addWidget(runButton, 1, 1, 1, 2, Qt::AlignBottom | Qt::AlignCenter);
-    runButton->setFixedWidth(250);
-    connect(runButton, &QPushButton::clicked, this, &GameMenu::onRunClicked);
-    // First menu
-    helpButton = new QPushButton("Help/Lesson");
-    gridLayout->addWidget(helpButton, 3, 1);
-    helpButton->setFixedWidth(250);
-    connect(helpButton, &QPushButton::clicked, this, &GameMenu::onHelpClicked);
+    // SECOND MENU BUTTON: Run Character
+    m_runButton = new QPushButton("Run Character");
+    gridLayout->addWidget(m_runButton, 1, 1, 1, 2, Qt::AlignBottom | Qt::AlignCenter);
+    m_runButton->setFixedWidth(250);
+    connect(m_runButton, &QPushButton::clicked, this, &GameMenu::onRunClicked);
 
-    newButton = new QPushButton("Create a Character");
-    gridLayout->addWidget(newButton, 1, 1, 1, 2, Qt::AlignBottom | Qt::AlignCenter);
-    newButton->setFixedWidth(250);
-    connect(newButton, &QPushButton::clicked, this, &GameMenu::startNewGame);
+    // FIRST MENU BUTTONS
 
-    loadButton = new QPushButton("Load Character");
-    gridLayout->addWidget(loadButton, 2, 1, 1, 2, Qt::AlignTop | Qt::AlignCenter);
-    loadButton->setFixedWidth(250);
-    connect(loadButton, &QPushButton::clicked, this, &GameMenu::loadGame);
+    m_newButton = new QPushButton("Create a Character");
+    gridLayout->addWidget(m_newButton, 1, 1, 1, 2, Qt::AlignBottom | Qt::AlignCenter);
+    m_newButton->setFixedWidth(250);
+    connect(m_newButton, &QPushButton::clicked, this, &GameMenu::startNewGame);
 
-    recordsButton = new QPushButton("Hall of Records");
-    gridLayout->addWidget(recordsButton, 2, 3);
-    connect(recordsButton, &QPushButton::clicked, this, &GameMenu::showRecords);
+    m_loadButton = new QPushButton("Load Character");
+    gridLayout->addWidget(m_loadButton, 2, 1, 1, 2, Qt::AlignTop | Qt::AlignCenter);
+    m_loadButton->setFixedWidth(250);
+    connect(m_loadButton, &QPushButton::clicked, this, &GameMenu::loadGame);
+    
+    m_helpButton = new QPushButton("Help/Lesson");
+    gridLayout->addWidget(m_helpButton, 3, 1);
+    m_helpButton->setFixedWidth(250);
+    connect(m_helpButton, &QPushButton::clicked, this, &GameMenu::onHelpClicked);
 
-    characterListButton = new QPushButton("Character List");
-    newButton->setFixedWidth(250);
-    gridLayout->addWidget(characterListButton, 2, 0);
-    connect(characterListButton, &QPushButton::clicked, this, &GameMenu::onCharacterListClicked);
+    m_recordsButton = new QPushButton("Hall of Records");
+    gridLayout->addWidget(m_recordsButton, 2, 3);
+    connect(m_recordsButton, &QPushButton::clicked, this, &GameMenu::showRecords);
 
-//    QPushButton *helpButton = new QPushButton("Help/Lesson");
-//    gridLayout->addWidget(helpButton, 3, 1);
+    m_characterListButton = new QPushButton("Character List");
+    m_characterListButton->setFixedWidth(250);
+    gridLayout->addWidget(m_characterListButton, 2, 0);
+    connect(m_characterListButton, &QPushButton::clicked, this, &GameMenu::onCharacterListClicked);
 
-    optionsButton = new QPushButton("Options...");
-    gridLayout->addWidget(optionsButton, 3, 2);
-    connect(optionsButton, &QPushButton::clicked, this, &GameMenu::onOptionsClicked);
+    m_optionsButton = new QPushButton("Options...");
+    gridLayout->addWidget(m_optionsButton, 3, 2);
+    connect(m_optionsButton, &QPushButton::clicked, this, &GameMenu::onOptionsClicked);
 
-    exitButton = new QPushButton("Exit");
-    gridLayout->addWidget(exitButton, 4, 1);
-    connect(exitButton, &QPushButton::clicked, this, &GameMenu::quitGame);
+    m_exitButton = new QPushButton("Exit");
+    gridLayout->addWidget(m_exitButton, 4, 1);
+    connect(m_exitButton, &QPushButton::clicked, this, &GameMenu::quitGame);
 
-    aboutButton = new QPushButton("About");
-    gridLayout->addWidget(aboutButton, 4, 2);
-    connect(aboutButton, &QPushButton::clicked, this, &GameMenu::onAboutClicked);
+    m_aboutButton = new QPushButton("About");
+    gridLayout->addWidget(m_aboutButton, 4, 2);
+    connect(m_aboutButton, &QPushButton::clicked, this, &GameMenu::onAboutClicked);
 
-//    creditsButton = new QPushButton("Charactersheet");
-//    gridLayout->addWidget(creditsButton, 6, 0);
-//    connect(creditsButton, &QPushButton::clicked, this, &GameMenu::showCredits);
     // Placeholder for bottom-left image
     QLabel *bottomLeftImage = new QLabel();
     gridLayout->addWidget(bottomLeftImage, 3, 0, 2, 1);
     // Placeholder for bottom-right image
     QLabel *bottomRightImage = new QLabel();
     gridLayout->addWidget(bottomRightImage, 3, 3, 2, 1);
-    // Create it on the heap. We'll make it a top-level window (no parent).
+
+    // Logging Window Setup
     MessagesWindow *loggerWindow = new MessagesWindow();
-    // If you made it a private member (m_loggerWindow) you would use:
-    // m_loggerWindow = new MessagesWindow();
-    // 2. ESTABLISH THE CONNECTION
-    // Connect THIS object's signal (GameMenu::logMessageTriggered)
-    // to the loggerWindow's slot (MessagesWindow::logMessage).
     QObject::connect(this, &GameMenu::logMessageTriggered,
                      loggerWindow, &MessagesWindow::logMessage);
     loggerWindow->show();
-    // Use the signal you just connected to immediately log a message.
     emit logMessageTriggered("GameMenu has successfully initialized the Messages Log.");
-//    connect(inventoryButton, &QPushButton::clicked, this, &GameMenu::onInventoryClicked);
-runButton->setVisible(false);
+
+    // Set initial menu state
+    // Use the new centralized function instead of global MenuSwitch
+    toggleMenuState(false); 
+    
+    // --- FIX: Audio Setup moved to GameMenu constructor ---
+    m_player = new QMediaPlayer(this);      // Use 'this' as parent
+    m_audioOutput = new QAudioOutput(this); // Use 'this' as parent
+    m_player->setAudioOutput(m_audioOutput);
+    m_player->setSource(QUrl::fromLocalFile("mordor.mp3"));
+
+    // Connect signals to handle different states
+    QObject::connect(m_player, &QMediaPlayer::mediaStatusChanged, [](QMediaPlayer::MediaStatus status) {
+        if (status == QMediaPlayer::LoadedMedia) {
+            qDebug() << "Media loaded successfully.";
+        } else if (status == QMediaPlayer::EndOfMedia) {
+            qDebug() << "Playback finished.";
+        }
+    });
+
+    QObject::connect(m_player, &QMediaPlayer::errorOccurred, 
+                     [](QMediaPlayer::Error /*error*/, const QString &errorString) {
+        qDebug() << "Error playing audio:" << errorString;
+    });
+
+    m_audioOutput->setVolume(0.5); // Set volume (0.0 to 1.0 in modern Qt, previously 0-100)
+    m_player->play();
+    qDebug() << "Playing audio from GameMenu constructor...";
+    // --- End Audio Setup ---
 }
+
+// Override for proper background scaling on window resize
+void GameMenu::resizeEvent(QResizeEvent *event) {
+    if (!m_backgroundPixmap.isNull()) {
+        QPixmap scaledPixmap = m_backgroundPixmap.scaled(size(), 
+                                                         Qt::IgnoreAspectRatio, 
+                                                         Qt::SmoothTransformation);
+        QPalette palette;
+        palette.setBrush(QPalette::Window, scaledPixmap);
+        setPalette(palette);
+    }
+    // Call the base class implementation
+    QWidget::resizeEvent(event);
+}
+
+// Centralized function to control button visibility
+void GameMenu::toggleMenuState(bool characterIsLoaded) {
+    // Character Loaded State: Show 'Run Character'
+    if (characterIsLoaded) {
+        m_runButton->setVisible(true);
+        m_loadButton->setVisible(false);
+        m_newButton->setVisible(false);
+    } 
+    // Initial State: Show 'New Character' and 'Load Character'
+    else { 
+        m_runButton->setVisible(false);
+        m_loadButton->setVisible(true);
+        m_newButton->setVisible(true);
+    }
+}
+
 // Function definitions
 void GameMenu::onRunClicked() {
- MenuSwitch = false;
-runButton->setVisible(false);
-loadButton->setVisible(true);
-newButton->setVisible(true);
-//TheCity cityDialog;
-//cityDialog.setAttribute(Qt::WA_DeleteOnClose);
-//cityDialog.show();
-//int result = cityDialog.exec();
-// 1. Create the dialog on the HEAP using 'new'.
-    // Use 'this' as the parent so the dialog is automatically
-    // cleaned up if the GameMenu is ever destroyed.
+    
+    // 1. Create the dialog on the HEAP using 'new'.
     TheCity *cityDialog = new TheCity(this); 
 
     // 2. Set the Qt::WA_DeleteOnClose attribute. 
-    // This tells Qt to automatically delete the object when the user closes it, 
-    // preventing a memory leak since it's on the heap.
     cityDialog->setAttribute(Qt::WA_DeleteOnClose);
 
     // 3. Use show() to display the dialog non-modally (non-blocking).
     cityDialog->show();
 
-    // The function now returns, but the cityDialog object remains alive
-    // because it was created on the heap.
-
-
-    // 1. Create the dialog on the heap.
+    // 1. Create the character dialog on the heap.
     CharacterDialog *charDialog = new CharacterDialog("Goodie Gil'thrialle");
     // 2. IMPORTANT: Tell Qt to delete the object when the user closes the window.
     charDialog->setAttribute(Qt::WA_DeleteOnClose);
     // 3. Call show() to display the dialog non-modally.
-    // Execution continues immediately, and the main Qt event loop handles the dialog.
     charDialog->show();
-    qDebug() << "ShowCredits button clicked";
+    qDebug() << "Run Character clicked - launching TheCity and Character Dialog.";
 
 }
+
 void GameMenu::onCharacterListClicked() {
     CharacterListDialog *dialog = new CharacterListDialog(this);
+    dialog->setAttribute(Qt::WA_DeleteOnClose);
     dialog->show();
     qDebug() << "Character list clicked";
 }
+
 void GameMenu::startNewGame() {
-    CreateCharacterDialog *dialog = new CreateCharacterDialog(this);
+    // --- FIX APPLIED HERE ---
+    
+    // 1. Load data required by the new CreateCharacterDialog constructor.
+    // Assuming loadRaceData() and loadGuildData() are defined externally 
+    // and declared in "src/race_data/RaceData.h".
+    QVector<RaceStats> raceData = loadRaceData();
+    QVector<QString> guildData = loadGuildData();
+    
+    // 2. Instantiate the dialog using the new constructor signature.
+    CreateCharacterDialog *dialog = new CreateCharacterDialog(raceData, guildData, this);
+    
+    // --- END FIX ---
+    
+    dialog->setAttribute(Qt::WA_DeleteOnClose);
     dialog->show();
     qDebug() << "Start New Game button clicked";
 }
+
 void GameMenu::loadGame() {
 // 3. Get the absolute path of the application's executable directory
 QString basePath = QCoreApplication::applicationDirPath();
 
 // 4. Combine the base path and the subfolder name
-// QDir::cleanPath handles directory separators ('/' vs '\') automatically.
-QString fullPath = QDir::cleanPath(basePath + QDir::separator() + subfolderName);
+QString fullPath = QDir::cleanPath(basePath + QDir::separator() + m_subfolderName);
 
 // 5. Create the QDir object for the calculated subfolder path
 QDir subfolderDir(fullPath);
@@ -255,13 +323,14 @@ qDebug() << "Full Subfolder Path:" << subfolderDir.absolutePath();
 
 // Optional: Ensure the directory exists
 if (!subfolderDir.exists()) {
-    if (subfolderDir.mkpath(".")) { // Use mkpath(".") to create the directory represented by subfolderDir
+    if (subfolderDir.mkpath(".")) { 
         qDebug() << "Subfolder created successfully!";
     } else {
         qDebug() << "Failed to create subfolder!";
+        emit logMessageTriggered("Error: Failed to ensure character folder exists.");
+        return;
     }
 }
-    //QDir currentDir(QDir::currentPath());
     QDir currentDir(subfolderDir.absolutePath());
     // Filter for .txt files
     QStringList nameFilters;
@@ -272,8 +341,6 @@ if (!subfolderDir.exists()) {
     
     QStringList characterFiles;
     for (const QFileInfo &fileInfo : fileList) {
-        // Exclude files that might be game configuration files and not characters
-        // For this example, we add all .txt files found.
         characterFiles << fileInfo.fileName();
     }
 
@@ -309,7 +376,6 @@ if (!subfolderDir.exists()) {
     QObject::connect(cancelButton_Dialog, &QPushButton::clicked, &selectionDialog, &QDialog::reject);
 
     // Execute the dialog modally
-    //selectionDialog.show();
     int result = selectionDialog.exec();
     
     if (result == QDialog::Accepted) {
@@ -317,22 +383,14 @@ if (!subfolderDir.exists()) {
         QString selectedFileName = charComboBox->currentText();
         QString filePath = currentDir.absoluteFilePath(selectedFileName);
 
-        // **LOAD DATA LOGIC:**
-        // Simulate loading the character data based on the filePath here.
-        // e.g., CharacterData loadedChar = loadCharacterFromFile(filePath);
-        
         emit logMessageTriggered(QString("Loading character: %1").arg(selectedFileName));
         qDebug() << "Character selected from dropdown and attempting to load:" << filePath;
         
-        // Simulate success message before menu switch
         QMessageBox::information(this, tr("Load Successful"), 
                                  tr("Character **%1** loaded successfully (Data load simulated).").arg(selectedFileName));
         
         // Exit back to the main menu / Switch Menu State
-        MenuSwitch = true;
-        runButton->setVisible(true);
-        loadButton->setVisible(false);
-        newButton->setVisible(false);
+        toggleMenuState(true);
 
     } else {
         // User cancelled the dialog (rejected)
@@ -343,57 +401,42 @@ if (!subfolderDir.exists()) {
 void GameMenu::showRecords() {
     emit logMessageTriggered("User entered hall of records");
     HallOfRecordsDialog *recordsDialog = new HallOfRecordsDialog(this);
+    recordsDialog->setAttribute(Qt::WA_DeleteOnClose);
     recordsDialog->show();
     qDebug() << "User entered hall of records";
 }
 void GameMenu::quitGame() {
     QApplication::quit();
     qDebug() << "Exit button clicked";
-
 }
 void GameMenu::showCredits() {
-    // 1. Create the dialog on the heap.
-//    CharacterDialog *charDialog = new CharacterDialog("Goodie Gil'thrialle");
-    // 2. IMPORTANT: Tell Qt to delete the object when the user closes the window.
-//    charDialog->setAttribute(Qt::WA_DeleteOnClose);
-    // 3. Call show() to display the dialog non-modally.
-    // Execution continues immediately, and the main Qt event loop handles the dialog.
-//    charDialog->show();
-//    qDebug() << "ShowCredits button clicked";
+    qDebug() << "ShowCredits (placeholder) clicked";
 }
 void GameMenu::onInventoryClicked() {
     InventoryDialog *inventoryDialog = new InventoryDialog(this);
+    inventoryDialog->setAttribute(Qt::WA_DeleteOnClose);
     inventoryDialog->show();
-//    inventoryDialog->exec();
     qDebug() << "Inventory button clicked";
 }
 void GameMenu::onMarlithClicked() {
-    //MarlithDialog *dialog = new MarlithDialog(this);
-    //dialog->show();
-    //qDebug() << "Marlith button clicked";
+    qDebug() << "Marlith (placeholder) clicked";
 }
 void GameMenu::onOptionsClicked() {
     OptionsDialog *optionsDialog = new OptionsDialog(this);
+    optionsDialog->setAttribute(Qt::WA_DeleteOnClose);
     optionsDialog->show();
-//    optionsDialog->exec();
     qDebug() << "Options button clicked";
 }
 void GameMenu::onAboutClicked() {
     AboutDialog *aboutDialog = new AboutDialog(this);
+    aboutDialog->setAttribute(Qt::WA_DeleteOnClose);
     aboutDialog->show();
-//    aboutDialog->exec();
     qDebug() << "About button clicked";
 }
 void GameMenu::onHelpClicked() {
-    // 1. Instansiera dialogen. Använd 'this' som parent.
     HelpLessonDialog *helpDialog = new HelpLessonDialog(this);
-// 1. Tell Qt to automatically delete this heap object when the user closes the window.
     helpDialog->setAttribute(Qt::WA_DeleteOnClose);
-    // 2. Använd exec() för att köra dialogen modalt (blockerar tills den stängs)
     helpDialog->show(); 
-//    helpDialog->exec(); 
-    
-    // 3. (Valfritt) Logga stängningen
     qDebug() << "Help/Lesson dialog closed.";
     emit logMessageTriggered("User viewed the Help/Lesson dialog.");
 }
@@ -421,88 +464,34 @@ void GameMenu::onEditSpellbookClicked() {
         qDebug() << "Spell editing cancelled.";
     }
 }
-void GameMenu::onShowStatisticsClicked() { // <--- NEW SLOT IMPLEMENTATION
+void GameMenu::onShowStatisticsClicked() {
     emit logMessageTriggered("User opened Mordor Statistics dialog.");
     MordorStatistics *statsDialog = new MordorStatistics(this);
+    statsDialog->setAttribute(Qt::WA_DeleteOnClose);
     statsDialog->show();
-//    statsDialog->exec();
-    qDebug() << "Mordor Statistics dialog closed.";
-    delete statsDialog;
-}
-
-// Conceptual private helper function GameMenu::toggleMenuState()
-void GameMenu::toggleMenuState() {
-    // List of buttons that belong to the MenuSwitch == false state (First Menu)
-//    QList<QPushButton*> firstMenuButtons = {m_helpButton, m_newButton, m_loadButton, m_recordsButton, m_characterListButton, m_optionsButton, m_exitButton, m_aboutButton, m_creditsButton};
-    
-    // Switch between the two menus
-//    if (MenuSwitch) {
-        // MenuSwitch is true: Show 'Run Character', hide First Menu
-//        m_runButton->setVisible(true);
-//        for (QPushButton* btn : firstMenuButtons) {
-//            btn->setVisible(false);
-//        }
-//    } else {
-        // MenuSwitch is false: Hide 'Run Character', show First Menu
-//        m_runButton->setVisible(false);
-//        for (QPushButton* btn : firstMenuButtons) {
-//            btn->setVisible(true);
-//        }
-//    }
-//}
-runButton->setVisible(true);
+    qDebug() << "Mordor Statistics dialog opened.";
 }
 
 GameMenu::~GameMenu() {
-    qDebug() << "Destructor.";
+    // m_player and m_audioOutput have 'this' as parent, so they are cleaned up by Qt.
+    // Explicit deletion is not strictly needed but can be used if they were not parented.
+    // Removing explicit delete calls to rely on Qt object tree cleanup, as they are parented.
+    qDebug() << "GameMenu Destructor.";
 }
+
 int main(int argc, char *argv[]) {
-//    Q_INIT_RESOURCE(resources);
     QApplication a(argc, argv);
 
     qDebug() << "Launching LoadingScreen dialog...";
-    // Create the dialog on the stack
     LoadingScreen loadingScreen; 
-    // Show the dialog modally. Execution will block here until the user closes it.
     loadingScreen.exec(); 
     qDebug() << "LoadingScreen dialog closed. Starting main application...";
     // ------------------------------------------
     GameMenu w;
-    w.show();
-    // Create a media player object
-    QMediaPlayer *player = new QMediaPlayer;
-    // Create an audio output object
-    QAudioOutput *audioOutput = new QAudioOutput;
-    player->setAudioOutput(audioOutput);
-    // Set the audio source. Replace "path/to/your/audio.mp3" with the actual path.
-    // Use QUrl::fromLocalFile for a local file path.
-    player->setSource(QUrl::fromLocalFile("mordor.mp3"));
-    // Connect signals to handle different states (optional but recommended for robustness)
-    QObject::connect(player, &QMediaPlayer::mediaStatusChanged, [](QMediaPlayer::MediaStatus status) {
-        if (status == QMediaPlayer::LoadedMedia) {
-            qDebug() << "Media loaded successfully.";
-        } else if (status == QMediaPlayer::EndOfMedia) {
-            qDebug() << "Playback finished.";
-        }
-    });
-    QObject::connect(player, &QMediaPlayer::errorOccurred, [](QMediaPlayer::Error error, const QString &errorString) {
-        qDebug() << "Error:" << errorString;
-    });
-    // Start playing the audio
-    audioOutput->setVolume(0); // Set volume (0.0 to 100.0)
-    player->play();
-    qDebug() << "Playing audio...";
-//    LibraryDialog library;
-//    library.exec();
-//    launchAutomapDialog();
-// --- NEW CODE ---
-//    MordorStatistics statsDialog; // Create the dialog on the stack
-//    statsDialog.exec(); // Launch the dialog modally
-//    qDebug() << "Mordor Statistics dialog launched and closed from main.";
-    // --- END NEW CODE ---
+    // Audio is initialized in GameMenu's constructor now.
+    
     // 2. INSTANTIATE THE GAME CONTROLLER
     // Use the main window (w) as its parent, although it's not strictly necessary.
-    // We create it here to manage its lifetime alongside the application.
     GameController *controller = new GameController(&w);
     // 3. INSTALL THE GAME CONTROLLER AS AN EVENT FILTER
     // This is the key step. It tells Qt that *before* the key event is delivered 
@@ -510,21 +499,8 @@ int main(int argc, char *argv[]) {
     // to inspect and handle it.
     w.installEventFilter(controller);
     qDebug() << "GameController installed as event filter on GameMenu.";
-//    GuildsDialog g;
-//    g.show();
 
-//    GeneralStore store;
-//    store.show();
-
-// 2. Create an instance of your custom dialog, TheCity
-//    TheCity cityDialog;
-
-    // 3. Display the dialog and start the application's event loop
-    // exec() is used to show a modal dialog
-//    int result = cityDialog.exec();
-
-// --- ADDED RESOURCE CLEANUP ---
-//    Q_CLEANUP_RESOURCE(resources);
-    // ----------------------------
+    w.show();
+    
     return a.exec();
 }

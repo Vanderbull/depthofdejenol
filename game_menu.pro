@@ -57,16 +57,16 @@ SOURCES += game_menu.cpp \
     src/create_character/createcharacterdialog.cpp \
     src/about_dialog/AboutDialog.cpp \
     src/character_dialog/CharacterDialog.cpp \
-    MessageWindow.cpp \
+    src/message_window/MessageWindow.cpp \
     tools/monster_editor/MonsterEditorDialog.cpp \
-    SenderWindow.cpp \
+    src/sender_window/SenderWindow.cpp \
     tools/spellbook_editor/SpellbookEditorDialog.cpp \
     src/library_dialog/library_dialog.cpp \
     src/automap/automap_dialog.cpp \
-    game_controller.cpp \
+    src/game_controller/game_controller.cpp \
     src/characterlist_dialog/characterlistdialog.cpp \
     src/helplesson/helplesson.cpp \
-    mordorstatistics.cpp \
+    src/mordorstatistics/mordorstatistics.cpp \
     src/loadingscreen/LoadingScreen.cpp \
     src/guilds_dialog/GuildsDialog.cpp \
     src/general_store/GeneralStore.cpp \
@@ -90,16 +90,16 @@ HEADERS += game_menu.h \
     src/create_character/createcharacterdialog.h \
     src/about_dialog/AboutDialog.h \
     src/character_dialog/CharacterDialog.h \
-    MessageWindow.h \
+    src/message_window/MessageWindow.h \
     tools/monster_editor/MonsterEditorDialog.h \
-    SenderWindow.h \
+    src/sender_window/SenderWindow.h \
     tools/spellbook_editor/SpellbookEditorDialog.h \
     src/library_dialog/library_dialog.h \
     src/automap/automap_dialog.h \
-    game_controller.h \
+    src/game_controller/game_controller.h \
     src/characterlist_dialog/characterlistdialog.h \
     src/helplesson/helplesson.h \
-    mordorstatistics.h \
+    src/mordorstatistics/mordorstatistics.h \
     src/loadingscreen/LoadingScreen.h \
     src/guilds_dialog/GuildsDialog.h \
     src/general_store/GeneralStore.h \

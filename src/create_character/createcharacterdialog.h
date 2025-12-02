@@ -23,7 +23,10 @@ class CreateCharacterDialog : public QDialog {
     Q_OBJECT
 
 public:
-    explicit CreateCharacterDialog(QWidget *parent = nullptr);
+    // --- FIX: Updated constructor to accept raceData and guildData ---
+    explicit CreateCharacterDialog(const QVector<RaceStats>& raceData, 
+                                   const QVector<QString>& guildData, 
+                                   QWidget *parent = nullptr);
     ~CreateCharacterDialog();
 
 private slots:
@@ -40,6 +43,7 @@ private:
     QLabel *statPointsLeftLabel;
     
     // Member variables to hold race data and stat/guild widgets
+    // NOTE: These are now initialized in the constructor's initializer list
     QVector<RaceStats> raceData;
     QVector<QString> guildData; 
     

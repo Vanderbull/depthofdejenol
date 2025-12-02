@@ -6,6 +6,11 @@
 #include <QLabel>
 #include <QPushButton>
 
+// --- FIX 1: Include full class definitions for member variables ---
+#include <QSettings>     // For QSettings
+#include <QMediaPlayer>  // For QMediaPlayer
+#include <QAudioOutput>  // For QAudioOutput
+
 class GameMenu : public QWidget {
     Q_OBJECT
 
@@ -13,60 +18,52 @@ public:
     explicit GameMenu(QWidget *parent = nullptr);
     ~GameMenu();
 
+protected:
+    void resizeEvent(QResizeEvent *event) override;
+
 private slots:
     void startNewGame();
     void loadGame();
     void showRecords();
-    void showCredits();
+    void showCredits(); 
     void quitGame();
-    void onInventoryClicked();
-    void onMarlithClicked();
+    void onInventoryClicked(); 
+    void onMarlithClicked(); 
     void onOptionsClicked();
     void onAboutClicked();
-    void onEditMonsterClicked();
-    void onEditSpellbookClicked();
+    void onEditMonsterClicked(); 
+    void onEditSpellbookClicked(); 
     void onCharacterListClicked();
     void onHelpClicked();
-    void onShowStatisticsClicked();
+    void onShowStatisticsClicked(); 
     void onRunClicked();
-    void toggleMenuState();
-//    void onUnloadClicked();
-//    void onExchangeClicked();
-//    void onChangePasswordClicked();
-//    void onDeleteClicked();
+    void toggleMenuState(bool characterIsLoaded); 
 
 private:
-    QLabel *titleLabel;
-    QLabel *menuArtLabel;
-    QPushButton *newButton;
-    QPushButton *exitButton;
-    QPushButton *helpButton;
-
-    QPushButton *loadButton;
-    QPushButton *recordsButton;
-    QPushButton *creditsButton;
-    QPushButton *quitButton;
-    QPushButton *marlithButton;
-    QPushButton *optionsButton;
-    QPushButton *aboutButton;
-    QPushButton *spellbookButton;
-    QPushButton *characterListButton;
-    QPushButton *statisticsButton;
-    QPushButton *DungeonDialogButton;
-    QPushButton *runButton;
-    QPushButton *UnloadCharacterButton;
-    QPushButton *ExchangeItemsButton;
-    QPushButton *ChangePasswordButton;
-    QPushButton *DeleteCharacterButton;
-
-// --- NEW: To store selected file path ---
-    QString m_selectedCharacterFilePath;
+    // ... other UI elements ...
+    QLabel *m_titleLabel = nullptr;
+    QLabel *m_subTitleLabel = nullptr;
+    QPushButton *m_newButton = nullptr;
+    QPushButton *m_exitButton = nullptr;
+    QPushButton *m_helpButton = nullptr;
+    QPushButton *m_loadButton = nullptr;
+    QPushButton *m_recordsButton = nullptr;
+    QPushButton *m_optionsButton = nullptr;
+    QPushButton *m_aboutButton = nullptr;
+    QPushButton *m_characterListButton = nullptr;
+    QPushButton *m_runButton = nullptr;
+    
+    // Member variables for state/config
+    // QSettings is now fully defined
+    QSettings m_settings;
+    QString m_subfolderName;
+    QPixmap m_backgroundPixmap; 
+    
+    // Audio components (pointers are fine with full definitions)
+    QMediaPlayer *m_player = nullptr;
+    QAudioOutput *m_audioOutput = nullptr;
 
 signals:
-    /**
-     * @brief Signal emitted when a message needs to be logged.
-     * @param message The string to be logged by the MessagesWindow.
-     */
     void logMessageTriggered(const QString &message);
 };
 
