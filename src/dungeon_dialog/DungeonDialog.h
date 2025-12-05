@@ -40,7 +40,7 @@ signals:
     void teleporterUsed();
     void companionAttacked(int companionId);
     void companionCarried(int companionId);
-    void exitedDungeonToCity(); // FIX: Added missing signal
+    void exitedDungeonToCity();
 
 private slots:
     void on_teleportButton_clicked();
@@ -76,7 +76,7 @@ private:
     QTimer *m_spawnTimer;
     int m_playerMapX;
     int m_playerMapY;
-    int m_currentLevel; // Added: To track the current level
+    int m_currentLevel; 
     bool m_chestFound;
     MonsterAttitude m_currentMonsterAttitude;
     
@@ -88,9 +88,9 @@ private:
     QPushButton *m_chestButton;
     
     // --- Gold Management Members ---
-    QLabel *m_goldLabel;        // Label to display gold
-    quint64 m_currentGold;      // Actual gold amount
-    void updateGoldLabel();     // Helper to format and update the label text
+    QLabel *m_goldLabel;        
+    quint64 m_currentGold;      
+    void updateGoldLabel();     
 
     PartyInfoDialog *m_partyInfoDialog;
     
@@ -103,11 +103,13 @@ private:
     // --- Obstacle/Map management ---
     QSet<QPair<int, int>> m_obstaclePositions;
     void generateRandomObstacles(int obstacleCount);
-    void generateStairs(); // FIX: Added missing prototype
+    void generateStairs(); 
+    void generateAntimagicTiles(int tileCount); // NEW: Antimagic tile generation
 
-    // FIX: Added missing stairs position members
     QPair<int, int> m_stairsUpPosition; 
     QPair<int, int> m_stairsDownPosition; 
+    
+    QSet<QPair<int, int>> m_antimagicPositions; // NEW: Antimagic positions
 
     void logMessage(const QString& message);
     void keyPressEvent(QKeyEvent *event) override;
