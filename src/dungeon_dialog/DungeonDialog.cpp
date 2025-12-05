@@ -267,8 +267,46 @@ DungeonDialog::DungeonDialog(QWidget *parent) :
     
     // Note: exec() blocks the execution flow until the dialog is closed.
     // If you want a non-modal dialog, use show() instead.
-    m_partyInfoDialog->show(); 
+    m_partyInfoDialog->show();
+        // Connect EventManager signals for this dialog
+    connect(EventManager::instance(), &EventManager::eventTriggered,
+            this, &DungeonDialog::onEventTriggered);
 }
+
+// Example method: Called when player enters a new dungeon level
+void DungeonDialog::enterLevel(int level) {
+    // Existing code, e.g. rendering the map, setting up monsters, etc.
+
+    // Trigger potential events for entering this level
+    QString eventTriggerName = QString("ENTER_LEVEL_%1").arg(level);
+    QJsonObject context; // Can add more context here if needed (e.g. party info)
+    EventManager::instance()->update(eventTriggerName, context);
+
+    // Rest of the logic...
+}
+
+// Slot: Respond to triggered events
+void DungeonDialog::onEventTriggered(const GameEvent& event) {
+    // Show notification to the user
+    QMessageBox::information(this, tr("Event!"), event.description);
+
+    // Optionally: Process event "effect"
+    if (event.effect == "SPAWN_MONSTER") {
+        QString monsterType = event.extraData["monsterType"].toString();
+        int count = event.extraData["count"].toInt(1);
+        spawnMonsters(monsterType, count);
+        qDebug() << "Spawned" << count << monsterType << "(s) due to event:" << event.id;
+    }
+    // Add more effect handling here
+}
+
+// Example: Spawn monsters on the map (stub implementation)
+void DungeonDialog::spawnMonsters(const QString& monsterType, int count) {
+    // Lookup monsterType/id from database and add to current level monsters
+    // Insert monsters to your actor/NPC list and update UI
+    // ...
+}
+
 
 DungeonDialog::~DungeonDialog()
 {
