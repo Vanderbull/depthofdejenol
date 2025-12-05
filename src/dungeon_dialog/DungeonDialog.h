@@ -75,6 +75,7 @@ private:
     QTimer *m_spawnTimer;
     int m_playerMapX;
     int m_playerMapY;
+    int m_currentLevel;
     bool m_chestFound;
     MonsterAttitude m_currentMonsterAttitude;
     
@@ -86,21 +87,24 @@ private:
     QPushButton *m_chestButton;
     
     // --- Gold Management Members ---
-    QLabel *m_goldLabel;        // Label to display gold
-    quint64 m_currentGold;      // Actual gold amount
-    void updateGoldLabel();     // Helper to format and update the label text
+    QLabel *m_goldLabel;
+    quint64 m_currentGold;
+    void updateGoldLabel();
 
     PartyInfoDialog *m_partyInfoDialog;
     
     // --- Party Management Member ---
     QTableWidget *m_partyTable; 
 
-    // --- Health Management Helper (New) ---
-    void updatePartyMemberHealth(int row, int damage); // ADDED
+    // --- Health Management Helper ---
+    void updatePartyMemberHealth(int row, int damage);
 
-    // --- Obstacle management ---
+    // --- Obstacle/Stairs management ---
     QSet<QPair<int, int>> m_obstaclePositions;
+    QPair<int, int> m_stairsUpPosition;     // NEW: Position of the Stairs Up
+    QPair<int, int> m_stairsDownPosition;   // NEW: Position of the Stairs Down
     void generateRandomObstacles(int obstacleCount);
+    void generateStairs();                  // NEW: Generates stair positions
 
     void logMessage(const QString& message);
     void keyPressEvent(QKeyEvent *event) override;
