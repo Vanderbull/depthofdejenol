@@ -13,6 +13,7 @@
 #include <QPushButton>
 #include <QSet>
 #include <QPair>
+#include <QTableWidget>
 #include "src/partyinfo_dialog/partyinfodialog.h"
 #include "../event/EventManager.h"
 
@@ -76,14 +77,26 @@ private:
     int m_playerMapY;
     bool m_chestFound;
     MonsterAttitude m_currentMonsterAttitude;
-
+    
+    // --- UI Member Widgets ---
     QLabel *m_locationLabel;
     QLabel *m_compassLabel;
     QGraphicsView *m_miniMapView;
     QListWidget *m_messageLog;
     QPushButton *m_chestButton;
+    
+    // --- Gold Management Members ---
+    QLabel *m_goldLabel;        // Label to display gold
+    quint64 m_currentGold;      // Actual gold amount
+    void updateGoldLabel();     // Helper to format and update the label text
 
     PartyInfoDialog *m_partyInfoDialog;
+    
+    // --- Party Management Member ---
+    QTableWidget *m_partyTable; 
+
+    // --- Health Management Helper (New) ---
+    void updatePartyMemberHealth(int row, int damage); // ADDED
 
     // --- Obstacle management ---
     QSet<QPair<int, int>> m_obstaclePositions;

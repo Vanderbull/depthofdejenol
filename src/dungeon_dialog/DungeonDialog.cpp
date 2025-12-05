@@ -32,6 +32,64 @@ void DungeonDialog::logMessage(const QString& message)
     }
 }
 
+// --- Gold Management Helper Function ---
+void DungeonDialog::updateGoldLabel()
+{
+    if (m_goldLabel) {
+        // Use QStringLiteral("%L1") for locale-aware number formatting (e.g., adding commas)
+        QString goldString = QStringLiteral("%L1").arg(m_currentGold);
+        m_goldLabel->setText(QString("You have a total of %1 Gold").arg(goldString));
+    }
+}
+
+// --- Health Management Helper Function (New) ---
+void DungeonDialog::updatePartyMemberHealth(int row, int damage)
+{
+    if (!m_partyTable || row < 0 || row >= m_partyTable->rowCount()) {
+        return;
+    }
+
+    QTableWidgetItem *healthItem = m_partyTable->item(row, 1); // Column 1 is "Hits"
+    QTableWidgetItem *nameItem = m_partyTable->item(row, 0);   // Column 0 is "Name"
+    if (!healthItem || !nameItem) {
+        return;
+    }
+
+    QString currentHealthText = healthItem->text(); // e.g., "100/100"
+    QStringList parts = currentHealthText.split('/');
+    
+    if (parts.size() != 2) return; 
+
+    int currentHP = parts[0].toInt();
+    int maxHP = parts[1].toInt();
+    QString memberName = nameItem->text();
+
+    int newHP = qMax(0, currentHP - damage);
+    
+    // Update the table item with new health
+    healthItem->setText(QString("%1/%2").arg(newHP).arg(maxHP));
+
+    // Log the damage taken
+    if (newHP > 0) {
+        logMessage(QString("    - **%1** takes **%2 damage** (%3/%4 HP remaining).").arg(memberName).arg(damage).arg(newHP).arg(maxHP));
+    } else {
+        logMessage(QString("    - **%1** takes **%2 damage** and is **DEFEATED**!").arg(memberName).arg(damage));
+    }
+    
+    // Update Status (column 3 is "Status")
+    QTableWidgetItem *statusItem = m_partyTable->item(row, 3);
+    if (!statusItem) {
+        statusItem = new QTableWidgetItem();
+        m_partyTable->setItem(row, 3, statusItem);
+    }
+
+    if (newHP <= 0) {
+        statusItem->setText("Defeated");
+    } else if (statusItem->text() == "Defeated" && newHP > 0) {
+        statusItem->setText(""); 
+    }
+}
+
 // --- Obstacle Generation ---
 void DungeonDialog::generateRandomObstacles(int obstacleCount)
 {
@@ -107,14 +165,20 @@ DungeonDialog::DungeonDialog(QWidget *parent) :
     m_messageLog(nullptr),
     m_chestButton(nullptr),
     m_currentMonsterAttitude(Hostile),
-    m_partyInfoDialog(nullptr)
+    m_partyInfoDialog(nullptr),
+    m_goldLabel(nullptr), 
+    m_currentGold(1775531),
+    m_partyTable(nullptr)
 {
     // --- 1. Top Bar Information Layout ---
     QLabel *firLabel = new QLabel("Fir: 1475");
     QLabel *colLabel = new QLabel("Col: 1300");
     QLabel *eleLabel = new QLabel("Ele: 1100");
     QLabel *minLabel = new QLabel("Min: 1200");
-    QLabel *goldLabel = new QLabel("You have a total of 1,775,531,378 Gold");
+    
+    // Initialize m_goldLabel and set its initial text
+    m_goldLabel = new QLabel;
+    updateGoldLabel();
 
     QHBoxLayout *topBarLayout = new QHBoxLayout;
     topBarLayout->addWidget(firLabel);
@@ -122,7 +186,7 @@ DungeonDialog::DungeonDialog(QWidget *parent) :
     topBarLayout->addWidget(eleLabel);
     topBarLayout->addWidget(minLabel);
     topBarLayout->addStretch(1);
-    topBarLayout->addWidget(goldLabel);
+    topBarLayout->addWidget(m_goldLabel); // Use the member variable
 
     // --- 2. Initialize Member UI Widgets ---
     m_locationLabel = new QLabel("21,4,3");
@@ -197,14 +261,22 @@ DungeonDialog::DungeonDialog(QWidget *parent) :
     m_messageLog->setFocusPolicy(Qt::NoFocus);
 
     // --- 4. Party and Companion Action Area ---
-    QTableWidget *partyTable = new QTableWidget(3, 5);
-    partyTable->setHorizontalHeaderLabels({"Name", "Hits", "Spells", "Status", "Option"});
-    partyTable->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
-    partyTable->verticalHeader()->setVisible(false);
-    partyTable->setItem(0, 0, new QTableWidgetItem("Player"));
-    partyTable->setItem(1, 0, new QTableWidgetItem("Goodie Gil'N'Rhaile"));
-    partyTable->setItem(2, 0, new QTableWidgetItem("Companion #11"));
-    partyTable->setMinimumHeight(partyTable->rowHeight(0) * partyTable->rowCount() + partyTable->horizontalHeader()->height());
+    m_partyTable = new QTableWidget(3, 5); // Use member variable
+    m_partyTable->setHorizontalHeaderLabels({"Name", "Hits", "Spells", "Status", "Option"});
+    m_partyTable->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+    m_partyTable->verticalHeader()->setVisible(false);
+    
+    // Set initial party stats including health in 'Hits' column
+    m_partyTable->setItem(0, 0, new QTableWidgetItem("Player"));
+    m_partyTable->setItem(0, 1, new QTableWidgetItem("100/100")); // Health/Hits
+    
+    m_partyTable->setItem(1, 0, new QTableWidgetItem("Goodie Gil'N'Rhaile"));
+    m_partyTable->setItem(1, 1, new QTableWidgetItem("85/90"));   // Health/Hits
+    
+    m_partyTable->setItem(2, 0, new QTableWidgetItem("Companion #11"));
+    m_partyTable->setItem(2, 1, new QTableWidgetItem("45/75"));   // Health/Hits
+    
+    m_partyTable->setMinimumHeight(m_partyTable->rowHeight(0) * m_partyTable->rowCount() + m_partyTable->horizontalHeader()->height());
 
     QPushButton *teleportButton = new QPushButton("Teleport");
     QPushButton *attackCompanionButton = new QPushButton("Attack Companion");
@@ -225,7 +297,7 @@ DungeonDialog::DungeonDialog(QWidget *parent) :
     partyActionLayout->addWidget(leaveButton);
 
     QVBoxLayout *partyAreaLayout = new QVBoxLayout;
-    partyAreaLayout->addWidget(partyTable);
+    partyAreaLayout->addWidget(m_partyTable); // Use member variable
     partyAreaLayout->addLayout(companionActionLayout);
     partyAreaLayout->addLayout(partyActionLayout);
 
@@ -363,6 +435,14 @@ void DungeonDialog::initiateFight()
 
     QTimer::singleShot(2000, this, [this]() {
         logMessage("You defeated the creature! (Placeholder)");
+        // Example dynamic health update on win (e.g., healing player slightly)
+        if (m_partyTable) {
+            // Restore Player to full health (for demonstration)
+            m_partyTable->setItem(0, 1, new QTableWidgetItem("100/100")); 
+            QTableWidgetItem *statusItem = m_partyTable->item(0, 3);
+            if (statusItem) statusItem->setText(""); // Clear status
+        }
+        
         m_currentMonsterAttitude = Hostile;
         on_winBattle_trigger();
         m_spawnTimer->start();
@@ -391,10 +471,20 @@ void DungeonDialog::on_chestButton_clicked()
 
     if ((QRandomGenerator::global()->generate() % 100) < 70) {
         int goldReward = 100 + (QRandomGenerator::global()->generate() % 900);
+        
+        // Update gold and refresh label
+        m_currentGold += goldReward; 
+        updateGoldLabel();
+        
         logMessage(QString("💰 You open the chest and find **%1 Gold**!").arg(goldReward));
     } else {
         int damage = 5 + (QRandomGenerator::global()->generate() % 15);
-        logMessage(QString("💥 **TRAP!** The chest explodes, dealing **%1 damage**.").arg(damage));
+        logMessage(QString("💥 **TRAP!** The chest explodes, dealing **%1 damage** to the party!").arg(damage));
+        
+        // Apply damage to all 3 party members (rows 0, 1, 2)
+        for (int i = 0; i < 3; ++i) {
+            updatePartyMemberHealth(i, damage);
+        }
     }
     logMessage("The treasure chest is now gone.");
 }
