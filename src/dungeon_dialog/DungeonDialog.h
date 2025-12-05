@@ -13,7 +13,7 @@
 #include <QPushButton>
 #include <QSet>
 #include <QPair>
-#include <QTableWidget> // Include QTableWidget for the member type
+#include <QTableWidget>
 #include "src/partyinfo_dialog/partyinfodialog.h"
 #include "../event/EventManager.h"
 
@@ -100,16 +100,25 @@ private:
     // --- Health Management Helper ---
     void updatePartyMemberHealth(int row, int damage);
 
-    // --- Obstacle/Map management ---
+    // --- Map generation/management ---
     QSet<QPair<int, int>> m_obstaclePositions;
     void generateRandomObstacles(int obstacleCount);
     void generateStairs(); 
-    void generateAntimagicTiles(int tileCount); // NEW: Antimagic tile generation
+    void generateSpecialTiles(int tileCount); 
 
     QPair<int, int> m_stairsUpPosition; 
     QPair<int, int> m_stairsDownPosition; 
-    
-    QSet<QPair<int, int>> m_antimagicPositions; // NEW: Antimagic positions
+
+    // Special Tile Position Sets
+    QSet<QPair<int, int>> m_antimagicPositions;
+    QSet<QPair<int, int>> m_extinguisherPositions;
+    QSet<QPair<int, int>> m_fogPositions;
+    QSet<QPair<int, int>> m_pitPositions;
+    QSet<QPair<int, int>> m_rotatorPositions;
+    QSet<QPair<int, int>> m_studPositions;
+    QSet<QPair<int, int>> m_chutePositions;
+    QSet<QPair<int, int>> m_teleportPositions;
+    QSet<QPair<int, int>> m_waterPositions;
 
     void logMessage(const QString& message);
     void keyPressEvent(QKeyEvent *event) override;

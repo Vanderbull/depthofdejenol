@@ -133,25 +133,58 @@ void DungeonDialog::generateStairs()
     logMessage(QString("Level %1 map generated: Stairs Down at (%2, %3), Stairs Up at (%4, %5)").arg(m_currentLevel).arg(m_stairsDownPosition.first).arg(m_stairsDownPosition.second).arg(m_stairsUpPosition.first).arg(m_stairsUpPosition.second));
 }
 
-// --- Antimagic Generation ---
-void DungeonDialog::generateAntimagicTiles(int tileCount) // NEW FUNCTION
+// --- Special Tile Generation (Antimagic, Extinguisher, etc.) ---
+void DungeonDialog::generateSpecialTiles(int tileCount) 
 {
+    // Clear all special tile sets
     m_antimagicPositions.clear();
-    while (m_antimagicPositions.size() < tileCount) {
-        int ax = QRandomGenerator::global()->bounded(MAP_SIZE);
-        int ay = QRandomGenerator::global()->bounded(MAP_SIZE);
-        QPair<int, int> pos = qMakePair(ax, ay);
+    m_extinguisherPositions.clear();
+    m_fogPositions.clear();
+    m_pitPositions.clear();
+    m_rotatorPositions.clear();
+    m_studPositions.clear();
+    m_chutePositions.clear();
+    m_teleportPositions.clear();
+    m_waterPositions.clear();
 
-        // Ensure antimagic tiles do not overlap with other key features
-        if ((ax != m_playerMapX || ay != m_playerMapY) &&
-            !m_obstaclePositions.contains(pos) &&
-            pos != m_stairsDownPosition &&
-            pos != m_stairsUpPosition) {
-            
-            m_antimagicPositions.insert(pos);
+    QList<QSet<QPair<int, int>>*> tileSets;
+    tileSets << &m_antimagicPositions 
+             << &m_extinguisherPositions
+             << &m_fogPositions
+             << &m_pitPositions
+             << &m_rotatorPositions
+             << &m_studPositions
+             << &m_chutePositions
+             << &m_teleportPositions
+             << &m_waterPositions;
+
+    // Loop through each tile type and add 'tileCount' random, non-overlapping positions
+    for (QSet<QPair<int, int>>* currentSet : tileSets) {
+        while (currentSet->size() < tileCount) {
+            int x = QRandomGenerator::global()->bounded(MAP_SIZE);
+            int y = QRandomGenerator::global()->bounded(MAP_SIZE);
+            QPair<int, int> pos = qMakePair(x, y);
+
+            // Check for overlaps with player start, obstacles, stairs, and all other special tile sets
+            bool isOverlap = (x == m_playerMapX && y == m_playerMapY) ||
+                             m_obstaclePositions.contains(pos) ||
+                             pos == m_stairsDownPosition ||
+                             pos == m_stairsUpPosition;
+
+            // Check against all *existing* tile positions across all sets
+            for (QSet<QPair<int, int>>* existingSet : tileSets) {
+                if (existingSet->contains(pos)) {
+                    isOverlap = true;
+                    break;
+                }
+            }
+
+            if (!isOverlap) {
+                currentSet->insert(pos);
+            }
         }
     }
-    logMessage(QString("Generated %1 Antimagic Tiles.").arg(m_antimagicPositions.size()));
+    logMessage(QString("Generated %1 different types of special tiles (%2 each).").arg(tileSets.size()).arg(tileCount));
 }
 
 
@@ -159,10 +192,10 @@ void DungeonDialog::generateAntimagicTiles(int tileCount) // NEW FUNCTION
 void DungeonDialog::enterLevel(int level) {
     m_currentLevel = level;
 
-    // 1. Regenerate map/obstacles/stairs/antimagic
+    // 1. Regenerate map/obstacles/stairs/special tiles
     generateRandomObstacles(30); 
     generateStairs(); 
-    generateAntimagicTiles(10); // ADDED: Antimagic generation
+    generateSpecialTiles(10); // Generates 10 of each special tile
 
     // 2. Set player position to the Stairs Up position (NEW STARTING POINT)
     m_playerMapX = m_stairsUpPosition.first;
@@ -208,11 +241,27 @@ void DungeonDialog::updateMinimap(int x, int y)
             QPair<int, int> currentTile = qMakePair(i, j); 
 
             if (i == x && j == y) {
-                brush = QBrush(Qt::red); // Player
-            } else if (m_antimagicPositions.contains(currentTile)) { // ADDED: Antimagic tile
-                brush = QBrush(Qt::darkMagenta); // Antimagic tile
+                brush = QBrush(Qt::red); // Player (Highest priority)
+            } else if (m_antimagicPositions.contains(currentTile)) {
+                brush = QBrush(Qt::darkMagenta); // Antimagic
+            } else if (m_extinguisherPositions.contains(currentTile)) {
+                brush = QBrush(Qt::yellow); // Extinguisher
+            } else if (m_fogPositions.contains(currentTile)) {
+                brush = QBrush(Qt::lightGray); // Fog
+            } else if (m_pitPositions.contains(currentTile)) {
+                brush = QBrush(Qt::darkRed); // Pit
+            } else if (m_rotatorPositions.contains(currentTile)) {
+                brush = QBrush(Qt::white); // Rotator
+            } else if (m_studPositions.contains(currentTile)) {
+                brush = QBrush(Qt::gray); // Stud
+            } else if (m_chutePositions.contains(currentTile)) {
+                brush = QBrush(Qt::darkYellow); // Chute
+            } else if (m_teleportPositions.contains(currentTile)) {
+                brush = QBrush(Qt::magenta); // Teleport
+            } else if (m_waterPositions.contains(currentTile)) {
+                brush = QBrush(Qt::darkCyan); // Water
             } else if (m_obstaclePositions.contains(currentTile)) {
-                brush = QBrush(Qt::darkGreen); // Obstacle tile
+                brush = QBrush(Qt::darkGreen); // Obstacle
             } else if (currentTile == m_stairsDownPosition) { 
                 brush = QBrush(Qt::blue); // Stairs Down
             } else if (currentTile == m_stairsUpPosition) { 
@@ -300,11 +349,10 @@ DungeonDialog::DungeonDialog(QWidget *parent) :
 
     m_fullMapScene->setSceneRect(0, 0, MAP_WIDTH_PIXELS, MAP_HEIGHT_PIXELS);
 
-    // --- Obstacle/Stairs/Antimagic setup ---
-    // m_playerMapX/Y is currently at the center (15, 15)
+    // --- Map Feature Setup ---
     generateRandomObstacles(30); 
     generateStairs(); 
-    generateAntimagicTiles(10); // ADDED: Antimagic generation in constructor
+    generateSpecialTiles(10); // Generates all special tiles
 
     // Set player position to the Stairs Up position for the start of Level 1 
     m_playerMapX = m_stairsUpPosition.first;
@@ -494,9 +542,27 @@ void DungeonDialog::keyPressEvent(QKeyEvent *event)
         m_playerMapY = newY;
         updateMinimap(m_playerMapX, m_playerMapY);
         
-        // ADDED: Check for Antimagic Tile
-        if (m_antimagicPositions.contains(qMakePair(m_playerMapX, m_playerMapY))) {
-            logMessage("You are standing on antimagic!");
+        // CHECK FOR SPECIAL TILE EFFECTS
+        QPair<int, int> currentPos = qMakePair(m_playerMapX, m_playerMapY);
+
+        if (m_antimagicPositions.contains(currentPos)) {
+            logMessage("You are standing on **antimagic!**");
+        } else if (m_extinguisherPositions.contains(currentPos)) {
+            logMessage("You are standing on an **extinguisher tile**, spells fizzle out.");
+        } else if (m_fogPositions.contains(currentPos)) {
+            logMessage("You are shrouded in a **thick fog**.");
+        } else if (m_pitPositions.contains(currentPos)) {
+            logMessage("You are standing at the edge of a **deep pit**.");
+        } else if (m_rotatorPositions.contains(currentPos)) {
+            logMessage("You step onto a **rotator**. Your direction of view is randomized.");
+        } else if (m_studPositions.contains(currentPos)) {
+            logMessage("You are standing on a **stud tile**. It offers excellent grip.");
+        } else if (m_chutePositions.contains(currentPos)) {
+            logMessage("You are standing over a **chute**, ready to fall to the level below.");
+        } else if (m_teleportPositions.contains(currentPos)) {
+            logMessage("You are standing on a dormant **teleport pad**.");
+        } else if (m_waterPositions.contains(currentPos)) {
+            logMessage("You are standing in **shallow water**.");
         }
     }
 
@@ -596,8 +662,6 @@ void DungeonDialog::on_teleportButton_clicked()
     logMessage("Teleporter used! You've been moved.");
 
     // Stay off obstacles AND stairs when teleporting!
-    // Note: Antimagic tiles are also avoided in keyPressEvent/generation, but not explicitly avoided here
-    // to prevent excessive checks in the loop, unless an antimagic tile is critical path blocking.
     do {
         m_playerMapX = QRandomGenerator::global()->generate() % MAP_SIZE;
         m_playerMapY = QRandomGenerator::global()->generate() % MAP_SIZE;
