@@ -1,4 +1,5 @@
 #include "DungeonDialog.h"
+#include "../event/EventManager.h"   // Include EventManager
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QGridLayout>
