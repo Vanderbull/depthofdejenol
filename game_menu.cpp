@@ -20,6 +20,7 @@
 #include "TheCity.h"
 // --- NEW INCLUDE ADDED FOR DATA LOADING ---
 #include "src/race_data/RaceData.h" 
+#include "src/event/EventManager.h" // include the event system
 
 // Qt component includes
 #include <QVBoxLayout>
@@ -67,6 +68,15 @@ GameMenu::GameMenu(QWidget *parent)
     , m_settings("MyCompany", "MyApp")
     , m_subfolderName(m_settings.value("Paths/SubfolderName", "data/characters").toString()) 
 {
+    EventManager::instance()->loadEvents("./data/events-json");
+    // Connect event system to this menu
+    connect(EventManager::instance(), &EventManager::eventTriggered,
+            this, &GameMenu::onEventTriggered);
+
+    // Immediately trigger GAME_START event(s)
+    EventManager::instance()->update("GAME_START");
+
+
     qDebug() << "Configured Subfolder Name:" << m_subfolderName;
 
     setWindowTitle("Mordor: The Depths of Dejenol v1.0");
@@ -229,6 +239,18 @@ GameMenu::GameMenu(QWidget *parent)
     m_player->play();
     qDebug() << "Playing audio from GameMenu constructor...";
     // --- End Audio Setup ---
+}
+
+void GameMenu::onEventTriggered(const GameEvent& event)
+{
+    qDebug() << "Triggered event:" << event.id << event.description;
+ 
+    // For a welcome message, simply show a dialog
+    if (event.effect == "SHOW_MESSAGE")
+    {
+        QMessageBox::information(this, tr("Game Message"), event.description);
+    }
+    // Add other effect handling here if needed
 }
 
 // Override for proper background scaling on window resize

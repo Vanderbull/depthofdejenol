@@ -11,6 +11,8 @@
 #include <QMediaPlayer>  // For QMediaPlayer
 #include <QAudioOutput>  // For QAudioOutput
 
+#include "./src/event/EventManager.h" 
+
 class GameMenu : public QWidget {
     Q_OBJECT
 
@@ -38,6 +40,7 @@ private slots:
     void onShowStatisticsClicked(); 
     void onRunClicked();
     void toggleMenuState(bool characterIsLoaded); 
+    void onEventTriggered(const GameEvent& event);
 
 private:
     // ... other UI elements ...

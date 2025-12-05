@@ -1,27 +1,33 @@
 #pragma once
+
 #include <QObject>
 #include <QVector>
 #include <QString>
 #include <QJsonObject>
 
+// Simple struct for event data
 struct GameEvent {
     QString id;
     QString type; // "Dungeon", "Town", "Character"
     QString description;
-    QString trigger; // e.g., "ENTER_LEVEL_5", "VISIT_BANK", "PARTY_HAS_ITEM_SWORD"
-    QString effect; // e.g., "SPAWN_MONSTER", "GIVE_ITEM", "CHANGE_PRICES"
+    QString trigger;
+    QString effect;
     bool resolved;
     QJsonObject extraData;
 };
 
-class EventManager : public QObject {
+Q_DECLARE_METATYPE(GameEvent) // Enables use in queued signals/slots
+
+class EventManager : public QObject
+{
     Q_OBJECT
 public:
-    static EventManager* instance(); // For singleton access
+    static EventManager* instance();
 
     EventManager(QObject* parent = nullptr);
+
     void loadEvents(const QString& filename);
-    void update(const QString& trigger, QJsonObject context = {}); // Call when game state changes
+    void update(const QString& trigger, QJsonObject context = QJsonObject());
     QVector<GameEvent> currentEvents() const;
 
 signals:
@@ -30,5 +36,6 @@ signals:
 private:
     QVector<GameEvent> m_allEvents;
     QVector<GameEvent> m_activeEvents;
+
     void checkEvents(const QString& trigger, QJsonObject context);
 };

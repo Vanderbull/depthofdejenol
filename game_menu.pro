@@ -84,6 +84,7 @@ SOURCES += game_menu.cpp \
     src/dungeonmap/dungeonmap.cpp \ 
     src/bank_dialog/TradeDialog.cpp \
     src/game_resources.cpp
+SOURCES += src/event/EventManager.cpp
 
 HEADERS += game_menu.h \
     src/hall_of_records/hallofrecordsdialog.h \
@@ -117,6 +118,8 @@ HEADERS += game_menu.h \
     src/dungeonmap/dungeonmap.h \
     src/bank_dialog/TradeDialog.h \
     include/game_resources.h
+
+HEADERS += src/event/EventManager.h
 
 CXXFLAGS += -std=c++17
 

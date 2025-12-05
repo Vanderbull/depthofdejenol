@@ -12,6 +12,7 @@
 #include <QKeyEvent>   
 #include <QPushButton> 
 #include "src/partyinfo_dialog/partyinfodialog.h" // 1. INCLUDE PartyInfoDialog header using the specified path
+#include "../event/EventManager.h"
 
 namespace Ui {
 class DungeonDialog;
@@ -23,6 +24,8 @@ class DungeonDialog : public QDialog
 
 public:
     explicit DungeonDialog(QWidget *parent = nullptr);
+    void enterLevel(int level);
+
     ~DungeonDialog();
 
     void updateDungeonView(const QImage& dungeonImage);
@@ -53,7 +56,8 @@ private slots:
     void checkMonsterSpawn();      
     void initiateFight();          
     void on_winBattle_trigger();   
-    void on_chestButton_clicked(); 
+    void on_chestButton_clicked();
+    void onEventTriggered(const GameEvent& event);
 
 private:
     // FIX: Moved the enum here to ensure MOC compatibility.
@@ -90,6 +94,7 @@ private:
     // --- Helper and Event Functions ---
     void logMessage(const QString& message); // Helper function for message log
     void keyPressEvent(QKeyEvent *event) override; // Override for arrow key movement
+    void spawnMonsters(const QString& monsterType, int count);
 };
 
 #endif // DUNGEONDIALOG_H

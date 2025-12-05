@@ -1,5 +1,14 @@
 [
   {
+    "id": "welcome_message",
+    "type": "System",
+    "description": "Welcome to Depth of Dejenol! Embark on your adventure.",
+    "trigger": "GAME_START",
+    "effect": "SHOW_MESSAGE",
+    "extraData": {},
+    "resolved": false
+  },
+  {
     "id": "dungeon_ambush_lvl5",
     "type": "Dungeon",
     "description": "You are suddenly ambushed by monsters on Level 5!",
