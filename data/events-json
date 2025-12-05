@@ -1,0 +1,20 @@
+[
+  {
+    "id": "dungeon_ambush_lvl5",
+    "type": "Dungeon",
+    "description": "You are suddenly ambushed by monsters on Level 5!",
+    "trigger": "ENTER_LEVEL_5",
+    "effect": "SPAWN_MONSTER",
+    "extraData": {"monsterType": "Orc", "count": 3},
+    "resolved": false
+  },
+  {
+    "id": "bank_robbery",
+    "type": "Town",
+    "description": "The Bank is closed due to a robbery investigation.",
+    "trigger": "VISIT_BANK",
+    "effect": "DISABLE_SERVICE",
+    "extraData": {},
+    "resolved": false
+  }
+]
