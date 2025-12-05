@@ -13,7 +13,7 @@
 #include <QPushButton>
 #include <QSet>
 #include <QPair>
-#include <QTableWidget>
+#include <QTableWidget> // Include QTableWidget for the member type
 #include "src/partyinfo_dialog/partyinfodialog.h"
 #include "../event/EventManager.h"
 
@@ -40,6 +40,7 @@ signals:
     void teleporterUsed();
     void companionAttacked(int companionId);
     void companionCarried(int companionId);
+    void exitedDungeonToCity(); // FIX: Added missing signal
 
 private slots:
     void on_teleportButton_clicked();
@@ -75,7 +76,7 @@ private:
     QTimer *m_spawnTimer;
     int m_playerMapX;
     int m_playerMapY;
-    int m_currentLevel;
+    int m_currentLevel; // Added: To track the current level
     bool m_chestFound;
     MonsterAttitude m_currentMonsterAttitude;
     
@@ -87,9 +88,9 @@ private:
     QPushButton *m_chestButton;
     
     // --- Gold Management Members ---
-    QLabel *m_goldLabel;
-    quint64 m_currentGold;
-    void updateGoldLabel();
+    QLabel *m_goldLabel;        // Label to display gold
+    quint64 m_currentGold;      // Actual gold amount
+    void updateGoldLabel();     // Helper to format and update the label text
 
     PartyInfoDialog *m_partyInfoDialog;
     
@@ -99,12 +100,14 @@ private:
     // --- Health Management Helper ---
     void updatePartyMemberHealth(int row, int damage);
 
-    // --- Obstacle/Stairs management ---
+    // --- Obstacle/Map management ---
     QSet<QPair<int, int>> m_obstaclePositions;
-    QPair<int, int> m_stairsUpPosition;     // NEW: Position of the Stairs Up
-    QPair<int, int> m_stairsDownPosition;   // NEW: Position of the Stairs Down
     void generateRandomObstacles(int obstacleCount);
-    void generateStairs();                  // NEW: Generates stair positions
+    void generateStairs(); // FIX: Added missing prototype
+
+    // FIX: Added missing stairs position members
+    QPair<int, int> m_stairsUpPosition; 
+    QPair<int, int> m_stairsDownPosition; 
 
     void logMessage(const QString& message);
     void keyPressEvent(QKeyEvent *event) override;

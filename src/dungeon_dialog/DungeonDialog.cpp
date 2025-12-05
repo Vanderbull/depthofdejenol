@@ -19,8 +19,8 @@
 
 const int MAP_SIZE = 30;
 const int TILE_SIZE = 10;
-const int MAP_WIDTH_PIXELS = MAP_SIZE * TILE_SIZE;
-const int MAP_HEIGHT_PIXELS = MAP_SIZE * TILE_SIZE;
+const int MAP_WIDTH_PIXELS = MAP_SIZE * TILE_SIZE; // 300
+const int MAP_HEIGHT_PIXELS = MAP_SIZE * TILE_SIZE; // 300
 const int MAP_MIN = 0;
 const int MAP_MAX = MAP_SIZE - 1;
 
@@ -98,14 +98,14 @@ void DungeonDialog::generateRandomObstacles(int obstacleCount)
     while (m_obstaclePositions.size() < obstacleCount) {
         int ox = QRandomGenerator::global()->bounded(MAP_SIZE);
         int oy = QRandomGenerator::global()->bounded(MAP_SIZE);
-        // Ensure obstacles are not on the player's start position
+        // Ensure obstacles are not on the player's current (or intended starting) position
         if (ox != m_playerMapX || oy != m_playerMapY) {
             m_obstaclePositions.insert(qMakePair(ox, oy));
         }
     }
 }
 
-// --- Stairs Generation (NEW) ---
+// --- Stairs Generation ---
 void DungeonDialog::generateStairs()
 {
     // Clear previous positions
@@ -119,8 +119,8 @@ void DungeonDialog::generateStairs()
             x = QRandomGenerator::global()->bounded(MAP_SIZE);
             y = QRandomGenerator::global()->bounded(MAP_SIZE);
             pos = qMakePair(x, y);
-        // Ensure stairs are not on obstacles, not on player's start position, and not on each other
-        } while (m_obstaclePositions.contains(pos) || (x == m_playerMapX && y == m_playerMapY) || pos == m_stairsUpPosition || pos == m_stairsDownPosition);
+        // Ensure stairs are not on obstacles and not on each other
+        } while (m_obstaclePositions.contains(pos) || pos == m_stairsUpPosition || pos == m_stairsDownPosition);
         return pos;
     };
 
@@ -133,17 +133,19 @@ void DungeonDialog::generateStairs()
     logMessage(QString("Level %1 map generated: Stairs Down at (%2, %3), Stairs Up at (%4, %5)").arg(m_currentLevel).arg(m_stairsDownPosition.first).arg(m_stairsDownPosition.second).arg(m_stairsUpPosition.first).arg(m_stairsUpPosition.second));
 }
 
-// --- Level Change Logic (Updated) ---
+// --- Level Change Logic ---
 void DungeonDialog::enterLevel(int level) {
     m_currentLevel = level;
 
-    // Reset player position and regenerate map/obstacles for a new level experience
-    m_playerMapX = MAP_SIZE / 2;
-    m_playerMapY = MAP_SIZE / 2;
-    generateRandomObstacles(30);
-    generateStairs(); // ADDED: Generate new stairs for the new level
+    // 1. Regenerate map/obstacles/stairs
+    generateRandomObstacles(30); 
+    generateStairs(); 
 
-    logMessage(QString("You descend/ascend to **Level %1**.").arg(level));
+    // 2. Set player position to the Stairs Up position (NEW STARTING POINT)
+    m_playerMapX = m_stairsUpPosition.first;
+    m_playerMapY = m_stairsUpPosition.second;
+
+    logMessage(QString("You descend/ascend to **Level %1** and start at the Stairs Up tile.").arg(level));
 
     QString eventTriggerName = QString("ENTER_LEVEL_%1").arg(level);
     QJsonObject context;
@@ -180,16 +182,16 @@ void DungeonDialog::updateMinimap(int x, int y)
         for (int j = 0; j < MAP_SIZE; ++j) {
             QRectF rect(i * TILE_SIZE, j * TILE_SIZE, TILE_SIZE, TILE_SIZE);
             QBrush brush;
-            QPair<int, int> currentTile = qMakePair(i, j); // NEW
+            QPair<int, int> currentTile = qMakePair(i, j); 
 
             if (i == x && j == y) {
                 brush = QBrush(Qt::red); // Player
             } else if (m_obstaclePositions.contains(currentTile)) {
                 brush = QBrush(Qt::darkGreen); // Obstacle tile
-            } else if (currentTile == m_stairsDownPosition) { // NEW: Stairs Down (Blue)
-                brush = QBrush(Qt::blue); 
-            } else if (currentTile == m_stairsUpPosition) { // NEW: Stairs Up (Cyan)
-                brush = QBrush(Qt::cyan); 
+            } else if (currentTile == m_stairsDownPosition) { 
+                brush = QBrush(Qt::blue); // Stairs Down
+            } else if (currentTile == m_stairsUpPosition) { 
+                brush = QBrush(Qt::cyan); // Stairs Up
             } else if ((i + j) % 2 == 0) {
                 brush = QBrush(Qt::darkGray);
             } else {
@@ -213,9 +215,9 @@ DungeonDialog::DungeonDialog(QWidget *parent) :
     m_dungeonScene(new QGraphicsScene(this)),
     m_fullMapScene(new QGraphicsScene(this)),
     m_spawnTimer(new QTimer(this)),
-    m_playerMapX(15),
-    m_playerMapY(15),
-    m_currentLevel(1), // INITIALIZED
+    m_playerMapX(MAP_SIZE / 2), 
+    m_playerMapY(MAP_SIZE / 2), 
+    m_currentLevel(1), 
     m_chestFound(false),
     m_locationLabel(nullptr),
     m_compassLabel(nullptr),
@@ -227,8 +229,8 @@ DungeonDialog::DungeonDialog(QWidget *parent) :
     m_goldLabel(nullptr), 
     m_currentGold(1775531),
     m_partyTable(nullptr),
-    m_stairsUpPosition(qMakePair(-1, -1)), // Initializing new members
-    m_stairsDownPosition(qMakePair(-1, -1)) // Initializing new members
+    m_stairsUpPosition(qMakePair(-1, -1)), 
+    m_stairsDownPosition(qMakePair(-1, -1)) 
 {
     // --- 1. Top Bar Information Layout ---
     QLabel *firLabel = new QLabel("Fir: 1475");
@@ -246,10 +248,10 @@ DungeonDialog::DungeonDialog(QWidget *parent) :
     topBarLayout->addWidget(eleLabel);
     topBarLayout->addWidget(minLabel);
     topBarLayout->addStretch(1);
-    topBarLayout->addWidget(m_goldLabel); // Use the member variable
+    topBarLayout->addWidget(m_goldLabel); 
 
     // --- 2. Initialize Member UI Widgets ---
-    m_locationLabel = new QLabel(QString("L%1: 21,4,3").arg(m_currentLevel)); // INITIAL TEXT UPDATED
+    m_locationLabel = new QLabel(QString("L%1: 21,4,3").arg(m_currentLevel)); 
     m_compassLabel = new QLabel("West [1]");
     m_miniMapView = new QGraphicsView(this);
     m_messageLog = new QListWidget;
@@ -274,8 +276,13 @@ DungeonDialog::DungeonDialog(QWidget *parent) :
     m_fullMapScene->setSceneRect(0, 0, MAP_WIDTH_PIXELS, MAP_HEIGHT_PIXELS);
 
     // --- Obstacle/Stairs setup ---
-    generateRandomObstacles(30);
-    generateStairs(); // NEW: Generate initial stairs positions
+    // m_playerMapX/Y is currently at the center (15, 15)
+    generateRandomObstacles(30); 
+    generateStairs(); 
+
+    // Set player position to the Stairs Up position for the start of Level 1 
+    m_playerMapX = m_stairsUpPosition.first;
+    m_playerMapY = m_stairsUpPosition.second;
 
     updateMinimap(m_playerMapX, m_playerMapY);
 
@@ -295,7 +302,7 @@ DungeonDialog::DungeonDialog(QWidget *parent) :
     QPushButton *dropButton = new QPushButton("Drop");
     QPushButton *fightButton = new QPushButton("Fight");
     QPushButton *spellButton = new QPushButton("Spell");
-    QPushButton *takeButton = new QPushButton("Take"); // This is the button we modify
+    QPushButton *takeButton = new QPushButton("Take"); 
     QPushButton *openButton = new QPushButton("Open");
     QPushButton *exitButton = new QPushButton("Exit");
 
@@ -327,15 +334,21 @@ DungeonDialog::DungeonDialog(QWidget *parent) :
     m_partyTable->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
     m_partyTable->verticalHeader()->setVisible(false);
     
-    // Set initial party stats including health in 'Hits' column
+    // Set initial party stats
+    // Row 0: Player
     m_partyTable->setItem(0, 0, new QTableWidgetItem("Player"));
-    m_partyTable->setItem(0, 1, new QTableWidgetItem("100/100")); 
+    m_partyTable->setItem(0, 1, new QTableWidgetItem("100/100")); // Hits
+    m_partyTable->setItem(0, 2, new QTableWidgetItem("5/5"));     // Spells (Current/Max)
     
+    // Row 1: Goodie Gil'N'Rhaile
     m_partyTable->setItem(1, 0, new QTableWidgetItem("Goodie Gil'N'Rhaile"));
-    m_partyTable->setItem(1, 1, new QTableWidgetItem("85/90"));   
+    m_partyTable->setItem(1, 1, new QTableWidgetItem("85/90"));   // Hits
+    m_partyTable->setItem(1, 2, new QTableWidgetItem("1/3"));     // Spells (Current/Max)
     
+    // Row 2: Companion #11
     m_partyTable->setItem(2, 0, new QTableWidgetItem("Companion #11"));
-    m_partyTable->setItem(2, 1, new QTableWidgetItem("45/75"));   
+    m_partyTable->setItem(2, 1, new QTableWidgetItem("45/75"));   // Hits
+    m_partyTable->setItem(2, 2, new QTableWidgetItem("0/0"));     // Spells (Current/Max)
     
     m_partyTable->setMinimumHeight(m_partyTable->rowHeight(0) * m_partyTable->rowCount() + m_partyTable->horizontalHeader()->height());
 
@@ -369,6 +382,7 @@ DungeonDialog::DungeonDialog(QWidget *parent) :
     mainLayout->addLayout(partyAreaLayout);
 
     setWindowTitle("Dungeon Dialog");
+    setMinimumWidth(800); 
 
     connect(teleportButton, &QPushButton::clicked, this, &DungeonDialog::on_teleportButton_clicked);
     connect(attackCompanionButton, &QPushButton::clicked, this, &DungeonDialog::on_attackCompanionButton_clicked);
@@ -395,7 +409,7 @@ DungeonDialog::DungeonDialog(QWidget *parent) :
     m_partyInfoDialog->setPartyMembers({"Player", "Goodie Gil'N'Rhaile", "Companion #11"});
     m_partyInfoDialog->show();
     connect(EventManager::instance(), &EventManager::eventTriggered,
-            this, &DungeonDialog::onEventTriggered);
+            this, &DungeonDialog::onEventTriggered); 
 }
 
 // Slot: Respond to triggered events
@@ -411,7 +425,7 @@ void DungeonDialog::onEventTriggered(const GameEvent& event) {
 }
 
 void DungeonDialog::spawnMonsters(const QString& monsterType, int count) {
-    // ...
+    // Placeholder function definition
 }
 
 DungeonDialog::~DungeonDialog()
@@ -545,7 +559,7 @@ void DungeonDialog::on_chestButton_clicked()
 
 // --- Button Click Handlers ---
 
-void DungeonDialog::on_teleportButton_clicked()
+void DungeonDialog::on_teleportButton_clicked() 
 {
     emit teleporterUsed();
     logMessage("Teleporter used! You've been moved.");
@@ -561,14 +575,14 @@ void DungeonDialog::on_teleportButton_clicked()
     updateMinimap(m_playerMapX, m_playerMapY);
 }
 
-void DungeonDialog::on_attackCompanionButton_clicked()
+void DungeonDialog::on_attackCompanionButton_clicked() 
 {
     int companionId = 1;
     emit companionAttacked(companionId);
     logMessage(QString("Attacked Companion #%1!").arg(companionId));
 }
 
-void DungeonDialog::on_carryCompanionButton_clicked()
+void DungeonDialog::on_carryCompanionButton_clicked() 
 {
     int companionId = 1;
     emit companionCarried(companionId);
@@ -599,7 +613,7 @@ void DungeonDialog::on_fightButton_clicked()
 
 void DungeonDialog::on_spellButton_clicked() { logMessage("Spell button clicked!"); }
 
-// --- Level Change Logic (Updated) ---
+// --- Level Change Logic (on_takeButton_clicked) ---
 void DungeonDialog::on_takeButton_clicked() 
 { 
     QPair<int, int> playerPos = qMakePair(m_playerMapX, m_playerMapY);
@@ -611,11 +625,15 @@ void DungeonDialog::on_takeButton_clicked()
         enterLevel(newLevel);
     } else if (playerPos == m_stairsUpPosition) {
         if (m_currentLevel > 1) {
+            // Standard ascent to a deeper level
             newLevel = m_currentLevel - 1;
             logMessage(QString("You take the **stairs up** to Level %1.").arg(newLevel));
             enterLevel(newLevel);
         } else {
-            logMessage("You are on the surface level and cannot ascend further.");
+            // Current level is 1: ascend to surface/city
+            logMessage("You ascend the **stairs up** and step onto the surface!");
+            emit exitedDungeonToCity(); // Emit signal to switch window
+            this->close();              // Close the Dungeon dialog
         }
     } else {
         logMessage("There are no stairs here to take.");
