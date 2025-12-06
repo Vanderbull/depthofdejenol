@@ -16,9 +16,9 @@
 #include <QTableWidget>
 #include "src/partyinfo_dialog/partyinfodialog.h"
 #include "../event/EventManager.h"
-#include "../../GameStateManager.h" // ADDED: Required for GameState
+#include "../../GameStateManager.h"
 
-// ADDED: Define MAP_SIZE here to resolve initialization errors in the class definition
+// Define MAP_SIZE here to resolve initialization errors in the class definition
 const int MAP_SIZE = 30; 
 
 namespace Ui {
@@ -60,14 +60,12 @@ private slots:
     void on_openButton_clicked();
     void on_exitButton_clicked();
     
-    // RE-ADDED MISSING SLOTS:
     void on_searchButton_clicked(); 
     void on_restButton_clicked(); 
     void on_talkButton_clicked();
     void on_stairsDownButton_clicked();
     void on_stairsUpButton_clicked();
     
-    // Slots from user's new file
     void on_chestButton_clicked();
     void onEventTriggered(const GameEvent& event);
     void checkMonsterSpawn();
@@ -82,47 +80,40 @@ private:
         Friendly
     };
 
-    // --- Core State Members ---
-    // Ui::DungeonDialog *ui; removed (not strictly needed here)
+    // Core State Members
     QGraphicsScene *m_dungeonScene;
-    QGraphicsScene *m_fullMapScene; // From user's new file
-    QTimer *m_spawnTimer;           // From user's new file
+    QGraphicsScene *m_fullMapScene; 
+    QTimer *m_spawnTimer;           
     
-    // Using one QPair member for player position
-    QPair<int, int> m_playerPosition = {MAP_SIZE / 2, MAP_SIZE / 2}; // Initial center position
-    // int m_playerMapX; and int m_playerMapY; removed/consolidated
-
-    int m_currentLevel = 1; // Initialized here
     bool m_chestFound;
     MonsterAttitude m_currentMonsterAttitude;
     
-    // --- Character State Members (for GameState) ---
+    // Character State Members (for GameState)
     QString m_partyLeaderName; 
     QString m_partyLeaderRace; 
     QString m_partyLeaderAlignment; 
     
-    // --- UI Member Widgets ---
+    // UI Member Widgets
     QLabel *m_locationLabel;
     QLabel *m_compassLabel;
     QGraphicsView *m_miniMapView;
     QListWidget *m_messageLog;
-    QPushButton *m_chestButton; // Re-added
+    QPushButton *m_chestButton; 
 
-    // --- Gold Management Members ---
+    // Gold Management Members
     QLabel *m_goldLabel;        
-    quint64 m_currentGold;      
     void updateGoldLabel();     
 
     PartyInfoDialog *m_partyInfoDialog;
     
-    // --- Party Management Member ---
-    QTableWidget *m_partyTable; 
+    // Party Management Member
+    QTableWidget *m_partyTable; // DECLARATION CONFIRMED
 
-    // --- Health Management Helper ---
-    void updatePartyMemberHealth(int row, int damage);
+    // Health Management Helper
+    void updatePartyMemberHealth(int row, int damage); // DECLARATION CONFIRMED
 
-    // --- Map generation/management ---
-    QSet<QPair<int, int>> m_obstaclePositions;
+    // Map generation/management
+    QSet<QPair<int, int>> m_obstaclePositions; // DECLARATION CONFIRMED
     void generateRandomObstacles(int obstacleCount);
     void generateStairs(); 
     void generateSpecialTiles(int tileCount); 
@@ -141,7 +132,7 @@ private:
     QSet<QPair<int, int>> m_teleportPositions; 
     QSet<QPair<int, int>> m_waterPositions;    
     
-    // Map data from previous step
+    // Map data
     QMap<QPair<int, int>, QString> m_monsterPositions;
     QMap<QPair<int, int>, QString> m_treasurePositions;
     QMap<QPair<int, int>, QString> m_trapPositions;
@@ -154,7 +145,7 @@ private:
     void movePlayer(int dx, int dy);
     
     // Helper functions
-    void logMessage(const QString& message); // RE-ADDED: Declaration needed for definition in .cpp
+    void logMessage(const QString& message); 
     void keyPressEvent(QKeyEvent *event) override;
     void spawnMonsters(const QString& monsterType, int count);
     
