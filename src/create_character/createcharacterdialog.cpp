@@ -1,5 +1,6 @@
 #include "createcharacterdialog.h"
 #include "src/race_data/RaceData.h" 
+#include "../../GameStateManager.h" // ADDED: Include GameStateManager
 
 #include <QScreen>
 #include <QGuiApplication>
@@ -365,6 +366,38 @@ void CreateCharacterDialog::onSaveCharacterClicked() {
         return;
     }
 
+    // Determine selected Guild
+    QListWidgetItem* selectedGuildItem = guildsListWidget->currentItem();
+    QString selectedGuild = "None";
+    
+    // Check if an item is selected AND if it's enabled 
+    if (selectedGuildItem && (selectedGuildItem->flags() & Qt::ItemIsEnabled)) {
+        selectedGuild = selectedGuildItem->text();
+    }
+    
+    // --- START GAME STATE UPDATE ---
+    GameStateManager* gsm = GameStateManager::instance();
+    
+    // Update basic character info
+    gsm->setGameValue("CurrentCharacterName", characterName);
+    gsm->setGameValue("CurrentCharacterRace", raceBox->currentText());
+    gsm->setGameValue("CurrentCharacterSex", sexBox->currentText());
+    gsm->setGameValue("CurrentCharacterAlignment", alignmentBox->currentText());
+    gsm->setGameValue("CurrentCharacterGuild", selectedGuild);
+    
+    // Update stat values
+    for (auto it = statSpinBoxes.constBegin(); it != statSpinBoxes.constEnd(); ++it) {
+        // Example: "CurrentCharacterStrength", "CurrentCharacterIntelligence", etc.
+        QString key = QString("CurrentCharacter%1").arg(it.key());
+        gsm->setGameValue(key, it.value()->value());
+    }
+    
+    // Update remaining stat points
+    gsm->setGameValue("CurrentCharacterStatPointsLeft", this->statPoints);
+    
+    // --- END GAME STATE UPDATE ---
+
+
     // 2. Define the file path (e.g., "JohnDoe.txt")
     QString filename = characterName + ".txt";
     QFile file(filename);
@@ -392,18 +425,11 @@ void CreateCharacterDialog::onSaveCharacterClicked() {
 
     // --- Guild ---
     out << "\n--- GUILD ---\n";
-    QListWidgetItem* selectedGuildItem = guildsListWidget->currentItem();
-    QString selectedGuild = "None";
-    
-    // Check if an item is selected AND if it's enabled 
-    if (selectedGuildItem && (selectedGuildItem->flags() & Qt::ItemIsEnabled)) {
-        selectedGuild = selectedGuildItem->text();
-    }
-    out << "Guild: " << selectedGuild << "\n";
+    out << "Guild: " << selectedGuild << "\n"; // Use the 'selectedGuild' determined above
 
     file.close();
 
-    QMessageBox::information(this, "Save Character", QString("Character **%1** saved successfully to **%2**.").arg(characterName).arg(filename));
+    QMessageBox::information(this, "Save Character", QString("Character **%1** saved successfully to **%2** and loaded into the Game State Manager.").arg(characterName).arg(filename));
 }
 
 

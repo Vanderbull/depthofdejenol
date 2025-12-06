@@ -83,7 +83,8 @@ SOURCES += game_menu.cpp \
     src/partyinfo_dialog/partyinfodialog.cpp \
     src/dungeonmap/dungeonmap.cpp \ 
     src/bank_dialog/TradeDialog.cpp \
-    src/game_resources.cpp
+    src/game_resources.cpp \
+    GameStateManager.cpp
 SOURCES += src/event/EventManager.cpp
 
 HEADERS += game_menu.h \
@@ -117,7 +118,8 @@ HEADERS += game_menu.h \
     src/partyinfo_dialog/partyinfodialog.h \
     src/dungeonmap/dungeonmap.h \
     src/bank_dialog/TradeDialog.h \
-    include/game_resources.h
+    include/game_resources.h \
+    GameStateManager.h
 
 HEADERS += src/event/EventManager.h
 

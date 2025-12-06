@@ -1,4 +1,5 @@
 #include "hallofrecordsdialog.h"
+#include "GameStateManager.h" // Include the GameStateManager header
 
 #include <QVBoxLayout>
 #include <QHBoxLayout>
@@ -35,6 +36,51 @@ HallOfRecordsDialog::HallOfRecordsDialog(QWidget *parent) : QDialog(parent) {
     QVBoxLayout *rootLayout = new QVBoxLayout(this);
     rootLayout->setSpacing(20);
     rootLayout->setContentsMargins(40, 40, 40, 40);
+
+    // -----------------------------------------------------------------
+    // --- GAME STATE MANAGER INTEGRATION: Displaying System State ---
+    // -----------------------------------------------------------------
+    
+    QGridLayout *stateLayout = new QGridLayout();
+    stateLayout->setHorizontalSpacing(20);
+    stateLayout->setContentsMargins(0, 0, 0, 10); // Margin below the state box
+    
+    QLabel *stateTitle = new QLabel("System State (from GameStateManager)");
+    stateTitle->setStyleSheet("font-weight: bold; font-size: 14px; color: #444;");
+    stateLayout->addWidget(stateTitle, 0, 0, 1, 4, Qt::AlignLeft);
+
+    // Helper function to format boolean status
+    auto formatStatus = [](bool status) -> QString {
+        return status ? "<span style='color: green; font-weight: bold;'>OK</span>" : "<span style='color: red; font-weight: bold;'>ERROR</span>";
+    };
+
+    // Row 1: Game Version and Player Score
+    // Get values from the manager
+    GameStateManager* gsm = GameStateManager::instance();
+    QString gameVersion = gsm->getGameValue("GameVersion").toString();
+    int playerScore = gsm->getGameValue("PlayerScore").toInt();
+    
+    stateLayout->addWidget(new QLabel("<b>Version:</b>"), 1, 0, Qt::AlignLeft);
+    stateLayout->addWidget(new QLabel(gameVersion), 1, 1, Qt::AlignLeft);
+    
+    stateLayout->addWidget(new QLabel("<b>Player Score:</b>"), 1, 2, Qt::AlignLeft);
+    stateLayout->addWidget(new QLabel(QString::number(playerScore)), 1, 3, Qt::AlignLeft);
+
+    // Row 2: Resources and Configuration Status
+    bool resourcesLoaded = gsm->getGameValue("ResourcesLoaded").toBool();
+    bool configOK = gsm->getGameValue("ConfigIntegrityOK").toBool();
+    
+    stateLayout->addWidget(new QLabel("<b>Resources Loaded:</b>"), 2, 0, Qt::AlignLeft);
+    stateLayout->addWidget(new QLabel(formatStatus(resourcesLoaded)), 2, 1, Qt::AlignLeft);
+
+    stateLayout->addWidget(new QLabel("<b>Config Integrity:</b>"), 2, 2, Qt::AlignLeft);
+    stateLayout->addWidget(new QLabel(formatStatus(configOK)), 2, 3, Qt::AlignLeft);
+
+    rootLayout->addLayout(stateLayout);
+    // -----------------------------------------------------------------
+    // --- END GAME STATE MANAGER INTEGRATION ---
+    // -----------------------------------------------------------------
+
 
     // Records layout
     QGridLayout *recordsLayout = new QGridLayout();
@@ -103,13 +149,7 @@ HallOfRecordsDialog::HallOfRecordsDialog(QWidget *parent) : QDialog(parent) {
         QLabel *masterNameLabel = new QLabel(masterName);
         recordsLayout->addWidget(masterNameLabel, row, 1, Qt::AlignLeft);
 
-        // --- Column 3: Sample Date Set ---
-        // Generate a sample date for variation
-        //QDate date = QDate::currentDate().addDays(-(i * 10 + 5)); 
-        //QLabel *dateLabel = new QLabel(date.toString("MMM d, yyyy"));
-        //recordsLayout->addWidget(dateLabel, row, 2, Qt::AlignCenter);
-
-        // --- Column 4: Record Value ---
+        // --- Column 3: Record Value ---
         QString statString = QString("%1 %2").arg(statValues.at(i)).arg(statNames.at(i));
         QLabel *statLabel = new QLabel(statString);
         recordsLayout->addWidget(statLabel, row, 2, Qt::AlignCenter);

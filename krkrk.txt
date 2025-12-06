@@ -1,0 +1,16 @@
+CHARACTER_FILE_VERSION: 1.0
+Name: krkrk
+Race: Elf
+Sex: Male
+Alignment: Good
+
+--- STATS ---
+Charisma: 3
+Constitution: 3
+Dexterity: 3
+Intelligence: 7
+Strength: 3
+Wisdom: 7
+
+--- GUILD ---
+Guild: Sorcerer
