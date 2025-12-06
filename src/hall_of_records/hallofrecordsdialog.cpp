@@ -1,3 +1,4 @@
+// hallofrecordsdialog.cpp
 #include "hallofrecordsdialog.h"
 #include "GameStateManager.h" // Include the GameStateManager header
 
@@ -5,175 +6,153 @@
 #include <QHBoxLayout>
 #include <QGridLayout>
 #include <QLabel>
-#include <QScreen>
-#include <QGuiApplication>
-#include <QFile>
 #include <QPushButton> 
-#include <QDate> 
+#include <QVariantList> // Added for guild leader list access
+#include <QVariantMap>  // Added for guild leader map access
+#include <QLocale>      // Added for number formatting (e.g., thousands separator for Gold)
+#include <QDebug>       // Added for warning logs
 
-// FIX: Corrected constructor name capitalization from HallofRecordsDialog to HallOfRecordsDialog
 HallOfRecordsDialog::HallOfRecordsDialog(QWidget *parent) : QDialog(parent) {
-    setWindowTitle("Records of Masters and Abilities");
+    // Removed setFixedSize() to allow resizing
+    setMinimumSize(750, 480); // Set a minimum size to ensure content readability
+    setWindowTitle("Hall of Records"); 
 
-    // Load external style sheet
-    QFile styleSheetFile("style.qss");
-    if (styleSheetFile.open(QFile::ReadOnly | QFile::Text)) {
-        setStyleSheet(styleSheetFile.readAll());
-        styleSheetFile.close();
-    }
-
-    // Get screen geometry to make the window scale with screen resolution
-    QScreen *screen = QGuiApplication::primaryScreen();
-    QRect screenGeometry = screen->geometry();
-    int windowWidth = screenGeometry.width() * 0.75;
-    int windowHeight = screenGeometry.height() * 0.70;
-
-    // Set a minimum size to prevent the window from becoming too small
-    setMinimumSize(750, 600);
-    resize(windowWidth, windowHeight);
-
-    // Main layout is a vertical box to stack the records layout and the close button
+    // Main layout is a vertical box to stack the title, records, and the exit button
     QVBoxLayout *rootLayout = new QVBoxLayout(this);
-    rootLayout->setSpacing(20);
-    rootLayout->setContentsMargins(40, 40, 40, 40);
+    rootLayout->setSpacing(10);
+    rootLayout->setContentsMargins(15, 15, 15, 15);
 
-    // -----------------------------------------------------------------
-    // --- GAME STATE MANAGER INTEGRATION: Displaying System State ---
-    // -----------------------------------------------------------------
+    // --- Title Label ---
+    QLabel *recordsTitle = new QLabel("Records & Masters of Abilities");
+    QFont titleFont = recordsTitle->font();
+    titleFont.setBold(true);
+    titleFont.setPointSize(titleFont.pointSize() + 2); 
+    recordsTitle->setFont(titleFont);
+    recordsTitle->setAlignment(Qt::AlignCenter);
     
-    QGridLayout *stateLayout = new QGridLayout();
-    stateLayout->setHorizontalSpacing(20);
-    stateLayout->setContentsMargins(0, 0, 0, 10); // Margin below the state box
+    // Add a horizontal line separator (QLabel used as a line)
+    QLabel *separator = new QLabel();
+    separator->setFrameShape(QFrame::HLine);
+    separator->setFrameShadow(QFrame::Sunken);
     
-    QLabel *stateTitle = new QLabel("System State (from GameStateManager)");
-    stateTitle->setStyleSheet("font-weight: bold; font-size: 14px; color: #444;");
-    stateLayout->addWidget(stateTitle, 0, 0, 1, 4, Qt::AlignLeft);
+    rootLayout->addWidget(recordsTitle);
+    rootLayout->addWidget(separator);
 
-    // Helper function to format boolean status
-    auto formatStatus = [](bool status) -> QString {
-        return status ? "<span style='color: green; font-weight: bold;'>OK</span>" : "<span style='color: red; font-weight: bold;'>ERROR</span>";
-    };
+    // --- Records Container Layout (Two columns side-by-side) ---
+    QHBoxLayout *recordsContainerLayout = new QHBoxLayout();
+    recordsContainerLayout->setSpacing(35); // Space between the two main columns
 
-    // Row 1: Game Version and Player Score
-    // Get values from the manager
+    // Left Column Layout
+    QGridLayout *leftRecordsLayout = new QGridLayout();
+    leftRecordsLayout->setVerticalSpacing(8);
+    // Set column stretch: 1 for Achievement (Name), 4 for Details (Value/Unit/Master)
+    leftRecordsLayout->setColumnStretch(0, 1); 
+    leftRecordsLayout->setColumnStretch(1, 4); 
+
+    // Right Column Layout
+    QGridLayout *rightRecordsLayout = new QGridLayout();
+    rightRecordsLayout->setVerticalSpacing(8);
+    // Set column stretch for the right column as well
+    rightRecordsLayout->setColumnStretch(0, 1); 
+    rightRecordsLayout->setColumnStretch(1, 4); 
+
+    // --- GAME STATE MANAGER INTEGRATION ---
     GameStateManager* gsm = GameStateManager::instance();
-    QString gameVersion = gsm->getGameValue("GameVersion").toString();
-    int playerScore = gsm->getGameValue("PlayerScore").toInt();
+    QVariantList guildLeadersList = gsm->getGameValue("GuildLeaders").toList();
     
-    stateLayout->addWidget(new QLabel("<b>Version:</b>"), 1, 0, Qt::AlignLeft);
-    stateLayout->addWidget(new QLabel(gameVersion), 1, 1, Qt::AlignLeft);
+    int numRecords = guildLeadersList.size();
+    // Split the records roughly in half for two columns
+    int leftColumnSize = (numRecords + 1) / 2; 
     
-    stateLayout->addWidget(new QLabel("<b>Player Score:</b>"), 1, 2, Qt::AlignLeft);
-    stateLayout->addWidget(new QLabel(QString::number(playerScore)), 1, 3, Qt::AlignLeft);
+    int leftRowIndex = 0;
+    int rightRowIndex = 0;
 
-    // Row 2: Resources and Configuration Status
-    bool resourcesLoaded = gsm->getGameValue("ResourcesLoaded").toBool();
-    bool configOK = gsm->getGameValue("ConfigIntegrityOK").toBool();
-    
-    stateLayout->addWidget(new QLabel("<b>Resources Loaded:</b>"), 2, 0, Qt::AlignLeft);
-    stateLayout->addWidget(new QLabel(formatStatus(resourcesLoaded)), 2, 1, Qt::AlignLeft);
+    for (int i = 0; i < numRecords; ++i) {
+        const QVariant& variant = guildLeadersList.at(i);
+        if (!variant.canConvert<QVariantMap>()) {
+            qWarning() << "HallOfRecordsDialog: Skipped invalid QVariant entry in GuildLeaders list.";
+            continue;
+        }
 
-    stateLayout->addWidget(new QLabel("<b>Config Integrity:</b>"), 2, 2, Qt::AlignLeft);
-    stateLayout->addWidget(new QLabel(formatStatus(configOK)), 2, 3, Qt::AlignLeft);
+        QVariantMap leaderData = variant.toMap();
 
-    rootLayout->addLayout(stateLayout);
-    // -----------------------------------------------------------------
-    // --- END GAME STATE MANAGER INTEGRATION ---
-    // -----------------------------------------------------------------
-
-
-    // Records layout
-    QGridLayout *recordsLayout = new QGridLayout();
-    recordsLayout->setSpacing(10);
-    // Setting column stretches for better visual appeal: Category, Master, Date, Stat
-    recordsLayout->setColumnStretch(0, 1);
-    recordsLayout->setColumnStretch(1, 1);
-    recordsLayout->setColumnStretch(2, 0);
-    recordsLayout->setColumnStretch(3, 0);
-
-    QLabel *recordsTitle = new QLabel("Records of Masters and Abilities");
-    recordsTitle->setStyleSheet("font-size: 20px; font-weight: bold; margin-bottom: 10px;");
-    // Span title across all 4 columns
-    recordsLayout->addWidget(recordsTitle, 0, 0, 1, 4, Qt::AlignCenter);
-
-    // Define the new categories
-    QStringList categories = {
-        "Strongest", "Smartest", "Wisest", "Healthiest", "Most Attractive","Deadliest (Defeated)", 
-	"Most Experienced Explorer", "Wealthiest Explorer", "Master of Fighting", "Master of Magic", "Master of Thieving"
-    };    
-    // Companion list for sample stat names and values
-    QStringList masterNames = {
-	"Crashland","Mager","Theshal","Orgal","Alaya","Nimblefingers",
-	"Crashland","Nimlefingers","Morgul","Ge'nal","Nimblefingers"
-    };
-    QStringList statNames = {
-        "Strength", "Intelligence", "Wisdom", "Constitution", "Charisma","Dexterity",
-        "Kobold", "Experience", "Gold", "Fight Skill", "Knowledge & Power", "Thieving Skill"
-    };
-
-    QList<int> statValues = {
-        14, 15, 18, 14, 15, 17, 0, 1322451, 5466453, 17, 6, 15
-    };
-
-
-    // Headers for the record table
-    int headerRow = 1;
-    
-    QLabel *categoryHeader = new QLabel("Category");
-    categoryHeader->setStyleSheet("font-weight: bold;");
-    recordsLayout->addWidget(categoryHeader, headerRow, 0, Qt::AlignLeft);
-
-    QLabel *masterHeader = new QLabel("Master");
-    masterHeader->setStyleSheet("font-weight: bold;");
-    recordsLayout->addWidget(masterHeader, headerRow, 1, Qt::AlignLeft);
-    
-    //QLabel *dateHeader = new QLabel("Date Set");
-    //dateHeader->setStyleSheet("font-weight: bold;");
-    //recordsLayout->addWidget(dateHeader, headerRow, 2, Qt::AlignCenter);
-
-    QLabel *statHeader = new QLabel("Record Value");
-    statHeader->setStyleSheet("font-weight: bold;");
-    recordsLayout->addWidget(statHeader, headerRow, 2, Qt::AlignCenter);
-
-
-    // Populate the grid with the new categories and sample data
-    for (int i = 0; i < categories.size(); ++i) {
-        int row = i + 2;
+        // Extract data
+        QString achievement = leaderData.value("Achievement").toString();
+        QString leaderName = leaderData.value("Name").toString();
+        QVariant recordValue = leaderData.value("RecordValue");
+        QString recordUnit = leaderData.value("RecordUnit").toString();
         
-        // --- Column 1: Category Name ---
-        QLabel *categoryLabel = new QLabel(categories.at(i));
-        recordsLayout->addWidget(categoryLabel, row, 0, Qt::AlignLeft);
+        // Use QLocale for number formatting (e.g., thousands separator)
+        QString recordValueString = "";
+        if (recordValue.typeId() == QMetaType::ULongLong) {
+            recordValueString = QLocale().toString(recordValue.toULongLong());
+        } else {
+            recordValueString = recordValue.toString();
+        }
 
-        // --- Column 2: Sample Master Name ---
-        QString masterName = masterNames.at(i);
-        QLabel *masterNameLabel = new QLabel(masterName);
-        recordsLayout->addWidget(masterNameLabel, row, 1, Qt::AlignLeft);
+        // 1. Achievement Title 
+        QLabel *achievementLabel = new QLabel(achievement);
+        QFont achievementFont = achievementLabel->font();
+        achievementFont.setBold(true); 
+        achievementLabel->setFont(achievementFont);
+        
+        // 2. Record Details 
+        QString recordValueDisplay = recordValueString;
+        if (!recordUnit.isEmpty()) {
+            recordValueDisplay = QString("%1 %2").arg(recordValueString).arg(recordUnit);
+        }
 
-        // --- Column 3: Record Value ---
-        QString statString = QString("%1 %2").arg(statValues.at(i)).arg(statNames.at(i));
-        QLabel *statLabel = new QLabel(statString);
-        recordsLayout->addWidget(statLabel, row, 2, Qt::AlignCenter);
+        // Format: Set by "Name" of "Guild" <br> Record: [Value] [Unit]
+        // NOTE: The "Guild" key is not always present in the current GameStateManager initialization, 
+        // but keeping it here for a standard format, or using a placeholder if empty.
+        QString guildName = leaderData.value("Guild").toString();
+        if (guildName.isEmpty()) {
+            guildName = "The Explorers"; // Placeholder/Default
+        }
+        
+        QString detailString = QString("Set by \"<span style='font-weight:bold;'>%1</span>\" of \"<span style='font-weight:bold;'>%2</span>\"<br>Record Value: %3")
+                       .arg(leaderName)
+                       .arg(guildName)
+                       .arg(recordValueDisplay);
+
+        QLabel *detailLabel = new QLabel(detailString);
+        detailLabel->setTextFormat(Qt::RichText); // Keep RichText to handle the <br> and basic bolding
+
+        // --- Add to appropriate column ---
+        if (i < leftColumnSize) { // First half records go to the left column
+            leftRecordsLayout->addWidget(achievementLabel, leftRowIndex, 0, Qt::AlignLeft | Qt::AlignTop);
+            leftRecordsLayout->addWidget(detailLabel, leftRowIndex, 1, Qt::AlignLeft | Qt::AlignTop);
+            leftRowIndex++;
+        } else { // Remaining records go to the right column
+            rightRecordsLayout->addWidget(achievementLabel, rightRowIndex, 0, Qt::AlignLeft | Qt::AlignTop);
+            rightRecordsLayout->addWidget(detailLabel, rightRowIndex, 1, Qt::AlignLeft | Qt::AlignTop);
+            rightRowIndex++;
+        }
     }
 
-    // Add the records layout to the root layout
-    rootLayout->addLayout(recordsLayout);
+    // Add layouts to the container
+    recordsContainerLayout->addLayout(leftRecordsLayout);
+    recordsContainerLayout->addLayout(rightRecordsLayout);
+    
+    rootLayout->addLayout(recordsContainerLayout);
 
     // Add a spacer to push the close button to the bottom
     rootLayout->addStretch(1);
 
-    // Close button at the bottom center
-    QPushButton *closeButton = new QPushButton("Close");
-    closeButton->setFixedSize(150, 40);
+    // --- Exit Button ---
+    QPushButton *exitButton = new QPushButton("Exit"); 
+    // INCREASED SIZE HERE: 150 wide, 35 high.
+    exitButton->setFixedSize(150, 35); 
     
     // Create a horizontal layout just for the close button to center it
     QHBoxLayout *bottomLayout = new QHBoxLayout();
     bottomLayout->addStretch(1);
-    bottomLayout->addWidget(closeButton);
+    bottomLayout->addWidget(exitButton);
     bottomLayout->addStretch(1);
 
     rootLayout->addLayout(bottomLayout);
 
-    connect(closeButton, &QPushButton::clicked, this, &QDialog::close);
+    connect(exitButton, &QPushButton::clicked, this, &QDialog::close);
 }
 
 HallOfRecordsDialog::~HallOfRecordsDialog() {}

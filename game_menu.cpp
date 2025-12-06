@@ -21,6 +21,8 @@
 // --- NEW INCLUDE ADDED FOR DATA LOADING ---
 #include "src/race_data/RaceData.h" 
 #include "src/event/EventManager.h" // include the event system
+// --- GAME STATE INTEGRATION ---
+#include "GameStateManager.h" // Include the GameStateManager header
 
 // Qt component includes
 #include <QVBoxLayout>
@@ -68,6 +70,11 @@ GameMenu::GameMenu(QWidget *parent)
     , m_settings("MyCompany", "MyApp")
     , m_subfolderName(m_settings.value("Paths/SubfolderName", "data/characters").toString()) 
 {
+    // --- GAME STATE INTEGRATION START ---
+    // LOG INITIAL GAME STATE INFO
+    qDebug() << "Current Game Version:" << GameStateManager::instance()->getGameValue("GameVersion").toString();
+    // --- GAME STATE INTEGRATION END ---
+
     EventManager::instance()->loadEvents("./data/events-json");
     // Connect event system to this menu
     connect(EventManager::instance(), &EventManager::eventTriggered,
@@ -105,8 +112,14 @@ GameMenu::GameMenu(QWidget *parent)
         // Trigger a resize event immediately to apply the initial scaling
         resizeEvent(nullptr); 
         qDebug() << "Successfully loaded background image.";
+        
+        // --- GAME STATE INTEGRATION EXAMPLE 1: Set a state value ---
+        GameStateManager::instance()->setGameValue("ResourcesLoaded", true); 
+
     } else {
         qDebug() << "FATAL: Could not load background image from:" << imagePath;
+        // Ensure state reflects failure if needed
+        GameStateManager::instance()->setGameValue("ResourcesLoaded", false);
     }
     
     // Get screen geometry to make the window scale with screen resolution
@@ -238,6 +251,12 @@ GameMenu::GameMenu(QWidget *parent)
     m_audioOutput->setVolume(0.5); // Set volume (0.0 to 1.0 in modern Qt, previously 0-100)
     m_player->play();
     qDebug() << "Playing audio from GameMenu constructor...";
+    
+    // --- GAME STATE INTEGRATION EXAMPLE 2: Check a state value ---
+    if (GameStateManager::instance()->areResourcesLoaded()) {
+        qDebug() << "Initial resource check passed via GameStateManager. Player Gold:" << GameStateManager::instance()->getGameValue("PlayerGold").toULongLong();
+    }
+    
     // --- End Audio Setup ---
 }
 
