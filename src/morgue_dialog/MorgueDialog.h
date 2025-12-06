@@ -6,7 +6,9 @@
 #include <QPushButton>
 #include <QVBoxLayout>
 #include <QHBoxLayout>
-#include <QComboBox> 
+#include <QComboBox>
+
+#include "GameStateManager.h" // Include the GameStateManager header
 
 class MorgueDialog : public QDialog
 {

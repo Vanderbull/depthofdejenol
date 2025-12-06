@@ -2,10 +2,12 @@
 #define OPTIONSDIALOG_H
 
 #include <QDialog>
-#include <QLabel> // Add this line
-#include <QPushButton> // Add this line if not present
-#include <QCheckBox> // Add this line if not present
-#include <QSlider> // Add this line if not present
+#include <QLabel>
+#include <QPushButton>
+#include <QCheckBox>
+#include <QSlider>
+
+#include "GameStateManager.h" // Include the GameStateManager header
 
 class QCheckBox;
 class QSlider;

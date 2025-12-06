@@ -6,6 +6,8 @@
 #include <QVector> 
 #include <QStringList>
 
+#include "GameStateManager.h" // Include the GameStateManager header
+
 class PartyInfoDialog : public QDialog {
     Q_OBJECT
 

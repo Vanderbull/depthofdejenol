@@ -1,6 +1,6 @@
 #include "createcharacterdialog.h"
-#include "src/race_data/RaceData.h" 
-#include "../../GameStateManager.h" // ADDED: Include GameStateManager
+#include "src/race_data/RaceData.h"
+//#include "../../GameStateManager.h" // ADDED: Include GameStateManager
 
 #include <QScreen>
 #include <QGuiApplication>

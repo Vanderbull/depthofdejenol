@@ -8,6 +8,8 @@
 #include <QHBoxLayout>
 #include <QLabel>
 
+#include "GameStateManager.h" // Include the GameStateManager header
+
 class SeerDialog : public QDialog
 {
     Q_OBJECT

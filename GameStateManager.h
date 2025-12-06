@@ -31,6 +31,9 @@ public:
     void setGameValue(const QString& key, const QVariant& value);
     QVariant getGameValue(const QString& key) const;
 
+    // Public method to dump the entire game state to debug output
+    void printAllGameState() const; 
+
     // Example: Check if all resources are loaded
     bool areResourcesLoaded() const; 
 

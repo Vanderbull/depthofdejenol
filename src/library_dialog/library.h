@@ -11,6 +11,8 @@
 #include <QComboBox> // Added for category selection
 #include <QStackedWidget> // Added to potentially switch list views (for future proofing)
 
+#include "GameStateManager.h" // Include the GameStateManager header
+
 /**
  * @brief The LibraryDialog class simulates the 'Library of Knowledge' from Mordor.
  *

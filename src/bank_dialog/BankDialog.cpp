@@ -1,5 +1,6 @@
+// BankDialog.cpp
 #include "BankDialog.h"
-#include "TradeDialog.h" // NEW: Include the Trade Dialog
+#include "TradeDialog.h"
 #include <QGridLayout>
 #include <QHBoxLayout>
 #include <QVBoxLayout>
@@ -7,11 +8,24 @@
 #include <QDebug>
 #include <QStandardItem>
 
+// --- Helper Methods to Read Gold from GSM ---
+long long BankDialog::getPlayerGold()
+{
+    // Fetch and convert PlayerGold from GSM (qulonglong)
+    return GameStateManager::instance()->getGameValue("PlayerGold").toULongLong();
+}
+
+long long BankDialog::getBankedGold()
+{
+    // Fetch and convert BankedGold from GSM (qulonglong)
+    return GameStateManager::instance()->getGameValue("BankedGold").toULongLong();
+}
+// ---------------------------------------------
+
 // --- Constructor ---
 BankDialog::BankDialog(QWidget *parent) :
     QDialog(parent),
-    currentGold(1000), // Player's gold, set to 1000 for demonstration.
-    bankedGold(0),     // **Bank Gold is now 0 as requested.**
+    // REMOVED: currentGold and bankedGold local variables
     freeSlots(24)      // Example data
 {
     // Initialize item models
@@ -25,8 +39,8 @@ BankDialog::BankDialog(QWidget *parent) :
     createConnections();
 
     // 3. Set initial data
-    // Updated to pass both player gold and banked gold
-    updateAccountStatus(currentGold, bankedGold, freeSlots);
+    // Use the values retrieved from GameStateManager
+    updateAccountStatus(getPlayerGold(), getBankedGold(), freeSlots);
 
     // Populate item list with example data (These items start in the bank)
     QStringList initialBankItems;
@@ -47,28 +61,26 @@ BankDialog::BankDialog(QWidget *parent) :
     }
 }
 
-// --- Destructor ---
+// --- Destructor (REQUIRED for Linker Fix) ---
 BankDialog::~BankDialog()
 {
-    // Note: Qt's parent-child hierarchy handles the deletion of widgets 
-    // that have 'this' (the dialog) as a parent.
+    // Qt's parent-child hierarchy handles the deletion of widgets
 }
 
-// --- Setup Methods ---
+// --- Setup Methods (REQUIRED for Linker Fix) ---
 
 void BankDialog::setupUi()
 {
     setWindowTitle("Bank Deposit/Withdrawal");
-    setMinimumSize(400, 500); // Set a reasonable default size
+    setMinimumSize(400, 500); 
 
-    // Main layout uses QGridLayout for structured positioning
     QGridLayout *mainLayout = new QGridLayout(this);
     
     // --- Row 0: Title ---
     QLabel *titleLabel = new QLabel("Welcome to the Bank!", this);
     titleLabel->setAlignment(Qt::AlignCenter);
     titleLabel->setStyleSheet("font-size: 16pt; font-weight: bold; color: #4CAF50;");
-    mainLayout->addWidget(titleLabel, 0, 0, 1, 3); // Spanning all columns
+    mainLayout->addWidget(titleLabel, 0, 0, 1, 3); 
 
     // --- Row 1: Status ---
     statusLabel = new QLabel(this);
@@ -84,7 +96,6 @@ void BankDialog::setupUi()
     mainLayout->addWidget(depositLineEdit, 3, 0);
 
     depositAllButton = new QPushButton("All", this);
-    // Explicitly prevent this button from becoming the default button
     depositAllButton->setAutoDefault(false); 
     depositAllButton->setDefault(false);
     mainLayout->addWidget(depositAllButton, 3, 1);
@@ -97,7 +108,6 @@ void BankDialog::setupUi()
     mainLayout->addWidget(withdrawLineEdit, 5, 0);
 
     withdrawAllButton = new QPushButton("All", this);
-    // Explicitly prevent this button from becoming the default button
     withdrawAllButton->setAutoDefault(false);
     withdrawAllButton->setDefault(false);
     mainLayout->addWidget(withdrawAllButton, 5, 1);
@@ -118,12 +128,12 @@ void BankDialog::setupUi()
     // Horizontal layout for two side-by-side buttons
     QHBoxLayout *partyHLayout1 = new QHBoxLayout();
     poolAndDepositButton = new QPushButton("Pool & Deposit", this);
-    poolAndDepositButton->setAutoDefault(false); // Also set non-default for other buttons
+    poolAndDepositButton->setAutoDefault(false); 
     partyDepositButton = new QPushButton("Party Deposit", this);
     partyDepositButton->setAutoDefault(false);
     partyHLayout1->addWidget(poolAndDepositButton);
     partyHLayout1->addWidget(partyDepositButton);
-    mainLayout->addLayout(partyHLayout1, 8, 0, 1, 2); // Spanning two columns
+    mainLayout->addLayout(partyHLayout1, 8, 0, 1, 2); 
 
     partyPoolAndDepositButton = new QPushButton("Party Pool & Deposit", this);
     partyPoolAndDepositButton->setAutoDefault(false);
@@ -131,15 +141,13 @@ void BankDialog::setupUi()
 
     // --- Row 9: Info and Exit (Right) ---
     QHBoxLayout *bottomRightLayout = new QHBoxLayout();
-    infoButton = new QPushButton("Trade Items", this); // Changed text to reflect item handling
+    infoButton = new QPushButton("Trade Items", this); 
     infoButton->setAutoDefault(false);
     exitButton = new QPushButton("Exit", this);
-    // Setting the Exit button as default or auto default is fine, as it's the typical action. 
-    // But setting it to false removes all potential conflicts.
     exitButton->setAutoDefault(false);
     exitButton->setDefault(false);
     
-    bottomRightLayout->addStretch(1); // Push buttons to the right
+    bottomRightLayout->addStretch(1); 
     bottomRightLayout->addWidget(infoButton);
     bottomRightLayout->addWidget(exitButton);
     mainLayout->addLayout(bottomRightLayout, 9, 2);
@@ -188,17 +196,20 @@ void BankDialog::updateAccountStatus(long long playerGold, long long bankGold, i
 
 void BankDialog::on_depositAllButton_clicked()
 {
+    long long playerGold = getPlayerGold();
+    long long bankedGold = getBankedGold();
+    
     // Deposit all player gold into the bank
-    if (currentGold > 0) {
-        // Since we are clearing the line edit later, we need to pass the currentGold amount to the signal
-        // before setting currentGold to 0.
-        long long amountToDeposit = currentGold; 
+    if (playerGold > 0) {
+        long long amountToDeposit = playerGold; 
 
-        bankedGold += currentGold;
-        currentGold = 0;
-        updateAccountStatus(currentGold, bankedGold, freeSlots);
+        // Update GSM: Increase BankedGold by playerGold, set PlayerGold to 0
+        GameStateManager::instance()->setGameValue("BankedGold", QVariant::fromValue(bankedGold + playerGold));
+        // Use qulonglong for explicit type safety with large numbers
+        GameStateManager::instance()->setGameValue("PlayerGold", QVariant::fromValue((qulonglong)0)); 
+        
+        updateAccountStatus(0, bankedGold + playerGold, freeSlots);
         depositLineEdit->clear();
-        // Emits the amount that was deposited
         emit depositGold(amountToDeposit); 
         QMessageBox::information(this, "Deposit", "Deposited ALL your gold into the bank.");
     } else {
@@ -208,15 +219,20 @@ void BankDialog::on_depositAllButton_clicked()
 
 void BankDialog::on_withdrawAllButton_clicked()
 {
+    long long playerGold = getPlayerGold();
+    long long bankedGold = getBankedGold();
+    
     // Withdraw all bank gold into the player's inventory
     if (bankedGold > 0) {
         long long amountToWithdraw = bankedGold;
         
-        currentGold += bankedGold;
-        bankedGold = 0;
-        updateAccountStatus(currentGold, bankedGold, freeSlots);
+        // Update GSM: Increase PlayerGold by bankedGold, set BankedGold to 0
+        GameStateManager::instance()->setGameValue("PlayerGold", QVariant::fromValue(playerGold + bankedGold));
+        // Use qulonglong for explicit type safety with large numbers
+        GameStateManager::instance()->setGameValue("BankedGold", QVariant::fromValue((qulonglong)0));
+        
+        updateAccountStatus(playerGold + bankedGold, 0, freeSlots);
         withdrawLineEdit->clear();
-        // Emits the amount that was withdrawn
         emit withdrawGold(amountToWithdraw); 
         QMessageBox::information(this, "Withdraw", "Withdrew ALL gold from the bank.");
     } else {
@@ -248,32 +264,34 @@ void BankDialog::on_exitButton_clicked()
 void BankDialog::on_infoButton_clicked()
 {
     // Launch the Item Trade Dialog
-    // Pass the player's items (playerItemModel) and the bank's items (itemModel)
     TradeDialog tradeDialog(playerItemModel, itemModel, this);
     tradeDialog.exec();
-    
-    // We don't need to update gold status here, but we could if item trading affected slots/weight.
-    // updateAccountStatus(currentGold, bankedGold, freeSlots);
 }
 
 void BankDialog::updateDepositValue(const QString &text)
 {
     bool ok;
     long long amount = text.toLongLong(&ok);
+    long long playerGold = getPlayerGold();
+    long long bankedGold = getBankedGold();
+    
     depositLineEdit->clear(); // Clear the field after transaction attempt
 
     if (ok && amount > 0) {
-        if (amount <= currentGold) {
+        if (amount <= playerGold) {
             // Successful deposit
-            currentGold -= amount;
-            bankedGold += amount;
+            // Update GSM: Decrease PlayerGold, Increase BankedGold
+            GameStateManager::instance()->setGameValue("PlayerGold", QVariant::fromValue(playerGold - amount));
+            GameStateManager::instance()->setGameValue("BankedGold", QVariant::fromValue(bankedGold + amount));
+            
             QMessageBox::information(this, "Deposit Complete", QString("Successfully deposited %L1 gold.").arg(amount));
             emit depositGold(amount);
         } else {
             // Not enough gold
             QMessageBox::warning(this, "Deposit Failed", "You do not have that much gold in your wallet.");
         }
-        updateAccountStatus(currentGold, bankedGold, freeSlots);
+        // Update status with new values from GSM
+        updateAccountStatus(getPlayerGold(), getBankedGold(), freeSlots);
     } else if (!text.isEmpty()) {
         // Invalid input
         QMessageBox::warning(this, "Invalid Input", "Please enter a valid positive number for the deposit amount.");
@@ -284,20 +302,26 @@ void BankDialog::updateWithdrawValue(const QString &text)
 {
     bool ok;
     long long amount = text.toLongLong(&ok);
+    long long playerGold = getPlayerGold();
+    long long bankedGold = getBankedGold();
+    
     withdrawLineEdit->clear(); // Clear the field after transaction attempt
 
     if (ok && amount > 0) {
         if (amount <= bankedGold) {
             // Successful withdrawal
-            bankedGold -= amount;
-            currentGold += amount;
+            // Update GSM: Decrease BankedGold, Increase PlayerGold
+            GameStateManager::instance()->setGameValue("BankedGold", QVariant::fromValue(bankedGold - amount));
+            GameStateManager::instance()->setGameValue("PlayerGold", QVariant::fromValue(playerGold + amount));
+            
             QMessageBox::information(this, "Withdrawal Complete", QString("Successfully withdrew %L1 gold.").arg(amount));
             emit withdrawGold(amount);
         } else {
             // Not enough gold in the bank
             QMessageBox::warning(this, "Withdrawal Failed", "The bank does not hold that much gold.");
         }
-        updateAccountStatus(currentGold, bankedGold, freeSlots);
+        // Update status with new values from GSM
+        updateAccountStatus(getPlayerGold(), getBankedGold(), freeSlots);
     } else if (!text.isEmpty()) {
         // Invalid input
         QMessageBox::warning(this, "Invalid Input", "Please enter a valid positive number for the withdrawal amount.");
@@ -310,6 +334,5 @@ void BankDialog::handleItemSelectionChanged()
     QModelIndex index = itemListView->currentIndex();
     if (index.isValid()) {
         qDebug() << "Selected item:" << itemModel->data(index, Qt::DisplayRole).toString();
-        // You could enable/disable other buttons here
     }
 }

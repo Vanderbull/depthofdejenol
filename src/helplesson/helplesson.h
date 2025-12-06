@@ -8,6 +8,8 @@
 #include <QToolBar>
 #include <QLabel>
 
+#include "GameStateManager.h" // Include the GameStateManager header
+
 class HelpLessonDialog : public QDialog
 {
     Q_OBJECT

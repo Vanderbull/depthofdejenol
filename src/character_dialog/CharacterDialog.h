@@ -4,6 +4,8 @@
 #include <QDialog>
 #include <QString>
 
+#include "GameStateManager.h" // Include the GameStateManager header
+
 class CharacterDialog : public QDialog {
     Q_OBJECT
 

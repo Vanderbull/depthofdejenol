@@ -4,6 +4,7 @@
 #include <QVariantList> // Added for guild leader initialization
 #include <QVariantMap> // Added for guild leader initialization
 #include <QVariant> // Ensure QVariant::fromValue is available if not in the others
+#include <QMapIterator> // Added for iterating and printing the entire map
 
 // Static pointer to hold the single instance
 GameStateManager* gsm_instance = nullptr;
@@ -31,7 +32,11 @@ GameStateManager::GameStateManager(QObject *parent)
     m_gameStateData["DungeonX"] = 17;
     m_gameStateData["DungeonY"] = 12;
     // Note: QVariant::fromValue is used for qulonglong to ensure correct storage type
-    m_gameStateData["PlayerGold"] = QVariant::fromValue((qulonglong)123458261);
+    m_gameStateData["PlayerGold"] = QVariant::fromValue((qulonglong)0);
+
+    // --- NEW: Initialize Banked Gold state ---
+    // Use the same type as PlayerGold for consistency.
+    m_gameStateData["BankedGold"] = QVariant::fromValue((qulonglong)0);
     
     // Initialize Character Creation Defaults
     m_gameStateData["CurrentCharacterName"] = "";
@@ -174,6 +179,27 @@ GameStateManager::GameStateManager(QObject *parent)
     // -------------------------------------------------------------------------
     
     qDebug() << "GameStateManager initialized with default and user-specified states.";
+}
+
+// -------------------------------------------------------------------------
+// NEW METHOD IMPLEMENTATION: printAllGameState()
+// -------------------------------------------------------------------------
+void GameStateManager::printAllGameState() const
+{
+    qDebug() << "--- START OF GAME STATE DUMP ---";
+    
+    // QVariantMap is a QMap<QString, QVariant>, so we can use QMapIterator
+    QMapIterator<QString, QVariant> i(m_gameStateData);
+    
+    while (i.hasNext()) {
+        i.next();
+        // Print the key, the value, and the underlying data type name
+        qDebug() << "Key:" << i.key() 
+                 << " | Value:" << i.value() 
+                 << " | Type:" << i.value().typeName();
+    }
+    
+    qDebug() << "--- END OF GAME STATE DUMP ---";
 }
 
 // Implement public interface methods

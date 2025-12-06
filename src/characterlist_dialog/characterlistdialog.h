@@ -7,6 +7,8 @@
 #include <QVBoxLayout>
 #include <QLabel>
 
+#include "GameStateManager.h" // Include the GameStateManager header
+
 /**
  * @brief The dialog window for displaying and managing the list of characters.
  */

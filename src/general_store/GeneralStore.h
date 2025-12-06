@@ -7,6 +7,9 @@
 #include <QLabel>
 #include <QMessageBox> // Added for dialog feedback
 
+#include "GameStateManager.h" // Include the GameStateManager header
+
+
 class GeneralStore : public QDialog
 {
     Q_OBJECT

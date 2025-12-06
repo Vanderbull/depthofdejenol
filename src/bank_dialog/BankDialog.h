@@ -6,7 +6,9 @@
 #include <QLineEdit>
 #include <QPushButton>
 #include <QListView>
-#include <QStandardItemModel> // Needed to hold the item data for QListView
+#include <QStandardItemModel>
+
+#include "GameStateManager.h" // Include the GameStateManager header
 
 class BankDialog : public QDialog
 {
@@ -18,11 +20,8 @@ public:
     // Destructor
     ~BankDialog();
 
-    // Accessors/Mutators for external gold management (if needed)
-    long long getPlayerGold() const { return currentGold; }
-    long long getBankedGold() const { return bankedGold; }
-    void setPlayerGold(long long gold) { currentGold = gold; }
-    void setBankedGold(long long gold) { bankedGold = gold; }
+    // Accessors/Mutators for external gold management are removed, 
+    // as they now go through GameStateManager.
 
     // Accessor for the bank's item model (needed by the new TradeDialog)
     QStandardItemModel* getItemModel() { return itemModel; }
@@ -46,10 +45,9 @@ private slots:
     void on_partyDepositButton_clicked();
     void on_partyPoolAndDepositButton_clicked();
     void on_exitButton_clicked();
-    void on_infoButton_clicked(); // This now opens the TradeDialog
+    void on_infoButton_clicked(); 
 
     // Slots for line edits (connecting manually)
-    // These will now apply the changes to the gold variables.
     void updateDepositValue(const QString &text);
     void updateWithdrawValue(const QString &text);
 
@@ -58,7 +56,6 @@ private slots:
 
 private:
     // --- Widget Declarations ---
-    // Top section
     QLabel *statusLabel;
     
     // Deposit/Withdraw Gold
@@ -69,8 +66,8 @@ private:
 
     // Item List
     QListView *itemListView;
-    QStandardItemModel *itemModel; // Model to manage data in the QListView (Bank Vault)
-    QStandardItemModel *playerItemModel; // NEW: Model to manage player's inventory items
+    QStandardItemModel *itemModel; 
+    QStandardItemModel *playerItemModel; 
 
     // Party Buttons
     QPushButton *poolAndDepositButton;
@@ -82,17 +79,18 @@ private:
     QPushButton *exitButton;
 
     // --- Private Data ---
-    // Player's gold (now initialized to 0 in the .cpp file)
-    long long currentGold; 
-    // Gold stored in the bank (NEW member)
-    long long bankedGold; 
-    int freeSlots;
+    // long long currentGold; // REMOVED
+    // long long bankedGold; // REMOVED
+    int freeSlots; // Remains, as it's not managed by GSM yet
 
     // --- Core Methods ---
-    void setupUi(); // Function to create all widgets and set up the layout
-    void createConnections(); // Function to connect all signals and slots
-    // Updated to show both player gold (currentGold) and banked gold (bankedGold)
+    void setupUi();
+    void createConnections();
     void updateAccountStatus(long long playerGold, long long bankGold, int freeSlots); 
+    
+    // Helper to read and convert gold from GameStateManager
+    long long getPlayerGold();
+    long long getBankedGold();
 };
 
 #endif // BANKDIALOG_H

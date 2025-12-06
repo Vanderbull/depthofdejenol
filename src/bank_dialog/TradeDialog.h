@@ -8,6 +8,8 @@
 #include <QLabel>
 #include <QStringList>
 
+#include "GameStateManager.h" // Include the GameStateManager header
+
 // Forward declaration
 class BankDialog; 
 

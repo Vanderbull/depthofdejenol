@@ -6,7 +6,9 @@
 #include <QPushButton>
 #include <QListWidget>
 #include <QLabel>
-#include <QSpinBox> 
+#include <QSpinBox>
+
+#include "GameStateManager.h" // Include the GameStateManager header
 
 class ConfinementAndHoldingDialog : public QDialog
 {
