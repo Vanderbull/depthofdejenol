@@ -66,8 +66,6 @@ GuildsDialog::GuildsDialog(QWidget *parent)
     guildsListWidget->addItem("Healer");
     guildsListWidget->addItem("Ninja");
 
-    // Removed hardcoded setCurrentRow(5) to allow setInitialGuildSelection() to take effect
-
     expInfoButton = new QPushButton("Exp. Info");
     readGuildLogButton = new QPushButton("Read Guild Log");
     visitButton = new QPushButton("Visit");
@@ -99,7 +97,7 @@ GuildsDialog::GuildsDialog(QWidget *parent)
     setInitialGuildSelection();
 }
 
-GuildsDialog::~GuildsDialog() // Renamed destructor
+GuildsDialog::~GuildsDialog()
 {
 }
 void GuildsDialog::setupConnections()
@@ -117,33 +115,35 @@ void GuildsDialog::setupConnections()
 }
 
 /**
- * @brief Retrieves the current character's guild from GameStateManager and selects it in the list widget.
+ * @brief Retrieves the current character's guild from GameStateManager, marks it with a '*' and selects it.
  */
 void GuildsDialog::setInitialGuildSelection()
 {
-    // Retrieve the current character's guild from GameStateManager
-    // GameStateManager::instance() returns a pointer, so we use '->' to call its method.
     QString currentGuildName = GameStateManager::instance()->getGameValue("CurrentCharacterGuild").toString();
-
+    
+    // Only proceed if a guild name is stored
     if (currentGuildName.isEmpty()) {
-        return; // Nothing to select if the guild name is empty
+        return; 
     }
 
-    // Iterate through the QListWidget items to find a match
     for (int i = 0; i < guildsListWidget->count(); ++i) {
         QListWidgetItem *item = guildsListWidget->item(i);
-        
-        // We extract the guild name from the item text, removing potential level parentheses like "(1)"
         QString itemText = item->text();
-        int parenthesisIndex = itemText.indexOf('(');
-        if (parenthesisIndex != -1) {
-            itemText = itemText.left(parenthesisIndex).trimmed();
+        
+        // 1. Remove the mark if it exists (on all items) before checking
+        // This ensures only one item has the mark after the loop
+        if (itemText.startsWith("* ")) {
+            itemText.remove(0, 2); // Remove "* "
         }
 
-        // Match the cleaned item text against the guild name from the game state
+        // 2. Check for exact match against the stored name (which includes levels/other info if previously saved)
         if (itemText == currentGuildName) {
-            guildsListWidget->setCurrentItem(item); // Set the item as current/selected
-            break; // Stop searching once found
+            // Found a match: ensure it is marked and selected
+            item->setText("* " + itemText); // Add the mark
+            guildsListWidget->setCurrentItem(item);
+        } else {
+            // No match: ensure it is unmarked (set the cleaned text back)
+            item->setText(itemText); 
         }
     }
 }
@@ -159,10 +159,6 @@ void GuildsDialog::on_makeLevelButton_clicked()
     int currentLevel = gsm->getGameValue("CurrentCharacterLevel").toInt();
 
     // 3. (Placeholder for XP Check) Check if the player has enough XP to level up.
-    // NOTE: This assumes you have keys like "CurrentCharacterExperience" and a "LevelUpXPTable" somewhere.
-    // For now, we'll simply increment the level for demonstration.
-    
-    // Check required resources (simplified check for demonstration)
     bool hasEnoughXP = true; // Replace with actual XP check logic
 
     if (hasEnoughXP) {
@@ -175,14 +171,9 @@ void GuildsDialog::on_makeLevelButton_clicked()
         // 6. Provide feedback to the user
         QMessageBox::information(this, "Level Up!", 
             QString("Congratulations! You have advanced to Level %1!").arg(newLevel));
-
-        // 7. (Optional) Refresh the GuildMaster line edit if it was displaying the old level
-        // Currently, it's hardcoded to "Requnix (Level 61)", but in a real game, 
-        // this line edit might update to show the player's level:
-        // guildMasterLineEdit->setText(QString("%1 (Level %2)").arg(currentGuildMasterName).arg(newLevel));
         
     } else {
-        // 8. If they don't have enough resources
+        // 7. If they don't have enough resources
         QMessageBox::warning(this, "Cannot Level Up", 
             "You do not have enough experience or gold to advance to the next level.");
     }
@@ -190,7 +181,32 @@ void GuildsDialog::on_makeLevelButton_clicked()
 
 void GuildsDialog::on_reAcquaintButton_clicked()
 {
-    QMessageBox::information(this, "Action", "ReAcquaint button clicked (Requires implementation).");
+    QListWidgetItem *selectedItem = guildsListWidget->currentItem();
+    
+    // 1. Check if a guild is selected
+    if (!selectedItem) {
+        QMessageBox::warning(this, "Selection Required", "Please select a guild from the list first to re-acquaint.");
+        return;
+    }
+
+    // 2. Get the full item text (which may be marked, e.g., "* Sorcerer (1)")
+    QString newGuildName = selectedItem->text();
+    
+    // 3. REMOVE THE VISUAL MARK (* ) before saving to game state
+    // This prevents the mark from polluting the saved guild name and stacking up on subsequent loads.
+    if (newGuildName.startsWith("* ")) {
+        newGuildName.remove(0, 2); // Remove "* "
+    }
+    
+    // 4. Update the Game State Manager with the clean-of-mark string
+    GameStateManager::instance()->setGameValue("CurrentCharacterGuild", newGuildName);
+    
+    // 5. Provide confirmation feedback
+    QMessageBox::information(this, "Acquaintance Made", 
+        QString("You have successfully re-acquainted yourself with the %1 guild.").arg(newGuildName));
+        
+    // 6. Refresh the list to move the visual mark to the newly selected guild
+    setInitialGuildSelection();
 }
 
 void GuildsDialog::on_visitLibraryButton_clicked()
