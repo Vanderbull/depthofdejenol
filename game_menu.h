@@ -41,6 +41,9 @@ private slots:
     void onRunClicked();
     void toggleMenuState(bool characterIsLoaded); 
     void onEventTriggered(const GameEvent& event);
+    
+    // 🌟 NEW SLOT: Handles successful character creation and switches menu state
+    void onCharacterCreated(const QString &characterName);
 
 private:
     // ... other UI elements ...
@@ -57,12 +60,11 @@ private:
     QPushButton *m_runButton = nullptr;
     
     // Member variables for state/config
-    // QSettings is now fully defined
     QSettings m_settings;
     QString m_subfolderName;
     QPixmap m_backgroundPixmap; 
     
-    // Audio components (pointers are fine with full definitions)
+    // Audio components
     QMediaPlayer *m_player = nullptr;
     QAudioOutput *m_audioOutput = nullptr;
 

@@ -1,0 +1,3 @@
+Name: vfv
+Race: Human
+Guild: Nomad

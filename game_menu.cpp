@@ -2,7 +2,7 @@
 // Include all necessary class definitions for dialogs and Qt components
 #include "src/characterlist_dialog/characterlistdialog.h"
 #include "src/hall_of_records/hallofrecordsdialog.h"
-#include "src/create_character/createcharacterdialog.h"
+#include "src/create_character/createcharacterdialog.h" // ✅ ENSURE THIS PATH IS CORRECT
 #include "src/inventory_dialog/inventorydialog.h"
 #include "src/options_dialog/optionsdialog.h"
 #include "src/about_dialog/AboutDialog.h"
@@ -21,7 +21,7 @@
 // --- NEW INCLUDE ADDED FOR DATA LOADING ---
 #include "src/race_data/RaceData.h" 
 #include "src/event/EventManager.h" // include the event system
-// --- GAME STATE INTEGRATION ---
+// --- GAME STATE INTEGRATION ---\
 #include "GameStateManager.h" // Include the GameStateManager header
 
 // Qt component includes
@@ -302,6 +302,22 @@ void GameMenu::toggleMenuState(bool characterIsLoaded) {
     }
 }
 
+// 🌟 NEW SLOT IMPLEMENTATION: Fixes the user's request
+/**
+ * @brief Handles the signal that a character was successfully created and saved.
+ * Switches the main menu buttons to show the 'Run Character' option.
+ * @param characterName The name of the newly created character.
+ */
+void GameMenu::onCharacterCreated(const QString &characterName) {
+    emit logMessageTriggered(QString("New character **%1** created successfully!").arg(characterName));
+    QMessageBox::information(this, tr("Creation Successful"), 
+                             tr("Character **%1** created successfully. Ready to run.").arg(characterName));
+    
+    // CRITICAL STEP: SWITCH TO RUN MODE
+    toggleMenuState(true);
+}
+// -------------------------------
+
 // Function definitions
 void GameMenu::onRunClicked() {
     
@@ -332,18 +348,18 @@ void GameMenu::onCharacterListClicked() {
 }
 
 void GameMenu::startNewGame() {
-    // --- FIX APPLIED HERE ---
     
     // 1. Load data required by the new CreateCharacterDialog constructor.
-    // Assuming loadRaceData() and loadGuildData() are defined externally 
-    // and declared in "src/race_data/RaceData.h".
     QVector<RaceStats> raceData = loadRaceData();
     QVector<QString> guildData = loadGuildData();
     
     // 2. Instantiate the dialog using the new constructor signature.
     CreateCharacterDialog *dialog = new CreateCharacterDialog(raceData, guildData, this);
     
-    // --- END FIX ---
+    // 3. CRITICAL STEP: Connect the dialog's success signal to the new slot. 
+    // This connects the event from the dialog to the menu state logic.
+    QObject::connect(dialog, SIGNAL(characterCreated(const QString &)), 
+                     this, SLOT(onCharacterCreated(const QString &)));
     
     dialog->setAttribute(Qt::WA_DeleteOnClose);
     dialog->show();
