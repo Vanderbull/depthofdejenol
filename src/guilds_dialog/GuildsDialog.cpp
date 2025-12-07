@@ -1,5 +1,6 @@
 #include "GuildsDialog.h"
 #include <QApplication>
+#include "src/library_dialog/library_dialog.h" // Include the LibraryDialog header
 
 GuildsDialog::GuildsDialog(QWidget *parent)
     : QDialog(parent)
@@ -118,7 +119,9 @@ void GuildsDialog::on_reAcquaintButton_clicked()
 
 void GuildsDialog::on_visitLibraryButton_clicked()
 {
-    QMessageBox::information(this, "Action", "Visit the Library button clicked (Requires implementation).");
+    // Implementation to open the LibraryDialog
+    LibraryDialog library(this);
+    library.exec(); // Execute as a modal dialog
 }
 
 void GuildsDialog::on_expInfoButton_clicked()
