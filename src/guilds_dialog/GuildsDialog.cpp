@@ -7,6 +7,7 @@
 #include <QListWidget> // Needed for QListWidgetItem
 #include <QListWidgetItem> // Needed for QListWidgetItem
 #include <QVariantList> // Needed for reading the log
+#include <QRandomGenerator> // Needed for random number generation
 
 // Assuming GameStateManager is a singleton with an instance() method and a getGameValue() method.
 
@@ -283,9 +284,41 @@ void GuildsDialog::on_readGuildLogButton_clicked()
 
 void GuildsDialog::on_visitButton_clicked()
 {
-    // Should likely change the user's current location to the selected guild
+    // Generate 6 random stats (between 1 and 20)
+    int str = QRandomGenerator::global()->bounded(1, 21);
+    int intel = QRandomGenerator::global()->bounded(1, 21);
+    int wis = QRandomGenerator::global()->bounded(1, 21);
+    int con = QRandomGenerator::global()->bounded(1, 21);
+    int cha = QRandomGenerator::global()->bounded(1, 21);
+    int dex = QRandomGenerator::global()->bounded(1, 21);
+
+    // *** FIX: Reverted to the simple one-argument form of QString::arg() ***
+    // This ensures values are inserted without complex width failures, relying on spaces for alignment.
+    QString newStatsText = QString("Str Int Wis Con Cha Dex\n%1  %2  %3  %4  %5   %6")
+                               .arg(str)
+                               .arg(intel)
+                               .arg(wis)
+                               .arg(con)
+                               .arg(cha)
+                               .arg(dex);
+
+
+    // Update the stats label
+    statsLabel->setText(newStatsText);
+
+    // Log the action 
+    GameStateManager::instance()->logGuildAction("Stats refreshed via Visit button.");
+
+    // Original 'Visit' functionality placeholder/feedback
     QString currentGuild = guildsListWidget->currentItem() ? guildsListWidget->currentItem()->text() : "No Guild Selected";
-    QMessageBox::information(this, "Action", "Visit button clicked for: " + currentGuild + " (Requires implementation).");
+    
+    // REMOVE MARKER for display clarity in the message box
+    if (currentGuild.startsWith("* ")) {
+        currentGuild.remove(0, 2); 
+    }
+    
+    QMessageBox::information(this, "Action", 
+        "Visit button clicked. The **Stats Required** have been refreshed to random values, and you are visiting: **" + currentGuild + "**.");
 }
 
 void GuildsDialog::on_exitButton_clicked()
