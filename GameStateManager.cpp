@@ -24,6 +24,11 @@ GameStateManager::GameStateManager(QObject *parent)
 {
 
     m_gameStateData["CurrentCharacterLevel"] = 1;
+    
+    // --- NEW: Initialize Character Experience state ---
+    // Use qulonglong for the experience amount to support large values
+    m_gameStateData["CurrentCharacterExperience"] = QVariant::fromValue((qulonglong)0); 
+    
     // Initialize default state data
     m_gameStateData["ResourcesLoaded"] = false;
     m_gameStateData["GameVersion"] = "1.1.7.6.450";
@@ -184,7 +189,29 @@ GameStateManager::GameStateManager(QObject *parent)
 }
 
 // -------------------------------------------------------------------------
-// NEW METHOD IMPLEMENTATION: printAllGameState()
+// NEW METHOD IMPLEMENTATION: addCharacterExperience(qulonglong amount)
+// -------------------------------------------------------------------------
+void GameStateManager::addCharacterExperience(qulonglong amount)
+{
+    // 1. Get the current experience value. It's stored as qulonglong.
+    QVariant currentExpVariant = getGameValue("CurrentCharacterExperience");
+    qulonglong currentExp = currentExpVariant.isValid() 
+                            ? currentExpVariant.value<qulonglong>() 
+                            : 0;
+
+    // 2. Calculate the new experience
+    qulonglong newExp = currentExp + amount;
+
+    // 3. Store the new value back into the state manager
+    QVariant newExpVariant = QVariant::fromValue(newExp);
+    m_gameStateData["CurrentCharacterExperience"] = newExpVariant;
+    
+    qDebug() << "Experience added:" << amount 
+             << " | New Total Experience:" << newExp;
+}
+
+// -------------------------------------------------------------------------
+// EXISTING METHOD IMPLEMENTATION: printAllGameState()
 // -------------------------------------------------------------------------
 void GameStateManager::printAllGameState() const
 {

@@ -1,6 +1,8 @@
+// GuildsDialog.cpp
 #include "GuildsDialog.h"
 #include <QApplication>
 #include "src/library_dialog/library_dialog.h" // Include the LibraryDialog header
+#include <QDebug> // Including for good measure, though not strictly required for this logic
 
 // Assuming GameStateManager is a singleton with an instance() method and a getGameValue() method.
 
@@ -212,15 +214,31 @@ void GuildsDialog::on_reAcquaintButton_clicked()
 void GuildsDialog::on_visitLibraryButton_clicked()
 {
     // Implementation to open the LibraryDialog
+    // Note: Assuming LibraryDialog is correctly defined and available via the include
     LibraryDialog library(this);
     library.exec(); // Execute as a modal dialog
 }
 
+// -------------------------------------------------------------------------
+// UPDATED METHOD IMPLEMENTATION: on_expInfoButton_clicked()
+// -------------------------------------------------------------------------
 void GuildsDialog::on_expInfoButton_clicked()
 {
-    // Should likely show experience related to the selected guild
-    QString currentGuild = guildsListWidget->currentItem() ? guildsListWidget->currentItem()->text() : "No Guild Selected";
-    QMessageBox::information(this, "Action", "Exp. Info button clicked for: " + currentGuild + " (Requires implementation).");
+    // 1. Get Game State Manager instance
+    GameStateManager* gsm = GameStateManager::instance();
+
+    // 2. Retrieve the current character experience (stored as qulonglong)
+    // The .value<qulonglong>() is necessary to safely cast the QVariant back to its original type.
+    qulonglong currentExp = gsm->getGameValue("CurrentCharacterExperience").value<qulonglong>();
+    
+    // 3. Retrieve the current level for display context
+    int currentLevel = gsm->getGameValue("CurrentCharacterLevel").toInt();
+
+    // 4. Format the information string
+    QString infoMessage = QString("Current Level: %1\nTotal Experience: %2").arg(currentLevel).arg(currentExp);
+    
+    // 5. Display the information
+    QMessageBox::information(this, "Character Experience Info", infoMessage);
 }
 
 void GuildsDialog::on_readGuildLogButton_clicked()
