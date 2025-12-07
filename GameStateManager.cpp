@@ -22,6 +22,8 @@ GameStateManager* GameStateManager::instance()
 GameStateManager::GameStateManager(QObject *parent) 
     : QObject(parent) 
 {
+
+    m_gameStateData["CurrentCharacterLevel"] = 1;
     // Initialize default state data
     m_gameStateData["ResourcesLoaded"] = false;
     m_gameStateData["GameVersion"] = "1.1.7.6.450";

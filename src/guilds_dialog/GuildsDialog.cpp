@@ -148,11 +148,44 @@ void GuildsDialog::setInitialGuildSelection()
     }
 }
 
-// --- Implementation of Slots (Placeholder Functions) ---
+// --- Implementation of Slots ---
 
 void GuildsDialog::on_makeLevelButton_clicked()
 {
-    QMessageBox::information(this, "Action", "Make Level button clicked (Requires implementation).");
+    // 1. Get Game State Manager instance
+    GameStateManager* gsm = GameStateManager::instance();
+
+    // 2. Retrieve current level (using the key you recently added)
+    int currentLevel = gsm->getGameValue("CurrentCharacterLevel").toInt();
+
+    // 3. (Placeholder for XP Check) Check if the player has enough XP to level up.
+    // NOTE: This assumes you have keys like "CurrentCharacterExperience" and a "LevelUpXPTable" somewhere.
+    // For now, we'll simply increment the level for demonstration.
+    
+    // Check required resources (simplified check for demonstration)
+    bool hasEnoughXP = true; // Replace with actual XP check logic
+
+    if (hasEnoughXP) {
+        // 4. Increment the level
+        int newLevel = currentLevel + 1;
+        
+        // 5. Update the game state
+        gsm->setGameValue("CurrentCharacterLevel", newLevel);
+        
+        // 6. Provide feedback to the user
+        QMessageBox::information(this, "Level Up!", 
+            QString("Congratulations! You have advanced to Level %1!").arg(newLevel));
+
+        // 7. (Optional) Refresh the GuildMaster line edit if it was displaying the old level
+        // Currently, it's hardcoded to "Requnix (Level 61)", but in a real game, 
+        // this line edit might update to show the player's level:
+        // guildMasterLineEdit->setText(QString("%1 (Level %2)").arg(currentGuildMasterName).arg(newLevel));
+        
+    } else {
+        // 8. If they don't have enough resources
+        QMessageBox::warning(this, "Cannot Level Up", 
+            "You do not have enough experience or gold to advance to the next level.");
+    }
 }
 
 void GuildsDialog::on_reAcquaintButton_clicked()
