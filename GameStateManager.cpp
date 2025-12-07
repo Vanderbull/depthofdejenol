@@ -39,7 +39,7 @@ GameStateManager::GameStateManager(QObject *parent)
     m_gameStateData["DungeonX"] = 17;
     m_gameStateData["DungeonY"] = 12;
     // Note: QVariant::fromValue is used for qulonglong to ensure correct storage type
-    m_gameStateData["PlayerGold"] = QVariant::fromValue((qulonglong)0);
+    m_gameStateData["PlayerGold"] = QVariant::fromValue((qulonglong)1500);
 
     // --- NEW: Initialize Banked Gold state ---
     // Use the same type as PlayerGold for consistency.
