@@ -63,6 +63,11 @@ GameStateManager::GameStateManager(QObject *parent)
     // Initialize remaining stat points
     m_gameStateData["CurrentCharacterStatPointsLeft"] = 0;
 
+    // --- NEW: Initialize Character Status States ---
+    m_gameStateData["CharacterPoisoned"] = false;
+    m_gameStateData["CharacterBlinded"] = false;
+    // ----------------------------------------------
+
     // --- ADDED: Initialize the Guild Action Log ---
     m_gameStateData["GuildActionLog"] = QVariantList();
 
@@ -192,7 +197,7 @@ GameStateManager::GameStateManager(QObject *parent)
 }
 
 // -------------------------------------------------------------------------
-// NEW METHOD IMPLEMENTATION: addCharacterExperience(qulonglong amount)
+// EXISTING METHOD IMPLEMENTATION: addCharacterExperience(qulonglong amount)
 // -------------------------------------------------------------------------
 void GameStateManager::addCharacterExperience(qulonglong amount)
 {
@@ -214,7 +219,7 @@ void GameStateManager::addCharacterExperience(qulonglong amount)
 }
 
 // -------------------------------------------------------------------------
-// NEW METHOD IMPLEMENTATION: logGuildAction(const QString& actionDescription)
+// EXISTING METHOD IMPLEMENTATION: logGuildAction(const QString& actionDescription)
 // -------------------------------------------------------------------------
 void GameStateManager::logGuildAction(const QString& actionDescription)
 {
@@ -269,4 +274,32 @@ QVariant GameStateManager::getGameValue(const QString& key) const
 bool GameStateManager::areResourcesLoaded() const
 {
     return m_gameStateData.value("ResourcesLoaded").toBool();
+}
+
+// -------------------------------------------------------------------------
+// NEW METHOD IMPLEMENTATIONS: Character Status Management
+// -------------------------------------------------------------------------
+
+void GameStateManager::setCharacterPoisoned(bool isPoisoned)
+{
+    setGameValue("CharacterPoisoned", isPoisoned);
+    qDebug() << "Character status updated: Poisoned =" << isPoisoned;
+}
+
+bool GameStateManager::isCharacterPoisoned() const
+{
+    // The key "CharacterPoisoned" holds a QVariant, .toBool() provides the status.
+    return m_gameStateData.value("CharacterPoisoned").toBool();
+}
+
+void GameStateManager::setCharacterBlinded(bool isBlinded)
+{
+    setGameValue("CharacterBlinded", isBlinded);
+    qDebug() << "Character status updated: Blinded =" << isBlinded;
+}
+
+bool GameStateManager::isCharacterBlinded() const
+{
+    // The key "CharacterBlinded" holds a QVariant, .toBool() provides the status.
+    return m_gameStateData.value("CharacterBlinded").toBool();
 }

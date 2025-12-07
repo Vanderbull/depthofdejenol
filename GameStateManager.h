@@ -44,6 +44,32 @@ public:
     // Example: Check if all resources are loaded
     bool areResourcesLoaded() const; 
 
+    // --- NEW: Character Status Methods ---
+    /**
+     * @brief Sets the character's poisoned status.
+     * @param isPoisoned true to poison the character, false to cure them.
+     */
+    void setCharacterPoisoned(bool isPoisoned);
+    
+    /**
+     * @brief Checks if the character is currently poisoned.
+     * @return true if poisoned, false otherwise.
+     */
+    bool isCharacterPoisoned() const;
+
+    /**
+     * @brief Sets the character's blinded status.
+     * @param isBlinded true to blind the character, false to cure them.
+     */
+    void setCharacterBlinded(bool isBlinded);
+    
+    /**
+     * @brief Checks if the character is currently blinded.
+     * @return true if blinded, false otherwise.
+     */
+    bool isCharacterBlinded() const;
+    // -------------------------------------
+
 };
 
 #endif // GAMESTATEMANAGER_H
