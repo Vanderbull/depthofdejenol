@@ -5,6 +5,7 @@
 #include <QVariantMap> // Added for guild leader initialization
 #include <QVariant> // Ensure QVariant::fromValue is available if not in the others
 #include <QMapIterator> // Added for iterating and printing the entire map
+#include <QDateTime> // NEW: Added for logging guild actions with a timestamp
 
 // Static pointer to hold the single instance
 GameStateManager* gsm_instance = nullptr;
@@ -24,8 +25,7 @@ GameStateManager::GameStateManager(QObject *parent)
 {
 
     m_gameStateData["CurrentCharacterLevel"] = 1;
-    
-    // --- NEW: Initialize Character Experience state ---
+    // --- ADDED: Initialize Character Experience state ---
     // Use qulonglong for the experience amount to support large values
     m_gameStateData["CurrentCharacterExperience"] = QVariant::fromValue((qulonglong)0); 
     
@@ -62,6 +62,9 @@ GameStateManager::GameStateManager(QObject *parent)
 
     // Initialize remaining stat points
     m_gameStateData["CurrentCharacterStatPointsLeft"] = 0;
+
+    // --- ADDED: Initialize the Guild Action Log ---
+    m_gameStateData["GuildActionLog"] = QVariantList();
 
     // -------------------------------------------------------------------------
     // Initialize Guild Leaders for Hall of Records (UPDATED FROM IMAGE)
@@ -208,6 +211,26 @@ void GameStateManager::addCharacterExperience(qulonglong amount)
     
     qDebug() << "Experience added:" << amount 
              << " | New Total Experience:" << newExp;
+}
+
+// -------------------------------------------------------------------------
+// NEW METHOD IMPLEMENTATION: logGuildAction(const QString& actionDescription)
+// -------------------------------------------------------------------------
+void GameStateManager::logGuildAction(const QString& actionDescription)
+{
+    // 1. Get the current log list
+    QVariantList logList = m_gameStateData.value("GuildActionLog").toList();
+
+    // 2. Format the new entry with a timestamp
+    QString timestampedAction = QDateTime::currentDateTime().toString("HH:mm:ss") + " - " + actionDescription;
+
+    // 3. Append the new action to the list
+    logList.append(timestampedAction);
+
+    // 4. Update the game state
+    m_gameStateData["GuildActionLog"] = logList;
+
+    qDebug() << "Guild Action Logged:" << timestampedAction;
 }
 
 // -------------------------------------------------------------------------

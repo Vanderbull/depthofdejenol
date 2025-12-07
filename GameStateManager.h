@@ -4,6 +4,7 @@
 
 #include <QObject>
 #include <QVariantMap> // Useful for holding flexible, common data types
+#include <QtGlobal>    // For qulonglong
 
 class GameStateManager : public QObject
 {
@@ -33,6 +34,9 @@ public:
 
     // Public method to add experience to the current character
     void addCharacterExperience(qulonglong amount);
+    
+    // Public method to add an entry to the guild action log
+    void logGuildAction(const QString& actionDescription);
     
     // Public method to dump the entire game state to debug output
     void printAllGameState() const; 

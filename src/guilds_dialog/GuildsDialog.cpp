@@ -2,7 +2,11 @@
 #include "GuildsDialog.h"
 #include <QApplication>
 #include "src/library_dialog/library_dialog.h" // Include the LibraryDialog header
-#include <QDebug> // Including for good measure, though not strictly required for this logic
+#include <QDebug>
+#include <QMessageBox> // Already in GuildsDialog.h but explicit use here is fine
+#include <QListWidget> // Needed for QListWidgetItem
+#include <QListWidgetItem> // Needed for QListWidgetItem
+#include <QVariantList> // Needed for reading the log
 
 // Assuming GameStateManager is a singleton with an instance() method and a getGameValue() method.
 
@@ -133,12 +137,11 @@ void GuildsDialog::setInitialGuildSelection()
         QString itemText = item->text();
         
         // 1. Remove the mark if it exists (on all items) before checking
-        // This ensures only one item has the mark after the loop
         if (itemText.startsWith("* ")) {
             itemText.remove(0, 2); // Remove "* "
         }
 
-        // 2. Check for exact match against the stored name (which includes levels/other info if previously saved)
+        // 2. Check for exact match against the stored name
         if (itemText == currentGuildName) {
             // Found a match: ensure it is marked and selected
             item->setText("* " + itemText); // Add the mark
@@ -157,7 +160,7 @@ void GuildsDialog::on_makeLevelButton_clicked()
     // 1. Get Game State Manager instance
     GameStateManager* gsm = GameStateManager::instance();
 
-    // 2. Retrieve current level (using the key you recently added)
+    // 2. Retrieve current level
     int currentLevel = gsm->getGameValue("CurrentCharacterLevel").toInt();
 
     // 3. (Placeholder for XP Check) Check if the player has enough XP to level up.
@@ -170,12 +173,18 @@ void GuildsDialog::on_makeLevelButton_clicked()
         // 5. Update the game state
         gsm->setGameValue("CurrentCharacterLevel", newLevel);
         
-        // 6. Provide feedback to the user
+        // 6. Log the successful action
+        gsm->logGuildAction(QString("Leveled up to Level %1.").arg(newLevel));
+        
+        // 7. Provide feedback to the user
         QMessageBox::information(this, "Level Up!", 
             QString("Congratulations! You have advanced to Level %1!").arg(newLevel));
         
     } else {
-        // 7. If they don't have enough resources
+        // 8. Log the failed action
+        gsm->logGuildAction("Attempted to level up, but failed (not enough resources).");
+        
+        // 9. If they don't have enough resources
         QMessageBox::warning(this, "Cannot Level Up", 
             "You do not have enough experience or gold to advance to the next level.");
     }
@@ -184,30 +193,35 @@ void GuildsDialog::on_makeLevelButton_clicked()
 void GuildsDialog::on_reAcquaintButton_clicked()
 {
     QListWidgetItem *selectedItem = guildsListWidget->currentItem();
+    GameStateManager* gsm = GameStateManager::instance();
     
     // 1. Check if a guild is selected
     if (!selectedItem) {
+        // Log the failed action
+        gsm->logGuildAction("Attempted to re-acquaint, but no guild was selected.");
         QMessageBox::warning(this, "Selection Required", "Please select a guild from the list first to re-acquaint.");
         return;
     }
 
-    // 2. Get the full item text (which may be marked, e.g., "* Sorcerer (1)")
+    // 2. Get the full item text (which may be marked, e.g., "* Sorcerer")
     QString newGuildName = selectedItem->text();
     
     // 3. REMOVE THE VISUAL MARK (* ) before saving to game state
-    // This prevents the mark from polluting the saved guild name and stacking up on subsequent loads.
     if (newGuildName.startsWith("* ")) {
         newGuildName.remove(0, 2); // Remove "* "
     }
     
     // 4. Update the Game State Manager with the clean-of-mark string
-    GameStateManager::instance()->setGameValue("CurrentCharacterGuild", newGuildName);
+    gsm->setGameValue("CurrentCharacterGuild", newGuildName);
     
-    // 5. Provide confirmation feedback
+    // 5. Log the successful action
+    gsm->logGuildAction(QString("Re-acquainted with the %1 guild.").arg(newGuildName));
+    
+    // 6. Provide confirmation feedback
     QMessageBox::information(this, "Acquaintance Made", 
         QString("You have successfully re-acquainted yourself with the %1 guild.").arg(newGuildName));
         
-    // 6. Refresh the list to move the visual mark to the newly selected guild
+    // 7. Refresh the list to move the visual mark to the newly selected guild
     setInitialGuildSelection();
 }
 
@@ -219,16 +233,12 @@ void GuildsDialog::on_visitLibraryButton_clicked()
     library.exec(); // Execute as a modal dialog
 }
 
-// -------------------------------------------------------------------------
-// UPDATED METHOD IMPLEMENTATION: on_expInfoButton_clicked()
-// -------------------------------------------------------------------------
 void GuildsDialog::on_expInfoButton_clicked()
 {
     // 1. Get Game State Manager instance
     GameStateManager* gsm = GameStateManager::instance();
 
     // 2. Retrieve the current character experience (stored as qulonglong)
-    // The .value<qulonglong>() is necessary to safely cast the QVariant back to its original type.
     qulonglong currentExp = gsm->getGameValue("CurrentCharacterExperience").value<qulonglong>();
     
     // 3. Retrieve the current level for display context
@@ -243,8 +253,32 @@ void GuildsDialog::on_expInfoButton_clicked()
 
 void GuildsDialog::on_readGuildLogButton_clicked()
 {
-    // Should likely open a new dialog/window with the guild log
-    QMessageBox::information(this, "Action", "Read Guild Log button clicked (Requires implementation).");
+    // 1. Get the log list from the Game State Manager
+    QVariantList logList = GameStateManager::instance()->getGameValue("GuildActionLog").toList();
+
+    QString logContent;
+    if (logList.isEmpty()) {
+        logContent = "The Guild Log is currently empty.";
+    } else {
+        // 2. Join the list entries into a single string, separated by newlines
+        // Reverse the list to show the newest actions first
+        for (int i = logList.count() - 1; i >= 0; --i) {
+            logContent += logList.at(i).toString() + "\n";
+        }
+        
+        // Remove trailing newline if it exists (not strictly needed with setDetailedText)
+        if (!logContent.isEmpty()) {
+            logContent.chop(1);
+        }
+    }
+    
+    // 3. Display the log content using a message box with detailed text
+    QMessageBox logBox(this);
+    logBox.setWindowTitle("Guild Action Log");
+    logBox.setText("Recent Guild Activities (Scroll down for details):");
+    logBox.setDetailedText(logContent);
+    logBox.setIcon(QMessageBox::Information);
+    logBox.exec();
 }
 
 void GuildsDialog::on_visitButton_clicked()
