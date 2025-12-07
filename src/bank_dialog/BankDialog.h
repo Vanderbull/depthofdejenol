@@ -81,7 +81,7 @@ private:
     // --- Private Data ---
     // long long currentGold; // REMOVED
     // long long bankedGold; // REMOVED
-    int freeSlots; // Remains, as it's not managed by GSM yet
+    // REMOVED: int freeSlots; // Remains, as it's not managed by GSM yet
 
     // --- Core Methods ---
     void setupUi();
@@ -91,6 +91,8 @@ private:
     // Helper to read and convert gold from GameStateManager
     long long getPlayerGold();
     long long getBankedGold();
+    // NEW Helper to read freeSlots from GameStateManager
+    int getFreeSlots();
 };
 
 #endif // BANKDIALOG_H

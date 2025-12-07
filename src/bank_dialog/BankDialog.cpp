@@ -20,17 +20,32 @@ long long BankDialog::getBankedGold()
     // Fetch and convert BankedGold from GSM (qulonglong)
     return GameStateManager::instance()->getGameValue("BankedGold").toULongLong();
 }
+
+// --- NEW Helper Methods to Read FreeSlots from GSM ---
+int BankDialog::getFreeSlots()
+{
+    // Fetch and convert BankSlotsFree from GSM (int or QVariant conversion)
+    // Assuming the key is "BankSlotsFree" and returns an int.
+    return GameStateManager::instance()->getGameValue("BankSlotsFree").toInt();
+}
 // ---------------------------------------------
 
 // --- Constructor ---
 BankDialog::BankDialog(QWidget *parent) :
-    QDialog(parent),
+    QDialog(parent)
     // REMOVED: currentGold and bankedGold local variables
-    freeSlots(24)      // Example data
+    // REMOVED: freeSlots(24)      // Example data
 {
     // Initialize item models
     itemModel = new QStandardItemModel(this); // Bank Vault Items
     playerItemModel = new QStandardItemModel(this); // Player Inventory Items
+
+    // --- TEMPORARY: Ensure "BankSlotsFree" is initialized in GSM if not already. ---
+    // In a real app, this should be done elsewhere, but for context completeness:
+    if (!GameStateManager::instance()->getGameValue("BankSlotsFree").isValid()) {
+         GameStateManager::instance()->setGameValue("BankSlotsFree", QVariant::fromValue(24));
+    }
+    // -------------------------------------------------------------------------------
 
     // 1. Create and position all widgets (Layout)
     setupUi(); 
@@ -39,8 +54,8 @@ BankDialog::BankDialog(QWidget *parent) :
     createConnections();
 
     // 3. Set initial data
-    // Use the values retrieved from GameStateManager
-    updateAccountStatus(getPlayerGold(), getBankedGold(), freeSlots);
+    // Use the values retrieved from GameStateManager, including the new getFreeSlots()
+    updateAccountStatus(getPlayerGold(), getBankedGold(), getFreeSlots());
 
     // Populate item list with example data (These items start in the bank)
     QStringList initialBankItems;
@@ -68,6 +83,7 @@ BankDialog::~BankDialog()
 }
 
 // --- Setup Methods (REQUIRED for Linker Fix) ---
+// ... (setupUi remains the same)
 
 void BankDialog::setupUi()
 {
@@ -155,6 +171,7 @@ void BankDialog::setupUi()
     setLayout(mainLayout);
 }
 
+
 void BankDialog::createConnections()
 {
     // Gold/Amount Connections
@@ -198,6 +215,7 @@ void BankDialog::on_depositAllButton_clicked()
 {
     long long playerGold = getPlayerGold();
     long long bankedGold = getBankedGold();
+    int freeSlots = getFreeSlots(); // Use GSM value
     
     // Deposit all player gold into the bank
     if (playerGold > 0) {
@@ -208,7 +226,8 @@ void BankDialog::on_depositAllButton_clicked()
         // Use qulonglong for explicit type safety with large numbers
         GameStateManager::instance()->setGameValue("PlayerGold", QVariant::fromValue((qulonglong)0)); 
         
-        updateAccountStatus(0, bankedGold + playerGold, freeSlots);
+        // Use GSM value in the update call
+        updateAccountStatus(0, bankedGold + playerGold, freeSlots); 
         depositLineEdit->clear();
         emit depositGold(amountToDeposit); 
         QMessageBox::information(this, "Deposit", "Deposited ALL your gold into the bank.");
@@ -221,6 +240,7 @@ void BankDialog::on_withdrawAllButton_clicked()
 {
     long long playerGold = getPlayerGold();
     long long bankedGold = getBankedGold();
+    int freeSlots = getFreeSlots(); // Use GSM value
     
     // Withdraw all bank gold into the player's inventory
     if (bankedGold > 0) {
@@ -231,6 +251,7 @@ void BankDialog::on_withdrawAllButton_clicked()
         // Use qulonglong for explicit type safety with large numbers
         GameStateManager::instance()->setGameValue("BankedGold", QVariant::fromValue((qulonglong)0));
         
+        // Use GSM value in the update call
         updateAccountStatus(playerGold + bankedGold, 0, freeSlots);
         withdrawLineEdit->clear();
         emit withdrawGold(amountToWithdraw); 
@@ -274,6 +295,7 @@ void BankDialog::updateDepositValue(const QString &text)
     long long amount = text.toLongLong(&ok);
     long long playerGold = getPlayerGold();
     long long bankedGold = getBankedGold();
+    int freeSlots = getFreeSlots(); // Use GSM value
     
     depositLineEdit->clear(); // Clear the field after transaction attempt
 
@@ -290,7 +312,7 @@ void BankDialog::updateDepositValue(const QString &text)
             // Not enough gold
             QMessageBox::warning(this, "Deposit Failed", "You do not have that much gold in your wallet.");
         }
-        // Update status with new values from GSM
+        // Update status with new values from GSM, including freeSlots
         updateAccountStatus(getPlayerGold(), getBankedGold(), freeSlots);
     } else if (!text.isEmpty()) {
         // Invalid input
@@ -304,6 +326,7 @@ void BankDialog::updateWithdrawValue(const QString &text)
     long long amount = text.toLongLong(&ok);
     long long playerGold = getPlayerGold();
     long long bankedGold = getBankedGold();
+    int freeSlots = getFreeSlots(); // Use GSM value
     
     withdrawLineEdit->clear(); // Clear the field after transaction attempt
 
@@ -320,7 +343,7 @@ void BankDialog::updateWithdrawValue(const QString &text)
             // Not enough gold in the bank
             QMessageBox::warning(this, "Withdrawal Failed", "The bank does not hold that much gold.");
         }
-        // Update status with new values from GSM
+        // Update status with new values from GSM, including freeSlots
         updateAccountStatus(getPlayerGold(), getBankedGold(), freeSlots);
     } else if (!text.isEmpty()) {
         // Invalid input
