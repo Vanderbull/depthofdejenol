@@ -56,6 +56,7 @@ private:
     QPushButton *exitButton;
 
     void setupConnections(); // Utility function to connect signals and slots
+    void setInitialGuildSelection(); // Function to set the selected guild based on GameState (FIXED: Declaration added)
 };
 
 #endif // GUILDSDIALOG_H

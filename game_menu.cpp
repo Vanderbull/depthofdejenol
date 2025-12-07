@@ -1,3 +1,4 @@
+// game_menu.cpp
 #include "game_menu.h"
 // Include all necessary class definitions for dialogs and Qt components
 #include "src/characterlist_dialog/characterlistdialog.h"
@@ -32,6 +33,7 @@
 #include <QMessageBox>
 #include <QDebug>
 #include <QFile>
+#include <QTextStream> // <-- ADDED FOR FILE PARSING
 #include <QLabel>
 #include <QPushButton>
 #include <QPixmap>
@@ -302,7 +304,6 @@ void GameMenu::toggleMenuState(bool characterIsLoaded) {
     }
 }
 
-// 🌟 NEW SLOT IMPLEMENTATION: Fixes the user's request
 /**
  * @brief Handles the signal that a character was successfully created and saved.
  * Switches the main menu buttons to show the 'Run Character' option.
@@ -366,28 +367,27 @@ void GameMenu::startNewGame() {
     qDebug() << "Start New Game button clicked";
 }
 
+// ----------------------------------------------------------------------
+// MODIFIED: Load Game Function with File Parsing and Debug Logging
+// ----------------------------------------------------------------------
 void GameMenu::loadGame() {
-// 3. Get the absolute path of the application's executable directory
-QString basePath = QCoreApplication::applicationDirPath();
+    // 1. Setup file path and selection dialog 
+    QString basePath = QCoreApplication::applicationDirPath();
+    QString fullPath = QDir::cleanPath(basePath + QDir::separator() + m_subfolderName);
+    QDir subfolderDir(fullPath);
 
-// 4. Combine the base path and the subfolder name
-QString fullPath = QDir::cleanPath(basePath + QDir::separator() + m_subfolderName);
+    qDebug() << "Full Subfolder Path:" << subfolderDir.absolutePath();
 
-// 5. Create the QDir object for the calculated subfolder path
-QDir subfolderDir(fullPath);
-
-qDebug() << "Full Subfolder Path:" << subfolderDir.absolutePath();
-
-// Optional: Ensure the directory exists
-if (!subfolderDir.exists()) {
-    if (subfolderDir.mkpath(".")) { 
-        qDebug() << "Subfolder created successfully!";
-    } else {
-        qDebug() << "Failed to create subfolder!";
-        emit logMessageTriggered("Error: Failed to ensure character folder exists.");
-        return;
+    // Optional: Ensure the directory exists
+    if (!subfolderDir.exists()) {
+        if (subfolderDir.mkpath(".")) { 
+            qDebug() << "Subfolder created successfully!";
+        } else {
+            qDebug() << "Failed to create subfolder!";
+            emit logMessageTriggered("Error: Failed to ensure character folder exists.");
+            return;
+        }
     }
-}
     QDir currentDir(subfolderDir.absolutePath());
     // Filter for .txt files
     QStringList nameFilters;
@@ -408,7 +408,7 @@ if (!subfolderDir.exists()) {
         return;
     }
     
-    // --- Create Temporary Selection Dialog ---
+    // --- Create Temporary Selection Dialog (omitted for brevity) ---
     QDialog selectionDialog(this);
     selectionDialog.setWindowTitle("Load Character");
     
@@ -440,14 +440,110 @@ if (!subfolderDir.exists()) {
         QString selectedFileName = charComboBox->currentText();
         QString filePath = currentDir.absoluteFilePath(selectedFileName);
 
-        emit logMessageTriggered(QString("Loading character: %1").arg(selectedFileName));
-        qDebug() << "Character selected from dropdown and attempting to load:" << filePath;
+        emit logMessageTriggered(QString("Attempting to load character: %1").arg(selectedFileName));
+        qDebug() << "Attempting to load character from:" << filePath;
         
-        QMessageBox::information(this, tr("Load Successful"), 
-                                 tr("Character **%1** loaded successfully (Data load simulated).").arg(selectedFileName));
+        // -----------------------------------------------------------
+        // --- REAL FILE LOADING AND PARSING LOGIC ---
+        // -----------------------------------------------------------
+        GameStateManager *gsm = GameStateManager::instance();
+        QFile file(filePath);
+        bool loadSuccess = false;
+
+        if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+            QTextStream in(&file);
+            
+            // Map the field names from the file to their corresponding GameState keys
+            QMap<QString, QString> keyMap;
+            
+            // Map File Keys to GameState Keys (String and Integer values)
+            keyMap["Name"] = "CurrentCharacterName";
+            keyMap["Race"] = "CurrentCharacterRace";
+            keyMap["Sex"] = "CurrentCharacterSex";
+            keyMap["Alignment"] = "CurrentCharacterAlignment";
+            keyMap["Guild"] = "CurrentCharacterGuild"; 
+
+            keyMap["Charisma"] = "CurrentCharacterCharisma";
+            keyMap["Constitution"] = "CurrentCharacterConstitution";
+            keyMap["Dexterity"] = "CurrentCharacterDexterity";
+            keyMap["Intelligence"] = "CurrentCharacterIntelligence";
+            keyMap["Strength"] = "CurrentCharacterStrength";
+            keyMap["Wisdom"] = "CurrentCharacterWisdom";
+
+            while (!in.atEnd()) {
+                QString line = in.readLine().trimmed();
+                if (line.isEmpty() || line.startsWith("[") || line.startsWith("---") || line.contains("CHARACTER_FILE_VERSION")) {
+                    continue; // Skip comments, sections, and version info
+                }
+
+                // Check for "Key: Value" format
+                if (line.contains(':')) {
+                    QStringList parts = line.split(':', Qt::SkipEmptyParts);
+                    if (parts.size() == 2) {
+                        QString fileKey = parts[0].trimmed();
+                        QString fileValue = parts[1].trimmed();
+
+                        if (keyMap.contains(fileKey)) {
+                            QString gsmKey = keyMap[fileKey];
+                            QVariant gsmValue;
+                            
+                            // Determine value type based on the key
+                            if (gsmKey.startsWith("CurrentCharacterCharisma") || gsmKey.startsWith("CurrentCharacterConstitution") || 
+                                gsmKey.startsWith("CurrentCharacterDexterity") || gsmKey.startsWith("CurrentCharacterIntelligence") || 
+                                gsmKey.startsWith("CurrentCharacterStrength") || gsmKey.startsWith("CurrentCharacterWisdom")) 
+                            {
+                                // Stats are integers
+                                bool ok;
+                                int statValue = fileValue.toInt(&ok);
+                                if (ok) {
+                                    gsmValue = statValue;
+                                } else {
+                                    // Log error for bad stat data
+                                    qDebug() << "Warning: Could not convert stat value to int for key:" << fileKey;
+                                    continue; 
+                                }
+                            } else {
+                                // All other keys are strings
+                                gsmValue = fileValue;
+                            }
+                            
+                            // 🌟 DEBUG: Log the parsed key/value before setting state 🌟
+                            qDebug() << "LOAD PARSE: File Key/Value:" << fileKey << "=" << fileValue << "| Mapped to GSM Key:" << gsmKey << "Final Value:" << gsmValue << "(Type:" << gsmValue.typeName() << ")";
+                            
+                            gsm->setGameValue(gsmKey, gsmValue);
+                            loadSuccess = true;
+                        }
+                    }
+                }
+            }
+            file.close();
+        } else {
+            // File failed to open
+            emit logMessageTriggered(QString("Error: Could not open file %1 for reading.").arg(selectedFileName));
+            QMessageBox::critical(this, tr("Load Failed"), 
+                                 tr("Could not open character file **%1**.").arg(selectedFileName));
+            return; // Exit on failure
+        }
         
-        // Exit back to the main menu / Switch Menu State
-        toggleMenuState(true);
+        // Finalize state if data was successfully parsed
+        if (loadSuccess) {
+            // This is a common state value set after loading any character
+            gsm->setGameValue("CurrentCharacterStatPointsLeft", 0);
+            
+            qDebug() << "Character data loaded. Dumping GameState:";
+            gsm->printAllGameState(); 
+            
+            QMessageBox::information(this, tr("Load Successful"), 
+                                     tr("Character **%1** loaded successfully.").arg(selectedFileName));
+            
+            // Switch Menu State
+            toggleMenuState(true);
+        } else {
+            // If the file opened but no valid data was parsed
+            emit logMessageTriggered(QString("Error: Character file %1 loaded but was empty or invalid.").arg(selectedFileName));
+            QMessageBox::critical(this, tr("Load Failed"), 
+                                 tr("Character file **%1** loaded but contained no recognizable data.").arg(selectedFileName));
+        }
 
     } else {
         // User cancelled the dialog (rejected)
@@ -455,6 +551,8 @@ if (!subfolderDir.exists()) {
         emit logMessageTriggered("Character selection cancelled.");
     }
 }
+// ----------------------------------------------------------------------
+
 void GameMenu::showRecords() {
     emit logMessageTriggered("User entered hall of records");
     HallOfRecordsDialog *recordsDialog = new HallOfRecordsDialog(this);
@@ -506,7 +604,6 @@ void GameMenu::onEditMonsterClicked() {
         qDebug() << "New Monster Data Saved:\n" << monsterData;
         // Logic to process/save the data goes here
     } else {
-        // If the user clicked "Cancel"
         qDebug() << "Monster editing cancelled.";
     }
 }

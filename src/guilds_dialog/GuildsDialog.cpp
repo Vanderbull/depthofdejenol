@@ -2,6 +2,8 @@
 #include <QApplication>
 #include "src/library_dialog/library_dialog.h" // Include the LibraryDialog header
 
+// Assuming GameStateManager is a singleton with an instance() method and a getGameValue() method.
+
 GuildsDialog::GuildsDialog(QWidget *parent)
     : QDialog(parent)
 {
@@ -51,14 +53,20 @@ GuildsDialog::GuildsDialog(QWidget *parent)
     // --- Right Side Widgets ---
     guildsLabel = new QLabel("<b><font color='red'>Guilds</font></b>");
     guildsListWidget = new QListWidget();
-    guildsListWidget->addItem("Nomad (1)");
+    guildsListWidget->addItem("Nomad");
     guildsListWidget->addItem("Paladin");
+    guildsListWidget->addItem("Warrior");
+    guildsListWidget->addItem("Villain");
     guildsListWidget->addItem("Seeker");
+    guildsListWidget->addItem("Thief");
     guildsListWidget->addItem("Scavenger");
     guildsListWidget->addItem("Mage");
     guildsListWidget->addItem("Sorcerer");
     guildsListWidget->addItem("Wizard");
-    guildsListWidget->setCurrentRow(5); // Select "Sorcerer" as in the image
+    guildsListWidget->addItem("Healer");
+    guildsListWidget->addItem("Ninja");
+
+    // Removed hardcoded setCurrentRow(5) to allow setInitialGuildSelection() to take effect
 
     expInfoButton = new QPushButton("Exp. Info");
     readGuildLogButton = new QPushButton("Read Guild Log");
@@ -86,6 +94,9 @@ GuildsDialog::GuildsDialog(QWidget *parent)
     mainLayout->addLayout(rightLayout, 1);
 // --- Connect Signals and Slots ---
     setupConnections();
+
+// --- Set Initial Guild Selection based on Game State ---
+    setInitialGuildSelection();
 }
 
 GuildsDialog::~GuildsDialog() // Renamed destructor
@@ -103,6 +114,38 @@ void GuildsDialog::setupConnections()
     connect(readGuildLogButton, &QPushButton::clicked, this, &GuildsDialog::on_readGuildLogButton_clicked);
     connect(visitButton, &QPushButton::clicked, this, &GuildsDialog::on_visitButton_clicked);
     connect(exitButton, &QPushButton::clicked, this, &GuildsDialog::on_exitButton_clicked);
+}
+
+/**
+ * @brief Retrieves the current character's guild from GameStateManager and selects it in the list widget.
+ */
+void GuildsDialog::setInitialGuildSelection()
+{
+    // Retrieve the current character's guild from GameStateManager
+    // GameStateManager::instance() returns a pointer, so we use '->' to call its method.
+    QString currentGuildName = GameStateManager::instance()->getGameValue("CurrentCharacterGuild").toString();
+
+    if (currentGuildName.isEmpty()) {
+        return; // Nothing to select if the guild name is empty
+    }
+
+    // Iterate through the QListWidget items to find a match
+    for (int i = 0; i < guildsListWidget->count(); ++i) {
+        QListWidgetItem *item = guildsListWidget->item(i);
+        
+        // We extract the guild name from the item text, removing potential level parentheses like "(1)"
+        QString itemText = item->text();
+        int parenthesisIndex = itemText.indexOf('(');
+        if (parenthesisIndex != -1) {
+            itemText = itemText.left(parenthesisIndex).trimmed();
+        }
+
+        // Match the cleaned item text against the guild name from the game state
+        if (itemText == currentGuildName) {
+            guildsListWidget->setCurrentItem(item); // Set the item as current/selected
+            break; // Stop searching once found
+        }
+    }
 }
 
 // --- Implementation of Slots (Placeholder Functions) ---
