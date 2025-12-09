@@ -6,7 +6,6 @@
 #include <QLabel>
 #include <QPushButton>
 
-// --- FIX 1: Include full class definitions for member variables ---
 #include <QSettings>     // For QSettings
 #include <QMediaPlayer>  // For QMediaPlayer
 #include <QAudioOutput>  // For QAudioOutput
@@ -42,11 +41,9 @@ private slots:
     void toggleMenuState(bool characterIsLoaded); 
     void onEventTriggered(const GameEvent& event);
     
-    // 🌟 NEW SLOT: Handles successful character creation and switches menu state
     void onCharacterCreated(const QString &characterName);
 
 private:
-    // ... other UI elements ...
     QLabel *m_titleLabel = nullptr;
     QLabel *m_subTitleLabel = nullptr;
     QPushButton *m_newButton = nullptr;
