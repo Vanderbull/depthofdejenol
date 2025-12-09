@@ -45,4 +45,4 @@ private:
     void loadButtonIcons();
 };
 
-#endif // THECITY_HIT Y
+#endif // THECITY_H
