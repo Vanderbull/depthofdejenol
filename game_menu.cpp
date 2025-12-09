@@ -3,7 +3,7 @@
 // Include all necessary class definitions for dialogs and Qt components
 #include "src/characterlist_dialog/characterlistdialog.h"
 #include "src/hall_of_records/hallofrecordsdialog.h"
-#include "src/create_character/createcharacterdialog.h" // ✅ ENSURE THIS PATH IS CORRECT
+#include "src/create_character/createcharacterdialog.h"
 #include "src/inventory_dialog/inventorydialog.h"
 #include "src/options_dialog/optionsdialog.h"
 #include "src/about_dialog/AboutDialog.h"
@@ -23,7 +23,7 @@
 #include "src/race_data/RaceData.h" 
 #include "src/event/EventManager.h" // include the event system
 // --- GAME STATE INTEGRATION ---\
-#include "GameStateManager.h" // Include the GameStateManager header
+#include "GameStateManager.h"
 
 // Qt component includes
 #include <QVBoxLayout>
@@ -33,12 +33,10 @@
 #include <QMessageBox>
 #include <QDebug>
 #include <QFile>
-#include <QTextStream> // <-- ADDED FOR FILE PARSING
+#include <QTextStream>
 #include <QLabel>
 #include <QPushButton>
 #include <QPixmap>
-// QMediaPlayer and QAudioOutput are now fully included in game_menu.h, 
-// but we include the necessary headers here just in case other Qt functions need them
 #include <QMediaPlayer>
 #include <QAudioOutput>
 #include <QUrl>
