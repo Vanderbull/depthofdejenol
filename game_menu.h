@@ -6,9 +6,9 @@
 #include <QLabel>
 #include <QPushButton>
 
-#include <QSettings>     // For QSettings
-#include <QMediaPlayer>  // For QMediaPlayer
-#include <QAudioOutput>  // For QAudioOutput
+#include <QSettings>
+#include <QMediaPlayer>
+#include <QAudioOutput>
 
 #include "./src/event/EventManager.h" 
 
