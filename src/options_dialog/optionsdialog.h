@@ -12,7 +12,6 @@
 class QCheckBox;
 class QSlider;
 class QPushButton;
-// No need to forward declare QLabel if it's included above, but it doesn't hurt.
 
 class OptionsDialog : public QDialog
 {
@@ -29,7 +28,6 @@ private slots:
 
 private:
     void setupUi();
-
     // Game Settings
     QCheckBox *noPartySoundCheckBox;
     QCheckBox *noMsgDingCheckBox;
@@ -40,23 +38,18 @@ private:
     QCheckBox *noStretchBltCheckBox;
     QCheckBox *noLoadAutomapCheckBox;
     QCheckBox *noAutosaveCheckBox;
-
     // Music Settings
     QSlider *musicVolSlider;
     QCheckBox *noMusicCheckBox;
     QSlider *sfxVolSlider;
     QCheckBox *noSoundFxCheckBox;
     QCheckBox *useSoundCanvasMIDICheckBox;
-    
     // Font Settings
     QCheckBox *nonProportionalFontCheckBox;
-    // ... (Add other font widgets if needed)
-
     // File Backups
-    QLabel *lastBackupLabel; // Now this will be recognized
+    QLabel *lastBackupLabel;
     QPushButton *backupButton;
     QPushButton *restoreButton;
-    
     // Action Buttons
     QPushButton *okButton;
     QPushButton *cancelButton;
