@@ -1,44 +1,62 @@
 #include "helplesson.h"
-#include <QPushButton>
+#include <QPushButton> // Not strictly needed, removed.
 #include <QAction>
 #include <QDebug>
 #include <QTextDocument>
-#include <QTextBrowser> 
 #include <QHBoxLayout>
 #include <QVBoxLayout>
+#include <QToolBar> // Added for forward declaration in H file
+#include <QLabel>
+#include <QTextBrowser>
+
+// Use anonymous namespace for utility functions if needed, but keeping them as class methods for now.
 
 HelpLessonDialog::HelpLessonDialog(QWidget *parent)
     : QDialog(parent)
 {
+    // Use tr() for user-visible strings
     setWindowTitle(tr("Mordor HelpLesson"));
     resize(700, 600);
+    
+    // Set 'this' as the parent for the mainLayout and use it directly.
     QVBoxLayout *mainLayout = new QVBoxLayout(this);
     mainLayout->setContentsMargins(0, 0, 0, 0);
+    
     QToolBar *toolbar = createToolBar();
     mainLayout->addWidget(toolbar);
+    
     QWidget *contentArea = createContentArea();
     mainLayout->addWidget(contentArea);
+    
+    // In Qt 5/6, prefer QPalette/Q_PROPERTY styles over global stylesheets for simple properties.
+    // However, keeping the stylesheet for the requested look-and-feel.
     setStyleSheet("QDialog { background-color: #f0f0f0; }");
 }
 
 HelpLessonDialog::~HelpLessonDialog()
 {
+    // QDialog is a QWidget, so its children (like the layouts and widgets)
+    // are automatically deleted upon destruction due to the parent-child mechanism.
 }
 
 QToolBar* HelpLessonDialog::createToolBar()
 {
     QToolBar *toolbar = new QToolBar(this);
+    // Keep stylesheet for custom look
     toolbar->setStyleSheet("QToolBar { background-color: #e5e5e5; border-bottom: 1px solid #c0c0c0; }");
 
+    // Add standard navigation and content actions
     toolbar->addAction(tr("Contents"));
     toolbar->addAction(tr("Search"));
-    toolbar->addAction(tr("Back"));
+    toolbar->addAction(tr("Back")); // History Back
+    toolbar->addAction(tr("Forward")); // Renaming >> to Forward for clarity
     toolbar->addAction(tr("History"));
     
-    toolbar->addSeparator();
-    toolbar->addAction(tr("<<"));
-    toolbar->addAction(tr(">>"));
+    // Remove the redundant '<<' action as 'Back' covers history navigation.
+    // toolbar->addAction(tr("<<"));
+    // toolbar->addAction(tr(">>"));
 
+    // Connect actionTriggered to the handler
     connect(toolbar, &QToolBar::actionTriggered, this, &HelpLessonDialog::handleToolbarAction);
     return toolbar;
 }
@@ -46,29 +64,52 @@ QToolBar* HelpLessonDialog::createToolBar()
 QWidget* HelpLessonDialog::createContentArea()
 {
     QWidget *container = new QWidget(this);
-    QHBoxLayout *hLayout = new QHBoxLayout(container);
+    // Use 'container' as the parent for the layout for automatic management
+    QHBoxLayout *hLayout = new QHBoxLayout(container); 
     hLayout->setContentsMargins(10, 10, 10, 10); 
-    m_textEdit = new QTextBrowser(this);
+
+    // --- Implementation for m_dwarfImageLabel ---
+    // Ensure 'this' (the dialog) is not the parent of inner widgets if 'container' is the intended parent.
+    // Giving 'container' as parent ensures automatic deletion when 'container' is deleted.
+    m_dwarfImageLabel = new QLabel(container); 
+    m_dwarfImageLabel->setStyleSheet("background-color: #333333; color: white; border: 1px solid black;");
+    m_dwarfImageLabel->setText(tr("Dwarf Image\nPlaceholder"));
+    m_dwarfImageLabel->setAlignment(Qt::AlignCenter);
+    m_dwarfImageLabel->setFixedWidth(150);
+    
+    hLayout->addWidget(m_dwarfImageLabel);
+    // ----------------------------------------------------------------------
+    
+    m_textEdit = new QTextBrowser(container); // Use 'container' as parent
     m_textEdit->setReadOnly(true);
     m_textEdit->setFrameShape(QFrame::NoFrame);
     m_textEdit->document()->setDefaultStyleSheet("a { color: blue; text-decoration: none; }");
+    // Load the HTML content
     m_textEdit->setHtml(createHelpContentHtml());
 
-    connect(m_textEdit, static_cast<void (QTextBrowser::*)(const QUrl&)>(&QTextBrowser::anchorClicked),
+    // Use the non-deprecated signal signature for anchorClicked
+    connect(m_textEdit, &QTextBrowser::anchorClicked,
             this, &HelpLessonDialog::handleAnchorClicked);
     
+    // Add the QTextBrowser to the right side, giving it stretch priority (1)
     hLayout->addWidget(m_textEdit, 1);
+    
     return container;
 }
 
+// NOTE: Fix the duplicated IDs: 'createchar' was used for character creation and several spell sections.
+// Renaming the spell sections to unique, specific IDs.
 QString HelpLessonDialog::createHelpContentHtml()
 {
-    QString html = R"(
+    // Use QStringLiteral for large static strings if using a C++ compiler that supports it (Qt 5.10+ recommended)
+    // for minor memory optimization. Using R"() for multi-line string literal.
+    QString html = QStringLiteral(R"(
         <html>
         <body style='font-family: sans-serif; background-color: #f0f0f0; margin: 0; padding: 0;'>
             
             <div style='padding: 10px;'>
-            <p style='margin-bottom: 20px;'></p> <h1 style='color: #00008b; margin-bottom: 5px;'>Mordor 1.1 HelpLesson</h1>
+            <p style='margin-bottom: 20px;'></p> 
+            <h1 id='mordor_start' style='color: #00008b; margin-bottom: 5px;'>Mordor 1.1 HelpLesson</h1>
             <p style='font-size: 10pt; color: #555;'>(Last Edited 7/5/95)</p>
             
             <p>Welcome to the Mordor HelpLesson! If this is your first time, it is recommended that you use the available browse buttons to go through the sequential order of the HelpLesson.</p>
@@ -710,83 +751,105 @@ QString HelpLessonDialog::createHelpContentHtml()
                Move to the next section to read about the Game Screen.
                Move to the previous section to read about Race Statistics.
             </p>
-            <h2 id='createchar' style='margin-top: 40px; font-weight: bold; color: #00008b;'>Damage Spells</h2>
-            <h2 id='createchar' style='margin-top: 40px; font-weight: bold; color: #00008b;'>Dispell Spells</h2>
-            <h2 id='createchar' style='margin-top: 40px; font-weight: bold; color: #00008b;'>Dying</h2>
-            <h2 id='createchar' style='margin-top: 40px; font-weight: bold; color: #00008b;'>Electrical Spells</h2>
-            <h2 id='createchar' style='margin-top: 40px; font-weight: bold; color: #00008b;'>Element Spells</h2>
-            <h2 id='createchar' style='margin-top: 40px; font-weight: bold; color: #00008b;'>Encounters</h2>
-            <h2 id='createchar' style='margin-top: 40px; font-weight: bold; color: #00008b;'>Encounters: Combat</h2>
-            <h2 id='createchar' style='margin-top: 40px; font-weight: bold; color: #00008b;'>Encounters: Monster attacks</h2>
-            <h2 id='createchar' style='margin-top: 40px; font-weight: bold; color: #00008b;'>Encounters: Monsters</h2>
-            <h2 id='createchar' style='margin-top: 40px; font-weight: bold; color: #00008b;'>Encounters: Treasure</h2>
-            <h2 id='createchar' style='margin-top: 40px; font-weight: bold; color: #00008b;'>Fire Spells</h2>
-            <h2 id='createchar' style='margin-top: 40px; font-weight: bold; color: #00008b;'>Frequently asked questions</h2>
-            <h2 id='createchar' style='margin-top: 40px; font-weight: bold; color: #00008b;'>Game options window</h2>
-            <h2 id='createchar' style='margin-top: 40px; font-weight: bold; color: #00008b;'>Game overview</h2>
-            <h2 id='createchar' style='margin-top: 40px; font-weight: bold; color: #00008b;'>Guilds: Statistics</h2>
-            <h2 id='createchar' style='margin-top: 40px; font-weight: bold; color: #00008b;'>Heal Spells</h2>
-            <h2 id='createchar' style='margin-top: 40px; font-weight: bold; color: #00008b;'>Hints & Tips</h2>
-            <h2 id='createchar' style='margin-top: 40px; font-weight: bold; color: #00008b;'>The History of Mordor</h2>
-            <h2 id='createchar' style='margin-top: 40px; font-weight: bold; color: #00008b;'>Introduction</h2>
-            <h2 id='createchar' style='margin-top: 40px; font-weight: bold; color: #00008b;'>Items</h2>
-            <h2 id='createchar' style='margin-top: 40px; font-weight: bold; color: #00008b;'>Kill Spells</h2>
-            <h2 id='createchar' style='margin-top: 40px; font-weight: bold; color: #00008b;'>Location Spells</h2>
-            <h2 id='createchar' style='margin-top: 40px; font-weight: bold; color: #00008b;'>MIDI mapper & troubleshooting</h2>
-            <h2 id='createchar' style='margin-top: 40px; font-weight: bold; color: #00008b;'>Magic Spells</h2>
-            <h2 id='createchar' style='margin-top: 40px; font-weight: bold; color: #00008b;'>Main Menu</h2>
-            <h2 id='createchar' style='margin-top: 40px; font-weight: bold; color: #00008b;'>Mind Spells</h2>
-            <h2 id='createchar' style='margin-top: 40px; font-weight: bold; color: #00008b;'>Mordor Ordering Information</h2>
-            <h2 id='createchar' style='margin-top: 40px; font-weight: bold; color: #00008b;'>Mordor Screen Saver</h2>
-            <h2 id='createchar' style='margin-top: 40px; font-weight: bold; color: #00008b;'>Movement Spells</h2>
-            <h2 id='createchar' style='margin-top: 40px; font-weight: bold; color: #00008b;'>Parties</h2>
-            <h2 id='createchar' style='margin-top: 40px; font-weight: bold; color: #00008b;'>Protection Spells</h2>
-            <h2 id='createchar' style='margin-top: 40px; font-weight: bold; color: #00008b;'>Races</h2>
-            <h2 id='createchar' style='margin-top: 40px; font-weight: bold; color: #00008b;'>Races: Statistics</h2>
-            <h2 id='createchar' style='margin-top: 40px; font-weight: bold; color: #00008b;'>Resistance Spells</h2>
-            <h2 id='createchar' style='margin-top: 40px; font-weight: bold; color: #00008b;'>Spells</h2>
-            <h2 id='createchar' style='margin-top: 40px; font-weight: bold; color: #00008b;'>Spells: Healer</h2>
-            <h2 id='createchar' style='margin-top: 40px; font-weight: bold; color: #00008b;'>Spells: Mage</h2>
-            <h2 id='createchar' style='margin-top: 40px; font-weight: bold; color: #00008b;'>Spells: Ninja</h2>
-            <h2 id='createchar' style='margin-top: 40px; font-weight: bold; color: #00008b;'>Spells: Nomad</h2>
-            <h2 id='createchar' style='margin-top: 40px; font-weight: bold; color: #00008b;'>Spells: Paladin</h2>
-            <h2 id='createchar' style='margin-top: 40px; font-weight: bold; color: #00008b;'>Spells: Scavanger</h2>
-            <h2 id='createchar' style='margin-top: 40px; font-weight: bold; color: #00008b;'>Spells: Seeker</h2>
-            <h2 id='createchar' style='margin-top: 40px; font-weight: bold; color: #00008b;'>Spells: Sorcerer</h2>
-            <h2 id='createchar' style='margin-top: 40px; font-weight: bold; color: #00008b;'>Spells: Thief</h2>
-            <h2 id='createchar' style='margin-top: 40px; font-weight: bold; color: #00008b;'>Spells: Villain</h2>
-            <h2 id='createchar' style='margin-top: 40px; font-weight: bold; color: #00008b;'>Spells: Warrior</h2>
-            <h2 id='createchar' style='margin-top: 40px; font-weight: bold; color: #00008b;'>Spells: Wizard</h2>
-            <h2 id='createchar' style='margin-top: 40px; font-weight: bold; color: #00008b;'>System requirements</h2>
-            <h2 id='createchar' style='margin-top: 40px; font-weight: bold; color: #00008b;'>The City</h2>
-            <h2 id='createchar' style='margin-top: 40px; font-weight: bold; color: #00008b;'>The City: Bank</h2>
-            <h2 id='createchar' style='margin-top: 40px; font-weight: bold; color: #00008b;'>The City: Guilds</h2>
-            <h2 id='createchar' style='margin-top: 40px; font-weight: bold; color: #00008b;'>The City: Holding & Confinement</h2>
-            <h2 id='createchar' style='margin-top: 40px; font-weight: bold; color: #00008b;'>The City: Morgue</h2>
-            <h2 id='createchar' style='margin-top: 40px; font-weight: bold; color: #00008b;'>The City: Seer</h2>
-            <h2 id='createchar' style='margin-top: 40px; font-weight: bold; color: #00008b;'>The City: sTore</h2>
-            <h2 id='createchar' style='margin-top: 40px; font-weight: bold; color: #00008b;'>The Dungeon</h2>
-            <h2 id='createchar' style='margin-top: 40px; font-weight: bold; color: #00008b;'>The Game Screen</h2>
-            <h2 id='createchar' style='margin-top: 40px; font-weight: bold; color: #00008b;'>The Library</h2>
-            <h2 id='createchar' style='margin-top: 40px; font-weight: bold; color: #00008b;'>The Toolbar</h2>
-            <h2 id='createchar' style='margin-top: 40px; font-weight: bold; color: #00008b;'>General troubleshooting</h2>
-            <h2 id='createchar' style='margin-top: 40px; font-weight: bold; color: #00008b;'>Tutorial</h2>
-            <h2 id='createchar' style='margin-top: 40px; font-weight: bold; color: #00008b;'>Visual Spells</h2>
-
-
+            
+            <h2 id='damagespells' style='margin-top: 40px; font-weight: bold; color: #00008b;'>Damage Spells</h2>
+            <h2 id='dispellspells' style='margin-top: 40px; font-weight: bold; color: #00008b;'>Dispell Spells</h2>
+            <h2 id='dying' style='margin-top: 40px; font-weight: bold; color: #00008b;'>Dying</h2>
+            <h2 id='electricalspells' style='margin-top: 40px; font-weight: bold; color: #00008b;'>Electrical Spells</h2>
+            <h2 id='elementspells' style='margin-top: 40px; font-weight: bold; color: #00008b;'>Element Spells</h2>
+            <h2 id='encounters' style='margin-top: 40px; font-weight: bold; color: #00008b;'>Encounters</h2>
+            <h2 id='encounterscombat' style='margin-top: 40px; font-weight: bold; color: #00008b;'>Encounters: Combat</h2>
+            <h2 id='encountersmonsterattacks' style='margin-top: 40px; font-weight: bold; color: #00008b;'>Encounters: Monster attacks</h2>
+            <h2 id='encountersmonsters' style='margin-top: 40px; font-weight: bold; color: #00008b;'>Encounters: Monsters</h2>
+            <h2 id='encounterstreasure' style='margin-top: 40px; font-weight: bold; color: #00008b;'>Encounters: Treasure</h2>
+            <h2 id='firespells' style='margin-top: 40px; font-weight: bold; color: #00008b;'>Fire Spells</h2>
+            <h2 id='faq' style='margin-top: 40px; font-weight: bold; color: #00008b;'>Frequently asked questions</h2>
+            <h2 id='gameoptions' style='margin-top: 40px; font-weight: bold; color: #00008b;'>Game options window</h2>
+            <h2 id='overview' style='margin-top: 40px; font-weight: bold; color: #00008b;'>Game overview</h2>
+            <h2 id='guilds' style='margin-top: 40px; font-weight: bold; color: #00008b;'>Guilds: Statistics</h2>
+            <h2 id='healspells' style='margin-top: 40px; font-weight: bold; color: #00008b;'>Heal Spells</h2>
+            <h2 id='beginnerhints' style='margin-top: 40px; font-weight: bold; color: #00008b;'>Hints & Tips</h2>
+            <h2 id='history' style='margin-top: 40px; font-weight: bold; color: #00008b;'>The History of Mordor</h2>
+            <h2 id='introduction' style='margin-top: 40px; font-weight: bold; color: #00008b;'>Introduction</h2>
+            <h2 id='items' style='margin-top: 40px; font-weight: bold; color: #00008b;'>Items</h2>
+            <h2 id='killspells' style='margin-top: 40px; font-weight: bold; color: #00008b;'>Kill Spells</h2>
+            <h2 id='locationspells' style='margin-top: 40px; font-weight: bold; color: #00008b;'>Location Spells</h2>
+            <h2 id='midi' style='margin-top: 40px; font-weight: bold; color: #00008b;'>MIDI mapper & troubleshooting</h2>
+            <h2 id='magicspells' style='margin-top: 40px; font-weight: bold; color: #00008b;'>Magic Spells</h2>
+            <h2 id='mainmenu' style='margin-top: 40px; font-weight: bold; color: #00008b;'>Main Menu</h2>
+            <h2 id='mindspells' style='margin-top: 40px; font-weight: bold; color: #00008b;'>Mind Spells</h2>
+            <h2 id='ordering' style='margin-top: 40px; font-weight: bold; color: #00008b;'>Mordor Ordering Information</h2>
+            <h2 id='information' style='margin-top: 40px; font-weight: bold; color: #00008b;'>Mordor Screen Saver</h2>
+            <h2 id='movementspells' style='margin-top: 40px; font-weight: bold; color: #00008b;'>Movement Spells</h2>
+            <h2 id='parties' style='margin-top: 40px; font-weight: bold; color: #00008b;'>Parties</h2>
+            <h2 id='protectionspells' style='margin-top: 40px; font-weight: bold; color: #00008b;'>Protection Spells</h2>
+            <h2 id='races' style='margin-top: 40px; font-weight: bold; color: #00008b;'>Races</h2>
+            <h2 id='racesstats' style='margin-top: 40px; font-weight: bold; color: #00008b;'>Races: Statistics</h2>
+            <h2 id='resistancespells' style='margin-top: 40px; font-weight: bold; color: #00008b;'>Resistance Spells</h2>
+            <h2 id='spells' style='margin-top: 40px; font-weight: bold; color: #00008b;'>Spells</h2>
+            <h2 id='spellshealer' style='margin-top: 40px; font-weight: bold; color: #00008b;'>Spells: Healer</h2>
+            <h2 id='spellsmage' style='margin-top: 40px; font-weight: bold; color: #00008b;'>Spells: Mage</h2>
+            <h2 id='spellsninja' style='margin-top: 40px; font-weight: bold; color: #00008b;'>Spells: Ninja</h2>
+            <h2 id='spellsnomad' style='margin-top: 40px; font-weight: bold; color: #00008b;'>Spells: Nomad</h2>
+            <h2 id='spellspaladin' style='margin-top: 40px; font-weight: bold; color: #00008b;'>Spells: Paladin</h2>
+            <h2 id='spellsscavanger' style='margin-top: 40px; font-weight: bold; color: #00008b;'>Spells: Scavanger</h2>
+            <h2 id='spellsseeker' style='margin-top: 40px; font-weight: bold; color: #00008b;'>Spells: Seeker</h2>
+            <h2 id='spellssorcerer' style='margin-top: 40px; font-weight: bold; color: #00008b;'>Spells: Sorcerer</h2>
+            <h2 id='spellsthief' style='margin-top: 40px; font-weight: bold; color: #00008b;'>Spells: Thief</h2>
+            <h2 id='spellsvillain' style='margin-top: 40px; font-weight: bold; color: #00008b;'>Spells: Villain</h2>
+            <h2 id='spellswarrior' style='margin-top: 40px; font-weight: bold; color: #00008b;'>Spells: Warrior</h2>
+            <h2 id='spellswizard' style='margin-top: 40px; font-weight: bold; color: #00008b;'>Spells: Wizard</h2>
+            <h2 id='systemreq' style='margin-top: 40px; font-weight: bold; color: #00008b;'>System requirements</h2>
+            <h2 id='city' style='margin-top: 40px; font-weight: bold; color: #00008b;'>The City</h2>
+            <h2 id='citybank' style='margin-top: 40px; font-weight: bold; color: #00008b;'>The City: Bank</h2>
+            <h2 id='cityguilds' style='margin-top: 40px; font-weight: bold; color: #00008b;'>The City: Guilds</h2>
+            <h2 id='cityholding' style='margin-top: 40px; font-weight: bold; color: #00008b;'>The City: Holding & Confinement</h2>
+            <h2 id='citymorgue' style='margin-top: 40px; font-weight: bold; color: #00008b;'>The City: Morgue</h2>
+            <h2 id='cityseer' style='margin-top: 40px; font-weight: bold; color: #00008b;'>The City: Seer</h2>
+            <h2 id='citystore' style='margin-top: 40px; font-weight: bold; color: #00008b;'>The City: sTore</h2>
+            <h2 id='thedungeon' style='margin-top: 40px; font-weight: bold; color: #00008b;'>The Dungeon</h2>
+            <h2 id='gamescreen' style='margin-top: 40px; font-weight: bold; color: #00008b;'>The Game Screen</h2>
+            <h2 id='library' style='margin-top: 40px; font-weight: bold; color: #00008b;'>The Library</h2>
+            <h2 id='toolbar' style='margin-top: 40px; font-weight: bold; color: #00008b;'>The Toolbar</h2>
+            <h2 id='troubleshoot' style='margin-top: 40px; font-weight: bold; color: #00008b;'>General troubleshooting</h2>
+            <h2 id='tutorial' style='margin-top: 40px; font-weight: bold; color: #00008b;'>Tutorial</h2>
+            <h2 id='visualspells' style='margin-top: 40px; font-weight: bold; color: #00008b;'>Visual Spells</h2>
             </div>
         </body>
         </html>
-    )";
+    )");
     return html;
 }
 
 void HelpLessonDialog::handleAnchorClicked(const QUrl &link)
 {
     qDebug() << "Link clicked: " << link.toString();
+    // Anchor links in QTextBrowser start with '#', need to strip it for scrollToAnchor
+    if (link.url().startsWith(QLatin1Char('#'))) {
+        m_textEdit->scrollToAnchor(link.url().mid(1));
+    }
 }
 
 void HelpLessonDialog::handleToolbarAction(QAction *action)
 {
-    qDebug() << "Toolbar action triggered: " << action->text();
+    QString text = action->text();
+    qDebug() << "Toolbar action triggered: " << text;
+    
+    // Check against the translated strings
+    if (text == tr("Back")) {
+        m_textEdit->backward();
+    } else if (text == tr("Forward")) { // Changed from ">>" to tr("Forward")
+        m_textEdit->forward();
+    } else if (text == tr("Contents")) {
+        // Go to the main table of contents
+        m_textEdit->scrollToAnchor("mordor_start");
+    } else if (text == tr("History")) {
+        // Implement history view if needed, or simply log for now
+        qDebug() << "History action clicked.";
+        // A full history implementation would involve accessing QTextBrowser's history list.
+    } else if (text == tr("Search")) {
+        // Implement search dialog if needed
+        qDebug() << "Search action clicked. Needs implementation.";
+    }
+    // Note: The '<<' was removed from createToolBar, so no need to handle it here.
 }

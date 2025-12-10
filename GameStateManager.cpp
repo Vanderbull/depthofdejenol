@@ -66,6 +66,9 @@ GameStateManager::GameStateManager(QObject *parent)
     // --- NEW: Initialize Character Status States ---
     m_gameStateData["CharacterPoisoned"] = false;
     m_gameStateData["CharacterBlinded"] = false;
+    m_gameStateData["CharacterDiseased"] = false;
+    m_gameStateData["CharacterDied"] = false;
+
     // ----------------------------------------------
 
     // --- ADDED: Initialize the Guild Action Log ---

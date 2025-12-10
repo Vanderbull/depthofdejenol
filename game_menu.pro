@@ -76,7 +76,6 @@ SOURCES += game_menu.cpp \
     src/confinement_dialog/ConfinementDialog.cpp \
     src/bank_dialog/BankDialog.cpp \
     src/race_data/RaceData.cpp \
-    src/marlith_dialog/marlith_dialog.cpp \
     src/inventory_dialog/inventorydialog.cpp \
     src/options_dialog/optionsdialog.cpp \
     src/dungeon_dialog/DungeonDialog.cpp \
@@ -111,7 +110,6 @@ HEADERS += game_menu.h \
     src/confinement_dialog/ConfinementDialog.h \
     src/bank_dialog/BankDialog.h \
     src/race_data/RaceData.h \
-    src/marlith_dialog/marlith_dialog.h \
     src/inventory_dialog/inventorydialog.h \
     src/options_dialog/optionsdialog.h \
     src/dungeon_dialog/DungeonDialog.h \

@@ -7,35 +7,29 @@
 #include <QHBoxLayout>
 #include <QToolBar>
 #include <QLabel>
-
-#include "GameStateManager.h" // Include the GameStateManager header
+#include <QUrl>
+#include <QAction>
+#include "GameStateManager.h"
 
 class HelpLessonDialog : public QDialog
 {
     Q_OBJECT
 
 public:
-    // Konstruktor: Parent-widgetet är QWidget* parent
     explicit HelpLessonDialog(QWidget *parent = nullptr);
     ~HelpLessonDialog();
 
 private slots:
-    // Slot för att hantera klick på länkar i QTextEdit
     void handleAnchorClicked(const QUrl &link);
-    // Slot för att hantera klick på Toolbar-knappar (t.ex. Back, History)
     void handleToolbarAction(QAction *action);
 
 private:
-    // Hjälpfunktion för att bygga verktygsfältet
     QToolBar* createToolBar();
-    // Hjälpfunktion för att bygga innehållsytan (med dvärg-bilden och texten)
     QWidget* createContentArea();
-    // Innehåller all HTML-data
     QString createHelpContentHtml();
 
     QTextBrowser *m_textEdit;
-    QLabel *m_dwarfImageLabel; // För bilden till vänster
-
+    QLabel *m_dwarfImageLabel;
 };
 
 #endif // HELPLESSON_H
