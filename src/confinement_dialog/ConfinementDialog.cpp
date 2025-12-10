@@ -5,14 +5,15 @@
 #include <QMessageBox>
 #include <QDebug> 
 #include <QFontDatabase>
-#include <QSpacerItem> // Added for layout spacing
+#include <QSpacerItem> 
+#include <QRegularExpressionMatch> // Needed for matching results in Qt 6
 
 ConfinementAndHoldingDialog::ConfinementAndHoldingDialog(QWidget *parent)
     : QDialog(parent)
 {
     setWindowTitle("Confinement & Holding");
     
-    // --- Set the Monospace Font for retro/aligned look ---
+    // Set the Monospace Font for retro/aligned look
     QFont fixedFont;
     fixedFont = QFontDatabase::systemFont(QFontDatabase::FixedFont);
     fixedFont.setPointSize(10); 
@@ -37,7 +38,10 @@ ConfinementAndHoldingDialog::ConfinementAndHoldingDialog(QWidget *parent)
     
     // Live Search Connect
     connect(searchLineEdit, &QLineEdit::textChanged, this, &ConfinementAndHoldingDialog::searchCompanion); 
-
+    
+    // CONNECTED: Handle list selection to populate buy fields
+    connect(buyCreatureListWidget, &QListWidget::itemSelectionChanged, this, &ConfinementAndHoldingDialog::updateBuyFieldsFromList);
+    
     // Exit
     connect(exitButton, &QPushButton::clicked, this, &QDialog::accept); 
 }
@@ -80,7 +84,7 @@ void ConfinementAndHoldingDialog::setupUi()
     identifyValueLineEdit->setReadOnly(true); 
     identifyLayout->addWidget(identifyValueLineEdit);
 
-    // --- Identiy Buttons Layout (No Stretch, fixed width) ---
+    // --- Identiy Buttons Layout ---
     QHBoxLayout *identifyButtonsLayout = new QHBoxLayout();
     identifyGneButton = new QPushButton("GNE"); 
     identifyInfoButton = new QPushButton("Info");
@@ -114,9 +118,8 @@ void ConfinementAndHoldingDialog::setupUi()
     QGroupBox *buyGroup = new QGroupBox("Buy Companions");
     QVBoxLayout *buyLayout = new QVBoxLayout(buyGroup);
 
-    // "G N E" header alignment using a spacer/fixed width
+    // "G N E" header alignment 
     QHBoxLayout *gneHeaderLayout = new QHBoxLayout();
-    // Use a fixed spacer to push "G N E" to the right columns for alignment
     QSpacerItem *spacer = new QSpacerItem(300, 1, QSizePolicy::Fixed, QSizePolicy::Minimum); 
     gneHeaderLayout->addItem(spacer); 
     
@@ -132,7 +135,7 @@ void ConfinementAndHoldingDialog::setupUi()
     buyCreatureListWidget = new QListWidget();
     buyCreatureListWidget->setFont(font()); 
     
-    // Example data formatted for monospace alignment (G E N columns)
+    // Example data formatted for monospace alignment (Name ID G E N columns)
     buyCreatureListWidget->addItem("Kobold 49216         0  9  0");
     buyCreatureListWidget->addItem("Orc 169993           0  0  3");
     buyCreatureListWidget->addItem("Clean-Up 272431      0  2  0");
@@ -200,7 +203,6 @@ void ConfinementAndHoldingDialog::identifyCompanion()
 
 void ConfinementAndHoldingDialog::identifyCompanionGNE()
 {
-    // In the real game, this usually calculates the GNE value of the identified companion
     QMessageBox::information(this, "Identify G N E", "Calculating G N E for: " + identifyCompLineEdit->text());
 }
 
@@ -212,7 +214,6 @@ void ConfinementAndHoldingDialog::sellCompanion()
 
 void ConfinementAndHoldingDialog::realignCompanionID()
 {
-    // In the real game, this reassigns a companion ID at a cost.
     QMessageBox::information(this, "Realign ID", "Attempting to realign ID for: " + identifyCompLineEdit->text() + " at cost: " + identifyIdCostLineEdit->text());
 }
 
@@ -230,15 +231,56 @@ void ConfinementAndHoldingDialog::showCompanionInfo()
 
 void ConfinementAndHoldingDialog::searchCompanion()
 {
-    // Implement the live-search/filter functionality
     QString searchText = searchLineEdit->text().trimmed();
     qDebug() << "Searching for: " << searchText;
     
-    // Loop through list items and hide/show based on text
     for (int i = 0; i < buyCreatureListWidget->count(); ++i) {
         QListWidgetItem *item = buyCreatureListWidget->item(i);
-        // Hide if the item text does NOT contain the search text (case-insensitive)
         bool matches = item->text().contains(searchText, Qt::CaseInsensitive);
         item->setHidden(!matches);
     }
+}
+
+void ConfinementAndHoldingDialog::updateBuyFieldsFromList()
+{
+    QList<QListWidgetItem*> selectedItems = buyCreatureListWidget->selectedItems();
+    
+    if (selectedItems.isEmpty()) {
+        buyCompanionLineEdit->clear();
+        buyCostLineEdit->clear();
+        return;
+    }
+    
+    QListWidgetItem *selectedItem = selectedItems.first();
+    QString fullText = selectedItem->text().trimmed();
+
+    // Use QRegularExpression (Qt 6 Standard) to robustly capture the name and ID/Cost.
+    // Pattern: ^(.+?)\s+(\d+)\s+
+    // Captures the Name (1) and the ID/Cost (2) up to the first space before G N E.
+    QRegularExpression rx("^(.+?)\\s+(\\d+)\\s+");
+    QRegularExpressionMatch match = rx.match(fullText);
+    
+    QString companionName;
+    QString companionCost;
+
+    if (match.hasMatch()) {
+        companionName = match.captured(1).trimmed(); // Capture 1: The Name
+        companionCost = match.captured(2);           // Capture 2: The ID/Cost number
+    } else {
+         // Fallback/Error handling if regex fails (e.g. unexpected list format)
+         QStringList parts = fullText.split(' ', Qt::SkipEmptyParts);
+         if (parts.size() >= 2) {
+             companionName = parts.first();
+             companionCost = parts.at(1);
+         } else {
+             companionName = fullText;
+             companionCost = "";
+         }
+    }
+
+    // Update the QLineEdits
+    buyCompanionLineEdit->setText(companionName);
+    buyCostLineEdit->setText(companionCost);
+    
+    qDebug() << "Selected: " << companionName << ", Cost: " << companionCost;
 }

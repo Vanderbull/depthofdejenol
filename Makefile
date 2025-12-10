@@ -1532,7 +1532,8 @@ build/obj/release/BankDialog.o: src/bank_dialog/BankDialog.cpp src/bank_dialog/B
 		src/bank_dialog/TradeDialog.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/BankDialog.o src/bank_dialog/BankDialog.cpp
 
-build/obj/release/RaceData.o: src/race_data/RaceData.cpp src/race_data/RaceData.h
+build/obj/release/RaceData.o: src/race_data/RaceData.cpp src/race_data/RaceData.h \
+		GameStateManager.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/RaceData.o src/race_data/RaceData.cpp
 
 build/obj/release/inventorydialog.o: src/inventory_dialog/inventorydialog.cpp src/inventory_dialog/inventorydialog.h \

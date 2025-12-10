@@ -7,6 +7,7 @@
 #include <QListWidget>
 #include <QLabel>
 #include <QSpinBox>
+#include <QRegularExpression> // For Qt 6 regex parsing
 
 #include "GameStateManager.h" // Include the GameStateManager header (assumed)
 
@@ -24,14 +25,17 @@ private slots:
     
     // Identify/Sell/Realign
     void identifyCompanion();
-    void identifyCompanionGNE(); // New Slot: Calculate GNE value
+    void identifyCompanionGNE(); // Calculate GNE value
     void sellCompanion();
-    void realignCompanionID();   // New Slot: Realign ID
+    void realignCompanionID();   // Realign ID
 
     // Buy
     void buyCompanion();
     void showCompanionInfo();
-    void searchCompanion();      // Connects to textChanged signal
+    void searchCompanion();      
+
+    // Handles selection change in the creature list
+    void updateBuyFieldsFromList(); 
 
 private:
     void setupUi();
