@@ -1,15 +1,15 @@
 #include "characterlistdialog.h"
 #include <QHBoxLayout>
 #include <QMessageBox>
-#include <QDir>        // NYTT: För att hantera kataloger
-#include <QFileInfo>   // NYTT: För filinformation
-#include <QFile>       // NYTT: För att ta bort filer
+#include <QDir>
+#include <QFileInfo>
+#include <QFile>
 
 CharacterListDialog::CharacterListDialog(QWidget *parent)
     : QDialog(parent)
 {
     setWindowTitle("Mordor: Character List");
-    setFixedSize(400, 500); // Fixed size, adjust as needed
+    setFixedSize(400, 500);
 
     // 1. Create UI elements
     titleLabel = new QLabel("Select a Character", this);
@@ -45,7 +45,6 @@ CharacterListDialog::CharacterListDialog(QWidget *parent)
     // Double-click in the list should also select the character
     connect(characterListWidget, &QListWidget::itemDoubleClicked, this, &CharacterListDialog::onSelectClicked);
 
-    // Ladda karaktärer dynamiskt från filer
     loadCharactersFromFiles();
 }
 
@@ -68,11 +67,9 @@ void CharacterListDialog::loadCharactersFromFiles()
         return;
     }
 
-    // Filtrera för att endast inkludera filer som slutar med ".txt"
     QStringList filters;
     filters << "*.txt";
 
-    // Få en lista över filinformationsobjekt för alla matchande filer
     QFileInfoList fileList = dir.entryInfoList(filters, QDir::Files | QDir::NoDotAndDotDot);
 
     if (fileList.isEmpty()) {
