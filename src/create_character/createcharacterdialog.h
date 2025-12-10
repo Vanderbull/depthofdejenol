@@ -13,6 +13,7 @@
 #include <QString>
 // Assuming this struct definition exists somewhere accessible
 #include "src/race_data/RaceData.h" 
+#include "GameStateManager.h"
 
 class CreateCharacterDialog : public QDialog
 {
