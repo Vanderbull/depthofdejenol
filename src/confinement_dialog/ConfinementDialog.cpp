@@ -4,20 +4,41 @@
 #include <QGroupBox>
 #include <QMessageBox>
 #include <QDebug> 
+#include <QFontDatabase>
+#include <QSpacerItem> // Added for layout spacing
 
 ConfinementAndHoldingDialog::ConfinementAndHoldingDialog(QWidget *parent)
     : QDialog(parent)
 {
     setWindowTitle("Confinement & Holding");
-    setupUi();
-    setFixedSize(QSize(800, 600)); // Adjust size as needed
+    
+    // --- Set the Monospace Font for retro/aligned look ---
+    QFont fixedFont;
+    fixedFont = QFontDatabase::systemFont(QFontDatabase::FixedFont);
+    fixedFont.setPointSize(10); 
+    setFont(fixedFont);
 
-    // Connect signals and slots
+    setupUi();
+    resize(850, 650); 
+
+    // --- Connect signals and slots ---
+    
+    // Left Column Connections
     connect(bindButton, &QPushButton::clicked, this, &ConfinementAndHoldingDialog::bindCompanion);
+    
     connect(identifyInfoButton, &QPushButton::clicked, this, &ConfinementAndHoldingDialog::identifyCompanion); 
+    connect(identifyGneButton, &QPushButton::clicked, this, &ConfinementAndHoldingDialog::identifyCompanionGNE); 
     connect(identifySellButton, &QPushButton::clicked, this, &ConfinementAndHoldingDialog::sellCompanion);
+    connect(identifyIdButton, &QPushButton::clicked, this, &ConfinementAndHoldingDialog::realignCompanionID); 
+
+    // Right Column Connections
     connect(buyButton, &QPushButton::clicked, this, &ConfinementAndHoldingDialog::buyCompanion);
     connect(buyInfoButton, &QPushButton::clicked, this, &ConfinementAndHoldingDialog::showCompanionInfo);
+    
+    // Live Search Connect
+    connect(searchLineEdit, &QLineEdit::textChanged, this, &ConfinementAndHoldingDialog::searchCompanion); 
+
+    // Exit
     connect(exitButton, &QPushButton::clicked, this, &QDialog::accept); 
 }
 
@@ -30,6 +51,7 @@ void ConfinementAndHoldingDialog::setupUi()
 {
     // Main Layout
     QHBoxLayout *mainLayout = new QHBoxLayout(this);
+    mainLayout->setSpacing(20); 
 
     // --- Left Column Layout (Bind, Identify/Sell) ---
     QVBoxLayout *leftColLayout = new QVBoxLayout();
@@ -55,17 +77,29 @@ void ConfinementAndHoldingDialog::setupUi()
     identifyLayout->addWidget(identifyCompLineEdit);
     identifyLayout->addWidget(new QLabel("Value"));
     identifyValueLineEdit = new QLineEdit();
+    identifyValueLineEdit->setReadOnly(true); 
     identifyLayout->addWidget(identifyValueLineEdit);
 
+    // --- Identiy Buttons Layout (No Stretch, fixed width) ---
     QHBoxLayout *identifyButtonsLayout = new QHBoxLayout();
     identifyGneButton = new QPushButton("GNE"); 
     identifyInfoButton = new QPushButton("Info");
     identifySellButton = new QPushButton("Sell");
     identifyIdButton = new QPushButton("ID");
+    
+    int buttonWidth = 60;
+    identifyGneButton->setFixedWidth(buttonWidth);
+    identifyInfoButton->setFixedWidth(buttonWidth);
+    identifySellButton->setFixedWidth(buttonWidth);
+    identifyIdButton->setFixedWidth(buttonWidth);
+
+    identifyButtonsLayout->addStretch(); 
     identifyButtonsLayout->addWidget(identifyGneButton);
     identifyButtonsLayout->addWidget(identifyInfoButton);
     identifyButtonsLayout->addWidget(identifySellButton);
     identifyButtonsLayout->addWidget(identifyIdButton);
+    identifyButtonsLayout->addStretch(); 
+    
     identifyLayout->addLayout(identifyButtonsLayout);
 
     identifyLayout->addWidget(new QLabel("ID Cost"));
@@ -80,35 +114,36 @@ void ConfinementAndHoldingDialog::setupUi()
     QGroupBox *buyGroup = new QGroupBox("Buy Companions");
     QVBoxLayout *buyLayout = new QVBoxLayout(buyGroup);
 
-    // "G N E" header
+    // "G N E" header alignment using a spacer/fixed width
     QHBoxLayout *gneHeaderLayout = new QHBoxLayout();
-    gneHeaderLayout->addStretch(); 
+    // Use a fixed spacer to push "G N E" to the right columns for alignment
+    QSpacerItem *spacer = new QSpacerItem(300, 1, QSizePolicy::Fixed, QSizePolicy::Minimum); 
+    gneHeaderLayout->addItem(spacer); 
+    
     gneLabel = new QLabel("G N E");
-    QFont font = gneLabel->font();
-    font.setBold(true);
-    gneLabel->setFont(font);
+    QFont boldFont = gneLabel->font();
+    boldFont.setBold(true);
+    gneLabel->setFont(boldFont);
     gneHeaderLayout->addWidget(gneLabel);
+    
     buyLayout->addLayout(gneHeaderLayout);
 
-
+    // --- List Widget Setup ---
     buyCreatureListWidget = new QListWidget();
-    // Populate with example data from your image
-    buyCreatureListWidget->addItem("Kobold 49216           0 9 0");
-    buyCreatureListWidget->addItem("Orc 169993             0 0 3");
-    buyCreatureListWidget->addItem("Clean-Up 272431        0 2 0");
-    buyCreatureListWidget->addItem("Black Bear 75000       0 2 0");
-    buyCreatureListWidget->addItem("Giant Owl 70421        0 2 0");
-    buyCreatureListWidget->addItem("Giant Spider 109163    0 2 0");
-    buyCreatureListWidget->addItem("Giant Centipede 107871 0 2 0");
-    buyCreatureListWidget->addItem("Zombie 223007          0 2 0");
-    buyCreatureListWidget->addItem("Footpad 37471          0 2 0");
-    buyCreatureListWidget->addItem("Gredlan Rogue 57586    0 2 0");
-//    buyCreatureListWidget->addItem("Slave           9 0 3");
-//    buyCreatureListWidget->addItem("Outcast Goblin  0 0 7");
-//    buyCreatureListWidget->addItem("Disciple        1 6 0");
-//    buyCreatureListWidget->addItem("Skulldragl      0 9 0");
-//    buyCreatureListWidget->addItem("Morloch         0 6 0");
-//    buyCreatureListWidget->addItem("Slaver          1 0 0");
+    buyCreatureListWidget->setFont(font()); 
+    
+    // Example data formatted for monospace alignment (G E N columns)
+    buyCreatureListWidget->addItem("Kobold 49216         0  9  0");
+    buyCreatureListWidget->addItem("Orc 169993           0  0  3");
+    buyCreatureListWidget->addItem("Clean-Up 272431      0  2  0");
+    buyCreatureListWidget->addItem("Black Bear 75000     0  2  0");
+    buyCreatureListWidget->addItem("Giant Owl 70421      0  2  0");
+    buyCreatureListWidget->addItem("Giant Spider 109163  0  2  0");
+    buyCreatureListWidget->addItem("Giant Centipede 107871 0  2  0");
+    buyCreatureListWidget->addItem("Zombie 223007        0  2  0");
+    buyCreatureListWidget->addItem("Footpad 37471        0  2  0");
+    buyCreatureListWidget->addItem("Gredlan Rogue 57586  0  2  0");
+
     buyLayout->addWidget(buyCreatureListWidget);
 
     buyLayout->addWidget(new QLabel("Companion"));
@@ -116,8 +151,10 @@ void ConfinementAndHoldingDialog::setupUi()
     buyLayout->addWidget(buyCompanionLineEdit);
     buyLayout->addWidget(new QLabel("Cost"));
     buyCostLineEdit = new QLineEdit();
+    buyCostLineEdit->setReadOnly(true); 
     buyLayout->addWidget(buyCostLineEdit);
 
+    // --- Buy Buttons Layout ---
     QHBoxLayout *buyButtonsLayout = new QHBoxLayout();
     buyButton = new QPushButton("BUY");
     buyInfoButton = new QPushButton("INFO");
@@ -145,7 +182,7 @@ void ConfinementAndHoldingDialog::setupUi()
     mainLayout->addLayout(rightColLayout);
 }
 
-// --- Slot Implementations (Placeholder) ---
+// --- Slot Implementations ---
 
 void ConfinementAndHoldingDialog::bindCompanion()
 {
@@ -157,12 +194,26 @@ void ConfinementAndHoldingDialog::identifyCompanion()
 {
     QMessageBox::information(this, "Identify Companion", "Identifying companion: " + identifyCompLineEdit->text());
     qDebug() << "Identify Companion: " << identifyCompLineEdit->text();
+    // Placeholder: populate identifyValueLineEdit with the identified value
+    identifyValueLineEdit->setText("Identified Value: 100g 50e 20n"); 
+}
+
+void ConfinementAndHoldingDialog::identifyCompanionGNE()
+{
+    // In the real game, this usually calculates the GNE value of the identified companion
+    QMessageBox::information(this, "Identify G N E", "Calculating G N E for: " + identifyCompLineEdit->text());
 }
 
 void ConfinementAndHoldingDialog::sellCompanion()
 {
     QMessageBox::information(this, "Sell Companion", "Selling companion: " + identifyCompLineEdit->text());
     qDebug() << "Sell Companion: " << identifyCompLineEdit->text();
+}
+
+void ConfinementAndHoldingDialog::realignCompanionID()
+{
+    // In the real game, this reassigns a companion ID at a cost.
+    QMessageBox::information(this, "Realign ID", "Attempting to realign ID for: " + identifyCompLineEdit->text() + " at cost: " + identifyIdCostLineEdit->text());
 }
 
 void ConfinementAndHoldingDialog::buyCompanion()
@@ -179,11 +230,15 @@ void ConfinementAndHoldingDialog::showCompanionInfo()
 
 void ConfinementAndHoldingDialog::searchCompanion()
 {
-    // This would typically filter the buyCreatureListWidget
-    qDebug() << "Searching for: " << searchLineEdit->text();
-    // Example: loop through list items and hide/show based on text
+    // Implement the live-search/filter functionality
+    QString searchText = searchLineEdit->text().trimmed();
+    qDebug() << "Searching for: " << searchText;
+    
+    // Loop through list items and hide/show based on text
     for (int i = 0; i < buyCreatureListWidget->count(); ++i) {
         QListWidgetItem *item = buyCreatureListWidget->item(i);
-        item->setHidden(!item->text().contains(searchLineEdit->text(), Qt::CaseInsensitive));
+        // Hide if the item text does NOT contain the search text (case-insensitive)
+        bool matches = item->text().contains(searchText, Qt::CaseInsensitive);
+        item->setHidden(!matches);
     }
 }

@@ -8,7 +8,7 @@
 #include <QLabel>
 #include <QSpinBox>
 
-#include "GameStateManager.h" // Include the GameStateManager header
+#include "GameStateManager.h" // Include the GameStateManager header (assumed)
 
 class ConfinementAndHoldingDialog : public QDialog
 {
@@ -19,12 +19,19 @@ public:
     ~ConfinementAndHoldingDialog();
 
 private slots:
+    // Bind/Acquire
     void bindCompanion();
+    
+    // Identify/Sell/Realign
     void identifyCompanion();
+    void identifyCompanionGNE(); // New Slot: Calculate GNE value
     void sellCompanion();
+    void realignCompanionID();   // New Slot: Realign ID
+
+    // Buy
     void buyCompanion();
     void showCompanionInfo();
-    void searchCompanion();
+    void searchCompanion();      // Connects to textChanged signal
 
 private:
     void setupUi();
@@ -36,7 +43,7 @@ private:
 
     // Identify, Realign & Sell Companions
     QLineEdit *identifyCompLineEdit;
-    QLineEdit *identifyValueLineEdit;
+    QLineEdit *identifyValueLineEdit; // Value output (Read-only)
     QPushButton *identifyGneButton; 
     QPushButton *identifyInfoButton;
     QPushButton *identifySellButton;
@@ -46,7 +53,7 @@ private:
     // Buy Companions
     QListWidget *buyCreatureListWidget;
     QLineEdit *buyCompanionLineEdit; 
-    QLineEdit *buyCostLineEdit;
+    QLineEdit *buyCostLineEdit; // Cost output (Read-only)
     QPushButton *buyButton;
     QPushButton *buyInfoButton;
     QLineEdit *searchLineEdit;
