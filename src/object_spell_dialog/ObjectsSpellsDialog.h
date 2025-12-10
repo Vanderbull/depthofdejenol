@@ -7,6 +7,7 @@
 #include <QListView>
 #include <QLabel>
 #include <QTextEdit>
+#include "GameStateManager.h"
 
 class ObjectsSpellsDialog : public QDialog
 {
@@ -41,7 +42,6 @@ private:
     QStringListModel *m_itemsModel;
     QStringListModel *m_spellsModel;
     QStringListModel *m_companionsModel;
-
     // UI Widgets that need member access for updates
     QTabWidget *m_tabWidget;
     QListView *m_itemsListView;
@@ -51,7 +51,6 @@ private:
     QTextEdit *m_guildInfoDisplay;
     QTextEdit *m_buffsInfoDisplay;
     QTextEdit *m_miscInfoDisplay;
-
     // Details panel widgets
     QLabel *m_charNameLabel;
     QLabel *m_leadLabel;
