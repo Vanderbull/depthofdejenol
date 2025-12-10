@@ -4,9 +4,7 @@
 #include <QLabel>
 #include <QPushButton>
 #include <QTextEdit>
-#include <QString> // Added for string formatting
-
-// Note: GameStateManager.h is included in AboutDialog.h
+#include <QString>
 
 AboutDialog::AboutDialog(QWidget *parent) : QDialog(parent) {
     setWindowTitle("Mordor Ordering Information");
@@ -19,10 +17,6 @@ AboutDialog::AboutDialog(QWidget *parent) : QDialog(parent) {
 
 AboutDialog::~AboutDialog() {}
 
-/**
- * @brief Retrieves game state information from the GameStateManager.
- * @return A formatted QString containing version and gold details.
- */
 QString AboutDialog::getGameVersionInfo() const {
     GameStateManager* gsm = GameStateManager::instance();
     QString version = gsm->getGameValue("GameVersion").toString();
@@ -32,23 +26,14 @@ QString AboutDialog::getGameVersionInfo() const {
         ).arg(version);
 }
 
-
 void AboutDialog::setupUi() {
-    // -------------------------------------------------------------------------
-    // CALL THE NEW FUNCTION to print the entire state to qDebug()
-    // -------------------------------------------------------------------------
     GameStateManager::instance()->printAllGameState();
-
-    // Main vertical layout for the dialog
     QVBoxLayout *mainLayout = new QVBoxLayout(this);
-
-    // 1. Game State Information
     QString gameStateInfo = getGameVersionInfo();
     QLabel *gameStateLabel = new QLabel(gameStateInfo);
     gameStateLabel->setWordWrap(true);
     gameStateLabel->setStyleSheet("font-size: 14px; font-weight: normal;");
     
-    // 2. Ordering/Description Text (Original text prepended with game state info)
     QString orderingText =
         "Whether you're ordering MORDOR for yourself or as a gift, this first of a kind Windows FRP\n"
         "game designed to be played for months and even longer is guaranteed to put a smile on most any avid\n"
@@ -72,21 +57,13 @@ void AboutDialog::setupUi() {
         
     QLabel *infoText = new QLabel(orderingText);
     infoText->setAlignment(Qt::AlignTop | Qt::AlignLeft);
-    infoText->setWordWrap(true); // Ensure the text wraps
+    infoText->setWordWrap(true);
 
-    // 3. Close Button
     QPushButton *closeButton = new QPushButton("Ok");
-    // Use the QDialog standard slot for accepting (closing) the dialog
     connect(closeButton, &QPushButton::clicked, this, &QDialog::accept);
-
-    // Add widgets to the main layout
-    mainLayout->addWidget(gameStateLabel); // Display game state info first
+    mainLayout->addWidget(gameStateLabel);
     mainLayout->addWidget(infoText);
-
-    // Add stretch to push the button to the bottom
     mainLayout->addStretch();
-
-    // Layout for the button to keep it centered
     QHBoxLayout *buttonLayout = new QHBoxLayout();
     buttonLayout->addStretch();
     buttonLayout->addWidget(closeButton);
