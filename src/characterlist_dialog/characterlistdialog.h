@@ -24,7 +24,6 @@ public:
     explicit CharacterListDialog(QWidget *parent = nullptr);
     ~CharacterListDialog();
 
-    // Denna funktion används inte längre externt, men behålls som privat implementation.
     // void addCharacter(const QString &characterName); 
 
 private slots:
