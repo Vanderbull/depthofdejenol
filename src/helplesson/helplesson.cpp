@@ -3,33 +3,21 @@
 #include <QAction>
 #include <QDebug>
 #include <QTextDocument>
-// Behövs för att använda QTextBrowser
 #include <QTextBrowser> 
 #include <QHBoxLayout>
-#include <QVBoxLayout> // Se till att inkludera denna om den saknas i din fil
+#include <QVBoxLayout>
 
-// --- Konstruktor ---
 HelpLessonDialog::HelpLessonDialog(QWidget *parent)
     : QDialog(parent)
 {
-    // Sätt fönstertiteln
     setWindowTitle(tr("Mordor HelpLesson"));
-    // Sätt en rimlig startstorlek
     resize(700, 600);
-
-    // Huvudlayout för hela fönstret
     QVBoxLayout *mainLayout = new QVBoxLayout(this);
-    mainLayout->setContentsMargins(0, 0, 0, 0); // Ta bort marginaler för en renare look
-
-    // 1. Skapa och lägg till verktygsfältet (Toolbar)
+    mainLayout->setContentsMargins(0, 0, 0, 0);
     QToolBar *toolbar = createToolBar();
     mainLayout->addWidget(toolbar);
-
-    // 2. Skapa och lägg till innehållsytan (Text)
     QWidget *contentArea = createContentArea();
     mainLayout->addWidget(contentArea);
-
-    // (Valfritt) Ge fönstret en klassisk grå bakgrundsfärg
     setStyleSheet("QDialog { background-color: #f0f0f0; }");
 }
 
@@ -37,67 +25,44 @@ HelpLessonDialog::~HelpLessonDialog()
 {
 }
 
-// --- Verktygsfältet ---
 QToolBar* HelpLessonDialog::createToolBar()
 {
     QToolBar *toolbar = new QToolBar(this);
     toolbar->setStyleSheet("QToolBar { background-color: #e5e5e5; border-bottom: 1px solid #c0c0c0; }");
 
-    // Knappar till vänster
     toolbar->addAction(tr("Contents"));
     toolbar->addAction(tr("Search"));
     toolbar->addAction(tr("Back"));
     toolbar->addAction(tr("History"));
-
-    // Separator och dubbelpilar
+    
     toolbar->addSeparator();
     toolbar->addAction(tr("<<"));
     toolbar->addAction(tr(">>"));
 
-    // Koppla alla actions till en gemensam slot
     connect(toolbar, &QToolBar::actionTriggered, this, &HelpLessonDialog::handleToolbarAction);
-
     return toolbar;
 }
 
-// --- Innehållsytan (TextEdit) ---
 QWidget* HelpLessonDialog::createContentArea()
 {
     QWidget *container = new QWidget(this);
-    // Vi använder fortfarande QHBoxLayout, men den kommer bara att innehålla QTextBrowser.
     QHBoxLayout *hLayout = new QHBoxLayout(container);
-    // FIX: Justera vänster marginalen till 10px för stoppning, och ta bort bilden.
     hLayout->setContentsMargins(10, 10, 10, 10); 
-
-    // Höger: Textinnehållet (QTextBrowser)
     m_textEdit = new QTextBrowser(this);
     m_textEdit->setReadOnly(true);
-    // Ta bort kanten för att smälta in i dialogen
     m_textEdit->setFrameShape(QFrame::NoFrame);
-    
-    // Styla länkar för att matcha den gamla blå färgen
     m_textEdit->document()->setDefaultStyleSheet("a { color: blue; text-decoration: none; }");
-    
-    // Ladda in innehållet
     m_textEdit->setHtml(createHelpContentHtml());
 
-    // Koppla klick på länkar.
     connect(m_textEdit, static_cast<void (QTextBrowser::*)(const QUrl&)>(&QTextBrowser::anchorClicked),
             this, &HelpLessonDialog::handleAnchorClicked);
     
-    // Lägg till textinnehållet och låt det ta upp allt utrymme.
     hLayout->addWidget(m_textEdit, 1);
-    
-    // Dvärgbild-koden har tagits bort härifrån.
-    
     return container;
 }
 
-// --- HTML-innehållet ---
 QString HelpLessonDialog::createHelpContentHtml()
 {
-    // Återskapa stilen med HTML/CSS. Notera den mörkblå färgen för rubriken.
-    // HTML-koden är densamma som i föregående steg, men ligger här för fullständighets skull.
     QString html = R"(
         <html>
         <body style='font-family: sans-serif; background-color: #f0f0f0; margin: 0; padding: 0;'>
@@ -816,16 +781,12 @@ QString HelpLessonDialog::createHelpContentHtml()
     return html;
 }
 
-// --- Slots/Signalhantering ---
 void HelpLessonDialog::handleAnchorClicked(const QUrl &link)
 {
-    // I en riktig applikation skulle du ladda en ny sida baserat på "link.toString()"
     qDebug() << "Link clicked: " << link.toString();
-    // Exempel: m_textEdit->scrollToAnchor(link.fragment()); // Om alla sektioner är på samma sida
 }
 
 void HelpLessonDialog::handleToolbarAction(QAction *action)
 {
-    // Här hanterar du klick på Toolbar-knapparna
     qDebug() << "Toolbar action triggered: " << action->text();
 }
