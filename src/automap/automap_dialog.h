@@ -5,12 +5,12 @@
 #include <QWidget>
 #include <QLabel>
 #include <QPushButton>
-#include <QKeyEvent> // Needed for keyPressEvent declaration
+#include <QKeyEvent>
+#include "GameStateManager.h"
 
 // Forward declarations for efficiency
 class QPaintEvent; 
 
-// --- MapViewWidget Class Declaration ---
 class MapViewWidget : public QWidget
 {
     Q_OBJECT
@@ -31,7 +31,6 @@ private:
     bool playerVisible = true;
 };
 
-// --- AutomapDialog Class Declaration ---
 class AutomapDialog : public QDialog
 {
     Q_OBJECT
@@ -48,7 +47,6 @@ public:
     QString getCurrentFacing() const { return currentFacing; }
 
 protected:
-    // FIX: DECLARE the reimplemented key press event handler
     void keyPressEvent(QKeyEvent *event) override; 
 
 private slots:
