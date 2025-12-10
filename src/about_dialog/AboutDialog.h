@@ -2,7 +2,7 @@
 #define ABOUTDIALOG_H
 
 #include <QDialog>
-#include "GameStateManager.h" // Include the GameStateManager header
+#include "GameStateManager.h"
 
 class AboutDialog : public QDialog {
     Q_OBJECT
@@ -13,7 +13,7 @@ public:
 
 private:
     void setupUi();
-    QString getGameVersionInfo() const; // New private method to fetch game version/gold
+    QString getGameVersionInfo() const;
 };
 
 #endif // ABOUTDIALOG_H
