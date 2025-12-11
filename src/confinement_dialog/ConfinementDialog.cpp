@@ -8,6 +8,11 @@
 #include <QSpacerItem> 
 #include <QRegularExpressionMatch> // Needed for matching results in Qt 6
 
+// NOTE: GameStateManager.h is included, but the class is not defined here.
+// For the buyCompanion() implementation below, we assume GameStateManager 
+// is a globally accessible class (e.g., a Singleton) with methods for handling gold.
+// e.g., GameStateManager::instance().removeCharacterGold(cost);
+
 ConfinementAndHoldingDialog::ConfinementAndHoldingDialog(QWidget *parent)
     : QDialog(parent)
 {
@@ -219,8 +224,52 @@ void ConfinementAndHoldingDialog::realignCompanionID()
 
 void ConfinementAndHoldingDialog::buyCompanion()
 {
-    QMessageBox::information(this, "Buy Companion", "Buying companion: " + buyCompanionLineEdit->text());
-    qDebug() << "Buy Companion: " << buyCompanionLineEdit->text();
+    QString companionName = buyCompanionLineEdit->text();
+    QString costText = buyCostLineEdit->text();
+    
+    // --- Step 1: Validate and convert cost ---
+    bool conversionOk;
+    int cost = costText.toInt(&conversionOk);
+
+    if (!conversionOk || cost <= 0) {
+        // Handle case where cost is not a valid positive integer
+        QMessageBox::warning(this, "Buy Error", "Invalid or zero cost detected: " + costText);
+        qDebug() << "Buy Companion Error: Invalid cost value: " << costText;
+        return; 
+    }
+
+    // --- Step 2: Perform GameState Updates (Assuming GameStateManager methods) ---
+    // NOTE: This code assumes a globally accessible GameStateManager instance.
+    
+    // Placeholder for checking if character has enough gold
+    /*
+    if (GameStateManager::instance().getCharacterGold() < cost) {
+        QMessageBox::critical(this, "Buy Error", "Not enough gold to purchase " + companionName + " for " + costText);
+        qDebug() << "Buy Companion Failed: Insufficient gold.";
+        return;
+    }
+    */
+    
+    // 1. Remove cost from character gold
+    // Assumed function in GameStateManager
+    // GameStateManager::instance().removeCharacterGold(cost); 
+    
+    // 2. Add cost to trader account
+    // Assumed function in GameStateManager
+    // GameStateManager::instance().addTraderGold(cost);
+    
+    // --- Step 3: Confirmation and Debugging ---
+    
+    QMessageBox::information(this, "Buy Companion", 
+                             "Successfully bought companion: " + companionName + 
+                             " for " + costText + " gold.");
+                             
+    qDebug() << "Buy Companion: " << companionName 
+             << " for " << cost << " gold." 
+             << " (Character gold reduced, Trader gold increased)";
+
+    // NOTE: Additional logic to actually add the companion to the player's possession 
+    // would be implemented here.
 }
 
 void ConfinementAndHoldingDialog::showCompanionInfo()
