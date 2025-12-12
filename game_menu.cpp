@@ -330,7 +330,8 @@ void GameMenu::onRunClicked() {
     cityDialog->show();
 
     // 1. Create the character dialog on the heap.
-    CharacterDialog *charDialog = new CharacterDialog("Goodie Gil'thrialle");
+//    CharacterDialog *charDialog = new CharacterDialog("Goodie Gil'thrialle");
+    CharacterDialog *charDialog = new CharacterDialog(this);
     // 2. IMPORTANT: Tell Qt to delete the object when the user closes the window.
     charDialog->setAttribute(Qt::WA_DeleteOnClose);
     // 3. Call show() to display the dialog non-modally.

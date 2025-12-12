@@ -3,15 +3,14 @@
 
 #include <QDialog>
 #include <QString>
-
-#include "GameStateManager.h" // Include the GameStateManager header
+#include "GameStateManager.h"
 
 class CharacterDialog : public QDialog {
     Q_OBJECT
 
 public:
-    // Constructor takes the character name for the window title
-    explicit CharacterDialog(const QString &charName, QWidget *parent = nullptr);
+    // CORRECTED: Constructor signature now takes only the parent widget
+    explicit CharacterDialog(QWidget *parent = nullptr);
     ~CharacterDialog() override = default;
 
 private:
