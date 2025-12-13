@@ -1,3 +1,4 @@
+// CharacterDialog.cpp
 #include "CharacterDialog.h"
 
 // Qt Includes
@@ -42,6 +43,22 @@ CharacterDialog::CharacterDialog(QWidget *parent)
     );
 
     setupUi();
+
+    // NEW: Connect the GameStateManager signal to the dialog's update slot
+    connect(GSM, &GameStateManager::gameValueChanged, 
+            this, &CharacterDialog::updateGameStateValue);
+}
+
+// NEW: Implementation of the slot to update UI based on state changes
+void CharacterDialog::updateGameStateValue(const QString& key, const QVariant& value)
+{
+    // Check if the key that changed is the gold key
+    if (key == "CurrentCharacterGold" && m_goldValueLabel) 
+    {
+        // Update the label's text with the new gold value, formatted with locale
+        QString newGoldStr = QLocale().toString(value.toULongLong());
+        m_goldValueLabel->setText(newGoldStr);
+    }
 }
 
 void CharacterDialog::setupUi() {
@@ -89,7 +106,12 @@ void CharacterDialog::setupUi() {
     QHBoxLayout *goldLayout = new QHBoxLayout();
     goldLayout->addWidget(new QLabel("Gold:"));
     goldLayout->addStretch();
-    goldLayout->addWidget(new QLabel(QLocale().toString(GSM->getGameValue("PlayerGold").toULongLong())));
+    
+    // CHANGED: Create and store the gold label pointer in the member variable
+    m_goldValueLabel = new QLabel(QLocale().toString(
+                                    GSM->getGameValue("CurrentCharacterGold").toULongLong()
+                                  ));
+    goldLayout->addWidget(m_goldValueLabel);
     charLayout->addLayout(goldLayout);
 
     charLayout->addStretch();

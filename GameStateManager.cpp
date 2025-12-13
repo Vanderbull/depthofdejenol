@@ -20,14 +20,14 @@ GameStateManager* GameStateManager::instance()
 }
 
 // Private constructor
-GameStateManager::GameStateManager(QObject *parent) 
-    : QObject(parent) 
+GameStateManager::GameStateManager(QObject *parent)
+    : QObject(parent)
 {
 
     m_gameStateData["CurrentCharacterLevel"] = 1;
     // --- ADDED: Initialize Character Experience state ---
     // Use qulonglong for the experience amount to support large values
-    m_gameStateData["CurrentCharacterExperience"] = QVariant::fromValue((qulonglong)0); 
+    m_gameStateData["CurrentCharacterExperience"] = QVariant::fromValue((qulonglong)0);
     
     // Initialize default state data
     m_gameStateData["ResourcesLoaded"] = false;
@@ -39,7 +39,8 @@ GameStateManager::GameStateManager(QObject *parent)
     m_gameStateData["DungeonX"] = 17;
     m_gameStateData["DungeonY"] = 12;
     // Note: QVariant::fromValue is used for qulonglong to ensure correct storage type
-    m_gameStateData["PlayerGold"] = QVariant::fromValue((qulonglong)1500);
+    // CHANGED: Key updated from "PlayerGold" to "CurrentCharacterGold"
+    m_gameStateData["CurrentCharacterGold"] = QVariant::fromValue((qulonglong)1500);
 
     // --- NEW: Initialize Banked Gold state ---
     // Use the same type as PlayerGold for consistency.
@@ -206,8 +207,8 @@ void GameStateManager::addCharacterExperience(qulonglong amount)
 {
     // 1. Get the current experience value. It's stored as qulonglong.
     QVariant currentExpVariant = getGameValue("CurrentCharacterExperience");
-    qulonglong currentExp = currentExpVariant.isValid() 
-                            ? currentExpVariant.value<qulonglong>() 
+    qulonglong currentExp = currentExpVariant.isValid()
+                            ? currentExpVariant.value<qulonglong>()
                             : 0;
 
     // 2. Calculate the new experience
@@ -217,7 +218,7 @@ void GameStateManager::addCharacterExperience(qulonglong amount)
     QVariant newExpVariant = QVariant::fromValue(newExp);
     m_gameStateData["CurrentCharacterExperience"] = newExpVariant;
     
-    qDebug() << "Experience added:" << amount 
+    qDebug() << "Experience added:" << amount
              << " | New Total Experience:" << newExp;
 }
 
@@ -254,8 +255,8 @@ void GameStateManager::printAllGameState() const
     while (i.hasNext()) {
         i.next();
         // Print the key, the value, and the underlying data type name
-        qDebug() << "Key:" << i.key() 
-                 << " | Value:" << i.value() 
+        qDebug() << "Key:" << i.key()
+                 << " | Value:" << i.value()
                  << " | Type:" << i.value().typeName();
     }
     
@@ -267,6 +268,8 @@ void GameStateManager::setGameValue(const QString& key, const QVariant& value)
 {
     m_gameStateData[key] = value;
     qDebug() << "State updated:" << key << "=" << value;
+    // NEW: Emit the signal to notify listeners (like CharacterDialog)
+    emit gameValueChanged(key, value);
 }
 
 QVariant GameStateManager::getGameValue(const QString& key) const

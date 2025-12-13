@@ -22,6 +22,14 @@ public:
     // **The public static method to access the single instance**
     static GameStateManager* instance();
     
+signals:
+    /**
+     * @brief Signal emitted whenever a key/value pair in the game state is updated.
+     * @param key The string key of the value that changed.
+     * @param value The new QVariant value.
+     */
+    void gameValueChanged(const QString& key, const QVariant& value);
+
     // Core state data members
 private:
     // Example: A map to store various game data
@@ -39,10 +47,10 @@ public:
     void logGuildAction(const QString& actionDescription);
     
     // Public method to dump the entire game state to debug output
-    void printAllGameState() const; 
+    void printAllGameState() const;
 
     // Example: Check if all resources are loaded
-    bool areResourcesLoaded() const; 
+    bool areResourcesLoaded() const;
 
     // --- NEW: Character Status Methods ---
     /**

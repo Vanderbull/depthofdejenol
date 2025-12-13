@@ -12,7 +12,8 @@
 long long BankDialog::getPlayerGold()
 {
     // Fetch and convert PlayerGold from GSM (qulonglong)
-    return GameStateManager::instance()->getGameValue("PlayerGold").toULongLong();
+    // FIX: Changed "PlayerGold" to "CurrentCharacterGold" to match GameStateManager initialization
+    return GameStateManager::instance()->getGameValue("CurrentCharacterGold").toULongLong();
 }
 
 long long BankDialog::getBankedGold()
@@ -221,10 +222,10 @@ void BankDialog::on_depositAllButton_clicked()
     if (playerGold > 0) {
         long long amountToDeposit = playerGold; 
 
-        // Update GSM: Increase BankedGold by playerGold, set PlayerGold to 0
+        // Update GSM: Increase BankedGold by playerGold, set CurrentCharacterGold (FIXED) to 0
         GameStateManager::instance()->setGameValue("BankedGold", QVariant::fromValue(bankedGold + playerGold));
-        // Use qulonglong for explicit type safety with large numbers
-        GameStateManager::instance()->setGameValue("PlayerGold", QVariant::fromValue((qulonglong)0)); 
+        // FIX: Use the key "CurrentCharacterGold"
+        GameStateManager::instance()->setGameValue("CurrentCharacterGold", QVariant::fromValue((qulonglong)0)); 
         
         // Use GSM value in the update call
         updateAccountStatus(0, bankedGold + playerGold, freeSlots); 
@@ -246,8 +247,9 @@ void BankDialog::on_withdrawAllButton_clicked()
     if (bankedGold > 0) {
         long long amountToWithdraw = bankedGold;
         
-        // Update GSM: Increase PlayerGold by bankedGold, set BankedGold to 0
-        GameStateManager::instance()->setGameValue("PlayerGold", QVariant::fromValue(playerGold + bankedGold));
+        // Update GSM: Increase CurrentCharacterGold (FIXED) by bankedGold, set BankedGold to 0
+        // FIX: Use the key "CurrentCharacterGold"
+        GameStateManager::instance()->setGameValue("CurrentCharacterGold", QVariant::fromValue(playerGold + bankedGold));
         // Use qulonglong for explicit type safety with large numbers
         GameStateManager::instance()->setGameValue("BankedGold", QVariant::fromValue((qulonglong)0));
         
@@ -302,8 +304,9 @@ void BankDialog::updateDepositValue(const QString &text)
     if (ok && amount > 0) {
         if (amount <= playerGold) {
             // Successful deposit
-            // Update GSM: Decrease PlayerGold, Increase BankedGold
-            GameStateManager::instance()->setGameValue("PlayerGold", QVariant::fromValue(playerGold - amount));
+            // Update GSM: Decrease CurrentCharacterGold (FIXED), Increase BankedGold
+            // FIX: Use the key "CurrentCharacterGold"
+            GameStateManager::instance()->setGameValue("CurrentCharacterGold", QVariant::fromValue(playerGold - amount));
             GameStateManager::instance()->setGameValue("BankedGold", QVariant::fromValue(bankedGold + amount));
             
             QMessageBox::information(this, "Deposit Complete", QString("Successfully deposited %L1 gold.").arg(amount));
@@ -333,9 +336,10 @@ void BankDialog::updateWithdrawValue(const QString &text)
     if (ok && amount > 0) {
         if (amount <= bankedGold) {
             // Successful withdrawal
-            // Update GSM: Decrease BankedGold, Increase PlayerGold
+            // Update GSM: Decrease BankedGold, Increase CurrentCharacterGold (FIXED)
             GameStateManager::instance()->setGameValue("BankedGold", QVariant::fromValue(bankedGold - amount));
-            GameStateManager::instance()->setGameValue("PlayerGold", QVariant::fromValue(playerGold + amount));
+            // FIX: Use the key "CurrentCharacterGold"
+            GameStateManager::instance()->setGameValue("CurrentCharacterGold", QVariant::fromValue(playerGold + amount));
             
             QMessageBox::information(this, "Withdrawal Complete", QString("Successfully withdrew %L1 gold.").arg(amount));
             emit withdrawGold(amount);
