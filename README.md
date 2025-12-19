@@ -1,6 +1,8 @@
 [![Qt 6 Build & Compile](https://github.com/Vanderbull/depthofdejenol/actions/workflows/build.yaml/badge.svg)](https://github.com/Vanderbull/depthofdejenol/actions/workflows/build.yaml)
 
-# Mordor: Depth of Dejenol
+<img width="1024" height="535" alt="image" src="https://github.com/user-attachments/assets/c44f6ae5-dc4d-4f5f-a492-02d35d454969" />
+
+# Black Land: Depth of Dejenol
 
 ## Features
 
