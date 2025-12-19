@@ -1,0 +1,32 @@
+/* Applied background color from SeerDialog QDialog */
+QWidget {
+    background-color: #f0f0f0;
+}
+
+/* Removed 'Times New Roman'. 
+   Applied generic dark grey color similar to #optionsLabel in SeerDialog 
+*/
+QLabel {
+    color: #333333;
+    font-size: 14pt; 
+    font-weight: normal;
+}
+
+/* Applied Blue styling from SeerDialog QPushButton */
+QPushButton {
+    background-color: #4A90E2;
+    color: white;
+    border-radius: 4px;
+    padding: 5px;
+    font-size: 16px; /* Kept original size or can be adjusted to 14pt */
+    font-weight: bold;
+}
+
+/* Applied Hover state from SeerDialog */
+QPushButton:hover {
+    background-color: #357ABD;
+}
+
+/* Removed the complex bevelled 'pressed' state from the original MainMenu 
+   as it does not exist in the SeerDialog theme.
+*/

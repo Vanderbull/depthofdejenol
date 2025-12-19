@@ -20,11 +20,10 @@
 #include "src/loadingscreen/LoadingScreen.h"
 #include "TheCity.h"
 // --- NEW INCLUDE ADDED FOR DATA LOADING ---
-#include "src/race_data/RaceData.h" 
-#include "src/event/EventManager.h" // include the event system
-// --- GAME STATE INTEGRATION ---\
+#include "src/race_data/RaceData.h"
+#include "src/event/EventManager.h"
+// --- GAME STATE INTEGRATION ---
 #include "GameStateManager.h"
-
 // Qt component includes
 #include <QVBoxLayout>
 #include <QGridLayout>
@@ -49,7 +48,6 @@
 #include <QComboBox>
 #include <QFileInfoList>
 #include <QResizeEvent>
-
 // The global MenuSwitch and QSettings variables are removed (now members)
 // QString subfolderName is now a member variable (m_subfolderName)
 
@@ -61,10 +59,10 @@ void launchAutomapDialog() {
     // Execute the dialog modally
     //mapDialog.exec(); 
     mapDialog.show(); 
-    qDebug() << "Automap dialog closed.";
+    qDebug() << "Automap dialog triggered";
 }
 
-GameMenu::GameMenu(QWidget *parent) 
+GameMenu::GameMenu(QWidget *parent)
     : QWidget(parent)
     // Initialize QSettings and subfolderName in the initializer list
     , m_settings("MyCompany", "MyApp")
@@ -83,17 +81,29 @@ GameMenu::GameMenu(QWidget *parent)
     // Immediately trigger GAME_START event(s)
     EventManager::instance()->update("GAME_START");
 
-
     qDebug() << "Configured Subfolder Name:" << m_subfolderName;
 
     setWindowTitle("The Depths of Dejenol: Black Lands");
 
-    // Load external style sheet
-    QFile styleSheetFile("style.qss");
-    if (styleSheetFile.open(QFile::ReadOnly | QFile::Text)) {
-        setStyleSheet(styleSheetFile.readAll());
-        styleSheetFile.close();
+    // 1. Get the directory of THIS .cpp file
+    // __FILE__ is a built-in macro that gives the path to SeerDialog.cpp
+    QFileInfo fileInfo(__FILE__);
+    QString dir = fileInfo.absolutePath();
+
+    // 2. Build the path to the .qss file in the same folder
+    QString qssPath = dir + "/MainMenu.qss";
+    
+// 3. Load and apply the style
+    QFile styleFile(qssPath);
+    if (styleFile.open(QFile::ReadOnly | QFile::Text)) {
+        QTextStream ts(&styleFile);
+        this->setStyleSheet(ts.readAll());
+        styleFile.close();
+        qDebug() << "Style file found at:" << qssPath;
+    } else {
+        qDebug() << "Style file not found at:" << qssPath;
     }
+
 
 // --- Background Image Loading and Scaling Setup ---
     // 1. Get the directory of the running executable
