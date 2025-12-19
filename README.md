@@ -2,7 +2,7 @@
 
 <img width="1024" height="535" alt="image" src="https://github.com/user-attachments/assets/c44f6ae5-dc4d-4f5f-a492-02d35d454969" />
 
-# Mordor: Depth of Dejenol
+# Black Land: Depth of Dejenol
 
 ## Features
 
