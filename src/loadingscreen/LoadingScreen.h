@@ -5,7 +5,9 @@
 #include <QLabel>
 #include <QVBoxLayout>
 #include <QTimer>
-#include <QStringList> // Include QStringList
+#include <QStringList>
+#include <QPropertyAnimation>    // Added for the animation system
+#include <QGraphicsOpacityEffect> // Added to allow opacity manipulation
 
 class LoadingScreen : public QDialog
 {
@@ -17,8 +19,8 @@ public:
 
 private slots:
     void closeDialogAutomatically(); 
-    void updateLoadingMessage(); // Slot to cycle the message
-    void checkSettingsFile(); // Declaration of the new private slot
+    void updateLoadingMessage(); 
+    void checkSettingsFile(); 
 
 private:
     QLabel *m_gameTitleLabel;
@@ -26,15 +28,16 @@ private:
     QLabel *m_imageLabel;
     QLabel *m_copyrightLabel;
 
-    // NEW MEMBERS for loading messages
-    QLabel *m_loadingMessageLabel; // Label to show the "loading file" text
+    QLabel *m_loadingMessageLabel; 
     QTimer *m_closeTimer;
-    QTimer *m_messageTimer; // Timer for message cycling
+    QTimer *m_messageTimer; 
     
-    QStringList m_loadingFiles; // List of fake filenames
-    int m_currentFileIndex;     // Index to track which file is currently displayed
+    QStringList m_loadingFiles; 
+    int m_currentFileIndex;     
 
-    // Removed unused setupUi()
+    // Animation System Members
+    QGraphicsOpacityEffect *m_titleOpacityEffect; // The "bridge" between the widget and animation
+    QPropertyAnimation *m_titleFadeAnimation;     // The animation controller
 };
 
-#endif // LOADINGSCREEN.H
+#endif // LOADINGSCREEN_H
