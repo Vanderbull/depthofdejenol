@@ -148,27 +148,6 @@ GameMenu::GameMenu(QWidget *parent)
     QGridLayout *gridLayout = new QGridLayout(this);
     gridLayout->setContentsMargins(50, 50, 50, 50);
     gridLayout->setSpacing(20);
-
-    // REMOVED: Top-Left Image Placeholder
-
-    // Main title
-//    m_titleLabel = new QLabel("BLACK LAND");
-//    m_titleLabel->setAlignment(Qt::AlignCenter);
-//    m_titleLabel->setStyleSheet("font-size: 30px; font-weight: bold;");
-//    m_subTitleLabel = new QLabel("The Depths of Dejenol");
-//    m_subTitleLabel->setAlignment(Qt::AlignCenter);
-//    m_subTitleLabel->setStyleSheet("font-size: 14px; font-weight: bold;");
-//
-//    QVBoxLayout *titleLayout = new QVBoxLayout();
-//    titleLayout->addWidget(m_titleLabel);
-//    titleLayout->addWidget(m_subTitleLabel);
-
-//    QWidget *titleWidget = new QWidget();
-//    titleWidget->setLayout(titleLayout);
-//    titleWidget->setStyleSheet("background-color: #c1c1c1; color: #000000; border: 1px solid #ffffff; border-top-color: #e0e0e0; border-left-color: #e0e0e0; border-right-color: #646464; border-bottom-color: #646464; padding: 10px;");
-//    gridLayout->addWidget(titleWidget, 0, 1, 1, 2, Qt::AlignCenter);
-
-    // REMOVED: Top-Right Image Placeholder
     
     // --- Button Widgets (using member variables) ---
 
@@ -216,9 +195,6 @@ GameMenu::GameMenu(QWidget *parent)
     gridLayout->addWidget(m_aboutButton, 4, 2);
     connect(m_aboutButton, &QPushButton::clicked, this, &GameMenu::onAboutClicked);
 
-    // REMOVED: Bottom-Left Image Placeholder
-    // REMOVED: Bottom-Right Image Placeholder
-
     // Logging Window Setup
     MessagesWindow *loggerWindow = new MessagesWindow();
     QObject::connect(this, &GameMenu::logMessageTriggered,
@@ -230,9 +206,8 @@ GameMenu::GameMenu(QWidget *parent)
     // Use the new centralized function instead of global MenuSwitch
     toggleMenuState(false); 
     
-    // --- FIX: Audio Setup moved to GameMenu constructor ---
-    m_player = new QMediaPlayer(this);      // Use 'this' as parent
-    m_audioOutput = new QAudioOutput(this); // Use 'this' as parent
+    m_player = new QMediaPlayer(this);
+    m_audioOutput = new QAudioOutput(this);
     m_player->setAudioOutput(m_audioOutput);
     m_player->setSource(QUrl::fromLocalFile("mordor.mp3"));
 
@@ -250,28 +225,23 @@ GameMenu::GameMenu(QWidget *parent)
         qDebug() << "Error playing audio:" << errorString;
     });
 
-    m_audioOutput->setVolume(0.5); // Set volume (0.0 to 1.0 in modern Qt, previously 0-100)
+    m_audioOutput->setVolume(0.5); // Set volume (0.0 to 1.0 in modern Qt)
     m_player->play();
     qDebug() << "Playing audio from GameMenu constructor...";
     
-    // --- GAME STATE INTEGRATION EXAMPLE 2: Check a state value ---
     if (GameStateManager::instance()->areResourcesLoaded()) {
         qDebug() << "Initial resource check passed via GameStateManager. Player Gold:" << GameStateManager::instance()->getGameValue("PlayerGold").toULongLong();
     }
-    
-    // --- End Audio Setup ---
 }
 
 void GameMenu::onEventTriggered(const GameEvent& event)
 {
     qDebug() << "Triggered event:" << event.id << event.description;
  
-    // For a welcome message, simply show a dialog
     if (event.effect == "SHOW_MESSAGE")
     {
         QMessageBox::information(this, tr("Game Message"), event.description);
     }
-    // Add other effect handling here if needed
 }
 
 // Override for proper background scaling on window resize
@@ -313,30 +283,17 @@ void GameMenu::onCharacterCreated(const QString &characterName) {
     emit logMessageTriggered(QString("New character **%1** created successfully!").arg(characterName));
     QMessageBox::information(this, tr("Creation Successful"), 
                              tr("Character **%1** created successfully. Ready to run.").arg(characterName));
-    
-    // CRITICAL STEP: SWITCH TO RUN MODE
     toggleMenuState(true);
 }
 // -------------------------------
 
 // Function definitions
 void GameMenu::onRunClicked() {
-    
-    // 1. Create the dialog on the HEAP using 'new'.
-    TheCity *cityDialog = new TheCity(this); 
-
-    // 2. Set the Qt::WA_DeleteOnClose attribute. 
+    TheCity *cityDialog = new TheCity(this);  
     cityDialog->setAttribute(Qt::WA_DeleteOnClose);
-
-    // 3. Use show() to display the dialog non-modally (non-blocking).
     cityDialog->show();
-
-    // 1. Create the character dialog on the heap.
-//    CharacterDialog *charDialog = new CharacterDialog("Goodie Gil'thrialle");
     CharacterDialog *charDialog = new CharacterDialog(this);
-    // 2. IMPORTANT: Tell Qt to delete the object when the user closes the window.
     charDialog->setAttribute(Qt::WA_DeleteOnClose);
-    // 3. Call show() to display the dialog non-modally.
     charDialog->show();
     qDebug() << "Run Character clicked - launching TheCity and Character Dialog.";
 
