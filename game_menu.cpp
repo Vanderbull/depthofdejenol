@@ -86,7 +86,7 @@ GameMenu::GameMenu(QWidget *parent)
 
     qDebug() << "Configured Subfolder Name:" << m_subfolderName;
 
-    setWindowTitle("Black Land: The Depths of Dejenol v1.0");
+    setWindowTitle("The Depths of Dejenol: Black Lands");
 
     // Load external style sheet
     QFile styleSheetFile("style.qss");
@@ -139,30 +139,26 @@ GameMenu::GameMenu(QWidget *parent)
     gridLayout->setContentsMargins(50, 50, 50, 50);
     gridLayout->setSpacing(20);
 
-    // Placeholder for top-left image (Character List)
-    QLabel *topLeftImage = new QLabel();
-    gridLayout->addWidget(topLeftImage, 0, 0, 2, 1);
+    // REMOVED: Top-Left Image Placeholder
 
     // Main title
-    m_titleLabel = new QLabel("BLACK LAND");
-    m_titleLabel->setAlignment(Qt::AlignCenter);
-    m_titleLabel->setStyleSheet("font-size: 30px; font-weight: bold;");
-    m_subTitleLabel = new QLabel("The Depths of Dejenol");
-    m_subTitleLabel->setAlignment(Qt::AlignCenter);
-    m_subTitleLabel->setStyleSheet("font-size: 14px; font-weight: bold;");
+//    m_titleLabel = new QLabel("BLACK LAND");
+//    m_titleLabel->setAlignment(Qt::AlignCenter);
+//    m_titleLabel->setStyleSheet("font-size: 30px; font-weight: bold;");
+//    m_subTitleLabel = new QLabel("The Depths of Dejenol");
+//    m_subTitleLabel->setAlignment(Qt::AlignCenter);
+//    m_subTitleLabel->setStyleSheet("font-size: 14px; font-weight: bold;");
+//
+//    QVBoxLayout *titleLayout = new QVBoxLayout();
+//    titleLayout->addWidget(m_titleLabel);
+//    titleLayout->addWidget(m_subTitleLabel);
 
-    QVBoxLayout *titleLayout = new QVBoxLayout();
-    titleLayout->addWidget(m_titleLabel);
-    titleLayout->addWidget(m_subTitleLabel);
+//    QWidget *titleWidget = new QWidget();
+//    titleWidget->setLayout(titleLayout);
+//    titleWidget->setStyleSheet("background-color: #c1c1c1; color: #000000; border: 1px solid #ffffff; border-top-color: #e0e0e0; border-left-color: #e0e0e0; border-right-color: #646464; border-bottom-color: #646464; padding: 10px;");
+//    gridLayout->addWidget(titleWidget, 0, 1, 1, 2, Qt::AlignCenter);
 
-    QWidget *titleWidget = new QWidget();
-    titleWidget->setLayout(titleLayout);
-    titleWidget->setStyleSheet("background-color: #c1c1c1; color: #000000; border: 1px solid #ffffff; border-top-color: #e0e0e0; border-left-color: #e0e0e0; border-right-color: #646464; border-bottom-color: #646464; padding: 10px;");
-    gridLayout->addWidget(titleWidget, 0, 1, 1, 2, Qt::AlignCenter);
-
-    // Placeholder for top-right image
-    QLabel *topRightImage = new QLabel();
-    gridLayout->addWidget(topRightImage, 0, 3, 2, 1);
+    // REMOVED: Top-Right Image Placeholder
     
     // --- Button Widgets (using member variables) ---
 
@@ -210,12 +206,8 @@ GameMenu::GameMenu(QWidget *parent)
     gridLayout->addWidget(m_aboutButton, 4, 2);
     connect(m_aboutButton, &QPushButton::clicked, this, &GameMenu::onAboutClicked);
 
-    // Placeholder for bottom-left image
-    QLabel *bottomLeftImage = new QLabel();
-    gridLayout->addWidget(bottomLeftImage, 3, 0, 2, 1);
-    // Placeholder for bottom-right image
-    QLabel *bottomRightImage = new QLabel();
-    gridLayout->addWidget(bottomRightImage, 3, 3, 2, 1);
+    // REMOVED: Bottom-Left Image Placeholder
+    // REMOVED: Bottom-Right Image Placeholder
 
     // Logging Window Setup
     MessagesWindow *loggerWindow = new MessagesWindow();
