@@ -86,7 +86,7 @@ GameMenu::GameMenu(QWidget *parent)
 
     qDebug() << "Configured Subfolder Name:" << m_subfolderName;
 
-    setWindowTitle("Mordor: The Depths of Dejenol v1.0");
+    setWindowTitle("Black Land: The Depths of Dejenol v1.0");
 
     // Load external style sheet
     QFile styleSheetFile("style.qss");
@@ -144,7 +144,7 @@ GameMenu::GameMenu(QWidget *parent)
     gridLayout->addWidget(topLeftImage, 0, 0, 2, 1);
 
     // Main title
-    m_titleLabel = new QLabel("MORDOR");
+    m_titleLabel = new QLabel("BLACK LAND");
     m_titleLabel->setAlignment(Qt::AlignCenter);
     m_titleLabel->setStyleSheet("font-size: 30px; font-weight: bold;");
     m_subTitleLabel = new QLabel("The Depths of Dejenol");
@@ -618,11 +618,11 @@ void GameMenu::onEditSpellbookClicked() {
     }
 }
 void GameMenu::onShowStatisticsClicked() {
-    emit logMessageTriggered("User opened Mordor Statistics dialog.");
+    emit logMessageTriggered("User opened Statistics dialog.");
     MordorStatistics *statsDialog = new MordorStatistics(this);
     statsDialog->setAttribute(Qt::WA_DeleteOnClose);
     statsDialog->show();
-    qDebug() << "Mordor Statistics dialog opened.";
+    qDebug() << "Statistics dialog opened.";
 }
 
 GameMenu::~GameMenu() {
