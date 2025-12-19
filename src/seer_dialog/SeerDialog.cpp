@@ -2,19 +2,55 @@
 #include "SeerDialog.h"
 #include <QMessageBox>
 #include <QRandomGenerator> // Include for random number generation
+#include <QFile>
+#include <QTextStream>
+#include <QFile>
+#include <QCoreApplication>
+#include <QDir>
+#include <QTextStream>
+
+void loadStyleSheet(QWidget* widget, const QString& sheetName) {
+    QFile file(sheetName);
+    if (file.open(QFile::ReadOnly | QFile::Text)) {
+        QTextStream ts(&file);
+        widget->setStyleSheet(ts.readAll());
+        file.close();
+    }
+}
 
 SeerDialog::SeerDialog(QWidget *parent)
     : QDialog(parent)
 {
+    // 1. Get the directory of THIS .cpp file
+    // __FILE__ is a built-in macro that gives the path to SeerDialog.cpp
+    QFileInfo fileInfo(__FILE__);
+    QString dir = fileInfo.absolutePath();
+
+    // 2. Build the path to the .qss file in the same folder
+    QString qssPath = dir + "/SeerDialog.qss";
+    
+// 3. Load and apply the style
+    QFile styleFile(qssPath);
+    if (styleFile.open(QFile::ReadOnly | QFile::Text)) {
+        QTextStream ts(&styleFile);
+        this->setStyleSheet(ts.readAll());
+        styleFile.close();
+    } else {
+        qDebug() << "Style file not found at:" << qssPath;
+    }
     setWindowTitle("The Seer");
     setFixedSize(350, 200); // Adjust size as needed
 
     // --- Widgets ---
-    welcomeLabel = new QLabel("<b><font color='blue' size='5'>Welcome to the City Seer!</font></b>", this);
+    welcomeLabel = new QLabel("Welcome to the City Seer!", this);
+    welcomeLabel->setObjectName("welcomeLabel"); // Assign ID for CSS targeting
+    
     welcomeLabel->setAlignment(Qt::AlignCenter);
 
-    optionsLabel = new QLabel("<font size='4'>Seer Options</font>", this);
-    optionsLabel->setContentsMargins(10, 20, 0, 10); // Adjust margins as needed
+    // Add this line to give it a unique ID for CSS:
+    optionsLabel = new QLabel("Seer Options", this);
+    optionsLabel->setContentsMargins(10, 20, 0, 10);
+    optionsLabel->setObjectName("optionsLabel"); // Assign ID for QSS
 
     characterButton = new QPushButton("Character", this);
     monsterButton = new QPushButton("Monster", this);

@@ -1,0 +1,26 @@
+QDialog {
+    background-color: #f0f0f0;
+}
+
+QLabel#welcomeLabel {
+    color: blue;
+    font-size: 18pt;
+    font-weight: bold;
+}
+
+QLabel#optionsLabel {
+    font-size: 14pt;
+    color: #333333;
+    font-weight: normal;
+}
+
+QPushButton {
+    background-color: #4A90E2;
+    color: white;
+    border-radius: 4px;
+    padding: 5px;
+}
+
+QPushButton:hover {
+    background-color: #357ABD;
+}
