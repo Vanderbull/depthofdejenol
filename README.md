@@ -14,7 +14,6 @@
 - Character management and dialogs (creation, confinement, party info, morgue)
 - In-game facilities: General Store, Guilds, Bank, Seer
 - Statistics and records dialogs
-- Help/lesson system, About dialog
 
 ## Installation
 
