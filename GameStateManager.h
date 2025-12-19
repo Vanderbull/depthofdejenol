@@ -3,15 +3,15 @@
 #define GAMESTATEMANAGER_H
 
 #include <QObject>
-#include <QVariantMap> // Useful for holding flexible, common data types
-#include <QtGlobal>    // For qulonglong
+#include <QVariantMap> 
+#include <QtGlobal>    
 
 class GameStateManager : public QObject
 {
     Q_OBJECT
 
 private:
-    // Private constructor to prevent direct instantiation
+    // Private constructor
     explicit GameStateManager(QObject *parent = nullptr);
     
     // Prevent copy and assignment
@@ -19,65 +19,28 @@ private:
     GameStateManager& operator=(const GameStateManager&) = delete;
 
 public:
-    // **The public static method to access the single instance**
+    // Improved thread-safe static accessor
     static GameStateManager* instance();
     
 signals:
-    /**
-     * @brief Signal emitted whenever a key/value pair in the game state is updated.
-     * @param key The string key of the value that changed.
-     * @param value The new QVariant value.
-     */
     void gameValueChanged(const QString& key, const QVariant& value);
 
-    // Core state data members
 private:
-    // Example: A map to store various game data
     QVariantMap m_gameStateData;
 
 public:
-    // Public interface to manage state
     void setGameValue(const QString& key, const QVariant& value);
     QVariant getGameValue(const QString& key) const;
-
-    // Public method to add experience to the current character
     void addCharacterExperience(qulonglong amount);
-    
-    // Public method to add an entry to the guild action log
     void logGuildAction(const QString& actionDescription);
-    
-    // Public method to dump the entire game state to debug output
     void printAllGameState() const;
-
-    // Example: Check if all resources are loaded
     bool areResourcesLoaded() const;
 
-    // --- NEW: Character Status Methods ---
-    /**
-     * @brief Sets the character's poisoned status.
-     * @param isPoisoned true to poison the character, false to cure them.
-     */
+    // Character Status Methods
     void setCharacterPoisoned(bool isPoisoned);
-    
-    /**
-     * @brief Checks if the character is currently poisoned.
-     * @return true if poisoned, false otherwise.
-     */
     bool isCharacterPoisoned() const;
-
-    /**
-     * @brief Sets the character's blinded status.
-     * @param isBlinded true to blind the character, false to cure them.
-     */
     void setCharacterBlinded(bool isBlinded);
-    
-    /**
-     * @brief Checks if the character is currently blinded.
-     * @return true if blinded, false otherwise.
-     */
     bool isCharacterBlinded() const;
-    // -------------------------------------
-
 };
 
 #endif // GAMESTATEMANAGER_H
