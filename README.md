@@ -1,4 +1,5 @@
 [![Qt 6 Build & Compile](https://github.com/Vanderbull/depthofdejenol/actions/workflows/build.yaml/badge.svg)](https://github.com/Vanderbull/depthofdejenol/actions/workflows/build.yaml)
+<img width="1024" height="535" alt="image" src="https://github.com/user-attachments/assets/0883a22e-b11a-4cb5-91e6-75378687c547" />
 
 <img width="1024" height="535" alt="image" src="https://github.com/user-attachments/assets/c44f6ae5-dc4d-4f5f-a492-02d35d454969" />
 
