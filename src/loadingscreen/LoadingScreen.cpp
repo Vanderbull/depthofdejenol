@@ -18,11 +18,11 @@ LoadingScreen::LoadingScreen(QWidget *parent) :
     GameStateManager::instance()->setGameValue("ResourcesLoaded", true);
 
     // --- Basic Window Setup ---
-    setWindowTitle("Mordor");
+    setWindowTitle("Black land");
     setFixedSize(350, 480);
 
     // --- Widget Creation ---
-    m_gameTitleLabel = new QLabel("MORDOR", this);
+    m_gameTitleLabel = new QLabel("BLACK LAND", this);
     
     // --- ANIMATION SYSTEM SETUP ---
     // 1. Create the effect and attach it to the label
@@ -40,7 +40,7 @@ LoadingScreen::LoadingScreen(QWidget *parent) :
     m_titleFadeAnimation->start(QAbstractAnimation::DeleteWhenStopped); 
     // -------------------------------
 
-    const QString versionString = "Lurked Version 1.1.7.6.450";
+    const QString versionString = "Dejenol Legacy: 0.0.0.0.001";
     m_versionLabel = new QLabel(versionString, this);
     GameStateManager::instance()->setGameValue("GameVersion", versionString); 
 
