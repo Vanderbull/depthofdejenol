@@ -8,8 +8,8 @@
 CharacterListDialog::CharacterListDialog(QWidget *parent)
     : QDialog(parent)
 {
-    setWindowTitle("Mordor: Character List");
-    setFixedSize(400, 500);
+    setWindowTitle("Black Lands: Character List");
+    setFixedSize(800, 600);
 
     // 1. Create UI elements
     titleLabel = new QLabel("Select a Character", this);
@@ -59,7 +59,7 @@ CharacterListDialog::~CharacterListDialog()
 void CharacterListDialog::loadCharactersFromFiles()
 {
     // Definiera mappen där karaktärsfilerna ska finnas
-    QString charactersDir = "characters";
+    QString charactersDir = "./data/characters";
     QDir dir(charactersDir);
 
     if (!dir.exists()) {
