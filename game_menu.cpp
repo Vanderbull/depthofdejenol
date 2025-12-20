@@ -154,24 +154,24 @@ GameMenu::GameMenu(QWidget *parent)
     // SECOND MENU BUTTON: Run Character
     m_runButton = new QPushButton("Run Character");
     gridLayout->addWidget(m_runButton, 1, 1, 1, 2, Qt::AlignBottom | Qt::AlignCenter);
-    m_runButton->setFixedWidth(250);
+//    m_runButton->setFixedWidth(250);
     connect(m_runButton, &QPushButton::clicked, this, &GameMenu::onRunClicked);
 
     // FIRST MENU BUTTONS
 
     m_newButton = new QPushButton("Create a Character");
     gridLayout->addWidget(m_newButton, 1, 1, 1, 2, Qt::AlignBottom | Qt::AlignCenter);
-    m_newButton->setFixedWidth(250);
+//    m_newButton->setFixedWidth(250);
     connect(m_newButton, &QPushButton::clicked, this, &GameMenu::startNewGame);
 
     m_loadButton = new QPushButton("Load Character");
     gridLayout->addWidget(m_loadButton, 2, 1, 1, 2, Qt::AlignTop | Qt::AlignCenter);
-    m_loadButton->setFixedWidth(250);
+//    m_loadButton->setFixedWidth(250);
     connect(m_loadButton, &QPushButton::clicked, this, &GameMenu::loadGame);
     
     m_helpButton = new QPushButton("Help/Lesson");
     gridLayout->addWidget(m_helpButton, 3, 1);
-    m_helpButton->setFixedWidth(250);
+//    m_helpButton->setFixedWidth(250);
     connect(m_helpButton, &QPushButton::clicked, this, &GameMenu::onHelpClicked);
 
     m_recordsButton = new QPushButton("Hall of Records");
@@ -179,7 +179,7 @@ GameMenu::GameMenu(QWidget *parent)
     connect(m_recordsButton, &QPushButton::clicked, this, &GameMenu::showRecords);
 
     m_characterListButton = new QPushButton("Character List");
-    m_characterListButton->setFixedWidth(250);
+//    m_characterListButton->setFixedWidth(250);
     gridLayout->addWidget(m_characterListButton, 2, 0);
     connect(m_characterListButton, &QPushButton::clicked, this, &GameMenu::onCharacterListClicked);
 
@@ -616,3 +616,4 @@ int main(int argc, char *argv[]) {
     
     return a.exec();
 }
+
