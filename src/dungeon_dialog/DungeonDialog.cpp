@@ -594,7 +594,6 @@ void DungeonDialog::on_spellButton_clicked() { logMessage("Spell button clicked!
 void DungeonDialog::on_takeButton_clicked() { logMessage("Take button clicked!"); }
 
 void DungeonDialog::on_searchButton_clicked() { logMessage("You carefully search the area. Found nothing."); }
-void DungeonDialog::on_restButton_clicked() { logMessage("You attempt to rest."); }
 void DungeonDialog::on_talkButton_clicked() { logMessage("You try talking, but the silence replies."); }
 void DungeonDialog::on_chestButton_clicked() { logMessage("Chest opened!"); } 
 
@@ -609,6 +608,43 @@ void DungeonDialog::keyPressEvent(QKeyEvent *event) { QDialog::keyPressEvent(eve
 // Suppress unused parameter warnings
 void DungeonDialog::spawnMonsters(const QString& , int ) { /* spawn logic */ }
 
+void DungeonDialog::on_restButton_clicked() 
+{
+    GameStateManager* gsm = GameStateManager::instance();
+    
+    // 1. Calculate Healing Amount based on Constitution
+    int constitution = gsm->getGameValue("CurrentCharacterConstitution").toInt();
+    // Heal for Con/2 (minimum 1)
+    int healAmount = qMax(1, constitution / 2); 
+    
+    // 2. Update the Party Table UI
+    // The player is at row 0
+    QTableWidgetItem *hpItem = m_partyTable->item(0, 2);
+    if (hpItem) {
+        QString hpText = hpItem->text();
+        int slashIndex = hpText.indexOf('/');
+        int currentHp = hpText.left(slashIndex).toInt();
+        int maxHp = hpText.mid(slashIndex + 1).toInt();
+
+        // Prevent overhealing beyond Max HP
+        int newHp = qMin(maxHp, currentHp + healAmount);
+        int actualHealed = newHp - currentHp;
+
+        if (actualHealed > 0) {
+            hpItem->setText(QString("%1/%2").arg(newHp).arg(maxHp));
+            
+            // Reset text color to black if they were previously wounded (red)
+            if (newHp > 0) {
+                hpItem->setForeground(Qt::black);
+            }
+
+            logMessage(QString("You rest and recover **%1 HP**. Status: %2/%3.")
+                       .arg(actualHealed).arg(newHp).arg(maxHp));
+        } else {
+            logMessage("You try to rest, but you are already at full health.");
+        }
+    }
+}
 
 void DungeonDialog::on_stairsDownButton_clicked()
 {
