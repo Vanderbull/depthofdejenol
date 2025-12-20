@@ -1,0 +1,106 @@
+/* General Background */
+QWidget {
+    background-color: #f0f0f0; 
+}
+
+/* Labels */
+QLabel {
+    color: #333333; 
+    font-size: 14pt; 
+    font-weight: normal; 
+}
+
+/* Push Buttons - Restoring your Blue Theme */
+QPushButton {
+    background-color: #4A90E2; 
+    color: white; 
+    border-radius: 4px; 
+    padding: 5px; 
+    font-size: 14pt; 
+    font-weight: bold; 
+    min-width: 200px; 
+    max-width: 200px; 
+    min-height: 40px; 
+}
+
+QPushButton:hover {
+    background-color: #357ABD; 
+}
+
+/* Text Windows & SpinBoxes */
+QLineEdit, QSpinBox {
+    background-color: white; 
+    border: 2px solid #bdc3c7; 
+    border-radius: 4px; 
+    padding: 5px; 
+    font-size: 12pt; 
+    color: #333333; 
+}
+
+QLineEdit:hover, QSpinBox:hover, QLineEdit:focus, QSpinBox:focus {
+    border: 2px solid #4A90E2; 
+    color: #333333; 
+}
+
+/* --- QSpinBox Buttons & Arrows --- */
+QSpinBox::up-button, QSpinBox::down-button {
+    background-color: #eeeeee; 
+    border-left: 1px solid #bdc3c7; 
+    width: 20px; 
+}
+
+QSpinBox::up-arrow {
+    image: none; 
+    width: 0px; 
+    height: 0px; 
+    border-left: 5px solid transparent; 
+    border-right: 5px solid transparent; 
+    border-bottom: 5px solid #333333; /* Up Triangle Icon */ 
+}
+
+QSpinBox::down-arrow {
+    image: none; 
+    width: 0px; 
+    height: 0px; 
+    border-left: 5px solid transparent; 
+    border-right: 5px solid transparent; 
+    border-top: 5px solid #333333; /* Down Triangle Icon */ 
+}
+
+/* --- QComboBox (Dropdowns) --- */
+QComboBox {
+    background-color: white; 
+    border: 2px solid #bdc3c7; 
+    border-radius: 4px; 
+    padding: 5px; 
+    font-size: 12pt; 
+    color: #333333; 
+    min-width: 150px; 
+}
+
+QComboBox::drop-down {
+    subcontrol-origin: padding; 
+    subcontrol-position: top right; 
+    width: 30px; 
+    border-left: 1px solid #bdc3c7; 
+}
+
+/* FIX: This adds the arrow icon back while keeping your custom theme */
+QComboBox::down-arrow {
+    image: none; 
+    width: 0px; 
+    height: 0px; 
+    border-left: 6px solid transparent; 
+    border-right: 6px solid transparent; 
+    border-top: 6px solid #333333; /* Visible Down Arrow Icon */ 
+}
+
+/* Dropdown List Items */
+QComboBox QAbstractItemView {
+    background-color: white; 
+    border: 2px solid #4A90E2; 
+    selection-background-color: #4A90E2; 
+    selection-color: white; 
+    color: #333333; 
+    outline: none; 
+}
