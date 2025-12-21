@@ -44,6 +44,7 @@ public:
     static QStringList statNames() {
         return {"Strength", "Intelligence", "Wisdom", "Constitution", "Charisma", "Dexterity"};
     }
+    static int defaultStatPoints() { return 5; }
 };
 
 #endif // GAMESTATEMANAGER_H

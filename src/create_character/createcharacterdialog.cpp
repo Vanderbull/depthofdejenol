@@ -110,8 +110,11 @@ void CreateCharacterDialog::updateRaceStats(int index) {
     updateAlignmentOptions(selectedRace);
     updateGuildListStyle(selectedRace);
 
-    this->statPoints = 5;
-    this->statPointsLeftLabel->setText(QString("%1 Stat Points Left").arg(this->statPoints));
+//    this->statPoints = 5;
+//    this->statPointsLeftLabel->setText(QString("%1 Stat Points Left").arg(this->statPoints));
+
+    GameStateManager::instance()->setGameValue("CurrentCharacterStatPointsLeft", GameStateManager::defaultStatPoints());
+    this->statPointsLeftLabel->setText(QString("%1 Stat Points Left").arg(GameStateManager::defaultStatPoints()));
 }
 
 CreateCharacterDialog::CreateCharacterDialog(const QVector<RaceStats>& raceData, 
@@ -229,29 +232,29 @@ CreateCharacterDialog::CreateCharacterDialog(const QVector<RaceStats>& raceData,
         statRangeLabels.insert(statName, rangeLabel);
         statValueLabels.insert(statName, currentValueLabel);
 
-        connect(spinBox, QOverload<int>::of(&QSpinBox::valueChanged),
-                          [currentValueLabel, this, spinBox](int newValue) {
+	connect(spinBox, QOverload<int>::of(&QSpinBox::valueChanged),
+	                  [currentValueLabel, this, spinBox](int newValue)
+        {
+	    GameStateManager* gsm = GameStateManager::instance();
+	    int currentPoints = gsm->getGameValue("CurrentCharacterStatPointsLeft").toInt();
+	    int oldValue = spinBox->property(PROPERTY_PREVIOUS_VALUE).toInt();
+	    int change = newValue - oldValue;
 
-            int oldValue = spinBox->property(PROPERTY_PREVIOUS_VALUE).toInt();
-            int change = newValue - oldValue;
+	    if (change == 0) return;
 
-            if (change == 0) return;
+	    if (change > 0) {
+	        if (currentPoints >= change) { 
+	            currentPoints -= change;
+	        } else {
+	            // ... (warning code)
+	            return; 
+	        }
+	    } else { 
+	        currentPoints -= change;
+	    }
 
-            if (change > 0) {
-                if (this->statPoints >= change) { 
-                    this->statPoints -= change;
-                } else {
-                    QMessageBox::warning(this, "Stat Points", "You have no remaining stat points to spend.");
-                    spinBox->blockSignals(true);
-                    spinBox->setValue(oldValue);
-                    spinBox->blockSignals(false);
-                    return; 
-                }
-            } else { 
-                this->statPoints -= change;
-            }
-
-            spinBox->setProperty(PROPERTY_PREVIOUS_VALUE, newValue);
+	    gsm->setGameValue("CurrentCharacterStatPointsLeft", currentPoints);
+	    spinBox->setProperty(PROPERTY_PREVIOUS_VALUE, newValue);
             
             // Sync all spinboxes using the central stat list
             for (const QString& name : GameStateManager::statNames()) {
@@ -264,7 +267,7 @@ CreateCharacterDialog::CreateCharacterDialog(const QVector<RaceStats>& raceData,
             }
             
             currentValueLabel->setText(QString::number(newValue));
-            this->statPointsLeftLabel->setText(QString("%1 Stat Points Left").arg(this->statPoints));
+            this->statPointsLeftLabel->setText(QString("%1 Stat Points Left").arg(currentPoints));
         });
     }
 

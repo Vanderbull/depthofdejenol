@@ -18,6 +18,7 @@ GameStateManager* GameStateManager::instance()
 GameStateManager::GameStateManager(QObject *parent)
     : QObject(parent)
 {
+    m_gameStateData["CurrentCharacterStatPointsLeft"] = GameStateManager::defaultStatPoints();
     // Max ages for each race
     m_gameStateData["MaxHumanAge"] = 100;
     m_gameStateData["MaxElfAge"] = 400;
