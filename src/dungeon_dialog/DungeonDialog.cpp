@@ -17,6 +17,7 @@
 #include <QtDebug>
 #include <QRandomGenerator>
 #include <QJsonObject> 
+#include <QGraphicsPolygonItem>
 
 // Constants that depend on MAP_SIZE (which is now in the header)
 const int TILE_SIZE = 10;
@@ -247,9 +248,38 @@ void DungeonDialog::drawMinimap()
     }
 
     // 8. Draw Player / Party Leader (Blue dot)
-    QBrush playerBrush(Qt::blue);
-    scene->addEllipse(currentPos.first * TILE_SIZE, currentPos.second * TILE_SIZE, 
-                      TILE_SIZE, TILE_SIZE, QPen(Qt::blue), playerBrush);
+//    QBrush playerBrush(Qt::blue);
+//    scene->addEllipse(currentPos.first * TILE_SIZE, currentPos.second * TILE_SIZE, 
+//                      TILE_SIZE, TILE_SIZE, QPen(Qt::blue), playerBrush);
+// 8. Draw Player / Party Leader (Blue Arrow)
+QGraphicsPolygonItem* playerArrow = new QGraphicsPolygonItem();
+QPolygonF arrowHead;
+// Define an arrow shape pointing North by default (relative to its own coordinate system)
+arrowHead << QPointF(TILE_SIZE / 2, 0)          // Top point
+          << QPointF(0, TILE_SIZE)              // Bottom left
+          << QPointF(TILE_SIZE / 2, TILE_SIZE * 0.7) // Inner notch
+          << QPointF(TILE_SIZE, TILE_SIZE);     // Bottom right
+
+playerArrow->setPolygon(arrowHead);
+playerArrow->setBrush(QBrush(Qt::blue));
+playerArrow->setPen(QPen(Qt::blue));
+
+// Calculate rotation based on facing
+int rotation = 0;
+QString currentFacing = m_compassLabel->text();
+if (currentFacing == "Facing North") rotation = 0;
+else if (currentFacing == "Facing East") rotation = 90;
+else if (currentFacing == "Facing South") rotation = 180;
+else if (currentFacing == "Facing West") rotation = 270;
+
+// Set position and rotation
+// We translate to the center of the tile to rotate around the center
+playerArrow->setTransformOriginPoint(TILE_SIZE / 2, TILE_SIZE / 2);
+playerArrow->setRotation(rotation);
+playerArrow->setPos(currentPos.first * TILE_SIZE, currentPos.second * TILE_SIZE);
+
+scene->addItem(playerArrow);
+
 
     // Finalize the view
     m_miniMapView->setScene(scene);
@@ -844,6 +874,7 @@ void DungeonDialog::on_rotateLeftButton_clicked()
     QString newDir = directions[nextIndex].mid(7); // Extract "North", "West", etc.
     updateCompass(newDir);
     logMessage(QString("You turn to the left."));
+    drawMinimap();
 }
 
 void DungeonDialog::on_rotateRightButton_clicked()
@@ -855,6 +886,7 @@ void DungeonDialog::on_rotateRightButton_clicked()
     QString newDir = directions[nextIndex].mid(7);
     updateCompass(newDir);
     logMessage(QString("You turn to the right."));
+    drawMinimap();
 }
 void DungeonDialog::moveForward()
 {
