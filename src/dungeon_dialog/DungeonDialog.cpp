@@ -120,7 +120,7 @@ void DungeonDialog::movePlayer(int dx, int dy)
     // Update minimap and check for events
     updateMinimap(newX, newY);
     handleEncounter(newX, newY);
-    handleTreasure(newX, newY);
+    //handleTreasure(newX, newY);
     handleTrap(newX, newY);
     
     // Log movement
@@ -338,7 +338,7 @@ DungeonDialog::DungeonDialog(QWidget *parent)
     : QDialog(parent),
       m_dungeonScene(new QGraphicsScene(this))
 {
-    setWindowTitle("The Dungeon of Mordor");
+    setWindowTitle("Dungeon: Depth of Dejenol");
     setFixedSize(1000, 750); 
     
     // Load GameStateManager data
@@ -709,7 +709,41 @@ void DungeonDialog::on_stairsUpButton_clicked()
     }
 }
 
-void DungeonDialog::on_openButton_clicked() { logMessage("Open button clicked!"); }
+void DungeonDialog::on_openButton_clicked()
+{
+    GameStateManager* gsm = GameStateManager::instance();
+    int currentX = gsm->getGameValue("DungeonX").toInt();
+    int currentY = gsm->getGameValue("DungeonY").toInt();
+    QPair<int, int> currentPos = {currentX, currentY};
+
+    // 1. Check for Treasure/Chests
+    if (m_treasurePositions.contains(currentPos)) {
+        QString treasureName = m_treasurePositions.value(currentPos);
+        
+        logMessage(QString("<font color='gold'>You open the chest and find: <b>%1</b>!</font>")
+                   .arg(treasureName));
+
+        // Trigger the existing treasure handling logic to grant gold/items
+        handleTreasure(currentX, currentY);
+        
+        // Note: handleTreasure already calls drawMinimap() and removes the item
+        return; 
+    }
+
+    // 2. Check for Doors (Optional Extension)
+    // If you add a m_doorPositions map later, you would check it here:
+    /*
+    if (m_doorPositions.contains(currentPos)) {
+        logMessage("You push the heavy iron door open.");
+        m_doorPositions.remove(currentPos);
+        drawMinimap();
+        return;
+    }
+    */
+
+    // 3. Fallback: Nothing to open
+    logMessage("There is nothing here to open.");
+}
 
 void DungeonDialog::updateDungeonView(const QImage& dungeonImage)
 {
