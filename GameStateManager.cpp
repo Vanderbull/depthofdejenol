@@ -26,6 +26,7 @@ GameStateManager::GameStateManager(QObject *parent)
 
     // Initialize default state data
     m_gameStateData["CurrentCharacterLevel"] = 1;
+    m_gameStateData["CurrentCharacterAge"] = 16; // Starting age for all races
     m_gameStateData["CurrentCharacterExperience"] = QVariant::fromValue((qulonglong)0);
     m_gameStateData["ResourcesLoaded"] = false;
     m_gameStateData["GameVersion"] = "1.1.7.6.450";
