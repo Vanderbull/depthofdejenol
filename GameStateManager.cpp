@@ -18,7 +18,17 @@ GameStateManager* GameStateManager::instance()
 GameStateManager::GameStateManager(QObject *parent)
     : QObject(parent)
 {
-    // Inside GameStateManager::GameStateManager constructor
+    // Max ages for each race
+    m_gameStateData["MaxHumanAge"] = 100
+    m_gameStateData["MaxElfAge"] = 400
+    m_gameStateData["MaxGiantAge"] = 225
+    m_gameStateData["MaxGnomeAge"] = 300
+    m_gameStateData["MaxDwarfAge"] = 275
+    m_gameStateData["MaxOgreAge"] = 265
+    m_gameStateData["MaxMorlochAge"] = 175
+    m_gameStateData["MaxOsiriAge"] = 325
+    m_gameStateData["MaxTrollAge"] = 285
+    //
     m_gameStateData["CurrentCharacterHP"] = 50;
     m_gameStateData["MaxCharacterHP"] = 50;
     // You can also initialize a list for the whole party if needed
