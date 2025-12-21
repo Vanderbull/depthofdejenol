@@ -84,7 +84,6 @@ void DungeonDialog::movePlayer(int dx, int dy)
 {
     GameStateManager* gsm = GameStateManager::instance();
     
-    // UPDATED: Get position and level from GameState
     int currentX = gsm->getGameValue("DungeonX").toInt();
     int currentY = gsm->getGameValue("DungeonY").toInt();
     int currentLevel = gsm->getGameValue("DungeonLevel").toInt();
@@ -99,31 +98,27 @@ void DungeonDialog::movePlayer(int dx, int dy)
 
     QPair<int, int> newPos = {newX, newY};
 
-    // This member is now confirmed in the header
     if (m_obstaclePositions.contains(newPos)) {
         logMessage("A solid rock wall blocks your path.");
         return;
     }
 
-    // UPDATED: SAVE new position to GameState
     gsm->setGameValue("DungeonX", newX);
     gsm->setGameValue("DungeonY", newY);
     
-    updateLocation(QString("Dungeon Level %1, (%2, %3)").arg(currentLevel).arg(newX).arg(newY)); 
+    updateLocation(QString("Dungeon Level %1, (%2, %3)").arg(currentLevel).arg(newX).arg(newY));
 
-    // Update compass (simple 4-way direction based on movement)
     if (dy < 0) updateCompass("North");
     else if (dy > 0) updateCompass("South");
     else if (dx < 0) updateCompass("West");
     else if (dx > 0) updateCompass("East");
 
-    // Update minimap and check for events
     updateMinimap(newX, newY);
     handleEncounter(newX, newY);
-    //handleTreasure(newX, newY);
-    handleTrap(newX, newY);
+    handleTreasure(newX, newY); // Now only logs chest presence
+    handleTrap(newX, newY);     // Still automatic
+    handleChute(newX, newY);    // NEW: Automatic hazard
     
-    // Log movement
     logMessage(QString("You move to (%1, %2).").arg(newX).arg(newY));
 }
 
@@ -152,24 +147,7 @@ void DungeonDialog::handleTreasure(int x, int y)
 {
     QPair<int, int> pos = {x, y};
     if (m_treasurePositions.contains(pos)) {
-        QString treasure = m_treasurePositions.value(pos);
-        logMessage(QString("You discover a treasure chest containing **%1**!").arg(treasure));
-        
-        if (treasure.contains("Gold")) {
-            quint64 foundGold = QRandomGenerator::global()->bounded(500, 5000);
-            
-            // UPDATED: Use GameStateManager for gold
-            GameStateManager* gsm = GameStateManager::instance();
-            quint64 currentGold = gsm->getGameValue("PlayerGold").toULongLong();
-            currentGold += foundGold;
-            gsm->setGameValue("PlayerGold", currentGold);
-            
-            updateGoldLabel();
-            logMessage(QString("You gain %L1 Gold.").arg(foundGold));
-        }
-
-        m_treasurePositions.remove(pos);
-        drawMinimap();
+        logMessage("There is a <b>treasure chest</b> here! Use the <b>Open</b> button to see what's inside.");
     }
 }
 
@@ -189,10 +167,30 @@ void DungeonDialog::handleTrap(int x, int y)
     }
 }
 
+void DungeonDialog::handleChute(int x, int y)
+{
+    QPair<int, int> pos = {x, y};
+    if (m_chutePositions.contains(pos)) {
+        logMessage("<font color='orange'><b>AAAHHH! You fall through a hidden chute!</b></font>");
+
+        // 1. Deal Fall Damage
+        int fallDamage = QRandomGenerator::global()->bounded(5, 15);
+        updatePartyMemberHealth(0, fallDamage); // Damage main character
+
+        // 2. Determine New Level
+        GameStateManager* gsm = GameStateManager::instance();
+        int nextLevel = gsm->getGameValue("DungeonLevel").toInt() + 1;
+
+        // 3. Trigger Level Transition
+        enterLevel(nextLevel);
+    }
+}
+
 void DungeonDialog::drawMinimap()
 {
     GameStateManager* gsm = GameStateManager::instance();
-    // UPDATED: Get player position from GameState
+    
+    // Retrieve player position from GameState
     int currentX = gsm->getGameValue("DungeonX").toInt();
     int currentY = gsm->getGameValue("DungeonY").toInt();
     QPair<int, int> currentPos = {currentX, currentY};
@@ -200,49 +198,64 @@ void DungeonDialog::drawMinimap()
     QGraphicsScene *scene = new QGraphicsScene(this);
     scene->setSceneRect(0, 0, MAP_WIDTH_PIXELS, MAP_HEIGHT_PIXELS);
 
-    // Draw grid lines
+    // 1. Draw grid lines
     for (int i = 0; i <= MAP_SIZE; ++i) {
         scene->addLine(i * TILE_SIZE, 0, i * TILE_SIZE, MAP_HEIGHT_PIXELS, QPen(Qt::lightGray));
         scene->addLine(0, i * TILE_SIZE, MAP_WIDTH_PIXELS, i * TILE_SIZE, QPen(Qt::lightGray));
     }
 
-    // Draw Obstacles (Walls)
-    for (const auto& pos : m_obstaclePositions) { // This member is now confirmed in the header
-        scene->addRect(pos.first * TILE_SIZE, pos.second * TILE_SIZE, TILE_SIZE, TILE_SIZE, QPen(Qt::black), QBrush(Qt::darkGray));
+    // 2. Draw Obstacles (Walls)
+    for (const auto& pos : m_obstaclePositions) {
+        scene->addRect(pos.first * TILE_SIZE, pos.second * TILE_SIZE, 
+                       TILE_SIZE, TILE_SIZE, QPen(Qt::black), QBrush(Qt::darkGray));
     }
 
-    // Draw Stairs
+    // 3. Draw Stairs (Cyan)
     QBrush stairsBrush(Qt::cyan);
-    scene->addRect(m_stairsUpPosition.first * TILE_SIZE, m_stairsUpPosition.second * TILE_SIZE, TILE_SIZE, TILE_SIZE, QPen(Qt::black), stairsBrush);
-    scene->addRect(m_stairsDownPosition.first * TILE_SIZE, m_stairsDownPosition.second * TILE_SIZE, TILE_SIZE, TILE_SIZE, QPen(Qt::black), stairsBrush);
+    scene->addRect(m_stairsUpPosition.first * TILE_SIZE, m_stairsUpPosition.second * TILE_SIZE, 
+                   TILE_SIZE, TILE_SIZE, QPen(Qt::black), stairsBrush);
+    scene->addRect(m_stairsDownPosition.first * TILE_SIZE, m_stairsDownPosition.second * TILE_SIZE, 
+                   TILE_SIZE, TILE_SIZE, QPen(Qt::black), stairsBrush);
 
-    // Draw Monsters
+    // 4. Draw Chutes (NEW: Black hole appearance)
+    QBrush chuteBrush(Qt::black);
+    for (const auto& pos : m_chutePositions) {
+        scene->addEllipse(pos.first * TILE_SIZE + 1, pos.second * TILE_SIZE + 1, 
+                          TILE_SIZE - 2, TILE_SIZE - 2, QPen(Qt::gray), chuteBrush);
+    }
+
+    // 5. Draw Monsters (Red dots)
     QBrush monsterBrush(Qt::red);
     for (const auto& pos : m_monsterPositions.keys()) {
-        scene->addEllipse(pos.first * TILE_SIZE + TILE_SIZE/4, pos.second * TILE_SIZE + TILE_SIZE/4, TILE_SIZE/2, TILE_SIZE/2, QPen(Qt::red), monsterBrush);
+        scene->addEllipse(pos.first * TILE_SIZE + TILE_SIZE/4, pos.second * TILE_SIZE + TILE_SIZE/4, 
+                          TILE_SIZE/2, TILE_SIZE/2, QPen(Qt::red), monsterBrush);
     }
 
-    // Draw Treasure
+    // 6. Draw Treasure/Chests (Yellow squares)
+    // Note: These remain on map until on_openButton_clicked removes them.
     QBrush treasureBrush(Qt::yellow);
     for (const auto& pos : m_treasurePositions.keys()) {
-        scene->addRect(pos.first * TILE_SIZE + TILE_SIZE/4, pos.second * TILE_SIZE + TILE_SIZE/4, TILE_SIZE/2, TILE_SIZE/2, QPen(Qt::black), treasureBrush);
+        scene->addRect(pos.first * TILE_SIZE + TILE_SIZE/4, pos.second * TILE_SIZE + TILE_SIZE/4, 
+                       TILE_SIZE/2, TILE_SIZE/2, QPen(Qt::black), treasureBrush);
     }
     
-    // Draw Traps
+    // 7. Draw Traps (Dark Green squares)
     QBrush trapBrush(Qt::darkGreen);
     for (const auto& pos : m_trapPositions.keys()) {
-        scene->addRect(pos.first * TILE_SIZE + TILE_SIZE/4, pos.second * TILE_SIZE + TILE_SIZE/4, TILE_SIZE/2, TILE_SIZE/2, QPen(Qt::black), trapBrush);
+        scene->addRect(pos.first * TILE_SIZE + TILE_SIZE/4, pos.second * TILE_SIZE + TILE_SIZE/4, 
+                       TILE_SIZE/2, TILE_SIZE/2, QPen(Qt::black), trapBrush);
     }
 
-    // Draw Player (Party Leader)
+    // 8. Draw Player / Party Leader (Blue dot)
     QBrush playerBrush(Qt::blue);
-    scene->addEllipse(currentPos.first * TILE_SIZE, currentPos.second * TILE_SIZE, TILE_SIZE, TILE_SIZE, QPen(Qt::blue), playerBrush);
+    scene->addEllipse(currentPos.first * TILE_SIZE, currentPos.second * TILE_SIZE, 
+                      TILE_SIZE, TILE_SIZE, QPen(Qt::blue), playerBrush);
 
+    // Finalize the view
     m_miniMapView->setScene(scene);
     m_miniMapView->fitInView(scene->sceneRect(), Qt::KeepAspectRatio);
 }
 
-// Suppress unused parameter warnings
 void DungeonDialog::updateMinimap(int, int)
 {
     drawMinimap(); 
@@ -291,13 +304,12 @@ void DungeonDialog::generateSpecialTiles(int tileCount)
     m_pitPositions.clear();
     m_rotatorPositions.clear();
     m_studPositions.clear();
-    m_chutePositions.clear();
+    m_chutePositions.clear(); // Ensure this is cleared for the new level
     m_monsterPositions.clear();
     m_treasurePositions.clear();
     m_trapPositions.clear();
     m_MonsterAttitude.clear(); 
 
-    // Placeholder data
     m_MonsterAttitude["Kobold"] = "Wary";
     m_MonsterAttitude["Orc"] = "Hostile";
     m_MonsterAttitude["Giant Spider"] = "Aggressive";
@@ -307,7 +319,6 @@ void DungeonDialog::generateSpecialTiles(int tileCount)
     int currentY = gsm->getGameValue("DungeonY").toInt();
     QPair<int, int> currentPos = {currentX, currentY};
 
-    // Generate monsters, treasure, and traps
     for (int i = 0; i < tileCount; ++i) {
         int x, y;
         QPair<int, int> pos;
@@ -315,9 +326,12 @@ void DungeonDialog::generateSpecialTiles(int tileCount)
             x = QRandomGenerator::global()->bounded(MAP_SIZE);
             y = QRandomGenerator::global()->bounded(MAP_SIZE);
             pos = {x, y};
-        } while (m_obstaclePositions.contains(pos) || pos == currentPos || m_stairsUpPosition == pos || m_stairsDownPosition == pos);
+            // Ensure we don't spawn things on walls, the player, or stairs
+        } while (m_obstaclePositions.contains(pos) || pos == currentPos || 
+                 m_stairsUpPosition == pos || m_stairsDownPosition == pos);
 
-        int type = QRandomGenerator::global()->bounded(3); 
+        // Increased bounded range to 4 to include Chutes
+        int type = QRandomGenerator::global()->bounded(4); 
 
         if (type == 0) {
             QStringList monsters = {"Kobold", "Orc", "Giant Spider"};
@@ -325,13 +339,15 @@ void DungeonDialog::generateSpecialTiles(int tileCount)
         } else if (type == 1) {
             QStringList treasures = {"Small Pouch of Gold", "Rusty Key", "Flickering Torch"};
             m_treasurePositions.insert(pos, treasures.at(QRandomGenerator::global()->bounded(treasures.size())));
-        } else {
+        } else if (type == 2) {
             QStringList traps = {"Spike Trap", "Poison Gas Trap", "Net Trap"};
             m_trapPositions.insert(pos, traps.at(QRandomGenerator::global()->bounded(traps.size())));
+        } else {
+            // NEW: Add to chute positions
+            m_chutePositions.insert(pos);
         }
     }
 }
-
 
 // --- Constructor Implementation ---
 DungeonDialog::DungeonDialog(QWidget *parent)
@@ -714,35 +730,27 @@ void DungeonDialog::on_openButton_clicked()
     GameStateManager* gsm = GameStateManager::instance();
     int currentX = gsm->getGameValue("DungeonX").toInt();
     int currentY = gsm->getGameValue("DungeonY").toInt();
-    QPair<int, int> currentPos = {currentX, currentY};
+    QPair<int, int> pos = {currentX, currentY};
 
-    // 1. Check for Treasure/Chests
-    if (m_treasurePositions.contains(currentPos)) {
-        QString treasureName = m_treasurePositions.value(currentPos);
-        
-        logMessage(QString("<font color='gold'>You open the chest and find: <b>%1</b>!</font>")
-                   .arg(treasureName));
+    if (m_treasurePositions.contains(pos)) {
+        QString treasure = m_treasurePositions.value(pos);
+        logMessage(QString("<font color='gold'>You open the chest and find: <b>%1</b>!</font>").arg(treasure));
 
-        // Trigger the existing treasure handling logic to grant gold/items
-        handleTreasure(currentX, currentY);
-        
-        // Note: handleTreasure already calls drawMinimap() and removes the item
-        return; 
-    }
+        if (treasure.contains("Gold")) {
+            quint64 foundGold = QRandomGenerator::global()->bounded(500, 5000);
+            quint64 currentGold = gsm->getGameValue("PlayerGold").toULongLong();
+            gsm->setGameValue("PlayerGold", currentGold + foundGold);
+            
+            updateGoldLabel();
+            logMessage(QString("You gain %L1 Gold.").arg(foundGold));
+        }
 
-    // 2. Check for Doors (Optional Extension)
-    // If you add a m_doorPositions map later, you would check it here:
-    /*
-    if (m_doorPositions.contains(currentPos)) {
-        logMessage("You push the heavy iron door open.");
-        m_doorPositions.remove(currentPos);
+        // Remove from map after opening
+        m_treasurePositions.remove(pos);
         drawMinimap();
-        return;
+    } else {
+        logMessage("There is nothing here to open.");
     }
-    */
-
-    // 3. Fallback: Nothing to open
-    logMessage("There is nothing here to open.");
 }
 
 void DungeonDialog::updateDungeonView(const QImage& dungeonImage)
