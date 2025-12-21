@@ -672,7 +672,51 @@ void DungeonDialog::on_winBattle_trigger() {}
 
 // Suppress unused parameter warning
 void DungeonDialog::onEventTriggered(const GameEvent& ) { /* handle event */ }
-void DungeonDialog::keyPressEvent(QKeyEvent *event) { QDialog::keyPressEvent(event); }
+void DungeonDialog::keyPressEvent(QKeyEvent *event)
+{
+    switch (event->key()) {
+        // --- Movement (WASD) ---
+        case Qt::Key_W:
+            moveForward();
+            break;
+        case Qt::Key_S:
+            moveBackward();
+            break;
+        case Qt::Key_A:
+            moveStepLeft();
+            break;
+        case Qt::Key_D:
+            moveStepRight();
+            break;
+
+        // --- Rotation (QE) ---
+        case Qt::Key_Q:
+            on_rotateLeftButton_clicked();
+            break;
+        case Qt::Key_E:
+            on_rotateRightButton_clicked();
+            break;
+
+        // --- Other Action Shortcuts ---
+        case Qt::Key_F:
+            on_fightButton_clicked();
+            break;
+        case Qt::Key_O:
+            on_openButton_clicked();
+            break;
+        case Qt::Key_R:
+            on_restButton_clicked();
+            break;
+        case Qt::Key_U:
+            on_teleportButton_clicked();
+            break;
+
+        // Fall back to base class for default dialog behavior (like Esc to close)
+        default:
+            QDialog::keyPressEvent(event);
+            break;
+    }
+}
 
 // Suppress unused parameter warnings
 void DungeonDialog::spawnMonsters(const QString& , int ) { /* spawn logic */ }
