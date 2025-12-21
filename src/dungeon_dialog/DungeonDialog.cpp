@@ -468,6 +468,7 @@ DungeonDialog::DungeonDialog(QWidget *parent)
     QPushButton *mapButton = new QPushButton("Map (M)");
     m_chestButton = new QPushButton("Chest (C)"); 
     QPushButton *exitButton = new QPushButton("Exit");
+    QPushButton *teleportButton = new QPushButton("Teleport (U)"); // Add this line
     
     actionLayout->addWidget(fightButton, 0, 0);
     actionLayout->addWidget(spellButton, 0, 1);
@@ -479,6 +480,7 @@ DungeonDialog::DungeonDialog(QWidget *parent)
     actionLayout->addWidget(openButton, 2, 1);
     actionLayout->addWidget(mapButton, 2, 2);
     actionLayout->addWidget(m_chestButton, 3, 0);
+    actionLayout->addWidget(teleportButton, 3, 1); // Add to the grid at row 3, column 1
     actionLayout->addWidget(exitButton, 3, 2);
 
     rightPanelLayout->addLayout(actionLayout);
@@ -531,7 +533,7 @@ DungeonDialog::DungeonDialog(QWidget *parent)
     connect(mapButton, &QPushButton::clicked, this, &DungeonDialog::on_mapButton_clicked);
     connect(m_chestButton, &QPushButton::clicked, this, &DungeonDialog::on_chestButton_clicked);
     connect(exitButton, &QPushButton::clicked, this, &DungeonDialog::on_exitButton_clicked);
-    
+    connect(teleportButton, &QPushButton::clicked, this, &DungeonDialog::on_teleportButton_clicked);
     // Connections (Stairs)
     connect(stairsDownButton, &QPushButton::clicked, this, &DungeonDialog::on_stairsDownButton_clicked);
     connect(stairsUpButton, &QPushButton::clicked, this, &DungeonDialog::on_stairsUpButton_clicked);
@@ -565,17 +567,48 @@ void DungeonDialog::enterLevel(int level)
     logMessage(QString("You have entered **Dungeon Level %1**.").arg(level));
 }
 
-
-void DungeonDialog::on_teleportButton_clicked() 
-{ 
-    logMessage("Teleporting is not yet implemented."); 
-}
 void DungeonDialog::on_attackCompanionButton_clicked() { logMessage("Attacking companions is bad."); }
 void DungeonDialog::on_carryCompanionButton_clicked() { logMessage("Carrying companions is tiring."); }
 
 void DungeonDialog::on_mapButton_clicked() { logMessage("Map button clicked!"); }
 void DungeonDialog::on_pickupButton_clicked() { logMessage("Pickup button clicked!"); }
 void DungeonDialog::on_dropButton_clicked() { logMessage("Drop button clicked!"); }
+
+void DungeonDialog::on_teleportButton_clicked() 
+{ 
+    GameStateManager* gsm = GameStateManager::instance();
+    int newX, newY;
+    QPair<int, int> newPos;
+
+    // 1. Find a random valid location (not a wall)
+    do {
+        newX = QRandomGenerator::global()->bounded(MAP_SIZE);
+        newY = QRandomGenerator::global()->bounded(MAP_SIZE);
+        newPos = {newX, newY};
+    } while (m_obstaclePositions.contains(newPos));
+
+    // 2. Update the Game State
+    gsm->setGameValue("DungeonX", newX);
+    gsm->setGameValue("DungeonY", newY);
+
+    // 3. Log the event to the user
+    logMessage(QString("<font color='purple'><b>A mystical force teleports you to (%1, %2)!</b></font>")
+               .arg(newX).arg(newY));
+
+    // 4. Update the UI
+    updateLocation(QString("Dungeon Level %1, (%2, %3)")
+                   .arg(gsm->getGameValue("DungeonLevel").toInt()).arg(newX).arg(newY));
+    
+    // Refresh the map and trigger encounter checks at the new location
+    drawMinimap();
+    handleEncounter(newX, newY);
+    handleTreasure(newX, newY);
+    handleTrap(newX, newY);
+
+    // Emit the signal defined in the header
+    emit teleporterUsed();
+}
+
 void DungeonDialog::on_fightButton_clicked() 
 { 
     // UPDATED: Get position from GameState
