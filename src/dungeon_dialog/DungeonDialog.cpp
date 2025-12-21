@@ -550,6 +550,8 @@ DungeonDialog::DungeonDialog(QWidget *parent)
     connect(downButton, &QPushButton::clicked, [this](){ movePlayer(0, 1); });
     connect(leftButton, &QPushButton::clicked, [this](){ movePlayer(-1, 0); });
     connect(rightButton, &QPushButton::clicked, [this](){ movePlayer(1, 0); });
+    connect(rotateLeftButton, &QPushButton::clicked, this, &DungeonDialog::on_rotateLeftButton_clicked);
+    connect(rotateRightButton, &QPushButton::clicked, this, &DungeonDialog::on_rotateRightButton_clicked);
     
     // Connections (Actions)
     connect(fightButton, &QPushButton::clicked, this, &DungeonDialog::on_fightButton_clicked);
