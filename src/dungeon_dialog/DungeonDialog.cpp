@@ -26,6 +26,15 @@ const int MAP_HEIGHT_PIXELS = MAP_SIZE * TILE_SIZE;
 const int MAP_MIN = 0;
 const int MAP_MAX = MAP_SIZE - 1;
 
+void DungeonDialog::handleAntimagic(int x, int y)
+{
+    QPair<int, int> pos = {x, y};
+    if (m_antimagicPositions.contains(pos)) {
+        logMessage("<font color='purple'><b>You enter an Antimagic Field! Your spells feel suppressed.</b></font>");
+        // You can add logic here to disable the Spell button or set a GameState flag
+    }
+}
+
 void DungeonDialog::refreshHealthUI()
 {
     GameStateManager* gsm = GameStateManager::instance();
@@ -120,7 +129,8 @@ void DungeonDialog::movePlayer(int dx, int dy)
     handleTreasure(newX, newY); // Now only logs chest presence
     handleTrap(newX, newY);     // Still automatic
     handleChute(newX, newY);    // NEW: Automatic hazard
-    
+    handleAntimagic(newX, newY);
+
     logMessage(QString("You move to (%1, %2).").arg(newX).arg(newY));
 }
 
@@ -199,7 +209,47 @@ void DungeonDialog::drawMinimap()
     QString studPath = "resources/images/minimap/stud.png";
     QString teleporterPath = "resources/images/minimap/teleporter.png";
     QString stairsdownPath = "resources/images/minimap/stairsdown.png";
+    QString stairsupPath = "resources/images/minimap/stairsup.png";
     QString waterPath = "resources/images/minimap/water.png";
+
+    QPixmap antimagicPixmap(antimagicPath);
+    QPixmap chutePixmap(chutePath);
+    QPixmap extinguisherPixmap(extinguisherPath);
+    QPixmap rotatorPixmap(rotatorPath);
+    QPixmap studPixmap(studPath);
+    QPixmap teleporterPixmap(teleporterPath);
+    QPixmap stairsdownPixmap(stairsdownPath);
+    QPixmap waterPixmap(waterPath);
+    QPixmap stairsupPixmap(stairsupPath);
+
+    QPixmap scaledAntimagic = antimagicPixmap.scaled(TILE_SIZE, TILE_SIZE, 
+                                         Qt::IgnoreAspectRatio, 
+                                         Qt::SmoothTransformation);
+    QPixmap scaledChute = chutePixmap.scaled(TILE_SIZE, TILE_SIZE, 
+                                         Qt::IgnoreAspectRatio, 
+                                         Qt::SmoothTransformation);
+    QPixmap scaledExtinguisher = extinguisherPixmap.scaled(TILE_SIZE, TILE_SIZE, 
+                                         Qt::IgnoreAspectRatio, 
+                                         Qt::SmoothTransformation);
+    QPixmap scaledRotator = rotatorPixmap.scaled(TILE_SIZE, TILE_SIZE, 
+                                         Qt::IgnoreAspectRatio, 
+                                         Qt::SmoothTransformation);
+    QPixmap scaledStud = studPixmap.scaled(TILE_SIZE, TILE_SIZE, 
+                                         Qt::IgnoreAspectRatio, 
+                                         Qt::SmoothTransformation);
+    QPixmap scaledTeleporter = teleporterPixmap.scaled(TILE_SIZE, TILE_SIZE, 
+                                         Qt::IgnoreAspectRatio, 
+                                         Qt::SmoothTransformation);
+    QPixmap scaledStairsDown = stairsdownPixmap.scaled(TILE_SIZE, TILE_SIZE, 
+                                         Qt::IgnoreAspectRatio, 
+                                         Qt::SmoothTransformation);
+    QPixmap scaledWater = waterPixmap.scaled(TILE_SIZE, TILE_SIZE, 
+                                         Qt::IgnoreAspectRatio, 
+                                         Qt::SmoothTransformation);
+    QPixmap scaledStairsUp = stairsupPixmap.scaled(TILE_SIZE, TILE_SIZE, 
+                                         Qt::IgnoreAspectRatio, 
+                                         Qt::SmoothTransformation);
+
 
     QPixmap fogPixmap(fogPath);
     // Check if the image loaded correctly for debugging
@@ -211,6 +261,16 @@ void DungeonDialog::drawMinimap()
     QPixmap scaledFog = fogPixmap.scaled(TILE_SIZE, TILE_SIZE, 
                                          Qt::IgnoreAspectRatio, 
                                          Qt::SmoothTransformation);
+    // Load and scale the rock pixmap
+    QPixmap rockPixmap(rockPath);
+     // Check if the image loaded correctly for debugging
+    if (rockPixmap.isNull()) {
+         qDebug() << "Error: rock image not found at" << rockPath;
+    }
+
+    QPixmap scaledRock = rockPixmap.scaled(TILE_SIZE, TILE_SIZE, 
+                                           Qt::IgnoreAspectRatio, 
+                                           Qt::SmoothTransformation);
 
 
     GameStateManager* gsm = GameStateManager::instance();
@@ -235,29 +295,58 @@ void DungeonDialog::drawMinimap()
     for (const auto& pos : m_obstaclePositions) {
         // Walls are visible only if the tile has been visited
         if (m_visitedTiles.contains(pos)) {
-            scene->addRect(pos.first * TILE_SIZE, pos.second * TILE_SIZE, 
-                           TILE_SIZE, TILE_SIZE, QPen(Qt::black), QBrush(Qt::darkGray));
+            if (!rockPixmap.isNull()) {
+                // Use the rock image tile
+                QGraphicsPixmapItem* rockTile = scene->addPixmap(scaledRock);
+                rockTile->setPos(pos.first * TILE_SIZE, pos.second * TILE_SIZE);
+            } else {
+                // Fallback to dark gray rectangle if image is missing
+                scene->addRect(pos.first * TILE_SIZE, pos.second * TILE_SIZE, 
+                               TILE_SIZE, TILE_SIZE, QPen(Qt::black), QBrush(Qt::darkGray));
+            }
         }
     }
 
     // 3. Draw Stairs (Cyan)
     if (m_visitedTiles.contains(m_stairsUpPosition)) {
-        scene->addRect(m_stairsUpPosition.first * TILE_SIZE, m_stairsUpPosition.second * TILE_SIZE, 
-                       TILE_SIZE, TILE_SIZE, QPen(Qt::black), QBrush(Qt::cyan));
-    }
-    if (m_visitedTiles.contains(m_stairsDownPosition)) {
-        scene->addRect(m_stairsDownPosition.first * TILE_SIZE, m_stairsDownPosition.second * TILE_SIZE, 
-                       TILE_SIZE, TILE_SIZE, QPen(Qt::black), QBrush(Qt::cyan));
-    }
-
-    // 4. Draw Chutes (Only if visited)
-    for (const auto& pos : m_chutePositions) {
-        if (m_visitedTiles.contains(pos)) {
-            scene->addEllipse(pos.first * TILE_SIZE + 1, pos.second * TILE_SIZE + 1, 
-                              TILE_SIZE - 2, TILE_SIZE - 2, QPen(Qt::gray), QBrush(Qt::black));
+        if (!stairsupPixmap.isNull()) {
+            QGraphicsPixmapItem* upTile = scene->addPixmap(scaledStairsUp);
+            upTile->setPos(m_stairsUpPosition.first * TILE_SIZE, 
+                           m_stairsUpPosition.second * TILE_SIZE);
+        } else {
+            // Fallback to Cyan if image fails to load
+            scene->addRect(m_stairsUpPosition.first * TILE_SIZE, 
+                           m_stairsUpPosition.second * TILE_SIZE, 
+                           TILE_SIZE, TILE_SIZE, QPen(Qt::black), QBrush(Qt::cyan));
         }
     }
 
+    if (m_visitedTiles.contains(m_stairsDownPosition)) {
+        if (!stairsdownPixmap.isNull()) {
+            QGraphicsPixmapItem* downTile = scene->addPixmap(scaledStairsDown);
+            downTile->setPos(m_stairsDownPosition.first * TILE_SIZE, 
+                           m_stairsDownPosition.second * TILE_SIZE);
+        } else {
+            // Fallback to Cyan if image fails to load
+            scene->addRect(m_stairsDownPosition.first * TILE_SIZE, 
+                           m_stairsDownPosition.second * TILE_SIZE, 
+                           TILE_SIZE, TILE_SIZE, QPen(Qt::black), QBrush(Qt::cyan));
+        }
+    }
+    // 4. Draw Chutes (Only if visited)
+    for (const auto& pos : m_chutePositions) {
+        if (m_visitedTiles.contains(pos)) {
+            if (!scaledChute.isNull()) {
+                // Use the chute image tile
+                QGraphicsPixmapItem* chuteTile = scene->addPixmap(scaledChute);
+                chuteTile->setPos(pos.first * TILE_SIZE, pos.second * TILE_SIZE);
+            } else {
+                // Fallback to the ellipse if image fails to load
+                scene->addEllipse(pos.first * TILE_SIZE + 1, pos.second * TILE_SIZE + 1, 
+                                  TILE_SIZE - 2, TILE_SIZE - 2, QPen(Qt::gray), QBrush(Qt::black));
+            }
+        }
+    }
     // 5. Draw Monsters (Only if visited)
     for (const auto& pos : m_monsterPositions.keys()) {
         if (m_visitedTiles.contains(pos)) {
@@ -282,6 +371,19 @@ void DungeonDialog::drawMinimap()
         }
     }
 
+    // 7.5. Draw Antimagic Fields (Only if visited)
+    for (const auto& pos : m_antimagicPositions) {
+        if (m_visitedTiles.contains(pos)) {
+            if (!scaledAntimagic.isNull()) {
+                QGraphicsPixmapItem* antiTile = scene->addPixmap(scaledAntimagic);
+                antiTile->setPos(pos.first * TILE_SIZE, pos.second * TILE_SIZE);
+            } else {
+                // Fallback to Purple if image fails to load
+                scene->addRect(pos.first * TILE_SIZE + 1, pos.second * TILE_SIZE + 1, 
+                               TILE_SIZE - 2, TILE_SIZE - 2, QPen(Qt::magenta), QBrush(Qt::NoBrush));
+            }
+        }
+    }
     // 8. Draw Fog of War Overlay
     for (int x = 0; x < MAP_SIZE; ++x) { //
         for (int y = 0; y < MAP_SIZE; ++y) { //
@@ -298,17 +400,6 @@ void DungeonDialog::drawMinimap()
             }
         }
     }
- /*
-    for (int x = 0; x < MAP_SIZE; ++x) {
-        for (int y = 0; y < MAP_SIZE; ++y) {
-            if (!m_visitedTiles.contains({x, y})) {
-                // Draw a semi-transparent black square over unvisited tiles
-                scene->addRect(x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE, 
-                               Qt::NoPen, QBrush(QColor(0, 0, 0, 220))); 
-            }
-        }
-    }
-*/
     // 9. Draw Player Arrow (Blue)
     QGraphicsPolygonItem* playerArrow = new QGraphicsPolygonItem();
     QPolygonF arrowHead;
@@ -404,11 +495,11 @@ void DungeonDialog::generateSpecialTiles(int tileCount)
     m_pitPositions.clear();
     m_rotatorPositions.clear();
     m_studPositions.clear();
-    m_chutePositions.clear(); // Ensure this is cleared for the new level
+    m_chutePositions.clear();
     m_monsterPositions.clear();
     m_treasurePositions.clear();
     m_trapPositions.clear();
-    m_MonsterAttitude.clear(); 
+    m_MonsterAttitude.clear();
 
     m_MonsterAttitude["Kobold"] = "Wary";
     m_MonsterAttitude["Orc"] = "Hostile";
@@ -431,7 +522,7 @@ void DungeonDialog::generateSpecialTiles(int tileCount)
                  m_stairsUpPosition == pos || m_stairsDownPosition == pos);
 
         // Increased bounded range to 4 to include Chutes
-        int type = QRandomGenerator::global()->bounded(4); 
+        int type = QRandomGenerator::global()->bounded(5); 
 
         if (type == 0) {
             QStringList monsters = {"Kobold", "Orc", "Giant Spider"};
@@ -442,9 +533,11 @@ void DungeonDialog::generateSpecialTiles(int tileCount)
         } else if (type == 2) {
             QStringList traps = {"Spike Trap", "Poison Gas Trap", "Net Trap"};
             m_trapPositions.insert(pos, traps.at(QRandomGenerator::global()->bounded(traps.size())));
-        } else {
+        } else if (type == 3) {
             // NEW: Add to chute positions
             m_chutePositions.insert(pos);
+        } else {
+            m_antimagicPositions.insert(pos);
         }
     }
 }
