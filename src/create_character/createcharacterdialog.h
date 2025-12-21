@@ -5,13 +5,12 @@
 #include <QLineEdit>
 #include <QPushButton>
 #include <QComboBox>
-#include <QSpinBox> // Added for stat distribution
-#include <QLabel> // Added for labels and stat point display
-#include <QListWidget> // Added for the Guilds Allowed list
-#include <QMap> // Added for managing stat widgets
+#include <QSpinBox>
+#include <QLabel>
+#include <QListWidget>
+#include <QMap>
 #include <QVector>
 #include <QString>
-// Assuming this struct definition exists somewhere accessible
 #include "src/race_data/RaceData.h" 
 #include "GameStateManager.h"
 
@@ -31,10 +30,7 @@ signals:
     void characterCreated(const QString &characterName);
 
 private slots:
-    // New slot for Race ComboBox change
     void updateRaceStats(int index); 
-    
-    // New slots for bottom buttons (replacing on_ok/on_cancel)
     void onRaceStatsClicked();
     void onGuildStatsClicked();
     void onSaveCharacterClicked(); 
@@ -46,12 +42,12 @@ private:
     void updateAlignmentOptions(const RaceStats& race);
     void updateGuildListStyle(const RaceStats& race);
 
-    // UI components (Names updated to match new implementation)
+    // UI components
     QLineEdit *nameEdit = nullptr;
     QComboBox *raceBox = nullptr;
-    QComboBox *sexBox = nullptr; // Added
-    QComboBox *alignmentBox = nullptr; // Added
-    QListWidget *guildsListWidget = nullptr; // Added
+    QComboBox *sexBox = nullptr;
+    QComboBox *alignmentBox = nullptr;
+    QListWidget *guildsListWidget = nullptr;
     
     // Stat Distribution Components
     QMap<QString, QSpinBox*> statSpinBoxes; 
@@ -62,7 +58,7 @@ private:
     // Data members
     QVector<RaceStats> raceData;
     QVector<QString> guildData;
-    int statPoints = 5; // Tracks the 5 distribution points
+    int statPoints = 5;
 };
 
 #endif // CREATECHARACTERDIALOG_H
