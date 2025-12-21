@@ -114,6 +114,7 @@ void DungeonDialog::movePlayer(int dx, int dy)
 //    else if (dx < 0) updateCompass("West");
 //    else if (dx > 0) updateCompass("East");
 
+    m_visitedTiles.insert({newX, newY});
     updateMinimap(newX, newY);
     handleEncounter(newX, newY);
     handleTreasure(newX, newY); // Now only logs chest presence
@@ -196,6 +197,9 @@ void DungeonDialog::drawMinimap()
     int currentY = gsm->getGameValue("DungeonY").toInt();
     QPair<int, int> currentPos = {currentX, currentY};
     
+    // Mark the current position as visited for the Fog of War
+    m_visitedTiles.insert(currentPos);
+    
     QGraphicsScene *scene = new QGraphicsScene(this);
     scene->setSceneRect(0, 0, MAP_WIDTH_PIXELS, MAP_HEIGHT_PIXELS);
 
@@ -207,87 +211,115 @@ void DungeonDialog::drawMinimap()
 
     // 2. Draw Obstacles (Walls)
     for (const auto& pos : m_obstaclePositions) {
-        scene->addRect(pos.first * TILE_SIZE, pos.second * TILE_SIZE, 
-                       TILE_SIZE, TILE_SIZE, QPen(Qt::black), QBrush(Qt::darkGray));
+        // Walls are visible only if the tile has been visited
+        if (m_visitedTiles.contains(pos)) {
+            scene->addRect(pos.first * TILE_SIZE, pos.second * TILE_SIZE, 
+                           TILE_SIZE, TILE_SIZE, QPen(Qt::black), QBrush(Qt::darkGray));
+        }
     }
 
     // 3. Draw Stairs (Cyan)
-    QBrush stairsBrush(Qt::cyan);
-    scene->addRect(m_stairsUpPosition.first * TILE_SIZE, m_stairsUpPosition.second * TILE_SIZE, 
-                   TILE_SIZE, TILE_SIZE, QPen(Qt::black), stairsBrush);
-    scene->addRect(m_stairsDownPosition.first * TILE_SIZE, m_stairsDownPosition.second * TILE_SIZE, 
-                   TILE_SIZE, TILE_SIZE, QPen(Qt::black), stairsBrush);
+    if (m_visitedTiles.contains(m_stairsUpPosition)) {
+        scene->addRect(m_stairsUpPosition.first * TILE_SIZE, m_stairsUpPosition.second * TILE_SIZE, 
+                       TILE_SIZE, TILE_SIZE, QPen(Qt::black), QBrush(Qt::cyan));
+    }
+    if (m_visitedTiles.contains(m_stairsDownPosition)) {
+        scene->addRect(m_stairsDownPosition.first * TILE_SIZE, m_stairsDownPosition.second * TILE_SIZE, 
+                       TILE_SIZE, TILE_SIZE, QPen(Qt::black), QBrush(Qt::cyan));
+    }
 
-    // 4. Draw Chutes (NEW: Black hole appearance)
-    QBrush chuteBrush(Qt::black);
+    // 4. Draw Chutes (Only if visited)
     for (const auto& pos : m_chutePositions) {
-        scene->addEllipse(pos.first * TILE_SIZE + 1, pos.second * TILE_SIZE + 1, 
-                          TILE_SIZE - 2, TILE_SIZE - 2, QPen(Qt::gray), chuteBrush);
+        if (m_visitedTiles.contains(pos)) {
+            scene->addEllipse(pos.first * TILE_SIZE + 1, pos.second * TILE_SIZE + 1, 
+                              TILE_SIZE - 2, TILE_SIZE - 2, QPen(Qt::gray), QBrush(Qt::black));
+        }
     }
 
-    // 5. Draw Monsters (Red dots)
-    QBrush monsterBrush(Qt::red);
+    // 5. Draw Monsters (Only if visited)
     for (const auto& pos : m_monsterPositions.keys()) {
-        scene->addEllipse(pos.first * TILE_SIZE + TILE_SIZE/4, pos.second * TILE_SIZE + TILE_SIZE/4, 
-                          TILE_SIZE/2, TILE_SIZE/2, QPen(Qt::red), monsterBrush);
+        if (m_visitedTiles.contains(pos)) {
+            scene->addEllipse(pos.first * TILE_SIZE + TILE_SIZE/4, pos.second * TILE_SIZE + TILE_SIZE/4, 
+                              TILE_SIZE/2, TILE_SIZE/2, QPen(Qt::red), QBrush(Qt::red));
+        }
     }
 
-    // 6. Draw Treasure/Chests (Yellow squares)
-    // Note: These remain on map until on_openButton_clicked removes them.
-    QBrush treasureBrush(Qt::yellow);
+    // 6. Draw Treasure/Chests (Only if visited)
     for (const auto& pos : m_treasurePositions.keys()) {
-        scene->addRect(pos.first * TILE_SIZE + TILE_SIZE/4, pos.second * TILE_SIZE + TILE_SIZE/4, 
-                       TILE_SIZE/2, TILE_SIZE/2, QPen(Qt::black), treasureBrush);
+        if (m_visitedTiles.contains(pos)) {
+            scene->addRect(pos.first * TILE_SIZE + TILE_SIZE/4, pos.second * TILE_SIZE + TILE_SIZE/4, 
+                           TILE_SIZE/2, TILE_SIZE/2, QPen(Qt::black), QBrush(Qt::yellow));
+        }
     }
     
-    // 7. Draw Traps (Dark Green squares)
-    QBrush trapBrush(Qt::darkGreen);
+    // 7. Draw Traps (Only if visited)
     for (const auto& pos : m_trapPositions.keys()) {
-        scene->addRect(pos.first * TILE_SIZE + TILE_SIZE/4, pos.second * TILE_SIZE + TILE_SIZE/4, 
-                       TILE_SIZE/2, TILE_SIZE/2, QPen(Qt::black), trapBrush);
+        if (m_visitedTiles.contains(pos)) {
+            scene->addRect(pos.first * TILE_SIZE + TILE_SIZE/4, pos.second * TILE_SIZE + TILE_SIZE/4, 
+                           TILE_SIZE/2, TILE_SIZE/2, QPen(Qt::black), QBrush(Qt::darkGreen));
+        }
     }
 
-    // 8. Draw Player / Party Leader (Blue dot)
-//    QBrush playerBrush(Qt::blue);
-//    scene->addEllipse(currentPos.first * TILE_SIZE, currentPos.second * TILE_SIZE, 
-//                      TILE_SIZE, TILE_SIZE, QPen(Qt::blue), playerBrush);
-// 8. Draw Player / Party Leader (Blue Arrow)
-QGraphicsPolygonItem* playerArrow = new QGraphicsPolygonItem();
-QPolygonF arrowHead;
-// Define an arrow shape pointing North by default (relative to its own coordinate system)
-arrowHead << QPointF(TILE_SIZE / 2, 0)          // Top point
-          << QPointF(0, TILE_SIZE)              // Bottom left
-          << QPointF(TILE_SIZE / 2, TILE_SIZE * 0.7) // Inner notch
-          << QPointF(TILE_SIZE, TILE_SIZE);     // Bottom right
+    // 8. Draw Fog of War Overlay
+    for (int x = 0; x < MAP_SIZE; ++x) {
+        for (int y = 0; y < MAP_SIZE; ++y) {
+            if (!m_visitedTiles.contains({x, y})) {
+                // Draw a semi-transparent black square over unvisited tiles
+                scene->addRect(x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE, 
+                               Qt::NoPen, QBrush(QColor(0, 0, 0, 220))); 
+            }
+        }
+    }
 
-playerArrow->setPolygon(arrowHead);
-playerArrow->setBrush(QBrush(Qt::blue));
-playerArrow->setPen(QPen(Qt::blue));
+    // 9. Draw Player Arrow (Blue)
+    QGraphicsPolygonItem* playerArrow = new QGraphicsPolygonItem();
+    QPolygonF arrowHead;
+    // Defining an arrow shape relative to its origin
+    arrowHead << QPointF(TILE_SIZE / 2, 0)               // Tip
+              << QPointF(0, TILE_SIZE)                   // Bottom Left
+              << QPointF(TILE_SIZE / 2, TILE_SIZE * 0.7) // Inner Notch
+              << QPointF(TILE_SIZE, TILE_SIZE);          // Bottom Right
 
-// Calculate rotation based on facing
-int rotation = 0;
-QString currentFacing = m_compassLabel->text();
-if (currentFacing == "Facing North") rotation = 0;
-else if (currentFacing == "Facing East") rotation = 90;
-else if (currentFacing == "Facing South") rotation = 180;
-else if (currentFacing == "Facing West") rotation = 270;
+    playerArrow->setPolygon(arrowHead);
+    playerArrow->setBrush(QBrush(Qt::blue));
+    playerArrow->setPen(QPen(Qt::blue));
 
-// Set position and rotation
-// We translate to the center of the tile to rotate around the center
-playerArrow->setTransformOriginPoint(TILE_SIZE / 2, TILE_SIZE / 2);
-playerArrow->setRotation(rotation);
-playerArrow->setPos(currentPos.first * TILE_SIZE, currentPos.second * TILE_SIZE);
+    // Calculate rotation based on facing direction string
+    int rotation = 0;
+    QString currentFacing = m_compassLabel->text();
+    if (currentFacing == "Facing North") rotation = 0;
+    else if (currentFacing == "Facing East") rotation = 90;
+    else if (currentFacing == "Facing South") rotation = 180;
+    else if (currentFacing == "Facing West") rotation = 270;
 
-scene->addItem(playerArrow);
+    // Center the arrow in the tile and rotate
+    playerArrow->setTransformOriginPoint(TILE_SIZE / 2, TILE_SIZE / 2);
+    playerArrow->setRotation(rotation);
+    playerArrow->setPos(currentPos.first * TILE_SIZE, currentPos.second * TILE_SIZE);
 
+    scene->addItem(playerArrow);
 
     // Finalize the view
     m_miniMapView->setScene(scene);
     m_miniMapView->fitInView(scene->sceneRect(), Qt::KeepAspectRatio);
 }
 
-void DungeonDialog::updateMinimap(int, int)
+void DungeonDialog::updateMinimap(int x, int y)
 {
+    // Define the visibility radius (e.g., 2 tiles in every direction)
+    const int VIEW_DISTANCE = 2;
+
+    for (int dx = -VIEW_DISTANCE; dx <= VIEW_DISTANCE; ++dx) {
+        for (int dy = -VIEW_DISTANCE; dy <= VIEW_DISTANCE; ++dy) {
+            int targetX = x + dx;
+            int targetY = y + dy;
+
+            // Ensure we stay within the map boundaries
+            if (targetX >= 0 && targetX < MAP_SIZE && targetY >= 0 && targetY < MAP_SIZE) {
+                m_visitedTiles.insert({targetX, targetY});
+            }
+        }
+    }
     drawMinimap(); 
 }
 
@@ -611,8 +643,13 @@ DungeonDialog::~DungeonDialog()
 
 void DungeonDialog::enterLevel(int level)
 {
+    m_visitedTiles.clear(); // Wipe map memory for the new floor
     GameStateManager* gsm = GameStateManager::instance();
+    int startX = MAP_SIZE / 2; //
+    int startY = MAP_SIZE / 2; //
     
+    m_visitedTiles.insert({startX, startY}); // Mark starting point as seen
+
     // UPDATED: SAVE new level and reset position to GameState
     gsm->setGameValue("DungeonLevel", level);
     gsm->setGameValue("DungeonX", MAP_SIZE / 2);

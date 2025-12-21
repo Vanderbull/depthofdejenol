@@ -142,6 +142,8 @@ private:
     QSet<QPair<int, int>> m_waterPositions;    
     
     // Map data
+    // In the private section of DungeonDialog class
+    QSet<QPair<int, int>> m_visitedTiles; // Tracks which (x, y) coordinates have been seen
     QMap<QPair<int, int>, QString> m_monsterPositions;
     QMap<QPair<int, int>, QString> m_treasurePositions;
     QMap<QPair<int, int>, QString> m_trapPositions;
