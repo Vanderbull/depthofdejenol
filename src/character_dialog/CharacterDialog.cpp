@@ -129,6 +129,18 @@ void CharacterDialog::setupUi() {
 
     // --- 2. Buffers Tab ---
     QVBoxLayout *buffsLayout = new QVBoxLayout(buffsTab);
+    buffsLayout->addWidget(new QLabel("Buffers"));
+    buffsLayout->addWidget(new QLabel("1."));
+    buffsLayout->addWidget(new QLabel("2."));
+    buffsLayout->addWidget(new QLabel("3."));
+    buffsLayout->addWidget(new QLabel("4."));
+    buffsLayout->addWidget(new QLabel("5."));
+    buffsLayout->addWidget(new QLabel("6."));
+    buffsLayout->addWidget(new QLabel("7."));
+    buffsLayout->addWidget(new QLabel("8."));
+    buffsLayout->addWidget(new QLabel("9."));
+    buffsLayout->addWidget(new QLabel("10."));
+
     if (GSM->isCharacterPoisoned()) buffsLayout->addWidget(new QLabel("Poisoned"));
     if (GSM->isCharacterBlinded())  buffsLayout->addWidget(new QLabel("Blinded"));
     if (!GSM->isCharacterPoisoned() && !GSM->isCharacterBlinded()) buffsLayout->addWidget(new QLabel("Status: Normal"));
