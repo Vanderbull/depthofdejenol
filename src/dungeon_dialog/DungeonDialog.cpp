@@ -518,8 +518,13 @@ DungeonDialog::DungeonDialog(QWidget *parent)
     QPushButton *downButton = new QPushButton("v");
     QPushButton *leftButton = new QPushButton("<");
     QPushButton *rightButton = new QPushButton(">");
+    // Rotate
+    QPushButton *rotateLeftButton = new QPushButton("Rotate L");
+    QPushButton *rotateRightButton = new QPushButton("Rotate R");
 
+    moveLayout->addWidget(rotateLeftButton, 0, 0);
     moveLayout->addWidget(upButton, 0, 1);
+    moveLayout->addWidget(rotateRightButton, 0, 2);
     moveLayout->addWidget(leftButton, 1, 0);
     moveLayout->addWidget(downButton, 1, 1);
     moveLayout->addWidget(rightButton, 1, 2);
@@ -779,4 +784,25 @@ void DungeonDialog::on_exitButton_clicked()
         qDebug() << "User clicked Yes. Application should exit or return to main menu.";
         this->close();
     }
+}
+void DungeonDialog::on_rotateLeftButton_clicked()
+{
+    QStringList directions = {"Facing North", "Facing West", "Facing South", "Facing East"};
+    int currentIndex = directions.indexOf(m_compassLabel->text());
+    int nextIndex = (currentIndex + 1) % 4;
+    
+    QString newDir = directions[nextIndex].mid(7); // Extract "North", "West", etc.
+    updateCompass(newDir);
+    logMessage(QString("You turn to the left."));
+}
+
+void DungeonDialog::on_rotateRightButton_clicked()
+{
+    QStringList directions = {"Facing North", "Facing East", "Facing South", "Facing West"};
+    int currentIndex = directions.indexOf(m_compassLabel->text());
+    int nextIndex = (currentIndex + 1) % 4;
+    
+    QString newDir = directions[nextIndex].mid(7);
+    updateCompass(newDir);
+    logMessage(QString("You turn to the right."));
 }

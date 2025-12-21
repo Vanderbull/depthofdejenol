@@ -47,6 +47,8 @@ signals:
     void exitedDungeonToCity();
 
 private slots:
+    void on_rotateLeftButton_clicked();
+    void on_rotateRightButton_clicked();
     void on_teleportButton_clicked();
     void on_attackCompanionButton_clicked();
     void on_carryCompanionButton_clicked();
