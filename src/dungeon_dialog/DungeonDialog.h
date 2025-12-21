@@ -101,19 +101,20 @@ private:
     QPushButton *m_chestButton; 
 
     // Gold Management Members
-    QLabel *m_goldLabel;        
-    void updateGoldLabel();     
+    QLabel *m_goldLabel;
+    void refreshHealthUI();
+    void updateGoldLabel();
 
     PartyInfoDialog *m_partyInfoDialog;
     
     // Party Management Member
-    QTableWidget *m_partyTable; // DECLARATION CONFIRMED
+    QTableWidget *m_partyTable;
 
     // Health Management Helper
-    void updatePartyMemberHealth(int row, int damage); // DECLARATION CONFIRMED
+    void updatePartyMemberHealth(int row, int damage);
 
     // Map generation/management
-    QSet<QPair<int, int>> m_obstaclePositions; // DECLARATION CONFIRMED
+    QSet<QPair<int, int>> m_obstaclePositions;
     void generateRandomObstacles(int obstacleCount);
     void generateStairs(); 
     void generateSpecialTiles(int tileCount); 

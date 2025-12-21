@@ -18,6 +18,12 @@ GameStateManager* GameStateManager::instance()
 GameStateManager::GameStateManager(QObject *parent)
     : QObject(parent)
 {
+    // Inside GameStateManager::GameStateManager constructor
+    m_gameStateData["CurrentCharacterHP"] = 50;
+    m_gameStateData["MaxCharacterHP"] = 50;
+    // You can also initialize a list for the whole party if needed
+    m_gameStateData["PartyHP"] = QVariantList({50, 40, 30});
+
     // Initialize default state data
     m_gameStateData["CurrentCharacterLevel"] = 1;
     m_gameStateData["CurrentCharacterExperience"] = QVariant::fromValue((qulonglong)0);

@@ -25,6 +25,19 @@ const int MAP_HEIGHT_PIXELS = MAP_SIZE * TILE_SIZE;
 const int MAP_MIN = 0;
 const int MAP_MAX = MAP_SIZE - 1;
 
+void DungeonDialog::refreshHealthUI()
+{
+    GameStateManager* gsm = GameStateManager::instance();
+    int currentHp = gsm->getGameValue("CurrentCharacterHP").toInt();
+    int maxHp = gsm->getGameValue("MaxCharacterHP").toInt();
+
+    QTableWidgetItem *hpItem = m_partyTable->item(0, 2);
+    if (hpItem) {
+        hpItem->setText(QString("%1/%2").arg(currentHp).arg(maxHp));
+        hpItem->setForeground(currentHp <= (maxHp * 0.2) ? Qt::red : Qt::black);
+    }
+}
+
 // --- Helper Function: logMessage (Must be defined as a member) ---
 void DungeonDialog::logMessage(const QString& message)
 {
@@ -48,24 +61,20 @@ void DungeonDialog::updateGoldLabel()
 // --- Party Management Helper Function ---
 void DungeonDialog::updatePartyMemberHealth(int row, int damage)
 {
-    // Implementation uses m_partyTable, which is now correctly confirmed in the header.
-    QTableWidgetItem *hpItem = m_partyTable->item(row, 2);
-    if (hpItem) {
-        // Assume HP is stored as "Current/Max"
-        QString hpText = hpItem->text();
-        int slashIndex = hpText.indexOf('/');
-        int currentHp = hpText.left(slashIndex).toInt();
-        QString maxHpString = hpText.mid(slashIndex + 1);
-
-        currentHp -= damage;
-
-        if (currentHp <= 0) {
-            currentHp = 0;
-            hpItem->setForeground(Qt::red);
-            logMessage(QString("%1 is mortally wounded!").arg(m_partyTable->item(row, 0)->text()));
+    GameStateManager* gsm = GameStateManager::instance();
+    
+    // Only handling row 0 (Main Character) for this example
+    if (row == 0) {
+        int currentHp = gsm->getGameValue("CurrentCharacterHP").toInt();
+        int newHp = qMax(0, currentHp - damage);
+        
+        gsm->setGameValue("CurrentCharacterHP", newHp);
+        
+        if (newHp <= 0) {
+            logMessage("<font color='red'><b>You have been defeated!</b></font>");
         }
-
-        hpItem->setText(QString("%1/%2").arg(currentHp).arg(maxHpString));
+        
+        refreshHealthUI();
     }
 }
 
@@ -644,39 +653,17 @@ void DungeonDialog::spawnMonsters(const QString& , int ) { /* spawn logic */ }
 void DungeonDialog::on_restButton_clicked() 
 {
     GameStateManager* gsm = GameStateManager::instance();
-    
-    // 1. Calculate Healing Amount based on Constitution
     int constitution = gsm->getGameValue("CurrentCharacterConstitution").toInt();
-    // Heal for Con/2 (minimum 1)
     int healAmount = qMax(1, constitution / 2); 
     
-    // 2. Update the Party Table UI
-    // The player is at row 0
-    QTableWidgetItem *hpItem = m_partyTable->item(0, 2);
-    if (hpItem) {
-        QString hpText = hpItem->text();
-        int slashIndex = hpText.indexOf('/');
-        int currentHp = hpText.left(slashIndex).toInt();
-        int maxHp = hpText.mid(slashIndex + 1).toInt();
+    int currentHp = gsm->getGameValue("CurrentCharacterHP").toInt();
+    int maxHp = gsm->getGameValue("MaxCharacterHP").toInt();
+    
+    int newHp = qMin(maxHp, currentHp + healAmount);
+    gsm->setGameValue("CurrentCharacterHP", newHp);
 
-        // Prevent overhealing beyond Max HP
-        int newHp = qMin(maxHp, currentHp + healAmount);
-        int actualHealed = newHp - currentHp;
-
-        if (actualHealed > 0) {
-            hpItem->setText(QString("%1/%2").arg(newHp).arg(maxHp));
-            
-            // Reset text color to black if they were previously wounded (red)
-            if (newHp > 0) {
-                hpItem->setForeground(Qt::black);
-            }
-
-            logMessage(QString("You rest and recover **%1 HP**. Status: %2/%3.")
-                       .arg(actualHealed).arg(newHp).arg(maxHp));
-        } else {
-            logMessage("You try to rest, but you are already at full health.");
-        }
-    }
+    logMessage(QString("You rest and recover %1 HP.").arg(newHp - currentHp));
+    refreshHealthUI();
 }
 
 void DungeonDialog::on_stairsDownButton_clicked()
