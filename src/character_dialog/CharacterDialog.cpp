@@ -66,15 +66,26 @@ void CharacterDialog::setupUi() {
     mainLayout->setContentsMargins(10, 10, 10, 10);
 
     QTabWidget *tabWidget = new QTabWidget();
-    QWidget *charTab = new QWidget();
+    QWidget *lookTab = new QWidget();
     QWidget *buffsTab = new QWidget();
+    QWidget *miscTab = new QWidget();
+    QWidget *statsTab = new QWidget();
+    QWidget *resistanceTab = new QWidget();
+    QWidget *charTab = new QWidget();
     QWidget *guildTab = new QWidget();
 
-    tabWidget->addTab(charTab, "Char");
+    tabWidget->addTab(lookTab, "Look");
     tabWidget->addTab(buffsTab, "Buffers");
+    tabWidget->addTab(miscTab, "Misc");
+    tabWidget->addTab(statsTab, "Stats");
+    tabWidget->addTab(resistanceTab, "Resist");
+    tabWidget->addTab(charTab, "Char");
     tabWidget->addTab(guildTab, "Guild");
 
-    // --- 1. Character Stats Tab ---
+    QVBoxLayout *lookLayout = new QVBoxLayout(lookTab);
+    QVBoxLayout *miscLayout = new QVBoxLayout(miscTab);
+    QVBoxLayout *statsLayout = new QVBoxLayout(statsTab);
+    QVBoxLayout *resistanceLayout = new QVBoxLayout(resistanceTab);
     QVBoxLayout *charLayout = new QVBoxLayout(charTab);
 
     // Identity Header (Class and Level)
@@ -90,7 +101,7 @@ void CharacterDialog::setupUi() {
     headerLayout->addWidget(new QLabel(QString("Level %1 Vagrant (%2)")
         .arg(GSM->getGameValue("CurrentCharacterLevel").toInt())
         .arg(GSM->getGameValue("CurrentCharacterAlignment").toString())));
-    charLayout->addWidget(headerFrame);
+    statsLayout->addWidget(headerFrame);
 
     // Attributes
     QGroupBox *attrGroup = new QGroupBox("Attributes");
@@ -100,7 +111,7 @@ void CharacterDialog::setupUi() {
         attrLayout->addWidget(new QLabel(attrs[i] + ":"), i, 0);
         attrLayout->addWidget(new QLabel(GSM->getGameValue("CurrentCharacter" + attrs[i]).toString()), i, 1, Qt::AlignRight);
     }
-    charLayout->addWidget(attrGroup);
+    statsLayout->addWidget(attrGroup);
 
     // Wealth
     QHBoxLayout *goldLayout = new QHBoxLayout();
@@ -112,14 +123,14 @@ void CharacterDialog::setupUi() {
                                     GSM->getGameValue("CurrentCharacterGold").toULongLong()
                                   ));
     goldLayout->addWidget(m_goldValueLabel);
-    charLayout->addLayout(goldLayout);
+    statsLayout->addLayout(goldLayout);
 
-    charLayout->addStretch();
+    statsLayout->addStretch();
 
     // --- 2. Buffers Tab ---
     QVBoxLayout *buffsLayout = new QVBoxLayout(buffsTab);
-    if (GSM->isCharacterPoisoned()) buffsLayout->addWidget(new QLabel("🤢 Poisoned"));
-    if (GSM->isCharacterBlinded())  buffsLayout->addWidget(new QLabel("🕶️ Blinded"));
+    if (GSM->isCharacterPoisoned()) buffsLayout->addWidget(new QLabel("Poisoned"));
+    if (GSM->isCharacterBlinded())  buffsLayout->addWidget(new QLabel("Blinded"));
     if (!GSM->isCharacterPoisoned() && !GSM->isCharacterBlinded()) buffsLayout->addWidget(new QLabel("Status: Normal"));
     buffsLayout->addStretch();
 
