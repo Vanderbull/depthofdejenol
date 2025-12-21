@@ -255,16 +255,16 @@ CreateCharacterDialog::CreateCharacterDialog(const QVector<RaceStats>& raceData,
 
 	    gsm->setGameValue("CurrentCharacterStatPointsLeft", currentPoints);
 	    spinBox->setProperty(PROPERTY_PREVIOUS_VALUE, newValue);
-            
+            updateSpinBoxLimits();
             // Sync all spinboxes using the central stat list
-            for (const QString& name : GameStateManager::statNames()) {
-                QSpinBox* otherSpinBox = this->statSpinBoxes.value(name);
-                if (otherSpinBox) {
-                    otherSpinBox->blockSignals(true);
-                    otherSpinBox->setMaximum(otherSpinBox->value() + this->statPoints);
-                    otherSpinBox->blockSignals(false);
-                }
-            }
+//           for (const QString& name : GameStateManager::statNames()) {
+//               QSpinBox* otherSpinBox = this->statSpinBoxes.value(name);
+//               if (otherSpinBox) {
+//                   otherSpinBox->blockSignals(true);
+//                   otherSpinBox->setMaximum(otherSpinBox->value() + this->statPoints);
+//                   otherSpinBox->blockSignals(false);
+//               }
+//            }
             
             currentValueLabel->setText(QString::number(newValue));
             this->statPointsLeftLabel->setText(QString("%1 Stat Points Left").arg(currentPoints));
@@ -334,6 +334,37 @@ CreateCharacterDialog::CreateCharacterDialog(const QVector<RaceStats>& raceData,
     connect(tutorialButton, &QPushButton::clicked, this, &CreateCharacterDialog::onTutorialClicked);
 }
 
+void CreateCharacterDialog::updateSpinBoxLimits() {
+    int pointsLeft = GameStateManager::instance()->getGameValue("CurrentCharacterStatPointsLeft").toInt();
+    
+    // Get the data for the currently selected race
+    const RaceStats& selectedRace = raceData.at(raceBox->currentIndex());
+
+    // Create a local mapping for easy lookup during the loop
+    QMap<QString, RaceStat> statMap;
+    statMap["Strength"]     = selectedRace.strength;
+    statMap["Intelligence"] = selectedRace.intelligence;
+    statMap["Wisdom"]       = selectedRace.wisdom;
+    statMap["Constitution"] = selectedRace.constitution;
+    statMap["Charisma"]     = selectedRace.charisma;
+    statMap["Dexterity"]    = selectedRace.dexterity;
+
+    for (const QString& statName : GameStateManager::statNames()) {
+        QSpinBox* sb = statSpinBoxes.value(statName);
+        if (!sb) continue;
+
+        RaceStat raceStat = statMap.value(statName);
+
+        sb->blockSignals(true);
+        // The maximum is the lower of:
+        // 1. The absolute racial maximum (e.g., 18)
+        // 2. The current value + whatever points are remaining in the pool
+        int allowedMax = qMin(raceStat.max, sb->value() + pointsLeft);
+        sb->setMaximum(allowedMax);
+        sb->blockSignals(false);
+    }
+}
+
 CreateCharacterDialog::~CreateCharacterDialog() {}
 
 void CreateCharacterDialog::onRaceStatsClicked() {
@@ -351,9 +382,10 @@ void CreateCharacterDialog::onSaveCharacterClicked() {
         QMessageBox::warning(this, "Save Error", "Please enter a **Character Name** before saving.");
         return;
     }
-    
-    if (this->statPoints > 0) {
-        QMessageBox::warning(this, "Stat Points Remaining", QString("You must spend the remaining **%1** stat point(s).").arg(this->statPoints));
+
+    int remainingPoints = GameStateManager::instance()->getGameValue("CurrentCharacterStatPointsLeft").toInt();
+    if (remainingPoints > 0) {
+        QMessageBox::warning(this, "Stat Points Remaining", QString("You must spend the remaining **%1** stat point(s).").arg(remainingPoints));
         return;
     }
 

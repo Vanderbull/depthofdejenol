@@ -41,6 +41,7 @@ private:
     // Helper Functions
     void updateAlignmentOptions(const RaceStats& race);
     void updateGuildListStyle(const RaceStats& race);
+    void updateSpinBoxLimits();
 
     // UI components
     QLineEdit *nameEdit = nullptr;
