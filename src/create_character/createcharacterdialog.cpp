@@ -23,7 +23,6 @@
 
 // Global constant for the property key used in the SpinBoxes
 const static char* PROPERTY_PREVIOUS_VALUE = "previousValue";
-const static QStringList STAT_NAMES = {"Strength", "Intelligence", "Wisdom", "Constitution", "Charisma", "Dexterity"};
 
 // Helper function to update alignment options
 void CreateCharacterDialog::updateAlignmentOptions(const RaceStats& race) {
@@ -57,10 +56,10 @@ void CreateCharacterDialog::updateGuildListStyle(const RaceStats& race) {
 
         if (status == AS_Allowed) {
             item->setForeground(QBrush(Qt::black));
-            item->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled); 
+            item->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled);
         } else {
             item->setForeground(QBrush(Qt::darkGray));
-            item->setFlags(Qt::NoItemFlags); 
+            item->setFlags(Qt::NoItemFlags);
         }
     }
     QListWidgetItem *selectedItem = guildsListWidget->currentItem();
@@ -84,15 +83,17 @@ void CreateCharacterDialog::updateRaceStats(int index) {
     statMap["Charisma"]     = selectedRace.charisma;
     statMap["Dexterity"]    = selectedRace.dexterity;
 
-    for (auto it = statSpinBoxes.constBegin(); it != statSpinBoxes.constEnd(); ++it) {
-        QString statName = it.key();
-        QSpinBox* spinBox = it.value();
+    // Use GameStateManager to iterate through stat names
+    for (const QString& statName : GameStateManager::statNames()) {
+        QSpinBox* spinBox = statSpinBoxes.value(statName);
+        if (!spinBox) continue;
+
         RaceStat raceStat = statMap.value(statName);
 
-        spinBox->blockSignals(true); 
-        spinBox->setRange(raceStat.min, raceStat.min + 5); 
-        spinBox->setValue(raceStat.start); 
-        spinBox->setProperty(PROPERTY_PREVIOUS_VALUE, raceStat.start); 
+        spinBox->blockSignals(true);
+        spinBox->setRange(raceStat.min, raceStat.min + 5);
+        spinBox->setValue(raceStat.start);
+        spinBox->setProperty(PROPERTY_PREVIOUS_VALUE, raceStat.start);
         spinBox->blockSignals(false);
 
         QLabel* rangeLabel = statRangeLabels.value(statName);
@@ -118,14 +119,13 @@ CreateCharacterDialog::CreateCharacterDialog(const QVector<RaceStats>& raceData,
                                              QWidget *parent) 
     : QDialog(parent), 
       raceData(raceData), 
-      guildData(guildData) 
+      guildData(guildData)
 {
     setWindowTitle("Create Character");
 
-    // Fix: Ensure proper path separator for QSS loading 
     QFileInfo fileInfo(__FILE__);
     QString dir = fileInfo.absolutePath();
-    QString qssPath = QDir(dir).filePath("createcharacterdialog.qss"); 
+    QString qssPath = QDir(dir).filePath("createcharacterdialog.qss");
     
     QFile styleFile(qssPath);
     if (styleFile.open(QFile::ReadOnly | QFile::Text)) {
@@ -146,7 +146,7 @@ CreateCharacterDialog::CreateCharacterDialog(const QVector<RaceStats>& raceData,
     mainLayout->setSpacing(20);
 
     QHBoxLayout *contentLayout = new QHBoxLayout();
-    contentLayout->setSpacing(40); 
+    contentLayout->setSpacing(40);
 
     // Left Column: Character Info
     QGridLayout *infoLayout = new QGridLayout();
@@ -177,7 +177,7 @@ CreateCharacterDialog::CreateCharacterDialog(const QVector<RaceStats>& raceData,
     infoLayout->addWidget(alignmentBox, 7, 0, 1, 2);
 
     contentLayout->addLayout(infoLayout);
-    contentLayout->addStretch(1); 
+    contentLayout->addStretch(1);
 
     // Middle Column: Stats
     QGridLayout *statsLayout = new QGridLayout();
@@ -194,8 +194,10 @@ CreateCharacterDialog::CreateCharacterDialog(const QVector<RaceStats>& raceData,
     
     const RaceStats& initialRace = raceData.at(0);
 
-    for (int i = 0; i < STAT_NAMES.size(); ++i) {
-        QString statName = STAT_NAMES.at(i);
+    // Refactored to use GameStateManager::statNames()
+    const QStringList statList = GameStateManager::statNames();
+    for (int i = 0; i < statList.size(); ++i) {
+        QString statName = statList.at(i);
         statsLayout->addWidget(new QLabel(statName), i + 1, 0);
 
         QSpinBox *spinBox = new QSpinBox();
@@ -207,10 +209,10 @@ CreateCharacterDialog::CreateCharacterDialog(const QVector<RaceStats>& raceData,
         else if (statName == "Constitution") initialRaceStat = initialRace.constitution;
         else if (statName == "Charisma") initialRaceStat = initialRace.charisma;
         else if (statName == "Dexterity") initialRaceStat = initialRace.dexterity;
-        else initialRaceStat = {1, 1, 18}; 
+        else initialRaceStat = {1, 1, 18};
 
         spinBox->setRange(initialRaceStat.min, initialRaceStat.min + this->statPoints);
-        spinBox->setValue(initialRaceStat.start); 
+        spinBox->setValue(initialRaceStat.start);
         spinBox->setProperty(PROPERTY_PREVIOUS_VALUE, initialRaceStat.start);
         
         statsLayout->addWidget(spinBox, i + 1, 1);
@@ -219,7 +221,7 @@ CreateCharacterDialog::CreateCharacterDialog(const QVector<RaceStats>& raceData,
         statsLayout->addWidget(rangeLabel, i + 1, 2);
 
         QLabel *currentValueLabel = new QLabel(QString::number(spinBox->value()));
-        currentValueLabel->setAlignment(Qt::AlignCenter); 
+        currentValueLabel->setAlignment(Qt::AlignCenter);
         currentValueLabel->setStyleSheet("color: blue; font-weight: bold;");
         statsLayout->addWidget(currentValueLabel, i + 1, 3);
 
@@ -241,17 +243,18 @@ CreateCharacterDialog::CreateCharacterDialog(const QVector<RaceStats>& raceData,
                 } else {
                     QMessageBox::warning(this, "Stat Points", "You have no remaining stat points to spend.");
                     spinBox->blockSignals(true);
-                    spinBox->setValue(oldValue); 
+                    spinBox->setValue(oldValue);
                     spinBox->blockSignals(false);
                     return; 
                 }
             } else { 
-                this->statPoints -= change; 
+                this->statPoints -= change;
             }
 
             spinBox->setProperty(PROPERTY_PREVIOUS_VALUE, newValue);
             
-            for (const QString& name : STAT_NAMES) {
+            // Sync all spinboxes using the central stat list
+            for (const QString& name : GameStateManager::statNames()) {
                 QSpinBox* otherSpinBox = this->statSpinBoxes.value(name);
                 if (otherSpinBox) {
                     otherSpinBox->blockSignals(true);
@@ -269,7 +272,7 @@ CreateCharacterDialog::CreateCharacterDialog(const QVector<RaceStats>& raceData,
                      this, &CreateCharacterDialog::updateRaceStats);
 
     contentLayout->addLayout(statsLayout);
-    contentLayout->addStretch(1); 
+    contentLayout->addStretch(1);
 
     // Right Column: Guilds
     QVBoxLayout *guildLayout = new QVBoxLayout();
@@ -279,12 +282,12 @@ CreateCharacterDialog::CreateCharacterDialog(const QVector<RaceStats>& raceData,
     guildsTitle->setStyleSheet("font-size: 14pt; font-weight: bold;");
     guildLayout->addWidget(guildsTitle);
 
-    guildsListWidget = new QListWidget(); 
+    guildsListWidget = new QListWidget();
     guildsListWidget->addItems(guildData);
     guildsListWidget->setSelectionMode(QAbstractItemView::SingleSelection);
     guildLayout->addWidget(guildsListWidget);
 
-    updateRaceStats(0); 
+    updateRaceStats(0);
     
     QLabel *selectedGuildLabel = new QLabel("Select a Guild");
     selectedGuildLabel->setStyleSheet("font-weight: bold; padding: 10px; background-color: #e0f7fa; border-radius: 5px; color: #333;");
@@ -321,7 +324,7 @@ CreateCharacterDialog::CreateCharacterDialog(const QVector<RaceStats>& raceData,
 
     mainLayout->addLayout(bottomLayout);
 
-    connect(exitButton, &QPushButton::clicked, this, &CreateCharacterDialog::onExitClicked); 
+    connect(exitButton, &QPushButton::clicked, this, &CreateCharacterDialog::onExitClicked);
     connect(raceStatsButton, &QPushButton::clicked, this, &CreateCharacterDialog::onRaceStatsClicked);
     connect(guildStatsButton, &QPushButton::clicked, this, &CreateCharacterDialog::onGuildStatsClicked);
     connect(saveButton, &QPushButton::clicked, this, &CreateCharacterDialog::onSaveCharacterClicked);
@@ -362,8 +365,12 @@ void CreateCharacterDialog::onSaveCharacterClicked() {
     gsm->setGameValue("CurrentCharacterAlignment", alignmentBox->currentText());
     gsm->setGameValue("CurrentCharacterGuild", selectedGuild);
     
-    for (auto it = statSpinBoxes.constBegin(); it != statSpinBoxes.constEnd(); ++it) {
-        gsm->setGameValue(QString("CurrentCharacter%1").arg(it.key()), it.value()->value());
+    // Use the central list to save values
+    for (const QString& statName : GameStateManager::statNames()) {
+        QSpinBox* spin = statSpinBoxes.value(statName);
+        if (spin) {
+            gsm->setGameValue(QString("CurrentCharacter%1").arg(statName), spin->value());
+        }
     }
     gsm->setGameValue("CurrentCharacterStatPointsLeft", this->statPoints);
 
@@ -378,15 +385,19 @@ void CreateCharacterDialog::onSaveCharacterClicked() {
         out << "Race: " << raceBox->currentText() << "\n";
         out << "Sex: " << sexBox->currentText() << "\n";
         out << "Alignment: " << alignmentBox->currentText() << "\n\n--- STATS ---\n";
-        for (auto it = statSpinBoxes.constBegin(); it != statSpinBoxes.constEnd(); ++it) {
-            out << it.key() << ": " << it.value()->value() << "\n";
+        
+        for (const QString& statName : GameStateManager::statNames()) {
+            QSpinBox* spin = statSpinBoxes.value(statName);
+            if (spin) {
+                out << statName << ": " << spin->value() << "\n";
+            }
         }
         out << "\n--- GUILD ---\nGuild: " << selectedGuild << "\n";
         file.close();
         
         QMessageBox::information(this, "Save Character", QString("Character **%1** saved successfully.").arg(characterName));
-        emit characterCreated(characterName); 
-        QDialog::accept(); 
+        emit characterCreated(characterName);
+        QDialog::accept();
     }
 }
 
