@@ -1,22 +1,21 @@
 #include "createcharacterdialog.h"
 #include "src/race_data/RaceData.h"
-#include "../../GameStateManager.h" 
-
+#include "../../GameStateManager.h"
 #include <QScreen>
 #include <QGuiApplication>
 #include <QMessageBox>
 #include <QFile>
-#include <QTextStream> 
+#include <QTextStream>
 #include <QListWidget>
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QGridLayout>
 #include <QLabel>
 #include <QSpinBox>
-#include <QDebug> 
-#include <QBrush> 
-#include <QColor> 
-#include <QVariant> 
+#include <QDebug>
+#include <QBrush>
+#include <QColor>
+#include <QVariant>
 #include <QDir>
 #include <QCoreApplication>
 #include <QFileInfo>
@@ -24,25 +23,66 @@
 // Global constant for the property key used in the SpinBoxes
 const static char* PROPERTY_PREVIOUS_VALUE = "previousValue";
 
-// Helper function to update alignment options
+// Helper function to update alignment
 void CreateCharacterDialog::updateAlignmentOptions(const RaceStats& race) {
+    // RAII approach to blocking signals: automatically unblocks when 'blocker' goes out of scope
+    QSignalBlocker blocker(this->alignmentBox);
+    
     this->alignmentBox->clear();
-    QStringList alignments;
+
+    const QStringList allAlignments = GameStateManager::alignmentNames();
+    if (allAlignments.size() < 3) return; // Guard against uninitialized data
+
+    // 1. Filter alignments using a mapping strategy
+    QStringList allowed;
+    if (race.good == AS_Allowed)    allowed << allAlignments.at(0);
+    if (race.neutral == AS_Allowed) allowed << allAlignments.at(1);
+    if (race.evil == AS_Allowed)    allowed << allAlignments.at(2);
+
+    if (allowed.isEmpty()) return;
+
+    this->alignmentBox->addItems(allowed);
+
+    // 2. Determine the best default
+    // We prefer the system default if available, otherwise fallback to the first allowed item
+    const QString systemDefault = allAlignments.value(GameStateManager::defaultAlignmentIndex());
+    int defaultIndex = this->alignmentBox->findText(systemDefault);
+    
+    this->alignmentBox->setCurrentIndex(defaultIndex != -1 ? defaultIndex : 0);
+}
+
+/*
+void CreateCharacterDialog::updateAlignmentOptions(const RaceStats& race) {
+    this->alignmentBox->blockSignals(true);
+    this->alignmentBox->clear();
+    // Retrieve the master list of strings from the State Manager
+    QStringList allAlignments = GameStateManager::alignmentNames();
+    QStringList allowedAlignments;
+    // Filter based on RaceData permissions
     if (race.good == AS_Allowed) { 
-        alignments.append("Good");
+        allowedAlignments.append(allAlignments.at(0)); // Good
     }
     if (race.neutral == AS_Allowed) {
-        alignments.append("Neutral");
+        allowedAlignments.append(allAlignments.at(1)); // Neutral
     }
     if (race.evil == AS_Allowed) {
-        alignments.append("Evil");
+        allowedAlignments.append(allAlignments.at(2)); // Evil
     }
-    this->alignmentBox->addItems(alignments);
-    
+    this->alignmentBox->addItems(allowedAlignments);
+    // Logic to select the best default for the race
     if (this->alignmentBox->count() > 0) {
-        this->alignmentBox->setCurrentIndex(0);
+        QString defaultName = allAlignments.at(GameStateManager::defaultAlignmentIndex());
+        int index = this->alignmentBox->findText(defaultName);
+        // If "Neutral" is allowed, select it; otherwise, select the first available option
+        if (index != -1) {
+            this->alignmentBox->setCurrentIndex(index);
+        } else {
+            this->alignmentBox->setCurrentIndex(0);
+        }
     }
+    this->alignmentBox->blockSignals(false);
 }
+*/
 
 // Helper to update guild list styling based on race eligibility
 void CreateCharacterDialog::updateGuildListStyle(const RaceStats& race) {
@@ -172,7 +212,7 @@ CreateCharacterDialog::CreateCharacterDialog(const QVector<RaceStats>& raceData,
 
     infoLayout->addWidget(new QLabel("Sex"), 4, 0);
     sexBox = new QComboBox();
-    sexBox->addItems({"Male", "Female"});
+    sexBox->addItems(GameStateManager::sexOptions());
     infoLayout->addWidget(sexBox, 5, 0, 1, 2);
 
     infoLayout->addWidget(new QLabel("Alignment"), 6, 0);

@@ -45,6 +45,15 @@ public:
         return {"Strength", "Intelligence", "Wisdom", "Constitution", "Charisma", "Dexterity"};
     }
     static int defaultStatPoints() { return 5; }
+    static QStringList alignmentNames() {
+        return {"Good", "Neutral", "Evil"};
+    }
+    static QStringList sexOptions() {
+        return {"Male", "Female"};
+    }
+    static int defaultAlignmentIndex() { 
+        return 1; // Default to "Neutral"
+    }
 };
 
 #endif // GAMESTATEMANAGER_H

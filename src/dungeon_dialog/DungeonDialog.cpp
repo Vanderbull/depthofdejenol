@@ -190,8 +190,30 @@ void DungeonDialog::handleChute(int x, int y)
 
 void DungeonDialog::drawMinimap()
 {
+    QString fogPath = "resources/images/minimap/fog.png";
+    QString antimagicPath = "resources/images/minimap/antimagic.png";
+    QString chutePath = "resources/images/minimap/chute.png";
+    QString extinguisherPath = "resources/images/minimap/extinguisher.png";
+    QString rotatorPath = "resources/images/minimap/rotator.png";
+    QString rockPath = "resources/images/minimap/rock.png";
+    QString studPath = "resources/images/minimap/stud.png";
+    QString teleporterPath = "resources/images/minimap/teleporter.png";
+    QString stairsdownPath = "resources/images/minimap/stairsdown.png";
+    QString waterPath = "resources/images/minimap/water.png";
+
+    QPixmap fogPixmap(fogPath);
+    // Check if the image loaded correctly for debugging
+    if (fogPixmap.isNull()) {
+        qDebug() << "Error: Fog image not found at" << fogPath;
+    }
+
+    // Scale the image once to 10x10 pixels (TILE_SIZE)
+    QPixmap scaledFog = fogPixmap.scaled(TILE_SIZE, TILE_SIZE, 
+                                         Qt::IgnoreAspectRatio, 
+                                         Qt::SmoothTransformation);
+
+
     GameStateManager* gsm = GameStateManager::instance();
-    
     // Retrieve player position from GameState
     int currentX = gsm->getGameValue("DungeonX").toInt();
     int currentY = gsm->getGameValue("DungeonY").toInt();
@@ -261,6 +283,22 @@ void DungeonDialog::drawMinimap()
     }
 
     // 8. Draw Fog of War Overlay
+    for (int x = 0; x < MAP_SIZE; ++x) { //
+        for (int y = 0; y < MAP_SIZE; ++y) { //
+            if (!m_visitedTiles.contains({x, y})) { //
+                if (!fogPixmap.isNull()) {
+                    // Use the image tile
+                    QGraphicsPixmapItem* fogTile = scene->addPixmap(scaledFog);
+                    fogTile->setPos(x * TILE_SIZE, y * TILE_SIZE);
+                } else {
+                    // Fallback to semi-transparent black if image is missing
+                    scene->addRect(x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE, 
+                                   Qt::NoPen, QBrush(QColor(0, 0, 0, 220))); 
+                }
+            }
+        }
+    }
+ /*
     for (int x = 0; x < MAP_SIZE; ++x) {
         for (int y = 0; y < MAP_SIZE; ++y) {
             if (!m_visitedTiles.contains({x, y})) {
@@ -270,7 +308,7 @@ void DungeonDialog::drawMinimap()
             }
         }
     }
-
+*/
     // 9. Draw Player Arrow (Blue)
     QGraphicsPolygonItem* playerArrow = new QGraphicsPolygonItem();
     QPolygonF arrowHead;

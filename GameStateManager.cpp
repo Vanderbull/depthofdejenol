@@ -18,6 +18,8 @@ GameStateManager* GameStateManager::instance()
 GameStateManager::GameStateManager(QObject *parent)
     : QObject(parent)
 {
+    m_gameStateData["CurrentCharacterSex"] = GameStateManager::sexOptions().at(0);
+    m_gameStateData["CurrentCharacterAlignment"] = GameStateManager::alignmentNames().at(GameStateManager::defaultAlignmentIndex());
     m_gameStateData["CurrentCharacterStatPointsLeft"] = GameStateManager::defaultStatPoints();
     // Max ages for each race
     m_gameStateData["MaxHumanAge"] = 100;
@@ -51,8 +53,6 @@ GameStateManager::GameStateManager(QObject *parent)
     // Character Stats
     m_gameStateData["CurrentCharacterName"] = "";
     m_gameStateData["CurrentCharacterRace"] = "";
-    m_gameStateData["CurrentCharacterSex"] = "";
-    m_gameStateData["CurrentCharacterAlignment"] = "";
     m_gameStateData["CurrentCharacterGuild"] = "";
     m_gameStateData["CurrentCharacterStrength"] = 0;
     m_gameStateData["CurrentCharacterIntelligence"] = 0;
