@@ -85,7 +85,7 @@ void CharacterDialog::setupUi() {
     QVBoxLayout *lookLayout = new QVBoxLayout(lookTab);
     QVBoxLayout *miscLayout = new QVBoxLayout(miscTab);
     QVBoxLayout *statsLayout = new QVBoxLayout(statsTab);
-    QVBoxLayout *resistanceLayout = new QVBoxLayout(resistanceTab);
+    //QVBoxLayout *resistanceLayout = new QVBoxLayout(resistanceTab);
     QVBoxLayout *charLayout = new QVBoxLayout(charTab);
 
     // Identity Header (Class and Level)
@@ -133,6 +133,21 @@ void CharacterDialog::setupUi() {
     if (GSM->isCharacterBlinded())  buffsLayout->addWidget(new QLabel("Blinded"));
     if (!GSM->isCharacterPoisoned() && !GSM->isCharacterBlinded()) buffsLayout->addWidget(new QLabel("Status: Normal"));
     buffsLayout->addStretch();
+
+    // --- Resistance Tab ---
+    QVBoxLayout *resistanceLayout = new QVBoxLayout(resistanceTab);
+    resistanceLayout->addWidget(new QLabel("Current Resistance"));
+    resistanceLayout->addWidget(new QLabel("Fire             -"));
+    resistanceLayout->addWidget(new QLabel("Cold             -"));
+    resistanceLayout->addWidget(new QLabel("Electrical       -"));
+    resistanceLayout->addWidget(new QLabel("Mind             -"));
+    resistanceLayout->addWidget(new QLabel("Disease          -"));
+    resistanceLayout->addWidget(new QLabel("Poison           -"));
+    resistanceLayout->addWidget(new QLabel("Magic            -"));
+    resistanceLayout->addWidget(new QLabel("Stone            -"));
+    resistanceLayout->addWidget(new QLabel("Paralysis        -"));
+    resistanceLayout->addWidget(new QLabel("Drain            -"));
+    resistanceLayout->addWidget(new QLabel("Acid             -"));
 
     // --- 3. Guild Tab ---
     QVBoxLayout *guildLayout = new QVBoxLayout(guildTab);
