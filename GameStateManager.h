@@ -41,6 +41,9 @@ public:
     bool isCharacterPoisoned() const;
     void setCharacterBlinded(bool isBlinded);
     bool isCharacterBlinded() const;
+    static QStringList statNames() {
+        return {"Strength", "Intelligence", "Wisdom", "Constitution", "Charisma", "Dexterity"};
+    }
 };
 
 #endif // GAMESTATEMANAGER_H
