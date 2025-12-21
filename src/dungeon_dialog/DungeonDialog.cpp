@@ -108,10 +108,10 @@ void DungeonDialog::movePlayer(int dx, int dy)
     
     updateLocation(QString("Dungeon Level %1, (%2, %3)").arg(currentLevel).arg(newX).arg(newY));
 
-    if (dy < 0) updateCompass("North");
-    else if (dy > 0) updateCompass("South");
-    else if (dx < 0) updateCompass("West");
-    else if (dx > 0) updateCompass("East");
+//    if (dy < 0) updateCompass("North");
+//    else if (dy > 0) updateCompass("South");
+//    else if (dx < 0) updateCompass("West");
+//    else if (dx > 0) updateCompass("East");
 
     updateMinimap(newX, newY);
     handleEncounter(newX, newY);
@@ -545,11 +545,15 @@ DungeonDialog::DungeonDialog(QWidget *parent)
     logMessage(QString("Welcome, **%1** (the %2 %3), to the Dungeon!").arg(m_partyLeaderName).arg(m_partyLeaderAlignment).arg(m_partyLeaderRace));
     enterLevel(initialLevel); // Use initialLevel retrieved from GameState
     
-    // Connections (Movements - simple direct move calls for now)
-    connect(upButton, &QPushButton::clicked, [this](){ movePlayer(0, -1); });
-    connect(downButton, &QPushButton::clicked, [this](){ movePlayer(0, 1); });
-    connect(leftButton, &QPushButton::clicked, [this](){ movePlayer(-1, 0); });
-    connect(rightButton, &QPushButton::clicked, [this](){ movePlayer(1, 0); });
+    // Connections (Movements)
+    connect(upButton, &QPushButton::clicked, this, &DungeonDialog::moveForward);
+    connect(downButton, &QPushButton::clicked, this, &DungeonDialog::moveBackward);
+    //connect(upButton, &QPushButton::clicked, [this](){ movePlayer(0, -1); });
+    //connect(downButton, &QPushButton::clicked, [this](){ movePlayer(0, 1); });
+    connect(leftButton, &QPushButton::clicked, this, &DungeonDialog::moveStepLeft);  // Updated
+    connect(rightButton, &QPushButton::clicked, this, &DungeonDialog::moveStepRight); // Updated
+    //connect(leftButton, &QPushButton::clicked, [this](){ movePlayer(-1, 0); });
+    //connect(rightButton, &QPushButton::clicked, [this](){ movePlayer(1, 0); });
     connect(rotateLeftButton, &QPushButton::clicked, this, &DungeonDialog::on_rotateLeftButton_clicked);
     connect(rotateRightButton, &QPushButton::clicked, this, &DungeonDialog::on_rotateRightButton_clicked);
     
@@ -807,4 +811,43 @@ void DungeonDialog::on_rotateRightButton_clicked()
     QString newDir = directions[nextIndex].mid(7);
     updateCompass(newDir);
     logMessage(QString("You turn to the right."));
+}
+void DungeonDialog::moveForward()
+{
+    QString currentFacing = m_compassLabel->text();
+
+    if (currentFacing == "Facing North") movePlayer(0, -1);
+    else if (currentFacing == "Facing South") movePlayer(0, 1);
+    else if (currentFacing == "Facing East") movePlayer(1, 0);
+    else if (currentFacing == "Facing West") movePlayer(-1, 0);
+}
+
+void DungeonDialog::moveBackward()
+{
+    QString currentFacing = m_compassLabel->text();
+
+    // Backward is the inverse of the forward vector
+    if (currentFacing == "Facing North") movePlayer(0, 1);
+    else if (currentFacing == "Facing South") movePlayer(0, -1);
+    else if (currentFacing == "Facing East") movePlayer(-1, 0);
+    else if (currentFacing == "Facing West") movePlayer(1, 0);
+}
+void DungeonDialog::moveStepLeft()
+{
+    QString currentFacing = m_compassLabel->text();
+
+    if (currentFacing == "Facing North")      movePlayer(-1, 0); // West
+    else if (currentFacing == "Facing South") movePlayer(1, 0);  // East
+    else if (currentFacing == "Facing East")  movePlayer(0, -1); // North
+    else if (currentFacing == "Facing West")  movePlayer(0, 1);  // South
+}
+
+void DungeonDialog::moveStepRight()
+{
+    QString currentFacing = m_compassLabel->text();
+
+    if (currentFacing == "Facing North")      movePlayer(1, 0);  // East
+    else if (currentFacing == "Facing South") movePlayer(-1, 0); // West
+    else if (currentFacing == "Facing East")  movePlayer(0, 1);  // South
+    else if (currentFacing == "Facing West")  movePlayer(0, -1); // North
 }

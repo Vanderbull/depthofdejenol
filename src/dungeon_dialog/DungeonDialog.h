@@ -47,6 +47,12 @@ signals:
     void exitedDungeonToCity();
 
 private slots:
+    // --- NEW MOVEMENT SLOTS ---
+    void moveForward();
+    void moveBackward();
+    void moveStepLeft();  // NEW: Sidestep left
+    void moveStepRight(); // NEW: Sidestep right
+
     void on_rotateLeftButton_clicked();
     void on_rotateRightButton_clicked();
     void on_teleportButton_clicked();
