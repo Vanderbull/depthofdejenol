@@ -226,6 +226,24 @@ void DungeonDialog::drawMinimap()
             }
         }
     }
+
+// Draw Breadcrumb Trail
+    for (int i = 0; i < m_breadcrumbPath.size(); ++i) {
+        QPair<int, int> pos = m_breadcrumbPath.at(i);
+        
+        // Calculate opacity so older dots fade out
+        int opacity = static_cast<int>((static_cast<float>(i) / m_breadcrumbPath.size()) * 150);
+        
+        // Draw a small subtle dot in the center of the tile
+        scene->addEllipse(pos.first * TILE_SIZE + (TILE_SIZE / 3), 
+                          pos.second * TILE_SIZE + (TILE_SIZE / 3), 
+                          TILE_SIZE / 4, TILE_SIZE / 4, 
+                          Qt::NoPen, 
+                          QBrush(QColor(0, 200, 255, opacity))); // Fading cyan trail
+    }
+
+
+
     // 9. Draw Player Arrow (Blue)
     QGraphicsPolygonItem* playerArrow = new QGraphicsPolygonItem();
     QPolygonF arrowHead;

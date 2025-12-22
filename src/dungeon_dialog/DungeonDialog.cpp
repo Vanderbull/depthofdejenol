@@ -127,6 +127,12 @@ void DungeonDialog::movePlayer(int dx, int dy)
         return;
     }
 
+    // Record current position as a breadcrumb before moving
+    m_breadcrumbPath.append({currentX, currentY});
+    if (m_breadcrumbPath.size() > MAX_BREADCRUMBS) {
+        m_breadcrumbPath.removeFirst(); // Keep the trail from getting too long
+    }
+
     gsm->setGameValue("DungeonX", newX);
     gsm->setGameValue("DungeonY", newY);
     

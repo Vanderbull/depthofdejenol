@@ -82,6 +82,9 @@ private slots:
 
 
 private:
+    QList<QPair<int, int>> m_breadcrumbPath; // Stores the history of player positions
+    const int MAX_BREADCRUMBS = 50;           // Limits the length of the trail
+
     enum MonsterAttitude {
         Hostile,
         Neutral,
