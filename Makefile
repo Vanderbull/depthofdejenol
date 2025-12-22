@@ -84,6 +84,7 @@ SOURCES       = game_menu.cpp \
 		src/bank_dialog/TradeDialog.cpp \
 		src/game_resources.cpp \
 		GameStateManager.cpp \
+		src/dungeon_dialog/DungeonMinimap.cpp \
 		src/event/EventManager.cpp build/moc/moc_game_menu.cpp \
 		build/moc/moc_hallofrecordsdialog.cpp \
 		build/moc/moc_createcharacterdialog.cpp \
@@ -147,6 +148,7 @@ OBJECTS       = build/obj/release/game_menu.o \
 		build/obj/release/TradeDialog.o \
 		build/obj/release/game_resources.o \
 		build/obj/release/GameStateManager.o \
+		build/obj/release/DungeonMinimap.o \
 		build/obj/release/EventManager.o \
 		build/obj/release/moc_game_menu.o \
 		build/obj/release/moc_hallofrecordsdialog.o \
@@ -541,6 +543,7 @@ DIST          = .gitignore \
 		src/bank_dialog/TradeDialog.cpp \
 		src/game_resources.cpp \
 		GameStateManager.cpp \
+		src/dungeon_dialog/DungeonMinimap.cpp \
 		src/event/EventManager.cpp
 QMAKE_TARGET  = game_menu
 DESTDIR       = build/bin/
@@ -1180,7 +1183,7 @@ distdir: FORCE
 	$(COPY_FILE) --parents $(DIST) $(DISTDIR)/
 	$(COPY_FILE) --parents /usr/lib/x86_64-linux-gnu/qt6/mkspecs/features/data/dummy.cpp $(DISTDIR)/
 	$(COPY_FILE) --parents game_menu.h src/hall_of_records/hallofrecordsdialog.h src/create_character/createcharacterdialog.h src/about_dialog/AboutDialog.h src/character_dialog/CharacterDialog.h src/message_window/MessageWindow.h tools/monster_editor/MonsterEditorDialog.h src/sender_window/SenderWindow.h tools/spellbook_editor/SpellbookEditorDialog.h src/library_dialog/library_dialog.h src/automap/automap_dialog.h src/game_controller/game_controller.h src/characterlist_dialog/characterlistdialog.h src/helplesson/helplesson.h src/mordorstatistics/mordorstatistics.h src/loadingscreen/LoadingScreen.h src/guilds_dialog/GuildsDialog.h src/general_store/GeneralStore.h TheCity.h src/morgue_dialog/MorgueDialog.h src/seer_dialog/SeerDialog.h src/confinement_dialog/ConfinementDialog.h src/bank_dialog/BankDialog.h src/race_data/RaceData.h src/inventory_dialog/inventorydialog.h src/options_dialog/optionsdialog.h src/dungeon_dialog/DungeonDialog.h src/partyinfo_dialog/partyinfodialog.h src/dungeonmap/dungeonmap.h src/bank_dialog/TradeDialog.h include/game_resources.h GameStateManager.h src/event/EventManager.h $(DISTDIR)/
-	$(COPY_FILE) --parents game_menu.cpp src/hall_of_records/hallofrecordsdialog.cpp src/create_character/createcharacterdialog.cpp src/about_dialog/AboutDialog.cpp src/character_dialog/CharacterDialog.cpp src/message_window/MessageWindow.cpp tools/monster_editor/MonsterEditorDialog.cpp src/sender_window/SenderWindow.cpp tools/spellbook_editor/SpellbookEditorDialog.cpp src/library_dialog/library_dialog.cpp src/automap/automap_dialog.cpp src/game_controller/game_controller.cpp src/characterlist_dialog/characterlistdialog.cpp src/helplesson/helplesson.cpp src/mordorstatistics/mordorstatistics.cpp src/loadingscreen/LoadingScreen.cpp src/guilds_dialog/GuildsDialog.cpp src/general_store/GeneralStore.cpp TheCity.cpp src/morgue_dialog/MorgueDialog.cpp src/seer_dialog/SeerDialog.cpp src/confinement_dialog/ConfinementDialog.cpp src/bank_dialog/BankDialog.cpp src/race_data/RaceData.cpp src/inventory_dialog/inventorydialog.cpp src/options_dialog/optionsdialog.cpp src/dungeon_dialog/DungeonDialog.cpp src/partyinfo_dialog/partyinfodialog.cpp src/dungeonmap/dungeonmap.cpp src/bank_dialog/TradeDialog.cpp src/game_resources.cpp GameStateManager.cpp src/event/EventManager.cpp $(DISTDIR)/
+	$(COPY_FILE) --parents game_menu.cpp src/hall_of_records/hallofrecordsdialog.cpp src/create_character/createcharacterdialog.cpp src/about_dialog/AboutDialog.cpp src/character_dialog/CharacterDialog.cpp src/message_window/MessageWindow.cpp tools/monster_editor/MonsterEditorDialog.cpp src/sender_window/SenderWindow.cpp tools/spellbook_editor/SpellbookEditorDialog.cpp src/library_dialog/library_dialog.cpp src/automap/automap_dialog.cpp src/game_controller/game_controller.cpp src/characterlist_dialog/characterlistdialog.cpp src/helplesson/helplesson.cpp src/mordorstatistics/mordorstatistics.cpp src/loadingscreen/LoadingScreen.cpp src/guilds_dialog/GuildsDialog.cpp src/general_store/GeneralStore.cpp TheCity.cpp src/morgue_dialog/MorgueDialog.cpp src/seer_dialog/SeerDialog.cpp src/confinement_dialog/ConfinementDialog.cpp src/bank_dialog/BankDialog.cpp src/race_data/RaceData.cpp src/inventory_dialog/inventorydialog.cpp src/options_dialog/optionsdialog.cpp src/dungeon_dialog/DungeonDialog.cpp src/partyinfo_dialog/partyinfodialog.cpp src/dungeonmap/dungeonmap.cpp src/bank_dialog/TradeDialog.cpp src/game_resources.cpp GameStateManager.cpp src/dungeon_dialog/DungeonMinimap.cpp src/event/EventManager.cpp $(DISTDIR)/
 
 
 clean: compiler_clean 
@@ -1566,6 +1569,12 @@ build/obj/release/game_resources.o: src/game_resources.cpp include/game_resource
 
 build/obj/release/GameStateManager.o: GameStateManager.cpp GameStateManager.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/GameStateManager.o GameStateManager.cpp
+
+build/obj/release/DungeonMinimap.o: src/dungeon_dialog/DungeonMinimap.cpp src/dungeon_dialog/DungeonDialog.h \
+		src/partyinfo_dialog/partyinfodialog.h \
+		GameStateManager.h \
+		src/event/EventManager.h
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/DungeonMinimap.o src/dungeon_dialog/DungeonMinimap.cpp
 
 build/obj/release/EventManager.o: src/event/EventManager.cpp src/event/EventManager.h \
 		GameStateManager.h

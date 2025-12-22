@@ -83,7 +83,8 @@ SOURCES += game_menu.cpp \
     src/dungeonmap/dungeonmap.cpp \ 
     src/bank_dialog/TradeDialog.cpp \
     src/game_resources.cpp \
-    GameStateManager.cpp
+    GameStateManager.cpp \
+    src/dungeon_dialog/DungeonMinimap.cpp
 SOURCES += src/event/EventManager.cpp
 
 HEADERS += game_menu.h \
