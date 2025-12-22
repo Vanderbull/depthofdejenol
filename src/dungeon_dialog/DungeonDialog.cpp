@@ -540,6 +540,7 @@ DungeonDialog::~DungeonDialog()
 
 void DungeonDialog::enterLevel(int level)
 {
+    m_breadcrumbPath.clear();
     m_visitedTiles.clear(); // Wipe map memory for the new floor
     GameStateManager* gsm = GameStateManager::instance();
     int startX = MAP_SIZE / 2; //
