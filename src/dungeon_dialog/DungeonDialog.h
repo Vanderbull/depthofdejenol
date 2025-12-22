@@ -130,23 +130,21 @@ private:
     void generateRandomObstacles(int obstacleCount, QRandomGenerator& rng);
     void generateStairs(QRandomGenerator& rng); 
     void generateSpecialTiles(int tileCount, QRandomGenerator& rng);
-    //void generateRandomObstacles(int obstacleCount);
-    //void generateStairs(); 
-    //void generateSpecialTiles(int tileCount); 
 
     QPair<int, int> m_stairsUpPosition; 
     QPair<int, int> m_stairsDownPosition; 
 
     // Special Tile Position Sets (Combined list)
-    QSet<QPair<int, int>> m_antimagicPositions;
-    QSet<QPair<int, int>> m_extinguisherPositions;
-    QSet<QPair<int, int>> m_fogPositions;
-    QSet<QPair<int, int>> m_pitPositions;
-    QSet<QPair<int, int>> m_rotatorPositions;
-    QSet<QPair<int, int>> m_studPositions;
-    QSet<QPair<int, int>> m_chutePositions;
-    QSet<QPair<int, int>> m_teleportPositions; 
-    QSet<QPair<int, int>> m_waterPositions;    
+    QSet<QPair<int, int>> m_antimagicPositions; // implemented
+    QSet<QPair<int, int>> m_extinguisherPositions; // implemented 
+    QSet<QPair<int, int>> m_fogPositions; // implemented
+    QSet<QPair<int, int>> m_pitPositions; // implemented
+    QSet<QPair<int, int>> m_rotatorPositions; // implemented
+    QSet<QPair<int, int>> m_studPositions; // implemented
+    QSet<QPair<int, int>> m_chutePositions; // implemeted
+    QSet<QPair<int, int>> m_teleportPositions; // implemented
+    QSet<QPair<int, int>> m_waterPositions; // implemented
+    QSet<QPair<int, int>> m_teleporterPositions; // implemented
     
     // Map data
     // In the private section of DungeonDialog class
@@ -169,7 +167,6 @@ private:
     void logMessage(const QString& message); 
     void keyPressEvent(QKeyEvent *event) override;
     void spawnMonsters(const QString& monsterType, int count);
-    
 };
 
 #endif // DUNGEONDIALOG_H
