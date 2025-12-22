@@ -217,15 +217,22 @@ void DungeonDialog::handleChute(int x, int y)
         enterLevel(nextLevel);
     }
 }
-void DungeonDialog::generateRandomObstacles(int obstacleCount)
+void DungeonDialog::generateRandomObstacles(int obstacleCount, QRandomGenerator& rng)
 {
+    m_obstaclePositions.clear();
+    for (int i = 0; i < obstacleCount; ++i) {
+        int x = rng.bounded(MAP_SIZE);
+        int y = rng.bounded(MAP_SIZE);
+        m_obstaclePositions.insert({x, y});
+    }
+/*
     m_obstaclePositions.clear(); // This member is now confirmed in the header
     for (int i = 0; i < obstacleCount; ++i) {
         int x = QRandomGenerator::global()->bounded(MAP_SIZE);
         int y = QRandomGenerator::global()->bounded(MAP_SIZE);
         m_obstaclePositions.insert({x, y});
     }
-    
+*/    
     // UPDATED: Get player position from GameState
     GameStateManager* gsm = GameStateManager::instance();
     int currentX = gsm->getGameValue("DungeonX").toInt();
@@ -233,7 +240,7 @@ void DungeonDialog::generateRandomObstacles(int obstacleCount)
     m_obstaclePositions.remove({currentX, currentY});
 }
 
-void DungeonDialog::generateStairs()
+void DungeonDialog::generateStairs(QRandomGenerator& rng)
 {
     GameStateManager* gsm = GameStateManager::instance();
     int currentX = gsm->getGameValue("DungeonX").toInt();
@@ -241,18 +248,20 @@ void DungeonDialog::generateStairs()
     QPair<int, int> currentPos = {currentX, currentY};
     
     do {
-        m_stairsUpPosition = {QRandomGenerator::global()->bounded(MAP_SIZE), QRandomGenerator::global()->bounded(MAP_SIZE)};
+        m_stairsUpPosition = {rng.bounded(MAP_SIZE), rng.bounded(MAP_SIZE)};
+        //m_stairsUpPosition = {QRandomGenerator::global()->bounded(MAP_SIZE), QRandomGenerator::global()->bounded(MAP_SIZE)};
     } while (m_stairsUpPosition == currentPos || m_obstaclePositions.contains(m_stairsUpPosition));
 
     do {
-        m_stairsDownPosition = {QRandomGenerator::global()->bounded(MAP_SIZE), QRandomGenerator::global()->bounded(MAP_SIZE)};
+        m_stairsDownPosition = {rng.bounded(MAP_SIZE), rng.bounded(MAP_SIZE)};
+        //m_stairsDownPosition = {QRandomGenerator::global()->bounded(MAP_SIZE), QRandomGenerator::global()->bounded(MAP_SIZE)};
     } while (m_stairsDownPosition == currentPos || m_stairsDownPosition == m_stairsUpPosition || m_obstaclePositions.contains(m_stairsDownPosition));
     
     m_obstaclePositions.remove(m_stairsUpPosition);
     m_obstaclePositions.remove(m_stairsDownPosition);
 }
 
-void DungeonDialog::generateSpecialTiles(int tileCount)
+void DungeonDialog::generateSpecialTiles(int tileCount, QRandomGenerator& rng)
 {
     m_antimagicPositions.clear();
     m_extinguisherPositions.clear();
@@ -279,14 +288,15 @@ void DungeonDialog::generateSpecialTiles(int tileCount)
         int x, y;
         QPair<int, int> pos;
         do {
-            x = QRandomGenerator::global()->bounded(MAP_SIZE);
-            y = QRandomGenerator::global()->bounded(MAP_SIZE);
+            x = rng.bounded(MAP_SIZE);//QRandomGenerator::global()->bounded(MAP_SIZE);
+            y = rng.bounded(MAP_SIZE);//QRandomGenerator::global()->bounded(MAP_SIZE);
             pos = {x, y};
             // Ensure we don't spawn things on walls, the player, or stairs
         } while (m_obstaclePositions.contains(pos) || pos == currentPos || 
                  m_stairsUpPosition == pos || m_stairsDownPosition == pos);
 
-        int type = QRandomGenerator::global()->bounded(6); 
+        int type = rng.bounded(6);
+        //int type = QRandomGenerator::global()->bounded(6); 
 
         if (type == 0) {
             QStringList monsters = {"Kobold", "Orc", "Giant Spider"};
@@ -433,9 +443,15 @@ DungeonDialog::DungeonDialog(QWidget *parent)
     rightPanelLayout->addWidget(minimapBox);
     
     // Initialize map state and draw the initial view
-    generateRandomObstacles(50); 
-    generateStairs();
-    generateSpecialTiles(10);
+    QRandomGenerator initialRng(1 + 12345); 
+
+    // 2. Pass 'initialRng' to the functions as the second argument
+    generateRandomObstacles(50, initialRng);  
+    generateStairs(initialRng);               
+    generateSpecialTiles(10, initialRng);     
+//    generateRandomObstacles(50); 
+//    generateStairs();
+//    generateSpecialTiles(10);
     drawMinimap(); 
     
     // 4. Action Buttons
@@ -556,10 +572,19 @@ void DungeonDialog::enterLevel(int level)
     int newX = MAP_SIZE / 2;
     int newY = MAP_SIZE / 2;
 
+// Initialize a seeded generator for this level
+    // We add a large constant to the seed to ensure level 0 doesn't produce "default" patterns
+    QRandomGenerator levelRng(level + 12345); 
+
+    // Pass the seeded generator to all generation functions
+    generateRandomObstacles(50 + level * 5, levelRng); 
+    generateStairs(levelRng);
+    generateSpecialTiles(10 + level * 2, levelRng);
+    
     // Regenerate the dungeon map for the new level
-    generateRandomObstacles(50 + level * 5); 
-    generateStairs();
-    generateSpecialTiles(10 + level * 2);
+    //generateRandomObstacles(50 + level * 5); 
+    //generateStairs();
+    //generateSpecialTiles(10 + level * 2);
 
     updateLocation(QString("Dungeon Level %1, (%2, %3)").arg(level).arg(newX).arg(newY));
     updateCompass("North");

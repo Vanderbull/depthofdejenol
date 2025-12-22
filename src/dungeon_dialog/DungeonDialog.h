@@ -14,6 +14,7 @@
 #include <QSet>
 #include <QPair>
 #include <QTableWidget>
+#include <QRandomGenerator>
 #include "src/partyinfo_dialog/partyinfodialog.h"
 #include "../event/EventManager.h"
 #include "../../GameStateManager.h"
@@ -126,9 +127,12 @@ private:
 
     // Map generation/management
     QSet<QPair<int, int>> m_obstaclePositions;
-    void generateRandomObstacles(int obstacleCount);
-    void generateStairs(); 
-    void generateSpecialTiles(int tileCount); 
+    void generateRandomObstacles(int obstacleCount, QRandomGenerator& rng);
+    void generateStairs(QRandomGenerator& rng); 
+    void generateSpecialTiles(int tileCount, QRandomGenerator& rng);
+    //void generateRandomObstacles(int obstacleCount);
+    //void generateStairs(); 
+    //void generateSpecialTiles(int tileCount); 
 
     QPair<int, int> m_stairsUpPosition; 
     QPair<int, int> m_stairsDownPosition; 
