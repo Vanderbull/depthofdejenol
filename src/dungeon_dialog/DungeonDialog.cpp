@@ -225,14 +225,6 @@ void DungeonDialog::generateRandomObstacles(int obstacleCount, QRandomGenerator&
         int y = rng.bounded(MAP_SIZE);
         m_obstaclePositions.insert({x, y});
     }
-/*
-    m_obstaclePositions.clear(); // This member is now confirmed in the header
-    for (int i = 0; i < obstacleCount; ++i) {
-        int x = QRandomGenerator::global()->bounded(MAP_SIZE);
-        int y = QRandomGenerator::global()->bounded(MAP_SIZE);
-        m_obstaclePositions.insert({x, y});
-    }
-*/    
     // UPDATED: Get player position from GameState
     GameStateManager* gsm = GameStateManager::instance();
     int currentX = gsm->getGameValue("DungeonX").toInt();
@@ -274,46 +266,70 @@ void DungeonDialog::generateSpecialTiles(int tileCount, QRandomGenerator& rng)
     m_treasurePositions.clear();
     m_trapPositions.clear();
     m_MonsterAttitude.clear();
+    m_waterPositions.clear();
+    m_teleporterPositions.clear();
+
+    GameStateManager* gsm = GameStateManager::instance();
+    QPair<int, int> currentPos = {gsm->getGameValue("DungeonX").toInt(), gsm->getGameValue("DungeonY").toInt()};
 
     m_MonsterAttitude["Kobold"] = "Wary";
     m_MonsterAttitude["Orc"] = "Hostile";
     m_MonsterAttitude["Giant Spider"] = "Aggressive";
 
-    GameStateManager* gsm = GameStateManager::instance();
-    int currentX = gsm->getGameValue("DungeonX").toInt();
-    int currentY = gsm->getGameValue("DungeonY").toInt();
-    QPair<int, int> currentPos = {currentX, currentY};
-
-    for (int i = 0; i < tileCount; ++i) {
+    auto getValidPos = [&]() -> QPair<int, int> {
         int x, y;
-        QPair<int, int> pos;
+        QPair<int, int> p;
         do {
-            x = rng.bounded(MAP_SIZE);//QRandomGenerator::global()->bounded(MAP_SIZE);
-            y = rng.bounded(MAP_SIZE);//QRandomGenerator::global()->bounded(MAP_SIZE);
-            pos = {x, y};
+            x = rng.bounded(MAP_SIZE);
+            y = rng.bounded(MAP_SIZE);
+            p = {x, y};
             // Ensure we don't spawn things on walls, the player, or stairs
-        } while (m_obstaclePositions.contains(pos) || pos == currentPos || 
-                 m_stairsUpPosition == pos || m_stairsDownPosition == pos);
+        } while (m_obstaclePositions.contains(p) || p == currentPos || 
+                 m_stairsUpPosition == p || m_stairsDownPosition == p ||
+                 m_monsterPositions.contains(p) || m_treasurePositions.contains(p) ||
+                 m_antimagicPositions.contains(p) || m_waterPositions.contains(p) ||
+                 m_teleportPositions.contains(p) || m_chutePositions.contains(p) ||
+                 m_rotatorPositions.contains(p) || m_studPositions.contains(p));
+        return p;
+    };
 
-        int type = rng.bounded(6);
-        //int type = QRandomGenerator::global()->bounded(6); 
+    // 2. Guarantee at least 10 of each specific "Image" tile
+    for (int i = 0; i < 10; ++i) {
+        m_antimagicPositions.insert(getValidPos());
+        m_waterPositions.insert(getValidPos());
+        m_teleportPositions.insert(getValidPos());
+        m_chutePositions.insert(getValidPos());
+        m_extinguisherPositions.insert(getValidPos());
+        m_rotatorPositions.insert(getValidPos());
+        m_studPositions.insert(getValidPos());
+    }   
+
+    // 3. Generate additional random tiles based on the requested tileCount
+    for (int i = 0; i < tileCount; ++i) {
+        QPair<int, int> tilePos = getValidPos();
+        int type = rng.bounded(10); 
 
         if (type == 0) {
             QStringList monsters = {"Kobold", "Orc", "Giant Spider"};
-            m_monsterPositions.insert(pos, monsters.at(QRandomGenerator::global()->bounded(monsters.size())));
+            m_monsterPositions.insert(tilePos, monsters.at(QRandomGenerator::global()->bounded(monsters.size())));
         } else if (type == 1) {
             QStringList treasures = {"Small Pouch of Gold", "Rusty Key", "Flickering Torch"};
-            m_treasurePositions.insert(pos, treasures.at(QRandomGenerator::global()->bounded(treasures.size())));
+            m_treasurePositions.insert(tilePos, treasures.at(QRandomGenerator::global()->bounded(treasures.size())));
         } else if (type == 2) {
             QStringList traps = {"Spike Trap", "Poison Gas Trap", "Net Trap"};
-            m_trapPositions.insert(pos, traps.at(QRandomGenerator::global()->bounded(traps.size())));
+            m_trapPositions.insert(tilePos, traps.at(QRandomGenerator::global()->bounded(traps.size())));
         } else if (type == 3) {
-            // NEW: Add to chute positions
-            m_chutePositions.insert(pos);
-        } else if (type == 4) {
-            m_antimagicPositions.insert(pos);
-        } else {
-            m_extinguisherPositions.insert(pos);
+            m_chutePositions.insert(tilePos);
+        } else if (type == 5) {
+            m_extinguisherPositions.insert(tilePos);
+        } else if (type == 6) {
+            m_rotatorPositions.insert(tilePos);
+        } else if (type == 7) {
+            m_waterPositions.insert(tilePos);
+        } else if (type == 8) {
+            m_teleporterPositions.insert(tilePos);
+        } else if (type == 9) {
+            m_studPositions.insert(tilePos);
         }
     }
 }

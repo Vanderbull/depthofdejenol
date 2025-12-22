@@ -197,7 +197,60 @@ void DungeonDialog::drawMinimap()
             }
         }
     }
-
+    // 7.6. Draw Rotator Tiles (Only if visited)
+    for (const auto& pos : m_rotatorPositions) {
+        if (m_visitedTiles.contains(pos)) {
+            if (!scaledRotator.isNull()) {
+                QGraphicsPixmapItem* rotTile = scene->addPixmap(scaledRotator);
+                rotTile->setPos(pos.first * TILE_SIZE, pos.second * TILE_SIZE);
+            } else {
+                // Fallback: A dark green/yellow circle if image fails to load
+                scene->addEllipse(pos.first * TILE_SIZE + 1, pos.second * TILE_SIZE + 1, 
+                                 TILE_SIZE - 2, TILE_SIZE - 2, QPen(Qt::darkYellow), QBrush(Qt::NoBrush));
+            }
+        }
+    }
+    // 7.7. Draw Water Tiles (Only if visited)
+    for (const auto& pos : m_waterPositions) {
+        if (m_visitedTiles.contains(pos)) {
+            if (!scaledWater.isNull()) {
+                QGraphicsPixmapItem* waterTile = scene->addPixmap(scaledWater);
+                waterTile->setPos(pos.first * TILE_SIZE, pos.second * TILE_SIZE);
+            } else {
+                // Fallback: Blue square if image fails to load
+                scene->addRect(pos.first * TILE_SIZE, pos.second * TILE_SIZE, 
+                               TILE_SIZE, TILE_SIZE, QPen(Qt::blue), QBrush(Qt::blue));
+            }
+        }
+    }
+    // 7.8. Draw Teleporter Tiles (Only if visited)
+    for (const auto& pos : m_teleportPositions) {
+        if (m_visitedTiles.contains(pos)) {
+            if (!scaledTeleporter.isNull()) {
+                // Use the teleporter image tile
+                QGraphicsPixmapItem* teleTile = scene->addPixmap(scaledTeleporter);
+                teleTile->setPos(pos.first * TILE_SIZE, pos.second * TILE_SIZE);
+            } else {
+                // Fallback: Magenta circle if image fails to load
+                scene->addEllipse(pos.first * TILE_SIZE + 1, pos.second * TILE_SIZE + 1, 
+                                  TILE_SIZE - 2, TILE_SIZE - 2, QPen(Qt::magenta), QBrush(Qt::NoBrush));
+            }
+        }
+    }
+    // Draw Stud Tiles (Only if visited)
+    for (const auto& pos : m_studPositions) {
+        if (m_visitedTiles.contains(pos)) {
+            if (!scaledStud.isNull()) {
+                // Use the stud image tile
+                QGraphicsPixmapItem* studTile = scene->addPixmap(scaledStud);
+                studTile->setPos(pos.first * TILE_SIZE, pos.second * TILE_SIZE);
+            } else {
+                // Fallback: A simple gray rectangle if image fails to load
+                scene->addRect(pos.first * TILE_SIZE + 2, pos.second * TILE_SIZE + 2, 
+                               TILE_SIZE - 4, TILE_SIZE - 4, QPen(Qt::gray), QBrush(Qt::lightGray));
+            }
+        }
+    }
     for (const auto& pos : m_extinguisherPositions) {
         if (m_visitedTiles.contains(pos)) {
             if (!scaledExtinguisher.isNull()) {
