@@ -155,6 +155,7 @@ private:
     void handleTrap(int x, int y);
     void handleChute(int x, int y);
     void handleAntimagic(int x, int y);
+    void handleExtinguisher(int x, int y);
     void movePlayer(int dx, int dy);
     
     // Helper functions

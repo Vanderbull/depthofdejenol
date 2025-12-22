@@ -131,16 +131,28 @@ void GameStateManager::setGameValue(const QString& key, const QVariant& value)
     m_gameStateData[key] = value;
     emit gameValueChanged(key, value);
 }
-
 QVariant GameStateManager::getGameValue(const QString& key) const
 {
     return m_gameStateData.value(key);
 }
-
-bool GameStateManager::areResourcesLoaded() const { return m_gameStateData.value("ResourcesLoaded").toBool(); }
-
-void GameStateManager::setCharacterPoisoned(bool isP) { setGameValue("CharacterPoisoned", isP); }
-bool GameStateManager::isCharacterPoisoned() const { return m_gameStateData.value("CharacterPoisoned").toBool(); }
-
-void GameStateManager::setCharacterBlinded(bool isB) { setGameValue("CharacterBlinded", isB); }
-bool GameStateManager::isCharacterBlinded() const { return m_gameStateData.value("CharacterBlinded").toBool(); }
+bool GameStateManager::areResourcesLoaded() const {
+    return m_gameStateData.value("ResourcesLoaded").toBool();
+}
+void GameStateManager::setCharacterPoisoned(bool isP) {
+    setGameValue("CharacterPoisoned", isP);
+}
+bool GameStateManager::isCharacterPoisoned() const {
+    return m_gameStateData.value("CharacterPoisoned").toBool();
+}
+void GameStateManager::setCharacterBlinded(bool isB) {
+    setGameValue("CharacterBlinded", isB);
+}
+bool GameStateManager::isCharacterBlinded() const {
+    return m_gameStateData.value("CharacterBlinded").toBool();
+}
+void GameStateManager::setCharacterOnFire(bool isOnFire) {
+    setGameValue("CharacterOnFire", isOnFire);
+}
+bool GameStateManager::isCharacterOnFire() const {
+    return m_gameStateData.value("CharacterOnFire").toBool();
+}

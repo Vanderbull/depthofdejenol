@@ -26,6 +26,20 @@ const int MAP_HEIGHT_PIXELS = MAP_SIZE * TILE_SIZE;
 const int MAP_MIN = 0;
 const int MAP_MAX = MAP_SIZE - 1;
 
+void DungeonDialog::handleExtinguisher(int x, int y)
+{
+    QPair<int, int> pos = {x, y};
+    if (m_extinguisherPositions.contains(pos)) {
+        GameStateManager* gsm = GameStateManager::instance();
+        
+        if (gsm->isCharacterOnFire()) {
+            gsm->setCharacterOnFire(false);
+            logMessage("<font color='cyan'><b>Magic waters spray from the ceiling! The flames are extinguished.</b></font>");
+        } else {
+            logMessage("<font color='blue'>A refreshing mist falls upon you.</font>");
+        }
+    }
+}
 void DungeonDialog::handleAntimagic(int x, int y)
 {
     QPair<int, int> pos = {x, y};
@@ -130,7 +144,7 @@ void DungeonDialog::movePlayer(int dx, int dy)
     handleTrap(newX, newY);     // Still automatic
     handleChute(newX, newY);    // NEW: Automatic hazard
     handleAntimagic(newX, newY);
-
+    handleExtinguisher(newX, newY);
     logMessage(QString("You move to (%1, %2).").arg(newX).arg(newY));
 }
 
@@ -384,6 +398,19 @@ void DungeonDialog::drawMinimap()
             }
         }
     }
+
+    for (const auto& pos : m_extinguisherPositions) {
+        if (m_visitedTiles.contains(pos)) {
+            if (!scaledExtinguisher.isNull()) {
+                QGraphicsPixmapItem* extTile = scene->addPixmap(scaledExtinguisher);
+                extTile->setPos(pos.first * TILE_SIZE, pos.second * TILE_SIZE);
+            } else {
+                // Fallback: Dark Blue/Gray square to represent "extinguishing" light
+                scene->addRect(pos.first * TILE_SIZE + 1, pos.second * TILE_SIZE + 1, 
+                               TILE_SIZE - 2, TILE_SIZE - 2, QPen(Qt::blue), QBrush(Qt::darkBlue));
+            }
+        }
+    }
     // 8. Draw Fog of War Overlay
     for (int x = 0; x < MAP_SIZE; ++x) { //
         for (int y = 0; y < MAP_SIZE; ++y) { //
@@ -521,8 +548,7 @@ void DungeonDialog::generateSpecialTiles(int tileCount)
         } while (m_obstaclePositions.contains(pos) || pos == currentPos || 
                  m_stairsUpPosition == pos || m_stairsDownPosition == pos);
 
-        // Increased bounded range to 4 to include Chutes
-        int type = QRandomGenerator::global()->bounded(5); 
+        int type = QRandomGenerator::global()->bounded(6); 
 
         if (type == 0) {
             QStringList monsters = {"Kobold", "Orc", "Giant Spider"};
@@ -536,8 +562,10 @@ void DungeonDialog::generateSpecialTiles(int tileCount)
         } else if (type == 3) {
             // NEW: Add to chute positions
             m_chutePositions.insert(pos);
-        } else {
+        } else if (type == 4) {
             m_antimagicPositions.insert(pos);
+        } else {
+            m_extinguisherPositions.insert(pos);
         }
     }
 }

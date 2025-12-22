@@ -41,6 +41,8 @@ public:
     bool isCharacterPoisoned() const;
     void setCharacterBlinded(bool isBlinded);
     bool isCharacterBlinded() const;
+    void setCharacterOnFire(bool isOnFire);
+    bool isCharacterOnFire() const;
     static QStringList statNames() {
         return {"Strength", "Intelligence", "Wisdom", "Constitution", "Charisma", "Dexterity"};
     }
