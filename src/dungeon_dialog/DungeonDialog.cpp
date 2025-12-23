@@ -778,8 +778,9 @@ void DungeonDialog::on_stairsUpButton_clicked()
         } else {
             // Current level is 1: ascend to surface/city
             logMessage("You ascend the **stairs up** and step onto the surface!");
-            emit exitedDungeonToCity(); 
-            this->close();              
+            GameStateManager::instance()->setGameValue("GhostHoundPending", true);
+            emit exitedDungeonToCity();
+            this->close(); 
         }
     } else {
         logMessage("There are no stairs here to take.");

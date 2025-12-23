@@ -3,8 +3,8 @@
 #define GAMESTATEMANAGER_H
 
 #include <QObject>
-#include <QVariantMap> 
-#include <QtGlobal>    
+#include <QVariantMap>
+#include <QtGlobal>
 
 class GameStateManager : public QObject
 {
@@ -27,8 +27,13 @@ signals:
 
 private:
     QVariantMap m_gameStateData;
+    QMap<QString, int> m_confinementStock;
 
 public:
+    void incrementStock(const QString& name);
+    void decrementStock(const QString& name);
+    QMap<QString, int> getConfinementStock() const;
+
     void setGameValue(const QString& key, const QVariant& value);
     QVariant getGameValue(const QString& key) const;
     void addCharacterExperience(qulonglong amount);
@@ -53,7 +58,7 @@ public:
     static QStringList sexOptions() {
         return {"Male", "Female"};
     }
-    static int defaultAlignmentIndex() { 
+    static int defaultAlignmentIndex() {
         return 1; // Default to "Neutral"
     }
 };

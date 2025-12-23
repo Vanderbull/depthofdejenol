@@ -27,6 +27,64 @@ ConfinementAndHoldingDialog::ConfinementAndHoldingDialog(QWidget *parent)
     setupUi();
     resize(850, 650); 
 
+
+    // 1. Declare and initialize the gsm variable
+    GameStateManager* gsm = GameStateManager::instance();
+    // Check if a Ghost Hound is waiting to be added
+// 1. Move pending dungeon exits into persistent stock
+    if (gsm->getGameValue("GhostHoundPending").toBool()) {
+        gsm->incrementStock("Ghost hounf");
+        gsm->setGameValue("GhostHoundPending", false);
+    }
+
+// 2. Define the full display strings for each key
+    QMap<QString, QString> itemData;
+    itemData["Kobold"]          = "Kobold 49216         0  9  0";
+    itemData["Orc"]             = "Orc 169993           0  0  3";
+    itemData["Clean-Up"]        = "Clean-Up 272431      0  2  0";
+    itemData["Black Bear"]      = "Black Bear 75000     0  2  0";
+    itemData["Giant Owl"]       = "Giant Owl 70421      0  2  0";
+    itemData["Giant Spider"]    = "Giant Spider 109163  0  2  0";
+    itemData["Giant Centipede"] = "Giant Centipede 107871 0  2  0";
+    itemData["Zombie"]          = "Zombie 223007        0  2  0";
+    itemData["Footpad"]         = "Footpad 37471        0  2  0";
+    itemData["Gredlan Rogue"]   = "Gredlan Rogue 57586  0  2  0";
+    itemData["Ghost hounf"]     = "Ghost hounf 75000    0  2  0";
+
+    // 2. Clear the widget and repopulate from the persistent Stock Map
+    buyCreatureListWidget->clear();
+    
+    QMap<QString, int> currentStock = gsm->getConfinementStock();
+
+    for (auto it = currentStock.begin(); it != currentStock.end(); ++it) {
+        QString creatureName = it.key();
+        int count = it.value();
+        
+        // Add the formatted string to the list 'count' times
+        if (itemData.contains(creatureName)) {
+            for (int i = 0; i < count; ++i) {
+                buyCreatureListWidget->addItem(itemData[creatureName]);
+            }
+        }
+    }
+    //QMapIterator<QString, int> i(stock);
+/*    
+    while (i.hasNext()) {
+        i.next();
+        QString name = i.key();
+        int count = i.value();
+        
+        // Add one row for every instance in stock
+        for (int j = 0; j < count; ++j) {
+            // Format string based on creature name (you can expand this with a switch or data lookup)
+            if (name == "Ghost hounf") {
+                buyCreatureListWidget->addItem("Ghost hounf 75000      0  2  0");
+            } else if (name == "Skeleton") {
+                buyCreatureListWidget->addItem("Skeleton    1500       0  1  0");
+            }
+        }
+    }
+*/
     // --- Connect signals and slots ---
     
     // Left Column Connections
@@ -224,52 +282,24 @@ void ConfinementAndHoldingDialog::realignCompanionID()
 
 void ConfinementAndHoldingDialog::buyCompanion()
 {
-    QString companionName = buyCompanionLineEdit->text();
-    QString costText = buyCostLineEdit->text();
-    
-    // --- Step 1: Validate and convert cost ---
-    bool conversionOk;
-    int cost = costText.toInt(&conversionOk);
+    // 1. Declare the variable at the start of the function
+    QString selectedCreature = buyCompanionLineEdit->text().trimmed();
 
-    if (!conversionOk || cost <= 0) {
-        // Handle case where cost is not a valid positive integer
-        QMessageBox::warning(this, "Buy Error", "Invalid or zero cost detected: " + costText);
-        qDebug() << "Buy Companion Error: Invalid cost value: " << costText;
-        return; 
-    }
-
-    // --- Step 2: Perform GameState Updates (Assuming GameStateManager methods) ---
-    // NOTE: This code assumes a globally accessible GameStateManager instance.
-    
-    // Placeholder for checking if character has enough gold
-    /*
-    if (GameStateManager::instance().getCharacterGold() < cost) {
-        QMessageBox::critical(this, "Buy Error", "Not enough gold to purchase " + companionName + " for " + costText);
-        qDebug() << "Buy Companion Failed: Insufficient gold.";
+    if (selectedCreature.isEmpty()) {
         return;
     }
-    */
-    
-    // 1. Remove cost from character gold
-    // Assumed function in GameStateManager
-    // GameStateManager::instance().removeCharacterGold(cost); 
-    
-    // 2. Add cost to trader account
-    // Assumed function in GameStateManager
-    // GameStateManager::instance().addTraderGold(cost);
-    
-    // --- Step 3: Confirmation and Debugging ---
-    
-    QMessageBox::information(this, "Buy Companion", 
-                             "Successfully bought companion: " + companionName + 
-                             " for " + costText + " gold.");
-                             
-    qDebug() << "Buy Companion: " << companionName 
-             << " for " << cost << " gold." 
-             << " (Character gold reduced, Trader gold increased)";
 
-    // NOTE: Additional logic to actually add the companion to the player's possession 
-    // would be implemented here.
+    // ... (Your gold check and purchase logic here) ...
+
+    // 2. Use 'selectedCreature' in your success message and stock update
+    GameStateManager::instance()->decrementStock(selectedCreature);
+
+    qDebug() << "Successfully bought companion: " + selectedCreature;
+
+    // 3. UI Cleanup
+    delete buyCreatureListWidget->currentItem();
+    buyCompanionLineEdit->clear();
+    buyCostLineEdit->clear();
 }
 
 void ConfinementAndHoldingDialog::showCompanionInfo()
@@ -332,4 +362,13 @@ void ConfinementAndHoldingDialog::updateBuyFieldsFromList()
     buyCostLineEdit->setText(companionCost);
     
     qDebug() << "Selected: " << companionName << ", Cost: " << companionCost;
+}
+
+void ConfinementAndHoldingDialog::addGhostHoundOnExit()
+{
+    // Add the specific string requested to the buy list
+    buyCreatureListWidget->addItem("Ghost hounf 75000     0  2  0");
+    
+    // Optional: Log for debugging
+    qDebug() << "Character exited dungeon: Ghost Hound added to Confinement stock.";
 }

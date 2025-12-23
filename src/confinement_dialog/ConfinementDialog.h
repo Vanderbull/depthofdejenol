@@ -35,7 +35,9 @@ private slots:
     void searchCompanion();      
 
     // Handles selection change in the creature list
-    void updateBuyFieldsFromList(); 
+    void updateBuyFieldsFromList();
+    // Slot to be triggered when exiting the dungeon
+    void addGhostHoundOnExit();
 
 private:
     void setupUi();

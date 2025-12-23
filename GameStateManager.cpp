@@ -15,9 +15,38 @@ GameStateManager* GameStateManager::instance()
     return &instance;
 }
 
+// Add these helper methods
+void GameStateManager::incrementStock(const QString& name) {
+    m_confinementStock[name] = m_confinementStock.value(name, 0) + 1;
+}
+
+void GameStateManager::decrementStock(const QString& name) {
+    int current = m_confinementStock.value(name, 0);
+    if (current > 0) m_confinementStock[name] = current - 1;
+}
+
+QMap<QString, int> GameStateManager::getConfinementStock() const {
+    return m_confinementStock;
+}
+
 GameStateManager::GameStateManager(QObject *parent)
     : QObject(parent)
 {
+    // Initialize the Ghost Hound flag to false
+    m_gameStateData["GhostHoundPending"] = false;
+    m_confinementStock["Ghost hounf"] = 0;
+    m_confinementStock["Skeleton"] = 0;
+    m_confinementStock["Kobold"] = 1;
+    m_confinementStock["Orc"] = 1;
+    m_confinementStock["Clean-Up"] = 1;
+    m_confinementStock["Black Bear"] = 1;
+    m_confinementStock["Giant Owl"] = 1;
+    m_confinementStock["Giant Spider"] = 1;
+    m_confinementStock["Giant Centipede"] = 1;
+    m_confinementStock["Zombie"] = 1;
+    m_confinementStock["Footpad"] = 1;
+    m_confinementStock["Gredlan Rogue"] = 1;
+
     m_gameStateData["CurrentCharacterSex"] = GameStateManager::sexOptions().at(0);
     m_gameStateData["CurrentCharacterAlignment"] = GameStateManager::alignmentNames().at(GameStateManager::defaultAlignmentIndex());
     m_gameStateData["CurrentCharacterStatPointsLeft"] = GameStateManager::defaultStatPoints();
