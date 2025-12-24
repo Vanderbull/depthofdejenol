@@ -188,6 +188,10 @@ void GameStateManager::loadMonsterData(const QString& filePath)
     }
     qDebug() << "-------------------------------";
 }
+void GameStateManager::loadSpellData(const QString& filePath)
+{
+ // Todo
+}
 void GameStateManager::loadItemData(const QString& filePath)
 {
     QFile file(filePath);

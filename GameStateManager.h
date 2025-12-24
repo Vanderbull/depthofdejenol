@@ -30,8 +30,21 @@ private:
     QMap<QString, int> m_confinementStock;
     QList<QVariantMap> m_monsterData; // In-memory storage for MDATA5
     QList<QVariantMap> m_itemData;    // In-memory storage for MDATA3
+    QList<QVariantMap> m_spellData;    // In-memory storage for MDATA2
+
 public:
-    void loadItemData(const QString& filePath); // Added
+    // Item Data Method
+    void loadSpellData(const QString& filePath); 
+
+    const QList<QVariantMap>& spellData() const { return m_spellData; }
+    int spellCount() const { return m_spellData.size(); }
+    QVariantMap getSpell(int index) const {
+        return (index >= 0 && index < m_spellData.size()) ? m_spellData[index] : QVariantMap();
+    }
+
+
+    // Item Data Method
+    void loadItemData(const QString& filePath);
 
     const QList<QVariantMap>& itemData() const { return m_itemData; }
     int itemCount() const { return m_itemData.size(); }
