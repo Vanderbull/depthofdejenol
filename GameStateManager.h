@@ -28,8 +28,17 @@ signals:
 private:
     QVariantMap m_gameStateData;
     QMap<QString, int> m_confinementStock;
+    QList<QVariantMap> m_monsterData; // In-memory storage for MDATA5
 
 public:
+    // Monster Data Methods
+    void loadMonsterData(const QString& filePath);
+    const QList<QVariantMap>& monsterData() const { return m_monsterData; }
+    int monsterCount() const { return m_monsterData.size(); }
+    QVariantMap getMonster(int index) const {
+        return (index >= 0 && index < m_monsterData.size()) ? m_monsterData[index] : QVariantMap();
+    }
+
     void incrementStock(const QString& name);
     void decrementStock(const QString& name);
     QMap<QString, int> getConfinementStock() const;

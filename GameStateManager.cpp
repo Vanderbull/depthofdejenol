@@ -5,6 +5,10 @@
 #include <QVariantMap> 
 #include <QMapIterator> 
 #include <QDateTime> 
+#include <QFile>
+#include <QTextStream>
+#include <QIODevice>
+
 
 // IMPROVEMENT: Removed the global gsm_instance pointer to use Magic Statics instead.
 
@@ -46,6 +50,9 @@ GameStateManager::GameStateManager(QObject *parent)
     m_confinementStock["Zombie"] = 1;
     m_confinementStock["Footpad"] = 1;
     m_confinementStock["Gredlan Rogue"] = 1;
+
+    // Load monster data from CSV at start
+    loadMonsterData("tools/monsterconverter/MDATA5.csv");
 
     m_gameStateData["CurrentCharacterSex"] = GameStateManager::sexOptions().at(0);
     m_gameStateData["CurrentCharacterAlignment"] = GameStateManager::alignmentNames().at(GameStateManager::defaultAlignmentIndex());
@@ -127,6 +134,44 @@ GameStateManager::GameStateManager(QObject *parent)
 
     m_gameStateData["GuildLeaders"] = guildLeadersList;
     qDebug() << "GameStateManager initialized.";
+}
+
+void GameStateManager::loadMonsterData(const QString& filePath)
+{
+    QFile file(filePath);
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        qWarning() << "Could not open monster data file:" << filePath;
+        return;
+    }
+
+    m_monsterData.clear();
+    QTextStream in(&file);
+    
+    // Read header line
+    if (in.atEnd()) return;
+    QString headerLine = in.readLine();
+    QStringList headers = headerLine.split(',');
+
+    // Read data lines
+    while (!in.atEnd()) {
+        QString line = in.readLine();
+        if (line.trimmed().isEmpty()) continue;
+        
+        QStringList fields = line.split(',');
+        if (fields.size() != headers.size()) {
+            // Basic error handling for malformed lines
+            continue; 
+        }
+
+        QVariantMap monster;
+        for (int i = 0; i < headers.size(); ++i) {
+            monster[headers[i].trimmed()] = fields[i].trimmed();
+        }
+        m_monsterData.append(monster);
+    }
+
+    file.close();
+    qDebug() << "Successfully loaded" << m_monsterData.size() << "monsters into memory.";
 }
 
 void GameStateManager::addCharacterExperience(qulonglong amount)
