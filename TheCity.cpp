@@ -26,7 +26,6 @@ TheCity::TheCity(QWidget *parent) :
     setupUi();
     loadButtonIcons();
     setupStyling();
-    //QPixmap testPixmap("general_store.png");
     QPixmap testPixmap = GameResources::getPixmap("general_store");
     if (!testPixmap.isNull()) 
     {
@@ -37,13 +36,13 @@ TheCity::TheCity(QWidget *parent) :
         qDebug() << "ERROR: general_store.png failed to load. Check resource paths and file names.";
     }
     // ADD THIS to show the Party Info dialog when entering TheCity
-PartyInfoDialog *partyInfo = new PartyInfoDialog(this);
-QStringList memberNames;
-memberNames << "Alice" << "Bob" << "Charlie" << "Dana";
-qDebug() << "Party size:" << memberNames.size() << memberNames;
-partyInfo->setPartyMembers(memberNames);
-partyInfo->setAttribute(Qt::WA_DeleteOnClose);
-partyInfo->show();
+    PartyInfoDialog *partyInfo = new PartyInfoDialog(this);
+    QStringList memberNames;
+    memberNames << "Alice" << "Bob" << "Charlie" << "Dana";
+    qDebug() << "Party size:" << memberNames.size() << memberNames;
+    partyInfo->setPartyMembers(memberNames);
+    partyInfo->setAttribute(Qt::WA_DeleteOnClose);
+    partyInfo->show();
 }
 
 TheCity::~TheCity()
@@ -112,15 +111,6 @@ void TheCity::loadButtonIcons()
     QPixmap bankPixmap = GameResources::getPixmap("bank");
     QPixmap exitIconPixmap = GameResources::getPixmap("exit_icon");
 
-    //QPixmap generalStorePixmap("general_store.png"); 
-    //QPixmap morguePixmap("morgue.png");
-    //QPixmap guildsPixmap("guilds.png");
-    //QPixmap dungeonPixmap("dungeon.png");
-    //QPixmap confinementPixmap("confinement.png");
-    //QPixmap seerPixmap("seer.png");
-    //QPixmap bankPixmap("bank.png");
-    //QPixmap exitIconPixmap("exit_icon.png"); 
-
     generalStoreButton->setIcon(QIcon(generalStorePixmap));
     generalStoreButton->setIconSize(iconSize);
     generalStoreButton->setToolButtonStyle(Qt::ToolButtonIconOnly); 
@@ -129,36 +119,36 @@ void TheCity::loadButtonIcons()
     morgueButton->setIcon(QIcon(morguePixmap));
     morgueButton->setIconSize(iconSize);
     morgueButton->setToolButtonStyle(Qt::ToolButtonIconOnly);
-morgueButton->setToolTip("morgue");
+    morgueButton->setToolTip("morgue");
     guildsButton->setIcon(QIcon(guildsPixmap));
     guildsButton->setIconSize(iconSize);
     guildsButton->setToolButtonStyle(Qt::ToolButtonIconOnly);
-guildsButton->setToolTip("guilds");
+    guildsButton->setToolTip("guilds");
     dungeonButton->setIcon(QIcon(dungeonPixmap));
     dungeonButton->setIconSize(iconSize);
     dungeonButton->setToolButtonStyle(Qt::ToolButtonIconOnly);
-dungeonButton->setToolTip("dungeon");
+    dungeonButton->setToolTip("dungeon");
     confinementButton->setIcon(QIcon(confinementPixmap));
     confinementButton->setIconSize(iconSize);
     confinementButton->setToolButtonStyle(Qt::ToolButtonIconOnly);
-confinementButton->setToolTip("confinement");
+    confinementButton->setToolTip("confinement");
     seerButton->setIcon(QIcon(seerPixmap));
     seerButton->setIconSize(iconSize);
     seerButton->setToolButtonStyle(Qt::ToolButtonIconOnly);
-seerButton->setToolTip("seer");
+    seerButton->setToolTip("seer");
     bankButton->setIcon(QIcon(bankPixmap));
     bankButton->setIconSize(iconSize);
     bankButton->setToolButtonStyle(Qt::ToolButtonIconOnly);
-bankButton->setToolTip("bank");
+    bankButton->setToolTip("bank");
     exitButton->setIcon(QIcon(exitIconPixmap));
     exitButton->setIconSize(iconSize);
     exitButton->setToolButtonStyle(Qt::ToolButtonIconOnly);
-exitButton->setToolTip("EXIT");
+    exitButton->setToolTip("EXIT");
 }
 
 void TheCity::setupStyling()
 {
-    QFile styleFile("TheCity.qss"); 
+    QFile styleFile("TheCity.qss");
     if (styleFile.open(QFile::ReadOnly | QFile::Text)) {
         QString styleSheet = QLatin1String(styleFile.readAll());
         this->setStyleSheet(styleSheet);
