@@ -779,6 +779,25 @@ void DungeonDialog::on_stairsUpButton_clicked()
             // Current level is 1: ascend to surface/city
             logMessage("You ascend the **stairs up** and step onto the surface!");
             GameStateManager::instance()->setGameValue("GhostHoundPending", true);
+            // --- RANDOM MONSTER CAPTURE LOGIC ---
+            // Check if we have monster data loaded in the manager
+            if (gsm->monsterCount() > 0) {
+                // Pick a random index based on the size of the monster list
+                int randomIndex = QRandomGenerator::global()->bounded(gsm->monsterCount());
+                
+                // Get the monster name from the random data entry
+                QVariantMap monster = gsm->getMonster(randomIndex);
+                QString monsterName = monster["name"].toString();
+
+                if (!monsterName.isEmpty()) {
+                    // Add the monster to the permanent Confinement stock
+                    gsm->incrementStock(monsterName);
+                    
+                    // Optional: Provide feedback to the player
+                    //logMessage("You captured a " + monsterName + " while escaping!");
+                    qDebug() << "You captured a " + monsterName + " while escaping! ";
+                }
+            }
             emit exitedDungeonToCity();
             this->close(); 
         }
