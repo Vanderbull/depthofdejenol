@@ -53,6 +53,9 @@ GameStateManager::GameStateManager(QObject *parent)
 
     // Load monster data from CSV at start
     loadMonsterData("tools/monsterconverter/MDATA5.csv");
+    performSanityCheck();
+    loadItemData("tools/itemconverter/data/MDATA3.csv");
+
 
     m_gameStateData["CurrentCharacterSex"] = GameStateManager::sexOptions().at(0);
     m_gameStateData["CurrentCharacterAlignment"] = GameStateManager::alignmentNames().at(GameStateManager::defaultAlignmentIndex());
@@ -172,7 +175,53 @@ void GameStateManager::loadMonsterData(const QString& filePath)
 
     file.close();
     qDebug() << "Successfully loaded" << m_monsterData.size() << "monsters into memory.";
+
+    qDebug() << "--- Monster Data Load Report ---";
+    qDebug() << "Total Monsters Loaded:" << m_monsterData.size();
+
+    // Print the first 3 entries to verify columns mapped correctly
+    for (int i = 0; i < qMin(3, m_monsterData.size()); ++i) {
+        const QVariantMap& m = m_monsterData[i];
+        qDebug() << "Entry" << i << ":" << m["name"].toString() 
+                 << "| HP:" << m["hits"].toInt() 
+                 << "| Atk:" << m["att"].toInt();
+    }
+    qDebug() << "-------------------------------";
 }
+void GameStateManager::loadItemData(const QString& filePath)
+{
+    QFile file(filePath);
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        qWarning() << "Could not open item data file:" << filePath;
+        return;
+    }
+
+    m_itemData.clear();
+    QTextStream in(&file);
+    
+    if (in.atEnd()) return;
+    QString headerLine = in.readLine();
+    QStringList headers = headerLine.split(',');
+
+    while (!in.atEnd()) {
+        QString line = in.readLine();
+        if (line.trimmed().isEmpty()) continue;
+        
+        QStringList fields = line.split(',');
+        // MDATA3 has 35 columns; checking against header size ensures row integrity
+        if (fields.size() == headers.size()) {
+            QVariantMap item;
+            for (int i = 0; i < headers.size(); ++i) {
+                item[headers[i].trimmed()] = fields[i].trimmed();
+            }
+            m_itemData.append(item);
+        }
+    }
+
+    file.close();
+    qDebug() << "Successfully loaded" << m_itemData.size() << "items from MDATA3.";
+}
+
 
 void GameStateManager::addCharacterExperience(qulonglong amount)
 {
@@ -229,4 +278,31 @@ void GameStateManager::setCharacterOnFire(bool isOnFire) {
 }
 bool GameStateManager::isCharacterOnFire() const {
     return m_gameStateData.value("CharacterOnFire").toBool();
+}
+
+// Unit tests
+void GameStateManager::performSanityCheck() {
+    qDebug() << "[Sanity Check] Verifying Monster Data...";
+    
+    if (m_monsterData.isEmpty()) {
+        qCritical() << "FAIL: Monster data is empty!";
+        return;
+    }
+
+    // Test Case: Check if ID 0 is Goblie (based on your CSV)
+    QVariantMap first = getMonster(0);
+    if (first["name"].toString() == "Goblie") {
+        qDebug() << "PASS: Index 0 is Goblie.";
+    } else {
+        qWarning() << "FAIL: Index 0 expected 'Goblie', got" << first["name"].toString();
+    }
+
+    // Test Case: Check field type conversion
+    bool ok;
+    int hits = first["hits"].toInt(&ok);
+    if (ok && hits > 0) {
+        qDebug() << "PASS: 'hits' column is a valid integer (" << hits << ")";
+    } else {
+        qWarning() << "FAIL: 'hits' column is not a valid integer.";
+    }
 }

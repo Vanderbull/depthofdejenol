@@ -29,8 +29,16 @@ private:
     QVariantMap m_gameStateData;
     QMap<QString, int> m_confinementStock;
     QList<QVariantMap> m_monsterData; // In-memory storage for MDATA5
-
+    QList<QVariantMap> m_itemData;    // In-memory storage for MDATA3
 public:
+    void loadItemData(const QString& filePath); // Added
+
+    const QList<QVariantMap>& itemData() const { return m_itemData; }
+    int itemCount() const { return m_itemData.size(); }
+    QVariantMap getItem(int index) const {
+        return (index >= 0 && index < m_itemData.size()) ? m_itemData[index] : QVariantMap();
+    }
+
     // Monster Data Methods
     void loadMonsterData(const QString& filePath);
     const QList<QVariantMap>& monsterData() const { return m_monsterData; }
@@ -38,6 +46,7 @@ public:
     QVariantMap getMonster(int index) const {
         return (index >= 0 && index < m_monsterData.size()) ? m_monsterData[index] : QVariantMap();
     }
+    void performSanityCheck();
 
     void incrementStock(const QString& name);
     void decrementStock(const QString& name);
