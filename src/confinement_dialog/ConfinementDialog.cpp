@@ -38,6 +38,7 @@ ConfinementAndHoldingDialog::ConfinementAndHoldingDialog(QWidget *parent)
     }
 
 // 2. Define the full display strings for each key
+/*
     QMap<QString, QString> itemData;
     itemData["Kobold"]          = "Kobold 49216         0  9  0";
     itemData["Orc"]             = "Orc 169993           0  0  3";
@@ -50,7 +51,7 @@ ConfinementAndHoldingDialog::ConfinementAndHoldingDialog(QWidget *parent)
     itemData["Footpad"]         = "Footpad 37471        0  2  0";
     itemData["Gredlan Rogue"]   = "Gredlan Rogue 57586  0  2  0";
     itemData["Ghost hounf"]     = "Ghost hounf 75000    0  2  0";
-
+*/
     // 2. Clear the widget and repopulate from the persistent Stock Map
     buyCreatureListWidget->clear();
     
@@ -59,13 +60,14 @@ ConfinementAndHoldingDialog::ConfinementAndHoldingDialog(QWidget *parent)
     for (auto it = currentStock.begin(); it != currentStock.end(); ++it) {
         QString creatureName = it.key();
         int count = it.value();
+        buyCreatureListWidget->addItem(creatureName);
         
         // Add the formatted string to the list 'count' times
-        if (itemData.contains(creatureName)) {
-            for (int i = 0; i < count; ++i) {
-                buyCreatureListWidget->addItem(itemData[creatureName]);
-            }
-        }
+        //if (itemData.contains(creatureName)) {
+        //    for (int i = 0; i < count; ++i) {
+        //        buyCreatureListWidget->addItem(itemData[creatureName]);
+        //    }
+        //}
     }
     //QMapIterator<QString, int> i(stock);
 /*    
@@ -199,6 +201,7 @@ void ConfinementAndHoldingDialog::setupUi()
     buyCreatureListWidget->setFont(font()); 
     
     // Example data formatted for monospace alignment (Name ID G E N columns)
+/*
     buyCreatureListWidget->addItem("Kobold 49216         0  9  0");
     buyCreatureListWidget->addItem("Orc 169993           0  0  3");
     buyCreatureListWidget->addItem("Clean-Up 272431      0  2  0");
@@ -209,7 +212,7 @@ void ConfinementAndHoldingDialog::setupUi()
     buyCreatureListWidget->addItem("Zombie 223007        0  2  0");
     buyCreatureListWidget->addItem("Footpad 37471        0  2  0");
     buyCreatureListWidget->addItem("Gredlan Rogue 57586  0  2  0");
-
+*/
     buyLayout->addWidget(buyCreatureListWidget);
 
     buyLayout->addWidget(new QLabel("Companion"));
