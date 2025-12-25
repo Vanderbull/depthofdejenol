@@ -36,6 +36,37 @@ QMap<QString, int> GameStateManager::getConfinementStock() const {
 GameStateManager::GameStateManager(QObject *parent)
     : QObject(parent)
 {
+    QVariantList party;
+    for (int i = 0; i < MAX_PARTY_SIZE; ++i) {
+        QVariantMap character;
+        character["Name"] = "Empty Slot";
+        character["Level"] = 1;
+        character["Experience"] = QVariant::fromValue((qulonglong)0);
+        character["HP"] = 50;
+        character["MaxHP"] = 50;
+        character["Gold"] = QVariant::fromValue((qulonglong)0);
+        
+        // Stats
+        character["Strength"] = 0;
+        character["Intelligence"] = 0;
+        character["Wisdom"] = 0;
+        character["Constitution"] = 0;
+        character["Charisma"] = 0;
+        character["Dexterity"] = 0;
+        
+        // Status
+        character["Poisoned"] = false;
+        character["Blinded"] = false;
+        character["Diseased"] = false;
+        character["Dead"] = false;
+
+        party.append(character);
+    }
+    m_gameStateData["Party"] = party;
+    
+    // You can still keep a "CurrentActiveIndex" to know which one the UI is showing
+    m_gameStateData["ActiveCharacterIndex"] = 0;
+
     // Initialize the Ghost Hound flag to false
     m_gameStateData["GhostHoundPending"] = false;
     m_confinementStock["Ghost hounf"] = 0;

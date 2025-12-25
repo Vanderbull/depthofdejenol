@@ -21,6 +21,7 @@ private:
 public:
     // Improved thread-safe static accessor
     static GameStateManager* instance();
+    static const int MAX_PARTY_SIZE = 4;
     
 signals:
     void gameValueChanged(const QString& key, const QVariant& value);
@@ -33,6 +34,9 @@ private:
     QList<QVariantMap> m_spellData;    // In-memory storage for MDATA2
 
 public:
+    QVariantMap getCharacterData(int index) const;
+    void updateCharacterData(int index, const QVariantMap& data);
+
     // Item Data Method
     void loadSpellData(const QString& filePath); 
 
