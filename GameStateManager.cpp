@@ -83,6 +83,7 @@ GameStateManager::GameStateManager(QObject *parent)
     m_confinementStock["Gredlan Rogue"] = 1;
 
     // Load monster data from CSV at start
+    loadSpellData("tools/spellconverter/data/MDATA2.csv");
     loadMonsterData("tools/monsterconverter/MDATA5.csv");
     performSanityCheck();
     loadItemData("tools/itemconverter/data/MDATA3.csv");
@@ -221,7 +222,36 @@ void GameStateManager::loadMonsterData(const QString& filePath)
 }
 void GameStateManager::loadSpellData(const QString& filePath)
 {
- // Todo
+    QFile file(filePath);
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        qWarning() << "Could not open spell data file:" << filePath;
+        return;
+    }
+
+    m_spellData.clear();
+    QTextStream in(&file);
+    
+    if (in.atEnd()) return;
+    QString headerLine = in.readLine();
+    QStringList headers = headerLine.split(',');
+
+    while (!in.atEnd()) {
+        QString line = in.readLine();
+        if (line.trimmed().isEmpty()) continue;
+
+        QStringList fields = line.split(',');
+        
+        if (fields.size() == headers.size()) {
+            QVariantMap spell;
+            for (int i = 0; i < headers.size(); ++i) {
+                spell[headers[i].trimmed()] = fields[i].trimmed();
+            }
+            m_spellData.append(spell);
+        }
+    }
+
+    file.close();
+    qDebug() << "Successfully loaded" << m_spellData.size() << "spells from MDATA2.";
 }
 void GameStateManager::loadItemData(const QString& filePath)
 {
