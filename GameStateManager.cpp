@@ -8,7 +8,9 @@
 #include <QFile>
 #include <QTextStream>
 #include <QIODevice>
-
+#include <QJsonDocument>
+#include <QJsonObject>
+#include <QJsonArray>
 
 // IMPROVEMENT: Removed the global gsm_instance pointer to use Magic Statics instead.
 
@@ -83,6 +85,7 @@ GameStateManager::GameStateManager(QObject *parent)
     m_confinementStock["Gredlan Rogue"] = 1;
 
     // Load monster data from CSV at start
+    loadGameData("tools/gamedataconverter/data/MDATA1.js");
     loadSpellData("tools/spellconverter/data/MDATA2.csv");
     loadMonsterData("tools/monsterconverter/MDATA5.csv");
     performSanityCheck();
@@ -172,7 +175,55 @@ GameStateManager::GameStateManager(QObject *parent)
 }
 void GameStateManager::loadGameData(const QString& filePath)
 {
-    //todo
+    QFile file(filePath);
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        qWarning() << "Could not open game data file:" << filePath;
+        return;
+    }
+
+    // Read the entire file
+    QString fileContent = file.readAll();
+    file.close();
+
+    // CLEANUP: The provided file is a .js file with "const gameData = { ... };"
+    // We need to extract just the JSON part between the first '{' and the last '}'
+    int firstBrace = fileContent.indexOf('{');
+    int lastBrace = fileContent.lastIndexOf('}');
+    
+    if (firstBrace == -1 || lastBrace == -1) {
+        qWarning() << "MDATA1 file does not contain valid JSON object structure.";
+        return;
+    }
+
+    QString jsonString = fileContent.mid(firstBrace, (lastBrace - firstBrace) + 1);
+
+    // Parse JSON
+    QJsonParseError error;
+    QJsonDocument doc = QJsonDocument::fromJson(jsonString.toUtf8(), &error);
+    
+    if (error.error != QJsonParseError::NoError) {
+        qWarning() << "JSON Parse Error in MDATA1:" << error.errorString();
+        return;
+    }
+
+    // Clear existing data
+    m_gameData.clear();
+
+    // Map the "Guilds" array to our m_gameData list
+    QJsonObject rootObj = doc.object();
+    if (rootObj.contains("Guilds") && rootObj["Guilds"].isArray()) {
+        QJsonArray guildsArray = rootObj["Guilds"].toArray();
+        
+        for (const QJsonValue& value : guildsArray) {
+            // Convert QJsonObject to QVariantMap to match your class members
+            m_gameData.append(value.toObject().toVariantMap());
+        }
+    }
+
+    qDebug() << "Successfully loaded" << m_gameData.size() << "guilds from MDATA1.";
+    
+    // Optional: Update ResourcesLoaded flag if this is the core data
+    setGameValue("ResourcesLoaded", true);
 }
 
 void GameStateManager::loadMonsterData(const QString& filePath)
