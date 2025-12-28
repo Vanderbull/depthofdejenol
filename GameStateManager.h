@@ -32,12 +32,22 @@ private:
     QList<QVariantMap> m_monsterData; // In-memory storage for MDATA5
     QList<QVariantMap> m_itemData;    // In-memory storage for MDATA3
     QList<QVariantMap> m_spellData;    // In-memory storage for MDATA2
+    QList<QVariantMap> m_gameData;    // In-memory storage for MDATA1
 
 public:
     QVariantMap getCharacterData(int index) const;
     void updateCharacterData(int index, const QVariantMap& data);
 
-    // Item Data Method
+    // Game Data Method
+    void loadGameData(const QString& filePath); 
+
+    const QList<QVariantMap>& gameData() const { return m_gameData; }
+    int gameCount() const { return m_gameData.size(); }
+    QVariantMap getGame(int index) const {
+        return (index >= 0 && index < m_gameData.size()) ? m_gameData[index] : QVariantMap();
+    }
+
+    // Spell Data Method
     void loadSpellData(const QString& filePath); 
 
     const QList<QVariantMap>& spellData() const { return m_spellData; }

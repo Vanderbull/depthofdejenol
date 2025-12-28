@@ -170,6 +170,10 @@ GameStateManager::GameStateManager(QObject *parent)
     m_gameStateData["GuildLeaders"] = guildLeadersList;
     qDebug() << "GameStateManager initialized.";
 }
+void GameStateManager::loadGameData(const QString& filePath)
+{
+    //todo
+}
 
 void GameStateManager::loadMonsterData(const QString& filePath)
 {
