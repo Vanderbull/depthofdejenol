@@ -114,6 +114,23 @@ public:
             "Sorcerer", "Wizard", "Healer", "Ninja"
         };
     }
+    static QMap<QString, QString> guildMasters() {
+    return {
+        {"Nomad", "Goch"},
+        {"Paladin", "Tuadar"},
+        {"Warrior", "Spore"},
+        {"Villain", "Darkness"},
+        {"Seeker", "Healer"},
+        {"Thief", "Nimblefingers"},      
+        {"Scavenger", "Morgul"},         
+        {"Mage", "Ge'nal"},              
+        {"Sorcerer", "Ge'nal"},          
+        {"Wizard", "Archmage"},
+        {"Healer", "Theshal"},           
+        {"Ninja", "Shadowblade"}
+    };
+}
+}
 };
 
 #endif // GAMESTATEMANAGER_H
