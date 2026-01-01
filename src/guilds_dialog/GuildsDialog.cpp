@@ -1,9 +1,8 @@
 // GuildsDialog.cpp
 #include "GuildsDialog.h"
-#include <QApplication>
 #include "src/library_dialog/library_dialog.h" // Include the LibraryDialog header
+#include <QApplication>
 #include <QDebug>
-#include <QMessageBox> // Already in GuildsDialog.h but explicit use here is fine
 #include <QListWidget> // Needed for QListWidgetItem
 #include <QListWidgetItem> // Needed for QListWidgetItem
 #include <QVariantList> // Needed for reading the log
@@ -15,7 +14,7 @@ GuildsDialog::GuildsDialog(QWidget *parent)
     : QDialog(parent)
 {
     setWindowTitle("Guilds");
-    setFixedSize(600, 450); // Adjust size to roughly match the image
+    setFixedSize(600, 450);
 
     // --- Left Side Widgets ---
     welcomeLabel = new QLabel("<b><font color='blue' size='4'>Welcome to the Sorcerer's guild!</font></b>");
@@ -56,7 +55,6 @@ GuildsDialog::GuildsDialog(QWidget *parent)
     leftLayout->addStretch(1); // Push content upwards
     leftLayout->addLayout(leftButtonLayout);
 
-
     // --- Right Side Widgets ---
     guildsLabel = new QLabel("<b><font color='red'>Guilds</font></b>");
     guildsListWidget = new QListWidget();
@@ -72,12 +70,10 @@ GuildsDialog::GuildsDialog(QWidget *parent)
     guildsListWidget->addItem("Wizard");
     guildsListWidget->addItem("Healer");
     guildsListWidget->addItem("Ninja");
-
     expInfoButton = new QPushButton("Exp. Info");
     readGuildLogButton = new QPushButton("Read Guild Log");
     visitButton = new QPushButton("Visit");
     exitButton = new QPushButton("EXIT");
-
     // Layout for right side buttons
     QVBoxLayout *rightButtonLayout = new QVBoxLayout();
     rightButtonLayout->addWidget(expInfoButton);
@@ -85,22 +81,20 @@ GuildsDialog::GuildsDialog(QWidget *parent)
     rightButtonLayout->addSpacing(20); // Spacing between the first two and last two buttons
     rightButtonLayout->addWidget(visitButton);
     rightButtonLayout->addWidget(exitButton);
-
     // Layout for the right side
     QVBoxLayout *rightLayout = new QVBoxLayout();
     rightLayout->addWidget(guildsLabel);
     rightLayout->addWidget(guildsListWidget);
     rightLayout->addLayout(rightButtonLayout);
-
     // --- Main Layout ---
     QHBoxLayout *mainLayout = new QHBoxLayout(this);
     mainLayout->addLayout(leftLayout, 1); // Give left side more stretch
     mainLayout->addSpacing(20); // Space between left and right columns
     mainLayout->addLayout(rightLayout, 1);
-// --- Connect Signals and Slots ---
+    // --- Connect Signals and Slots ---
     setupConnections();
 
-// --- Set Initial Guild Selection based on Game State ---
+    // --- Set Initial Guild Selection based on Game State ---
     setInitialGuildSelection();
 }
 
