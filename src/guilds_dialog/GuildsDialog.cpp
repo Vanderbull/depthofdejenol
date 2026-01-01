@@ -105,6 +105,8 @@ void GuildsDialog::setupConnections()
     connect(readGuildLogButton, &QPushButton::clicked, this, &GuildsDialog::on_readGuildLogButton_clicked);
     connect(visitButton, &QPushButton::clicked, this, &GuildsDialog::on_visitButton_clicked);
     connect(exitButton, &QPushButton::clicked, this, &GuildsDialog::on_exitButton_clicked);
+
+    connect(guildsListWidget, &QListWidget::itemSelectionChanged, this, &GuildsDialog::on_guildsListWidget_itemSelectionChanged);
 }
 
 /**
