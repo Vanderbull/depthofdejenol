@@ -106,6 +106,14 @@ public:
     static int defaultAlignmentIndex() {
         return 1; // Default to "Neutral"
     }
+    // In GameStateManager.h public section:
+    static QStringList guildNames() {
+        return {
+            "Nomad", "Paladin", "Warrior", "Villain", 
+            "Seeker", "Thief", "Scavenger", "Mage", 
+            "Sorcerer", "Wizard", "Healer", "Ninja"
+        };
+    }
 };
 
 #endif // GAMESTATEMANAGER_H
