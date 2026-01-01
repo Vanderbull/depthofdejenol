@@ -312,3 +312,24 @@ void GuildsDialog::on_exitButton_clicked()
     // Closes the dialog
     this->accept();
 }
+void GuildsDialog::on_guildsListWidget_itemSelectionChanged()
+{
+    QListWidgetItem *item = guildsListWidget->currentItem();
+    if (!item) return;
+
+    QString guildName = item->text();
+    // Clean selection marker if present
+    if (guildName.startsWith("* ")) {
+        guildName.remove(0, 2); 
+    }
+
+    // 1. Update the Welcome Label
+    welcomeLabel->setText(QString("<b><font color='blue' size='4'>Welcome to the %1's guild!</font></b>").arg(guildName));
+
+    // 2. Fetch the Master from GameStateManager
+    QMap<QString, QString> masters = GameStateManager::guildMasters();
+    QString masterName = masters.value(guildName, "Unknown Master");
+    
+    // 3. Update the LineEdit
+    guildMasterLineEdit->setText(masterName);
+}
