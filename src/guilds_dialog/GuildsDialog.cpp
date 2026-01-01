@@ -58,18 +58,10 @@ GuildsDialog::GuildsDialog(QWidget *parent)
     // --- Right Side Widgets ---
     guildsLabel = new QLabel("<b><font color='red'>Guilds</font></b>");
     guildsListWidget = new QListWidget();
-    guildsListWidget->addItem("Nomad");
-    guildsListWidget->addItem("Paladin");
-    guildsListWidget->addItem("Warrior");
-    guildsListWidget->addItem("Villain");
-    guildsListWidget->addItem("Seeker");
-    guildsListWidget->addItem("Thief");
-    guildsListWidget->addItem("Scavenger");
-    guildsListWidget->addItem("Mage");
-    guildsListWidget->addItem("Sorcerer");
-    guildsListWidget->addItem("Wizard");
-    guildsListWidget->addItem("Healer");
-    guildsListWidget->addItem("Ninja");
+    QStringList guilds = GameStateManager::guildNames();
+    for (const QString& guild : guilds) {
+        guildsListWidget->addItem(guild);
+    }
     expInfoButton = new QPushButton("Exp. Info");
     readGuildLogButton = new QPushButton("Read Guild Log");
     visitButton = new QPushButton("Visit");
