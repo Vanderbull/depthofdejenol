@@ -33,6 +33,8 @@ private slots:
     void on_visitButton_clicked();
     void on_exitButton_clicked();
 
+    void on_guildsListWidget_itemSelectionChanged();
+
 private:
     // Widgets for the left side
     QLabel *welcomeLabel;
