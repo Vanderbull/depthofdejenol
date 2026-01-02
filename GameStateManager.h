@@ -29,7 +29,18 @@ signals:
 private:
     QVariantMap m_gameStateData;
     QMap<QString, int> m_confinementStock;
+    QList<QVariantMap> m_confinementcreaturesData; // In-memory storage for MDATA15
+    QList<QVariantMap> m_hallofrecordsData; // In-memory storage for MDATA14
+    QList<QVariantMap> m_libraryentriesData; // In-memory storage for MDATA13
+    QList<QVariantMap> m_existingpartiesData; // In-memory storage for MDATA12
+    QList<QVariantMap> m_dungeonlayoutData; // In-memory storage for MDATA11
+    QList<QVariantMap> m_dungeonstuffData; // In-memory storage for MDATA10
+    QList<QVariantMap> m_guildlogsData; // In-memory storage for MDATA9
+    QList<QVariantMap> m_automapData; // In-memory storage for MDATA8
+    QList<QVariantMap> m_guildmastersData; // In-memory storage for MDATA7
+    QList<QVariantMap> m_generalstoreData; // In-memory storage for MDATA6
     QList<QVariantMap> m_monsterData; // In-memory storage for MDATA5
+    QList<QVariantMap> m_characterData; // In-memory storage for MDATA4
     QList<QVariantMap> m_itemData;    // In-memory storage for MDATA3
     QList<QVariantMap> m_spellData;    // In-memory storage for MDATA2
     QList<QVariantMap> m_gameData;    // In-memory storage for MDATA1
