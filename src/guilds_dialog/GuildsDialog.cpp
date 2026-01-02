@@ -272,41 +272,56 @@ void GuildsDialog::on_readGuildLogButton_clicked()
 
 void GuildsDialog::on_visitButton_clicked()
 {
-    // Generate 6 random stats (between 1 and 20)
-    int str = QRandomGenerator::global()->bounded(1, 21);
-    int intel = QRandomGenerator::global()->bounded(1, 21);
-    int wis = QRandomGenerator::global()->bounded(1, 21);
-    int con = QRandomGenerator::global()->bounded(1, 21);
-    int cha = QRandomGenerator::global()->bounded(1, 21);
-    int dex = QRandomGenerator::global()->bounded(1, 21);
-
-    // *** FIX: Reverted to the simple one-argument form of QString::arg() ***
-    // This ensures values are inserted without complex width failures, relying on spaces for alignment.
-    QString newStatsText = QString("Str Int Wis Con Cha Dex\n%1  %2  %3  %4  %5   %6")
-                               .arg(str)
-                               .arg(intel)
-                               .arg(wis)
-                               .arg(con)
-                               .arg(cha)
-                               .arg(dex);
-
-
-    // Update the stats label
-    statsLabel->setText(newStatsText);
-
-    // Log the action 
-    GameStateManager::instance()->logGuildAction("Stats refreshed via Visit button.");
-
-    // Original 'Visit' functionality placeholder/feedback
-    QString currentGuild = guildsListWidget->currentItem() ? guildsListWidget->currentItem()->text() : "No Guild Selected";
+    GameStateManager* gsm = GameStateManager::instance();
+    QListWidgetItem *selectedItem = guildsListWidget->currentItem();
     
-    // REMOVE MARKER for display clarity in the message box
-    if (currentGuild.startsWith("* ")) {
-        currentGuild.remove(0, 2); 
+    if (!selectedItem) {
+        QMessageBox::warning(this, "No Selection", "Please select a guild first.");
+        return;
     }
-    
-    QMessageBox::information(this, "Action", 
-        "Visit button clicked. The **Stats Required** have been refreshed to random values, and you are visiting: **" + currentGuild + "**.");
+
+    QString guildName = selectedItem->text();
+    if (guildName.startsWith("* ")) guildName.remove(0, 2);
+
+    // 1. Fetch Selected Guild Requirements from gameData
+    QVariantMap selectedGuildData;
+    for (const QVariantMap& guild : gsm->gameData()) {
+        if (guild["name"].toString() == guildName) {
+            selectedGuildData = guild;
+            break;
+        }
+    }
+
+    if (selectedGuildData.isEmpty()) return;
+    QVariantMap reqs = selectedGuildData["reqStats"].toMap();
+
+    // 2. Fetch Player's Natural Stats from GameStateManager
+    // Assuming keys: "StatStr", "StatInt", "StatWis", "StatCon", "StatCha", "StatDex"
+    int pStr = gsm->getGameValue("StatStr").toInt();
+    int pInt = gsm->getGameValue("StatInt").toInt();
+    int pWis = gsm->getGameValue("StatWis").toInt();
+    int pCon = gsm->getGameValue("StatCon").toInt();
+    int pCha = gsm->getGameValue("StatCha").toInt();
+    int pDex = gsm->getGameValue("StatDex").toInt();
+
+    // 3. Compare Stats
+    bool meetsReqs = (pStr >= reqs["Str"].toInt() &&
+                      pInt >= reqs["Int"].toInt() &&
+                      pWis >= reqs["Wis"].toInt() &&
+                      pCon >= reqs["Con"].toInt() &&
+                      pCha >= reqs["Cha"].toInt() &&
+                      pDex >= reqs["Dex"].toInt());
+
+    // 4. Update UI and Provide Feedback
+    if (meetsReqs) {
+        tooLowLabel->hide(); // Hide the "stats too low" warning
+        gsm->logGuildAction("Visited " + guildName + ". Requirements met.");
+        QMessageBox::information(this, "Welcome", "The Guildmaster welcomes you to the " + guildName + "!");
+    } else {
+        tooLowLabel->show(); // Show the "Your natural stats are too low" label
+        gsm->logGuildAction("Visited " + guildName + " but failed stat requirements.");
+        QMessageBox::warning(this, "Denied", "Your natural stats are too low to join the " + guildName + ".");
+    }
 }
 
 void GuildsDialog::on_exitButton_clicked()
