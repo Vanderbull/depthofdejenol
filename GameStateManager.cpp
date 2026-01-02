@@ -185,6 +185,7 @@ void GameStateManager::loadGameData(const QString& filePath)
     QString fileContent = file.readAll();
     file.close();
 
+    // Extract JSON part
     int firstBrace = fileContent.indexOf('{');
     int lastBrace = fileContent.lastIndexOf('}');
     
@@ -199,15 +200,15 @@ void GameStateManager::loadGameData(const QString& filePath)
 
     m_gameData.clear();
 
-    // 1. Version
+    // Capture Version info
     if (rootObj.contains("GameVersion")) {
         QVariantMap versionMap;
         versionMap["DataType"] = "VersionInfo";
-        versionMap["Value"] = rootObj["GameVersion"].toVariant();
+        versionMap["VersionValue"] = rootObj["GameVersion"].toVariant();
         m_gameData.append(versionMap);
     }
 
-    // Helper to load and tag
+    // Helper to load and tag all categories
     auto processArray = [&](const QString& key, const QString& typeTag) {
         if (rootObj.contains(key) && rootObj[key].isArray()) {
             QJsonArray array = rootObj[key].toArray();
@@ -226,34 +227,33 @@ void GameStateManager::loadGameData(const QString& filePath)
     processArray("SubItemTypes", "SubItemType");
     processArray("SubMonsterTypes", "SubMonsterType");
 
-    // --- ENHANCED TERMINAL OUTPUT ---
+    // --- TERMINAL DUMP OF ALL KEYS AND VALUES ---
     qDebug() << "========================================";
-    qDebug() << "MDATA1 INSPECTION REPORT";
-    
+    qDebug() << "MDATA1 FULL DATA DUMP";
+    qDebug() << "Total Entries:" << m_gameData.size();
+
     for (int i = 0; i < m_gameData.size(); ++i) {
         const QVariantMap& entry = m_gameData[i];
         QString type = entry.value("DataType").toString();
         
-        // This prints EVERY key found in the object so you can see the real names
-        QStringList allKeys = entry.keys();
-        allKeys.removeAll("DataType"); // Hide our internal tag
-        
-        QString displayName;
-        // Try common naming variations
-        if (entry.contains("Name")) displayName = entry["Name"].toString();
-        else if (entry.contains("name")) displayName = entry["name"].toString();
-        else if (entry.contains("typeName")) displayName = entry["typeName"].toString();
-        else if (entry.contains("RaceName")) displayName = entry["RaceName"].toString();
-        else if (entry.contains("subTypeName")) displayName = entry["subTypeName"].toString();
-        else if (type == "VersionInfo") displayName = entry["Value"].toString();
+        qDebug() << QString("--- Entry %1 [%2] ---").arg(i).arg(type);
 
-        qDebug() << QString("Entry %1 [%2]: \"%3\" | Available Keys: %4")
-                    .arg(i)
-                    .arg(type)
-                    .arg(displayName)
-                    .arg(allKeys.join(", "));
+        // Iterate through every key-value pair in the map
+        QMapIterator<QString, QVariant> it(entry);
+        while (it.hasNext()) {
+            it.next();
+            
+            // Skip the DataType tag so we only see actual file data
+            if (it.key() == "DataType") continue;
+
+            // Check if the value is a nested list/map or a simple value
+            if (it.value().canConvert<QString>()) {
+                qDebug() << "  " << it.key() << ":" << it.value().toString();
+            } else {
+                qDebug() << "  " << it.key() << ": [Complex Data/Array]";
+            }
+        }
     }
-    qDebug() << "Total Entries:" << m_gameData.size();
     qDebug() << "========================================";
 
     setGameValue("ResourcesLoaded", true);
