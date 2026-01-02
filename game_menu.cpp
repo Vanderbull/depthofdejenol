@@ -328,6 +328,7 @@ void GameMenu::startNewGame() {
 // ----------------------------------------------------------------------
 // MODIFIED: Load Game Function with File Parsing and Debug Logging
 // ----------------------------------------------------------------------
+
 void GameMenu::loadGame() {
     // 1. Setup file path and selection dialog 
     QString basePath = QCoreApplication::applicationDirPath();
@@ -465,7 +466,7 @@ void GameMenu::loadGame() {
                                 gsmValue = fileValue;
                             }
                             
-                            // 🌟 DEBUG: Log the parsed key/value before setting state 🌟
+                            // DEBUG: Log the parsed key/value before setting state
                             qDebug() << "LOAD PARSE: File Key/Value:" << fileKey << "=" << fileValue << "| Mapped to GSM Key:" << gsmKey << "Final Value:" << gsmValue << "(Type:" << gsmValue.typeName() << ")";
                             
                             gsm->setGameValue(gsmKey, gsmValue);
@@ -509,6 +510,66 @@ void GameMenu::loadGame() {
         emit logMessageTriggered("Character selection cancelled.");
     }
 }
+
+/*
+void GameMenu::loadGame() {
+    // 1. Access the GameStateManager instance
+    GameStateManager *gsm = GameStateManager::instance();
+    
+    // 2. Retrieve character/guild data already loaded from MDATA1
+    const QList<QVariantMap>& characters = gsm->gameData();
+
+    if (characters.isEmpty()) {
+        emit logMessageTriggered("Error: MDATA1 character data is empty or not loaded.");
+        QMessageBox::warning(this, tr("No Data"), tr("No game data found in MDATA1."));
+        return;
+    }
+
+    // 3. Create a selection dialog for the user
+    QDialog selectionDialog(this);
+    selectionDialog.setWindowTitle("Load Character from MDATA1");
+    
+    QVBoxLayout *layout = new QVBoxLayout(&selectionDialog);
+    layout->addWidget(new QLabel("Select an entry to load:"));
+    
+    QComboBox *charComboBox = new QComboBox();
+    
+    // 4. Populate the dropdown with names from the MDATA1 memory storage
+    for (const QVariantMap& entry : characters) {
+        // MDATA1.js uses "Name" for guild/character entries based on your JSON parser
+        QString name = entry.value("Name").toString();
+        charComboBox->addItem(name.isEmpty() ? "Unknown Entry" : name);
+    }
+    layout->addWidget(charComboBox);
+    
+    QHBoxLayout *btnLayout = new QHBoxLayout();
+    QPushButton *loadBtn = new QPushButton("Load");
+    QPushButton *cancelBtn = new QPushButton("Cancel");
+    btnLayout->addWidget(loadBtn);
+    btnLayout->addWidget(cancelBtn);
+    layout->addLayout(btnLayout);
+
+    connect(loadBtn, &QPushButton::clicked, &selectionDialog, &QDialog::accept);
+    connect(cancelBtn, &QPushButton::clicked, &selectionDialog, &QDialog::reject);
+
+    // 5. Process the selection and update the Game State
+    if (selectionDialog.exec() == QDialog::Accepted) {
+        int index = charComboBox->currentIndex();
+        QVariantMap selectedData = characters.at(index);
+
+        // Map the selected data to current character values
+        gsm->setGameValue("CurrentCharacterName", selectedData.value("Name"));
+        gsm->setGameValue("CurrentCharacterGuild", selectedData.value("Name"));
+        
+        // Finalize state to enable 'Run Character'
+        gsm->setGameValue("CurrentCharacterStatPointsLeft", 0);
+        toggleMenuState(true);
+        
+        emit logMessageTriggered(QString("Loaded MDATA1 entry: %1").arg(charComboBox->currentText()));
+        QMessageBox::information(this, tr("Success"), tr("Character **%1** loaded.").arg(charComboBox->currentText()));
+    }
+}
+*/
 // ----------------------------------------------------------------------
 
 void GameMenu::showRecords() {
