@@ -227,9 +227,9 @@ void GameStateManager::loadGameData(const QString& filePath)
     processArray("SubItemTypes", "SubItemType");
     processArray("SubMonsterTypes", "SubMonsterType");
 
-    // --- TERMINAL DUMP OF ALL KEYS AND VALUES ---
+    // --- ENHANCED TERMINAL DUMP ---
     qDebug() << "========================================";
-    qDebug() << "MDATA1 FULL DATA DUMP";
+    qDebug() << "MDATA1 DEEP DATA DUMP";
     qDebug() << "Total Entries:" << m_gameData.size();
 
     for (int i = 0; i < m_gameData.size(); ++i) {
@@ -238,19 +238,35 @@ void GameStateManager::loadGameData(const QString& filePath)
         
         qDebug() << QString("--- Entry %1 [%2] ---").arg(i).arg(type);
 
-        // Iterate through every key-value pair in the map
         QMapIterator<QString, QVariant> it(entry);
         while (it.hasNext()) {
             it.next();
-            
-            // Skip the DataType tag so we only see actual file data
             if (it.key() == "DataType") continue;
 
-            // Check if the value is a nested list/map or a simple value
-            if (it.value().canConvert<QString>()) {
-                qDebug() << "  " << it.key() << ":" << it.value().toString();
-            } else {
-                qDebug() << "  " << it.key() << ": [Complex Data/Array]";
+            QVariant val = it.value();
+
+            // 1. Handle Nested Lists (Arrays)
+            if (val.type() == QVariant::List || val.type() == QVariant::StringList) {
+                QVariantList list = val.toList();
+                qDebug() << "  " << it.key() << ": [Array]";
+                for (int j = 0; j < list.size(); ++j) {
+                    // Prints each item in the array
+                    qDebug() << "     Index" << j << ":" << list[j].toString();
+                }
+            } 
+            // 2. Handle Nested Maps (Objects)
+            else if (val.type() == QVariant::Map) {
+                QVariantMap nestedMap = val.toMap();
+                qDebug() << "  " << it.key() << ": [Nested Object]";
+                QMapIterator<QString, QVariant> mapIt(nestedMap);
+                while (mapIt.hasNext()) {
+                    mapIt.next();
+                    qDebug() << "     " << mapIt.key() << ":" << mapIt.value().toString();
+                }
+            }
+            // 3. Handle Normal Values
+            else {
+                qDebug() << "  " << it.key() << ":" << val.toString();
             }
         }
     }
