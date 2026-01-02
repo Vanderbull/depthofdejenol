@@ -220,7 +220,56 @@ void GameStateManager::loadGameData(const QString& filePath)
         }
     }
 
+    // 2. Process ItemTypes and append to m_gameData
+    if (rootObj.contains("ItemTypes") && rootObj["ItemTypes"].isArray()) {
+        QJsonArray itemTypesArray = rootObj["ItemTypes"].toArray();
+        for (const QJsonValue& value : itemTypesArray) {
+            QVariantMap itemTypeMap = value.toObject().toVariantMap();
+            itemTypeMap["DataType"] = "ItemType"; // Tagging the type for clarity
+            m_gameData.append(itemTypeMap);
+        }
+    }
+
+    // 3. Process MonsterTypes
+    if (rootObj.contains("MonsterTypes") && rootObj["MonsterTypes"].isArray()) {
+        QJsonArray monsterTypesArray = rootObj["MonsterTypes"].toArray();
+        for (const QJsonValue& value : monsterTypesArray) {
+            QVariantMap monsterTypeMap = value.toObject().toVariantMap();
+            monsterTypeMap["DataType"] = "MonsterType";
+            m_gameData.append(monsterTypeMap);
+        }
+    }
+
+
     qDebug() << "Successfully loaded" << m_gameData.size() << "guilds from MDATA1.";
+
+// --- Terminal Output Section ---
+    qDebug() << "========================================";
+    qDebug() << "MDATA1 FULL LOAD REPORT";
+    qDebug() << "Total Entries in m_gameData:" << m_gameData.size();
+
+    for (int i = 0; i < m_gameData.size(); ++i) {
+        const QVariantMap& entry = m_gameData[i];
+        QString type = entry.value("DataType").toString();
+        
+        if (type == "Guild") {
+            qDebug() << "Entry" << i << "[GUILD]:" << entry.value("Name").toString();
+        } else if (type == "ItemType") {
+            qDebug() << "Entry" << i << "[ITEM TYPE]:" << entry.value("typeName").toString();
+        } else if (type == "MonsterType") {
+            qDebug() << "Entry" << i << "[MONSTER TYPE]:" << entry.value("typeName").toString();
+        }
+        
+        // Output all keys for this entry
+        QMapIterator<QString, QVariant> it(entry);
+        while (it.hasNext()) {
+            it.next();
+            if (it.key() != "DataType") {
+                qDebug() << "  " << it.key() << ":" << it.value();
+            }
+        }
+    }
+    qDebug() << "========================================";
     
     // Optional: Update ResourcesLoaded flag if this is the core data
     setGameValue("ResourcesLoaded", true);
