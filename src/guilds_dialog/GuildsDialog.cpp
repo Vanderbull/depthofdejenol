@@ -331,21 +331,37 @@ void GuildsDialog::on_guildsListWidget_itemSelectionChanged()
     // 2. Fetch the Master from GameStateManager
     QMap<QString, QString> masters = GameStateManager::guildMasters();
     QString masterName = masters.value(guildName, "Unknown Master");
+// 3. Update Stats Required from GameStateManager (MDATA1)
+    const QList<QVariantMap>& allGuilds = GameStateManager::instance()->gameData();
+    QVariantMap selectedGuildData;
 
+    // Search for the guild entry matching the selected name
+    for (const QVariantMap& guild : allGuilds) {
+        if (guild["name"].toString() == guildName) {
+            selectedGuildData = guild;
+            break;
+        }
+    }
+
+    // 4. Update the stats label if the guild was found
     if (!selectedGuildData.isEmpty()) {
-            QVariantMap reqStats = selectedGuildData["reqStats"].toMap();
-            
-            // Format: Str Int Wis Con Cha Dex
-            QString statsText = QString("Str Int Wis Con Cha Dex\n%-31 %-31 %-31 %-31 %-31 %1")
-                .arg(reqStats["Str"].toInt())
-                .arg(reqStats["Int"].toInt())
-                .arg(reqStats["Wis"].toInt())
-                .arg(reqStats["Con"].toInt())
-                .arg(reqStats["Cha"].toInt())
-                .arg(reqStats["Dex"].toInt());
-    
-            statsLabel->setText(statsText);
-    }    
+        // reqStats is a nested object in MDATA1.js
+        QVariantMap reqStats = selectedGuildData["reqStats"].toMap();
+        
+        // Format the stats string based on the keys in MDATA1.js
+        QString statsText = QString("Str Int Wis Con Cha Dex\n%-3  %-3  %-3  %-3  %-3  %1")
+            .arg(reqStats["Str"].toInt())
+            .arg(reqStats["Int"].toInt())
+            .arg(reqStats["Wis"].toInt())
+            .arg(reqStats["Con"].toInt())
+            .arg(reqStats["Cha"].toInt())
+            .arg(reqStats["Dex"].toInt());
+
+        statsLabel->setText(statsText);
+    } else {
+        statsLabel->setText("Str Int Wis Con Cha Dex\n--  --  --  --  --  --");
+    }
+
     // 3. Update the LineEdit
     guildMasterLineEdit->setText(masterName);
 }
