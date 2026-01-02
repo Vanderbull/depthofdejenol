@@ -349,13 +349,13 @@ void GuildsDialog::on_guildsListWidget_itemSelectionChanged()
         QVariantMap reqStats = selectedGuildData["reqStats"].toMap();
         
         // Format the stats string based on the keys in MDATA1.js
-        QString statsText = QString("Str Int Wis Con Cha Dex\n%-3  %-3  %-3  %-3  %-3  %1")
-            .arg(reqStats["Str"].toInt())
-            .arg(reqStats["Int"].toInt())
-            .arg(reqStats["Wis"].toInt())
-            .arg(reqStats["Con"].toInt())
-            .arg(reqStats["Cha"].toInt())
-            .arg(reqStats["Dex"].toInt());
+    QString statsText = QString("Str Int Wis Con Cha Dex\n%-3 %-4 %-4 %-4 %-4 %5")
+        .arg(reqStats["Str"].toInt())   // %1
+        .arg(reqStats["Int"].toInt())   // %2
+        .arg(reqStats["Wis"].toInt())   // %3
+        .arg(reqStats["Con"].toInt())   // %4
+        .arg(reqStats["Cha"].toInt())   // %5
+        .arg(reqStats["Dex"].toInt());  // %6
 
         statsLabel->setText(statsText);
     } else {
