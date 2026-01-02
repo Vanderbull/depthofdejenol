@@ -173,6 +173,7 @@ GameStateManager::GameStateManager(QObject *parent)
     m_gameStateData["GuildLeaders"] = guildLeadersList;
     qDebug() << "GameStateManager initialized.";
 }
+
 void GameStateManager::loadGameData(const QString& filePath)
 {
     QFile file(filePath);
@@ -181,97 +182,80 @@ void GameStateManager::loadGameData(const QString& filePath)
         return;
     }
 
-    // Read the entire file
     QString fileContent = file.readAll();
     file.close();
 
-    // CLEANUP: The provided file is a .js file with "const gameData = { ... };"
-    // We need to extract just the JSON part between the first '{' and the last '}'
     int firstBrace = fileContent.indexOf('{');
     int lastBrace = fileContent.lastIndexOf('}');
     
     if (firstBrace == -1 || lastBrace == -1) {
-        qWarning() << "MDATA1 file does not contain valid JSON object structure.";
+        qWarning() << "MDATA1 file structure invalid.";
         return;
     }
 
     QString jsonString = fileContent.mid(firstBrace, (lastBrace - firstBrace) + 1);
+    QJsonDocument doc = QJsonDocument::fromJson(jsonString.toUtf8());
+    QJsonObject rootObj = doc.object();
 
-    // Parse JSON
-    QJsonParseError error;
-    QJsonDocument doc = QJsonDocument::fromJson(jsonString.toUtf8(), &error);
-    
-    if (error.error != QJsonParseError::NoError) {
-        qWarning() << "JSON Parse Error in MDATA1:" << error.errorString();
-        return;
-    }
-
-    // Clear existing data
     m_gameData.clear();
 
-    // Map the "Guilds" array to our m_gameData list
-    QJsonObject rootObj = doc.object();
-    if (rootObj.contains("Guilds") && rootObj["Guilds"].isArray()) {
-        QJsonArray guildsArray = rootObj["Guilds"].toArray();
-        
-        for (const QJsonValue& value : guildsArray) {
-            // Convert QJsonObject to QVariantMap to match your class members
-            m_gameData.append(value.toObject().toVariantMap());
-        }
+    // 1. Version
+    if (rootObj.contains("GameVersion")) {
+        QVariantMap versionMap;
+        versionMap["DataType"] = "VersionInfo";
+        versionMap["Value"] = rootObj["GameVersion"].toVariant();
+        m_gameData.append(versionMap);
     }
 
-    // 2. Process ItemTypes and append to m_gameData
-    if (rootObj.contains("ItemTypes") && rootObj["ItemTypes"].isArray()) {
-        QJsonArray itemTypesArray = rootObj["ItemTypes"].toArray();
-        for (const QJsonValue& value : itemTypesArray) {
-            QVariantMap itemTypeMap = value.toObject().toVariantMap();
-            itemTypeMap["DataType"] = "ItemType"; // Tagging the type for clarity
-            m_gameData.append(itemTypeMap);
+    // Helper to load and tag
+    auto processArray = [&](const QString& key, const QString& typeTag) {
+        if (rootObj.contains(key) && rootObj[key].isArray()) {
+            QJsonArray array = rootObj[key].toArray();
+            for (const QJsonValue& value : array) {
+                QVariantMap map = value.toObject().toVariantMap();
+                map["DataType"] = typeTag; 
+                m_gameData.append(map);
+            }
         }
-    }
+    };
 
-    // 3. Process MonsterTypes
-    if (rootObj.contains("MonsterTypes") && rootObj["MonsterTypes"].isArray()) {
-        QJsonArray monsterTypesArray = rootObj["MonsterTypes"].toArray();
-        for (const QJsonValue& value : monsterTypesArray) {
-            QVariantMap monsterTypeMap = value.toObject().toVariantMap();
-            monsterTypeMap["DataType"] = "MonsterType";
-            m_gameData.append(monsterTypeMap);
-        }
-    }
+    processArray("Guilds", "Guild");
+    processArray("ItemTypes", "ItemType");
+    processArray("MonsterTypes", "MonsterType");
+    processArray("Races", "Race");
+    processArray("SubItemTypes", "SubItemType");
+    processArray("SubMonsterTypes", "SubMonsterType");
 
-
-    qDebug() << "Successfully loaded" << m_gameData.size() << "guilds from MDATA1.";
-
-// --- Terminal Output Section ---
+    // --- ENHANCED TERMINAL OUTPUT ---
     qDebug() << "========================================";
-    qDebug() << "MDATA1 FULL LOAD REPORT";
-    qDebug() << "Total Entries in m_gameData:" << m_gameData.size();
-
+    qDebug() << "MDATA1 INSPECTION REPORT";
+    
     for (int i = 0; i < m_gameData.size(); ++i) {
         const QVariantMap& entry = m_gameData[i];
         QString type = entry.value("DataType").toString();
         
-        if (type == "Guild") {
-            qDebug() << "Entry" << i << "[GUILD]:" << entry.value("Name").toString();
-        } else if (type == "ItemType") {
-            qDebug() << "Entry" << i << "[ITEM TYPE]:" << entry.value("typeName").toString();
-        } else if (type == "MonsterType") {
-            qDebug() << "Entry" << i << "[MONSTER TYPE]:" << entry.value("typeName").toString();
-        }
+        // This prints EVERY key found in the object so you can see the real names
+        QStringList allKeys = entry.keys();
+        allKeys.removeAll("DataType"); // Hide our internal tag
         
-        // Output all keys for this entry
-        QMapIterator<QString, QVariant> it(entry);
-        while (it.hasNext()) {
-            it.next();
-            if (it.key() != "DataType") {
-                qDebug() << "  " << it.key() << ":" << it.value();
-            }
-        }
+        QString displayName;
+        // Try common naming variations
+        if (entry.contains("Name")) displayName = entry["Name"].toString();
+        else if (entry.contains("name")) displayName = entry["name"].toString();
+        else if (entry.contains("typeName")) displayName = entry["typeName"].toString();
+        else if (entry.contains("RaceName")) displayName = entry["RaceName"].toString();
+        else if (entry.contains("subTypeName")) displayName = entry["subTypeName"].toString();
+        else if (type == "VersionInfo") displayName = entry["Value"].toString();
+
+        qDebug() << QString("Entry %1 [%2]: \"%3\" | Available Keys: %4")
+                    .arg(i)
+                    .arg(type)
+                    .arg(displayName)
+                    .arg(allKeys.join(", "));
     }
+    qDebug() << "Total Entries:" << m_gameData.size();
     qDebug() << "========================================";
-    
-    // Optional: Update ResourcesLoaded flag if this is the core data
+
     setGameValue("ResourcesLoaded", true);
 }
 
