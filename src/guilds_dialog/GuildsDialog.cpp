@@ -331,7 +331,21 @@ void GuildsDialog::on_guildsListWidget_itemSelectionChanged()
     // 2. Fetch the Master from GameStateManager
     QMap<QString, QString> masters = GameStateManager::guildMasters();
     QString masterName = masters.value(guildName, "Unknown Master");
+
+    if (!selectedGuildData.isEmpty()) {
+            QVariantMap reqStats = selectedGuildData["reqStats"].toMap();
+            
+            // Format: Str Int Wis Con Cha Dex
+            QString statsText = QString("Str Int Wis Con Cha Dex\n%-31 %-31 %-31 %-31 %-31 %1")
+                .arg(reqStats["Str"].toInt())
+                .arg(reqStats["Int"].toInt())
+                .arg(reqStats["Wis"].toInt())
+                .arg(reqStats["Con"].toInt())
+                .arg(reqStats["Cha"].toInt())
+                .arg(reqStats["Dex"].toInt());
     
+            statsLabel->setText(statsText);
+    }    
     // 3. Update the LineEdit
     guildMasterLineEdit->setText(masterName);
 }
