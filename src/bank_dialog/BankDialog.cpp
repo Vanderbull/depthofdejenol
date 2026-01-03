@@ -265,7 +265,32 @@ void BankDialog::on_withdrawAllButton_clicked()
 
 void BankDialog::on_poolAndDepositButton_clicked()
 {
-    QMessageBox::information(this, "Action", "Pooling Party Gold and Items for Deposit.");
+    // 1. Get current values from the GameStateManager
+    long long playerGold = getPlayerGold();
+    long long bankedGold = getBankedGold();
+    int freeSlots = getFreeSlots();
+
+    // 2. Check if there is anything to deposit
+    if (playerGold > 0) {
+        long long newBankBalance = bankedGold + playerGold;
+
+        // 3. Update the GameStateManager
+        // We set player gold to 0 and increase the bank balance
+        GameStateManager::instance()->setGameValue("BankedGold", QVariant::fromValue(newBankBalance));
+        GameStateManager::instance()->setGameValue("CurrentCharacterGold", QVariant::fromValue((qulonglong)0));
+
+        // 4. Sync the UI labels immediately
+        updateAccountStatus(0, newBankBalance, freeSlots);
+
+        // 5. Provide feedback to the player
+        QMessageBox::information(this, "Deposit Successful", 
+            QString("Pooled all personal gold. Successfully deposited %L1 gold.").arg(playerGold));
+        
+        // Emit signal if other parts of your app need to know
+        emit depositGold(playerGold);
+    } else {
+        QMessageBox::warning(this, "Deposit Failed", "You have no gold in your inventory to pool.");
+    }
 }
 
 void BankDialog::on_partyDepositButton_clicked()
@@ -275,9 +300,34 @@ void BankDialog::on_partyDepositButton_clicked()
 
 void BankDialog::on_partyPoolAndDepositButton_clicked()
 {
-    QMessageBox::information(this, "Action", "Pooling and Depositing all Party assets.");
-}
+    // 1. Retrieve current values from GameStateManager
+    long long playerGold = getPlayerGold();
+    long long bankedGold = getBankedGold();
+    
+    // Assuming "PartyGold" is a key stored in your GameStateManager
+    long long partyGold = GameStateManager::instance()->getGameValue("PartyGold").toULongLong();
 
+    long long totalToDeposit = playerGold + partyGold;
+
+    if (totalToDeposit > 0) {
+        // 2. Calculate the new bank total
+        long long newBankBalance = bankedGold + totalToDeposit;
+
+        // 3. Update GameStateManager: Set player and party gold to 0, update bank
+        GameStateManager::instance()->setGameValue("BankedGold", QVariant::fromValue(newBankBalance));
+        GameStateManager::instance()->setGameValue("CurrentCharacterGold", QVariant::fromValue((qulonglong)0));
+        GameStateManager::instance()->setGameValue("PartyGold", QVariant::fromValue((qulonglong)0)); 
+
+        // 4. Update the UI
+        updateAccountStatus(0, newBankBalance, getFreeSlots());
+        
+        QMessageBox::information(this, "Party Deposit", 
+            QString("Pooled and deposited %L1 gold (Player: %L2, Party: %L3).")
+            .arg(totalToDeposit).arg(playerGold).arg(partyGold));
+    } else {
+        QMessageBox::warning(this, "Party Deposit", "There is no gold to pool.");
+    }
+}
 void BankDialog::on_exitButton_clicked()
 {
     // Use the standard reject() slot to close the dialog
