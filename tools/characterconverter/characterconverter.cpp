@@ -17,7 +17,7 @@
 // Assuming the Character struct based on the fields used in charactersheet.cpp
 struct Character {
 	std::string name;
-	int16_t att;
+	int16_t atk;
 	int16_t def;
 	int16_t id;
 	int16_t hits;
@@ -152,16 +152,88 @@ template <size_t RECORD_LENGTH> class RecordReader {
 		}
 	}
 };
+
+//--------------------------------------------------------------------------
+void writeCharacterToDumbo(const Character& m) {
+    QFile file("dumbo.csv");
+    // Open in WriteOnly mode (recreates the file) or Append if you prefer
+    if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
+        qCritical() << "Error: Could not open dumbo.csv for writing.";
+        return;
+    }
+
+    QTextStream out(&file);
+
+    // 1. Write the Header Row
+    // Note: This matches the fields in your Character struct definition
+    out << "name,atk,def,id,hits,numGroups,picID,lockedChance,levelFound,";
+    out << "ResFire,ResCold,ResElectric,ResMind,ResPoison,ResDisease,ResMagic,ResPhysical,ResWeapon,ResSpell,ResSpecial,ResUnused1,ResUnused2,";
+    out << "specialPropertyFlags,specialAttackFlags,spellFlags,chance,";
+    out << "boxChance0,boxChance1,boxChance2,boxChance3,";
+    out << "alignment,ingroup,goldFactor,trapFlags,guildlevel,";
+    out << "Stat0,Stat1,Stat2,Stat3,Stat4,Stat5,Stat6,";
+    out << "type,damageMod,companionType,companionSpawnMode,companionID,";
+    out << "Item0,Item1,Item2,Item3,Item4,Item5,Item6,Item7,Item8,Item9,Item10,";
+    out << "subtype,companionSubtype,deleted\n";
+
+    // 2. Write the Data Row
+    out << QString::fromStdString(m.name) << ",";
+    out << m.atk << "," << m.def << "," << m.id << "," << m.hits << ",";
+    out << m.numGroups << "," << m.picID << "," << m.lockedChance << "," << m.levelFound << ",";
+
+    // Resistances Array (12 elements)
+    for (int i = 0; i < 12; ++i) {
+        out << m.resistances[i] << ",";
+    }
+
+    out << m.specialPropertyFlags << "," << m.specialAttackFlags << "," << m.spellFlags << "," << m.chance << ",";
+
+    // BoxChance Array (4 elements)
+    for (int i = 0; i < 4; ++i) {
+        out << m.boxChance[i] << ",";
+    }
+
+    out << m.alignment << "," << m.ingroup << "," << m.goldFactor << "," << m.trapFlags << "," << m.guildlevel << ",";
+
+    // Stats Array (7 elements)
+    for (int i = 0; i < 7; ++i) {
+        out << m.stats[i] << ",";
+    }
+
+    out << m.type << "," << m.damageMod << "," << m.companionType << "," << m.companionSpawnMode << "," << m.companionID << ",";
+
+    // Items Array (11 elements)
+    for (int i = 0; i < 11; ++i) {
+        out << m.items[i] << ",";
+    }
+
+    out << m.subtype << "," << m.companionSubtype << "," << m.deleted << "\n";
+
+    file.close();
+    qDebug() << "Successfully wrote character data to dumbo.csv";
+}
+//--------------------------------------------------------------------------
+
 // --------------------------------------------------------------------------
 
-    // --- MLoader.cpp Integration (The loadMonsters function) ---
-    Characters loadCharacter(std::string filename) {
+// --- MLoader.cpp Integration (The loadMonsters function) ---
+Characters loadCharacter(std::string filename) {
     Characters characters;
     // Monster record size is 160 bytes, inferred from MSaver.cpp
     RecordReader<2900> rr(filename); 
 	
     // Read Header Records
     rr.read();
+
+    // 1. Create a new Character struct instance for this record
+    Character person;
+
+    // 2. Read the name (30 bytes) and assign it to the struct
+//    person.name = rr.getString(30);
+
+    // 3. (Optional) Populate other fields to keep the struct complete
+//    person.id = static_cast<int16_t>(i); // Using the loop index as ID
+
     std::string version = rr.getString();
     assert(version == "1.1");
     qInfo() << "Version:" << version;
@@ -172,22 +244,24 @@ template <size_t RECORD_LENGTH> class RecordReader {
     {
       rr.read();
       qInfo() << "------------CharacterID------------:" << i;
+      person.id = i;
       std::string characterName = rr.getString(30);
+      person.name = characterName;
       qInfo() << "Name (30 bytes):" << QString::fromStdString(characterName);
       // 2. Race (Offsets 30-31: 2 bytes)
       int16_t race = rr.getWord(); 
       qInfo() << "Race (int16):" << race;
     
       // 3. Alignment (Offsets 32-33: 2 bytes)
-      int16_t alignment = rr.getWord(); 
+      int16_t alignment = rr.getWord();
       qInfo() << "Alignment (int16):" << alignment;
       // 5. Days Old (Offsets 36-39: 4 bytes) - 'single' = float
       
       // 4. Sex (Offsets 34-35: int16)
-      int16_t sex = rr.getWord(); 
+      int16_t sex = rr.getWord();
       qInfo() << "Sex (int16):" << sex; // Cursor at 36
       
-      float daysOld = rr.getFloat(); 
+      float daysOld = rr.getFloat();
       qInfo() << "Days Old (float):" << daysOld;
 
       // 6. Current SP (Offsets 40-41: 2 bytes) - int16
@@ -207,11 +281,13 @@ template <size_t RECORD_LENGTH> class RecordReader {
     qInfo() << "Current Y (int16):" << currentY;
 
     // 10. Atk (Offsets 48-51: 4 bytes) - 'single' = float
-    float atk = rr.getDword(); 
+    float atk = rr.getDword();
+    person.atk = atk;
     qInfo() << "Atk (float):" << atk;
 
     // 11. Def (Offsets 52-55: 4 bytes) - 'single' = float
-    float def = rr.getDword(); 
+    float def = rr.getDword();
+    person.def = def;
     qInfo() << "Def (float):" << def;
 
     // 12. Base stats (Offsets 56-69: 7 * 2 = 14 bytes) - int16 array
@@ -591,15 +667,21 @@ template <size_t RECORD_LENGTH> class RecordReader {
       qInfo() << "--- Block 6 Read Complete. Final Cursor at offset 2900 (end of record). ---";
     }
 
+    // 4. Add the populated struct to our vector
+    characters.push_back(person);
+
     return characters;
 }
 // --------------------------------------------------------------------------
 
 
 // Header string derived directly from the field output order in monstersheet.cpp
-const QString CHARACTER_HEADERS = "name, att, def, id, hits, numGroups, picID, lockedChance, levelFound, ResFire, ResCold, ResElectric, ResMind, ResPoison, ResDisease, ResMagic, ResPhysical, ResWeapon, ResSpell, ResSpecial, specialPropertyFlags, specialAttackFlags, spellFlags, chance, boxChance0, boxChance1, boxChance2, alignment, ingroup, goldFactor, trapFlags, guildlevel, StatStr, StatInt, StatWis, StatCon, StatCha, StatDex, type, damageMod, companionType, companionSpawnMode, companionID, Item0, Item1, Item2, Item3, Item4, Item5, Item6, Item7, Item8, Item9, subtype, companionSubtype, deleted";
+const QString CHARACTER_HEADERS = "name, atk, def, id, hits, numGroups, picID, lockedChance, levelFound, ResFire, ResCold, ResElectric, ResMind, ResPoison, ResDisease, ResMagic, ResPhysical, ResWeapon, ResSpell, ResSpecial, specialPropertyFlags, specialAttackFlags, spellFlags, chance, boxChance0, boxChance1, boxChance2, alignment, ingroup, goldFactor, trapFlags, guildlevel, StatStr, StatInt, StatWis, StatCon, StatCha, StatDex, type, damageMod, companionType, companionSpawnMode, companionID, Item0, Item1, Item2, Item3, Item4, Item5, Item6, Item7, Item8, Item9, subtype, companionSubtype, deleted";
 
 int main(int argc, char *argv[]) {
+
+    qDebug() << "write dumbo now!!!!!!!!!!!!!!";
+
     // 1. Setup Qt Application and Command Line Parser
     QCoreApplication app(argc, argv);
     QCoreApplication::setApplicationName("CharacterConverter");
@@ -711,7 +793,7 @@ int main(int argc, char *argv[]) {
         }
         
         // Write all standard fields
-        f << QString::number(m.att) << ",";
+        f << QString::number(m.atk) << ",";
         f << QString::number(m.def) << ",";
         f << QString::number(m.id) << ",";
         f << QString::number(m.hits) << ",";
@@ -769,6 +851,12 @@ int main(int argc, char *argv[]) {
     // 6. Write Footer and Close File
     f << ender2;
     file.close();
+
+    qDebug() << "write dumbo now!!!!!!!!!!!!!!";
+
+    //if (!characters.empty()) {
+        writeCharacterToDumbo(characters.at(0));
+    //}
 
     qDebug() << "Successfully converted character from" << inPath << "to" << outPath;
     
