@@ -30,6 +30,22 @@ struct Character {
     Def (float): 1.09262e+09
     Base Stats (7x int16): "9, 9, 9, 10, 10, 11, 0"
     Modded Stats (7x int16): "0, 0, 0, 0, 0, 0, 0"
+    --- Starting Inventory Read (41 Items) ---
+    "Item 0 | ID: 0, Index: 0, Eq: 0, Atk/Def: 0/0"
+    "Item 1 | ID: 0, Index: 0, Eq: 0, Atk/Def: 0/0"
+    "Item 2 | ID: 0, Index: 0, Eq: 0, Atk/Def: 0/0"
+       ... (Skipping remaining items for brevity) ...
+    "Item 40 | ID: 0, Index: 0, Eq: 0, Atk/Def: 0/0"
+    --- Starting Bank Read (41 Items) ---
+    "Bank 0 | ID: 0, Index: 0, Atk/Def: 0/0"
+    "Bank 1 | ID: 0, Index: 0, Atk/Def: 0/0"
+    "Bank 2 | ID: 0, Index: 0, Atk/Def: 0/0"
+       ... (Skipping remaining bank items for brevity) ...
+    "Bank 40 | ID: 0, Index: 0, Atk/Def: 0/0"
+    --- Bank Read Complete. Cursor at offset 1560. ---
+    Equipped Items (36x int16): "0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0"
+    Unused (int64): 0
+    Unused (int16): 0
 */
 	std::string name;
 	int16_t race;
@@ -44,6 +60,26 @@ struct Character {
 	float def;
 	int16_t baseStats[7];
 	int16_t moddedStats[7];
+    // Inventory
+    int16_t inventory_atk[41];
+    int16_t inventory_def[41];
+    int16_t inventory_itemIndex[41];
+    int16_t inventory_itemID[41];
+    int16_t inventory_alignment[41];
+    int16_t inventory_charges[41];
+    int16_t inventory_equipped[41];
+    int16_t inventory_idLevel[41];
+    int16_t inventory_cursed[41];
+    // Bank Inventory
+    int16_t bank_inventory_atk[41];
+    int16_t bank_inventory_def[41];
+    int16_t bank_inventory_itemIndex[41];
+    int16_t bank_inventory_itemID[41];
+    int16_t bank_inventory_alignment[41];
+    int16_t bank_inventory_charges[41];
+    int16_t bank_inventory_equipped[41];
+    int16_t bank_inventory_idLevel[41];
+    int16_t bank_inventory_cursed[41];
 	
 	int16_t id;
 	int16_t hits;
@@ -66,7 +102,7 @@ struct Character {
 	int16_t companionType;
 	int16_t companionSpawnMode;
 	int16_t companionID;
-	int16_t items[11]; // Placeholder for 11, though sheet only prints 10
+	//int16_t items[11]; // Placeholder for 11, though sheet only prints 10
 	int16_t subtype;
 	int16_t companionSubtype;
 	int16_t deleted;
@@ -218,9 +254,9 @@ void writeCharacterToDumbo(const Character& m) {
     out << m.type << "," << m.damageMod << "," << m.companionType << "," << m.companionSpawnMode << "," << m.companionID << ",";
 
     // Items Array (11 elements)
-    for (int i = 0; i < 11; ++i) {
-        out << m.items[i] << ",";
-    }
+    //for (int i = 0; i < 11; ++i) {
+    //    out << m.items[i] << ",";
+    //}
 
     out << m.subtype << "," << m.companionSubtype << "," << m.deleted << "\n";
 
@@ -234,22 +270,19 @@ void writeCharacterToDumbo(const Character& m) {
 // --- MLoader.cpp Integration (The loadMonsters function) ---
 Characters loadCharacter(std::string filename) {
     Characters characters;
+    // 1. Create a new Character struct instance for this record
+    Character person;
     // Monster record size is 160 bytes, inferred from MSaver.cpp
     RecordReader<2900> rr(filename);
     // Read Header Records
     rr.read();
-    // 1. Create a new Character struct instance for this record
-    Character person;
-    // 2. Read the name (30 bytes) and assign it to the struct
-    //    person.name = rr.getString(30);
-    // 3. (Optional) Populate other fields to keep the struct complete
-    //    person.id = static_cast<int16_t>(i); // Using the loop index as ID
     std::string version = rr.getString();
     assert(version == "1.1");
     qInfo() << "Version:" << version;
     rr.read();
     uint16_t nCharacters = rr.getWord();
     qInfo() << "Characters:" << nCharacters;
+    // End of header
     for (size_t i = 0; i < nCharacters; i++)
     {
         rr.read();
@@ -259,185 +292,167 @@ Characters loadCharacter(std::string filename) {
         person.name = rr.getString(30);
         qInfo() << "Name (30 bytes):" << QString::fromStdString(person.name);
         // 2. Race (Offsets 30-31: 2 bytes)
-        int16_t race = rr.getWord();
-        qInfo() << "Race (int16):" << race;
+        person.race = rr.getWord();
+        qInfo() << "Race (int16):" << person.race;
         // 3. Alignment (Offsets 32-33: 2 bytes)
-        int16_t alignment = rr.getWord();
-        qInfo() << "Alignment (int16):" << alignment;
+        person.alignment = rr.getWord();
+        qInfo() << "Alignment (int16):" << person.alignment;
         // 4. Sex (Offsets 34-35: int16)
-        int16_t sex = rr.getWord();
-        qInfo() << "Sex (int16):" << sex; // Cursor at 36
+        person.sex = rr.getWord();
+        qInfo() << "Sex (int16):" << person.sex; // Cursor at 36
         // 5. Days Old (Offsets 36-39: 4 bytes) - 'single' = float
-        float daysOld = rr.getFloat();
-        qInfo() << "Days Old (float):" << daysOld;
+        person.daysOld = rr.getFloat();
+        qInfo() << "Days Old (float):" << person.daysOld;
         // 6. Current SP (Offsets 40-41: 2 bytes) - int16
-        int16_t currentSP = rr.getWord(); 
-        qInfo() << "Current SP (int16):" << currentSP;
+        person.currentSP = rr.getWord(); 
+        qInfo() << "Current SP (int16):" << person.currentSP;
         // 7. Current dungeon level (Offsets 42-43: 2 bytes) - int16
-        int16_t currentDungeonLevel = rr.getWord(); 
-        qInfo() << "Dungeon Level (int16):" << currentDungeonLevel;
+        person.currentDungeonLevel = rr.getWord(); 
+        qInfo() << "Dungeon Level (int16):" << person.currentDungeonLevel;
         // 8. Current x coordinates (Offsets 44-45: 2 bytes) - int16
-        int16_t currentX = rr.getWord(); 
-        qInfo() << "Current X (int16):" << currentX;
+        person.currentX = rr.getWord(); 
+        qInfo() << "Current X (int16):" << person.currentX;
         // 9. Current y coordinates (Offsets 46-47: 2 bytes) - int16
-        int16_t currentY = rr.getWord(); 
-        qInfo() << "Current Y (int16):" << currentY;
+        person.currentY = rr.getWord(); 
+        qInfo() << "Current Y (int16):" << person.currentY;
         // 10. Atk (Offsets 48-51: 4 bytes) - 'single' = float
-        float atk = rr.getDword();
-        person.atk = atk;
-        qInfo() << "Atk (float):" << atk;
+        person.atk = rr.getDword();
+        qInfo() << "Atk (float):" << person.atk;
         // 11. Def (Offsets 52-55: 4 bytes) - 'single' = float
-        float def = rr.getDword();
-        person.def = def;
-        qInfo() << "Def (float):" << def;
+        person.def = rr.getDword();
+        qInfo() << "Def (float):" << person.def;
         // 12. Base stats (Offsets 56-69: 7 * 2 = 14 bytes) - int16 array
-        // We can define a temporary array to hold these values.
         int16_t baseStats[7];
         rr.getArray(baseStats, 7);
-        // Outputting the array elements
-        QString baseStatsStr;
         for (int i = 0; i < 7; ++i) {
-            baseStatsStr += QString::number(baseStats[i]) + (i < 6 ? ", " : "");
+            person.baseStats[i] = baseStats[i]; //QString::number(baseStats[i]) + (i < 6 ? ", " : "");
+            qInfo() << "Base Stat: " << i << person.baseStats[i];
         }
-        qInfo() << "Base Stats (7x int16):" << baseStatsStr;
         // 13. Modded stats (Offsets 70-83: 7 * 2 = 14 bytes) - int16 array
         int16_t moddedStats[7];
         rr.getArray(moddedStats, 7);
-        // Outputting the array elements
-        QString moddedStatsStr;
         for (int i = 0; i < 7; ++i) {
-            moddedStatsStr += QString::number(moddedStats[i]) + (i < 6 ? ", " : "");
+            person.moddedStats[i] += moddedStats[i]; //QString::number(moddedStats[i]) + (i < 6 ? ", " : "");
+            qInfo() << "Modded Stat: " << i << person.moddedStats[i];
         }
-        qInfo() << "Modded Stats (7x int16):" << moddedStatsStr;
-    // Inventory Array (Offsets 84-821: 41 Items * 18 bytes)
-    const int NUM_ITEMS = 41;
-    qInfo() << "--- Starting Inventory Read (41 Items) ---";
+        // Inventory Array (Offsets 84-821: 41 Items * 18 bytes)
+        const int NUM_ITEMS = 41;
+        qInfo() << "--- Starting Inventory Read (41 Items) ---";
+        // Loop 41 times to read each item record
+        for (int i = 0; i < NUM_ITEMS; ++i) {
+            // 9 fields, each is an int16 (2 bytes) = 18 bytes total
+            person.inventory_atk[i]        = rr.getWord(); // +2 bytes
+            person.inventory_def[i]        = rr.getWord(); // +2 bytes
+            person.inventory_itemIndex[i]  = rr.getWord(); // +2 bytes
+            person.inventory_itemID[i]     = rr.getWord(); // +2 bytes
+            person.inventory_alignment[i]  = rr.getWord(); // +2 bytes
+            person.inventory_charges[i]    = rr.getWord(); // +2 bytes
+            person.inventory_equipped[i]   = rr.getWord(); // +2 bytes
+            person.inventory_idLevel[i]    = rr.getWord(); // +2 bytes
+            person.inventory_cursed[i]     = rr.getWord(); // +2 bytes (Total 18 bytes)
 
-    // Loop 41 times to read each item record
-    for (int i = 0; i < NUM_ITEMS; ++i) {
-        // 9 fields, each is an int16 (2 bytes) = 18 bytes total
-        int16_t atk        = rr.getWord(); // +2 bytes
-        int16_t def        = rr.getWord(); // +2 bytes
-        int16_t itemIndex  = rr.getWord(); // +2 bytes
-        int16_t itemID     = rr.getWord(); // +2 bytes
-        int16_t alignment  = rr.getWord(); // +2 bytes
-        int16_t charges    = rr.getWord(); // +2 bytes
-        int16_t equipped   = rr.getWord(); // +2 bytes
-        int16_t idLevel    = rr.getWord(); // +2 bytes
-        int16_t cursed     = rr.getWord(); // +2 bytes (Total 18 bytes)
-
-        // Log a summary for the first 3 items and the last item for debugging
-        if (i < 3 || i == NUM_ITEMS - 1) { 
             qInfo() << QString("Item %1 | ID: %2, Index: %3, Eq: %4, Atk/Def: %5/%6")
                 .arg(i)
-                .arg(itemID)
-                .arg(itemIndex)
-                .arg(equipped)
-                .arg(atk)
-                .arg(def);
-        } else if (i == 3) {
-            qInfo() << "   ... (Skipping remaining items for brevity) ...";
+                .arg(person.inventory_itemID[i])
+                .arg(person.inventory_itemIndex[i])
+                .arg(person.inventory_equipped[i])
+                .arg(person.inventory_atk[i])
+                .arg(person.inventory_def[i]);
         }
-    }
-    // The cursor is now at offset 84 + 738 = 822, ready for the next fi
-    // Bank Array (Offsets 822-1559: 41 Items * 18 bytes)
-    qInfo() << "--- Starting Bank Read (41 Items) ---";
+        // The cursor is now at offset 84 + 738 = 822, ready for the next fi
+        // Bank Array (Offsets 822-1559: 41 Items * 18 bytes)
+        qInfo() << "--- Starting Bank Read (41 Items) ---";
+        // Loop 41 times to read each item record
+        for (int i = 0; i < NUM_ITEMS; ++i) {
+            // 9 fields, each is an int16 (2 bytes) = 18 bytes total
+            person.bank_inventory_atk[i]        = rr.getWord(); // +2 bytes
+            person.bank_inventory_def[i]        = rr.getWord(); // +2 bytes
+            person.bank_inventory_itemIndex[i]  = rr.getWord(); // +2 bytes
+            person.bank_inventory_itemID[i]     = rr.getWord(); // +2 bytes
+            person.bank_inventory_alignment[i]  = rr.getWord(); // +2 bytes
+            person.bank_inventory_charges[i]    = rr.getWord(); // +2 bytes
+            person.bank_inventory_equipped[i]   = rr.getWord(); // +2 bytes
+            person.bank_inventory_idLevel[i]    = rr.getWord(); // +2 bytes
+            person.bank_inventory_cursed[i]     = rr.getWord(); // +2 bytes (Total 18 bytes)
 
-    // Loop 41 times to read each item record
-    for (int i = 0; i < NUM_ITEMS; ++i) {
-        // Read 9 fields, each is an int16 (2 bytes) = 18 bytes total
-        int16_t atk        = rr.getWord(); // +2 bytes
-        int16_t def        = rr.getWord(); // +2 bytes
-        int16_t itemIndex  = rr.getWord(); // +2 bytes
-        int16_t itemID     = rr.getWord(); // +2 bytes
-        int16_t alignment  = rr.getWord(); // +2 bytes
-        int16_t charges    = rr.getWord(); // +2 bytes
-        int16_t equipped   = rr.getWord(); // +2 bytes
-        int16_t idLevel    = rr.getWord(); // +2 bytes
-        int16_t cursed     = rr.getWord(); // +2 bytes (Total 18 bytes)
-
-        // Log a summary for the first 3 items and the last item for debugging
-        if (i < 3 || i == NUM_ITEMS - 1) { 
-            qInfo() << QString("Bank %1 | ID: %2, Index: %3, Atk/Def: %4/%5")
+            qInfo() << QString("Item %1 | ID: %2, Index: %3, Eq: %4, Atk/Def: %5/%6")
                 .arg(i)
-                .arg(itemID)
-                .arg(itemIndex)
-                .arg(atk)
-                .arg(def);
-        } else if (i == 3) {
-            qInfo() << "   ... (Skipping remaining bank items for brevity) ...";
+                .arg(person.bank_inventory_itemID[i])
+                .arg(person.bank_inventory_itemIndex[i])
+                .arg(person.bank_inventory_equipped[i])
+                .arg(person.bank_inventory_atk[i])
+                .arg(person.bank_inventory_def[i]);
         }
-    }
-    // The cursor is now at offset 822 + 738 = 1560, ready for the next field.
-    qInfo() << "--- Bank Read Complete. Cursor at offset 1560. ---";
-    // ------------------------------------------------------------
-    // --- START OF NEW/COMPLETED FIELDS (Offsets 1560 onwards) ---
-    // ------------------------------------------------------------
-    // 1. Equipped Items Array (Offsets 1560-1631: int16(36))
-      const int NUM_EQUIPPED_SLOTS = 36;
-      int16_t equippedItems[NUM_EQUIPPED_SLOTS];
-      rr.getArray(equippedItems, NUM_EQUIPPED_SLOTS); // Cursor at 1632
+        // The cursor is now at offset 822 + 738 = 1560, ready for the next field.
+        qInfo() << "--- Bank Read Complete. Cursor at offset 1560. ---";
+        // ------------------------------------------------------------
+        // --- START OF NEW/COMPLETED FIELDS (Offsets 1560 onwards) ---
+        // ------------------------------------------------------------
+        // 1. Equipped Items Array (Offsets 1560-1631: int16(36))
+        const int NUM_EQUIPPED_SLOTS = 36;
+        int16_t equippedItems[NUM_EQUIPPED_SLOTS];
+        rr.getArray(equippedItems, NUM_EQUIPPED_SLOTS); // Cursor at 1632
 
-      QString equippedStr;
-      for (int i = 0; i < NUM_EQUIPPED_SLOTS; ++i) {
-          equippedStr += QString::number(equippedItems[i]) + (i < NUM_EQUIPPED_SLOTS - 1 ? ", " : "");
-      }
-      qInfo() << "Equipped Items (36x int16):" << equippedStr;
-      // 2. Unused (Offsets 1632-1639: int64)
-      int64_t unused64_1 = rr.getInt64(); 
-      qInfo() << "Unused (int64):" << unused64_1; // Cursor at 1640
-      // 3. Unused (Offsets 1640-1641: int16)
-      int16_t unused16_1 = rr.getWord(); 
-      qInfo() << "Unused (int16):" << unused16_1; // Cursor at 1642
-      // 4. Direction Facing (Offsets 1642-1643: int16)
-      int16_t directionFacing = rr.getWord(); 
-      qInfo() << "Direction Facing (int16):" << directionFacing; // Cursor at 1644
-      // 5. Unused (Offsets 1644-1645: int16)
-      int16_t unused16_2 = rr.getWord(); 
-      qInfo() << "Unused (int16):" << unused16_2; // Cursor at 1646
-      // 6. Total experience (Offsets 1646-1653: currency = int64_t)
-      int64_t totalExperience = rr.getInt64(); 
-      qInfo() << "Total Experience (int64/currency):" << totalExperience; // Cursor at 1654
-      // 7. Gold on hand (Offsets 1654-1661: currency = int64_t)
-      int64_t goldOnHand = rr.getInt64(); 
-      qInfo() << "Gold on Hand (int64/currency):" << goldOnHand; // Cursor at 1662
-      // 8. Current HP (Offsets 1662-1663: int16)
-      int16_t currentHP = rr.getWord(); 
-      qInfo() << "Current HP (int16):" << currentHP; // Cursor at 1664
-      // 9. Max HP (Offsets 1664-1665: int16)
-      int16_t maxHP = rr.getWord(); 
-      qInfo() << "Max HP (int16):" << maxHP; // Cursor at 1666
-      // 10. Gold in bank (Offsets 1666-1673: currency = int64_t)
-      int64_t goldInBank = rr.getInt64(); 
-      qInfo() << "Gold in Bank (int64/currency):" << goldInBank; // Cursor at 1674
-      // 11. Extra swings (Offsets 1674-1675: int16)
-      int16_t extraSwings = rr.getWord(); 
-      qInfo() << "Extra Swings (int16):" << extraSwings; // Cursor at 1676
-      // 12. Active Guild (Offsets 1676-1677: int16)
-      int16_t activeGuild = rr.getWord(); 
-      qInfo() << "Active Guild (int16):" << activeGuild; // Cursor at 1678
-      qInfo() << "--- Block 1 Read Complete. Cursor at offset 1678. ---";
-      // --- Block 2: GuildStatus Array (Offsets 1678-2061: 16 Records * 24 bytes) ---
-      const int NUM_GUILDS = 16;
-      qInfo() << "--- Starting GuildStatus Read (16 Records) ---";
+        QString equippedStr;
+        for (int i = 0; i < NUM_EQUIPPED_SLOTS; ++i) {
+            equippedStr += QString::number(equippedItems[i]) + (i < NUM_EQUIPPED_SLOTS - 1 ? ", " : "");
+        }
+        qInfo() << "Equipped Items (36x int16):" << equippedStr;
+        // 2. Unused (Offsets 1632-1639: int64)
+        int64_t unused64_1 = rr.getInt64(); 
+        qInfo() << "Unused (int64):" << unused64_1; // Cursor at 1640
+        // 3. Unused (Offsets 1640-1641: int16)
+        int16_t unused16_1 = rr.getWord(); 
+        qInfo() << "Unused (int16):" << unused16_1; // Cursor at 1642
+        // 4. Direction Facing (Offsets 1642-1643: int16)
+        int16_t directionFacing = rr.getWord(); 
+        qInfo() << "Direction Facing (int16):" << directionFacing; // Cursor at 1644
+        // 5. Unused (Offsets 1644-1645: int16)
+        int16_t unused16_2 = rr.getWord(); 
+        qInfo() << "Unused (int16):" << unused16_2; // Cursor at 1646
+        // 6. Total experience (Offsets 1646-1653: currency = int64_t)
+        int64_t totalExperience = rr.getInt64(); 
+        qInfo() << "Total Experience (int64/currency):" << totalExperience; // Cursor at 1654
+        // 7. Gold on hand (Offsets 1654-1661: currency = int64_t)
+        int64_t goldOnHand = rr.getInt64(); 
+        qInfo() << "Gold on Hand (int64/currency):" << goldOnHand; // Cursor at 1662
+        // 8. Current HP (Offsets 1662-1663: int16)
+        int16_t currentHP = rr.getWord(); 
+        qInfo() << "Current HP (int16):" << currentHP; // Cursor at 1664
+        // 9. Max HP (Offsets 1664-1665: int16)
+        int16_t maxHP = rr.getWord(); 
+        qInfo() << "Max HP (int16):" << maxHP; // Cursor at 1666
+        // 10. Gold in bank (Offsets 1666-1673: currency = int64_t)
+        int64_t goldInBank = rr.getInt64(); 
+        qInfo() << "Gold in Bank (int64/currency):" << goldInBank; // Cursor at 1674
+        // 11. Extra swings (Offsets 1674-1675: int16)
+        int16_t extraSwings = rr.getWord(); 
+        qInfo() << "Extra Swings (int16):" << extraSwings; // Cursor at 1676
+        // 12. Active Guild (Offsets 1676-1677: int16)
+        int16_t activeGuild = rr.getWord(); 
+         qInfo() << "Active Guild (int16):" << activeGuild; // Cursor at 1678
+        qInfo() << "--- Block 1 Read Complete. Cursor at offset 1678. ---";
+        // --- Block 2: GuildStatus Array (Offsets 1678-2061: 16 Records * 24 bytes) ---
+        const int NUM_GUILDS = 16;
+        qInfo() << "--- Starting GuildStatus Read (16 Records) ---";
 
-      for (int i = 0; i < NUM_GUILDS; ++i) {
-          // Record size is 24 bytes: int16 (2) + currency(int64) (8) + 3x int16 (6) + 2x single(float) (8) = 24 bytes
-          int16_t currentLevel     = rr.getWord(); 
-          int64_t currentExperience = rr.getInt64(); 
-          int16_t quest            = rr.getWord(); 
-          int16_t questedID        = rr.getWord(); 
-          int16_t isQuestCompleted = rr.getWord(); 
-          float atk_g              = rr.getFloat(); 
-          float def_g              = rr.getFloat(); 
+        for (int i = 0; i < NUM_GUILDS; ++i) {
+            // Record size is 24 bytes: int16 (2) + currency(int64) (8) + 3x int16 (6) + 2x single(float) (8) = 24 bytes
+            int16_t currentLevel     = rr.getWord(); 
+            int64_t currentExperience = rr.getInt64(); 
+            int16_t quest            = rr.getWord(); 
+            int16_t questedID        = rr.getWord(); 
+            int16_t isQuestCompleted = rr.getWord(); 
+            float atk_g              = rr.getFloat(); 
+            float def_g              = rr.getFloat(); 
 
-          if (i < 2 || i == NUM_GUILDS - 1) { 
-              qInfo() << QString("Guild %1 | Level: %2, XP: %3, QuestID: %4, Atk/Def: %5/%6")
-                  .arg(i).arg(currentLevel).arg(currentExperience).arg(questedID).arg(atk_g).arg(def_g);
-          } else if (i == 2) {
-              qInfo() << "   ... (Skipping remaining guild records for brevity) ...";
-          }
-      }
+            if (i < 2 || i == NUM_GUILDS - 1) { 
+                qInfo() << QString("Guild %1 | Level: %2, XP: %3, QuestID: %4, Atk/Def: %5/%6")
+                    .arg(i).arg(currentLevel).arg(currentExperience).arg(questedID).arg(atk_g).arg(def_g);
+            } else if (i == 2) {
+                qInfo() << "   ... (Skipping remaining guild records for brevity) ...";
+            }
+        }
       qInfo() << "--- GuildStatus Read Complete. Cursor at offset 2062. ---";
       // --- Block 3: Companion Array (Offsets 2062-2226: 5 Records * 33 bytes) ---
       const int NUM_COMPANIONS = 5;
@@ -783,9 +798,9 @@ int main(int argc, char *argv[]) {
         f << QString::number(m.companionID) << ",";
 
         // Write Items (10 elements, as per original loop 0 to 9)
-        for (int i = 0; i < 10; i++) {
-            f << QString::number(m.items[i]) << ",";
-        }
+        //for (int i = 0; i < 10; i++) {
+        //    f << QString::number(m.items[i]) << ",";
+        //}
 
         // Write Final flags (subtype, companionSubtype, deleted)
         f << QString::number(m.subtype) << ",";
