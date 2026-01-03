@@ -160,39 +160,46 @@ void TheCity::setupStyling()
 }
 
 void TheCity::on_generalStoreButton_clicked() {
-    qDebug() << "General Store clicked!";
-    GeneralStore store;
-    store.exec();
+    qDebug() << "General Store opened (Modeless)!";
+    GeneralStore *store = new GeneralStore(this);
+    store->setAttribute(Qt::WA_DeleteOnClose);
+    store->show();
 }
 void TheCity::on_morgueButton_clicked()      {
-    qDebug() << "Morgue clicked!";
-    MorgueDialog m;
-    m.exec();
+    qDebug() << "Morgue opened (Modeless)!";
+    MorgueDialog *m = new MorgueDialog(this);
+    m->setAttribute(Qt::WA_DeleteOnClose);
+    m->show();
 }
 void TheCity::on_guildsButton_clicked()      {
-    qDebug() << "Guilds clicked!";
-    GuildsDialog g;
-    g.exec();
+    qDebug() << "Guilds opened (Modeless)!";
+    GuildsDialog *g = new GuildsDialog(this);
+    g->setAttribute(Qt::WA_DeleteOnClose);
+    g->show();
 }
 void TheCity::on_dungeonButton_clicked()     {
-    qDebug() << "Dungeon clicked!";
-    DungeonDialog d;
-    d.exec();
+    qDebug() << "Dungeon opened (Modeless)!";
+    DungeonDialog *d = new DungeonDialog(this);
+    d->setAttribute(Qt::WA_DeleteOnClose);
+    d->show();
 }
 void TheCity::on_confinementButton_clicked() {
-    qDebug() << "Confinement clicked!";
-    ConfinementAndHoldingDialog c;
-    c.exec();
+    qDebug() << "Confinement opened (Modeless)!";
+    ConfinementAndHoldingDialog *c = new ConfinementAndHoldingDialog(this);
+    c->setAttribute(Qt::WA_DeleteOnClose);
+    c->show();
 }
 void TheCity::on_seerButton_clicked()        {
-    qDebug() << "Seer clicked!";
-    SeerDialog s;
-    s.exec();
+    qDebug() << "Seer opened (Modeless)!";
+    SeerDialog *s = new SeerDialog(this);
+    s->setAttribute(Qt::WA_DeleteOnClose);
+    s->show();
 }
 void TheCity::on_bankButton_clicked()        {
-    qDebug() << "Bank clicked!";
-    BankDialog b;
-    b.exec();
+    qDebug() << "Bank opened (Modeless)!";
+    BankDialog *b = new BankDialog(this);
+    b->setAttribute(Qt::WA_DeleteOnClose);
+    b->show();
 }
 void TheCity::on_exitButton_clicked()        {
     qDebug() << "Exit clicked! Closing dialog.";
