@@ -1,7 +1,6 @@
 [![Qt 6 Build & Compile](https://github.com/Vanderbull/depthofdejenol/actions/workflows/build.yaml/badge.svg)](https://github.com/Vanderbull/depthofdejenol/actions/workflows/build.yaml)
-<img width="1024" height="535" alt="image" src="https://github.com/user-attachments/assets/0883a22e-b11a-4cb5-91e6-75378687c547" />
-
-<img width="1024" height="535" alt="image" src="https://github.com/user-attachments/assets/c44f6ae5-dc4d-4f5f-a492-02d35d454969" />
+<img width="1019" height="216" alt="title_banner" src="https://github.com/user-attachments/assets/555af4ae-3b9a-442d-8d4d-8bd12da5f87f" />
+<img width="1404" height="515" alt="races_banner" src="https://github.com/user-attachments/assets/84a36ce2-efab-49fe-8c1d-a92310ec23ba" />
 
 # Black Land: Depth of Dejenol
 
