@@ -80,7 +80,16 @@ struct Character {
     int16_t bank_inventory_equipped[41];
     int16_t bank_inventory_idLevel[41];
     int16_t bank_inventory_cursed[41];
-	
+    int16_t equippedItems[36];
+    int16_t directionFacing;
+    int64_t totalExperience;
+    int64_t goldOnHand;
+    int16_t currentHP;
+    int16_t maxHP;
+    int64_t goldInBank;
+    int16_t extraSwings;
+    int16_t activeGuild;
+
 	int16_t id;
 	int16_t hits;
 	int16_t numGroups;
@@ -385,19 +394,17 @@ Characters loadCharacter(std::string filename) {
         }
         // The cursor is now at offset 822 + 738 = 1560, ready for the next field.
         qInfo() << "--- Bank Read Complete. Cursor at offset 1560. ---";
-        // ------------------------------------------------------------
-        // --- START OF NEW/COMPLETED FIELDS (Offsets 1560 onwards) ---
-        // ------------------------------------------------------------
         // 1. Equipped Items Array (Offsets 1560-1631: int16(36))
         const int NUM_EQUIPPED_SLOTS = 36;
         int16_t equippedItems[NUM_EQUIPPED_SLOTS];
-        rr.getArray(equippedItems, NUM_EQUIPPED_SLOTS); // Cursor at 1632
+        rr.getArray(person.equippedItems, NUM_EQUIPPED_SLOTS); // Cursor at 1632
+        //rr.getArray(equippedItems, NUM_EQUIPPED_SLOTS); // Cursor at 1632
 
-        QString equippedStr;
+        //QString equippedStr;
         for (int i = 0; i < NUM_EQUIPPED_SLOTS; ++i) {
-            equippedStr += QString::number(equippedItems[i]) + (i < NUM_EQUIPPED_SLOTS - 1 ? ", " : "");
+            person.equippedItems[i] += equippedItems[i]; //QString::number(equippedItems[i]) + (i < NUM_EQUIPPED_SLOTS - 1 ? ", " : "");
+            qInfo() << "Equipped Items (36x int16):" << person.equippedItems[i];
         }
-        qInfo() << "Equipped Items (36x int16):" << equippedStr;
         // 2. Unused (Offsets 1632-1639: int64)
         int64_t unused64_1 = rr.getInt64(); 
         qInfo() << "Unused (int64):" << unused64_1; // Cursor at 1640
@@ -405,32 +412,33 @@ Characters loadCharacter(std::string filename) {
         int16_t unused16_1 = rr.getWord(); 
         qInfo() << "Unused (int16):" << unused16_1; // Cursor at 1642
         // 4. Direction Facing (Offsets 1642-1643: int16)
-        int16_t directionFacing = rr.getWord(); 
-        qInfo() << "Direction Facing (int16):" << directionFacing; // Cursor at 1644
+        person.directionFacing = rr.getWord(); 
+        qInfo() << "Direction Facing (int16):" << person.directionFacing; // Cursor at 1644
         // 5. Unused (Offsets 1644-1645: int16)
         int16_t unused16_2 = rr.getWord(); 
         qInfo() << "Unused (int16):" << unused16_2; // Cursor at 1646
         // 6. Total experience (Offsets 1646-1653: currency = int64_t)
-        int64_t totalExperience = rr.getInt64(); 
-        qInfo() << "Total Experience (int64/currency):" << totalExperience; // Cursor at 1654
+        person.totalExperience = rr.getInt64(); 
+        qInfo() << "Total Experience (int64/currency):" << person.totalExperience; // Cursor at 1654
         // 7. Gold on hand (Offsets 1654-1661: currency = int64_t)
-        int64_t goldOnHand = rr.getInt64(); 
-        qInfo() << "Gold on Hand (int64/currency):" << goldOnHand; // Cursor at 1662
+        person.goldOnHand = rr.getInt64(); 
+        qInfo() << "Gold on Hand (int64/currency):" << person.goldOnHand; // Cursor at 1662
         // 8. Current HP (Offsets 1662-1663: int16)
-        int16_t currentHP = rr.getWord(); 
-        qInfo() << "Current HP (int16):" << currentHP; // Cursor at 1664
+        person.currentHP = rr.getWord(); 
+        qInfo() << "Current HP (int16):" << person.currentHP; // Cursor at 1664
         // 9. Max HP (Offsets 1664-1665: int16)
-        int16_t maxHP = rr.getWord(); 
-        qInfo() << "Max HP (int16):" << maxHP; // Cursor at 1666
+        person.maxHP = rr.getWord(); 
+        qInfo() << "Max HP (int16):" << person.maxHP; // Cursor at 1666
         // 10. Gold in bank (Offsets 1666-1673: currency = int64_t)
-        int64_t goldInBank = rr.getInt64(); 
-        qInfo() << "Gold in Bank (int64/currency):" << goldInBank; // Cursor at 1674
+        person.goldInBank = rr.getInt64(); 
+        qInfo() << "Gold in Bank (int64/currency):" << person.goldInBank; // Cursor at 1674
         // 11. Extra swings (Offsets 1674-1675: int16)
-        int16_t extraSwings = rr.getWord(); 
-        qInfo() << "Extra Swings (int16):" << extraSwings; // Cursor at 1676
+        person.extraSwings = rr.getWord(); 
+        qInfo() << "Extra Swings (int16):" << person.extraSwings; // Cursor at 1676
         // 12. Active Guild (Offsets 1676-1677: int16)
-        int16_t activeGuild = rr.getWord(); 
-         qInfo() << "Active Guild (int16):" << activeGuild; // Cursor at 1678
+        person.activeGuild = rr.getWord(); 
+        qInfo() << "Active Guild (int16):" << person.activeGuild; // Cursor at 1678
+
         qInfo() << "--- Block 1 Read Complete. Cursor at offset 1678. ---";
         // --- Block 2: GuildStatus Array (Offsets 1678-2061: 16 Records * 24 bytes) ---
         const int NUM_GUILDS = 16;
