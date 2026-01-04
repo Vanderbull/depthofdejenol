@@ -6,6 +6,7 @@
 #include <QGraphicsScene>
 #include <QVBoxLayout>
 #include <QCheckBox>
+#include <QKeyEvent>
 
 class MinimapDialog : public QDialog {
     Q_OBJECT
@@ -44,6 +45,16 @@ signals:
 private:
     QGraphicsView *m_view;
     QCheckBox *m_revealAllCheck;
+
+protected:
+    void keyPressEvent(QKeyEvent *event) override {
+            if (parent()) {
+                // Correct way to forward events to another object
+                QCoreApplication::sendEvent(parent(), event);
+            } else {
+                QDialog::keyPressEvent(event);
+            }
+        }
 };
 
 #endif

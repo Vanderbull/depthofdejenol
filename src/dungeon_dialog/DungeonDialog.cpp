@@ -621,7 +621,9 @@ void DungeonDialog::on_mapButton_clicked() {
         m_standaloneMinimap->hide();
     } else {
         m_standaloneMinimap->show();
-        drawMinimap(); // Refresh when opening
+        // Optional: Keep focus on the main window so the map is just an overlay
+        this->activateWindow(); 
+        drawMinimap(); 
     }
 }
 void DungeonDialog::on_pickupButton_clicked() { logMessage("Pickup button clicked!"); }
@@ -689,6 +691,7 @@ void DungeonDialog::on_winBattle_trigger() {}
 
 // Suppress unused parameter warning
 void DungeonDialog::onEventTriggered(const GameEvent& ) { /* handle event */ }
+
 void DungeonDialog::keyPressEvent(QKeyEvent *event)
 {
     switch (event->key()) {
