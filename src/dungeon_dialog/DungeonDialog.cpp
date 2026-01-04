@@ -578,40 +578,35 @@ void DungeonDialog::enterLevel(int level)
     m_breadcrumbPath.clear();
     m_visitedTiles.clear(); // Wipe map memory for the new floor
     GameStateManager* gsm = GameStateManager::instance();
-    int startX = MAP_SIZE / 2; //
-    int startY = MAP_SIZE / 2; //
-    
-    m_visitedTiles.insert({startX, startY}); // Mark starting point as seen
 
-    // UPDATED: SAVE new level and reset position to GameState
-    gsm->setGameValue("DungeonLevel", level);
-    gsm->setGameValue("DungeonX", MAP_SIZE / 2);
-    gsm->setGameValue("DungeonY", MAP_SIZE / 2);
-    
-    int newX = MAP_SIZE / 2;
-    int newY = MAP_SIZE / 2;
-
-// Initialize a seeded generator for this level
-    // We add a large constant to the seed to ensure level 0 doesn't produce "default" patterns
+    // 1. Initialize a seeded generator for this specific level
     QRandomGenerator levelRng(level + 12345); 
 
-    // Pass the seeded generator to all generation functions
+    // 2. Generate the level layout FIRST so we know where the stairs are
     generateRandomObstacles(50 + level * 5, levelRng); 
     generateStairs(levelRng);
     generateSpecialTiles(10 + level * 2, levelRng);
-    
-    // Regenerate the dungeon map for the new level
-    //generateRandomObstacles(50 + level * 5); 
-    //generateStairs();
-    //generateSpecialTiles(10 + level * 2);
 
-    updateLocation(QString("Dungeon Level %1, (%2, %3)").arg(level).arg(newX).arg(newY));
+    // 3. Set player position to the Stairs Up position from generation
+    int startX = m_stairsUpPosition.first;
+    int startY = m_stairsUpPosition.second;
+
+    gsm->setGameValue("DungeonLevel", level);
+    gsm->setGameValue("DungeonX", startX);
+    gsm->setGameValue("DungeonY", startY);
+    
+    m_visitedTiles.insert({startX, startY}); // Mark starting point as seen
+
+    // 4. Update UI
+    updateLocation(QString("Dungeon Level %1, (%2, %3)").arg(level).arg(startX).arg(startY));
     updateCompass("North");
+    
+    // 5. Refresh Visuals
+    // Since generateDungeonImage() is not declared, we only call what exists
     drawMinimap();
 
-    logMessage(QString("You have entered **Dungeon Level %1**.").arg(level));
+    logMessage(QString("You have entered **Dungeon Level %1** at the Stairs Up.").arg(level));
 }
-
 void DungeonDialog::on_attackCompanionButton_clicked() { logMessage("Attacking companions is bad."); }
 void DungeonDialog::on_carryCompanionButton_clicked() { logMessage("Carrying companions is tiring."); }
 
