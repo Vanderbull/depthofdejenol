@@ -217,19 +217,112 @@ void DungeonDialog::handleChute(int x, int y)
         enterLevel(nextLevel);
     }
 }
-void DungeonDialog::generateRandomObstacles(int obstacleCount, QRandomGenerator& rng)
+
+void DungeonDialog::generateRandomObstacles(int roomCount, QRandomGenerator& rng)
 {
     m_obstaclePositions.clear();
-    for (int i = 0; i < obstacleCount; ++i) {
-        int x = rng.bounded(MAP_SIZE);
-        int y = rng.bounded(MAP_SIZE);
-        m_obstaclePositions.insert({x, y});
+    
+    // 1. Fill entire map with rock
+    for (int x = 0; x < MAP_SIZE; ++x)
+        for (int y = 0; y < MAP_SIZE; ++y)
+            m_obstaclePositions.insert({x, y});
+
+    struct Room { int x, y, w, h; };
+    QList<Room> rooms;
+    QList<Room> processingQueue;
+
+    // 2. Start Room in a random corner
+    int startX = rng.bounded(2) == 0 ? 1 : MAP_SIZE - 6;
+    int startY = rng.bounded(2) == 0 ? 1 : MAP_SIZE - 6;
+    Room seed = {startX, startY, rng.bounded(3, 5), rng.bounded(3, 5)};
+    
+    for (int rx = seed.x; rx < seed.x + seed.w; ++rx)
+        for (int ry = seed.y; ry < seed.y + seed.h; ++ry)
+            m_obstaclePositions.remove({rx, ry});
+    
+    rooms.append(seed);
+    processingQueue.append(seed);
+
+    int roomsCreated = 1;
+    // 3. Sprout until we hit the target count or run out of space
+    while (!processingQueue.isEmpty() && roomsCreated < roomCount) {
+        // Pick a room from the queue (shuffling makes it more "web-like")
+        int idx = rng.bounded(processingQueue.size());
+        Room current = processingQueue.takeAt(idx);
+        
+        // Try to sprout in all 4 directions
+        QList<int> directions = {0, 1, 2, 3};
+        for(int i=0; i<4; ++i) { // Randomize direction order
+            int swapIdx = rng.bounded(4);
+            directions.swapItemsAt(i, swapIdx);
+        }
+
+        for (int dir : directions) {
+            if (roomsCreated >= roomCount) break;
+
+            int corridorLen = rng.bounded(2, 5); // Shorter corridors allow more rooms
+            int newW = rng.bounded(3, 6);
+            int newH = rng.bounded(3, 6);
+            
+            int cX = current.x + current.w / 2;
+            int cY = current.y + current.h / 2;
+            int endX = cX, endY = cY;
+            int roomX = 0, roomY = 0;
+
+            // Direction Logic
+            if (dir == 0) { // North
+                endY = current.y - corridorLen;
+                roomX = endX - newW / 2; roomY = endY - newH;
+            } else if (dir == 1) { // East
+                endX = current.x + current.w + corridorLen;
+                roomY = endY - newH / 2; roomX = endX;
+            } else if (dir == 2) { // South
+                endY = current.y + current.h + corridorLen;
+                roomX = endX - newW / 2; roomY = endY;
+            } else { // West
+                endX = current.x - corridorLen;
+                roomY = endY - newH / 2; roomX = endX - newW;
+            }
+
+            // Boundary and Overlap Check
+            if (roomX > 0 && roomY > 0 && roomX + newW < MAP_MAX && roomY + newH < MAP_MAX) {
+                bool overlaps = false;
+                for (const auto& r : rooms) {
+                    // Using 1-tile buffer to keep corridors distinct
+                    if (roomX < r.x + r.w + 1 && roomX + newW > r.x - 1 && 
+                        roomY < r.y + r.h + 1 && roomY + newH > r.y - 1) {
+                        overlaps = true; break;
+                    }
+                }
+
+                if (!overlaps) {
+                    // Carve Corridor
+                    int stepX = cX, stepY = cY;
+                    while (stepX != endX || stepY != endY) {
+                        if (stepX < endX) stepX++; else if (stepX > endX) stepX--;
+                        if (stepY < endY) stepY++; else if (stepY > endY) stepY--;
+                        m_obstaclePositions.remove({stepX, stepY});
+                    }
+
+                    // Carve Room
+                    Room nextRoom = {roomX, roomY, newW, newH};
+                    for (int rx = roomX; rx < roomX + newW; ++rx) {
+                        for (int ry = roomY; ry < roomY + newH; ++ry) {
+                            m_obstaclePositions.remove({rx, ry});
+                            m_roomFloorTiles.insert(qMakePair(rx, ry));
+                        }
+                    }
+                    rooms.append(nextRoom);
+                    processingQueue.append(nextRoom);
+                    roomsCreated++;
+                }
+            }
+        }
     }
-    // UPDATED: Get player position from GameState
-    GameStateManager* gsm = GameStateManager::instance();
-    int currentX = gsm->getGameValue("DungeonX").toInt();
-    int currentY = gsm->getGameValue("DungeonY").toInt();
-    m_obstaclePositions.remove({currentX, currentY});
+    
+    // Start player in the first room created
+    GameStateManager::instance()->setGameValue("DungeonX", rooms[0].x + 1);
+    GameStateManager::instance()->setGameValue("DungeonY", rooms[0].y + 1);
 }
 
 void DungeonDialog::generateStairs(QRandomGenerator& rng)
@@ -255,6 +348,7 @@ void DungeonDialog::generateStairs(QRandomGenerator& rng)
 
 void DungeonDialog::generateSpecialTiles(int tileCount, QRandomGenerator& rng)
 {
+    // 1. Reset all containers
     m_antimagicPositions.clear();
     m_extinguisherPositions.clear();
     m_fogPositions.clear();
@@ -265,75 +359,80 @@ void DungeonDialog::generateSpecialTiles(int tileCount, QRandomGenerator& rng)
     m_monsterPositions.clear();
     m_treasurePositions.clear();
     m_trapPositions.clear();
-    m_MonsterAttitude.clear();
     m_waterPositions.clear();
     m_teleporterPositions.clear();
 
     GameStateManager* gsm = GameStateManager::instance();
-    QPair<int, int> currentPos = {gsm->getGameValue("DungeonX").toInt(), gsm->getGameValue("DungeonY").toInt()};
+    QPair<int, int> playerPos = {gsm->getGameValue("DungeonX").toInt(), gsm->getGameValue("DungeonY").toInt()};
 
-    m_MonsterAttitude["Kobold"] = "Wary";
-    m_MonsterAttitude["Orc"] = "Hostile";
-    m_MonsterAttitude["Giant Spider"] = "Aggressive";
-
-    auto getValidPos = [&]() -> QPair<int, int> {
-        int x, y;
-        QPair<int, int> p;
-        do {
-            x = rng.bounded(MAP_SIZE);
-            y = rng.bounded(MAP_SIZE);
-            p = {x, y};
-            // Ensure we don't spawn things on walls, the player, or stairs
-        } while (m_obstaclePositions.contains(p) || p == currentPos || 
-                 m_stairsUpPosition == p || m_stairsDownPosition == p ||
-                 m_monsterPositions.contains(p) || m_treasurePositions.contains(p) ||
-                 m_antimagicPositions.contains(p) || m_waterPositions.contains(p) ||
-                 m_teleportPositions.contains(p) || m_chutePositions.contains(p) ||
-                 m_rotatorPositions.contains(p) || m_studPositions.contains(p));
-        return p;
+    // Helper A: Get a tile ONLY from a room (No corridors!)
+    auto getValidRoomTile = [&]() -> QPair<int, int> {
+        if (m_roomFloorTiles.isEmpty()) return {-1, -1};
+        QList<QPair<int, int>> roomList = m_roomFloorTiles.values();
+        for (int i = 0; i < 100; ++i) {
+            QPair<int, int> p = roomList.at(rng.bounded(roomList.size()));
+            if (p != m_stairsUpPosition && p != m_stairsDownPosition && p != playerPos) return p;
+        }
+        return {-1, -1};
     };
 
-    // 2. Guarantee at least 10 of each specific "Image" tile
-    for (int i = 0; i < 10; ++i) {
-        m_antimagicPositions.insert(getValidPos());
-        m_waterPositions.insert(getValidPos());
-        m_teleportPositions.insert(getValidPos());
-        m_chutePositions.insert(getValidPos());
-        m_extinguisherPositions.insert(getValidPos());
-        m_rotatorPositions.insert(getValidPos());
-        m_studPositions.insert(getValidPos());
-    }   
+    // Helper B: Get ANY floor tile (Rooms OR Corridors)
+    auto getAnyFloorTile = [&]() -> QPair<int, int> {
+        for (int i = 0; i < 500; ++i) {
+            int x = rng.bounded(MAP_SIZE);
+            int y = rng.bounded(MAP_SIZE);
+            QPair<int, int> p = {x, y};
+            // Ensure it's not a wall, not a player, and not a staircase
+            if (!m_obstaclePositions.contains(p) && p != playerPos && 
+                p != m_stairsUpPosition && p != m_stairsDownPosition) {
+                return p;
+            }
+        }
+        return {-1, -1};
+    };
 
-    // 3. Generate additional random tiles based on the requested tileCount
+    // 2. Guaranteed Room-Only Spawns (Chutes & Teleporters)
+    // We do these first so they get priority in the rooms
+    for (int i = 0; i < 4; ++i) {
+        QPair<int, int> cp = getValidRoomTile();
+        if (cp.first != -1) m_chutePositions.insert(cp);
+        
+        QPair<int, int> tp = getValidRoomTile();
+        if (tp.first != -1) m_teleporterPositions.insert(tp);
+    }
+
+    // 3. General Population Loop
     for (int i = 0; i < tileCount; ++i) {
-        QPair<int, int> tilePos = getValidPos();
-        int type = rng.bounded(10); 
+        int roll = rng.bounded(100); // Using 100 for better percentage control
+        QPair<int, int> pos;
 
-        if (type == 0) {
-            QStringList monsters = {"Kobold", "Orc", "Giant Spider"};
-            m_monsterPositions.insert(tilePos, monsters.at(QRandomGenerator::global()->bounded(monsters.size())));
-        } else if (type == 1) {
-            QStringList treasures = {"Small Pouch of Gold", "Rusty Key", "Flickering Torch"};
-            m_treasurePositions.insert(tilePos, treasures.at(QRandomGenerator::global()->bounded(treasures.size())));
-        } else if (type == 2) {
-            QStringList traps = {"Spike Trap", "Poison Gas Trap", "Net Trap"};
-            m_trapPositions.insert(tilePos, traps.at(QRandomGenerator::global()->bounded(traps.size())));
-        } else if (type == 3) {
-            m_chutePositions.insert(tilePos);
-        } else if (type == 5) {
-            m_extinguisherPositions.insert(tilePos);
-        } else if (type == 6) {
-            m_rotatorPositions.insert(tilePos);
-        } else if (type == 7) {
-            m_waterPositions.insert(tilePos);
-        } else if (type == 8) {
-            m_teleporterPositions.insert(tilePos);
-        } else if (type == 9) {
-            m_studPositions.insert(tilePos);
+        if (roll < 15) { // 15% Monsters
+            pos = getAnyFloorTile();
+            if (pos.first != -1) m_monsterPositions.insert(pos, "Orc");
+        } 
+        else if (roll < 30) { // 15% Treasures
+            pos = getAnyFloorTile();
+            if (pos.first != -1) m_treasurePositions.insert(pos, "Gold Pouch");
+        } 
+        else if (roll < 45) { // 15% Traps (Can be in corridors!)
+            pos = getAnyFloorTile();
+            if (pos.first != -1) m_trapPositions.insert(pos, "Spike Trap");
+        } 
+        else if (roll < 55) { // 10% Water
+            pos = getAnyFloorTile();
+            if (pos.first != -1) m_waterPositions.insert(pos);
+        }
+        else if (roll < 65) { // 10% Anti-magic/Extinguisher
+            pos = getAnyFloorTile();
+            if (pos.first != -1) m_antimagicPositions.insert(pos);
+        }
+        // Extra Room-Only Chutes/Teleporters via random roll
+        else if (roll < 70) { 
+            pos = getValidRoomTile();
+            if (pos.first != -1) m_chutePositions.insert(pos);
         }
     }
 }
-
 // --- Constructor Implementation ---
 DungeonDialog::DungeonDialog(QWidget *parent)
     : QDialog(parent),
@@ -465,12 +564,9 @@ DungeonDialog::DungeonDialog(QWidget *parent)
     QRandomGenerator initialRng(1 + 12345); 
 
     // 2. Pass 'initialRng' to the functions as the second argument
-    generateRandomObstacles(50, initialRng);  
+    generateRandomObstacles(40, initialRng);  
     generateStairs(initialRng);               
-    generateSpecialTiles(10, initialRng);     
-//    generateRandomObstacles(50); 
-//    generateStairs();
-//    generateSpecialTiles(10);
+    generateSpecialTiles(20, initialRng);
     drawMinimap(); 
     
     // 4. Action Buttons
@@ -579,31 +675,37 @@ void DungeonDialog::enterLevel(int level, bool movingUp)
     m_visitedTiles.clear();
     GameStateManager* gsm = GameStateManager::instance();
 
-    // 1. Generate the map and stairs for the new level
-    // Note: RNG is seeded by level, so stairs positions are deterministic for that level
+    // 1. Generate the map using Room-and-Corridor logic
+    // Seed by level to ensure the layout is deterministic
     QRandomGenerator levelRng(level + 12345);
-    generateRandomObstacles(50 + level * 5, levelRng);
-    generateStairs(levelRng);
-    generateSpecialTiles(10 + level * 2, levelRng);
 
-    // 2. LOGIC FIX:
-    // If we are moving UP (from Level 2 to 1), we arrive at the STAIRS DOWN of the floor above.
-    // If we are moving DOWN (from Level 1 to 2), we arrive at the STAIRS UP of the floor below.
+    // We pass a 'Room Count' instead of 'Obstacle Count'. 
+    // 7 rooms at level 1, increasing slightly as you go deeper.
+    generateRandomObstacles(40, levelRng); 
+
+    // 2. Place Stairs and Special Tiles
+    // These must be called AFTER generateRandomObstacles so they know where the floor is.
+    generateStairs(levelRng);
+    
+    // Scale the number of special tiles (monsters/traps) with the level
+    generateSpecialTiles(20, levelRng);
+
+    // 3. Determine Landing Position
+    // Arrive at the Down stairs if moving Up, or Up stairs if moving Down
     QPair<int, int> landingPos = movingUp ? m_stairsDownPosition : m_stairsUpPosition;
 
-    // 3. Update Game State
+    // 4. Update Game State and UI
     gsm->setGameValue("DungeonLevel", level);
     gsm->setGameValue("DungeonX", landingPos.first);
     gsm->setGameValue("DungeonY", landingPos.second);
     
     m_visitedTiles.insert(landingPos);
-
-    // 4. Update UI
     updateLocation(QString("Dungeon Level %1, (%2, %3)").arg(level).arg(landingPos.first).arg(landingPos.second));
-    drawMinimap(); 
-
+    
+    drawMinimap();
     logMessage(QString("You have entered **Dungeon Level %1**.").arg(level));
 }
+
 void DungeonDialog::on_attackCompanionButton_clicked() { logMessage("Attacking companions is bad."); }
 void DungeonDialog::on_carryCompanionButton_clicked() { logMessage("Carrying companions is tiring."); }
 

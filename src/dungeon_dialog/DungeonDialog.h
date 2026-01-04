@@ -84,6 +84,7 @@ private slots:
 
 
 private:
+    QSet<QPair<int, int>> m_roomFloorTiles; // Tracks tiles that are part of rooms
     MinimapDialog *m_standaloneMinimap = nullptr;
     QList<QPair<int, int>> m_breadcrumbPath; // Stores the history of player positions
     const int MAX_BREADCRUMBS = 50;           // Limits the length of the trail
