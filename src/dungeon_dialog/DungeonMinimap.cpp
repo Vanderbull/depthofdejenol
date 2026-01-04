@@ -98,16 +98,19 @@ void DungeonDialog::drawMinimap()
     QGraphicsScene *scene = new QGraphicsScene(this);
     scene->setSceneRect(0, 0, MAP_WIDTH_PIXELS, MAP_HEIGHT_PIXELS);
 
+    // Check the toggle state from our new dialog
+    bool revealAll = m_standaloneMinimap && m_standaloneMinimap->isRevealAllEnabled();
+
     // 1. Draw grid lines
-    for (int i = 0; i <= MAP_SIZE; ++i) {
-        scene->addLine(i * TILE_SIZE, 0, i * TILE_SIZE, MAP_HEIGHT_PIXELS, QPen(Qt::lightGray));
-        scene->addLine(0, i * TILE_SIZE, MAP_WIDTH_PIXELS, i * TILE_SIZE, QPen(Qt::lightGray));
-    }
+//    for (int i = 0; i <= MAP_SIZE; ++i) {
+//        scene->addLine(i * TILE_SIZE, 0, i * TILE_SIZE, MAP_HEIGHT_PIXELS, QPen(Qt::lightGray));
+//        scene->addLine(0, i * TILE_SIZE, MAP_WIDTH_PIXELS, i * TILE_SIZE, QPen(Qt::lightGray));
+//    }
 
     // 2. Draw Obstacles (Walls)
     for (const auto& pos : m_obstaclePositions) {
         // Walls are visible only if the tile has been visited
-        if (m_visitedTiles.contains(pos)) {
+        if (revealAll || m_visitedTiles.contains(pos)) {
             if (!rockPixmap.isNull()) {
                 // Use the rock image tile
                 QGraphicsPixmapItem* rockTile = scene->addPixmap(scaledRock);
@@ -121,7 +124,7 @@ void DungeonDialog::drawMinimap()
     }
 
     // 3. Draw Stairs (Cyan)
-    if (m_visitedTiles.contains(m_stairsUpPosition)) {
+    if (revealAll || m_visitedTiles.contains(m_stairsUpPosition)) {
         if (!stairsupPixmap.isNull()) {
             QGraphicsPixmapItem* upTile = scene->addPixmap(scaledStairsUp);
             upTile->setPos(m_stairsUpPosition.first * TILE_SIZE, 
@@ -134,7 +137,7 @@ void DungeonDialog::drawMinimap()
         }
     }
 
-    if (m_visitedTiles.contains(m_stairsDownPosition)) {
+    if (revealAll || m_visitedTiles.contains(m_stairsDownPosition)) {
         if (!stairsdownPixmap.isNull()) {
             QGraphicsPixmapItem* downTile = scene->addPixmap(scaledStairsDown);
             downTile->setPos(m_stairsDownPosition.first * TILE_SIZE, 
@@ -148,7 +151,7 @@ void DungeonDialog::drawMinimap()
     }
     // 4. Draw Chutes (Only if visited)
     for (const auto& pos : m_chutePositions) {
-        if (m_visitedTiles.contains(pos)) {
+        if (revealAll || m_visitedTiles.contains(pos)) {
             if (!scaledChute.isNull()) {
                 // Use the chute image tile
                 QGraphicsPixmapItem* chuteTile = scene->addPixmap(scaledChute);
@@ -162,7 +165,7 @@ void DungeonDialog::drawMinimap()
     }
     // 5. Draw Monsters (Only if visited)
     for (const auto& pos : m_monsterPositions.keys()) {
-        if (m_visitedTiles.contains(pos)) {
+        if (revealAll || m_visitedTiles.contains(pos)) {
             scene->addEllipse(pos.first * TILE_SIZE + TILE_SIZE/4, pos.second * TILE_SIZE + TILE_SIZE/4, 
                               TILE_SIZE/2, TILE_SIZE/2, QPen(Qt::red), QBrush(Qt::red));
         }
@@ -170,7 +173,7 @@ void DungeonDialog::drawMinimap()
 
     // 6. Draw Treasure/Chests (Only if visited)
     for (const auto& pos : m_treasurePositions.keys()) {
-        if (m_visitedTiles.contains(pos)) {
+        if (revealAll || m_visitedTiles.contains(pos)) {
             scene->addRect(pos.first * TILE_SIZE + TILE_SIZE/4, pos.second * TILE_SIZE + TILE_SIZE/4, 
                            TILE_SIZE/2, TILE_SIZE/2, QPen(Qt::black), QBrush(Qt::yellow));
         }
@@ -178,7 +181,7 @@ void DungeonDialog::drawMinimap()
     
     // 7. Draw Traps (Only if visited)
     for (const auto& pos : m_trapPositions.keys()) {
-        if (m_visitedTiles.contains(pos)) {
+        if (revealAll || m_visitedTiles.contains(pos)) {
             scene->addRect(pos.first * TILE_SIZE + TILE_SIZE/4, pos.second * TILE_SIZE + TILE_SIZE/4, 
                            TILE_SIZE/2, TILE_SIZE/2, QPen(Qt::black), QBrush(Qt::darkGreen));
         }
@@ -186,7 +189,7 @@ void DungeonDialog::drawMinimap()
 
     // 7.5. Draw Antimagic Fields (Only if visited)
     for (const auto& pos : m_antimagicPositions) {
-        if (m_visitedTiles.contains(pos)) {
+        if (revealAll || m_visitedTiles.contains(pos)) {
             if (!scaledAntimagic.isNull()) {
                 QGraphicsPixmapItem* antiTile = scene->addPixmap(scaledAntimagic);
                 antiTile->setPos(pos.first * TILE_SIZE, pos.second * TILE_SIZE);
@@ -199,7 +202,7 @@ void DungeonDialog::drawMinimap()
     }
     // 7.6. Draw Rotator Tiles (Only if visited)
     for (const auto& pos : m_rotatorPositions) {
-        if (m_visitedTiles.contains(pos)) {
+        if (revealAll || m_visitedTiles.contains(pos)) {
             if (!scaledRotator.isNull()) {
                 QGraphicsPixmapItem* rotTile = scene->addPixmap(scaledRotator);
                 rotTile->setPos(pos.first * TILE_SIZE, pos.second * TILE_SIZE);
@@ -212,7 +215,7 @@ void DungeonDialog::drawMinimap()
     }
     // 7.7. Draw Water Tiles (Only if visited)
     for (const auto& pos : m_waterPositions) {
-        if (m_visitedTiles.contains(pos)) {
+        if (revealAll || m_visitedTiles.contains(pos)) {
             if (!scaledWater.isNull()) {
                 QGraphicsPixmapItem* waterTile = scene->addPixmap(scaledWater);
                 waterTile->setPos(pos.first * TILE_SIZE, pos.second * TILE_SIZE);
@@ -225,7 +228,7 @@ void DungeonDialog::drawMinimap()
     }
     // 7.8. Draw Teleporter Tiles (Only if visited)
     for (const auto& pos : m_teleportPositions) {
-        if (m_visitedTiles.contains(pos)) {
+        if (revealAll || m_visitedTiles.contains(pos)) {
             if (!scaledTeleporter.isNull()) {
                 // Use the teleporter image tile
                 QGraphicsPixmapItem* teleTile = scene->addPixmap(scaledTeleporter);
@@ -239,7 +242,7 @@ void DungeonDialog::drawMinimap()
     }
     // Draw Stud Tiles (Only if visited)
     for (const auto& pos : m_studPositions) {
-        if (m_visitedTiles.contains(pos)) {
+        if (revealAll || m_visitedTiles.contains(pos)) {
             if (!scaledStud.isNull()) {
                 // Use the stud image tile
                 QGraphicsPixmapItem* studTile = scene->addPixmap(scaledStud);
@@ -252,7 +255,7 @@ void DungeonDialog::drawMinimap()
         }
     }
     for (const auto& pos : m_extinguisherPositions) {
-        if (m_visitedTiles.contains(pos)) {
+        if (revealAll || m_visitedTiles.contains(pos)) {
             if (!scaledExtinguisher.isNull()) {
                 QGraphicsPixmapItem* extTile = scene->addPixmap(scaledExtinguisher);
                 extTile->setPos(pos.first * TILE_SIZE, pos.second * TILE_SIZE);
@@ -264,17 +267,19 @@ void DungeonDialog::drawMinimap()
         }
     }
     // 8. Draw Fog of War Overlay
-    for (int x = 0; x < MAP_SIZE; ++x) { //
-        for (int y = 0; y < MAP_SIZE; ++y) { //
-            if (!m_visitedTiles.contains({x, y})) { //
-                if (!fogPixmap.isNull()) {
-                    // Use the image tile
-                    QGraphicsPixmapItem* fogTile = scene->addPixmap(scaledFog);
-                    fogTile->setPos(x * TILE_SIZE, y * TILE_SIZE);
-                } else {
-                    // Fallback to semi-transparent black if image is missing
-                    scene->addRect(x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE, 
-                                   Qt::NoPen, QBrush(QColor(0, 0, 0, 220))); 
+    if (!revealAll) {
+        for (int x = 0; x < MAP_SIZE; ++x) { 
+            for (int y = 0; y < MAP_SIZE; ++y) {
+                if (!m_visitedTiles.contains({x, y})) {
+                    if (!fogPixmap.isNull()) {
+                        // Use the image tile
+                        QGraphicsPixmapItem* fogTile = scene->addPixmap(scaledFog);
+                        fogTile->setPos(x * TILE_SIZE, y * TILE_SIZE);
+                    } else {
+                        // Fallback to semi-transparent black if image is missing
+                        scene->addRect(x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE, 
+                                       Qt::NoPen, QBrush(QColor(0, 0, 0, 220))); 
+                    }
                 }
             }
         }
@@ -326,8 +331,13 @@ void DungeonDialog::drawMinimap()
     scene->addItem(playerArrow);
 
     // Finalize the view
-    m_miniMapView->setScene(scene);
-    m_miniMapView->fitInView(scene->sceneRect(), Qt::KeepAspectRatio);
+    //m_miniMapView->setScene(scene);
+    //m_miniMapView->fitInView(scene->sceneRect(), Qt::KeepAspectRatio);
+    if (m_standaloneMinimap) {
+        m_standaloneMinimap->updateScene(scene);
+    } else {
+        delete scene; // Cleanup if window doesn't exist
+    }
 }
 
 void DungeonDialog::updateMinimap(int x, int y)

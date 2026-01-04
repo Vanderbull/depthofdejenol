@@ -122,6 +122,10 @@ HEADERS += game_menu.h \
 
 HEADERS += src/event/EventManager.h
 
+HEADERS += \
+    src/dungeon_dialog/DungeonDialog.h \
+    src/dungeon_dialog/MinimapDialog.h \
+
 CXXFLAGS += -std=c++17
 
 DISTFILES += \

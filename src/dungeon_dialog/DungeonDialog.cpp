@@ -339,6 +339,9 @@ DungeonDialog::DungeonDialog(QWidget *parent)
     : QDialog(parent),
       m_dungeonScene(new QGraphicsScene(this))
 {
+    m_standaloneMinimap = new MinimapDialog(this);
+    connect(m_standaloneMinimap, &MinimapDialog::requestMapUpdate, this, &DungeonDialog::drawMinimap);
+
     setWindowTitle("Dungeon: Depth of Dejenol");
     setFixedSize(1000, 750); 
     
@@ -612,7 +615,15 @@ void DungeonDialog::enterLevel(int level)
 void DungeonDialog::on_attackCompanionButton_clicked() { logMessage("Attacking companions is bad."); }
 void DungeonDialog::on_carryCompanionButton_clicked() { logMessage("Carrying companions is tiring."); }
 
-void DungeonDialog::on_mapButton_clicked() { logMessage("Map button clicked!"); }
+void DungeonDialog::on_mapButton_clicked() {
+    logMessage("Map button clicked!");
+    if (m_standaloneMinimap->isVisible()) {
+        m_standaloneMinimap->hide();
+    } else {
+        m_standaloneMinimap->show();
+        drawMinimap(); // Refresh when opening
+    }
+}
 void DungeonDialog::on_pickupButton_clicked() { logMessage("Pickup button clicked!"); }
 void DungeonDialog::on_dropButton_clicked() { logMessage("Drop button clicked!"); }
 

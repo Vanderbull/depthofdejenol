@@ -18,7 +18,7 @@
 #include "src/partyinfo_dialog/partyinfodialog.h"
 #include "../event/EventManager.h"
 #include "../../GameStateManager.h"
-
+#include "MiniMapDialog.h"
 // Define MAP_SIZE here to resolve initialization errors in the class definition
 const int MAP_SIZE = 30; 
 
@@ -83,6 +83,7 @@ private slots:
 
 
 private:
+    MinimapDialog *m_standaloneMinimap = nullptr;
     QList<QPair<int, int>> m_breadcrumbPath; // Stores the history of player positions
     const int MAX_BREADCRUMBS = 50;           // Limits the length of the trail
 
