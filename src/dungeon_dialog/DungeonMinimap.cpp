@@ -129,11 +129,13 @@ void DungeonDialog::drawMinimap()
             QGraphicsPixmapItem* upTile = scene->addPixmap(scaledStairsUp);
             upTile->setPos(m_stairsUpPosition.first * TILE_SIZE, 
                            m_stairsUpPosition.second * TILE_SIZE);
+            upTile->setZValue(1); // Ensure it stays above the floor/grid
         } else {
             // Fallback to Cyan if image fails to load
-            scene->addRect(m_stairsUpPosition.first * TILE_SIZE, 
+            QGraphicsRectItem* stairsRect = scene->addRect(m_stairsUpPosition.first * TILE_SIZE, 
                            m_stairsUpPosition.second * TILE_SIZE, 
                            TILE_SIZE, TILE_SIZE, QPen(Qt::black), QBrush(Qt::cyan));
+            stairsRect->setZValue(1);
         }
     }
 
@@ -142,11 +144,13 @@ void DungeonDialog::drawMinimap()
             QGraphicsPixmapItem* downTile = scene->addPixmap(scaledStairsDown);
             downTile->setPos(m_stairsDownPosition.first * TILE_SIZE, 
                            m_stairsDownPosition.second * TILE_SIZE);
+            downTile->setZValue(1); // Ensure it stays above the floor/grid
         } else {
             // Fallback to Cyan if image fails to load
-            scene->addRect(m_stairsDownPosition.first * TILE_SIZE, 
+            QGraphicsRectItem* stairsRect = scene->addRect(m_stairsDownPosition.first * TILE_SIZE, 
                            m_stairsDownPosition.second * TILE_SIZE, 
                            TILE_SIZE, TILE_SIZE, QPen(Qt::black), QBrush(Qt::cyan));
+            stairsRect->setZValue(1);
         }
     }
     // 4. Draw Chutes (Only if visited)

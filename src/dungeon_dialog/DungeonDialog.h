@@ -32,8 +32,9 @@ class DungeonDialog : public QDialog
 
 public:
     explicit DungeonDialog(QWidget *parent = nullptr);
-    void enterLevel(int level);
-
+    //void enterLevel(int level);
+    void enterLevel(int level, bool movingUp = false);
+    
     ~DungeonDialog();
 
     void updateDungeonView(const QImage& dungeonImage);

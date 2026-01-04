@@ -573,39 +573,36 @@ DungeonDialog::~DungeonDialog()
 {
 }
 
-void DungeonDialog::enterLevel(int level)
+void DungeonDialog::enterLevel(int level, bool movingUp)
 {
     m_breadcrumbPath.clear();
-    m_visitedTiles.clear(); // Wipe map memory for the new floor
+    m_visitedTiles.clear();
     GameStateManager* gsm = GameStateManager::instance();
 
-    // 1. Initialize a seeded generator for this specific level
-    QRandomGenerator levelRng(level + 12345); 
-
-    // 2. Generate the level layout FIRST so we know where the stairs are
-    generateRandomObstacles(50 + level * 5, levelRng); 
+    // 1. Generate the map and stairs for the new level
+    // Note: RNG is seeded by level, so stairs positions are deterministic for that level
+    QRandomGenerator levelRng(level + 12345);
+    generateRandomObstacles(50 + level * 5, levelRng);
     generateStairs(levelRng);
     generateSpecialTiles(10 + level * 2, levelRng);
 
-    // 3. Set player position to the Stairs Up position from generation
-    int startX = m_stairsUpPosition.first;
-    int startY = m_stairsUpPosition.second;
+    // 2. LOGIC FIX:
+    // If we are moving UP (from Level 2 to 1), we arrive at the STAIRS DOWN of the floor above.
+    // If we are moving DOWN (from Level 1 to 2), we arrive at the STAIRS UP of the floor below.
+    QPair<int, int> landingPos = movingUp ? m_stairsDownPosition : m_stairsUpPosition;
 
+    // 3. Update Game State
     gsm->setGameValue("DungeonLevel", level);
-    gsm->setGameValue("DungeonX", startX);
-    gsm->setGameValue("DungeonY", startY);
+    gsm->setGameValue("DungeonX", landingPos.first);
+    gsm->setGameValue("DungeonY", landingPos.second);
     
-    m_visitedTiles.insert({startX, startY}); // Mark starting point as seen
+    m_visitedTiles.insert(landingPos);
 
     // 4. Update UI
-    updateLocation(QString("Dungeon Level %1, (%2, %3)").arg(level).arg(startX).arg(startY));
-    updateCompass("North");
-    
-    // 5. Refresh Visuals
-    // Since generateDungeonImage() is not declared, we only call what exists
-    drawMinimap();
+    updateLocation(QString("Dungeon Level %1, (%2, %3)").arg(level).arg(landingPos.first).arg(landingPos.second));
+    drawMinimap(); 
 
-    logMessage(QString("You have entered **Dungeon Level %1** at the Stairs Up.").arg(level));
+    logMessage(QString("You have entered **Dungeon Level %1**.").arg(level));
 }
 void DungeonDialog::on_attackCompanionButton_clicked() { logMessage("Attacking companions is bad."); }
 void DungeonDialog::on_carryCompanionButton_clicked() { logMessage("Carrying companions is tiring."); }
@@ -783,7 +780,7 @@ void DungeonDialog::on_stairsUpButton_clicked()
         int newLevel = currentLevel - 1;
         if (newLevel >= 1) {
             logMessage(QString("You take the **stairs up** to Level %1.").arg(newLevel));
-            enterLevel(newLevel);
+            enterLevel(newLevel, true);
         } else {
             // Current level is 1: ascend to surface/city
             logMessage("You ascend the **stairs up** and step onto the surface!");
