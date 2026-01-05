@@ -133,79 +133,65 @@ void SeerDialog::on_itemButton_clicked()
         return;
     }
 
-    // 1. Find the item first to determine its Floor and Rarity
-    const QList<QVariantMap>& items = gsm->itemData();
-    QVariantMap foundItem;
+    // 1. Calculate Costs First
+    int playerDepth = gsm->getGameValue("DungeonLevel").toInt();
+    if (playerDepth < 1) playerDepth = 1;
+
+    qulonglong totalCost = 500 + (static_cast<qulonglong>(playerDepth) * 150);
+    qulonglong currentGold = gsm->getGameValue("CurrentCharacterGold").value<qulonglong>();
+
+    // 2. Gold Validation
+    if (currentGold < totalCost) {
+        QMessageBox::warning(this, "Insufficient Gold", 
+            QString("The Seer demands %1 gold to attempt a vision. You only have %2.")
+            .arg(totalCost).arg(currentGold));
+        return;
+    }
+
+    // 3. MANDATORY DEDUCTION: The Seer takes the gold for the effort
+    gsm->setGameValue("CurrentCharacterGold", QVariant::fromValue(currentGold - totalCost));
+
+    // 4. Search for the item in the physical world (m_placedItems)
+    const QList<GameStateManager::PlacedItem> placedItems = gsm->getPlacedItems();
+    GameStateManager::PlacedItem foundItem;
     bool itemExists = false;
 
-    for (const QVariantMap& item : items) {
-        if (item.value("name").toString().contains(searchTerm, Qt::CaseInsensitive)) {
+    for (const GameStateManager::PlacedItem& item : placedItems) {
+        if (item.itemName.contains(searchTerm, Qt::CaseInsensitive)) {
             foundItem = item;
             itemExists = true;
             break; 
         }
     }
 
+    // 5. Item Not Found Result (Gold is already gone)
     if (!itemExists) {
-        QMessageBox::information(this, "Seer Vision", "The name you spoke echoes in a void. No such item exists.");
+        QMessageBox::information(this, "Seer Vision", 
+            QString("The Seer peers into the world and finds nothing. Your %1 gold is spent.").arg(totalCost));
         return;
     }
 
-    // 2. Extract Data for Cost Calculation
-    int playerDepth = gsm->getGameValue("DungeonLevel").toInt();
-    if (playerDepth < 1) playerDepth = 1;
-
-    int itemFloor = foundItem.value("floor").toInt();
-    int itemRarity = foundItem.value("rarity").toInt(); // Column 7 in CSV
-    if (itemRarity < 1) itemRarity = 1;
-
-    // 3. Advanced Cost Formula
-    // Base Fee: 500
-    // Depth Multiplier: +150 per level of player progress
-    // Rarity Tax: + (Rarity * 10) gold
-    // Location Premium: If the item is deeper than player progress, double the rarity tax.
-    
-    qulonglong baseCost = 500 + (static_cast<qulonglong>(playerDepth) * 150);
-    qulonglong rarityTax = static_cast<qulonglong>(itemRarity) * 25;
-    
-    if (itemFloor > playerDepth) {
-        rarityTax *= 2; // Harder to see things in unexplored depths
-    }
-
-    qulonglong totalCost = baseCost + rarityTax;
-
-    // 4. Gold Validation
-    qulonglong currentGold = gsm->getGameValue("CurrentCharacterGold").value<qulonglong>();
-    if (currentGold < totalCost) {
-        QMessageBox::warning(this, "Insufficient Gold", 
-            QString("The Seer demands %1 gold for an item of this rarity (%2) at Floor %3.\nYou only have %4.")
-            .arg(totalCost).arg(itemRarity).arg(itemFloor).arg(currentGold));
-        return;
-    }
-
-    // 5. Deduct Gold and Roll for Success (incorporating Level interference)
-    gsm->setGameValue("CurrentCharacterGold", QVariant::fromValue(currentGold - totalCost));
-
-    int baseSuccess = 40; 
-    int interference = itemFloor * 2; 
-    int finalSuccessThreshold = qMax(5, baseSuccess - interference);
+    // 6. Rolling for Vision Quality (Success vs. Vague)
     int roll = QRandomGenerator::global()->bounded(100);
+    int fullSuccessThreshold = 40;   
+    int vagueThreshold = 75;         
 
-    // 6. Final Results
-    if (roll < finalSuccessThreshold) {
-        int pX = gsm->getGameValue("DungeonX").toInt();
-        int pY = gsm->getGameValue("DungeonY").toInt();
-        QString locationDesc = QString("Floor %1, approx [%2, %3]")
-                                .arg(itemFloor)
-                                .arg(pX + QRandomGenerator::global()->bounded(-4, 4))
-                                .arg(pY + QRandomGenerator::global()->bounded(-4, 4));
-
+    if (roll < fullSuccessThreshold) {
+        // Full Success: Level and exact Tile
         QMessageBox::information(this, "Vision Success", 
-            QString("**Item:** %1\n**Rarity:** %2\n**Location:** %3\n\nCost: %4 gold")
-            .arg(foundItem.value("name").toString()).arg(itemRarity).arg(locationDesc).arg(totalCost));
-    } else {
-        QMessageBox::warning(this, "Vision Failed", 
-            QString("The %1 gold is spent, but the rarity of this object obscured the vision.").arg(totalCost));
+            QString("**Item:** %1\n**Location:** Floor %2, Tile [%3, %4]")
+            .arg(foundItem.itemName).arg(foundItem.level).arg(foundItem.x).arg(foundItem.y));
+    } 
+    else if (roll < vagueThreshold) {
+        // Vague Result: Level (Z) only
+        QMessageBox::warning(this, "Vague Vision", 
+            QString("The Seer senses the %1, but the vision is blurred.\n\n"
+                    "**Result:** It is somewhere on **Floor %2**.")
+            .arg(foundItem.itemName).arg(foundItem.level));
+    } 
+    else {
+        // Total Failure
+        QMessageBox::critical(this, "Vision Failed", "The mists refuse to part. You learned nothing.");
     }
 }
 

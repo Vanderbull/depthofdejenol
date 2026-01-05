@@ -26,6 +26,48 @@ const int MAP_HEIGHT_PIXELS = MAP_SIZE * TILE_SIZE;
 const int MAP_MIN = 0;
 const int MAP_MAX = MAP_SIZE - 1;
 
+void DungeonDialog::populateRandomTreasures(int level)
+{
+    GameStateManager* gsm = GameStateManager::instance();
+    
+    // MDATA3 is loaded into m_itemData in GameStateManager
+    const QList<QVariantMap>& allItems = gsm->itemData(); 
+
+    if (allItems.isEmpty()) {
+        qDebug() << "MDATA3 not loaded or empty.";
+        return;
+    }
+
+    QRandomGenerator* rng = QRandomGenerator::global();
+    int itemsPlaced = 0;
+
+    while (itemsPlaced < 100) {
+        // 1. Pick a random coordinate
+        int x = rng->bounded(MAP_SIZE);
+        int y = rng->bounded(MAP_SIZE);
+        QPair<int, int> pos = {x, y};
+
+        // 2. Ensure it is a floor tile (not a wall/obstacle) and not already a treasure
+        if (!m_obstaclePositions.contains(pos) && !m_treasurePositions.contains(pos)) {
+            
+            // 3. Pick a random item from the MDATA3 list
+            int itemIdx = rng->bounded(allItems.size());
+            QString itemName = allItems.at(itemIdx).value("name").toString();
+
+            // 4. Add to local level map (for rendering/interaction)
+            m_treasurePositions.insert(pos, itemName);
+
+            // 5. Add to the Global Array in GameStateManager
+            gsm->addPlacedItem(level, x, y, itemName);
+            qDebug() << itemName;
+
+            itemsPlaced++;
+        }
+    }
+    
+    qDebug() << "Successfully placed 10 random items from MDATA3 on level" << level;
+}
+
 void DungeonDialog::handleWater(int x, int y)
 {
     if (m_waterPositions.contains({x, y})) {
@@ -718,6 +760,8 @@ void DungeonDialog::enterLevel(int level, bool movingUp)
     // 1. Generate the map using Room-and-Corridor logic
     // Seed by level to ensure the layout is deterministic
     QRandomGenerator levelRng(level + 12345);
+
+    populateRandomTreasures(level);
 
     // We pass a 'Room Count' instead of 'Obstacle Count'. 
     // 7 rooms at level 1, increasing slightly as you go deeper.

@@ -22,11 +22,24 @@ public:
     // Improved thread-safe static accessor
     static GameStateManager* instance();
     static const int MAX_PARTY_SIZE = 4;
+    struct PlacedItem {
+        int level;
+        int x;
+        int y;
+        QString itemName;
+    };
+
+    void addPlacedItem(int level, int x, int y, const QString& name) {
+        m_placedItems.append({level, x, y, name});
+    }
+
+    QList<PlacedItem> getPlacedItems() const { return m_placedItems; }
     
 signals:
     void gameValueChanged(const QString& key, const QVariant& value);
 
 private:
+    QList<PlacedItem> m_placedItems;
     QVariantMap m_gameStateData;
     QMap<QString, int> m_confinementStock;
     QList<QVariantMap> m_confinementcreaturesData; // In-memory storage for MDATA15

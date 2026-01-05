@@ -198,6 +198,7 @@ private:
     void spawnMonsters(const QString& monsterType, int count);
     void revealAroundPlayer(int x, int y);
     void handleWater(int x, int y);
+    void populateRandomTreasures(int level);
     
 protected:
     void resizeEvent(QResizeEvent *event) override;
