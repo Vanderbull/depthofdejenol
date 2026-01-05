@@ -553,13 +553,14 @@ DungeonDialog::DungeonDialog(QWidget *parent)
     rightPanelLayout->addWidget(m_goldLabel);
 
     // 3. Mini Map View
+/*
     QGroupBox *minimapBox = new QGroupBox("Mini Map");
     QVBoxLayout *minimapLayout = new QVBoxLayout(minimapBox);
     m_miniMapView = new QGraphicsView();
     m_miniMapView->setFixedSize(MAP_WIDTH_PIXELS + 2, MAP_HEIGHT_PIXELS + 2); 
     minimapLayout->addWidget(m_miniMapView);
     rightPanelLayout->addWidget(minimapBox);
-    
+*/
     // Initialize map state and draw the initial view
     QRandomGenerator initialRng(1 + 12345); 
 
