@@ -1,6 +1,7 @@
 #ifndef MINIMAPDIALOG_H
 #define MINIMAPDIALOG_H
 
+#include <QCoreApplication>
 #include <QDialog>
 #include <QGraphicsView>
 #include <QGraphicsScene>
