@@ -26,6 +26,16 @@ const int MAP_HEIGHT_PIXELS = MAP_SIZE * TILE_SIZE;
 const int MAP_MIN = 0;
 const int MAP_MAX = MAP_SIZE - 1;
 
+void DungeonDialog::resizeEvent(QResizeEvent *event)
+{
+    QDialog::resizeEvent(event);
+    
+    // This ensures the dungeon graphic scales to fit the new window size
+    QGraphicsView* dungeonView = findChild<QGraphicsView*>();
+    if (dungeonView && m_dungeonScene) {
+        dungeonView->fitInView(m_dungeonScene->sceneRect(), Qt::KeepAspectRatio);
+    }
+}
 void DungeonDialog::handleExtinguisher(int x, int y)
 {
     QPair<int, int> pos = {x, y};
@@ -34,9 +44,9 @@ void DungeonDialog::handleExtinguisher(int x, int y)
         
         if (gsm->isCharacterOnFire()) {
             gsm->setCharacterOnFire(false);
-            logMessage("<font color='cyan'><b>Magic waters spray from the ceiling! The flames are extinguished.</b></font>");
+            logMessage("Magic waters spray from the ceiling! The flames are extinguished.");
         } else {
-            logMessage("<font color='blue'>A refreshing mist falls upon you.</font>");
+            logMessage("A refreshing mist falls upon you.");
         }
     }
 }
@@ -44,7 +54,7 @@ void DungeonDialog::handleAntimagic(int x, int y)
 {
     QPair<int, int> pos = {x, y};
     if (m_antimagicPositions.contains(pos)) {
-        logMessage("<font color='purple'><b>You enter an Antimagic Field! Your spells feel suppressed.</b></font>");
+        logMessage("You enter an Antimagic Field! Your spells feel suppressed.");
         // You can add logic here to disable the Spell button or set a GameState flag
     }
 }
@@ -95,7 +105,7 @@ void DungeonDialog::updatePartyMemberHealth(int row, int damage)
         gsm->setGameValue("CurrentCharacterHP", newHp);
         
         if (newHp <= 0) {
-            logMessage("<font color='red'><b>You have been defeated!</b></font>");
+            logMessage("You have been defeated!");
         }
         
         refreshHealthUI();
@@ -138,11 +148,6 @@ void DungeonDialog::movePlayer(int dx, int dy)
     
     updateLocation(QString("Dungeon Level %1, (%2, %3)").arg(currentLevel).arg(newX).arg(newY));
 
-//    if (dy < 0) updateCompass("North");
-//    else if (dy > 0) updateCompass("South");
-//    else if (dx < 0) updateCompass("West");
-//    else if (dx > 0) updateCompass("East");
-
     m_visitedTiles.insert({newX, newY});
     updateMinimap(newX, newY);
     handleEncounter(newX, newY);
@@ -179,7 +184,7 @@ void DungeonDialog::handleTreasure(int x, int y)
 {
     QPair<int, int> pos = {x, y};
     if (m_treasurePositions.contains(pos)) {
-        logMessage("There is a <b>treasure chest</b> here! Use the <b>Open</b> button to see what's inside.");
+        logMessage("There is a treasure chest here! Use the Open button to see what's inside.");
     }
 }
 
@@ -190,7 +195,7 @@ void DungeonDialog::handleTrap(int x, int y)
         QString trapType = m_trapPositions.value(pos);
         
         int damage = QRandomGenerator::global()->bounded(1, 10);
-        updatePartyMemberHealth(0, damage); // This is now declared/implemented correctly.
+        updatePartyMemberHealth(0, damage);
         
         logMessage(QString("You step on a **%1** trap and take %2 damage!").arg(trapType).arg(damage));
 
@@ -203,7 +208,7 @@ void DungeonDialog::handleChute(int x, int y)
 {
     QPair<int, int> pos = {x, y};
     if (m_chutePositions.contains(pos)) {
-        logMessage("<font color='orange'><b>AAAHHH! You fall through a hidden chute!</b></font>");
+        logMessage("AAAHHH! You fall through a hidden chute!");
 
         // 1. Deal Fall Damage
         int fallDamage = QRandomGenerator::global()->bounded(5, 15);
@@ -438,12 +443,13 @@ DungeonDialog::DungeonDialog(QWidget *parent)
     : QDialog(parent),
       m_dungeonScene(new QGraphicsScene(this))
 {
+    m_experienceLabel = new QLabel(this);
+
     m_standaloneMinimap = new MinimapDialog(this);
     connect(m_standaloneMinimap, &MinimapDialog::requestMapUpdate, this, &DungeonDialog::drawMinimap);
 
     setWindowTitle("Dungeon: Depth of Dejenol");
-    setFixedSize(1000, 750); 
-    
+    setMinimumSize(1000, 750);
     // Load GameStateManager data
     GameStateManager* gsm = GameStateManager::instance();
     
@@ -487,20 +493,28 @@ DungeonDialog::DungeonDialog(QWidget *parent)
 
     // --- Main Layout Setup ---
     QHBoxLayout *rootLayout = new QHBoxLayout(this);
-    
+    // Ensure the left panel takes up the majority of the space (e.g., a ratio of 3:1)
     // --- Left Panel: Party, Map, Log ---
     QVBoxLayout *leftPanelLayout = new QVBoxLayout();
-    
+    // --- Right Panel: Info, Compass, Minimap, Controls ---
+    QVBoxLayout *rightPanelLayout = new QVBoxLayout();
+
+    rootLayout->addLayout(leftPanelLayout, 3);
+    rootLayout->addLayout(rightPanelLayout, 1);
     // 1. Party Status Table
     QGroupBox *partyBox = new QGroupBox("Party Status");
     QVBoxLayout *partyLayout = new QVBoxLayout(partyBox);
     
     m_partyTable = new QTableWidget(1, 4); // This member is now confirmed in the header
+    // 1. Party Status Table - Change Height to Minimum/Preferred
+    m_partyTable->setMinimumHeight(70); 
+    m_partyTable->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
+
     m_partyTable->setHorizontalHeaderLabels({"Name", "Race", "HP", "Status"});
     m_partyTable->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
     m_partyTable->verticalHeader()->setVisible(false);
     m_partyTable->setEditTriggers(QAbstractItemView::NoEditTriggers);
-    m_partyTable->setFixedHeight(70); 
+    //m_partyTable->setFixedHeight(70); 
 
     // Insert the character data retrieved from Game State
     m_partyTable->setItem(0, 0, new QTableWidgetItem(m_partyLeaderName));
@@ -514,7 +528,8 @@ DungeonDialog::DungeonDialog(QWidget *parent)
     // 2. Dungeon View (Dungeon Scene/View will be here)
     QGraphicsView *dungeonView = new QGraphicsView(m_dungeonScene);
     dungeonView->setRenderHint(QPainter::Antialiasing);
-    dungeonView->setFixedSize(600, 350); 
+    //dungeonView->setFixedSize(600, 350); 
+    dungeonView->setMinimumSize(400, 300);
     leftPanelLayout->addWidget(dungeonView);
     
     // 3. Message Log
@@ -526,8 +541,6 @@ DungeonDialog::DungeonDialog(QWidget *parent)
     
     rootLayout->addLayout(leftPanelLayout, 1); 
     
-    // --- Right Panel: Info, Compass, Minimap, Controls ---
-    QVBoxLayout *rightPanelLayout = new QVBoxLayout();
     rightPanelLayout->setSpacing(15);
     
     // 1. Location and Compass
@@ -546,21 +559,14 @@ DungeonDialog::DungeonDialog(QWidget *parent)
     infoLayout->addWidget(alignmentLabel, 1, 1);
     
     rightPanelLayout->addWidget(infoBox);
+    updateExperienceLabel();
+    rightPanelLayout->addWidget(m_experienceLabel);
 
     // 2. Gold Display
     m_goldLabel = new QLabel();
     updateGoldLabel(); // Call to update label with GameState value
     rightPanelLayout->addWidget(m_goldLabel);
 
-    // 3. Mini Map View
-/*
-    QGroupBox *minimapBox = new QGroupBox("Mini Map");
-    QVBoxLayout *minimapLayout = new QVBoxLayout(minimapBox);
-    m_miniMapView = new QGraphicsView();
-    m_miniMapView->setFixedSize(MAP_WIDTH_PIXELS + 2, MAP_HEIGHT_PIXELS + 2); 
-    minimapLayout->addWidget(m_miniMapView);
-    rightPanelLayout->addWidget(minimapBox);
-*/
     // Initialize map state and draw the initial view
     QRandomGenerator initialRng(1 + 12345); 
 
@@ -573,31 +579,31 @@ DungeonDialog::DungeonDialog(QWidget *parent)
     // 4. Action Buttons
     QGridLayout *actionLayout = new QGridLayout();
     
-    QPushButton *fightButton = new QPushButton("Fight (F)");
-    QPushButton *spellButton = new QPushButton("Spell (S)");
-    QPushButton *restButton = new QPushButton("Rest (R)");
-    QPushButton *talkButton = new QPushButton("Talk (T)");
-    QPushButton *searchButton = new QPushButton("Search (Z)");
-    QPushButton *pickupButton = new QPushButton("Pickup (P)");
-    QPushButton *dropButton = new QPushButton("Drop (D)");
-    QPushButton *openButton = new QPushButton("Open (O)");
-    QPushButton *mapButton = new QPushButton("Map (M)");
+    m_fightButton = new QPushButton("Fight (F)");
+    m_spellButton = new QPushButton("Spell (S)");
+    m_restButton = new QPushButton("Rest (R)");
+    m_talkButton = new QPushButton("Talk (T)");
+    m_searchButton = new QPushButton("Search (Z)");
+    m_pickupButton = new QPushButton("Pickup (P)");
+    m_dropButton = new QPushButton("Drop (D)");
+    m_openButton = new QPushButton("Open (O)");
+    m_mapButton = new QPushButton("Map (M)");
     m_chestButton = new QPushButton("Chest (C)"); 
-    QPushButton *exitButton = new QPushButton("Exit");
-    QPushButton *teleportButton = new QPushButton("Teleport (U)"); // Add this line
+    m_exitButton = new QPushButton("Exit");
+    m_teleportButton = new QPushButton("Teleport (U)");
     
-    actionLayout->addWidget(fightButton, 0, 0);
-    actionLayout->addWidget(spellButton, 0, 1);
-    actionLayout->addWidget(restButton, 0, 2);
-    actionLayout->addWidget(talkButton, 1, 0);
-    actionLayout->addWidget(searchButton, 1, 1);
-    actionLayout->addWidget(pickupButton, 1, 2);
-    actionLayout->addWidget(dropButton, 2, 0);
-    actionLayout->addWidget(openButton, 2, 1);
-    actionLayout->addWidget(mapButton, 2, 2);
+    actionLayout->addWidget(m_fightButton, 0, 0);
+    actionLayout->addWidget(m_spellButton, 0, 1);
+    actionLayout->addWidget(m_restButton, 0, 2);
+    actionLayout->addWidget(m_talkButton, 1, 0);
+    actionLayout->addWidget(m_searchButton, 1, 1);
+    actionLayout->addWidget(m_pickupButton, 1, 2);
+    actionLayout->addWidget(m_dropButton, 2, 0);
+    actionLayout->addWidget(m_openButton, 2, 1);
+    actionLayout->addWidget(m_mapButton, 2, 2);
     actionLayout->addWidget(m_chestButton, 3, 0);
-    actionLayout->addWidget(teleportButton, 3, 1); // Add to the grid at row 3, column 1
-    actionLayout->addWidget(exitButton, 3, 2);
+    actionLayout->addWidget(m_teleportButton, 3, 1);
+    actionLayout->addWidget(m_exitButton, 3, 2);
 
     rightPanelLayout->addLayout(actionLayout);
 
@@ -605,20 +611,20 @@ DungeonDialog::DungeonDialog(QWidget *parent)
     QGroupBox *moveBox = new QGroupBox("Movement");
     QGridLayout *moveLayout = new QGridLayout(moveBox);
     
-    QPushButton *upButton = new QPushButton("^");
-    QPushButton *downButton = new QPushButton("v");
-    QPushButton *leftButton = new QPushButton("<");
-    QPushButton *rightButton = new QPushButton(">");
+    m_upButton = new QPushButton("^");
+    m_downButton = new QPushButton("v");
+    m_leftButton = new QPushButton("<");
+    m_rightButton = new QPushButton(">");
     // Rotate
-    QPushButton *rotateLeftButton = new QPushButton("Rotate L");
-    QPushButton *rotateRightButton = new QPushButton("Rotate R");
+    m_rotateLeftButton = new QPushButton("Rotate L");
+    m_rotateRightButton = new QPushButton("Rotate R");
 
-    moveLayout->addWidget(rotateLeftButton, 0, 0);
-    moveLayout->addWidget(upButton, 0, 1);
-    moveLayout->addWidget(rotateRightButton, 0, 2);
-    moveLayout->addWidget(leftButton, 1, 0);
-    moveLayout->addWidget(downButton, 1, 1);
-    moveLayout->addWidget(rightButton, 1, 2);
+    moveLayout->addWidget(m_rotateLeftButton, 0, 0);
+    moveLayout->addWidget(m_upButton, 0, 1);
+    moveLayout->addWidget(m_rotateRightButton, 0, 2);
+    moveLayout->addWidget(m_leftButton, 1, 0);
+    moveLayout->addWidget(m_downButton, 1, 1);
+    moveLayout->addWidget(m_rightButton, 1, 2);
     
     rightPanelLayout->addWidget(moveBox);
     
@@ -637,33 +643,40 @@ DungeonDialog::DungeonDialog(QWidget *parent)
     enterLevel(initialLevel); // Use initialLevel retrieved from GameState
     
     // Connections (Movements)
-    connect(upButton, &QPushButton::clicked, this, &DungeonDialog::moveForward);
-    connect(downButton, &QPushButton::clicked, this, &DungeonDialog::moveBackward);
-    //connect(upButton, &QPushButton::clicked, [this](){ movePlayer(0, -1); });
-    //connect(downButton, &QPushButton::clicked, [this](){ movePlayer(0, 1); });
-    connect(leftButton, &QPushButton::clicked, this, &DungeonDialog::moveStepLeft);  // Updated
-    connect(rightButton, &QPushButton::clicked, this, &DungeonDialog::moveStepRight); // Updated
-    //connect(leftButton, &QPushButton::clicked, [this](){ movePlayer(-1, 0); });
-    //connect(rightButton, &QPushButton::clicked, [this](){ movePlayer(1, 0); });
-    connect(rotateLeftButton, &QPushButton::clicked, this, &DungeonDialog::on_rotateLeftButton_clicked);
-    connect(rotateRightButton, &QPushButton::clicked, this, &DungeonDialog::on_rotateRightButton_clicked);
+    connect(m_upButton, &QPushButton::clicked, this, &DungeonDialog::moveForward);
+    connect(m_downButton, &QPushButton::clicked, this, &DungeonDialog::moveBackward);
+    connect(m_leftButton, &QPushButton::clicked, this, &DungeonDialog::moveStepLeft);  // Updated
+    connect(m_rightButton, &QPushButton::clicked, this, &DungeonDialog::moveStepRight); // Updated
+    connect(m_rotateLeftButton, &QPushButton::clicked, this, &DungeonDialog::on_rotateLeftButton_clicked);
+    connect(m_rotateRightButton, &QPushButton::clicked, this, &DungeonDialog::on_rotateRightButton_clicked);
     
     // Connections (Actions)
-    connect(fightButton, &QPushButton::clicked, this, &DungeonDialog::on_fightButton_clicked);
-    connect(spellButton, &QPushButton::clicked, this, &DungeonDialog::on_spellButton_clicked);
-    connect(restButton, &QPushButton::clicked, this, &DungeonDialog::on_restButton_clicked);
-    connect(talkButton, &QPushButton::clicked, this, &DungeonDialog::on_talkButton_clicked);
-    connect(searchButton, &QPushButton::clicked, this, &DungeonDialog::on_searchButton_clicked);
-    connect(pickupButton, &QPushButton::clicked, this, &DungeonDialog::on_pickupButton_clicked);
-    connect(dropButton, &QPushButton::clicked, this, &DungeonDialog::on_dropButton_clicked);
-    connect(openButton, &QPushButton::clicked, this, &DungeonDialog::on_openButton_clicked);
-    connect(mapButton, &QPushButton::clicked, this, &DungeonDialog::on_mapButton_clicked);
+    connect(m_fightButton, &QPushButton::clicked, this, &DungeonDialog::on_fightButton_clicked);
+    connect(m_spellButton, &QPushButton::clicked, this, &DungeonDialog::on_spellButton_clicked);
+    connect(m_restButton, &QPushButton::clicked, this, &DungeonDialog::on_restButton_clicked);
+    connect(m_talkButton, &QPushButton::clicked, this, &DungeonDialog::on_talkButton_clicked);
+    connect(m_searchButton, &QPushButton::clicked, this, &DungeonDialog::on_searchButton_clicked);
+    connect(m_pickupButton, &QPushButton::clicked, this, &DungeonDialog::on_pickupButton_clicked);
+    connect(m_dropButton, &QPushButton::clicked, this, &DungeonDialog::on_dropButton_clicked);
+    connect(m_openButton, &QPushButton::clicked, this, &DungeonDialog::on_openButton_clicked);
+    connect(m_mapButton, &QPushButton::clicked, this, &DungeonDialog::on_mapButton_clicked);
     connect(m_chestButton, &QPushButton::clicked, this, &DungeonDialog::on_chestButton_clicked);
-    connect(exitButton, &QPushButton::clicked, this, &DungeonDialog::on_exitButton_clicked);
-    connect(teleportButton, &QPushButton::clicked, this, &DungeonDialog::on_teleportButton_clicked);
+    connect(m_exitButton, &QPushButton::clicked, this, &DungeonDialog::on_exitButton_clicked);
+    connect(m_teleportButton, &QPushButton::clicked, this, &DungeonDialog::on_teleportButton_clicked);
     // Connections (Stairs)
     connect(stairsDownButton, &QPushButton::clicked, this, &DungeonDialog::on_stairsDownButton_clicked);
     connect(stairsUpButton, &QPushButton::clicked, this, &DungeonDialog::on_stairsUpButton_clicked);
+}
+void DungeonDialog::updateExperienceLabel()
+{
+    // Retrieve Experience from GameStateManager
+    // Assuming the key is "PlayerExperience"
+    quint64 currentXP = GameStateManager::instance()->getGameValue("PlayerExperience").toULongLong();
+    
+    if (m_experienceLabel) {
+        QString xpString = QStringLiteral("%L1").arg(currentXP);
+        m_experienceLabel->setText(QString("Experience: **%1 XP**").arg(xpString));
+    }
 }
 
 DungeonDialog::~DungeonDialog()
@@ -711,7 +724,7 @@ void DungeonDialog::on_attackCompanionButton_clicked() { logMessage("Attacking c
 void DungeonDialog::on_carryCompanionButton_clicked() { logMessage("Carrying companions is tiring."); }
 
 void DungeonDialog::on_mapButton_clicked() {
-    logMessage("Map button clicked!");
+    logMessage("You start looking at your map.");
     if (m_standaloneMinimap->isVisible()) {
         m_standaloneMinimap->hide();
     } else {
@@ -721,8 +734,8 @@ void DungeonDialog::on_mapButton_clicked() {
         drawMinimap(); 
     }
 }
-void DungeonDialog::on_pickupButton_clicked() { logMessage("Pickup button clicked!"); }
-void DungeonDialog::on_dropButton_clicked() { logMessage("Drop button clicked!"); }
+void DungeonDialog::on_pickupButton_clicked() { logMessage("You try to pickup something but is unable to."); }
+void DungeonDialog::on_dropButton_clicked() { logMessage("You try to drop something but is unable to."); }
 
 void DungeonDialog::on_teleportButton_clicked() 
 { 
@@ -742,7 +755,7 @@ void DungeonDialog::on_teleportButton_clicked()
     gsm->setGameValue("DungeonY", newY);
 
     // 3. Log the event to the user
-    logMessage(QString("<font color='purple'><b>A mystical force teleports you to (%1, %2)!</b></font>")
+    logMessage(QString("A mystical force teleports you to (%1, %2)!")
                .arg(newX).arg(newY));
 
     // 4. Update the UI
@@ -773,18 +786,42 @@ void DungeonDialog::on_fightButton_clicked()
         logMessage("You swing your weapon at empty air.");
     }
 }
-void DungeonDialog::on_spellButton_clicked() { logMessage("Spell button clicked!"); }
-void DungeonDialog::on_takeButton_clicked() { logMessage("Take button clicked!"); }
+void DungeonDialog::on_spellButton_clicked() { logMessage("You try to cast some sort of spell but fail."); }
+void DungeonDialog::on_takeButton_clicked() { logMessage("You try to take something, but there is nothing there."); }
 
 void DungeonDialog::on_searchButton_clicked() { logMessage("You carefully search the area. Found nothing."); }
 void DungeonDialog::on_talkButton_clicked() { logMessage("You try talking, but the silence replies."); }
-void DungeonDialog::on_chestButton_clicked() { logMessage("Chest opened!"); } 
+void DungeonDialog::on_chestButton_clicked() {
+    GameStateManager* gsm = GameStateManager::instance();
+    int currentX = gsm->getGameValue("DungeonX").toInt();
+    int currentY = gsm->getGameValue("DungeonY").toInt();
+    QPair<int, int> pos = {currentX, currentY};
+
+    if (m_treasurePositions.contains(pos)) {
+        QString treasure = m_treasurePositions.value(pos);
+        logMessage(QString("You open the chest and find: %1!").arg(treasure));
+
+        if (treasure.contains("Gold")) {
+            quint64 foundGold = QRandomGenerator::global()->bounded(500, 5000);
+            quint64 currentGold = gsm->getGameValue("PlayerGold").toULongLong();
+            gsm->setGameValue("PlayerGold", currentGold + foundGold);
+
+            updateGoldLabel();
+            logMessage(QString("You gain %L1 Gold.").arg(foundGold));
+        }
+
+        // Remove from map after opening
+        m_treasurePositions.remove(pos);
+        drawMinimap();
+    } else {
+        logMessage("There is nothing here to open.");
+    }
+}
 
 void DungeonDialog::checkMonsterSpawn() {}
 void DungeonDialog::initiateFight() {}
 void DungeonDialog::on_winBattle_trigger() {}
 
-// Suppress unused parameter warning
 void DungeonDialog::onEventTriggered(const GameEvent& ) { /* handle event */ }
 
 void DungeonDialog::keyPressEvent(QKeyEvent *event)
@@ -924,7 +961,7 @@ void DungeonDialog::on_openButton_clicked()
 
     if (m_treasurePositions.contains(pos)) {
         QString treasure = m_treasurePositions.value(pos);
-        logMessage(QString("<font color='gold'>You open the chest and find: <b>%1</b>!</font>").arg(treasure));
+        logMessage(QString("You open the chest and find: %1!").arg(treasure));
 
         if (treasure.contains("Gold")) {
             quint64 foundGold = QRandomGenerator::global()->bounded(500, 5000);

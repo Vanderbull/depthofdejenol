@@ -113,8 +113,34 @@ private:
     QLabel *m_compassLabel;
     QGraphicsView *m_miniMapView;
     QListWidget *m_messageLog;
-    QPushButton *m_chestButton; 
 
+    // Buttons
+    QPushButton *m_fightButton;
+    QPushButton *m_spellButton;
+    QPushButton *m_restButton;
+    QPushButton *m_talkButton;
+    QPushButton *m_searchButton;
+    QPushButton *m_pickupButton;
+    QPushButton *m_dropButton;
+    QPushButton *m_openButton;
+    QPushButton *m_mapButton;
+    QPushButton *m_chestButton;
+    QPushButton *m_exitButton;
+    QPushButton *m_teleportButton;
+
+    QPushButton *m_upButton;
+    QPushButton *m_downButton;
+    QPushButton *m_leftButton;
+    QPushButton *m_rightButton;
+    QPushButton *m_rotateLeftButton;
+    QPushButton *m_rotateRightButton;
+    QPushButton *m_stairsUpButton;
+    QPushButton *m_stairsDownButton;
+
+    // Experience Management Members
+    QLabel *m_experienceLabel;
+    void updateExperienceLabel();
+    
     // Gold Management Members
     QLabel *m_goldLabel;
     void refreshHealthUI();
@@ -170,6 +196,8 @@ private:
     void logMessage(const QString& message); 
     void keyPressEvent(QKeyEvent *event) override;
     void spawnMonsters(const QString& monsterType, int count);
+protected:
+    void resizeEvent(QResizeEvent *event) override;
 };
 
 #endif // DUNGEONDIALOG_H
