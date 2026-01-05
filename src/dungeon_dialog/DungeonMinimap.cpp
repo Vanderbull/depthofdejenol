@@ -167,30 +167,40 @@ void DungeonDialog::drawMinimap()
             }
         }
     }
-    // 5. Draw Monsters (Only if visited)
-    for (const auto& pos : m_monsterPositions.keys()) {
+
+    // 5. Draw Monsters (Red Ellipses)
+    for (auto it = m_monsterPositions.begin(); it != m_monsterPositions.end(); ++it) {
+        QPair<int, int> pos = it.key();
+        // Only show if the tile is visited or "Reveal All" is on
         if (revealAll || m_visitedTiles.contains(pos)) {
-            scene->addEllipse(pos.first * TILE_SIZE + TILE_SIZE/4, pos.second * TILE_SIZE + TILE_SIZE/4, 
-                              TILE_SIZE/2, TILE_SIZE/2, QPen(Qt::red), QBrush(Qt::red));
+            scene->addEllipse(pos.first * TILE_SIZE + TILE_SIZE/4, 
+                              pos.second * TILE_SIZE + TILE_SIZE/4, 
+                              TILE_SIZE/2, TILE_SIZE/2, 
+                              QPen(Qt::black), QBrush(Qt::red));
         }
     }
 
-    // 6. Draw Treasure/Chests (Only if visited)
-    for (const auto& pos : m_treasurePositions.keys()) {
+    // 6. Draw Treasure/Chests (Yellow Rectangles)
+    for (auto it = m_treasurePositions.begin(); it != m_treasurePositions.end(); ++it) {
+        QPair<int, int> pos = it.key();
         if (revealAll || m_visitedTiles.contains(pos)) {
-            scene->addRect(pos.first * TILE_SIZE + TILE_SIZE/4, pos.second * TILE_SIZE + TILE_SIZE/4, 
-                           TILE_SIZE/2, TILE_SIZE/2, QPen(Qt::black), QBrush(Qt::yellow));
-        }
-    }
-    
-    // 7. Draw Traps (Only if visited)
-    for (const auto& pos : m_trapPositions.keys()) {
-        if (revealAll || m_visitedTiles.contains(pos)) {
-            scene->addRect(pos.first * TILE_SIZE + TILE_SIZE/4, pos.second * TILE_SIZE + TILE_SIZE/4, 
-                           TILE_SIZE/2, TILE_SIZE/2, QPen(Qt::black), QBrush(Qt::darkGreen));
+            scene->addRect(pos.first * TILE_SIZE + TILE_SIZE/4, 
+                           pos.second * TILE_SIZE + TILE_SIZE/4, 
+                           TILE_SIZE/2, TILE_SIZE/2, 
+                           QPen(Qt::black), QBrush(Qt::yellow));
         }
     }
 
+    // 7. Draw Traps (Dark Green Rectangles)
+    for (auto it = m_trapPositions.begin(); it != m_trapPositions.end(); ++it) {
+        QPair<int, int> pos = it.key();
+        if (revealAll || m_visitedTiles.contains(pos)) {
+            scene->addRect(pos.first * TILE_SIZE + TILE_SIZE/4, 
+                           pos.second * TILE_SIZE + TILE_SIZE/4, 
+                           TILE_SIZE/2, TILE_SIZE/2, 
+                           QPen(Qt::black), QBrush(Qt::darkGreen));
+        }
+    }
     // 7.5. Draw Antimagic Fields (Only if visited)
     for (const auto& pos : m_antimagicPositions) {
         if (revealAll || m_visitedTiles.contains(pos)) {
@@ -258,6 +268,7 @@ void DungeonDialog::drawMinimap()
             }
         }
     }
+    //Draw extinguisher tiles
     for (const auto& pos : m_extinguisherPositions) {
         if (revealAll || m_visitedTiles.contains(pos)) {
             if (!scaledExtinguisher.isNull()) {
@@ -289,7 +300,7 @@ void DungeonDialog::drawMinimap()
         }
     }
 
-// Draw Breadcrumb Trail
+    // Draw Breadcrumb Trail
     for (int i = 0; i < m_breadcrumbPath.size(); ++i) {
         QPair<int, int> pos = m_breadcrumbPath.at(i);
         
@@ -303,8 +314,6 @@ void DungeonDialog::drawMinimap()
                           Qt::NoPen, 
                           QBrush(QColor(0, 200, 255, opacity))); // Fading cyan trail
     }
-
-
 
     // 9. Draw Player Arrow (Blue)
     QGraphicsPolygonItem* playerArrow = new QGraphicsPolygonItem();
