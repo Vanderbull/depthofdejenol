@@ -48,15 +48,16 @@ SeerDialog::SeerDialog(QWidget *parent)
     
     welcomeLabel->setAlignment(Qt::AlignCenter);
 
-    // Add this line to give it a unique ID for CSS:
-    //optionsLabel = new QLabel("Seer Options", this);
-    //optionsLabel->setContentsMargins(10, 20, 0, 10);
-    //optionsLabel->setObjectName("optionsLabel"); // Assign ID for QSS
 
     characterButton = new QPushButton("Character", this);
     monsterButton = new QPushButton("Monster", this);
     itemButton = new QPushButton("Item", this);
     exitButton = new QPushButton("Exit", this);
+
+    // Define and initialize the search field
+    searchLineEdit = new QLineEdit(this);
+    searchLineEdit->setPlaceholderText("Enter item name to search for...");
+    searchLineEdit->setObjectName("searchField");
 
     // --- Layouts ---
     buttonLayout = new QHBoxLayout();
@@ -66,7 +67,7 @@ SeerDialog::SeerDialog(QWidget *parent)
 
     mainLayout = new QVBoxLayout(this);
     mainLayout->addWidget(welcomeLabel);
-    mainLayout->addWidget(optionsLabel);
+    mainLayout->addWidget(searchLineEdit);
     mainLayout->addLayout(buttonLayout);
     mainLayout->addStretch(); // Pushes buttons to the top
     mainLayout->addWidget(exitButton, 0, Qt::AlignRight); // Align exit button to the bottom right
@@ -83,11 +84,7 @@ SeerDialog::SeerDialog(QWidget *parent)
 
 SeerDialog::~SeerDialog()
 {
-    // No explicit deletion of child widgets created with 'new' and parented to 'this'
-    // Qt's object tree handles their deletion.
 }
-
-// --- Slot implementations ---
 
 void SeerDialog::on_characterButton_clicked()
 {
@@ -128,20 +125,61 @@ void SeerDialog::on_monsterButton_clicked()
 
 void SeerDialog::on_itemButton_clicked()
 {
-    // Low chance to find an item
-    int randomChance = QRandomGenerator::global()->bounded(100);
-    int successThreshold = 30; // 30% chance of success
+    GameStateManager* gsm = GameStateManager::instance();
+    QString searchTerm = searchLineEdit->text().trimmed();
 
-    if (randomChance < successThreshold) {
-        // Success: Found an item
-        QString itemName = "Amulet of Whispers";
-        QString location = "Hidden crypt under the Merchant's Guild";
-        QString message = QString("Success! A vision of an artifact appears.\nIt is the **%1**, hidden in the **%2**.").arg(itemName, location);
+    // 1. Cost Breakdown & Validation
+    int dungeonLevel = gsm->getGameValue("DungeonLevel").toInt(); //
+    if (dungeonLevel < 1) dungeonLevel = 1;
 
-        QMessageBox::information(this, "Seer Option - Item Found!", message);
+    // Item search cost: Base 500 + (150 * Dungeon Level)
+    qulonglong searchCost = 500 + (static_cast<qulonglong>(dungeonLevel) * 150); 
+    qulonglong currentGold = gsm->getGameValue("CurrentCharacterGold").value<qulonglong>(); //
+
+    if (currentGold < searchCost) {
+        QMessageBox::warning(this, "Insufficient Gold", 
+            QString("The Seer demands %1 gold, but you only have %2.").arg(searchCost).arg(currentGold));
+        return;
+    }
+
+    // 2. Deduct Flat Fee (Paid regardless of success)
+    gsm->setGameValue("CurrentCharacterGold", QVariant::fromValue(currentGold - searchCost)); //
+
+    // 3. Search Logic
+    const QList<QVariantMap>& items = gsm->itemData(); //
+    bool found = false;
+    QVariantMap foundItem;
+
+    if (searchTerm.isEmpty()) {
+        // Fallback: Pick random if no text entered (Original Logic)
+        if (!items.isEmpty()) {
+            int randomIndex = QRandomGenerator::global()->bounded(items.size()); //
+            foundItem = items.at(randomIndex);
+            found = true;
+        }
     } else {
-        // Failure: No item found
-        QMessageBox::information(this, "Seer Option - Search Failed", "The veil is too thick. No item of note could be discerned.");
+        // Free Text Search: Loop through MDATA3 entries
+        for (const QVariantMap& item : items) {
+            QString itemName = item.value("name").toString(); //
+            if (itemName.contains(searchTerm, Qt::CaseInsensitive)) {
+                foundItem = item;
+                found = true;
+                break; // Stop at first match
+            }
+        }
+    }
+
+    // 4. Results
+    if (found) {
+        QString name = foundItem.value("name").toString();
+        // You can pull other CSV columns here (e.g., "price", "weight")
+        QMessageBox::information(this, "Seer Vision", 
+            QString("The Seer peers into the void...\n\n"
+                    "Success! Found: **%1**\nCost of Vision: %2 gold")
+            .arg(name).arg(searchCost));
+    } else {
+        QMessageBox::information(this, "Seer Vision", 
+            QString("The %1 gold is consumed by the mists, but no such item was found.").arg(searchCost));
     }
 }
 

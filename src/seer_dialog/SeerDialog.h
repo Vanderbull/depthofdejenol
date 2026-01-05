@@ -7,6 +7,7 @@
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QLabel>
+#include <QLineEdit>
 
 #include "GameStateManager.h" // Include the GameStateManager header
 
@@ -25,8 +26,9 @@ private slots:
     void on_exitButton_clicked();
 
 private:
+    QLineEdit *searchLineEdit;
     QLabel *welcomeLabel;
-    QLabel *optionsLabel;
+    //QLabel *optionsLabel;
     QPushButton *characterButton;
     QPushButton *monsterButton;
     QPushButton *itemButton;
