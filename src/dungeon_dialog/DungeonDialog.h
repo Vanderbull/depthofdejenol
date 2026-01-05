@@ -196,6 +196,9 @@ private:
     void logMessage(const QString& message); 
     void keyPressEvent(QKeyEvent *event) override;
     void spawnMonsters(const QString& monsterType, int count);
+    void revealAroundPlayer(int x, int y);
+    void handleWater(int x, int y);
+    
 protected:
     void resizeEvent(QResizeEvent *event) override;
 };

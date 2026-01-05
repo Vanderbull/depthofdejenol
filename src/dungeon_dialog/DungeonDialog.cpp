@@ -26,6 +26,29 @@ const int MAP_HEIGHT_PIXELS = MAP_SIZE * TILE_SIZE;
 const int MAP_MIN = 0;
 const int MAP_MAX = MAP_SIZE - 1;
 
+void DungeonDialog::handleWater(int x, int y)
+{
+    if (m_waterPositions.contains({x, y})) {
+        logMessage("You get soaking wet!");
+    }
+}
+
+void DungeonDialog::revealAroundPlayer(int x, int y)
+{
+    // Loops through the 3x3 grid centered on the player
+    for (int dx = -1; dx <= 1; ++dx) {
+        for (int dy = -1; dy <= 1; ++dy) {
+            int nx = x + dx;
+            int ny = y + dy;
+
+            // Ensure we stay within map boundaries defined in the header
+            if (nx >= 0 && nx < MAP_SIZE && ny >= 0 && ny < MAP_SIZE) {
+                m_visitedTiles.insert({nx, ny});
+            }
+        }
+    }
+}
+
 void DungeonDialog::resizeEvent(QResizeEvent *event)
 {
     QDialog::resizeEvent(event);
@@ -145,6 +168,8 @@ void DungeonDialog::movePlayer(int dx, int dy)
 
     gsm->setGameValue("DungeonX", newX);
     gsm->setGameValue("DungeonY", newY);
+
+    revealAroundPlayer(newX, newY);
     
     updateLocation(QString("Dungeon Level %1, (%2, %3)").arg(currentLevel).arg(newX).arg(newY));
 
@@ -156,6 +181,7 @@ void DungeonDialog::movePlayer(int dx, int dy)
     handleChute(newX, newY);    // NEW: Automatic hazard
     handleAntimagic(newX, newY);
     handleExtinguisher(newX, newY);
+    handleWater(newX, newY);
     logMessage(QString("You move to (%1, %2).").arg(newX).arg(newY));
 }
 
@@ -712,7 +738,8 @@ void DungeonDialog::enterLevel(int level, bool movingUp)
     gsm->setGameValue("DungeonLevel", level);
     gsm->setGameValue("DungeonX", landingPos.first);
     gsm->setGameValue("DungeonY", landingPos.second);
-    
+
+    revealAroundPlayer(landingPos.first, landingPos.second);
     m_visitedTiles.insert(landingPos);
     updateLocation(QString("Dungeon Level %1, (%2, %3)").arg(level).arg(landingPos.first).arg(landingPos.second));
     
