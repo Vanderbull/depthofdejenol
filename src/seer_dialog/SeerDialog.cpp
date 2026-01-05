@@ -39,8 +39,9 @@ SeerDialog::SeerDialog(QWidget *parent)
         qDebug() << "Style file not found at:" << qssPath;
     }
     setWindowTitle("The Seer");
-    setFixedSize(350, 200); // Adjust size as needed
-
+    //setFixedSize(350, 200); // Adjust size as needed
+    resize(700,400);
+    setMinimumSize(400,300);
     // --- Widgets ---
     welcomeLabel = new QLabel("Welcome to the City Seer!", this);
     welcomeLabel->setObjectName("welcomeLabel"); // Assign ID for CSS targeting
@@ -48,9 +49,9 @@ SeerDialog::SeerDialog(QWidget *parent)
     welcomeLabel->setAlignment(Qt::AlignCenter);
 
     // Add this line to give it a unique ID for CSS:
-    optionsLabel = new QLabel("Seer Options", this);
-    optionsLabel->setContentsMargins(10, 20, 0, 10);
-    optionsLabel->setObjectName("optionsLabel"); // Assign ID for QSS
+    //optionsLabel = new QLabel("Seer Options", this);
+    //optionsLabel->setContentsMargins(10, 20, 0, 10);
+    //optionsLabel->setObjectName("optionsLabel"); // Assign ID for QSS
 
     characterButton = new QPushButton("Character", this);
     monsterButton = new QPushButton("Monster", this);
