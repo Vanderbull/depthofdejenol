@@ -15,12 +15,26 @@
 #include <QPair>
 #include <QTableWidget>
 #include <QRandomGenerator>
+#include <QHash>
+
 #include "src/partyinfo_dialog/partyinfodialog.h"
 #include "../event/EventManager.h"
 #include "../../GameStateManager.h"
 #include "MiniMapDialog.h"
 // Define MAP_SIZE here to resolve initialization errors in the class definition
 const int MAP_SIZE = 30; 
+
+struct TilePos {
+    int x, y, z;
+    bool operator==(const TilePos& other) const {
+        return x == other.x && y == other.y && z == other.z;
+    }
+};
+
+// Custom hash for TilePos to be used in QSet and QMap
+inline uint qHash(const TilePos& key, uint seed) {
+    return qHash(key.x, seed) ^ qHash(key.y, seed) ^ qHash(key.z, seed);
+}
 
 namespace Ui {
 class DungeonDialog;
@@ -29,6 +43,7 @@ class DungeonDialog;
 class DungeonDialog : public QDialog
 {
     Q_OBJECT
+    friend class DungeonHandlers; // allow the handler to see private members
 
 public:
     explicit DungeonDialog(QWidget *parent = nullptr);
@@ -40,7 +55,7 @@ public:
     void updateDungeonView(const QImage& dungeonImage);
     void updateCompass(const QString& direction);
     void updateLocation(const QString& location);
-    void updateMinimap(int x, int y);
+    void updateMinimap(int x, int y, int z);
 
 signals:
     void teleporterUsed();
@@ -155,6 +170,13 @@ private:
     void updatePartyMemberHealth(int row, int damage);
 
     // Map generation/management
+    // Change all coordinate-based containers to use TilePos
+    QSet<TilePos> m_visitedTiles3D; 
+    QSet<TilePos> m_obstaclePositions3D;
+    QSet<TilePos> m_chutePositions3D;
+    QMap<TilePos, QString> m_monsterPositions3D;
+    QMap<TilePos, QString> m_treasurePositions3D;
+
     QSet<QPair<int, int>> m_obstaclePositions;
     void generateRandomObstacles(int obstacleCount, QRandomGenerator& rng);
     void generateStairs(QRandomGenerator& rng); 
@@ -182,7 +204,11 @@ private:
     QMap<QPair<int, int>, QString> m_treasurePositions;
     QMap<QPair<int, int>, QString> m_trapPositions;
     QMap<QString, QString> m_MonsterAttitude;
-    
+        
+    enum class StairDirection {
+        Up,
+        Down
+    };
     void drawMinimap(); 
     void handleEncounter(int x, int y);
     void handleTreasure(int x, int y);
@@ -190,15 +216,20 @@ private:
     void handleChute(int x, int y);
     void handleAntimagic(int x, int y);
     void handleExtinguisher(int x, int y);
-    void movePlayer(int dx, int dy);
+    void handleMovement(int actionIndex);
+    void handleSurfaceExit();
+    void transitionLevel(StairDirection direction);
+    void tryUseStairs(bool goingUp);
+    void rotate(int step);
+    void movePlayer(int dx, int dy, int dz);
     
     // Helper functions
     void logMessage(const QString& message); 
     void keyPressEvent(QKeyEvent *event) override;
     void spawnMonsters(const QString& monsterType, int count);
-    void revealAroundPlayer(int x, int y);
-    void handleWater(int x, int y);
+    void revealAroundPlayer(int x, int y, int z);
     void populateRandomTreasures(int level);
+    void processTreasureOpening();
     
 protected:
     void resizeEvent(QResizeEvent *event) override;

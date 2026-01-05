@@ -1,4 +1,5 @@
 #include "DungeonDialog.h"
+#include "DungeonHandlers.h"
 #include "../../GameStateManager.h" // REQUIRED: Include for GameState access
 #include "../event/EventManager.h"
 #include <QVBoxLayout>
@@ -68,14 +69,7 @@ void DungeonDialog::populateRandomTreasures(int level)
     qDebug() << "Successfully placed 10 random items from MDATA3 on level" << level;
 }
 
-void DungeonDialog::handleWater(int x, int y)
-{
-    if (m_waterPositions.contains({x, y})) {
-        logMessage("You get soaking wet!");
-    }
-}
-
-void DungeonDialog::revealAroundPlayer(int x, int y)
+void DungeonDialog::revealAroundPlayer(int x, int y, int z=0)
 {
     // Loops through the 3x3 grid centered on the player
     for (int dx = -1; dx <= 1; ++dx) {
@@ -179,13 +173,13 @@ void DungeonDialog::updatePartyMemberHealth(int row, int damage)
 
 // --- Dungeon Management (Movement, Drawing, Encounters) ---
 
-void DungeonDialog::movePlayer(int dx, int dy)
+void DungeonDialog::movePlayer(int dx, int dy, int dz=0)
 {
     GameStateManager* gsm = GameStateManager::instance();
     
     int currentX = gsm->getGameValue("DungeonX").toInt();
     int currentY = gsm->getGameValue("DungeonY").toInt();
-    int currentLevel = gsm->getGameValue("DungeonLevel").toInt();
+    int currentZ = gsm->getGameValue("DungeonLevel").toInt();
 
     int newX = currentX + dx;
     int newY = currentY + dy;
@@ -213,17 +207,17 @@ void DungeonDialog::movePlayer(int dx, int dy)
 
     revealAroundPlayer(newX, newY);
     
-    updateLocation(QString("Dungeon Level %1, (%2, %3)").arg(currentLevel).arg(newX).arg(newY));
+    updateLocation(QString("Dungeon Level %1, (%2, %3)").arg(currentZ).arg(newX).arg(newY));
 
     m_visitedTiles.insert({newX, newY});
-    updateMinimap(newX, newY);
+    updateMinimap(newX, newY, 0);
     handleEncounter(newX, newY);
     handleTreasure(newX, newY); // Now only logs chest presence
     handleTrap(newX, newY);     // Still automatic
     handleChute(newX, newY);    // NEW: Automatic hazard
     handleAntimagic(newX, newY);
     handleExtinguisher(newX, newY);
-    handleWater(newX, newY);
+    DungeonHandlers::handleWater(this, newX, newY);
     logMessage(QString("You move to (%1, %2).").arg(newX).arg(newY));
 }
 
@@ -430,7 +424,7 @@ void DungeonDialog::generateSpecialTiles(int tileCount, QRandomGenerator& rng)
     m_studPositions.clear();
     m_chutePositions.clear();
     m_monsterPositions.clear();
-    m_treasurePositions.clear();
+    //m_treasurePositions.clear();
     m_trapPositions.clear();
     m_waterPositions.clear();
     m_teleporterPositions.clear();
@@ -449,21 +443,20 @@ void DungeonDialog::generateSpecialTiles(int tileCount, QRandomGenerator& rng)
         return {-1, -1};
     };
 
-    // Helper B: Get ANY floor tile (Rooms OR Corridors)
+    // Helper: Get ANY floor tile (Rooms OR Corridors)
     auto getAnyFloorTile = [&]() -> QPair<int, int> {
         for (int i = 0; i < 500; ++i) {
             int x = rng.bounded(MAP_SIZE);
             int y = rng.bounded(MAP_SIZE);
             QPair<int, int> p = {x, y};
-            // Ensure it's not a wall, not a player, and not a staircase
             if (!m_obstaclePositions.contains(p) && p != playerPos && 
-                p != m_stairsUpPosition && p != m_stairsDownPosition) {
+                p != m_stairsUpPosition && p != m_stairsDownPosition &&
+                !m_treasurePositions.contains(p)) { // Also check if treasure is already there
                 return p;
             }
         }
         return {-1, -1};
     };
-
     // 2. Guaranteed Room-Only Spawns (Chutes & Teleporters)
     // We do these first so they get priority in the rooms
     for (int i = 0; i < 4; ++i) {
@@ -487,10 +480,10 @@ void DungeonDialog::generateSpecialTiles(int tileCount, QRandomGenerator& rng)
             pos = getAnyFloorTile();
             if (pos.first != -1) m_treasurePositions.insert(pos, "Gold Pouch");
         } 
-        else if (roll < 45) { // 15% Traps (Can be in corridors!)
-            pos = getAnyFloorTile();
-            if (pos.first != -1) m_trapPositions.insert(pos, "Spike Trap");
-        } 
+        //else if (roll < 45) { // 15% Traps (Can be in corridors!)
+        //    pos = getAnyFloorTile();
+        //    if (pos.first != -1) m_trapPositions.insert(pos, "Spike Trap");
+        //} 
         else if (roll < 55) { // 10% Water
             pos = getAnyFloorTile();
             if (pos.first != -1) m_waterPositions.insert(pos);
@@ -755,6 +748,10 @@ void DungeonDialog::enterLevel(int level, bool movingUp)
 {
     m_breadcrumbPath.clear();
     m_visitedTiles.clear();
+
+    // Clear treasures specifically at the start of level generation
+    m_treasurePositions.clear();
+    
     GameStateManager* gsm = GameStateManager::instance();
 
     // 1. Generate the map using Room-and-Corridor logic
@@ -857,36 +854,24 @@ void DungeonDialog::on_fightButton_clicked()
         logMessage("You swing your weapon at empty air.");
     }
 }
-void DungeonDialog::on_spellButton_clicked() { logMessage("You try to cast some sort of spell but fail."); }
-void DungeonDialog::on_takeButton_clicked() { logMessage("You try to take something, but there is nothing there."); }
+void DungeonDialog::on_spellButton_clicked() { 
+    logMessage("You try to cast some sort of spell but fail."); 
+}
 
-void DungeonDialog::on_searchButton_clicked() { logMessage("You carefully search the area. Found nothing."); }
-void DungeonDialog::on_talkButton_clicked() { logMessage("You try talking, but the silence replies."); }
+void DungeonDialog::on_takeButton_clicked() { 
+    logMessage("You try to take something, but there is nothing there."); 
+}
+
+void DungeonDialog::on_searchButton_clicked() { 
+    logMessage("You carefully search the area. Found nothing."); 
+}
+
+void DungeonDialog::on_talkButton_clicked() { 
+    logMessage("You try talking, but the silence replies."); 
+}
+
 void DungeonDialog::on_chestButton_clicked() {
-    GameStateManager* gsm = GameStateManager::instance();
-    int currentX = gsm->getGameValue("DungeonX").toInt();
-    int currentY = gsm->getGameValue("DungeonY").toInt();
-    QPair<int, int> pos = {currentX, currentY};
-
-    if (m_treasurePositions.contains(pos)) {
-        QString treasure = m_treasurePositions.value(pos);
-        logMessage(QString("You open the chest and find: %1!").arg(treasure));
-
-        if (treasure.contains("Gold")) {
-            quint64 foundGold = QRandomGenerator::global()->bounded(500, 5000);
-            quint64 currentGold = gsm->getGameValue("PlayerGold").toULongLong();
-            gsm->setGameValue("PlayerGold", currentGold + foundGold);
-
-            updateGoldLabel();
-            logMessage(QString("You gain %L1 Gold.").arg(foundGold));
-        }
-
-        // Remove from map after opening
-        m_treasurePositions.remove(pos);
-        drawMinimap();
-    } else {
-        logMessage("There is nothing here to open.");
-    }
+    processTreasureOpening();
 }
 
 void DungeonDialog::checkMonsterSpawn() {}
@@ -962,93 +947,17 @@ void DungeonDialog::on_restButton_clicked()
 
 void DungeonDialog::on_stairsDownButton_clicked()
 {
-    GameStateManager* gsm = GameStateManager::instance();
-    // UPDATED: Get position and level from GameState
-    int currentLevel = gsm->getGameValue("DungeonLevel").toInt();
-    int currentX = gsm->getGameValue("DungeonX").toInt();
-    int currentY = gsm->getGameValue("DungeonY").toInt();
-    QPair<int, int> currentPos = {currentX, currentY};
-
-    if (currentPos == m_stairsDownPosition) {
-        int newLevel = currentLevel + 1;
-        logMessage(QString("You take the **stairs down** to Level %1.").arg(newLevel));
-        enterLevel(newLevel);
-    } else {
-        logMessage("There are no stairs here to take.");
-    }
+    transitionLevel(StairDirection::Down);
 }
 
 void DungeonDialog::on_stairsUpButton_clicked()
 {
-    GameStateManager* gsm = GameStateManager::instance();
-    // UPDATED: Get position and level from GameState
-    int currentLevel = gsm->getGameValue("DungeonLevel").toInt();
-    int currentX = gsm->getGameValue("DungeonX").toInt();
-    int currentY = gsm->getGameValue("DungeonY").toInt();
-    QPair<int, int> currentPos = {currentX, currentY};
-    
-    if (currentPos == m_stairsUpPosition) {
-        int newLevel = currentLevel - 1;
-        if (newLevel >= 1) {
-            logMessage(QString("You take the **stairs up** to Level %1.").arg(newLevel));
-            enterLevel(newLevel, true);
-        } else {
-            // Current level is 1: ascend to surface/city
-            logMessage("You ascend the **stairs up** and step onto the surface!");
-            GameStateManager::instance()->setGameValue("GhostHoundPending", true);
-            // --- RANDOM MONSTER CAPTURE LOGIC ---
-            // Check if we have monster data loaded in the manager
-            if (gsm->monsterCount() > 0) {
-                // Pick a random index based on the size of the monster list
-                int randomIndex = QRandomGenerator::global()->bounded(gsm->monsterCount());
-                
-                // Get the monster name from the random data entry
-                QVariantMap monster = gsm->getMonster(randomIndex);
-                QString monsterName = monster["name"].toString();
-
-                if (!monsterName.isEmpty()) {
-                    // Add the monster to the permanent Confinement stock
-                    gsm->incrementStock(monsterName);
-                    
-                    // Optional: Provide feedback to the player
-                    //logMessage("You captured a " + monsterName + " while escaping!");
-                    qDebug() << "You captured a " + monsterName + " while escaping! ";
-                }
-            }
-            emit exitedDungeonToCity();
-            this->close(); 
-        }
-    } else {
-        logMessage("There are no stairs here to take.");
-    }
+    transitionLevel(StairDirection::Up);
 }
 
 void DungeonDialog::on_openButton_clicked()
 {
-    GameStateManager* gsm = GameStateManager::instance();
-    int currentX = gsm->getGameValue("DungeonX").toInt();
-    int currentY = gsm->getGameValue("DungeonY").toInt();
-    QPair<int, int> pos = {currentX, currentY};
-
-    if (m_treasurePositions.contains(pos)) {
-        QString treasure = m_treasurePositions.value(pos);
-        logMessage(QString("You open the chest and find: %1!").arg(treasure));
-
-        if (treasure.contains("Gold")) {
-            quint64 foundGold = QRandomGenerator::global()->bounded(500, 5000);
-            quint64 currentGold = gsm->getGameValue("PlayerGold").toULongLong();
-            gsm->setGameValue("PlayerGold", currentGold + foundGold);
-            
-            updateGoldLabel();
-            logMessage(QString("You gain %L1 Gold.").arg(foundGold));
-        }
-
-        // Remove from map after opening
-        m_treasurePositions.remove(pos);
-        drawMinimap();
-    } else {
-        logMessage("There is nothing here to open.");
-    }
+    processTreasureOpening();
 }
 
 void DungeonDialog::updateDungeonView(const QImage& dungeonImage)
@@ -1080,63 +989,150 @@ void DungeonDialog::on_exitButton_clicked()
 }
 void DungeonDialog::on_rotateLeftButton_clicked()
 {
-    QStringList directions = {"Facing North", "Facing West", "Facing South", "Facing East"};
-    int currentIndex = directions.indexOf(m_compassLabel->text());
-    int nextIndex = (currentIndex + 1) % 4;
-    
-    QString newDir = directions[nextIndex].mid(7); // Extract "North", "West", etc.
-    updateCompass(newDir);
-    logMessage(QString("You turn to the left."));
-    drawMinimap();
+    rotate(-1);
 }
 
 void DungeonDialog::on_rotateRightButton_clicked()
 {
-    QStringList directions = {"Facing North", "Facing East", "Facing South", "Facing West"};
-    int currentIndex = directions.indexOf(m_compassLabel->text());
-    int nextIndex = (currentIndex + 1) % 4;
-    
-    QString newDir = directions[nextIndex].mid(7);
-    updateCompass(newDir);
-    logMessage(QString("You turn to the right."));
-    drawMinimap();
+    rotate(1);
 }
 void DungeonDialog::moveForward()
 {
-    QString currentFacing = m_compassLabel->text();
-
-    if (currentFacing == "Facing North") movePlayer(0, -1);
-    else if (currentFacing == "Facing South") movePlayer(0, 1);
-    else if (currentFacing == "Facing East") movePlayer(1, 0);
-    else if (currentFacing == "Facing West") movePlayer(-1, 0);
+    // Index 0: Forward, 1: Backward, 2: Left, 3: Right
+    handleMovement(0); 
 }
 
 void DungeonDialog::moveBackward()
 {
-    QString currentFacing = m_compassLabel->text();
-
-    // Backward is the inverse of the forward vector
-    if (currentFacing == "Facing North") movePlayer(0, 1);
-    else if (currentFacing == "Facing South") movePlayer(0, -1);
-    else if (currentFacing == "Facing East") movePlayer(-1, 0);
-    else if (currentFacing == "Facing West") movePlayer(1, 0);
+    // Index 0: Forward, 1: Backward, 2: Left, 3: Right
+    handleMovement(1); 
 }
 void DungeonDialog::moveStepLeft()
 {
-    QString currentFacing = m_compassLabel->text();
-
-    if (currentFacing == "Facing North")      movePlayer(-1, 0); // West
-    else if (currentFacing == "Facing South") movePlayer(1, 0);  // East
-    else if (currentFacing == "Facing East")  movePlayer(0, -1); // North
-    else if (currentFacing == "Facing West")  movePlayer(0, 1);  // South
+    // Index 0: Forward, 1: Backward, 2: Left, 3: Right
+    handleMovement(2); 
 }
 
-void DungeonDialog::moveStepRight()
-{
-    QString currentFacing = m_compassLabel->text();
+void DungeonDialog::moveStepRight() {
+    // Index 0: Forward, 1: Backward, 2: Left, 3: Right
+    handleMovement(3); 
+}
 
-    if (currentFacing == "Facing North")      movePlayer(1, 0);  // East
-    else if (currentFacing == "Facing South") movePlayer(-1, 0); // West
-    else if (currentFacing == "Facing East")  movePlayer(0, 1);  // South
-    else if (currentFacing == "Facing West")  movePlayer(0, -1); // North
+void DungeonDialog::handleMovement(int actionIndex) {
+    // Map current facing to a list of vectors
+    static const QMap<QString, QVector<QPoint>> moveMap = {
+        {"Facing North", {QPoint(0,-1), QPoint(0,1),  QPoint(-1,0), QPoint(1,0)}}, // Right is (+1, 0)
+        {"Facing South", {QPoint(0,1),  QPoint(0,-1), QPoint(1,0),  QPoint(-1,0)}}, // Right is (-1, 0)
+        {"Facing East",  {QPoint(1,0),  QPoint(-1,0), QPoint(0,-1), QPoint(0,1)}},  // Right is (0, +1)
+        {"Facing West",  {QPoint(-1,0), QPoint(1,0),  QPoint(0,1),  QPoint(0,-1)}}  // Right is (0, -1)
+    };
+
+    QString facing = m_compassLabel->text(); //
+    if (moveMap.contains(facing)) {
+        QPoint delta = moveMap[facing][actionIndex];
+        movePlayer(delta.x(), delta.y()); //
+    }
+}
+
+void DungeonDialog::rotate(int step) {
+    // List must match the layout of your compass logic
+    static const QStringList dirs = {"North", "East", "South", "West"};
+    
+    // Find current index
+    int currentIdx = dirs.indexOf(m_compassLabel->text().mid(7));
+    
+    // Calculate new index using modulo to wrap around
+    // Adding 4 ensures the result is positive when turning left from North (index 0)
+    int nextIdx = (currentIdx + step + 4) % 4;
+    
+    updateCompass(dirs[nextIdx]);
+    logMessage(QString("You turn to the %1.").arg(step > 0 ? "right" : "left"));
+    drawMinimap();
+}
+
+void DungeonDialog::transitionLevel(StairDirection direction)
+{
+    GameStateManager* gsm = GameStateManager::instance();
+    
+    // Retrieve current position once
+    int currentZ = gsm->getGameValue("DungeonLevel").toInt();
+    QPair<int, int> currentPos = { 
+        gsm->getGameValue("DungeonX").toInt(), 
+        gsm->getGameValue("DungeonY").toInt() 
+    };
+
+    // Use the Enum to pick the correct target
+    bool isGoingUp = (direction == StairDirection::Up);
+    QPair<int, int> targetStair = isGoingUp ? m_stairsUpPosition : m_stairsDownPosition;
+
+    if (currentPos != targetStair) {
+        logMessage("There are no stairs here to take.");
+        return;
+    }
+
+    if (isGoingUp) {
+        int newLevel = currentZ - 1;
+        if (newLevel >= 1) {
+            logMessage(QString("You take the **stairs up** to Level %1.").arg(newLevel));
+            enterLevel(newLevel, true);
+        } else {
+            handleSurfaceExit();
+        }
+    } else {
+        int newLevel = currentZ + 1;
+        logMessage(QString("You take the **stairs down** to Level %1.").arg(newLevel));
+        enterLevel(newLevel, false);
+    }
+}
+
+void DungeonDialog::handleSurfaceExit()
+{
+    GameStateManager* gsm = GameStateManager::instance();
+    logMessage("You ascend the **stairs up** and step onto the surface!");
+    gsm->setGameValue("GhostHoundPending", true);
+
+    // Capture random monster logic
+    if (gsm->monsterCount() > 0) {
+        int randomIndex = QRandomGenerator::global()->bounded(gsm->monsterCount());
+        QVariantMap monster = gsm->getMonster(randomIndex);
+        QString monsterName = monster["name"].toString();
+
+        if (!monsterName.isEmpty()) {
+            gsm->incrementStock(monsterName);
+            qDebug() << "Captured:" << monsterName;
+        }
+    }
+    
+    emit exitedDungeonToCity();
+    this->close();
+}
+
+void DungeonDialog::processTreasureOpening()
+{
+    GameStateManager* gsm = GameStateManager::instance();
+    QPair<int, int> pos = {
+        gsm->getGameValue("DungeonX").toInt(),
+        gsm->getGameValue("DungeonY").toInt()
+    };
+
+    if (m_treasurePositions.contains(pos)) {
+        QString treasure = m_treasurePositions.value(pos);
+        logMessage(QString("You open the chest and find: %1!").arg(treasure));
+
+        // Handle Gold specifically
+        if (treasure.contains("Gold")) {
+            quint64 foundGold = QRandomGenerator::global()->bounded(500, 5000);
+            quint64 currentGold = gsm->getGameValue("PlayerGold").toULongLong();
+            gsm->setGameValue("PlayerGold", currentGold + foundGold);
+
+            updateGoldLabel();
+            logMessage(QString("You gain %L1 Gold.").arg(foundGold));
+        }
+
+        // Remove from map and refresh UI
+        m_treasurePositions.remove(pos);
+        drawMinimap();
+    } else {
+        logMessage("There is nothing here to open.");
+    }
 }

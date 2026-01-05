@@ -353,7 +353,7 @@ void DungeonDialog::drawMinimap()
     }
 }
 
-void DungeonDialog::updateMinimap(int x, int y)
+void DungeonDialog::updateMinimap(int x, int y, int z=0)
 {
     // Define the visibility radius (e.g., 2 tiles in every direction)
     const int VIEW_DISTANCE = 2;

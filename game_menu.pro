@@ -84,7 +84,9 @@ SOURCES += game_menu.cpp \
     src/bank_dialog/TradeDialog.cpp \
     src/game_resources.cpp \
     GameStateManager.cpp \
-    src/dungeon_dialog/DungeonMinimap.cpp
+    src/dungeon_dialog/DungeonMinimap.cpp \
+    src/dungeon_dialog/DungeonHandlers.cpp
+
 SOURCES += src/event/EventManager.cpp
 
 HEADERS += game_menu.h \
@@ -119,7 +121,8 @@ HEADERS += game_menu.h \
     src/bank_dialog/TradeDialog.h \
     include/game_resources.h \
     GameStateManager.h \
-    StoryDialog.h
+    StoryDialog.h \
+    src/dungeon_dialog/DungeonHandlers.h
 
 HEADERS += src/event/EventManager.h
 
