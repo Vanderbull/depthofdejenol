@@ -19,6 +19,7 @@
 #include "src/mordorstatistics/mordorstatistics.h"
 #include "src/loadingscreen/LoadingScreen.h"
 #include "TheCity.h"
+#include "StoryDialog.h"
 // --- NEW INCLUDE ADDED FOR DATA LOADING ---
 #include "src/race_data/RaceData.h"
 #include "src/event/EventManager.h"
@@ -73,7 +74,7 @@ GameMenu::GameMenu(QWidget *parent)
     qDebug() << "Current Game Version:" << GameStateManager::instance()->getGameValue("GameVersion").toString();
     // --- GAME STATE INTEGRATION END ---
 
-    EventManager::instance()->loadEvents("./data/events-json");
+    //EventManager::instance()->loadEvents("./data/events-json");
     // Connect event system to this menu
     connect(EventManager::instance(), &EventManager::eventTriggered,
             this, &GameMenu::onEventTriggered);
@@ -659,19 +660,24 @@ int main(int argc, char *argv[]) {
     LoadingScreen loadingScreen; 
     loadingScreen.exec(); 
     qDebug() << "LoadingScreen dialog closed. Starting main application...";
+    // --- NEW STARTING STORY ---
+    qDebug() << "Launching Starting Story...";
+    StoryDialog story;
+    story.exec(); // This blocks until the three parts are finished
+    // --------------------------
     // ------------------------------------------
     GameMenu w;
     // Audio is initialized in GameMenu's constructor now.
     
     // 2. INSTANTIATE THE GAME CONTROLLER
     // Use the main window (w) as its parent, although it's not strictly necessary.
-    GameController *controller = new GameController(&w);
+//  GameController *controller = new GameController(&w);
     // 3. INSTALL THE GAME CONTROLLER AS AN EVENT FILTER
     // This is the key step. It tells Qt that *before* the key event is delivered 
     // to the main window (w) or any of its children, the controller gets a chance
     // to inspect and handle it.
-    w.installEventFilter(controller);
-    qDebug() << "GameController installed as event filter on GameMenu.";
+//    w.installEventFilter(controller);
+//    qDebug() << "GameController installed as event filter on GameMenu.";
 
     w.show();
     

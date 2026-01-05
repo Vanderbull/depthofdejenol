@@ -118,7 +118,8 @@ HEADERS += game_menu.h \
     src/dungeonmap/dungeonmap.h \
     src/bank_dialog/TradeDialog.h \
     include/game_resources.h \
-    GameStateManager.h
+    GameStateManager.h \
+    StoryDialog.h
 
 HEADERS += src/event/EventManager.h
 
