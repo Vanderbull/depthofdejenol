@@ -134,8 +134,38 @@ void InventoryDialog::onInfoButtonClicked() {
 
     if (currentList && currentList->currentItem()) {
         QString itemName = currentList->currentItem()->text();
-        QString itemInfo = itemInfoMap.value(itemName, "No information available for this item.");
+        GameStateManager* gsm = GameStateManager::instance();
+        
+        // Retrieve the full item list from GameStateManager
+        const QList<QVariantMap>& allItems = gsm->itemData();
+        QVariantMap foundItem;
+        bool itemFound = false;
 
-        QMessageBox::information(this, itemName, itemInfo);
+        // Search for the item by name in the database
+        for (const QVariantMap& item : allItems) {
+            // Adjust "name" key if your CSV header uses a different case (e.g., "Name")
+            if (item.value("name").toString() == itemName) {
+                foundItem = item;
+                itemFound = true;
+                break;
+            }
+        }
+
+        if (itemFound) {
+            QString details = "--- Item Statistics ---\n";
+            QMapIterator<QString, QVariant> i(foundItem);
+            while (i.hasNext()) {
+                i.next();
+                // Skip the internal DataType or empty values to keep it clean
+                if (i.key() == "DataType" || i.value().toString().isEmpty()) continue;
+                
+                details += QString("%1: %2\n").arg(i.key()).arg(i.value().toString());
+            }
+            QMessageBox::information(this, itemName, details);
+        } else {
+            // Fallback to the local map if not found in the CSV database
+            QString fallbackInfo = itemInfoMap.value(itemName, "No detailed stats found in database.");
+            QMessageBox::information(this, itemName, fallbackInfo);
+        }
     }
 }

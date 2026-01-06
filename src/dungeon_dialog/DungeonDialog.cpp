@@ -1,3 +1,4 @@
+#include "src/character_dialog/CharacterDialog.h"
 #include "DungeonDialog.h"
 #include "DungeonHandlers.h"
 #include "../../GameStateManager.h" // REQUIRED: Include for GameState access
@@ -870,6 +871,15 @@ void DungeonDialog::keyPressEvent(QKeyEvent *event)
             charSheet->show();
             charSheet->raise();
             charSheet->activateWindow();
+            break;
+        }
+        case Qt::Key_1: {
+            logMessage("Opening Character Dialog...");
+            CharacterDialog *charDialog = new CharacterDialog(this);
+            charDialog->setAttribute(Qt::WA_DeleteOnClose);
+            charDialog->show();
+            charDialog->raise();
+            charDialog->activateWindow();
             break;
         }
         default:
