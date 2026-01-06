@@ -8,18 +8,19 @@
 InventoryDialog::InventoryDialog(QWidget *parent) : QDialog(parent) {
     setWindowTitle("Inventory");
     setFixedSize(600, 400);
-    initializeItemData();
+    initializeItemData(); // Loads your itemInfoMap descriptions
     setupUi();
+    loadInventoryData(); // Pulls the real data from GameStateManager
 }
 
 InventoryDialog::~InventoryDialog() {}
 
 void InventoryDialog::setupUi() {
     QHBoxLayout *mainLayout = new QHBoxLayout(this);
-    
     tabWidget = new QTabWidget(this);
     mainLayout->addWidget(tabWidget);
 
+    // Create Tabs
     QWidget *inventoryTab = new QWidget();
     QWidget *equippedTab = new QWidget();
     QWidget *spellsTab = new QWidget();
@@ -28,34 +29,21 @@ void InventoryDialog::setupUi() {
     tabWidget->addTab(equippedTab, "Equipped");
     tabWidget->addTab(spellsTab, "Spells");
 
+    // Layouts for Lists
     QHBoxLayout *inventoryLayout = new QHBoxLayout(inventoryTab);
     inventoryList = new QListWidget();
     inventoryLayout->addWidget(inventoryList);
-
-    inventoryList->addItem("Short Sword");
-    inventoryList->addItem("Leather Armor");
-    inventoryList->addItem("Health Potion (x3)");
-    inventoryList->addItem("Gold (125)");
 
     QHBoxLayout *equippedLayout = new QHBoxLayout(equippedTab);
     equippedList = new QListWidget();
     equippedLayout->addWidget(equippedList);
 
-    equippedList->addItem("Battle Axe");
-    equippedList->addItem("Plate Mail");
-    equippedList->addItem("Shield of Fire Resistance");
-
     QHBoxLayout *spellsLayout = new QHBoxLayout(spellsTab);
     spellsList = new QListWidget();
     spellsLayout->addWidget(spellsList);
 
-    spellsList->addItem("Magic Missile");
-    spellsList->addItem("Fireball");
-    spellsList->addItem("Cure Light Wounds");
-
+    // Sidebar Buttons
     QVBoxLayout *buttonsLayout = new QVBoxLayout();
-    buttonsLayout->setSpacing(5);
-
     equipButton = new QPushButton("Equip");
     useButton = new QPushButton("Use");
     dropButton = new QPushButton("Drop");
@@ -65,81 +53,89 @@ void InventoryDialog::setupUi() {
     buttonsLayout->addWidget(useButton);
     buttonsLayout->addWidget(dropButton);
     buttonsLayout->addWidget(infoButton);
-
     mainLayout->addLayout(buttonsLayout);
 
+    // Connect logic
     connect(equipButton, &QPushButton::clicked, this, &InventoryDialog::onEquipButtonClicked);
     connect(dropButton, &QPushButton::clicked, this, &InventoryDialog::onDropButtonClicked);
-    connect(infoButton, &QPushButton::clicked, this, &InventoryDialog::onInfoButtonClicked); // Connect the new info button slot
+    connect(infoButton, &QPushButton::clicked, this, &InventoryDialog::onInfoButtonClicked);
+}
+
+void InventoryDialog::loadInventoryData() {
+    // 1. Get the singleton instance
+    GameStateManager* gsm = GameStateManager::instance();
+    
+    // 2. Identify which character to look at
+    int activeIdx = gsm->getGameValue("ActiveCharacterIndex").toInt();
+    QVariantList party = gsm->getGameValue("Party").toList();
+
+    if (activeIdx >= 0 && activeIdx < party.size()) {
+        QVariantMap character = party[activeIdx].toMap();
+
+        // 3. Clear and Populate the Inventory List
+        inventoryList->clear();
+        QVariantList inventory = character["Inventory"].toList(); 
+        for (const QVariant& item : inventory) {
+            inventoryList->addItem(item.toString());
+        }
+
+        // 4. Repeat for Equipped and Spells
+        equippedList->clear();
+        QVariantList equipped = character["Equipped"].toList();
+        for (const QVariant& item : equipped) {
+            equippedList->addItem(item.toString());
+        }
+    }
 }
 
 void InventoryDialog::initializeItemData() {
-    itemInfoMap["Short Sword"] = "A standard short sword.\nStats: 5 Damage, 1 Weight";
-    itemInfoMap["Leather Armor"] = "Light leather armor.\nStats: 10 Defense, 5 Weight";
-    itemInfoMap["Health Potion (x3)"] = "Restores 50 HP.\nType: Potion";
-    itemInfoMap["Gold (125)"] = "A pouch with 125 gold pieces.";
-    itemInfoMap["Battle Axe"] = "A heavy battle axe.\nStats: 12 Damage, 10 Weight";
-    itemInfoMap["Plate Mail"] = "Heavy full plate armor.\nStats: 30 Defense, 25 Weight";
-    itemInfoMap["Shield of Fire Resistance"] = "A shield that protects against fire.\nStats: 15 Defense, 50% Fire Resistance";
-    itemInfoMap["Magic Missile"] = "A basic damaging spell.\nStats: 1-4 Damage";
-    itemInfoMap["Fireball"] = "An area of effect spell.\nStats: 10-20 Damage, Area of Effect";
-    itemInfoMap["Cure Light Wounds"] = "Restores 10 HP.\nType: Healing Spell";
+    itemInfoMap["Short Sword"] = "A standard short sword.\nStats: 5 Damage";
+    itemInfoMap["Leather Armor"] = "Light leather armor.\nStats: 10 Defense";
+    // Add other treasure items here to provide descriptions
 }
-
 void InventoryDialog::onEquipButtonClicked() {
     if (inventoryList->currentItem()) {
         QListWidgetItem *selectedItem = inventoryList->currentItem();
+        
+        // Example logic: Don't equip consumables
         if (selectedItem->text().contains("Potion") || selectedItem->text().contains("Gold")) {
-            qWarning() << "Cannot equip this item.";
             return;
         }
 
-        QListWidgetItem *equippedItem = selectedItem->clone();
-        equippedList->addItem(equippedItem);
+        // Add to equipped list and remove from inventory
+        equippedList->addItem(selectedItem->text());
         delete selectedItem;
+        
+        qDebug() << "Item equipped locally.";
+        // Note: In a full implementation, you would also update GameStateManager here
     }
 }
 
 void InventoryDialog::onDropButtonClicked() {
     int currentIndex = tabWidget->currentIndex();
-
-    if (currentIndex == 2) {
-        qWarning() << "Cannot drop spells.";
-        return;
-    }
-
     QListWidget* currentList = nullptr;
-    if (currentIndex == 0) {
-        currentList = inventoryList;
-    } else if (currentIndex == 1) {
-        currentList = equippedList;
-    }
+
+    if (currentIndex == 0) currentList = inventoryList;
+    else if (currentIndex == 1) currentList = equippedList;
 
     if (currentList && currentList->currentItem()) {
-        QListWidgetItem *selectedItem = currentList->currentItem();
-        delete selectedItem;
-        qDebug() << "Item dropped.";
+        delete currentList->currentItem();
+        qDebug() << "Item removed from UI.";
     }
 }
 
 void InventoryDialog::onInfoButtonClicked() {
     QListWidget* currentList = nullptr;
     int currentIndex = tabWidget->currentIndex();
-    if (currentIndex == 0) {
-        currentList = inventoryList;
-    } else if (currentIndex == 1) {
-        currentList = equippedList;
-    } else if (currentIndex == 2) {
-        currentList = spellsList;
-    }
+    
+    if (currentIndex == 0) currentList = inventoryList;
+    else if (currentIndex == 1) currentList = equippedList;
+    else if (currentIndex == 2) currentList = spellsList;
 
     if (currentList && currentList->currentItem()) {
         QString itemName = currentList->currentItem()->text();
         QString itemInfo = itemInfoMap.value(itemName, "No information available for this item.");
 
-        QMessageBox msgBox;
-        msgBox.setWindowTitle(itemName);
-        msgBox.setText(itemInfo);
-        msgBox.exec();
+        QMessageBox::information(this, itemName, itemInfo);
     }
 }

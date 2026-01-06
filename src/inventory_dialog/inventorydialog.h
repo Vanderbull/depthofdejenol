@@ -23,6 +23,7 @@ private slots:
 private:
     void setupUi();
     void initializeItemData(); // Function to populate item data
+    void loadInventoryData();
 
     QTabWidget *tabWidget;
     QListWidget *inventoryList;
