@@ -36,13 +36,13 @@ TheCity::TheCity(QWidget *parent) :
         qDebug() << "ERROR: general_store.png failed to load. Check resource paths and file names.";
     }
     // ADD THIS to show the Party Info dialog when entering TheCity
-    PartyInfoDialog *partyInfo = new PartyInfoDialog(this);
-    QStringList memberNames;
-    memberNames << "Alice" << "Bob" << "Charlie" << "Dana";
-    qDebug() << "Party size:" << memberNames.size() << memberNames;
-    partyInfo->setPartyMembers(memberNames);
-    partyInfo->setAttribute(Qt::WA_DeleteOnClose);
-    partyInfo->show();
+    //PartyInfoDialog *partyInfo = new PartyInfoDialog(this);
+    //QStringList memberNames;
+    //memberNames << "Alice" << "Bob" << "Charlie" << "Dana";
+    //qDebug() << "Party size:" << memberNames.size() << memberNames;
+    //partyInfo->setPartyMembers(memberNames);
+    //partyInfo->setAttribute(Qt::WA_DeleteOnClose);
+    //partyInfo->show();
 }
 
 TheCity::~TheCity()

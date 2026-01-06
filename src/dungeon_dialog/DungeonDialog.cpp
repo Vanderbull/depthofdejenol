@@ -657,15 +657,6 @@ DungeonDialog::DungeonDialog(QWidget *parent)
     // Connections (Stairs)
     connect(stairsDownButton, &QPushButton::clicked, this, &DungeonDialog::on_stairsDownButton_clicked);
     connect(stairsUpButton, &QPushButton::clicked, this, &DungeonDialog::on_stairsUpButton_clicked);
-/*
-    QTimer::singleShot(100, this, [this]() {
-        // We use 'new' and set DeleteOnClose so it doesn't leak memory
-        InventoryDialog *inventory = new InventoryDialog(this);
-        inventory->setAttribute(Qt::WA_DeleteOnClose);
-        inventory->show(); 
-        qDebug() << "!!! FORCE OPENING INVENTORY !!!";
-    });
-*/
 }
 void DungeonDialog::updateExperienceLabel()
 {
@@ -868,6 +859,18 @@ void DungeonDialog::keyPressEvent(QKeyEvent *event)
             inventory->activateWindow();
             
             break; // Break MUST be inside or immediately after the case
+        }
+        // NEW: Character Sheet Hotkey
+        case Qt::Key_C:
+        {
+            logMessage("Opening Character Sheet...");
+            // Using PartyInfoDialog for the character sheet
+            PartyInfoDialog *charSheet = new PartyInfoDialog(this);
+            charSheet->setAttribute(Qt::WA_DeleteOnClose);
+            charSheet->show();
+            charSheet->raise();
+            charSheet->activateWindow();
+            break;
         }
         default:
             QDialog::keyPressEvent(event);

@@ -277,7 +277,9 @@ void GameMenu::toggleMenuState(bool characterIsLoaded) {
 
 /**
  * @brief Handles the signal that a character was successfully created and saved.
- * Switches the main menu buttons to show the 'Run Character' option.
+ * Switches the main menu buttons to show the '
+
+ Run Character' option.
  * @param characterName The name of the newly created character.
  */
 void GameMenu::onCharacterCreated(const QString &characterName) {
@@ -293,11 +295,10 @@ void GameMenu::onRunClicked() {
     TheCity *cityDialog = new TheCity(this);  
     cityDialog->setAttribute(Qt::WA_DeleteOnClose);
     cityDialog->show();
-    CharacterDialog *charDialog = new CharacterDialog(this);
-    charDialog->setAttribute(Qt::WA_DeleteOnClose);
-    charDialog->show();
-    qDebug() << "Run Character clicked - launching TheCity and Character Dialog.";
-
+    //CharacterDialog *charDialog = new CharacterDialog(this);
+    //charDialog->setAttribute(Qt::WA_DeleteOnClose);
+    //charDialog->show();
+    qDebug() << "Run Character clicked - launching TheCity";
 }
 
 void GameMenu::onCharacterListClicked() {

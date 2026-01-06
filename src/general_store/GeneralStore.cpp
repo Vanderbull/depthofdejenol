@@ -376,19 +376,26 @@ void GeneralStore::combineItems()
     }
 }
 
-void GeneralStore::identifySellItem()
-{
+void GeneralStore::identifySellItem() {
     QString itemName = identifySellItemLineEdit->text().trimmed();
-    if (itemName.isEmpty()) return;
+    if (itemName.isEmpty()) {
+        showFeedbackDialog("Input Required", "Please enter the name of the item.", QMessageBox::Warning);
+        return;
+    }
+
+    // Identify which button triggered the slot
+    QPushButton *senderButton = qobject_cast<QPushButton*>(sender());
+    bool isIdentifyAction = (senderButton == idButton);
 
     GameStateManager* gsm = GameStateManager::instance();
     int activeCharIndex = gsm->getGameValue("ActiveCharacterIndex").toInt();
     
-    // 1. Verify item is in Character Inventory
+    // Retrieve character inventory
     QVariantList party = gsm->getGameValue("Party").toList();
     QVariantMap character = party[activeCharIndex].toMap();
     QStringList inventory = character["Inventory"].toStringList();
 
+    // 1. Verify item is in Character Inventory
     int invIndex = -1;
     for (int i = 0; i < inventory.size(); ++i) {
         if (inventory[i].compare(itemName, Qt::CaseInsensitive) == 0) {
@@ -398,27 +405,59 @@ void GeneralStore::identifySellItem()
     }
 
     if (invIndex == -1) {
-        showFeedbackDialog("Error", "Item not found in your inventory.", QMessageBox::Warning);
+        showFeedbackDialog("Error", "This item is not in your inventory.", QMessageBox::Warning);
         return;
     }
 
-    // 2. Find Item Value in Database (m_itemData)
-    qulonglong itemValue = 0;
+    // 2. Fetch Item Data from Database
+    bool alreadyIdentified = inventory[invIndex].contains("(ID)");
     const QList<QVariantMap>& db = gsm->itemData();
+    
+    qulonglong basePrice = 0;
     for (const QVariantMap& item : db) {
         if (item["name"].toString().compare(itemName, Qt::CaseInsensitive) == 0) {
-            // Based on populateBuyItemsList, price is the 5th column
-            itemValue = item["price"].toULongLong(); 
+            basePrice = item["price"].toULongLong();
             break;
         }
     }
 
-    // 3. Process Transaction
-    inventory.removeAt(invIndex);
-    gsm->setCharacterInventory(activeCharIndex, inventory); // Remove item
-    gsm->updateCharacterGold(activeCharIndex, itemValue, true); // Add gold
+    // 3. Branch Logic: Identify vs Sell
+    if (isIdentifyAction) {
+        // IDENTIFY LOGIC
+        // Calculate dynamic ID cost (e.g., 15% of base price)
+        qulonglong idCost = static_cast<qulonglong>(basePrice * 0.15);
+        if (idCost < 10) idCost = 10; // Minimum flat fee for low-value items
 
-    showFeedbackDialog("Sold", QString("Sold %1 for %2 gold.").arg(itemName).arg(itemValue));
+        qulonglong currentGold = character["Gold"].toULongLong();
+
+        if (alreadyIdentified) {
+            showFeedbackDialog("Info", "This item is already identified.", QMessageBox::Information);
+            return;
+        }
+
+        if (currentGold < (qulonglong)idCost) {
+            showFeedbackDialog("Identify Failed", "You do not have enough gold to identify this item.", QMessageBox::Critical);
+            return;
+        }
+
+        // Deduct gold and update name
+        gsm->updateCharacterGold(activeCharIndex, idCost, false);
+        inventory[invIndex] = itemName + " (ID)";
+        gsm->setCharacterInventory(activeCharIndex, inventory);
+
+        showFeedbackDialog("Identify Success", QString("You have identified %1!").arg(itemName));
+    } else {
+        // SELL LOGIC
+        // Usually, selling unidentified items yields less gold (e.g., 25% value)
+        qulonglong finalSellPrice = alreadyIdentified ? (basePrice / 2) : (basePrice / 4);
+
+        inventory.removeAt(invIndex);
+        gsm->setCharacterInventory(activeCharIndex, inventory);
+        gsm->updateCharacterGold(activeCharIndex, finalSellPrice, true);
+
+        showFeedbackDialog("Sold", QString("Sold %1 for %2 gold.").arg(itemName).arg(finalSellPrice));
+    }
+
     identifySellItemLineEdit->clear();
 }
 
@@ -508,6 +547,7 @@ void GeneralStore::searchItems(const QString &searchText)
 
 void GeneralStore::exitStore()
 {
+/*
     QMessageBox::StandardButton reply;
     reply = QMessageBox::question(this, "Exit Store", "Are you sure you want to exit the General Store?",
                                   QMessageBox::Yes|QMessageBox::No);
@@ -517,4 +557,6 @@ void GeneralStore::exitStore()
         showFeedbackDialog("Goodbye", "Thank you for visiting the General Store!", QMessageBox::Information);
         this->close(); 
     }
+*/
+this->close();
 }
