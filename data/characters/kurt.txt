@@ -13,4 +13,4 @@ Strength: 4
 Wisdom: 4
 
 --- GUILD ---
-Guild: Scavenger
+Guild: Nomad
