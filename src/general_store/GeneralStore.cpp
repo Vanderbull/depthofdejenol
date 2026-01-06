@@ -47,8 +47,6 @@ GeneralStore::GeneralStore(QWidget *parent) : QDialog(parent)
     });
 }
 
-// --- UI Setup ---
-
 void GeneralStore::setupUi()
 {
     // Initialize UI elements
@@ -144,7 +142,6 @@ void GeneralStore::setupUi()
 
 GeneralStore::~GeneralStore()
 {
-    // Destructor is empty if all members are managed by Qt's parent/child mechanism
 }
 
 // --- Item Data Population ---
@@ -289,30 +286,66 @@ void GeneralStore::showFeedbackDialog(const QString &title, const QString &messa
 
 // --- Slot Implementations (Updated to use QMessageBox) ---
 
-void GeneralStore::uncurseItem()
-{
+void GeneralStore::uncurseItem() {
     QString itemName = uncurseItemLineEdit->text().trimmed();
-    
     if (itemName.isEmpty()) {
         showFeedbackDialog("Uncurse Error", "Please enter the name of the item you wish to uncurse.", QMessageBox::Warning);
         return;
     }
 
-    // Placeholder Logic:
-    // 1. Check if the player has the item named 'itemName'.
-    // 2. Check if the item is actually cursed (cursed flag == 1).
-    // 3. Deduct the uncursing cost.
-    // 4. Update the item's 'cursed' flag to 0.
+    GameStateManager* gsm = GameStateManager::instance();
+    int activeCharIndex = gsm->getGameValue("ActiveCharacterIndex").toInt();
+    
+    // Retrieve character inventory
+    QVariantList party = gsm->getGameValue("Party").toList();
+    QVariantMap character = party[activeCharIndex].toMap();
+    QStringList inventory = character["Inventory"].toStringList();
 
-    // Simulate success/failure based on a simple check
-    if (itemName.toLower() == "gnarled hands") {
+    // 1. Check if the player owns the item
+    int invIndex = -1;
+    for (int i = 0; i < inventory.size(); ++i) {
+        if (inventory[i].compare(itemName, Qt::CaseInsensitive) == 0) {
+            invIndex = i;
+            break;
+        }
+    }
+
+    if (invIndex == -1) {
+        showFeedbackDialog("Uncurse Error", "This item is not in your inventory.", QMessageBox::Warning);
+        return;
+    }
+
+    // 2. Check the item database if it is cursed
+    bool isCursed = false;
+    const QList<QVariantMap>& db = gsm->itemData();
+    for (const QVariantMap& item : db) {
+        if (item["name"].toString().compare(itemName, Qt::CaseInsensitive) == 0) {
+            // Check the "cursed" column (In your data, column index 32 often tracks special flags like cursed)
+            if (item["cursed"].toInt() == 1 || item["cursed"].toString() == "1") {
+                isCursed = true;
+            }
+            break;
+        }
+    }
+
+    if (isCursed) {
+        // 3. Perform the Uncursing
+        QString oldName = inventory[invIndex];
+        QString newName = oldName + "-uncursed";
+        inventory[invIndex] = newName;
+
+        // 4. Persist the changes
+        gsm->setCharacterInventory(activeCharIndex, inventory);
+
         showFeedbackDialog("Uncurse Success", 
-                           QString("Successfully removed the curse from '%1'. It is now safe to use.").arg(itemName),
-                           QMessageBox::Information);
+            QString("The curse has been lifted! '%1' is now '%2'.").arg(oldName, newName), 
+            QMessageBox::Information);
+        
+        uncurseItemLineEdit->clear();
     } else {
         showFeedbackDialog("Uncurse Status", 
-                           QString("Failed to uncurse '%1'. Either you don't own it, it's not cursed, or the process was too expensive.").arg(itemName),
-                           QMessageBox::Critical);
+            QString("'%1' is not cursed and does not require uncursing.").arg(itemName), 
+            QMessageBox::Information);
     }
 }
 

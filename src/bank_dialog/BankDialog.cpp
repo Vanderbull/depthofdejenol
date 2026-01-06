@@ -66,24 +66,6 @@ BankDialog::BankDialog(QWidget *parent) :
     // 3. Set initial data
     // Use the values retrieved from GameStateManager, including the new getFreeSlots()
     updateAccountStatus(getPlayerGold(), getBankedGold(), getFreeSlots());
-
-    // Populate item list with example data (These items start in the bank)
-    QStringList initialBankItems;
-    initialBankItems << "Sword of Alton (g)" << "Prism of Sanctuary [1]" << "Potion of Agility [2]"
-                 << "Bells of Kwalish [6]" << "Silver Cross (g)" << "Twisted Bracers (n) [2]"
-                 << "Tome of Agility (n) [1]" << "War Hammer (g)";
-
-    for (const QString& item : initialBankItems) {
-        itemModel->appendRow(new QStandardItem(item));
-    }
-
-    // Populate player inventory with example data (These items start with the player)
-    QStringList initialPlayerItems;
-    initialPlayerItems << "Health Potion [5]" << "Mana Scroll [3]" << "Rusty Sword" 
-                       << "Leather Armor" << "Magic Ring";
-    for (const QString& item : initialPlayerItems) {
-        playerItemModel->appendRow(new QStandardItem(item));
-    }
 }
 
 // --- Destructor (REQUIRED for Linker Fix) ---
