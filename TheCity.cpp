@@ -205,3 +205,20 @@ void TheCity::on_exitButton_clicked()        {
     qDebug() << "Exit clicked! Closing dialog.";
     accept(); 
 }
+void TheCity::keyPressEvent(QKeyEvent *event)
+{
+    // Check if the "I" key was pressed
+    if (event->key() == Qt::Key_I) {
+        qDebug() << "Inventory shortcut (I) pressed.";
+        
+        InventoryDialog *inv = new InventoryDialog(this);
+        // Set to delete on close so we don't leak memory
+        inv->setAttribute(Qt::WA_DeleteOnClose);
+        
+        // Show as a Modal dialog so user finishes inventory before returning to city
+        inv->exec(); 
+    } else {
+        // Pass other key events (like Escape) to the base class
+        QDialog::keyPressEvent(event);
+    }
+}

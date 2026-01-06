@@ -512,3 +512,18 @@ void GameStateManager::addItemToCharacter(int characterIndex, const QString& ite
         emit gameValueChanged("Party", m_gameStateData["Party"]);
     }
 }
+void GameStateManager::updateCharacterGold(int characterIndex, qulonglong amount, bool add) {
+    QVariantList party = m_gameStateData["Party"].toList();
+    if (characterIndex >= 0 && characterIndex < party.size()) {
+        QVariantMap character = party[characterIndex].toMap();
+        qulonglong currentGold = character["Gold"].toULongLong();
+        
+        if (add) currentGold += amount;
+        else currentGold = (amount > currentGold) ? 0 : currentGold - amount;
+
+        character["Gold"] = QVariant::fromValue(currentGold);
+        party[characterIndex] = character;
+        m_gameStateData["Party"] = party;
+        emit gameValueChanged("Party", m_gameStateData["Party"]);
+    }
+}

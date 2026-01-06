@@ -7,7 +7,7 @@
 #include <QGridLayout>
 #include <QVBoxLayout>
 #include <QHBoxLayout>
-
+#include <QKeyEvent>
 class TheCity : public QDialog
 {
     Q_OBJECT
@@ -43,6 +43,8 @@ private:
     void setupUi();
     void setupStyling();
     void loadButtonIcons();
+protected:
+    void keyPressEvent(QKeyEvent *event) override;
 };
 
 #endif // THECITY_H

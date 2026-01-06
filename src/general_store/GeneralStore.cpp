@@ -345,37 +345,48 @@ void GeneralStore::combineItems()
 
 void GeneralStore::identifySellItem()
 {
-    QPushButton *senderButton = qobject_cast<QPushButton*>(sender());
     QString itemName = identifySellItemLineEdit->text().trimmed();
+    if (itemName.isEmpty()) return;
+
+    GameStateManager* gsm = GameStateManager::instance();
+    int activeCharIndex = gsm->getGameValue("ActiveCharacterIndex").toInt();
     
-    if (itemName.isEmpty()) {
-        showFeedbackDialog("Input Required", "Please enter an item name/ID for Identification or Selling.", QMessageBox::Warning);
+    // 1. Verify item is in Character Inventory
+    QVariantList party = gsm->getGameValue("Party").toList();
+    QVariantMap character = party[activeCharIndex].toMap();
+    QStringList inventory = character["Inventory"].toStringList();
+
+    int invIndex = -1;
+    for (int i = 0; i < inventory.size(); ++i) {
+        if (inventory[i].compare(itemName, Qt::CaseInsensitive) == 0) {
+            invIndex = i;
+            break;
+        }
+    }
+
+    if (invIndex == -1) {
+        showFeedbackDialog("Error", "Item not found in your inventory.", QMessageBox::Warning);
         return;
     }
 
-    if (senderButton == idButton) {
-        // Placeholder Logic (ID):
-        // 1. Check if the item is unidentified.
-        // 2. Deduct ID cost (100 gold, based on idCostLabel).
-        // 3. Reveal true stats.
-
-        showFeedbackDialog("Identification Service", 
-                           QString("Item '%1' successfully identified for 100 gold. Its true stats are now revealed.").arg(itemName),
-                           QMessageBox::Information);
-        
-    } else if (senderButton == sellButton) {
-        // Placeholder Logic (Sell):
-        // 1. Check if the item exists.
-        // 2. Calculate sell price.
-        // 3. Add gold to player, remove item.
-        
-        // Example sell price calculation (simulated)
-        int value = (itemName.length() * 10) + 50; 
-        
-        showFeedbackDialog("Selling Service", 
-                           QString("Item '%1' sold! You received %2 gold in your wallet.").arg(itemName).arg(value),
-                           QMessageBox::Question);
+    // 2. Find Item Value in Database (m_itemData)
+    qulonglong itemValue = 0;
+    const QList<QVariantMap>& db = gsm->itemData();
+    for (const QVariantMap& item : db) {
+        if (item["name"].toString().compare(itemName, Qt::CaseInsensitive) == 0) {
+            // Based on populateBuyItemsList, price is the 5th column
+            itemValue = item["price"].toULongLong(); 
+            break;
+        }
     }
+
+    // 3. Process Transaction
+    inventory.removeAt(invIndex);
+    gsm->setCharacterInventory(activeCharIndex, inventory); // Remove item
+    gsm->updateCharacterGold(activeCharIndex, itemValue, true); // Add gold
+
+    showFeedbackDialog("Sold", QString("Sold %1 for %2 gold.").arg(itemName).arg(itemValue));
+    identifySellItemLineEdit->clear();
 }
 
 void GeneralStore::buyItem()

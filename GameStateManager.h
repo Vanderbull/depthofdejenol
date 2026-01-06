@@ -159,6 +159,7 @@ public:
     QStringList getBankInventory() const;
     void setCharacterInventory(int characterIndex, const QStringList& items);
     void addItemToCharacter(int characterIndex, const QString& itemName);
+    void updateCharacterGold(int characterIndex, qulonglong amount, bool add = true);
 };
 
 #endif // GAMESTATEMANAGER_H
