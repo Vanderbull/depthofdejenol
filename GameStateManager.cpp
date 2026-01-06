@@ -62,12 +62,17 @@ GameStateManager::GameStateManager(QObject *parent)
         character["Diseased"] = false;
         character["Dead"] = false;
 
+        character["Inventory"] = QStringList();
+
         party.append(character);
     }
     m_gameStateData["Party"] = party;
     
     // You can still keep a "CurrentActiveIndex" to know which one the UI is showing
     m_gameStateData["ActiveCharacterIndex"] = 0;
+
+    // Initialize Bank Inventory so it isn't null
+    m_gameStateData["BankInventory"] = QStringList();
 
     // Initialize the Ghost Hound flag to false
     m_gameStateData["GhostHoundPending"] = false;
@@ -475,11 +480,31 @@ void GameStateManager::performSanityCheck() {
         qWarning() << "FAIL: 'hits' column is not a valid integer.";
     }
 }
+
+void GameStateManager::setBankInventory(const QStringList& items) {
+    setGameValue("BankInventory", items);
+}
+
+QStringList GameStateManager::getBankInventory() const {
+    return m_gameStateData.value("BankInventory").toStringList();
+}
+
+void GameStateManager::setCharacterInventory(int characterIndex, const QStringList& items) {
+    QVariantList party = m_gameStateData["Party"].toList();
+    if (characterIndex >= 0 && characterIndex < party.size()) {
+        QVariantMap character = party[characterIndex].toMap();
+        character["Inventory"] = items;
+        party[characterIndex] = character;
+        m_gameStateData["Party"] = party;
+        emit gameValueChanged("Party", m_gameStateData["Party"]);
+    }
+}
 void GameStateManager::addItemToCharacter(int characterIndex, const QString& itemName) {
     QVariantList party = m_gameStateData["Party"].toList();
     if (characterIndex >= 0 && characterIndex < party.size()) {
         QVariantMap character = party[characterIndex].toMap();
-        QVariantList inventory = character["Inventory"].toList();
+        // Use QVariantList for internal storage to match QVariant compatibility
+        QStringList inventory = character["Inventory"].toStringList(); 
         inventory.append(itemName);
         character["Inventory"] = inventory;
         party[characterIndex] = character;

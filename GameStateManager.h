@@ -13,7 +13,6 @@ class GameStateManager : public QObject
 private:
     // Private constructor
     explicit GameStateManager(QObject *parent = nullptr);
-    
     // Prevent copy and assignment
     GameStateManager(const GameStateManager&) = delete;
     GameStateManager& operator=(const GameStateManager&) = delete;
@@ -59,7 +58,6 @@ private:
     QList<QVariantMap> m_gameData;    // In-memory storage for MDATA1
 
 public:
-    void addItemToCharacter(int characterIndex, const QString& itemName);
     QVariantMap getCharacterData(int index) const;
     void updateCharacterData(int index, const QVariantMap& data);
 
@@ -155,6 +153,12 @@ public:
             {"Ninja", "Shadowblade"}
         };
     }
+
+    // --- Inventory Management ---
+    void setBankInventory(const QStringList& items);
+    QStringList getBankInventory() const;
+    void setCharacterInventory(int characterIndex, const QStringList& items);
+    void addItemToCharacter(int characterIndex, const QString& itemName);
 };
 
 #endif // GAMESTATEMANAGER_H
