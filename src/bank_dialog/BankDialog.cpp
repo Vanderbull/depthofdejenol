@@ -11,8 +11,17 @@
 // --- Helper Methods to Read Gold from GSM ---
 long long BankDialog::getPlayerGold()
 {
-    // Fetch and convert PlayerGold from GSM (qulonglong)
-    // FIX: Changed "PlayerGold" to "CurrentCharacterGold" to match GameStateManager initialization
+    // 1. Get the party list and the active index from GSM
+    QVariantList party = GameStateManager::instance()->getGameValue("Party").toList();
+    int activeIndex = GameStateManager::instance()->getGameValue("ActiveCharacterIndex").toInt();
+
+    // 2. Validate index and extract gold from that specific character
+    if (activeIndex >= 0 && activeIndex < party.size()) {
+        QVariantMap character = party[activeIndex].toMap();
+        return character["Gold"].toULongLong();
+    }
+
+    // Fallback to the legacy key if party data is missing
     return GameStateManager::instance()->getGameValue("CurrentCharacterGold").toULongLong();
 }
 
@@ -214,52 +223,65 @@ void BankDialog::updateAccountStatus(long long playerGold, long long bankGold, i
 
 void BankDialog::on_depositAllButton_clicked()
 {
+    // 1. Get the current active player's gold
     long long playerGold = getPlayerGold();
     long long bankedGold = getBankedGold();
-    int freeSlots = getFreeSlots(); // Use GSM value
-    
-    // Deposit all player gold into the bank
-    if (playerGold > 0) {
-        long long amountToDeposit = playerGold; 
+    int activeIndex = GameStateManager::instance()->getGameValue("ActiveCharacterIndex").toInt();
 
-        // Update GSM: Increase BankedGold by playerGold, set CurrentCharacterGold (FIXED) to 0
-        GameStateManager::instance()->setGameValue("BankedGold", QVariant::fromValue(bankedGold + playerGold));
-        // FIX: Use the key "CurrentCharacterGold"
-        GameStateManager::instance()->setGameValue("CurrentCharacterGold", QVariant::fromValue((qulonglong)0)); 
-        
-        // Use GSM value in the update call
-        updateAccountStatus(0, bankedGold + playerGold, freeSlots); 
+    // 2. We are depositing EVERYTHING, so the amount is the playerGold
+    long long amount = playerGold;
+
+    if (amount > 0) {
+        // Update the Bank Total
+        GameStateManager::instance()->setGameValue("BankedGold", QVariant::fromValue(bankedGold + amount));
+
+        // Update the ACTIVE character's gold (Subtract it all)
+        GameStateManager::instance()->updateCharacterGold(activeIndex, amount, false); 
+
+        // Sync the legacy global key to 0
+        GameStateManager::instance()->setGameValue("CurrentCharacterGold", 0);
+
         depositLineEdit->clear();
-        emit depositGold(amountToDeposit); 
-        QMessageBox::information(this, "Deposit", "Deposited ALL your gold into the bank.");
+        QMessageBox::information(this, "Deposit All", QString("Deposited %L1 gold.").arg(amount));
+        
+        emit depositGold(amount);
+        
+        // Refresh the UI labels
+        updateAccountStatus(getPlayerGold(), getBankedGold(), getFreeSlots());
     } else {
-        QMessageBox::warning(this, "Deposit", "You have no gold to deposit.");
+        QMessageBox::warning(this, "Deposit All", "The active character has no gold to deposit.");
     }
 }
 
 void BankDialog::on_withdrawAllButton_clicked()
 {
+    // 1. Get values
     long long playerGold = getPlayerGold();
     long long bankedGold = getBankedGold();
-    int freeSlots = getFreeSlots(); // Use GSM value
-    
-    // Withdraw all bank gold into the player's inventory
-    if (bankedGold > 0) {
-        long long amountToWithdraw = bankedGold;
-        
-        // Update GSM: Increase CurrentCharacterGold (FIXED) by bankedGold, set BankedGold to 0
-        // FIX: Use the key "CurrentCharacterGold"
-        GameStateManager::instance()->setGameValue("CurrentCharacterGold", QVariant::fromValue(playerGold + bankedGold));
-        // Use qulonglong for explicit type safety with large numbers
-        GameStateManager::instance()->setGameValue("BankedGold", QVariant::fromValue((qulonglong)0));
-        
-        // Use GSM value in the update call
-        updateAccountStatus(playerGold + bankedGold, 0, freeSlots);
+    int activeIndex = GameStateManager::instance()->getGameValue("ActiveCharacterIndex").toInt();
+
+    // 2. We are withdrawing EVERYTHING from the bank
+    long long amount = bankedGold;
+
+    if (amount > 0) {
+        // Update Bank Total to 0
+        GameStateManager::instance()->setGameValue("BankedGold", 0);
+
+        // Update the ACTIVE character's gold (Add the bank total)
+        GameStateManager::instance()->updateCharacterGold(activeIndex, amount, true); 
+
+        // Sync the legacy global key
+        GameStateManager::instance()->setGameValue("CurrentCharacterGold", QVariant::fromValue(playerGold + amount));
+
         withdrawLineEdit->clear();
-        emit withdrawGold(amountToWithdraw); 
-        QMessageBox::information(this, "Withdraw", "Withdrew ALL gold from the bank.");
+        QMessageBox::information(this, "Withdraw All", QString("Withdrew %L1 gold.").arg(amount));
+        
+        emit withdrawGold(amount);
+
+        // Refresh the UI labels
+        updateAccountStatus(getPlayerGold(), getBankedGold(), getFreeSlots());
     } else {
-        QMessageBox::warning(this, "Withdraw", "The bank vault is empty.");
+        QMessageBox::warning(this, "Withdraw All", "There is no gold in the bank to withdraw.");
     }
 }
 
