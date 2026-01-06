@@ -161,15 +161,68 @@ void CharacterDialog::setupUi() {
     resistanceLayout->addWidget(new QLabel("Drain            -"));
     resistanceLayout->addWidget(new QLabel("Acid             -"));
 
-    // --- 3. Guild Tab ---
-    QVBoxLayout *guildLayout = new QVBoxLayout(guildTab);
-    QTextEdit *logView = new QTextEdit();
-    logView->setReadOnly(true);
-    QVariantList actions = GSM->getGameValue("GuildActionLog").toList();
-    for (const QVariant& action : actions) logView->append(action.toString());
-    guildLayout->addWidget(new QLabel("Action Log:"));
-    guildLayout->addWidget(logView);
+// --- 3. Guild Tab ---
+    QHBoxLayout *guildMainLayout = new QHBoxLayout(guildTab);
+    guildMainLayout->setContentsMargins(10, 10, 10, 10);
+    guildMainLayout->setSpacing(20);
 
+    // --- Left Column: Guilds & Skills ---
+    QVBoxLayout *leftCol = new QVBoxLayout();
+    leftCol->setAlignment(Qt::AlignTop);
+
+    // Guilds Section
+    QLabel *lblGuildsHeader = new QLabel("<b>Guilds</b>");
+    QLabel *lblGuildList = new QLabel("    Nomad (22)"); // Example data
+    
+    // Total Skill Section
+    QLabel *lblTotalSkillHeader = new QLabel("<br><b>Total Skill</b>");
+    QLabel *lblSkillList = new QLabel(
+        "    1 Fighting<br>"
+        "    1 Magical<br>"
+        "    3 Thieving"
+    );
+
+    // Current Guild Section
+    QLabel *lblCurrentGuildHeader = new QLabel("<br><b>Current Guild</b>");
+    QLabel *lblCurrentGuild = new QLabel("    Nomad");
+
+    leftCol->addWidget(lblGuildsHeader);
+    leftCol->addWidget(lblGuildList);
+    leftCol->addWidget(lblTotalSkillHeader);
+    leftCol->addWidget(lblSkillList);
+    leftCol->addWidget(lblCurrentGuildHeader);
+    leftCol->addWidget(lblCurrentGuild);
+    leftCol->addStretch();
+
+    // --- Right Column: Guild Abilities ---
+    QVBoxLayout *rightCol = new QVBoxLayout();
+    rightCol->setAlignment(Qt::AlignTop);
+
+    QLabel *lblAbilitiesHeader = new QLabel("<b>Guild Abilities</b>");
+    rightCol->addWidget(lblAbilitiesHeader);
+
+    // Helper to add the ability + source formatting
+    auto addAbility = [&](const QString& name, const QString& source) {
+        QLabel *nameLbl = new QLabel("<b>" + name + "</b>");
+        QLabel *srcLbl = new QLabel("<i>    " + source + "</i>");
+        srcLbl->setStyleSheet("color: #404040; margin-bottom: 2px;");
+        rightCol->addWidget(nameLbl);
+        rightCol->addWidget(srcLbl);
+    };
+
+    addAbility("Thieving", "10 from Nomad");
+    addAbility("Backstabbing", "1 from Nomad");
+    addAbility("Critical Hit", "1 from Nomad");
+    addAbility("Multiple Swings", "1 from Nomad");
+    addAbility("Fighting", "2 from Nomad");
+    addAbility("Perception", "23 from Nomad");
+    
+    rightCol->addStretch();
+
+    // Add columns to the main guild tab layout
+    guildMainLayout->addLayout(leftCol, 1);
+    guildMainLayout->addLayout(rightCol, 1);
+    // ----------------------------------------
     mainLayout->addWidget(tabWidget);
 
     QPushButton *btnOk = new QPushButton("Close");
