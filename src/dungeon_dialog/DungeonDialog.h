@@ -210,12 +210,6 @@ private:
         Down
     };
     void drawMinimap(); 
-    void handleEncounter(int x, int y);
-    void handleTreasure(int x, int y);
-    void handleTrap(int x, int y);
-    void handleChute(int x, int y);
-    void handleAntimagic(int x, int y);
-    void handleExtinguisher(int x, int y);
     void handleMovement(int actionIndex);
     void handleSurfaceExit();
     void transitionLevel(StairDirection direction);

@@ -95,28 +95,6 @@ void DungeonDialog::resizeEvent(QResizeEvent *event)
         dungeonView->fitInView(m_dungeonScene->sceneRect(), Qt::KeepAspectRatio);
     }
 }
-void DungeonDialog::handleExtinguisher(int x, int y)
-{
-    QPair<int, int> pos = {x, y};
-    if (m_extinguisherPositions.contains(pos)) {
-        GameStateManager* gsm = GameStateManager::instance();
-        
-        if (gsm->isCharacterOnFire()) {
-            gsm->setCharacterOnFire(false);
-            logMessage("Magic waters spray from the ceiling! The flames are extinguished.");
-        } else {
-            logMessage("A refreshing mist falls upon you.");
-        }
-    }
-}
-void DungeonDialog::handleAntimagic(int x, int y)
-{
-    QPair<int, int> pos = {x, y};
-    if (m_antimagicPositions.contains(pos)) {
-        logMessage("You enter an Antimagic Field! Your spells feel suppressed.");
-        // You can add logic here to disable the Spell button or set a GameState flag
-    }
-}
 
 void DungeonDialog::refreshHealthUI()
 {
@@ -211,13 +189,13 @@ void DungeonDialog::movePlayer(int dx, int dy, int dz=0)
 
     m_visitedTiles.insert({newX, newY});
     updateMinimap(newX, newY, 0);
-    handleEncounter(newX, newY);
-    handleTreasure(newX, newY); // Now only logs chest presence
-    handleTrap(newX, newY);     // Still automatic
-    handleChute(newX, newY);    // NEW: Automatic hazard
-    handleAntimagic(newX, newY);
-    handleExtinguisher(newX, newY);
+    DungeonHandlers::handleTreasure(this, newX, newY); // Now only logs chest presence
     DungeonHandlers::handleWater(this, newX, newY);
+    DungeonHandlers::handleAntimagic(this, newX, newY);
+    DungeonHandlers::handleTrap(this, newX, newY);
+    DungeonHandlers::handleChute(this, newX, newY);
+    DungeonHandlers::handleExtinguisher(this, newX, newY);
+    DungeonHandlers::handleEncounters(this, newX, newY);
     logMessage(QString("You move to (%1, %2).").arg(newX).arg(newY));
 }
 
@@ -229,60 +207,6 @@ void DungeonDialog::updateCompass(const QString& direction)
 void DungeonDialog::updateLocation(const QString& location)
 {
     m_locationLabel->setText(location);
-}
-
-
-void DungeonDialog::handleEncounter(int x, int y)
-{
-    QPair<int, int> pos = {x, y};
-    if (m_monsterPositions.contains(pos)) {
-        QString monster = m_monsterPositions.value(pos);
-        QString attitude = m_MonsterAttitude.value(monster, "Hostile");
-        logMessage(QString("You encounter a **%1**! It looks **%2**.").arg(monster).arg(attitude));
-    }
-}
-
-void DungeonDialog::handleTreasure(int x, int y)
-{
-    QPair<int, int> pos = {x, y};
-    if (m_treasurePositions.contains(pos)) {
-        logMessage("There is a treasure chest here! Use the Open button to see what's inside.");
-    }
-}
-
-void DungeonDialog::handleTrap(int x, int y)
-{
-    QPair<int, int> pos = {x, y};
-    if (m_trapPositions.contains(pos)) {
-        QString trapType = m_trapPositions.value(pos);
-        
-        int damage = QRandomGenerator::global()->bounded(1, 10);
-        updatePartyMemberHealth(0, damage);
-        
-        logMessage(QString("You step on a **%1** trap and take %2 damage!").arg(trapType).arg(damage));
-
-        m_trapPositions.remove(pos);
-        drawMinimap();
-    }
-}
-
-void DungeonDialog::handleChute(int x, int y)
-{
-    QPair<int, int> pos = {x, y};
-    if (m_chutePositions.contains(pos)) {
-        logMessage("AAAHHH! You fall through a hidden chute!");
-
-        // 1. Deal Fall Damage
-        int fallDamage = QRandomGenerator::global()->bounded(5, 15);
-        updatePartyMemberHealth(0, fallDamage); // Damage main character
-
-        // 2. Determine New Level
-        GameStateManager* gsm = GameStateManager::instance();
-        int nextLevel = gsm->getGameValue("DungeonLevel").toInt() + 1;
-
-        // 3. Trigger Level Transition
-        enterLevel(nextLevel);
-    }
 }
 
 void DungeonDialog::generateRandomObstacles(int roomCount, QRandomGenerator& rng)
@@ -832,10 +756,9 @@ void DungeonDialog::on_teleportButton_clicked()
     
     // Refresh the map and trigger encounter checks at the new location
     drawMinimap();
-    handleEncounter(newX, newY);
-    handleTreasure(newX, newY);
-    handleTrap(newX, newY);
-
+    DungeonHandlers::handleTreasure(this, newX, newY);
+    DungeonHandlers::handleTrap(this, newX, newY);
+    DungeonHandlers::handleEncounters(this, newX, newY);
     // Emit the signal defined in the header
     emit teleporterUsed();
 }
