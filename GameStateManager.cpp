@@ -475,3 +475,15 @@ void GameStateManager::performSanityCheck() {
         qWarning() << "FAIL: 'hits' column is not a valid integer.";
     }
 }
+void GameStateManager::addItemToCharacter(int characterIndex, const QString& itemName) {
+    QVariantList party = m_gameStateData["Party"].toList();
+    if (characterIndex >= 0 && characterIndex < party.size()) {
+        QVariantMap character = party[characterIndex].toMap();
+        QVariantList inventory = character["Inventory"].toList();
+        inventory.append(itemName);
+        character["Inventory"] = inventory;
+        party[characterIndex] = character;
+        m_gameStateData["Party"] = party;
+        emit gameValueChanged("Party", m_gameStateData["Party"]);
+    }
+}

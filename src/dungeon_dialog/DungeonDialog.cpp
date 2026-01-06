@@ -428,6 +428,13 @@ DungeonDialog::DungeonDialog(QWidget *parent)
     : QDialog(parent),
       m_dungeonScene(new QGraphicsScene(this))
 {
+    GameStateManager* gsm = GameStateManager::instance();
+
+    if (!GameStateManager::instance()) {
+        qCritical() << "CRITICAL: GameStateManager is NULL!";
+        return; 
+    }
+
     m_experienceLabel = new QLabel(this);
 
     m_standaloneMinimap = new MinimapDialog(this);
@@ -436,7 +443,6 @@ DungeonDialog::DungeonDialog(QWidget *parent)
     setWindowTitle("Dungeon: Depth of Dejenol");
     setMinimumSize(1000, 750);
     // Load GameStateManager data
-    GameStateManager* gsm = GameStateManager::instance();
     
     // RETRIEVE CHARACTER DATA FROM GAME STATE MANAGER
     m_partyLeaderName = gsm->getGameValue("CurrentCharacterName").toString();
@@ -651,6 +657,15 @@ DungeonDialog::DungeonDialog(QWidget *parent)
     // Connections (Stairs)
     connect(stairsDownButton, &QPushButton::clicked, this, &DungeonDialog::on_stairsDownButton_clicked);
     connect(stairsUpButton, &QPushButton::clicked, this, &DungeonDialog::on_stairsUpButton_clicked);
+/*
+    QTimer::singleShot(100, this, [this]() {
+        // We use 'new' and set DeleteOnClose so it doesn't leak memory
+        InventoryDialog *inventory = new InventoryDialog(this);
+        inventory->setAttribute(Qt::WA_DeleteOnClose);
+        inventory->show(); 
+        qDebug() << "!!! FORCE OPENING INVENTORY !!!";
+    });
+*/
 }
 void DungeonDialog::updateExperienceLabel()
 {
@@ -841,8 +856,19 @@ void DungeonDialog::keyPressEvent(QKeyEvent *event)
         case Qt::Key_U:
             on_teleportButton_clicked();
             break;
-
-        // Fall back to base class for default dialog behavior (like Esc to close)
+        case Qt::Key_I: 
+        { // The opening brace starts a new local scope
+            logMessage("Inventory Key Pressed"); 
+            
+            // Using 'new' ensures the dialog stays open after this function ends
+            InventoryDialog *inventory = new InventoryDialog(this); 
+            inventory->setAttribute(Qt::WA_DeleteOnClose); 
+            inventory->show();
+            inventory->raise();
+            inventory->activateWindow();
+            
+            break; // Break MUST be inside or immediately after the case
+        }
         default:
             QDialog::keyPressEvent(event);
             break;
@@ -1040,22 +1066,21 @@ void DungeonDialog::processTreasureOpening()
 
     if (m_treasurePositions.contains(pos)) {
         QString treasure = m_treasurePositions.value(pos);
-        logMessage(QString("You open the chest and find: %1!").arg(treasure));
+        int activeIdx = gsm->getGameValue("ActiveCharacterIndex").toInt(); //
 
-        // Handle Gold specifically
         if (treasure.contains("Gold")) {
+            // Existing Gold logic...
             quint64 foundGold = QRandomGenerator::global()->bounded(500, 5000);
             quint64 currentGold = gsm->getGameValue("PlayerGold").toULongLong();
             gsm->setGameValue("PlayerGold", currentGold + foundGold);
-
-            updateGoldLabel();
             logMessage(QString("You gain %L1 Gold.").arg(foundGold));
+        } else {
+            // Add item to character inventory
+            gsm->addItemToCharacter(activeIdx, treasure);
+            logMessage(QString("You found a %1 and added it to your inventory!").arg(treasure));
         }
 
-        // Remove from map and refresh UI
         m_treasurePositions.remove(pos);
         drawMinimap();
-    } else {
-        logMessage("There is nothing here to open.");
     }
 }

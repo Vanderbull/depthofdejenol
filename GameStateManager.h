@@ -59,6 +59,7 @@ private:
     QList<QVariantMap> m_gameData;    // In-memory storage for MDATA1
 
 public:
+    void addItemToCharacter(int characterIndex, const QString& itemName);
     QVariantMap getCharacterData(int index) const;
     void updateCharacterData(int index, const QVariantMap& data);
 

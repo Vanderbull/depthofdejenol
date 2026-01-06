@@ -1374,8 +1374,9 @@ build/moc/moc_optionsdialog.cpp: src/options_dialog/optionsdialog.h \
 	/usr/lib/qt6/libexec/moc $(DEFINES) --include /home/rickard/Documents/GitHub/depthofdejenol/build/moc/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt6/mkspecs/linux-g++ -I/home/rickard/Documents/GitHub/depthofdejenol -I/home/rickard/Documents/GitHub/depthofdejenol/_PRO_FILE_PWD_/include -I/usr/include/x86_64-linux-gnu/qt6 -I/usr/include/x86_64-linux-gnu/qt6/QtWidgets -I/usr/include/x86_64-linux-gnu/qt6/QtMultimedia -I/usr/include/x86_64-linux-gnu/qt6/QtGui -I/usr/include/x86_64-linux-gnu/qt6/QtNetwork -I/usr/include/x86_64-linux-gnu/qt6/QtCore -I/usr/include/c++/15 -I/usr/include/x86_64-linux-gnu/c++/15 -I/usr/include/c++/15/backward -I/usr/lib/gcc/x86_64-linux-gnu/15/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include src/options_dialog/optionsdialog.h -o build/moc/moc_optionsdialog.cpp
 
 build/moc/moc_DungeonDialog.cpp: src/dungeon_dialog/DungeonDialog.h \
-		src/partyinfo_dialog/partyinfodialog.h \
+		src/inventory_dialog/inventorydialog.h \
 		GameStateManager.h \
+		src/partyinfo_dialog/partyinfodialog.h \
 		src/event/EventManager.h \
 		src/dungeon_dialog/MiniMapDialog.h \
 		build/moc/moc_predefs.h \
@@ -1416,8 +1417,9 @@ build/moc/moc_EventManager.cpp: src/event/EventManager.h \
 	/usr/lib/qt6/libexec/moc $(DEFINES) --include /home/rickard/Documents/GitHub/depthofdejenol/build/moc/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt6/mkspecs/linux-g++ -I/home/rickard/Documents/GitHub/depthofdejenol -I/home/rickard/Documents/GitHub/depthofdejenol/_PRO_FILE_PWD_/include -I/usr/include/x86_64-linux-gnu/qt6 -I/usr/include/x86_64-linux-gnu/qt6/QtWidgets -I/usr/include/x86_64-linux-gnu/qt6/QtMultimedia -I/usr/include/x86_64-linux-gnu/qt6/QtGui -I/usr/include/x86_64-linux-gnu/qt6/QtNetwork -I/usr/include/x86_64-linux-gnu/qt6/QtCore -I/usr/include/c++/15 -I/usr/include/x86_64-linux-gnu/c++/15 -I/usr/include/c++/15/backward -I/usr/lib/gcc/x86_64-linux-gnu/15/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include src/event/EventManager.h -o build/moc/moc_EventManager.cpp
 
 build/moc/moc_DungeonDialog.cpp: src/dungeon_dialog/DungeonDialog.h \
-		src/partyinfo_dialog/partyinfodialog.h \
+		src/inventory_dialog/inventorydialog.h \
 		GameStateManager.h \
+		src/partyinfo_dialog/partyinfodialog.h \
 		src/event/EventManager.h \
 		src/dungeon_dialog/MiniMapDialog.h \
 		build/moc/moc_predefs.h \
@@ -1547,6 +1549,7 @@ build/obj/release/TheCity.o: TheCity.cpp include/game_resources.h \
 		src/confinement_dialog/ConfinementDialog.h \
 		src/bank_dialog/BankDialog.h \
 		src/dungeon_dialog/DungeonDialog.h \
+		src/inventory_dialog/inventorydialog.h \
 		src/event/EventManager.h \
 		src/dungeon_dialog/MiniMapDialog.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/TheCity.o TheCity.cpp
@@ -1581,10 +1584,12 @@ build/obj/release/optionsdialog.o: src/options_dialog/optionsdialog.cpp src/opti
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/optionsdialog.o src/options_dialog/optionsdialog.cpp
 
 build/obj/release/DungeonDialog.o: src/dungeon_dialog/DungeonDialog.cpp src/dungeon_dialog/DungeonDialog.h \
-		src/partyinfo_dialog/partyinfodialog.h \
+		src/inventory_dialog/inventorydialog.h \
 		GameStateManager.h \
+		src/partyinfo_dialog/partyinfodialog.h \
 		src/event/EventManager.h \
-		src/dungeon_dialog/MiniMapDialog.h
+		src/dungeon_dialog/MiniMapDialog.h \
+		src/dungeon_dialog/DungeonHandlers.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/DungeonDialog.o src/dungeon_dialog/DungeonDialog.cpp
 
 build/obj/release/partyinfodialog.o: src/partyinfo_dialog/partyinfodialog.cpp src/partyinfo_dialog/partyinfodialog.h \
@@ -1605,13 +1610,20 @@ build/obj/release/GameStateManager.o: GameStateManager.cpp GameStateManager.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/GameStateManager.o GameStateManager.cpp
 
 build/obj/release/DungeonMinimap.o: src/dungeon_dialog/DungeonMinimap.cpp src/dungeon_dialog/DungeonDialog.h \
-		src/partyinfo_dialog/partyinfodialog.h \
+		src/inventory_dialog/inventorydialog.h \
 		GameStateManager.h \
+		src/partyinfo_dialog/partyinfodialog.h \
 		src/event/EventManager.h \
 		src/dungeon_dialog/MiniMapDialog.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/DungeonMinimap.o src/dungeon_dialog/DungeonMinimap.cpp
 
-build/obj/release/DungeonHandlers.o: src/dungeon_dialog/DungeonHandlers.cpp 
+build/obj/release/DungeonHandlers.o: src/dungeon_dialog/DungeonHandlers.cpp src/dungeon_dialog/DungeonHandlers.h \
+		src/dungeon_dialog/DungeonDialog.h \
+		src/inventory_dialog/inventorydialog.h \
+		GameStateManager.h \
+		src/partyinfo_dialog/partyinfodialog.h \
+		src/event/EventManager.h \
+		src/dungeon_dialog/MiniMapDialog.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/DungeonHandlers.o src/dungeon_dialog/DungeonHandlers.cpp
 
 build/obj/release/EventManager.o: src/event/EventManager.cpp src/event/EventManager.h \

@@ -17,6 +17,7 @@
 #include <QRandomGenerator>
 #include <QHash>
 
+#include "src/inventory_dialog/inventorydialog.h"
 #include "src/partyinfo_dialog/partyinfodialog.h"
 #include "../event/EventManager.h"
 #include "../../GameStateManager.h"
@@ -219,11 +220,11 @@ private:
     
     // Helper functions
     void logMessage(const QString& message); 
-    void keyPressEvent(QKeyEvent *event) override;
     void spawnMonsters(const QString& monsterType, int count);
     void revealAroundPlayer(int x, int y, int z);
     void populateRandomTreasures(int level);
     void processTreasureOpening();
+    void keyPressEvent(QKeyEvent *event) override;
     
 protected:
     void resizeEvent(QResizeEvent *event) override;
