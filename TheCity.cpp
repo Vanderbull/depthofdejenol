@@ -208,10 +208,23 @@ void TheCity::on_bankButton_clicked()        {
     b->setAttribute(Qt::WA_DeleteOnClose);
     b->show();
 }
-void TheCity::on_exitButton_clicked()        {
-    qDebug() << "Exit clicked! Closing dialog.";
+
+void TheCity::on_exitButton_clicked() {
+    qDebug() << "Exit clicked! Resetting character state and returning to menu.";
+    
+    // 1. Reset the character loaded flag so the Main Menu updates its buttons
+    // Based on game_menu.cpp logic, toggleMenuState(false) triggers when the flag is reset
+    GameStateManager::instance()->setGameValue("ResourcesLoaded", false);
+    
+    // 2. Optional: Reset other character-specific session data
+    GameStateManager::instance()->setGameValue("IsCharacterActive", false);
+
+    // 3. Close the City dialog, which will trigger the 'show()' call in GameMenu
     accept(); 
 }
+
+
+
 void TheCity::keyPressEvent(QKeyEvent *event)
 {
     // Check if the "I" key was pressed

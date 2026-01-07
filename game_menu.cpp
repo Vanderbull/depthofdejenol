@@ -301,16 +301,31 @@ void GameMenu::onCharacterCreated(const QString &characterName) {
 }
 // -------------------------------
 
-// Function definitions
 void GameMenu::onRunClicked() {
+    // 1. Instantiate the City dialog
     TheCity *cityDialog = new TheCity(this);  
     cityDialog->setAttribute(Qt::WA_DeleteOnClose);
+    
+    // 2. Hide the GameMenu while the player is in the city
+    this->hide(); 
+
+    // 3. Connect the finished signal to handle returning to the menu
+    // This lambda triggers when TheCity is closed or the Exit button is clicked
+    connect(cityDialog, &QDialog::finished, this, [this](int result){
+        // Check the current state of "ResourcesLoaded" from the GameStateManager
+        // If the City's Exit button reset this flag, toggleMenuState will hide "Run Character"
+        bool isLoaded = GameStateManager::instance()->getGameValue("ResourcesLoaded").toBool();
+        this->toggleMenuState(isLoaded); 
+        
+        // Show the GameMenu again
+        this->show();
+    });
+
+    // 4. Launch the city dialog
     cityDialog->show();
-    //CharacterDialog *charDialog = new CharacterDialog(this);
-    //charDialog->setAttribute(Qt::WA_DeleteOnClose);
-    //charDialog->show();
-    qDebug() << "Run Character clicked - launching TheCity";
+    qDebug() << "Run Character clicked - GameMenu hidden, launching TheCity";
 }
+
 
 void GameMenu::onCharacterListClicked() {
     CharacterListDialog *dialog = new CharacterListDialog(this);
