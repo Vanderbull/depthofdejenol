@@ -144,6 +144,10 @@ void DungeonDialog::updatePartyMemberHealth(int row, int damage)
         
         if (newHp <= 0) {
             logMessage("You have been defeated!");
+            gsm->setGameValue("isAlive", 0);
+            // Return to main menu (closes current dungeon dialog)
+            this->close(); 
+            emit exitedDungeonToCity(); // Assuming this returns you to the menu/city
         }
         
         refreshHealthUI();
@@ -771,18 +775,21 @@ void DungeonDialog::on_teleportButton_clicked()
 }
 
 void DungeonDialog::on_fightButton_clicked() 
-{ 
-    // UPDATED: Get position from GameState
+{
     GameStateManager* gsm = GameStateManager::instance();
-    int currentX = gsm->getGameValue("DungeonX").toInt();
-    int currentY = gsm->getGameValue("DungeonY").toInt();
-    QPair<int, int> currentPos = {currentX, currentY};
-
-    if (m_monsterPositions.contains(currentPos)) {
-        logMessage(QString("You engage the %1 in combat!").arg(m_monsterPositions.value(currentPos)));
-    } else {
-        logMessage("You swing your weapon at empty air.");
+    
+    // Check if character is already dead before fighting
+    if (gsm->getGameValue("isAlive").toInt() == 0) {
+        logMessage("You are too dead to fight.");
+        return;
     }
+
+    // Example combat logic
+    int monsterDamage = QRandomGenerator::global()->bounded(5, 15);
+    logMessage(QString("The monster hits you for %1 damage!").arg(monsterDamage));
+    
+    // This call now handles the HP < 0 check and the return to menu
+    updatePartyMemberHealth(0, monsterDamage); 
 }
 void DungeonDialog::on_spellButton_clicked() { 
     logMessage("You try to cast some sort of spell but fail."); 
@@ -938,15 +945,11 @@ void DungeonDialog::updateDungeonView(const QImage& dungeonImage)
 void DungeonDialog::on_exitButton_clicked()
 {
     QMessageBox::StandardButton reply = QMessageBox::question(
-        this,
-        "Exit",
-        "Exit to main menu?",
-        QMessageBox::Yes | QMessageBox::No
-        );
+        this, "Exit", "Exit to the City?", QMessageBox::Yes | QMessageBox::No
+    );
 
     if (reply == QMessageBox::Yes) {
-        qDebug() << "User clicked Yes. Application should exit or return to main menu.";
-        this->close();
+        handleSurfaceExit(); // Reuse the logic above
     }
 }
 void DungeonDialog::on_rotateLeftButton_clicked()
@@ -1049,23 +1052,13 @@ void DungeonDialog::transitionLevel(StairDirection direction)
 
 void DungeonDialog::handleSurfaceExit()
 {
-    GameStateManager* gsm = GameStateManager::instance();
-    logMessage("You ascend the **stairs up** and step onto the surface!");
-    gsm->setGameValue("GhostHoundPending", true);
-
-    // Capture random monster logic
-    if (gsm->monsterCount() > 0) {
-        int randomIndex = QRandomGenerator::global()->bounded(gsm->monsterCount());
-        QVariantMap monster = gsm->getMonster(randomIndex);
-        QString monsterName = monster["name"].toString();
-
-        if (!monsterName.isEmpty()) {
-            gsm->incrementStock(monsterName);
-            qDebug() << "Captured:" << monsterName;
-        }
-    }
+    // Log the exit for the user
+    logMessage("You climb the stairs and emerge into the bright sunlight of The City.");
     
+    // 1. Emit the signal so the parent/manager knows we are leaving
     emit exitedDungeonToCity();
+    
+    // 2. Close the dungeon dialog
     this->close();
 }
 

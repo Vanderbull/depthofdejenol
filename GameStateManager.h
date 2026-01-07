@@ -116,6 +116,14 @@ public:
     bool isCharacterBlinded() const;
     void setCharacterOnFire(bool isOnFire);
     bool isCharacterOnFire() const;
+    void setIsAlive(int alive) {
+        setGameValue("isAlive", alive);
+    }
+
+    int getIsAlive() const {
+        return m_gameStateData.value("isAlive").toInt();
+    }
+ 
     static QStringList statNames() {
         return {"Strength", "Intelligence", "Wisdom", "Constitution", "Charisma", "Dexterity"};
     }

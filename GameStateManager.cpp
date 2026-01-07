@@ -66,6 +66,7 @@ GameStateManager::GameStateManager(QObject *parent)
 
         party.append(character);
     }
+
     m_gameStateData["Party"] = party;
     
     // You can still keep a "CurrentActiveIndex" to know which one the UI is showing
@@ -145,7 +146,7 @@ GameStateManager::GameStateManager(QObject *parent)
     m_gameStateData["CharacterPoisoned"] = false;
     m_gameStateData["CharacterBlinded"] = false;
     m_gameStateData["CharacterDiseased"] = false;
-    m_gameStateData["CharacterDied"] = false;
+    m_gameStateData["isAlive"] = 0;
 
     m_gameStateData["GuildActionLog"] = QVariantList();
 
@@ -562,6 +563,11 @@ bool GameStateManager::loadCharacterFromFile(const QString& characterName) {
         else if (key == "Sex") setGameValue("CurrentCharacterSex", value);
         else if (key == "Alignment") setGameValue("CurrentCharacterAlignment", value);
         else if (key == "Guild") setGameValue("CurrentCharacterGuild", value);
+        // Correctly handle the Alive status
+        else if (key == "isAlive") {
+            // Converts string "0" or "1" from file to int and updates state
+            this->setIsAlive(value.toInt()); 
+        }
         else if (statNames().contains(key)) {
             // Stat names (Strength, Intelligence, etc.) are saved as-is in the file
             setGameValue(QString("CurrentCharacter%1").arg(key), value.toInt());

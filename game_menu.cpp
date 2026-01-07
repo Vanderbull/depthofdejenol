@@ -344,67 +344,76 @@ void GameMenu::startNewGame() {
 
 void GameMenu::loadGame() {
     // 1. Setup file path and selection dialog 
-    QString basePath = QCoreApplication::applicationDirPath();
-    QString fullPath = QDir::cleanPath(basePath + QDir::separator() + m_subfolderName);
-    QDir subfolderDir(fullPath);
+    QString basePath = QCoreApplication::applicationDirPath(); //
+    QString fullPath = QDir::cleanPath(basePath + QDir::separator() + m_subfolderName); //
+    QDir subfolderDir(fullPath); //
 
     if (!subfolderDir.exists()) {
-        subfolderDir.mkpath(".");
-        emit logMessageTriggered("No character folder found. Created one.");
+        subfolderDir.mkpath("."); //
+        emit logMessageTriggered("No character folder found. Created one."); //
         return;
     }
 
     // Filter for .txt files
-    QStringList characterFiles = subfolderDir.entryList({"*.txt"}, QDir::Files);
+    QStringList characterFiles = subfolderDir.entryList({"*.txt"}, QDir::Files); //
 
     if (characterFiles.isEmpty()) {
-        emit logMessageTriggered("No character (.txt) files found to load.");
+        emit logMessageTriggered("No character (.txt) files found to load."); //
         QMessageBox::warning(this, tr("No Characters Found"), 
-                             tr("No character files were found in: %1").arg(m_subfolderName));
+                             tr("No character files were found in: %1").arg(m_subfolderName)); //
         return;
     }
     
     // 2. Create Selection Dialog
-    QDialog selectionDialog(this);
-    selectionDialog.setWindowTitle("Load Character");
-    QVBoxLayout *layout = new QVBoxLayout(&selectionDialog);
+    QDialog selectionDialog(this); //
+    selectionDialog.setWindowTitle("Load Character"); //
+    QVBoxLayout *layout = new QVBoxLayout(&selectionDialog); //
     
-    QComboBox *charComboBox = new QComboBox();
-    charComboBox->addItems(characterFiles);
-    layout->addWidget(new QLabel("Select a character:"));
-    layout->addWidget(charComboBox);
+    QComboBox *charComboBox = new QComboBox(); //
+    charComboBox->addItems(characterFiles); //
+    layout->addWidget(new QLabel("Select a character:")); //
+    layout->addWidget(charComboBox); //
     
-    QPushButton *loadButton = new QPushButton("Load");
-    layout->addWidget(loadButton);
-    connect(loadButton, &QPushButton::clicked, &selectionDialog, &QDialog::accept);
+    QPushButton *loadButton = new QPushButton("Load"); //
+    layout->addWidget(loadButton); //
+    connect(loadButton, &QPushButton::clicked, &selectionDialog, &QDialog::accept); //
 
     if (selectionDialog.exec() == QDialog::Accepted) {
-        QString selectedFileName = charComboBox->currentText();
+        QString selectedFileName = charComboBox->currentText(); //
         
         // Remove .txt extension to pass the "name" to the manager 
-        // because loadCharacterFromFile appends .txt itself.
-        QString characterName = QFileInfo(selectedFileName).baseName();
+        QString characterName = QFileInfo(selectedFileName).baseName(); //
 
-        emit logMessageTriggered(QString("Attempting to load: %1").arg(characterName));
+        emit logMessageTriggered(QString("Attempting to load: %1").arg(characterName)); //
 
-        // -----------------------------------------------------------
-        // --- USE THE CENTRALIZED LOAD FUNCTION ---
-        // -----------------------------------------------------------
-        if (GameStateManager::instance()->loadCharacterFromFile(characterName)) {
+        // 3. Perform the Load and check Vitality
+        if (GameStateManager::instance()->loadCharacterFromFile(characterName)) { //
             
-            // Post-load initialization
-            GameStateManager::instance()->setGameValue("CurrentCharacterStatPointsLeft", 0);
+            // --- ALIVE CHECK ADDED HERE ---
+            // We check the "isAlive" flag from the newly loaded state
+            int isAlive = GameStateManager::instance()->getGameValue("isAlive").toInt(); //
+            qDebug() << "DEBUG: Character" << characterName << "isAlive status is:" << isAlive;
+            //isAlive = 1;
+            if (isAlive == 0) {
+                emit logMessageTriggered(QString("Load failed: %1 is dead.").arg(characterName)); //
+                QMessageBox::critical(this, tr("Character Deceased"), 
+                                     tr("The character **%1** is dead and cannot be loaded.").arg(characterName)); //
+                return; // Stop the loading process here
+            }
+
+            // Post-load initialization (only if alive)
+            GameStateManager::instance()->setGameValue("CurrentCharacterStatPointsLeft", 0); //
             
-            emit logMessageTriggered(QString("Success: %1 is ready.").arg(characterName));
+            emit logMessageTriggered(QString("Success: %1 is ready.").arg(characterName)); //
             QMessageBox::information(this, tr("Load Successful"), 
-                                     tr("Character **%1** loaded successfully.").arg(characterName));
+                                     tr("Character **%1** loaded successfully.").arg(characterName)); //
             
             // Switch UI state to show 'Run Character'
-            toggleMenuState(true);
+            toggleMenuState(true); //
         } else {
-            emit logMessageTriggered(QString("Error: Failed to load %1.").arg(selectedFileName));
+            emit logMessageTriggered(QString("Error: Failed to load %1.").arg(selectedFileName)); //
             QMessageBox::critical(this, tr("Load Failed"), 
-                                 tr("The file **%1** could not be parsed.").arg(selectedFileName));
+                                 tr("The file **%1** could not be parsed.").arg(selectedFileName)); //
         }
     }
 }

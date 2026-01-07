@@ -439,6 +439,8 @@ void CreateCharacterDialog::onSaveCharacterClicked() {
     gsm->setGameValue("CurrentCharacterSex", sexBox->currentText());
     gsm->setGameValue("CurrentCharacterAlignment", alignmentBox->currentText());
     gsm->setGameValue("CurrentCharacterGuild", selectedGuild);
+    // Set the initial survival status to true for a new character
+    gsm->setGameValue("CurrentCharacterIsAlive", 0);
     
     // Use the central list to save values
     for (const QString& statName : GameStateManager::statNames()) {
@@ -467,6 +469,10 @@ void CreateCharacterDialog::onSaveCharacterClicked() {
         out << "Race: " << raceBox->currentText() << "\n";
         out << "Sex: " << sexBox->currentText() << "\n";
         out << "Alignment: " << alignmentBox->currentText() << "\n\n--- STATS ---\n";
+	// Add the isAlive status to the file output
+        bool isAlive = gsm->getGameValue("CurrentCharacterIsAlive").toBool();
+        out << "isAlive: " << isAlive << "\n\n--- STATS ---\n";
+
         
         for (const QString& statName : GameStateManager::statNames()) {
             QSpinBox* spin = statSpinBoxes.value(statName);

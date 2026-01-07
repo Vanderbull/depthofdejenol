@@ -177,11 +177,18 @@ void TheCity::on_guildsButton_clicked()      {
     g->setAttribute(Qt::WA_DeleteOnClose);
     g->show();
 }
-void TheCity::on_dungeonButton_clicked()     {
-    qDebug() << "Dungeon opened (Modeless)!";
-    DungeonDialog *d = new DungeonDialog(this);
+
+void TheCity::on_dungeonButton_clicked() {
+    DungeonDialog *d = new DungeonDialog(nullptr); 
     d->setAttribute(Qt::WA_DeleteOnClose);
+    
+    // Ensure that when the dungeon emits the exit signal, the city shows back up
+    connect(d, &DungeonDialog::exitedDungeonToCity, [this]() {
+        this->show(); 
+    });
+
     d->show();
+    this->hide(); // Hide the city while in the dungeon
 }
 void TheCity::on_confinementButton_clicked() {
     qDebug() << "Confinement opened (Modeless)!";
