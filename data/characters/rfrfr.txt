@@ -1,0 +1,19 @@
+CHARACTER_FILE_VERSION: 1.0
+Name: rfrfr
+Race: Human
+Sex: Male
+Alignment: Neutral
+
+--- STATS ---
+isAlive: 1
+
+--- STATS ---
+Strength: 4
+Intelligence: 9
+Wisdom: 4
+Constitution: 6
+Charisma: 5
+Dexterity: 6
+
+--- GUILD ---
+Guild: Villain

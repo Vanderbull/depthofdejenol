@@ -416,6 +416,7 @@ void CreateCharacterDialog::onGuildStatsClicked() {
 }
 
 void CreateCharacterDialog::onSaveCharacterClicked() {
+    GameStateManager::instance()->syncActiveCharacterToParty();
     QString characterName = nameEdit->text().trimmed();
 
     if (characterName.isEmpty()) {

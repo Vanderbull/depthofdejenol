@@ -171,6 +171,7 @@ public:
     bool loadCharacterFromFile(const QString& characterName);
     bool saveCharacterToFile(int partyIndex);
     void updatePartyMemberHP(int index, int newHP);
+    void syncActiveCharacterToParty();
 };
 
 #endif // GAMESTATEMANAGER_H
