@@ -69,6 +69,17 @@ GameMenu::GameMenu(QWidget *parent)
     , m_settings("MyCompany", "MyApp")
     , m_subfolderName(m_settings.value("Paths/SubfolderName", "data/characters").toString()) 
 {
+// 1. DONT USE GLOBAL STYLESHEETS (prevents black buttons)
+    // 2. USE PALETTE FOR BACKGROUND (Wayland friendly)
+    QPalette pal = this->palette();
+    pal.setColor(QPalette::Window, Qt::black);
+    this->setPalette(pal);
+    this->setAutoFillBackground(true);
+
+    // 3. EXPLICITLY REQUEST WINDOW DECORATIONS
+    // This hint tells Wayland: "I want a title bar and an X button"
+    this->setWindowFlags(Qt::Window | Qt::WindowTitleHint | Qt::WindowSystemMenuHint | 
+                         Qt::WindowCloseButtonHint | Qt::WindowMinimizeButtonHint);
     // --- GAME STATE INTEGRATION START ---
     // LOG INITIAL GAME STATE INFO
     qDebug() << "Current Game Version:" << GameStateManager::instance()->getGameValue("GameVersion").toString();
@@ -655,6 +666,9 @@ GameMenu::~GameMenu() {
 }
 
 int main(int argc, char *argv[]) {
+    // FORCE X11/XCB Platform
+    qputenv("QT_QPA_PLATFORM", "xcb");
+
     QApplication a(argc, argv);
 
     qDebug() << "Launching LoadingScreen dialog...";
