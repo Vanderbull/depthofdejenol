@@ -6,7 +6,7 @@
 #include <QHBoxLayout>
 #include <QGridLayout>
 #include <QLabel>
-#include <QPushButton> 
+#include <QPushButton>
 #include <QVariantList> // Added for guild leader list access
 #include <QVariantMap>  // Added for guild leader map access
 #include <QLocale>      // Added for number formatting (e.g., thousands separator for Gold)
@@ -14,7 +14,7 @@
 
 HallOfRecordsDialog::HallOfRecordsDialog(QWidget *parent) : QDialog(parent) {
     // Removed setFixedSize() to allow resizing
-    setMinimumSize(750, 480); // Set a minimum size to ensure content readability
+    setMinimumSize(1200, 480); // Set a minimum size to ensure content readability
     setWindowTitle("Hall of Records"); 
 
     // Main layout is a vertical box to stack the title, records, and the exit button
