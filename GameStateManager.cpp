@@ -40,15 +40,16 @@ QMap<QString, int> GameStateManager::getConfinementStock() const {
 GameStateManager::GameStateManager(QObject *parent)
     : QObject(parent)
 {
+    // Initialize party members
     QVariantList party;
     for (int i = 0; i < MAX_PARTY_SIZE; ++i) {
         QVariantMap character;
         character["Name"] = "Empty Slot";
-        character["Level"] = 1;
-        character["Experience"] = QVariant::fromValue((qulonglong)0);
-        character["HP"] = 50;
-        character["MaxHP"] = 50;
-        character["Gold"] = QVariant::fromValue((qulonglong)0);
+        character["Level"] = 0;
+        character["Experience"] = 0;
+        character["HP"] = 0;
+        character["MaxHP"] = 0;
+        character["Gold"] = 0;
         
         // Stats
         character["Strength"] = 0;
@@ -59,10 +60,10 @@ GameStateManager::GameStateManager(QObject *parent)
         character["Dexterity"] = 0;
         
         // Status
-        character["Poisoned"] = false;
-        character["Blinded"] = false;
-        character["Diseased"] = false;
-        character["Dead"] = false;
+        character["Poisoned"] = 0;
+        character["Blinded"] = 0;
+        character["Diseased"] = 0;
+        character["isAlive"] = 0;
 
         character["Inventory"] = QStringList();
 
@@ -70,15 +71,17 @@ GameStateManager::GameStateManager(QObject *parent)
     }
 
     m_gameStateData["Party"] = party;
-    
-    // You can still keep a "CurrentActiveIndex" to know which one the UI is showing
     m_gameStateData["ActiveCharacterIndex"] = 0;
-
-    // Initialize Bank Inventory so it isn't null
     m_gameStateData["BankInventory"] = QStringList();
-
-    // Initialize the Ghost Hound flag to false
     m_gameStateData["GhostHoundPending"] = false;
+    m_gameStateData["CurrentCharacterSex"] = GameStateManager::sexOptions().at(0);
+    m_gameStateData["CurrentCharacterAlignment"] = GameStateManager::alignmentNames().at(GameStateManager::defaultAlignmentIndex());
+    m_gameStateData["CurrentCharacterStatPointsLeft"] = GameStateManager::defaultStatPoints();
+    m_gameStateData["CurrentCharacterHP"] = 50;
+    m_gameStateData["MaxCharacterHP"] = 50;
+    // You can also initialize a list for the whole party if needed
+    m_gameStateData["PartyHP"] = QVariantList({50, 40, 30});
+
     m_confinementStock["Ghost hounf"] = 0;
     m_confinementStock["Skeleton"] = 0;
     m_confinementStock["Kobold"] = 1;
@@ -91,18 +94,12 @@ GameStateManager::GameStateManager(QObject *parent)
     m_confinementStock["Zombie"] = 1;
     m_confinementStock["Footpad"] = 1;
     m_confinementStock["Gredlan Rogue"] = 1;
-
     // Load monster data from CSV at start
     loadGameData("tools/gamedataconverter/data/MDATA1.js");
     loadSpellData("tools/spellconverter/data/MDATA2.csv");
     loadMonsterData("tools/monsterconverter/MDATA5.csv");
     performSanityCheck();
     loadItemData("tools/itemconverter/data/MDATA3.csv");
-
-
-    m_gameStateData["CurrentCharacterSex"] = GameStateManager::sexOptions().at(0);
-    m_gameStateData["CurrentCharacterAlignment"] = GameStateManager::alignmentNames().at(GameStateManager::defaultAlignmentIndex());
-    m_gameStateData["CurrentCharacterStatPointsLeft"] = GameStateManager::defaultStatPoints();
     // Max ages for each race
     m_gameStateData["MaxHumanAge"] = 100;
     m_gameStateData["MaxElfAge"] = 400;
@@ -113,12 +110,6 @@ GameStateManager::GameStateManager(QObject *parent)
     m_gameStateData["MaxMorlochAge"] = 175;
     m_gameStateData["MaxOsiriAge"] = 325;
     m_gameStateData["MaxTrollAge"] = 285;
-    //
-    m_gameStateData["CurrentCharacterHP"] = 50;
-    m_gameStateData["MaxCharacterHP"] = 50;
-    // You can also initialize a list for the whole party if needed
-    m_gameStateData["PartyHP"] = QVariantList({50, 40, 30});
-
     // Initialize default state data
     m_gameStateData["CurrentCharacterLevel"] = 1;
     m_gameStateData["CurrentCharacterAge"] = 16; // Starting age for all races
@@ -131,7 +122,6 @@ GameStateManager::GameStateManager(QObject *parent)
     m_gameStateData["DungeonY"] = 12;
     m_gameStateData["CurrentCharacterGold"] = QVariant::fromValue((qulonglong)1500);
     m_gameStateData["BankedGold"] = QVariant::fromValue((qulonglong)0);
-    
     // Character Stats
     m_gameStateData["CurrentCharacterName"] = "";
     m_gameStateData["CurrentCharacterRace"] = "";
@@ -143,15 +133,12 @@ GameStateManager::GameStateManager(QObject *parent)
     m_gameStateData["CurrentCharacterCharisma"] = 0;
     m_gameStateData["CurrentCharacterDexterity"] = 0;
     m_gameStateData["CurrentCharacterStatPointsLeft"] = 0;
-
     // Status States
     m_gameStateData["CharacterPoisoned"] = false;
     m_gameStateData["CharacterBlinded"] = false;
     m_gameStateData["CharacterDiseased"] = false;
     m_gameStateData["isAlive"] = 1;
-
     m_gameStateData["GuildActionLog"] = QVariantList();
-
     // Initialize Guild Leaders (Hall of Records)
     QVariantList guildLeadersList;
 
