@@ -530,8 +530,6 @@ void GameStateManager::updateCharacterGold(int characterIndex, qulonglong amount
 }
 
 bool GameStateManager::loadCharacterFromFile(const QString& characterName) {
-// 1. Point to the specific subfolder
-    // We remove .txt from the input if it's there, then ensure it's added back
     QString cleanName = characterName;
     if (cleanName.endsWith(".txt")) {
         cleanName.chop(4);
@@ -543,38 +541,55 @@ bool GameStateManager::loadCharacterFromFile(const QString& characterName) {
         qWarning() << "Could not open character file at:" << filename;
         return false;
     }
+
+    // Create a map to hold this specific character's data for the party slot
+    QVariantMap characterMap;
     QTextStream in(&file);
+
     while (!in.atEnd()) {
         QString line = in.readLine().trimmed();
-        if (line.isEmpty() || line.startsWith("---") || line.startsWith("CHARACTER_FILE_VERSION")) {
-            continue;
-        }
+        if (line.isEmpty() || line.startsWith("---") || line.startsWith("CHARACTER_FILE_VERSION")) continue;
 
-        // Split "Key: Value" pairs
         QStringList parts = line.split(": ");
         if (parts.size() < 2) continue;
 
         QString key = parts.at(0).trimmed();
         QString value = parts.at(1).trimmed();
 
-        // Map file keys to GameState keys
-        if (key == "Name") setGameValue("CurrentCharacterName", value);
-        else if (key == "Race") setGameValue("CurrentCharacterRace", value);
-        else if (key == "Sex") setGameValue("CurrentCharacterSex", value);
-        else if (key == "Alignment") setGameValue("CurrentCharacterAlignment", value);
-        else if (key == "Guild") setGameValue("CurrentCharacterGuild", value);
-        // Correctly handle the Alive status
+        // 1. Update Global "Current" values (for legacy UI support)
+        if (key == "Name") {
+            setGameValue("CurrentCharacterName", value);
+            characterMap["Name"] = value;
+        }
+        else if (key == "Race") {
+            setGameValue("CurrentCharacterRace", value);
+            characterMap["Race"] = value;
+        }
         else if (key == "isAlive") {
-            // Converts string "0" or "1" from file to int and updates state
-            this->setIsAlive(value.toInt()); 
+            int aliveStatus = value.toInt();
+            this->setIsAlive(aliveStatus);
+            characterMap["Dead"] = (aliveStatus == 0);
         }
         else if (statNames().contains(key)) {
-            // Stat names (Strength, Intelligence, etc.) are saved as-is in the file
-            setGameValue(QString("CurrentCharacter%1").arg(key), value.toInt());
+            int statVal = value.toInt();
+            setGameValue(QString("CurrentCharacter%1").arg(key), statVal);
+            characterMap[key] = statVal; // e.g., characterMap["Strength"] = 18
         }
+        // Add other mappings as needed (Level, Gold, etc)
+    }
+    file.close();
+
+    // 2. Add the character to the Party List
+    QVariantList party = m_gameStateData["Party"].toList();
+    
+    // For this implementation, we overwrite the first slot (Index 0)
+    // You could also search for the first "Empty Slot" if you want to add multiple
+    if (!party.isEmpty()) {
+        party[0] = characterMap; 
+        m_gameStateData["Party"] = party;
+        emit gameValueChanged("Party", party);
     }
 
-    file.close();
-    qDebug() << "Successfully loaded character:" << characterName;
+    qDebug() << "Successfully loaded character into Party Slot 0:" << characterName;
     return true;
 }

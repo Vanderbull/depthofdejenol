@@ -5,8 +5,7 @@
 #include <QLabel> 
 #include <QVector> 
 #include <QStringList>
-
-#include "GameStateManager.h" // Include the GameStateManager header
+#include <QVariant>
 
 class PartyInfoDialog : public QDialog {
     Q_OBJECT
@@ -15,20 +14,19 @@ public:
     explicit PartyInfoDialog(QWidget *parent = nullptr);
     ~PartyInfoDialog();
 
-    void setPartyMembers(const QStringList& members);
-
 private slots:
     void onSwitchToClicked();
     void onOptionsClicked();
     void onLeaveClicked();
+    void onGameStateChanged(const QString& key, const QVariant& value);
 
 private:
-    void setupUi();
-    void updatePartyLabels(); // New helper to refresh UI
+    void updatePartyLabels();
+    void refreshFromGameState(); 
     
     QStringList partyMembers;
     QVector<QLabel*> memberLabels;
-    int activeMemberIndex; // Tracks the currently active member
+    int activeMemberIndex; 
 };
 
 #endif // PARTYINFODIALOG_H
