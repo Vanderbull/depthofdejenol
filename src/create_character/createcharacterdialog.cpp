@@ -440,7 +440,7 @@ void CreateCharacterDialog::onSaveCharacterClicked() {
     gsm->setGameValue("CurrentCharacterAlignment", alignmentBox->currentText());
     gsm->setGameValue("CurrentCharacterGuild", selectedGuild);
     // Set the initial survival status to true for a new character
-    gsm->setGameValue("CurrentCharacterIsAlive", 0);
+    gsm->setGameValue("CurrentCharacterIsAlive", 1);
     
     // Use the central list to save values
     for (const QString& statName : GameStateManager::statNames()) {

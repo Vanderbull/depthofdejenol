@@ -29,4 +29,4 @@ private:
     int activeMemberIndex; 
 };
 
-#endif // PARTYINFODIALOG_H
+#endif

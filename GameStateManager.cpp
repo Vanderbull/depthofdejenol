@@ -146,7 +146,7 @@ GameStateManager::GameStateManager(QObject *parent)
     m_gameStateData["CharacterPoisoned"] = false;
     m_gameStateData["CharacterBlinded"] = false;
     m_gameStateData["CharacterDiseased"] = false;
-    m_gameStateData["isAlive"] = 0;
+    m_gameStateData["isAlive"] = 1;
 
     m_gameStateData["GuildActionLog"] = QVariantList();
 
@@ -542,13 +542,18 @@ bool GameStateManager::loadCharacterFromFile(const QString& characterName) {
         return false;
     }
 
-    // Create a map to hold this specific character's data for the party slot
     QVariantMap characterMap;
-    QTextStream in(&file);
+    // Set defaults to prevent 0 values if keys are missing from the file
+    characterMap["Name"] = cleanName;
+    characterMap["HP"] = 0; 
+    characterMap["MaxHP"] = 0;
+    characterMap["Race"] = "Unknown";
+    characterMap["Dead"] = false;
 
+    QTextStream in(&file);
     while (!in.atEnd()) {
         QString line = in.readLine().trimmed();
-        if (line.isEmpty() || line.startsWith("---") || line.startsWith("CHARACTER_FILE_VERSION")) continue;
+        if (line.isEmpty() || line.startsWith("---")) continue;
 
         QStringList parts = line.split(": ");
         if (parts.size() < 2) continue;
@@ -556,40 +561,95 @@ bool GameStateManager::loadCharacterFromFile(const QString& characterName) {
         QString key = parts.at(0).trimmed();
         QString value = parts.at(1).trimmed();
 
-        // 1. Update Global "Current" values (for legacy UI support)
-        if (key == "Name") {
+        // Map file keys to the Character Map
+	if (key == "Name") {
             setGameValue("CurrentCharacterName", value);
-            characterMap["Name"] = value;
-        }
+	    characterMap["Name"] = value;
+	}
         else if (key == "Race") {
             setGameValue("CurrentCharacterRace", value);
             characterMap["Race"] = value;
         }
+	else if (key == "HP") {
+	    int hpVal = value.toInt();
+	    characterMap["HP"] = hpVal;
+	    qDebug() << "Parsed HP for" << characterMap["Name"].toString() << ":" << hpVal;
+	}
+	else if (key == "MaxHP") {
+	    int maxHpVal = value.toInt();
+	    characterMap["MaxHP"] = maxHpVal;
+	    qDebug() << "Parsed MaxHP for" << characterMap["Name"].toString() << ":" << maxHpVal;
+	}
         else if (key == "isAlive") {
             int aliveStatus = value.toInt();
-            this->setIsAlive(aliveStatus);
             characterMap["Dead"] = (aliveStatus == 0);
+            this->setIsAlive(aliveStatus);
         }
         else if (statNames().contains(key)) {
-            int statVal = value.toInt();
-            setGameValue(QString("CurrentCharacter%1").arg(key), statVal);
-            characterMap[key] = statVal; // e.g., characterMap["Strength"] = 18
+            characterMap[key] = value.toInt();
         }
-        // Add other mappings as needed (Level, Gold, etc)
     }
     file.close();
 
-    // 2. Add the character to the Party List
+    // Update the Party list at Index 0
     QVariantList party = m_gameStateData["Party"].toList();
-    
-    // For this implementation, we overwrite the first slot (Index 0)
-    // You could also search for the first "Empty Slot" if you want to add multiple
     if (!party.isEmpty()) {
         party[0] = characterMap; 
         m_gameStateData["Party"] = party;
         emit gameValueChanged("Party", party);
     }
 
-    qDebug() << "Successfully loaded character into Party Slot 0:" << characterName;
     return true;
+}
+bool GameStateManager::saveCharacterToFile(int partyIndex) {
+    QVariantList party = m_gameStateData["Party"].toList();
+    if (partyIndex < 0 || partyIndex >= party.size()) return false;
+
+    QVariantMap charMap = party[partyIndex].toMap();
+    QString name = charMap.value("Name").toString();
+
+    if (name.isEmpty() || name == "Empty Slot") return false;
+
+    QString filename = QString("data/characters/%1.txt").arg(name);
+    QFile file(filename);
+
+    if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
+        qWarning() << "Could not open file for saving:" << filename;
+        return false;
+    }
+
+    QTextStream out(&file);
+    out << "--- Character Data ---\n";
+    out << "Name: " << name << "\n";
+    out << "Race: " << charMap.value("Race", "Human").toString() << "\n";
+    
+    // Save HP and MaxHP as strings
+    out << "HP: " << charMap.value("HP", 0).toInt() << "\n";
+    out << "MaxHP: " << charMap.value("MaxHP", 0).toInt() << "\n";
+    
+    // Save Living Status (1 for alive, 0 for dead)
+    int aliveStatus = charMap.value("Dead").toBool() ? 0 : 1;
+    out << "isAlive: " << aliveStatus << "\n";
+
+    // Save Stats (Strength, Dexterity, etc.)
+    QStringList stats = statNames(); // Assumes this returns Strength, Intellect, etc.
+    for (const QString& stat : stats) {
+        out << stat << ": " << charMap.value(stat, 10).toInt() << "\n";
+    }
+
+    file.close();
+    return true;
+}
+// Example of how to correctly update HP in the Game State
+void GameStateManager::updatePartyMemberHP(int index, int newHP) {
+    QVariantList party = getGameValue("Party").toList();
+    if (index >= 0 && index < party.size()) {
+        QVariantMap charMap = party[index].toMap();
+        
+        // Always store as int
+        charMap["HP"] = newHP; 
+        
+        party[index] = charMap;
+        setGameValue("Party", party); // This triggers the UI refresh
+    }
 }

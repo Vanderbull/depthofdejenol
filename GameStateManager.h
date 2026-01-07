@@ -169,6 +169,8 @@ public:
     void addItemToCharacter(int characterIndex, const QString& itemName);
     void updateCharacterGold(int characterIndex, qulonglong amount, bool add = true);
     bool loadCharacterFromFile(const QString& characterName);
+    bool saveCharacterToFile(int partyIndex);
+    void updatePartyMemberHP(int index, int newHP);
 };
 
 #endif // GAMESTATEMANAGER_H

@@ -1,0 +1,19 @@
+CHARACTER_FILE_VERSION: 1.0
+Name: ola
+Race: Human
+Sex: Male
+Alignment: Neutral
+
+--- STATS ---
+isAlive: 0
+
+--- STATS ---
+Strength: 9
+Intelligence: 4
+Wisdom: 4
+Constitution: 6
+Charisma: 5
+Dexterity: 6
+
+--- GUILD ---
+Guild: Scavenger

@@ -288,15 +288,23 @@ void GameMenu::toggleMenuState(bool characterIsLoaded) {
 
 /**
  * @brief Handles the signal that a character was successfully created and saved.
- * Switches the main menu buttons to show the '
-
- Run Character' option.
+ * Switches the main menu buttons to show the 'Run Character' option.
  * @param characterName The name of the newly created character.
  */
 void GameMenu::onCharacterCreated(const QString &characterName) {
     emit logMessageTriggered(QString("New character **%1** created successfully!").arg(characterName));
+    
+    // --- UPDATED: Use GameStateManager to save the character data ---
+    // Assuming the newly created character is at Party Index 0
+    if (GameStateManager::instance()->saveCharacterToFile(0)) {
+        qDebug() << "Character" << characterName << "saved to disk via GameStateManager.";
+    } else {
+        qWarning() << "Failed to save character" << characterName << "to disk.";
+    }
+
     QMessageBox::information(this, tr("Creation Successful"), 
                              tr("Character **%1** created successfully. Ready to run.").arg(characterName));
+    
     toggleMenuState(true);
 }
 // -------------------------------
