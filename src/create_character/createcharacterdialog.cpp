@@ -449,8 +449,15 @@ void CreateCharacterDialog::onSaveCharacterClicked() {
     }
     gsm->setGameValue("CurrentCharacterStatPointsLeft", this->statPoints);
 
-    // Write to file 
-    QString filename = characterName + ".txt";
+// Ensure the data/characters directory exists
+    QString saveDirPath = QCoreApplication::applicationDirPath() + "/data/characters";
+    QDir dir(saveDirPath);
+    if (!dir.exists()) {
+        dir.mkpath("."); // Creates the full path including parent folders if necessary
+    }
+
+    // Combine path and filename
+    QString filename = dir.filePath(characterName + ".txt");
     QFile file(filename);
 
     if (file.open(QIODevice::WriteOnly | QIODevice::Text)) {
