@@ -160,6 +160,7 @@ public:
     void setCharacterInventory(int characterIndex, const QStringList& items);
     void addItemToCharacter(int characterIndex, const QString& itemName);
     void updateCharacterGold(int characterIndex, qulonglong amount, bool add = true);
+    bool loadCharacterFromFile(const QString& characterName);
 };
 
 #endif // GAMESTATEMANAGER_H

@@ -527,3 +527,48 @@ void GameStateManager::updateCharacterGold(int characterIndex, qulonglong amount
         emit gameValueChanged("Party", m_gameStateData["Party"]);
     }
 }
+
+bool GameStateManager::loadCharacterFromFile(const QString& characterName) {
+// 1. Point to the specific subfolder
+    // We remove .txt from the input if it's there, then ensure it's added back
+    QString cleanName = characterName;
+    if (cleanName.endsWith(".txt")) {
+        cleanName.chop(4);
+    }
+    QString filename = QString("data/characters/%1.txt").arg(cleanName);
+    
+    QFile file(filename);
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        qWarning() << "Could not open character file at:" << filename;
+        return false;
+    }
+    QTextStream in(&file);
+    while (!in.atEnd()) {
+        QString line = in.readLine().trimmed();
+        if (line.isEmpty() || line.startsWith("---") || line.startsWith("CHARACTER_FILE_VERSION")) {
+            continue;
+        }
+
+        // Split "Key: Value" pairs
+        QStringList parts = line.split(": ");
+        if (parts.size() < 2) continue;
+
+        QString key = parts.at(0).trimmed();
+        QString value = parts.at(1).trimmed();
+
+        // Map file keys to GameState keys
+        if (key == "Name") setGameValue("CurrentCharacterName", value);
+        else if (key == "Race") setGameValue("CurrentCharacterRace", value);
+        else if (key == "Sex") setGameValue("CurrentCharacterSex", value);
+        else if (key == "Alignment") setGameValue("CurrentCharacterAlignment", value);
+        else if (key == "Guild") setGameValue("CurrentCharacterGuild", value);
+        else if (statNames().contains(key)) {
+            // Stat names (Strength, Intelligence, etc.) are saved as-is in the file
+            setGameValue(QString("CurrentCharacter%1").arg(key), value.toInt());
+        }
+    }
+
+    file.close();
+    qDebug() << "Successfully loaded character:" << characterName;
+    return true;
+}

@@ -97,7 +97,7 @@ LoadingScreen::LoadingScreen(QWidget *parent) :
 
     m_closeTimer = new QTimer(this);
     connect(m_closeTimer, &QTimer::timeout, this, &LoadingScreen::closeDialogAutomatically);
-    m_closeTimer->start(5000);
+    m_closeTimer->start(100);
 }
 
 LoadingScreen::~LoadingScreen() {}
