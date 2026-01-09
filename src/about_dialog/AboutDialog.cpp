@@ -3,70 +3,81 @@
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QPushButton>
-#include <QTextEdit>
+#include <QScrollArea>
 #include <QString>
 
 AboutDialog::AboutDialog(QWidget *parent) : QDialog(parent) 
 {
-    setWindowTitle("Mordor Ordering Information");
-    // Make the dialog non-resizeable
+    setWindowTitle("Depth of Dejenol: Blacklands"); 
     setFixedSize(650, 500);
-    // Remove the context help button (common for simple dialogs)
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
     setupUi();
 }
 
+// Function retained for internal logic but removed from UI per request
 QString AboutDialog::getGameVersionInfo() const 
 {
     GameStateManager* gsm = GameStateManager::instance();
     QString version = gsm->getGameValue("GameVersion").toString();    
-    return QString(
-        "Current Game Version: **%1**\n"
-        ).arg(version);
+    return version;
 }
 
 void AboutDialog::setupUi() 
 {
-    GameStateManager::instance()->printAllGameState();
     QVBoxLayout *mainLayout = new QVBoxLayout(this);
-    QString gameStateInfo = getGameVersionInfo();
-    QLabel *gameStateLabel = new QLabel(gameStateInfo);
-    gameStateLabel->setWordWrap(true);
-    gameStateLabel->setStyleSheet("font-size: 14px; font-weight: normal;");
-    QString orderingText =
-        "Whether you're ordering MORDOR for yourself or as a gift, this first of a kind Windows FRP\n"
-        "game designed to be played for months and even longer is guaranteed to put a smile on most any avid\n"
-        "FRP'er's face!! The full commercial version of MORDOR has so many more Monsters, Items and\n"
-        "Dungeon Levels than the PUBLIC version that we can't even begin to get into detail.\n"
-        "Find out for yourself!\n\n"
-        "You can now pre-order the full version of MORDOR at any time for only $39.95 + $4!! Feel free to\n"
-        "use your VISA, MASTERCARD, Check, or Money Order to have MORDOR: the Depths of Dejenol,\n\n"
-        "To order, call TDA! at (800) 624-2101 between 9AM and 4PM PST Monday through Friday and ask to\n"
-        "order MORDOR! Be sure to specify either 3.5'' disks or CD-ROM.\n\n"
-        "You can also contact the company at the following EMail addresses:\n"
-        "Internet: 102033,242@CompuServe.com\n"
-        "CompuServe: 102033,242\n"
-        "(Remember to include the proper Address & Credit Card information if you order via EMail!)\n\n"
-        "Street address:\n"
-        "TDA!\n"
-        "720 132nd St SW #202\n"
-        "Everett, WA 98204\n"
-        "(206) 742-4145\n"
-        "Created by [Vanderbull]";
-    QLabel *infoText = new QLabel(orderingText);
-    infoText->setAlignment(Qt::AlignTop | Qt::AlignLeft);
+
+    // Create Scrollable Area
+    QScrollArea *scrollArea = new QScrollArea(this);
+    scrollArea->setWidgetResizable(true);
+    scrollArea->setFrameShape(QFrame::NoFrame);
+
+    QWidget *scrollContent = new QWidget();
+    QVBoxLayout *scrollLayout = new QVBoxLayout(scrollContent);
+
+    // Classical About Page Text
+    QString aboutText =
+        "<h2>DEPTH OF DEJENOL: BLACKLANDS</h2>"
+        "<i>A Grand-Scale Fantasy Role Playing Adventure</i><br><br>"
+        
+        "<b>THE LEGEND</b><br>"
+        "Welcome to the world of the Mines of Marlith, now known as the Depth of Dejenol. "
+        "In this massive dungeon crawler, you must lead a party of adventurers into a mysterious "
+        "labyrinth on a nearly endless mission of exploration, mapping, and looting.<br><br>"
+        
+        "<b>GAME FEATURES</b><br>"
+        "• <b>Deep Character Progression:</b> Create heroes from multiple races and join specialized guilds.<br>"
+        "• <b>Tactical Combat:</b> A unique blend of real-time action and strategic party management.<br>"
+        "• <b>Vast Labyrinth:</b> unknown number of procedurally generated dungeon filled with hundreds of monsters and items.<br><br>"
+        
+        "<b>CREDITS</b><br>"
+        "<b>Game Design & Programming:</b> Vanderbull<br><br>"
+        
+        "<b>HOMAGE</b><br>"
+        "This project is a tribute to the legendary work of <b>David Allen</b>. We honor his "
+        "original vision, game design, and code for the classic 1995 release of 'Mordor: The Depths of Dejenol,' "
+        "which paved the way for this adventure.";
+
+    QLabel *infoText = new QLabel(aboutText);
     infoText->setWordWrap(true);
+    infoText->setTextFormat(Qt::RichText);
+    infoText->setAlignment(Qt::AlignTop | Qt::AlignLeft);
+
+    scrollLayout->addWidget(infoText);
+    scrollLayout->addStretch();
+    scrollArea->setWidget(scrollContent);
+
+    mainLayout->addWidget(scrollArea);
+
+    // Ok Button
     QPushButton *closeButton = new QPushButton("Ok");
     connect(closeButton, &QPushButton::clicked, this, &QDialog::accept);
-    mainLayout->addWidget(gameStateLabel);
-    mainLayout->addWidget(infoText);
-    mainLayout->addStretch();
+    
     QHBoxLayout *buttonLayout = new QHBoxLayout();
     buttonLayout->addStretch();
     buttonLayout->addWidget(closeButton);
     buttonLayout->addStretch();
+    
     mainLayout->addLayout(buttonLayout);
 }
 
 AboutDialog::~AboutDialog() {}
-

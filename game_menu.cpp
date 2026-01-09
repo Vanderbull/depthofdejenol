@@ -209,10 +209,12 @@ GameMenu::GameMenu(QWidget *parent)
 void GameMenu::onEventTriggered(const GameEvent& event)
 {
     qDebug() << "Triggered event:" << event.id << event.description;
+/*
     if (event.effect == "SHOW_MESSAGE")
     {
         QMessageBox::information(this, tr("Game Message"), event.description);
     }
+*/
 }
 // Override for proper background scaling on window resize
 void GameMenu::resizeEvent(QResizeEvent *event) 
