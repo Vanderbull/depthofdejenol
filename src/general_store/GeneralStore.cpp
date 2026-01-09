@@ -15,7 +15,6 @@ GeneralStore::GeneralStore(QWidget *parent) : QDialog(parent)
     setWindowTitle("General Store");
     setupUi();
     populateBuyItemsList();
-
     // Connect signals and slots
     connect(uncurseButton, &QPushButton::clicked, this, &GeneralStore::uncurseItem);
     connect(combineButton, &QPushButton::clicked, this, &GeneralStore::combineItems);
@@ -26,7 +25,6 @@ GeneralStore::GeneralStore(QWidget *parent) : QDialog(parent)
     connect(buyInfoButton, &QPushButton::clicked, this, &GeneralStore::showItemInfo);
     connect(searchItemsLineEdit, &QLineEdit::textChanged, this, &GeneralStore::searchItems);
     connect(exitButton, &QPushButton::clicked, this, &GeneralStore::exitStore);
-
     // MODIFIED LOGIC: Update cost by extracting 'price' from the QVariantMap
     connect(buyItemsListWidget, &QListWidget::currentItemChanged, this, [this](QListWidgetItem *current, QListWidgetItem *previous) {
         Q_UNUSED(previous);
@@ -52,18 +50,15 @@ void GeneralStore::setupUi()
     // Initialize UI elements
     uncurseItemLineEdit = new QLineEdit();
     uncurseButton = new QPushButton("UNCURSE");
-
     combineItemLineEdit = new QLineEdit();
     combineItemsLineEdit = new QLineEdit();
     combineButton = new QPushButton("COMBINE");
-
     identifySellItemLineEdit = new QLineEdit();
     itemValueLabel = new QLabel("Value: 0");
     infoButton = new QPushButton("INFO");
     sellButton = new QPushButton("SELL");
     idButton = new QPushButton("ID");
     idCostLabel = new QLabel("ID Cost: 100");
-
     buyItemsListWidget = new QListWidget();
     searchItemsLineEdit = new QLineEdit();
     searchItemsLineEdit->setPlaceholderText("Search items...");
@@ -73,7 +68,6 @@ void GeneralStore::setupUi()
     buyButton = new QPushButton("BUY");
     buyInfoButton = new QPushButton("INFO");
     exitButton = new QPushButton("EXIT");
-
     // Layout for "Uncurse Items"
     QGroupBox *uncurseBox = new QGroupBox("Uncurse Items");
     QHBoxLayout *uncurseLayout = new QHBoxLayout();
@@ -81,7 +75,6 @@ void GeneralStore::setupUi()
     uncurseLayout->addWidget(uncurseItemLineEdit);
     uncurseLayout->addWidget(uncurseButton);
     uncurseBox->setLayout(uncurseLayout);
-
     // Layout for "Combine Items"
     QGroupBox *combineBox = new QGroupBox("Combine Items");
     QGridLayout *combineGridLayout = new QGridLayout();
@@ -91,7 +84,6 @@ void GeneralStore::setupUi()
     combineGridLayout->addWidget(combineItemsLineEdit, 1, 1);
     combineGridLayout->addWidget(combineButton, 0, 2, 2, 1); // Span 2 rows
     combineBox->setLayout(combineGridLayout);
-
     // Layout for "Identify, Realign & Sell Items"
     QGroupBox *idSellBox = new QGroupBox("Identify, Realign & Sell Items");
     QGridLayout *idSellGridLayout = new QGridLayout();
@@ -103,7 +95,6 @@ void GeneralStore::setupUi()
     idSellGridLayout->addWidget(idButton, 2, 1);
     idSellGridLayout->addWidget(sellButton, 2, 2);
     idSellBox->setLayout(idSellGridLayout);
-
     // Layout for "Buy Items"
     QGroupBox *buyBox = new QGroupBox("Buy Items");
     QVBoxLayout *buyLayout = new QVBoxLayout();
@@ -121,7 +112,6 @@ void GeneralStore::setupUi()
     buyControlsLayout->addWidget(buyButton);
     buyLayout->addLayout(buyControlsLayout);
     buyBox->setLayout(buyLayout);
-
     // Main Layout (Top half for all services, Bottom for Buy/Exit)
     QHBoxLayout *topLayout = new QHBoxLayout();
     QVBoxLayout *leftColumn = new QVBoxLayout();
@@ -130,12 +120,10 @@ void GeneralStore::setupUi()
     leftColumn->addWidget(idSellBox);
     topLayout->addLayout(leftColumn);
     topLayout->addWidget(buyBox);
-
     // Final main layout
     QVBoxLayout *mainLayout = new QVBoxLayout(this);
     mainLayout->addLayout(topLayout);
     mainLayout->addWidget(exitButton);
-
     setLayout(mainLayout);
     resize(800, 600); // Set a reasonable default size
 }
@@ -143,8 +131,6 @@ void GeneralStore::setupUi()
 GeneralStore::~GeneralStore()
 {
 }
-
-// --- Item Data Population ---
 
 void GeneralStore::populateBuyItemsList()
 {
@@ -239,41 +225,31 @@ void GeneralStore::populateBuyItemsList()
     buyItemData << "Silver Cross,85,3,3,5516133,2,5,0,2,0,0,0,0,3840,2,1.5,14,1,2,0,12,14,14,12,0,12,0,0,0,0,0,0,0,0,-1";
     buyItemData << "Cross of Life,86,3,3,13237651,6,3,0,1,0,59,49,2,4095,0,1,14,1,2,0,0,7,17,9,0,10,0,0,0,0,0,0,0,90,-1";
     buyItemData << "Cross of Commanding,87,6,6,12386539,7,20,0,4,0,45,37,42,3840,15,1.7,14,1,2,0,14,16,16,14,0,16,0,0,0,0,0,0,0,90,-1";
-
     // Define the headers to be used as keys
     QStringList headers;
     headers << "name" << "ID" << "att" << "def" << "price" << "floor" << "rarity" << "abilities" << "swings" << "specialType" << "spellIndex" << "spellID" << "charges" << "guilds" << "levelScale" << "damageMod" << "alignmentFlags" << "nHands" << "type" << "resistanceFlags" << "StrReq" << "IntReq" << "WisReq" << "ConReq" << "ChaReq" << "DexReq" << "StrMod" << "IntMod" << "WisMod" << "ConMod" << "ChaMod" << "DexMod" << "cursed" << "spellLvl" << "classRestricted";
-
-
     // Loop through the data array to populate the QListWidget
     for (const QString &itemData : buyItemData) {
         QStringList values = itemData.split(",");
-        
         // Safety check for data integrity
         if (values.size() != headers.size()) {
             qDebug() << "Warning: Item data does not match header count for:" << itemData;
             continue; // Skip malformed rows
         }
-
         QVariantMap itemMap;
         for (int i = 0; i < headers.size(); ++i) {
             // Store all values as QVariants (QString) in the map
             itemMap.insert(headers.at(i), values.at(i));
         }
-
         // Extract the item name
         QString name = itemMap.value("name").toString();
-        
         // Create a new list widget item with the name
         QListWidgetItem *item = new QListWidgetItem(name);
-        
         // Store the QVariantMap in Qt::UserRole
         item->setData(Qt::UserRole, itemMap); 
-        
         buyItemsListWidget->addItem(item);
     }
 }
-
 // --- Feedback Helper ---
 void GeneralStore::showFeedbackDialog(const QString &title, const QString &message, QMessageBox::Icon icon)
 {
@@ -283,24 +259,20 @@ void GeneralStore::showFeedbackDialog(const QString &title, const QString &messa
     msgBox.setIcon(icon);
     msgBox.exec();
 }
-
-// --- Slot Implementations (Updated to use QMessageBox) ---
-
-void GeneralStore::uncurseItem() {
+// --- Slot Implementations (Updated to use QMessageBox) --
+void GeneralStore::uncurseItem() 
+{
     QString itemName = uncurseItemLineEdit->text().trimmed();
     if (itemName.isEmpty()) {
         showFeedbackDialog("Uncurse Error", "Please enter the name of the item you wish to uncurse.", QMessageBox::Warning);
         return;
     }
-
     GameStateManager* gsm = GameStateManager::instance();
     int activeCharIndex = gsm->getGameValue("ActiveCharacterIndex").toInt();
-    
     // Retrieve character inventory
     QVariantList party = gsm->getGameValue("Party").toList();
     QVariantMap character = party[activeCharIndex].toMap();
     QStringList inventory = character["Inventory"].toStringList();
-
     // 1. Check if the player owns the item
     int invIndex = -1;
     for (int i = 0; i < inventory.size(); ++i) {
@@ -309,12 +281,10 @@ void GeneralStore::uncurseItem() {
             break;
         }
     }
-
     if (invIndex == -1) {
         showFeedbackDialog("Uncurse Error", "This item is not in your inventory.", QMessageBox::Warning);
         return;
     }
-
     // 2. Check the item database if it is cursed
     bool isCursed = false;
     const QList<QVariantMap>& db = gsm->itemData();
@@ -327,7 +297,6 @@ void GeneralStore::uncurseItem() {
             break;
         }
     }
-
     if (isCursed) {
         // 3. Perform the Uncursing
         QString oldName = inventory[invIndex];
@@ -353,16 +322,13 @@ void GeneralStore::combineItems()
 {
     QString itemA = combineItemLineEdit->text().trimmed();
     QString itemB = combineItemsLineEdit->text().trimmed();
-    
     if (itemA.isEmpty() || itemB.isEmpty()) {
         showFeedbackDialog("Combine Error", "Please enter two item names to attempt a combination.", QMessageBox::Warning);
         return;
     }
-
     // Placeholder Logic:
     // 1. Check if the player has both 'itemA' and 'itemB'.
     // 2. Check a combination recipe database.
-    
     // Simulate combination based on specific inputs
     if ((itemA.toLower().contains("steel sword") && itemB.toLower().contains("crystal")) || 
         (itemB.toLower().contains("steel sword") && itemA.toLower().contains("crystal"))) {
@@ -376,25 +342,22 @@ void GeneralStore::combineItems()
     }
 }
 
-void GeneralStore::identifySellItem() {
+void GeneralStore::identifySellItem() 
+{
     QString itemName = identifySellItemLineEdit->text().trimmed();
     if (itemName.isEmpty()) {
         showFeedbackDialog("Input Required", "Please enter the name of the item.", QMessageBox::Warning);
         return;
     }
-
     // Identify which button triggered the slot
     QPushButton *senderButton = qobject_cast<QPushButton*>(sender());
     bool isIdentifyAction = (senderButton == idButton);
-
     GameStateManager* gsm = GameStateManager::instance();
     int activeCharIndex = gsm->getGameValue("ActiveCharacterIndex").toInt();
-    
     // Retrieve character inventory
     QVariantList party = gsm->getGameValue("Party").toList();
     QVariantMap character = party[activeCharIndex].toMap();
     QStringList inventory = character["Inventory"].toStringList();
-
     // 1. Verify item is in Character Inventory
     int invIndex = -1;
     for (int i = 0; i < inventory.size(); ++i) {
@@ -403,16 +366,13 @@ void GeneralStore::identifySellItem() {
             break;
         }
     }
-
     if (invIndex == -1) {
         showFeedbackDialog("Error", "This item is not in your inventory.", QMessageBox::Warning);
         return;
     }
-
     // 2. Fetch Item Data from Database
     bool alreadyIdentified = inventory[invIndex].contains("(ID)");
     const QList<QVariantMap>& db = gsm->itemData();
-    
     qulonglong basePrice = 0;
     for (const QVariantMap& item : db) {
         if (item["name"].toString().compare(itemName, Qt::CaseInsensitive) == 0) {
@@ -420,44 +380,35 @@ void GeneralStore::identifySellItem() {
             break;
         }
     }
-
     // 3. Branch Logic: Identify vs Sell
     if (isIdentifyAction) {
         // IDENTIFY LOGIC
         // Calculate dynamic ID cost (e.g., 15% of base price)
         qulonglong idCost = static_cast<qulonglong>(basePrice * 0.15);
         if (idCost < 10) idCost = 10; // Minimum flat fee for low-value items
-
         qulonglong currentGold = character["Gold"].toULongLong();
-
         if (alreadyIdentified) {
             showFeedbackDialog("Info", "This item is already identified.", QMessageBox::Information);
             return;
         }
-
         if (currentGold < (qulonglong)idCost) {
             showFeedbackDialog("Identify Failed", "You do not have enough gold to identify this item.", QMessageBox::Critical);
             return;
         }
-
         // Deduct gold and update name
         gsm->updateCharacterGold(activeCharIndex, idCost, false);
         inventory[invIndex] = itemName + " (ID)";
         gsm->setCharacterInventory(activeCharIndex, inventory);
-
         showFeedbackDialog("Identify Success", QString("You have identified %1!").arg(itemName));
     } else {
         // SELL LOGIC
         // Usually, selling unidentified items yields less gold (e.g., 25% value)
         qulonglong finalSellPrice = alreadyIdentified ? (basePrice / 2) : (basePrice / 4);
-
         inventory.removeAt(invIndex);
         gsm->setCharacterInventory(activeCharIndex, inventory);
         gsm->updateCharacterGold(activeCharIndex, finalSellPrice, true);
-
         showFeedbackDialog("Sold", QString("Sold %1 for %2 gold.").arg(itemName).arg(finalSellPrice));
     }
-
     identifySellItemLineEdit->clear();
 }
 
@@ -466,14 +417,11 @@ void GeneralStore::buyItem()
     if (buyItemsListWidget->currentItem()) {
         QString selectedItemName = buyItemsListWidget->currentItem()->text();
         QVariantMap itemMap = buyItemsListWidget->currentItem()->data(Qt::UserRole).toMap();
-        QString priceString = itemMap.value("price").toString();
-        
+        QString priceString = itemMap.value("price").toString();   
         // Placeholder Logic: Assume player has enough money.
-        
         showFeedbackDialog("Purchase Confirmation", 
                            QString("You have purchased the '%1' for %2 gold. It has been added to your inventory!").arg(selectedItemName).arg(priceString),
                            QMessageBox::Information);
-
     } else {
         showFeedbackDialog("Purchase Error", "Please select an item from the list to buy.", QMessageBox::Warning);
     }
@@ -484,7 +432,6 @@ void GeneralStore::showItemInfo()
     QPushButton *senderButton = qobject_cast<QPushButton*>(sender());
     QString infoMessage;
     QString itemName;
-    
     if (senderButton == infoButton) {
         itemName = identifySellItemLineEdit->text().trimmed();
         if (itemName.isEmpty()) {
@@ -492,12 +439,10 @@ void GeneralStore::showItemInfo()
             return;
         }
         infoMessage = QString("Displaying full known details for item '%1'.\n\n[Placeholder: All item stats, effects, and requirements would be listed here.]").arg(itemName);
-        
     } else if (senderButton == buyInfoButton) {
         if (buyItemsListWidget->currentItem()) {
             itemName = buyItemsListWidget->currentItem()->text();
             QVariantMap itemMap = buyItemsListWidget->currentItem()->data(Qt::UserRole).toMap();
-            
             // Generate a simple, formatted info string from the map
             infoMessage = QString("--- %1 Details ---\n").arg(itemName);
             for (auto it = itemMap.constBegin(); it != itemMap.constEnd(); ++it) {
@@ -510,7 +455,6 @@ void GeneralStore::showItemInfo()
             return;
         }
     }
-    
     if (!infoMessage.isEmpty()) {
         showFeedbackDialog(QString("%1 Information").arg(itemName), infoMessage, QMessageBox::NoIcon);
     }
@@ -520,18 +464,15 @@ void GeneralStore::searchItems(const QString &searchText)
 {
     // The filtering logic remains the same as it doesn't need a dialog on every key press.
     QString lowerSearchText = searchText.toLower();
-
     for (int i = 0; i < buyItemsListWidget->count(); ++i) {
         QListWidgetItem *item = buyItemsListWidget->item(i);
         bool matchFound = false;
-
         // Check against the visible name first
         if (item->text().contains(searchText, Qt::CaseInsensitive)) {
             matchFound = true;
         } else {
             // Retrieve the QVariantMap
             QVariantMap itemMap = item->data(Qt::UserRole).toMap();
-            
             // Iterate over all values in the map for a match
             for (const QVariant &value : itemMap.values()) {
                 if (value.toString().toLower().contains(lowerSearchText)) {
@@ -540,23 +481,11 @@ void GeneralStore::searchItems(const QString &searchText)
                 }
             }
         }
-        
         item->setHidden(!matchFound);
     }
 }
 
 void GeneralStore::exitStore()
 {
-/*
-    QMessageBox::StandardButton reply;
-    reply = QMessageBox::question(this, "Exit Store", "Are you sure you want to exit the General Store?",
-                                  QMessageBox::Yes|QMessageBox::No);
-    
-    if (reply == QMessageBox::Yes) {
-        // Placeholder Logic: Persist state if necessary
-        showFeedbackDialog("Goodbye", "Thank you for visiting the General Store!", QMessageBox::Information);
-        this->close(); 
-    }
-*/
-this->close();
+    this->close();
 }

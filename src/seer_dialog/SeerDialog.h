@@ -1,4 +1,3 @@
-// SeerDialog.h
 #ifndef SEERDIALOG_H
 #define SEERDIALOG_H
 
@@ -14,17 +13,14 @@
 class SeerDialog : public QDialog
 {
     Q_OBJECT
-
 public:
     explicit SeerDialog(QWidget *parent = nullptr);
     ~SeerDialog();
-
 private slots:
     void on_characterButton_clicked();
     void on_monsterButton_clicked();
     void on_itemButton_clicked();
     void on_exitButton_clicked();
-
 private:
     QLineEdit *searchLineEdit;
     QLabel *welcomeLabel;
@@ -33,7 +29,6 @@ private:
     QPushButton *monsterButton;
     QPushButton *itemButton;
     QPushButton *exitButton;
-
     QVBoxLayout *mainLayout;
     QHBoxLayout *buttonLayout;
 };

@@ -13,45 +13,37 @@
 
 #include "GameStateManager.h" // Include the GameStateManager header
 
-
 // Define Category Constants
 const QString CATEGORY_MAGIC = "Magic Books";
 const QString CATEGORY_MONSTERS = "Creatures";
 const QString CATEGORY_ITEMS = "Items";
 
-class LibraryDialog : public QDialog {
+class LibraryDialog : public QDialog 
+{
     Q_OBJECT
-
 public:
     explicit LibraryDialog(QWidget *parent = nullptr);
-
 private slots:
     void onItemSelected(QListWidgetItem *item);
     void onCloseClicked();
     void onCategoryChanged(const QString &categoryName);
     void onSearchTextChanged(const QString &searchText);
-    
     // Missing slot declarations added here
     void onAddItemClicked(); 
-
 private:
     void setupUI();
     void loadKnowledge();
     void updateList(const QString &category);
-    
     // Missing function declaration added here
     void updateCountLabel();
-
 private:
     // QMap<CategoryName, QMap<ItemName, ItemDescription>>
     QMap<QString, QMap<QString, QString>> knowledgeBase;
-
     // UI elements (Missing members added here)
     QListWidget *bookList;
     QTextEdit *descriptionText;
     QComboBox *categoryComboBox;
     QLabel *headerLabel;
-    
     // Missing member variables added here
     QPushButton *addItemButton; 
     QPushButton *closeButton;

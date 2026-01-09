@@ -7,18 +7,21 @@
 #include <QStringList>
 #include "GameStateManager.h"
 
-struct RaceStat {
+struct RaceStat 
+{
     int start;
     int min;
     int max;
 };
 
-enum AlignmentStatus {
+enum AlignmentStatus 
+{
     AS_Allowed,
     AS_NotAllowed
 };
 
-struct RaceStats {
+struct RaceStats 
+{
     QString raceName;
     int maxAge;
     int experience;
