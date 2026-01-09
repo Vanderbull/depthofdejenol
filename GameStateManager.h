@@ -171,6 +171,7 @@ public:
     bool saveCharacterToFile(int partyIndex);
     void updatePartyMemberHP(int index, int newHP);
     void syncActiveCharacterToParty();
+    void listGameData();
 };
 
 #endif // GAMESTATEMANAGER_H

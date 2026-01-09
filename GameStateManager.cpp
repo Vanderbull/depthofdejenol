@@ -166,6 +166,7 @@ GameStateManager::GameStateManager(QObject *parent)
 
     m_gameStateData["GuildLeaders"] = guildLeadersList;
     qDebug() << "GameStateManager initialized.";
+    listGameData();
 }
 
 void GameStateManager::loadGameData(const QString& filePath)
@@ -699,4 +700,14 @@ void GameStateManager::syncActiveCharacterToParty()
     party[0] = character;
     setGameValue("Party", party);
     qDebug() << "Synced active character" << character["Name"].toString() << "to Party Slot 0.";
+}
+
+void GameStateManager::listGameData() {
+    // Remove the () and the instance() call
+    QList<QVariantMap> dataList = m_gameData; 
+
+    qDebug() << "--- START m_gameData LOG ---";
+    for (int i = 0; i < dataList.size(); ++i) {
+        qDebug() << "Record" << i + 1 << ":" << dataList.at(i);
+    }
 }
