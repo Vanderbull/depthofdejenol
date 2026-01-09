@@ -588,18 +588,27 @@ bool GameStateManager::loadCharacterFromFile(const QString& characterName)
     file.close();
     // Update the Party list and notify UI via setGameValue
     QVariantList party = m_gameStateData["Party"].toList();
-    if (!party.isEmpty()) {
-        party[0] = characterMap;
-        setGameValue("Party", party);
-        
-        // Sync convenience values for the active character
-        setGameValue("CurrentCharacterName", characterMap["Name"]);
-        setGameValue("CurrentCharacterRace", characterMap["Race"]);
-        setGameValue("isAlive", characterMap["Dead"].toBool() ? 0 : 1);
-        
-        qDebug() << "Successfully loaded" << characterMap["Name"] << "into Party Slot 0";
-        return true;
+if (!party.isEmpty()) {
+    party[0] = characterMap;
+    setGameValue("Party", party);
+    
+    // 1. Sync basic info
+    setGameValue("CurrentCharacterName", characterMap["Name"]);
+    setGameValue("CurrentCharacterRace", characterMap["Race"]);
+    setGameValue("CurrentCharacterGuild", characterMap["Guild"]); // Added this
+    setGameValue("isAlive", characterMap["Dead"].toBool() ? 0 : 1);
+    
+    // 2. Sync Stats (This is what you are missing!)
+    for (const QString& stat : statNames()) {
+        if (characterMap.contains(stat)) {
+            // This maps "Strength" from file to "CurrentCharacterStrength" in state
+            setGameValue("CurrentCharacter" + stat, characterMap[stat]);
+        }
     }
+    
+    qDebug() << "Successfully loaded and synced stats for" << characterMap["Name"];
+    return true;
+}
     return false;
 }
 

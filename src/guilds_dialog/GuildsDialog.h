@@ -51,6 +51,8 @@ private:
     QPushButton *exitButton;
     void setupConnections(); // Utility function to connect signals and slots
     void setInitialGuildSelection(); // Function to set the selected guild based on GameState (FIXED: Declaration added)
+    bool hasPassedVisitCheck = false; // Tracks if the player can re-acquaint
+    void updateReAcquaintButtonState(); // Helper to manage button state
 };
 
 #endif // GUILDSDIALOG_H
