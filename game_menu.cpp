@@ -1,14 +1,18 @@
-// game_menu.cpp
+
+#include "GameStateManager.h"
 #include "game_menu.h"
-// Include all necessary class definitions for dialogs and Qt components
+#include "TheCity.h"
+#include "StoryDialog.h"
+
+#include "tools/spellbook_editor/SpellbookEditorDialog.h"
+#include "tools/monster_editor/MonsterEditorDialog.h"
+
 #include "src/characterlist_dialog/characterlistdialog.h"
 #include "src/hall_of_records/hallofrecordsdialog.h"
 #include "src/create_character/createcharacterdialog.h"
 #include "src/inventory_dialog/inventorydialog.h"
 #include "src/options_dialog/optionsdialog.h"
 #include "src/about_dialog/AboutDialog.h"
-#include "tools/monster_editor/MonsterEditorDialog.h"
-#include "tools/spellbook_editor/SpellbookEditorDialog.h"
 #include "src/character_dialog/CharacterDialog.h"
 #include "src/message_window/MessageWindow.h"
 #include "src/sender_window/SenderWindow.h"
@@ -18,13 +22,8 @@
 #include "src/helplesson/helplesson.h"
 #include "src/mordorstatistics/mordorstatistics.h"
 #include "src/loadingscreen/LoadingScreen.h"
-#include "TheCity.h"
-#include "StoryDialog.h"
-// --- NEW INCLUDE ADDED FOR DATA LOADING ---
 #include "src/race_data/RaceData.h"
 #include "src/event/EventManager.h"
-// --- GAME STATE INTEGRATION ---
-#include "GameStateManager.h"
 // Qt component includes
 #include <QVBoxLayout>
 #include <QGridLayout>
@@ -49,54 +48,37 @@
 #include <QComboBox>
 #include <QFileInfoList>
 #include <QResizeEvent>
-// The global MenuSwitch and QSettings variables are removed (now members)
-// QString subfolderName is now a member variable (m_subfolderName)
-
-// Global function to launch Automap (unchanged)
-void launchAutomapDialog() {
-    // Using nullptr as the parent widget, as 'this' is not available here.
-    // If you are inside a class like MainGameWindow, use AutomapDialog mapDialog(this);
-    AutomapDialog mapDialog(nullptr);
-    // Execute the dialog modally
-    //mapDialog.exec(); 
+// Global function to launch Automap
+void launchAutomapDialog() 
+{
+    AutomapDialog mapDialog(nullptr); 
     mapDialog.show(); 
     qDebug() << "Automap dialog triggered";
 }
 
 GameMenu::GameMenu(QWidget *parent)
     : QWidget(parent)
-    // Initialize QSettings and subfolderName in the initializer list
     , m_settings("MyCompany", "MyApp")
     , m_subfolderName(m_settings.value("Paths/SubfolderName", "data/characters").toString()) 
 {
-// 1. DONT USE GLOBAL STYLESHEETS (prevents black buttons)
+    // 1. DONT USE GLOBAL STYLESHEETS (prevents black buttons)
     // 2. USE PALETTE FOR BACKGROUND (Wayland friendly)
     QPalette pal = this->palette();
     pal.setColor(QPalette::Window, Qt::black);
     this->setPalette(pal);
     this->setAutoFillBackground(true);
-
-    // 3. EXPLICITLY REQUEST WINDOW DECORATIONS
     // This hint tells Wayland: "I want a title bar and an X button"
     this->setWindowFlags(Qt::Window | Qt::WindowTitleHint | Qt::WindowSystemMenuHint | 
                          Qt::WindowCloseButtonHint | Qt::WindowMinimizeButtonHint);
-    // --- GAME STATE INTEGRATION START ---
-    // LOG INITIAL GAME STATE INFO
     qDebug() << "Current Game Version:" << GameStateManager::instance()->getGameValue("GameVersion").toString();
-    // --- GAME STATE INTEGRATION END ---
 
-    //EventManager::instance()->loadEvents("./data/events-json");
-    // Connect event system to this menu
+    EventManager::instance()->loadEvents("./data/events-json");
     connect(EventManager::instance(), &EventManager::eventTriggered,
             this, &GameMenu::onEventTriggered);
-
-    // Immediately trigger GAME_START event(s)
     EventManager::instance()->update("GAME_START");
-
     qDebug() << "Configured Subfolder Name:" << m_subfolderName;
 
     setWindowTitle("The Depths of Dejenol: Black Lands");
-
     // 1. Get the directory of THIS .cpp file
     // __FILE__ is a built-in macro that gives the path to SeerDialog.cpp
     QFileInfo fileInfo(__FILE__);
@@ -104,8 +86,7 @@ GameMenu::GameMenu(QWidget *parent)
 
     // 2. Build the path to the .qss file in the same folder
     QString qssPath = dir + "/MainMenu.qss";
-    
-// 3. Load and apply the style
+    // 3. Load and apply the style
     QFile styleFile(qssPath);
     if (styleFile.open(QFile::ReadOnly | QFile::Text)) {
         QTextStream ts(&styleFile);
@@ -115,16 +96,12 @@ GameMenu::GameMenu(QWidget *parent)
     } else {
         qDebug() << "Style file not found at:" << qssPath;
     }
-
-
-// --- Background Image Loading and Scaling Setup ---
+    // --- Background Image Loading and Scaling Setup ---
     // 1. Get the directory of the running executable
     QString appDirPath = QCoreApplication::applicationDirPath();
     // 2. Construct the full, absolute path to the background image
     QString imagePath = QDir::cleanPath(appDirPath + QDir::separator() + "introtitle.png");
-
     qDebug() << "Attempting to load background image from:" << imagePath;
-    
     // Load the original image into the member variable
     m_backgroundPixmap.load(imagePath);
     
@@ -134,16 +111,11 @@ GameMenu::GameMenu(QWidget *parent)
         // Trigger a resize event immediately to apply the initial scaling
         resizeEvent(nullptr); 
         qDebug() << "Successfully loaded background image.";
-        
-        // --- GAME STATE INTEGRATION EXAMPLE 1: Set a state value ---
         GameStateManager::instance()->setGameValue("ResourcesLoaded", true); 
-
     } else {
         qDebug() << "FATAL: Could not load background image from:" << imagePath;
-        // Ensure state reflects failure if needed
         GameStateManager::instance()->setGameValue("ResourcesLoaded", false);
     }
-    
     // Get screen geometry to make the window scale with screen resolution
     QScreen *screen = QGuiApplication::primaryScreen();
     QRect screenGeometry = screen->geometry();
@@ -155,35 +127,27 @@ GameMenu::GameMenu(QWidget *parent)
     // Set a minimum size to prevent the window from becoming too small
     setMinimumSize(800, 600);
     resize(windowWidth, windowHeight);
-
     // Main layout using a grid to replicate the image layout
     QGridLayout *gridLayout = new QGridLayout(this);
     gridLayout->setContentsMargins(50, 50, 50, 50);
     gridLayout->setSpacing(20);
     
     // --- Button Widgets (using member variables) ---
-
     // SECOND MENU BUTTON: Run Character
     m_runButton = new QPushButton("Run Character");
     gridLayout->addWidget(m_runButton, 1, 1, 1, 2, Qt::AlignBottom | Qt::AlignCenter);
-//    m_runButton->setFixedWidth(250);
     connect(m_runButton, &QPushButton::clicked, this, &GameMenu::onRunClicked);
-
     // FIRST MENU BUTTONS
-
     m_newButton = new QPushButton("Create a Character");
     gridLayout->addWidget(m_newButton, 1, 1, 1, 2, Qt::AlignBottom | Qt::AlignCenter);
-//    m_newButton->setFixedWidth(250);
     connect(m_newButton, &QPushButton::clicked, this, &GameMenu::startNewGame);
 
     m_loadButton = new QPushButton("Load Character");
     gridLayout->addWidget(m_loadButton, 2, 1, 1, 2, Qt::AlignTop | Qt::AlignCenter);
-//    m_loadButton->setFixedWidth(250);
     connect(m_loadButton, &QPushButton::clicked, this, &GameMenu::loadGame);
     
     m_helpButton = new QPushButton("Help/Lesson");
     gridLayout->addWidget(m_helpButton, 3, 1);
-//    m_helpButton->setFixedWidth(250);
     connect(m_helpButton, &QPushButton::clicked, this, &GameMenu::onHelpClicked);
 
     m_recordsButton = new QPushButton("Hall of Records");
@@ -191,7 +155,6 @@ GameMenu::GameMenu(QWidget *parent)
     connect(m_recordsButton, &QPushButton::clicked, this, &GameMenu::showRecords);
 
     m_characterListButton = new QPushButton("Character List");
-//    m_characterListButton->setFixedWidth(250);
     gridLayout->addWidget(m_characterListButton, 2, 0);
     connect(m_characterListButton, &QPushButton::clicked, this, &GameMenu::onCharacterListClicked);
 
@@ -214,15 +177,12 @@ GameMenu::GameMenu(QWidget *parent)
     loggerWindow->show();
     emit logMessageTriggered("GameMenu has successfully initialized the Messages Log.");
 
-    // Set initial menu state
-    // Use the new centralized function instead of global MenuSwitch
     toggleMenuState(false); 
     
     m_player = new QMediaPlayer(this);
     m_audioOutput = new QAudioOutput(this);
     m_player->setAudioOutput(m_audioOutput);
     m_player->setSource(QUrl::fromLocalFile("mordor.mp3"));
-
     // Connect signals to handle different states
     QObject::connect(m_player, &QMediaPlayer::mediaStatusChanged, [](QMediaPlayer::MediaStatus status) {
         if (status == QMediaPlayer::LoadedMedia) {
@@ -249,15 +209,14 @@ GameMenu::GameMenu(QWidget *parent)
 void GameMenu::onEventTriggered(const GameEvent& event)
 {
     qDebug() << "Triggered event:" << event.id << event.description;
- 
     if (event.effect == "SHOW_MESSAGE")
     {
         QMessageBox::information(this, tr("Game Message"), event.description);
     }
 }
-
 // Override for proper background scaling on window resize
-void GameMenu::resizeEvent(QResizeEvent *event) {
+void GameMenu::resizeEvent(QResizeEvent *event) 
+{
     if (!m_backgroundPixmap.isNull()) {
         QPixmap scaledPixmap = m_backgroundPixmap.scaled(size(), 
                                                          Qt::IgnoreAspectRatio, 
@@ -266,12 +225,11 @@ void GameMenu::resizeEvent(QResizeEvent *event) {
         palette.setBrush(QPalette::Window, scaledPixmap);
         setPalette(palette);
     }
-    // Call the base class implementation
     QWidget::resizeEvent(event);
 }
-
 // Centralized function to control button visibility
-void GameMenu::toggleMenuState(bool characterIsLoaded) {
+void GameMenu::toggleMenuState(bool characterIsLoaded) 
+{
     // Character Loaded State: Show 'Run Character'
     if (characterIsLoaded) {
         m_runButton->setVisible(true);
@@ -291,9 +249,9 @@ void GameMenu::toggleMenuState(bool characterIsLoaded) {
  * Switches the main menu buttons to show the 'Run Character' option.
  * @param characterName The name of the newly created character.
  */
-void GameMenu::onCharacterCreated(const QString &characterName) {
+void GameMenu::onCharacterCreated(const QString &characterName) 
+{
     emit logMessageTriggered(QString("New character **%1** created successfully!").arg(characterName));
-    
     // --- UPDATED: Use GameStateManager to save the character data ---
     // Assuming the newly created character is at Party Index 0
     if (GameStateManager::instance()->saveCharacterToFile(0)) {
@@ -301,22 +259,18 @@ void GameMenu::onCharacterCreated(const QString &characterName) {
     } else {
         qWarning() << "Failed to save character" << characterName << "to disk.";
     }
-
     QMessageBox::information(this, tr("Creation Successful"), 
                              tr("Character **%1** created successfully. Ready to run.").arg(characterName));
-    
     toggleMenuState(true);
 }
-// -------------------------------
 
-void GameMenu::onRunClicked() {
+void GameMenu::onRunClicked() 
+{
     // 1. Instantiate the City dialog
     TheCity *cityDialog = new TheCity(this);  
-    cityDialog->setAttribute(Qt::WA_DeleteOnClose);
-    
+    cityDialog->setAttribute(Qt::WA_DeleteOnClose);    
     // 2. Hide the GameMenu while the player is in the city
     this->hide(); 
-
     // 3. Connect the finished signal to handle returning to the menu
     // This lambda triggers when TheCity is closed or the Exit button is clicked
     connect(cityDialog, &QDialog::finished, this, [this](int result){
@@ -324,167 +278,166 @@ void GameMenu::onRunClicked() {
         // If the City's Exit button reset this flag, toggleMenuState will hide "Run Character"
         bool isLoaded = GameStateManager::instance()->getGameValue("ResourcesLoaded").toBool();
         this->toggleMenuState(isLoaded); 
-        
         // Show the GameMenu again
         this->show();
     });
-
     // 4. Launch the city dialog
     cityDialog->show();
     qDebug() << "Run Character clicked - GameMenu hidden, launching TheCity";
 }
 
 
-void GameMenu::onCharacterListClicked() {
+void GameMenu::onCharacterListClicked() 
+{
     CharacterListDialog *dialog = new CharacterListDialog(this);
     dialog->setAttribute(Qt::WA_DeleteOnClose);
     dialog->show();
     qDebug() << "Character list clicked";
 }
 
-void GameMenu::startNewGame() {
-    
+void GameMenu::startNewGame() 
+{    
     // 1. Load data required by the new CreateCharacterDialog constructor.
     QVector<RaceStats> raceData = loadRaceData();
-    QVector<QString> guildData = loadGuildData();
-    
+    QVector<QString> guildData = loadGuildData();    
     // 2. Instantiate the dialog using the new constructor signature.
     CreateCharacterDialog *dialog = new CreateCharacterDialog(raceData, guildData, this);
-    
-    // 3. CRITICAL STEP: Connect the dialog's success signal to the new slot. 
+    // 3. CRITICAL STEP: Connect the dialog's success signal to the new slot.
     // This connects the event from the dialog to the menu state logic.
     QObject::connect(dialog, SIGNAL(characterCreated(const QString &)), 
                      this, SLOT(onCharacterCreated(const QString &)));
-    
     dialog->setAttribute(Qt::WA_DeleteOnClose);
     dialog->show();
     qDebug() << "Start New Game button clicked";
 }
 
-// ----------------------------------------------------------------------
-// MODIFIED: Load Game Function with File Parsing and Debug Logging
-// ----------------------------------------------------------------------
-
-void GameMenu::loadGame() {
+void GameMenu::loadGame() 
+{
     // 1. Setup file path and selection dialog 
-    QString basePath = QCoreApplication::applicationDirPath(); //
-    QString fullPath = QDir::cleanPath(basePath + QDir::separator() + m_subfolderName); //
-    QDir subfolderDir(fullPath); //
+    QString basePath = QCoreApplication::applicationDirPath();
+    QString fullPath = QDir::cleanPath(basePath + QDir::separator() + m_subfolderName);
+    QDir subfolderDir(fullPath);
 
     if (!subfolderDir.exists()) {
         subfolderDir.mkpath("."); //
-        emit logMessageTriggered("No character folder found. Created one."); //
+        emit logMessageTriggered("No character folder found. Created one.");
         return;
     }
-
     // Filter for .txt files
-    QStringList characterFiles = subfolderDir.entryList({"*.txt"}, QDir::Files); //
+    QStringList characterFiles = subfolderDir.entryList({"*.txt"}, QDir::Files);
 
     if (characterFiles.isEmpty()) {
-        emit logMessageTriggered("No character (.txt) files found to load."); //
+        emit logMessageTriggered("No character (.txt) files found to load.");
         QMessageBox::warning(this, tr("No Characters Found"), 
-                             tr("No character files were found in: %1").arg(m_subfolderName)); //
+                             tr("No character files were found in: %1").arg(m_subfolderName));
         return;
     }
-    
     // 2. Create Selection Dialog
-    QDialog selectionDialog(this); //
-    selectionDialog.setWindowTitle("Load Character"); //
-    QVBoxLayout *layout = new QVBoxLayout(&selectionDialog); //
+    QDialog selectionDialog(this);
+    selectionDialog.setWindowTitle("Load Character");
+    QVBoxLayout *layout = new QVBoxLayout(&selectionDialog);
     
-    QComboBox *charComboBox = new QComboBox(); //
-    charComboBox->addItems(characterFiles); //
-    layout->addWidget(new QLabel("Select a character:")); //
-    layout->addWidget(charComboBox); //
+    QComboBox *charComboBox = new QComboBox();
+    charComboBox->addItems(characterFiles);
+    layout->addWidget(new QLabel("Select a character:"));
+    layout->addWidget(charComboBox);
     
-    QPushButton *loadButton = new QPushButton("Load"); //
-    layout->addWidget(loadButton); //
-    connect(loadButton, &QPushButton::clicked, &selectionDialog, &QDialog::accept); //
+    QPushButton *loadButton = new QPushButton("Load");
+    layout->addWidget(loadButton);
+    connect(loadButton, &QPushButton::clicked, &selectionDialog, &QDialog::accept);
 
     if (selectionDialog.exec() == QDialog::Accepted) {
-        QString selectedFileName = charComboBox->currentText(); //
-        
+        QString selectedFileName = charComboBox->currentText();
         // Remove .txt extension to pass the "name" to the manager 
-        QString characterName = QFileInfo(selectedFileName).baseName(); //
-
-        emit logMessageTriggered(QString("Attempting to load: %1").arg(characterName)); //
-
+        QString characterName = QFileInfo(selectedFileName).baseName();
+        emit logMessageTriggered(QString("Attempting to load: %1").arg(characterName));
         // 3. Perform the Load and check Vitality
-        if (GameStateManager::instance()->loadCharacterFromFile(characterName)) { //
-            
-            // --- ALIVE CHECK ADDED HERE ---
+        if (GameStateManager::instance()->loadCharacterFromFile(characterName)) {
             // We check the "isAlive" flag from the newly loaded state
-            int isAlive = GameStateManager::instance()->getGameValue("isAlive").toInt(); //
+            int isAlive = GameStateManager::instance()->getGameValue("isAlive").toInt();
             qDebug() << "DEBUG: Character" << characterName << "isAlive status is:" << isAlive;
-            //isAlive = 1;
             if (isAlive == 0) {
-                emit logMessageTriggered(QString("Load failed: %1 is dead.").arg(characterName)); //
+                emit logMessageTriggered(QString("Load failed: %1 is dead.").arg(characterName));
                 QMessageBox::critical(this, tr("Character Deceased"), 
-                                     tr("The character **%1** is dead and cannot be loaded.").arg(characterName)); //
+                                     tr("The character **%1** is dead and cannot be loaded.").arg(characterName));
                 return; // Stop the loading process here
             }
-
             // Post-load initialization (only if alive)
-            GameStateManager::instance()->setGameValue("CurrentCharacterStatPointsLeft", 0); //
+            GameStateManager::instance()->setGameValue("CurrentCharacterStatPointsLeft", 0);
             
-            emit logMessageTriggered(QString("Success: %1 is ready.").arg(characterName)); //
+            emit logMessageTriggered(QString("Success: %1 is ready.").arg(characterName));
             QMessageBox::information(this, tr("Load Successful"), 
-                                     tr("Character **%1** loaded successfully.").arg(characterName)); //
-            
+                                     tr("Character **%1** loaded successfully.").arg(characterName));
             // Switch UI state to show 'Run Character'
-            toggleMenuState(true); //
+            toggleMenuState(true);
         } else {
-            emit logMessageTriggered(QString("Error: Failed to load %1.").arg(selectedFileName)); //
+            emit logMessageTriggered(QString("Error: Failed to load %1.").arg(selectedFileName));
             QMessageBox::critical(this, tr("Load Failed"), 
-                                 tr("The file **%1** could not be parsed.").arg(selectedFileName)); //
+                                 tr("The file **%1** could not be parsed.").arg(selectedFileName));
         }
     }
 }
-// ----------------------------------------------------------------------
 
-void GameMenu::showRecords() {
+void GameMenu::showRecords() 
+{
     emit logMessageTriggered("User entered hall of records");
     HallOfRecordsDialog *recordsDialog = new HallOfRecordsDialog(this);
     recordsDialog->setAttribute(Qt::WA_DeleteOnClose);
     recordsDialog->show();
     qDebug() << "User entered hall of records";
 }
-void GameMenu::quitGame() {
+
+void GameMenu::quitGame() 
+{
     QApplication::quit();
     qDebug() << "Exit button clicked";
 }
-void GameMenu::showCredits() {
+
+void GameMenu::showCredits() 
+{
     qDebug() << "ShowCredits (placeholder) clicked";
 }
-void GameMenu::onInventoryClicked() {
+
+void GameMenu::onInventoryClicked() 
+{
     InventoryDialog *inventoryDialog = new InventoryDialog(this);
     inventoryDialog->setAttribute(Qt::WA_DeleteOnClose);
     inventoryDialog->show();
     qDebug() << "Inventory button clicked";
 }
-void GameMenu::onMarlithClicked() {
+
+void GameMenu::onMarlithClicked() 
+{
     qDebug() << "Marlith (placeholder) clicked";
 }
-void GameMenu::onOptionsClicked() {
+
+void GameMenu::onOptionsClicked() 
+{
     OptionsDialog *optionsDialog = new OptionsDialog(this);
     optionsDialog->setAttribute(Qt::WA_DeleteOnClose);
     optionsDialog->show();
     qDebug() << "Options button clicked";
 }
-void GameMenu::onAboutClicked() {
+
+void GameMenu::onAboutClicked() 
+{
     AboutDialog *aboutDialog = new AboutDialog(this);
     aboutDialog->setAttribute(Qt::WA_DeleteOnClose);
     aboutDialog->show();
     qDebug() << "About button clicked";
 }
-void GameMenu::onHelpClicked() {
+
+void GameMenu::onHelpClicked() 
+{
     HelpLessonDialog *helpDialog = new HelpLessonDialog(this);
     helpDialog->setAttribute(Qt::WA_DeleteOnClose);
     helpDialog->show(); 
-    qDebug() << "Help/Lesson dialog closed.";
     emit logMessageTriggered("User viewed the Help/Lesson dialog.");
+    qDebug() << "Help/Lesson dialog closed.";
 }
-void GameMenu::onEditMonsterClicked() {
+
+void GameMenu::onEditMonsterClicked() 
+{
     MonsterEditorDialog editor(this);
     // Show the dialog modally and check the result
     if (editor.exec() == QDialog::Accepted) {
@@ -496,7 +449,9 @@ void GameMenu::onEditMonsterClicked() {
         qDebug() << "Monster editing cancelled.";
     }
 }
-void GameMenu::onEditSpellbookClicked() {
+
+void GameMenu::onEditSpellbookClicked() 
+{
     SpellbookEditorDialog editor(this);
     // Run the dialog modally (blocks until closed)
     if (editor.exec() == QDialog::Accepted) {
@@ -507,7 +462,9 @@ void GameMenu::onEditSpellbookClicked() {
         qDebug() << "Spell editing cancelled.";
     }
 }
-void GameMenu::onShowStatisticsClicked() {
+
+void GameMenu::onShowStatisticsClicked() 
+{
     emit logMessageTriggered("User opened Statistics dialog.");
     MordorStatistics *statsDialog = new MordorStatistics(this);
     statsDialog->setAttribute(Qt::WA_DeleteOnClose);
@@ -515,44 +472,34 @@ void GameMenu::onShowStatisticsClicked() {
     qDebug() << "Statistics dialog opened.";
 }
 
-GameMenu::~GameMenu() {
-    // m_player and m_audioOutput have 'this' as parent, so they are cleaned up by Qt.
-    // Explicit deletion is not strictly needed but can be used if they were not parented.
-    // Removing explicit delete calls to rely on Qt object tree cleanup, as they are parented.
+GameMenu::~GameMenu() 
+{
     qDebug() << "GameMenu Destructor.";
 }
 
-int main(int argc, char *argv[]) {
+int main(int argc, char *argv[]) 
+{
     // FORCE X11/XCB Platform
     qputenv("QT_QPA_PLATFORM", "xcb");
-
     QApplication a(argc, argv);
-
     qDebug() << "Launching LoadingScreen dialog...";
     LoadingScreen loadingScreen; 
     loadingScreen.exec(); 
     qDebug() << "LoadingScreen dialog closed. Starting main application...";
-    // --- NEW STARTING STORY ---
     qDebug() << "Launching Starting Story...";
     StoryDialog story;
-    story.exec(); // This blocks until the three parts are finished
-    // --------------------------
-    // ------------------------------------------
+    story.exec();
     GameMenu w;
-    // Audio is initialized in GameMenu's constructor now.
-    
     // 2. INSTANTIATE THE GAME CONTROLLER
     // Use the main window (w) as its parent, although it's not strictly necessary.
-//  GameController *controller = new GameController(&w);
+    //  GameController *controller = new GameController(&w);
     // 3. INSTALL THE GAME CONTROLLER AS AN EVENT FILTER
     // This is the key step. It tells Qt that *before* the key event is delivered 
     // to the main window (w) or any of its children, the controller gets a chance
     // to inspect and handle it.
-//    w.installEventFilter(controller);
-//    qDebug() << "GameController installed as event filter on GameMenu.";
-
+    //    w.installEventFilter(controller);
+    //    qDebug() << "GameController installed as event filter on GameMenu.";
     w.show();
-    
     return a.exec();
 }
 

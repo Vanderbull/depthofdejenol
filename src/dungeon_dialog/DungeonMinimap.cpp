@@ -5,7 +5,6 @@
 #include <QPen>
 #include <QBrush>
 #include <QDebug>
-
 // These constants match the definitions in DungeonDialog.cpp
 static const int TILE_SIZE = 10;
 static const int MAP_WIDTH_PIXELS = MAP_SIZE * TILE_SIZE; 
@@ -24,7 +23,6 @@ void DungeonDialog::drawMinimap()
     QString stairsdownPath = "resources/images/minimap/stairsdown.png";
     QString stairsupPath = "resources/images/minimap/stairsup.png";
     QString waterPath = "resources/images/minimap/water.png";
-
     QPixmap antimagicPixmap(antimagicPath);
     QPixmap chutePixmap(chutePath);
     QPixmap extinguisherPixmap(extinguisherPath);
@@ -34,7 +32,6 @@ void DungeonDialog::drawMinimap()
     QPixmap stairsdownPixmap(stairsdownPath);
     QPixmap waterPixmap(waterPath);
     QPixmap stairsupPixmap(stairsupPath);
-
     QPixmap scaledAntimagic = antimagicPixmap.scaled(TILE_SIZE, TILE_SIZE, 
                                          Qt::IgnoreAspectRatio, 
                                          Qt::SmoothTransformation);
@@ -62,14 +59,11 @@ void DungeonDialog::drawMinimap()
     QPixmap scaledStairsUp = stairsupPixmap.scaled(TILE_SIZE, TILE_SIZE, 
                                          Qt::IgnoreAspectRatio, 
                                          Qt::SmoothTransformation);
-
-
     QPixmap fogPixmap(fogPath);
     // Check if the image loaded correctly for debugging
     if (fogPixmap.isNull()) {
         qDebug() << "Error: Fog image not found at" << fogPath;
     }
-
     // Scale the image once to 10x10 pixels (TILE_SIZE)
     QPixmap scaledFog = fogPixmap.scaled(TILE_SIZE, TILE_SIZE, 
                                          Qt::IgnoreAspectRatio, 
@@ -80,33 +74,20 @@ void DungeonDialog::drawMinimap()
     if (rockPixmap.isNull()) {
          qDebug() << "Error: rock image not found at" << rockPath;
     }
-
     QPixmap scaledRock = rockPixmap.scaled(TILE_SIZE, TILE_SIZE, 
                                            Qt::IgnoreAspectRatio, 
                                            Qt::SmoothTransformation);
-
-
     GameStateManager* gsm = GameStateManager::instance();
     // Retrieve player position from GameState
     int currentX = gsm->getGameValue("DungeonX").toInt();
     int currentY = gsm->getGameValue("DungeonY").toInt();
     QPair<int, int> currentPos = {currentX, currentY};
-    
     // Mark the current position as visited for the Fog of War
     m_visitedTiles.insert(currentPos);
-    
     QGraphicsScene *scene = new QGraphicsScene(this);
     scene->setSceneRect(0, 0, MAP_WIDTH_PIXELS, MAP_HEIGHT_PIXELS);
-
     // Check the toggle state from our new dialog
     bool revealAll = m_standaloneMinimap && m_standaloneMinimap->isRevealAllEnabled();
-
-    // 1. Draw grid lines
-//    for (int i = 0; i <= MAP_SIZE; ++i) {
-//        scene->addLine(i * TILE_SIZE, 0, i * TILE_SIZE, MAP_HEIGHT_PIXELS, QPen(Qt::lightGray));
-//        scene->addLine(0, i * TILE_SIZE, MAP_WIDTH_PIXELS, i * TILE_SIZE, QPen(Qt::lightGray));
-//    }
-
     // 2. Draw Obstacles (Walls)
     for (const auto& pos : m_obstaclePositions) {
         // Walls are visible only if the tile has been visited
@@ -122,7 +103,6 @@ void DungeonDialog::drawMinimap()
             }
         }
     }
-
     // 3. Draw Stairs (Cyan)
     if (revealAll || m_visitedTiles.contains(m_stairsUpPosition)) {
         if (!stairsupPixmap.isNull()) {
@@ -138,7 +118,6 @@ void DungeonDialog::drawMinimap()
             stairsRect->setZValue(1);
         }
     }
-
     if (revealAll || m_visitedTiles.contains(m_stairsDownPosition)) {
         if (!stairsdownPixmap.isNull()) {
             QGraphicsPixmapItem* downTile = scene->addPixmap(scaledStairsDown);
@@ -167,7 +146,6 @@ void DungeonDialog::drawMinimap()
             }
         }
     }
-
     // 5. Draw Monsters (Red Ellipses)
     for (auto it = m_monsterPositions.begin(); it != m_monsterPositions.end(); ++it) {
         QPair<int, int> pos = it.key();
@@ -179,7 +157,6 @@ void DungeonDialog::drawMinimap()
                               QPen(Qt::black), QBrush(Qt::red));
         }
     }
-
     // 6. Draw Treasure/Chests (Yellow Rectangles)
     for (auto it = m_treasurePositions.begin(); it != m_treasurePositions.end(); ++it) {
         QPair<int, int> pos = it.key();
@@ -190,7 +167,6 @@ void DungeonDialog::drawMinimap()
                            QPen(Qt::black), QBrush(Qt::yellow));
         }
     }
-
     // 7. Draw Traps (Dark Green Rectangles)
     for (auto it = m_trapPositions.begin(); it != m_trapPositions.end(); ++it) {
         QPair<int, int> pos = it.key();
@@ -299,14 +275,11 @@ void DungeonDialog::drawMinimap()
             }
         }
     }
-
     // Draw Breadcrumb Trail
     for (int i = 0; i < m_breadcrumbPath.size(); ++i) {
-        QPair<int, int> pos = m_breadcrumbPath.at(i);
-        
+        QPair<int, int> pos = m_breadcrumbPath.at(i);   
         // Calculate opacity so older dots fade out
         int opacity = static_cast<int>((static_cast<float>(i) / m_breadcrumbPath.size()) * 150);
-        
         // Draw a small subtle dot in the center of the tile
         scene->addEllipse(pos.first * TILE_SIZE + (TILE_SIZE / 3), 
                           pos.second * TILE_SIZE + (TILE_SIZE / 3), 
@@ -314,7 +287,6 @@ void DungeonDialog::drawMinimap()
                           Qt::NoPen, 
                           QBrush(QColor(0, 200, 255, opacity))); // Fading cyan trail
     }
-
     // 9. Draw Player Arrow (Blue)
     QGraphicsPolygonItem* playerArrow = new QGraphicsPolygonItem();
     QPolygonF arrowHead;
@@ -323,11 +295,9 @@ void DungeonDialog::drawMinimap()
               << QPointF(0, TILE_SIZE)                   // Bottom Left
               << QPointF(TILE_SIZE / 2, TILE_SIZE * 0.7) // Inner Notch
               << QPointF(TILE_SIZE, TILE_SIZE);          // Bottom Right
-
     playerArrow->setPolygon(arrowHead);
     playerArrow->setBrush(QBrush(Qt::blue));
     playerArrow->setPen(QPen(Qt::blue));
-
     // Calculate rotation based on facing direction string
     int rotation = 0;
     QString currentFacing = m_compassLabel->text();
@@ -335,17 +305,11 @@ void DungeonDialog::drawMinimap()
     else if (currentFacing == "Facing East") rotation = 90;
     else if (currentFacing == "Facing South") rotation = 180;
     else if (currentFacing == "Facing West") rotation = 270;
-
     // Center the arrow in the tile and rotate
     playerArrow->setTransformOriginPoint(TILE_SIZE / 2, TILE_SIZE / 2);
     playerArrow->setRotation(rotation);
     playerArrow->setPos(currentPos.first * TILE_SIZE, currentPos.second * TILE_SIZE);
-
     scene->addItem(playerArrow);
-
-    // Finalize the view
-    //m_miniMapView->setScene(scene);
-    //m_miniMapView->fitInView(scene->sceneRect(), Qt::KeepAspectRatio);
     if (m_standaloneMinimap) {
         m_standaloneMinimap->updateScene(scene);
     } else {
@@ -357,12 +321,10 @@ void DungeonDialog::updateMinimap(int x, int y, int z=0)
 {
     // Define the visibility radius (e.g., 2 tiles in every direction)
     const int VIEW_DISTANCE = 2;
-
     for (int dx = -VIEW_DISTANCE; dx <= VIEW_DISTANCE; ++dx) {
         for (int dy = -VIEW_DISTANCE; dy <= VIEW_DISTANCE; ++dy) {
             int targetX = x + dx;
             int targetY = y + dy;
-
             // Ensure we stay within the map boundaries
             if (targetX >= 0 && targetX < MAP_SIZE && targetY >= 0 && targetY < MAP_SIZE) {
                 m_visitedTiles.insert({targetX, targetY});

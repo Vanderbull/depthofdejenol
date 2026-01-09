@@ -1,4 +1,3 @@
-// GameStateManager.cpp
 #include "GameStateManager.h"
 #include <QDebug> 
 #include <QVariantList> 
@@ -14,26 +13,26 @@
 #include <QDir>
 #include <QMetaType>
 
-// IMPROVEMENT: Removed the global gsm_instance pointer to use Magic Statics instead.
-
 GameStateManager* GameStateManager::instance()
 {
     // Thread-safe initialization guaranteed by C++11
     static GameStateManager instance;
     return &instance;
 }
-
 // Add these helper methods
-void GameStateManager::incrementStock(const QString& name) {
+void GameStateManager::incrementStock(const QString& name) 
+{
     m_confinementStock[name] = m_confinementStock.value(name, 0) + 1;
 }
 
-void GameStateManager::decrementStock(const QString& name) {
+void GameStateManager::decrementStock(const QString& name) 
+{
     int current = m_confinementStock.value(name, 0);
     if (current > 0) m_confinementStock[name] = current - 1;
 }
 
-QMap<QString, int> GameStateManager::getConfinementStock() const {
+QMap<QString, int> GameStateManager::getConfinementStock() const 
+{
     return m_confinementStock;
 }
 
@@ -49,8 +48,7 @@ GameStateManager::GameStateManager(QObject *parent)
         character["Experience"] = 0;
         character["HP"] = 0;
         character["MaxHP"] = 0;
-        character["Gold"] = 0;
-        
+        character["Gold"] = 0;        
         // Stats
         character["Strength"] = 0;
         character["Intelligence"] = 0;
@@ -58,30 +56,46 @@ GameStateManager::GameStateManager(QObject *parent)
         character["Constitution"] = 0;
         character["Charisma"] = 0;
         character["Dexterity"] = 0;
-        
         // Status
         character["Poisoned"] = 0;
         character["Blinded"] = 0;
         character["Diseased"] = 0;
         character["isAlive"] = 0;
-
         character["Inventory"] = QStringList();
 
         party.append(character);
     }
-
+    // You can also initialize a list for the whole party if needed
+    m_gameStateData["PartyHP"] = QVariantList({50, 40, 30});
     m_gameStateData["Party"] = party;
-    m_gameStateData["ActiveCharacterIndex"] = 0;
-    m_gameStateData["BankInventory"] = QStringList();
-    m_gameStateData["GhostHoundPending"] = false;
+    // --- End party ---
+    // --- Current Character ---
     m_gameStateData["CurrentCharacterSex"] = GameStateManager::sexOptions().at(0);
     m_gameStateData["CurrentCharacterAlignment"] = GameStateManager::alignmentNames().at(GameStateManager::defaultAlignmentIndex());
     m_gameStateData["CurrentCharacterStatPointsLeft"] = GameStateManager::defaultStatPoints();
     m_gameStateData["CurrentCharacterHP"] = 50;
-    m_gameStateData["MaxCharacterHP"] = 50;
-    // You can also initialize a list for the whole party if needed
-    m_gameStateData["PartyHP"] = QVariantList({50, 40, 30});
+    m_gameStateData["CurrentCharacterLevel"] = 1;
+    m_gameStateData["CurrentCharacterAge"] = 16; // Starting age for all races
+    m_gameStateData["CurrentCharacterExperience"] = QVariant::fromValue((qulonglong)0);
+    // Character Stats
+    m_gameStateData["CurrentCharacterName"] = "";
+    m_gameStateData["CurrentCharacterRace"] = "";
+    m_gameStateData["CurrentCharacterGuild"] = "";
+    m_gameStateData["CurrentCharacterStrength"] = 0;
+    m_gameStateData["CurrentCharacterIntelligence"] = 0;
+    m_gameStateData["CurrentCharacterWisdom"] = 0;
+    m_gameStateData["CurrentCharacterConstitution"] = 0;
+    m_gameStateData["CurrentCharacterCharisma"] = 0;
+    m_gameStateData["CurrentCharacterDexterity"] = 0;
+    m_gameStateData["CurrentCharacterStatPointsLeft"] = 0;
+    m_gameStateData["CurrentCharacterGold"] = QVariant::fromValue((qulonglong)1500);
 
+    // --- End Current Character ---
+
+    m_gameStateData["ActiveCharacterIndex"] = 0;
+    m_gameStateData["BankInventory"] = QStringList();
+    m_gameStateData["GhostHoundPending"] = false;
+    m_gameStateData["MaxCharacterHP"] = 50;
     m_confinementStock["Ghost hounf"] = 0;
     m_confinementStock["Skeleton"] = 0;
     m_confinementStock["Kobold"] = 1;
@@ -111,28 +125,13 @@ GameStateManager::GameStateManager(QObject *parent)
     m_gameStateData["MaxOsiriAge"] = 325;
     m_gameStateData["MaxTrollAge"] = 285;
     // Initialize default state data
-    m_gameStateData["CurrentCharacterLevel"] = 1;
-    m_gameStateData["CurrentCharacterAge"] = 16; // Starting age for all races
-    m_gameStateData["CurrentCharacterExperience"] = QVariant::fromValue((qulonglong)0);
     m_gameStateData["ResourcesLoaded"] = false;
     m_gameStateData["GameVersion"] = "1.1.7.6.450";
     m_gameStateData["PlayerScore"] = 0;
     m_gameStateData["DungeonLevel"] = 1;
     m_gameStateData["DungeonX"] = 17;
     m_gameStateData["DungeonY"] = 12;
-    m_gameStateData["CurrentCharacterGold"] = QVariant::fromValue((qulonglong)1500);
     m_gameStateData["BankedGold"] = QVariant::fromValue((qulonglong)0);
-    // Character Stats
-    m_gameStateData["CurrentCharacterName"] = "";
-    m_gameStateData["CurrentCharacterRace"] = "";
-    m_gameStateData["CurrentCharacterGuild"] = "";
-    m_gameStateData["CurrentCharacterStrength"] = 0;
-    m_gameStateData["CurrentCharacterIntelligence"] = 0;
-    m_gameStateData["CurrentCharacterWisdom"] = 0;
-    m_gameStateData["CurrentCharacterConstitution"] = 0;
-    m_gameStateData["CurrentCharacterCharisma"] = 0;
-    m_gameStateData["CurrentCharacterDexterity"] = 0;
-    m_gameStateData["CurrentCharacterStatPointsLeft"] = 0;
     // Status States
     m_gameStateData["CharacterPoisoned"] = false;
     m_gameStateData["CharacterBlinded"] = false;
@@ -176,10 +175,8 @@ void GameStateManager::loadGameData(const QString& filePath)
         qWarning() << "Could not open game data file:" << filePath;
         return;
     }
-
     QString fileContent = file.readAll();
     file.close();
-
     // Extract JSON part
     int firstBrace = fileContent.indexOf('{');
     int lastBrace = fileContent.lastIndexOf('}');
@@ -192,9 +189,7 @@ void GameStateManager::loadGameData(const QString& filePath)
     QString jsonString = fileContent.mid(firstBrace, (lastBrace - firstBrace) + 1);
     QJsonDocument doc = QJsonDocument::fromJson(jsonString.toUtf8());
     QJsonObject rootObj = doc.object();
-
     m_gameData.clear();
-
     // Capture Version info
     if (rootObj.contains("GameVersion")) {
         QVariantMap versionMap;
@@ -202,7 +197,6 @@ void GameStateManager::loadGameData(const QString& filePath)
         versionMap["VersionValue"] = rootObj["GameVersion"].toVariant();
         m_gameData.append(versionMap);
     }
-
     // Helper to load and tag all categories
     auto processArray = [&](const QString& key, const QString& typeTag) {
         if (rootObj.contains(key) && rootObj[key].isArray()) {
@@ -222,7 +216,6 @@ void GameStateManager::loadGameData(const QString& filePath)
     processArray("SubItemTypes", "SubItemType");
     processArray("SubMonsterTypes", "SubMonsterType");
 
-    // --- ENHANCED TERMINAL DUMP ---
     qDebug() << "========================================";
     qDebug() << "MDATA1 DEEP DATA DUMP";
     qDebug() << "Total Entries:" << m_gameData.size();
@@ -239,13 +232,11 @@ void GameStateManager::loadGameData(const QString& filePath)
             if (it.key() == "DataType") continue;
 
             QVariant val = it.value();
-
             // 1. Handle Nested Lists (Arrays)
             if (val.type() == QVariant::List || val.type() == QVariant::StringList) {
                 QVariantList list = val.toList();
                 qDebug() << "  " << it.key() << ": [Array]";
                 for (int j = 0; j < list.size(); ++j) {
-                    // Prints each item in the array
                     qDebug() << "     Index" << j << ":" << list[j].toString();
                 }
             } 
@@ -266,7 +257,6 @@ void GameStateManager::loadGameData(const QString& filePath)
         }
     }
     qDebug() << "========================================";
-
     setGameValue("ResourcesLoaded", true);
 }
 
@@ -277,15 +267,12 @@ void GameStateManager::loadMonsterData(const QString& filePath)
         qWarning() << "Could not open monster data file:" << filePath;
         return;
     }
-
     m_monsterData.clear();
     QTextStream in(&file);
-    
     // Read header line
     if (in.atEnd()) return;
     QString headerLine = in.readLine();
     QStringList headers = headerLine.split(',');
-
     // Read data lines
     while (!in.atEnd()) {
         QString line = in.readLine();
@@ -296,17 +283,14 @@ void GameStateManager::loadMonsterData(const QString& filePath)
             // Basic error handling for malformed lines
             continue; 
         }
-
         QVariantMap monster;
         for (int i = 0; i < headers.size(); ++i) {
             monster[headers[i].trimmed()] = fields[i].trimmed();
         }
         m_monsterData.append(monster);
     }
-
     file.close();
     qDebug() << "Successfully loaded" << m_monsterData.size() << "monsters into memory.";
-
     qDebug() << "--- Monster Data Load Report ---";
     qDebug() << "Total Monsters Loaded:" << m_monsterData.size();
 
@@ -319,6 +303,7 @@ void GameStateManager::loadMonsterData(const QString& filePath)
     }
     qDebug() << "-------------------------------";
 }
+
 void GameStateManager::loadSpellData(const QString& filePath)
 {
     QFile file(filePath);
@@ -326,7 +311,6 @@ void GameStateManager::loadSpellData(const QString& filePath)
         qWarning() << "Could not open spell data file:" << filePath;
         return;
     }
-
     m_spellData.clear();
     QTextStream in(&file);
     
@@ -348,10 +332,10 @@ void GameStateManager::loadSpellData(const QString& filePath)
             m_spellData.append(spell);
         }
     }
-
     file.close();
     qDebug() << "Successfully loaded" << m_spellData.size() << "spells from MDATA2.";
 }
+
 void GameStateManager::loadItemData(const QString& filePath)
 {
     QFile file(filePath);
@@ -359,7 +343,6 @@ void GameStateManager::loadItemData(const QString& filePath)
         qWarning() << "Could not open item data file:" << filePath;
         return;
     }
-
     m_itemData.clear();
     QTextStream in(&file);
     
@@ -381,11 +364,9 @@ void GameStateManager::loadItemData(const QString& filePath)
             m_itemData.append(item);
         }
     }
-
     file.close();
     qDebug() << "Successfully loaded" << m_itemData.size() << "items from MDATA3.";
 }
-
 
 void GameStateManager::addCharacterExperience(qulonglong amount)
 {
@@ -422,7 +403,6 @@ void GameStateManager::setGameValue(const QString& key, const QVariant& value)
         QVariantList party = m_gameStateData["Party"].toList();
         if (!party.isEmpty()) {
             QVariantMap character = party[0].toMap();
-
             // Map the flat keys to the Party Map keys
             if (key == "CurrentCharacterName") character["Name"] = value;
             else if (key == "CurrentCharacterRace") character["Race"] = value;
@@ -433,19 +413,16 @@ void GameStateManager::setGameValue(const QString& key, const QVariant& value)
             else if (key == "CurrentCharacterGold")  character["Gold"] = value;
             else if (key == "CurrentCharacterExperience") character["Experience"] = value;
             else if (key == "isAlive")               character["Dead"] = (value.toInt() == 0);
-            
             // Handle Stats
             QString statName = key;
             statName.remove("CurrentCharacter"); // e.g., "CurrentCharacterStrength" -> "Strength"
             if (statNames().contains(statName)) {
                 character[statName] = value;
             }
-
             party[0] = character;
             m_gameStateData["Party"] = party;
         }
     }
-
     emit gameValueChanged(key, value);
 }
 
@@ -453,37 +430,48 @@ QVariant GameStateManager::getGameValue(const QString& key) const
 {
     return m_gameStateData.value(key);
 }
-bool GameStateManager::areResourcesLoaded() const {
+
+bool GameStateManager::areResourcesLoaded() const 
+{
     return m_gameStateData.value("ResourcesLoaded").toBool();
 }
-void GameStateManager::setCharacterPoisoned(bool isP) {
+
+void GameStateManager::setCharacterPoisoned(bool isP) 
+{
     setGameValue("CharacterPoisoned", isP);
 }
-bool GameStateManager::isCharacterPoisoned() const {
+
+bool GameStateManager::isCharacterPoisoned() const 
+{
     return m_gameStateData.value("CharacterPoisoned").toBool();
 }
-void GameStateManager::setCharacterBlinded(bool isB) {
+
+void GameStateManager::setCharacterBlinded(bool isB) 
+{
     setGameValue("CharacterBlinded", isB);
 }
-bool GameStateManager::isCharacterBlinded() const {
+
+bool GameStateManager::isCharacterBlinded() const 
+{
     return m_gameStateData.value("CharacterBlinded").toBool();
 }
-void GameStateManager::setCharacterOnFire(bool isOnFire) {
+
+void GameStateManager::setCharacterOnFire(bool isOnFire) 
+{
     setGameValue("CharacterOnFire", isOnFire);
 }
-bool GameStateManager::isCharacterOnFire() const {
+bool GameStateManager::isCharacterOnFire() const 
+{
     return m_gameStateData.value("CharacterOnFire").toBool();
 }
-
 // Unit tests
-void GameStateManager::performSanityCheck() {
-    qDebug() << "[Sanity Check] Verifying Monster Data...";
-    
+void GameStateManager::performSanityCheck() 
+{
+    qDebug() << "[Sanity Check] Verifying Monster Data...";   
     if (m_monsterData.isEmpty()) {
         qCritical() << "FAIL: Monster data is empty!";
         return;
     }
-
     // Test Case: Check if ID 0 is Goblie (based on your CSV)
     QVariantMap first = getMonster(0);
     if (first["name"].toString() == "Goblie") {
@@ -491,7 +479,6 @@ void GameStateManager::performSanityCheck() {
     } else {
         qWarning() << "FAIL: Index 0 expected 'Goblie', got" << first["name"].toString();
     }
-
     // Test Case: Check field type conversion
     bool ok;
     int hits = first["hits"].toInt(&ok);
@@ -502,15 +489,18 @@ void GameStateManager::performSanityCheck() {
     }
 }
 
-void GameStateManager::setBankInventory(const QStringList& items) {
+void GameStateManager::setBankInventory(const QStringList& items) 
+{
     setGameValue("BankInventory", items);
 }
 
-QStringList GameStateManager::getBankInventory() const {
+QStringList GameStateManager::getBankInventory() const 
+{
     return m_gameStateData.value("BankInventory").toStringList();
 }
 
-void GameStateManager::setCharacterInventory(int characterIndex, const QStringList& items) {
+void GameStateManager::setCharacterInventory(int characterIndex, const QStringList& items) 
+{
     QVariantList party = m_gameStateData["Party"].toList();
     if (characterIndex >= 0 && characterIndex < party.size()) {
         QVariantMap character = party[characterIndex].toMap();
@@ -520,7 +510,9 @@ void GameStateManager::setCharacterInventory(int characterIndex, const QStringLi
         emit gameValueChanged("Party", m_gameStateData["Party"]);
     }
 }
-void GameStateManager::addItemToCharacter(int characterIndex, const QString& itemName) {
+
+void GameStateManager::addItemToCharacter(int characterIndex, const QString& itemName) 
+{
     QVariantList party = m_gameStateData["Party"].toList();
     if (characterIndex >= 0 && characterIndex < party.size()) {
         QVariantMap character = party[characterIndex].toMap();
@@ -533,7 +525,9 @@ void GameStateManager::addItemToCharacter(int characterIndex, const QString& ite
         emit gameValueChanged("Party", m_gameStateData["Party"]);
     }
 }
-void GameStateManager::updateCharacterGold(int characterIndex, qulonglong amount, bool add) {
+
+void GameStateManager::updateCharacterGold(int characterIndex, qulonglong amount, bool add) 
+{
     QVariantList party = m_gameStateData["Party"].toList();
     if (characterIndex >= 0 && characterIndex < party.size()) {
         QVariantMap character = party[characterIndex].toMap();
@@ -549,7 +543,8 @@ void GameStateManager::updateCharacterGold(int characterIndex, qulonglong amount
     }
 }
 
-bool GameStateManager::loadCharacterFromFile(const QString& characterName) {
+bool GameStateManager::loadCharacterFromFile(const QString& characterName) 
+{
     QString cleanName = characterName;
     if (cleanName.endsWith(".txt")) cleanName.chop(4);
     
@@ -560,11 +555,9 @@ bool GameStateManager::loadCharacterFromFile(const QString& characterName) {
         qWarning() << "Could not open character file:" << filename;
         return false;
     }
-
     QVariantMap characterMap;
     characterMap["Name"] = cleanName;
     characterMap["Inventory"] = QStringList();
-
     QTextStream in(&file);
     while (!in.atEnd()) {
         QString line = in.readLine().trimmed();
@@ -575,7 +568,6 @@ bool GameStateManager::loadCharacterFromFile(const QString& characterName) {
 
         QString key = parts.at(0).trimmed();
         QString value = parts.at(1).trimmed();
-
         // Map data back to QVariantMap
         if (key == "Name") characterMap["Name"] = value;
         else if (key == "Race") characterMap["Race"] = value;
@@ -594,7 +586,6 @@ bool GameStateManager::loadCharacterFromFile(const QString& characterName) {
         }
     }
     file.close();
-
     // Update the Party list and notify UI via setGameValue
     QVariantList party = m_gameStateData["Party"].toList();
     if (!party.isEmpty()) {
@@ -612,7 +603,8 @@ bool GameStateManager::loadCharacterFromFile(const QString& characterName) {
     return false;
 }
 
-bool GameStateManager::saveCharacterToFile(int partyIndex) {
+bool GameStateManager::saveCharacterToFile(int partyIndex) 
+{
     QVariantList party = m_gameStateData["Party"].toList();
     if (partyIndex < 0 || partyIndex >= party.size()) return false;
 
@@ -645,25 +637,20 @@ bool GameStateManager::saveCharacterToFile(int partyIndex) {
     out << "Gold: " << character["Gold"].toULongLong() << "\n";
     out << "Experience: " << character["Experience"].toULongLong() << "\n";
     out << "isAlive: " << (character["Dead"].toBool() ? 0 : 1) << "\n";
-
     // Save Stats using the helper list
     for (const QString& stat : statNames()) {
         out << stat << ": " << character[stat].toInt() << "\n";
     }
-
     // Save Inventory as a comma-separated list
     QStringList inv = character["Inventory"].toStringList();
     out << "Inventory: " << inv.join(",") << "\n";
-
     file.close();
     qDebug() << "Successfully saved character:" << characterName;
     return true;
 }
-
-
-
 // Example of how to correctly update HP in the Game State
-void GameStateManager::updatePartyMemberHP(int index, int newHP) {
+void GameStateManager::updatePartyMemberHP(int index, int newHP) 
+{
     QVariantList party = getGameValue("Party").toList();
     if (index >= 0 && index < party.size()) {
         QVariantMap charMap = party[index].toMap();
@@ -675,14 +662,14 @@ void GameStateManager::updatePartyMemberHP(int index, int newHP) {
         setGameValue("Party", party); // This triggers the UI refresh
     }
 }
-void GameStateManager::syncActiveCharacterToParty() {
+
+void GameStateManager::syncActiveCharacterToParty() 
+{
     // 1. Get the current party list
     QVariantList party = m_gameStateData["Party"].toList();
     if (party.isEmpty()) return;
-
     // 2. Get the specific map for the first character slot
     QVariantMap character = party[0].toMap();
-
     // 3. Sync individual "CurrentCharacter" values into the map
     character["Name"]         = getGameValue("CurrentCharacterName");
     character["Race"]         = getGameValue("CurrentCharacterRace");
@@ -699,10 +686,8 @@ void GameStateManager::syncActiveCharacterToParty() {
     character["Charisma"]     = getGameValue("CurrentCharacterCharisma");
     character["Dexterity"]    = getGameValue("CurrentCharacterDexterity");
     character["Dead"]         = (getGameValue("isAlive").toInt() == 0);
-
     // 4. Put the map back into the list and update the master state
     party[0] = character;
     setGameValue("Party", party);
-    
     qDebug() << "Synced active character" << character["Name"].toString() << "to Party Slot 0.";
 }

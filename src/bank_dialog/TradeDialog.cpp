@@ -15,13 +15,10 @@ TradeDialog::TradeDialog(QStandardItemModel *playerModel, QStandardItemModel *ba
     if (!playerItemModel || !bankItemModel) {
         return; 
     }
-
     GameStateManager* gsm = GameStateManager::instance();
-
     // 1. Fetch Active Character Inventory
     int activeIdx = gsm->getGameValue("ActiveCharacterIndex").toInt();
     QVariantList party = gsm->getGameValue("Party").toList();
-    
     playerItemModel->clear();
     if (activeIdx >= 0 && activeIdx < party.size()) {
         QVariantMap character = party[activeIdx].toMap();
@@ -32,33 +29,26 @@ TradeDialog::TradeDialog(QStandardItemModel *playerModel, QStandardItemModel *ba
             }
         }
     }
-
     // 2. Fetch Bank Inventory
     bankItemModel->clear();
     QStringList bankItems = gsm->getBankInventory();
     for (const QString& item : bankItems) {
         bankItemModel->appendRow(new QStandardItem(item));
     }
-
     setupUi(); 
     createConnections();
 }
-
-TradeDialog::~TradeDialog() {}
 
 void TradeDialog::setupUi()
 {
     setWindowTitle("Item Trade: Player <-> Bank");
     setMinimumSize(600, 400); 
-
     QVBoxLayout *mainVLayout = new QVBoxLayout(this);
     QLabel *titleLabel = new QLabel("Transfer Items Between Inventory and Bank", this);
     titleLabel->setAlignment(Qt::AlignCenter);
     titleLabel->setStyleSheet("font-size: 14pt; font-weight: bold; color: #007bff;");
     mainVLayout->addWidget(titleLabel);
-
     QHBoxLayout *centralHLayout = new QHBoxLayout();
-    
     // Player Column
     QVBoxLayout *playerVLayout = new QVBoxLayout();
     playerVLayout->addWidget(new QLabel("Your Inventory", this));
@@ -66,7 +56,6 @@ void TradeDialog::setupUi()
     playerListView->setModel(playerItemModel);
     playerVLayout->addWidget(playerListView);
     centralHLayout->addLayout(playerVLayout);
-
     // Buttons
     QVBoxLayout *buttonVLayout = new QVBoxLayout();
     buttonVLayout->addStretch(1);
@@ -76,7 +65,6 @@ void TradeDialog::setupUi()
     buttonVLayout->addWidget(withdrawItemButton);
     buttonVLayout->addStretch(1);
     centralHLayout->addLayout(buttonVLayout);
-
     // Bank Column
     QVBoxLayout *bankVLayout = new QVBoxLayout();
     bankVLayout->addWidget(new QLabel("Bank Vault", this));
@@ -84,9 +72,7 @@ void TradeDialog::setupUi()
     bankListView->setModel(bankItemModel);
     bankVLayout->addWidget(bankListView);
     centralHLayout->addLayout(bankVLayout);
-
     mainVLayout->addLayout(centralHLayout);
-
     closeButton = new QPushButton("Close & Save Trade", this);
     mainVLayout->addWidget(closeButton, 0, Qt::AlignCenter);
     setLayout(mainVLayout);
@@ -102,13 +88,11 @@ void TradeDialog::createConnections()
 void TradeDialog::moveSelectedItem(QListView *sourceView, QStandardItemModel *sourceModel, QStandardItemModel *destModel)
 {
     if (!sourceView || !sourceModel || !destModel) return;
-
     QModelIndex index = sourceView->currentIndex();
     if (!index.isValid()) {
         QMessageBox::warning(this, "Trade Error", "Please select an item to move.");
         return;
     }
-
     QStandardItem *item = sourceModel->takeItem(index.row());
     if (item) {
         destModel->appendRow(item);
@@ -116,18 +100,19 @@ void TradeDialog::moveSelectedItem(QListView *sourceView, QStandardItemModel *so
     }
 }
 
-void TradeDialog::on_depositItemButton_clicked() {
+void TradeDialog::on_depositItemButton_clicked() 
+{
     moveSelectedItem(playerListView, playerItemModel, bankItemModel);
 }
 
-void TradeDialog::on_withdrawItemButton_clicked() {
+void TradeDialog::on_withdrawItemButton_clicked() 
+{
     moveSelectedItem(bankListView, bankItemModel, playerItemModel);
 }
 
 void TradeDialog::on_closeButton_clicked()
 {
     GameStateManager* gsm = GameStateManager::instance();
-
     // 1. Sync Player Inventory
     if (playerItemModel) {
         int activeIdx = gsm->getGameValue("ActiveCharacterIndex").toInt();
@@ -140,7 +125,6 @@ void TradeDialog::on_closeButton_clicked()
         }
         gsm->setCharacterInventory(activeIdx, updatedPlayerItems);
     }
-
     // 2. Sync Bank Inventory
     if (bankItemModel) {
         QStringList updatedBankItems;
@@ -152,6 +136,8 @@ void TradeDialog::on_closeButton_clicked()
         }
         gsm->setBankInventory(updatedBankItems);
     }
-
     accept();
 }
+
+TradeDialog::~TradeDialog() {}
+

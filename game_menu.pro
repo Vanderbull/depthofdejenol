@@ -52,15 +52,17 @@ INCLUDEPATH += \
 #    $$PWD/include
 
 QMAKE_FILE_GROUP = Everything
-SOURCES += game_menu.cpp \
+SOURCES += GameStateManager.cpp \
+    game_menu.cpp \
+    TheCity.cpp \
+    tools/monster_editor/MonsterEditorDialog.cpp \
+    tools/spellbook_editor/SpellbookEditorDialog.cpp \
     src/hall_of_records/hallofrecordsdialog.cpp \
     src/create_character/createcharacterdialog.cpp \
     src/about_dialog/AboutDialog.cpp \
     src/character_dialog/CharacterDialog.cpp \
     src/message_window/MessageWindow.cpp \
-    tools/monster_editor/MonsterEditorDialog.cpp \
     src/sender_window/SenderWindow.cpp \
-    tools/spellbook_editor/SpellbookEditorDialog.cpp \
     src/library_dialog/library_dialog.cpp \
     src/automap/automap_dialog.cpp \
     src/game_controller/game_controller.cpp \
@@ -70,7 +72,6 @@ SOURCES += game_menu.cpp \
     src/loadingscreen/LoadingScreen.cpp \
     src/guilds_dialog/GuildsDialog.cpp \
     src/general_store/GeneralStore.cpp \
-    TheCity.cpp \
     src/morgue_dialog/MorgueDialog.cpp \
     src/seer_dialog/SeerDialog.cpp \
     src/confinement_dialog/ConfinementDialog.cpp \
@@ -83,21 +84,22 @@ SOURCES += game_menu.cpp \
     src/dungeonmap/dungeonmap.cpp \ 
     src/bank_dialog/TradeDialog.cpp \
     src/game_resources.cpp \
-    GameStateManager.cpp \
     src/dungeon_dialog/DungeonMinimap.cpp \
-    src/dungeon_dialog/DungeonHandlers.cpp
+    src/dungeon_dialog/DungeonHandlers.cpp \
+    src/event/EventManager.cpp
 
-SOURCES += src/event/EventManager.cpp
-
-HEADERS += game_menu.h \
+HEADERS += GameStateManager.h \
+    game_menu.h \
+    TheCity.h \
+    StoryDialog.h \
+    tools/monster_editor/MonsterEditorDialog.h \
+    tools/spellbook_editor/SpellbookEditorDialog.h \
     src/hall_of_records/hallofrecordsdialog.h \
     src/create_character/createcharacterdialog.h \
     src/about_dialog/AboutDialog.h \
     src/character_dialog/CharacterDialog.h \
     src/message_window/MessageWindow.h \
-    tools/monster_editor/MonsterEditorDialog.h \
     src/sender_window/SenderWindow.h \
-    tools/spellbook_editor/SpellbookEditorDialog.h \
     src/library_dialog/library_dialog.h \
     src/automap/automap_dialog.h \
     src/game_controller/game_controller.h \
@@ -107,7 +109,6 @@ HEADERS += game_menu.h \
     src/loadingscreen/LoadingScreen.h \
     src/guilds_dialog/GuildsDialog.h \
     src/general_store/GeneralStore.h \
-    TheCity.h \
     src/morgue_dialog/MorgueDialog.h \
     src/seer_dialog/SeerDialog.h \
     src/confinement_dialog/ConfinementDialog.h \
@@ -120,15 +121,10 @@ HEADERS += game_menu.h \
     src/dungeonmap/dungeonmap.h \
     src/bank_dialog/TradeDialog.h \
     include/game_resources.h \
-    GameStateManager.h \
-    StoryDialog.h \
-    src/dungeon_dialog/DungeonHandlers.h
-
-HEADERS += src/event/EventManager.h
-
-HEADERS += \
-    src/dungeon_dialog/MinimapDialog.h \
-
+    src/dungeon_dialog/DungeonHandlers.h \
+    src/event/EventManager.h \
+    src/dungeon_dialog/MinimapDialog.h
+    
 CXXFLAGS += -std=c++17
 
 DISTFILES += \
@@ -137,10 +133,10 @@ DISTFILES += \
 # Lägg till din byggkatalog som en sökväg för bibliotek
 #LIBS += -L.
 
-# Lägg till objektfilen som ett "bibliotek"
+# Add object file as a "library"
 #LIBS += qrc_resources.o
 
-# Tvinga länkaren att behandla .o-filen som en vanlig objektfil
+# Force linker to handle .o file as a normal object file
 #QMAKE_LFLAGS += -Wl,-whole-archive qrc_resources.o -Wl,-no-whole-archive
 
 # This forces the copy of the assets folder from $$PWD (Project Root)

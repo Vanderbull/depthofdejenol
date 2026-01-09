@@ -6,7 +6,8 @@
 #include <QTextEdit>
 #include <QString>
 
-AboutDialog::AboutDialog(QWidget *parent) : QDialog(parent) {
+AboutDialog::AboutDialog(QWidget *parent) : QDialog(parent) 
+{
     setWindowTitle("Mordor Ordering Information");
     // Make the dialog non-resizeable
     setFixedSize(650, 500);
@@ -15,25 +16,23 @@ AboutDialog::AboutDialog(QWidget *parent) : QDialog(parent) {
     setupUi();
 }
 
-AboutDialog::~AboutDialog() {}
-
-QString AboutDialog::getGameVersionInfo() const {
+QString AboutDialog::getGameVersionInfo() const 
+{
     GameStateManager* gsm = GameStateManager::instance();
-    QString version = gsm->getGameValue("GameVersion").toString();
-    
+    QString version = gsm->getGameValue("GameVersion").toString();    
     return QString(
         "Current Game Version: **%1**\n"
         ).arg(version);
 }
 
-void AboutDialog::setupUi() {
+void AboutDialog::setupUi() 
+{
     GameStateManager::instance()->printAllGameState();
     QVBoxLayout *mainLayout = new QVBoxLayout(this);
     QString gameStateInfo = getGameVersionInfo();
     QLabel *gameStateLabel = new QLabel(gameStateInfo);
     gameStateLabel->setWordWrap(true);
     gameStateLabel->setStyleSheet("font-size: 14px; font-weight: normal;");
-    
     QString orderingText =
         "Whether you're ordering MORDOR for yourself or as a gift, this first of a kind Windows FRP\n"
         "game designed to be played for months and even longer is guaranteed to put a smile on most any avid\n"
@@ -54,11 +53,9 @@ void AboutDialog::setupUi() {
         "Everett, WA 98204\n"
         "(206) 742-4145\n"
         "Created by [Vanderbull]";
-        
     QLabel *infoText = new QLabel(orderingText);
     infoText->setAlignment(Qt::AlignTop | Qt::AlignLeft);
     infoText->setWordWrap(true);
-
     QPushButton *closeButton = new QPushButton("Ok");
     connect(closeButton, &QPushButton::clicked, this, &QDialog::accept);
     mainLayout->addWidget(gameStateLabel);
@@ -68,6 +65,8 @@ void AboutDialog::setupUi() {
     buttonLayout->addStretch();
     buttonLayout->addWidget(closeButton);
     buttonLayout->addStretch();
-
     mainLayout->addLayout(buttonLayout);
 }
+
+AboutDialog::~AboutDialog() {}
+

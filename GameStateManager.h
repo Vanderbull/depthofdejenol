@@ -1,4 +1,3 @@
-// GameStateManager.h
 #ifndef GAMESTATEMANAGER_H
 #define GAMESTATEMANAGER_H
 
@@ -21,14 +20,16 @@ public:
     // Improved thread-safe static accessor
     static GameStateManager* instance();
     static const int MAX_PARTY_SIZE = 4;
-    struct PlacedItem {
+    struct PlacedItem 
+    {
         int level;
         int x;
         int y;
         QString itemName;
     };
 
-    void addPlacedItem(int level, int x, int y, const QString& name) {
+    void addPlacedItem(int level, int x, int y, const QString& name) 
+    {
         m_placedItems.append({level, x, y, name});
     }
 
@@ -60,55 +61,48 @@ private:
 public:
     QVariantMap getCharacterData(int index) const;
     void updateCharacterData(int index, const QVariantMap& data);
-
     // Game Data Method
     void loadGameData(const QString& filePath); 
-
     const QList<QVariantMap>& gameData() const { return m_gameData; }
     int gameCount() const { return m_gameData.size(); }
-    QVariantMap getGame(int index) const {
+    QVariantMap getGame(int index) const 
+    {
         return (index >= 0 && index < m_gameData.size()) ? m_gameData[index] : QVariantMap();
     }
-
     // Spell Data Method
     void loadSpellData(const QString& filePath); 
-
     const QList<QVariantMap>& spellData() const { return m_spellData; }
     int spellCount() const { return m_spellData.size(); }
-    QVariantMap getSpell(int index) const {
+    QVariantMap getSpell(int index) const 
+    {
         return (index >= 0 && index < m_spellData.size()) ? m_spellData[index] : QVariantMap();
     }
-
-
     // Item Data Method
     void loadItemData(const QString& filePath);
-
     const QList<QVariantMap>& itemData() const { return m_itemData; }
     int itemCount() const { return m_itemData.size(); }
-    QVariantMap getItem(int index) const {
+    QVariantMap getItem(int index) const 
+    {
         return (index >= 0 && index < m_itemData.size()) ? m_itemData[index] : QVariantMap();
     }
-
     // Monster Data Methods
     void loadMonsterData(const QString& filePath);
     const QList<QVariantMap>& monsterData() const { return m_monsterData; }
     int monsterCount() const { return m_monsterData.size(); }
-    QVariantMap getMonster(int index) const {
+    QVariantMap getMonster(int index) const 
+    {
         return (index >= 0 && index < m_monsterData.size()) ? m_monsterData[index] : QVariantMap();
     }
     void performSanityCheck();
-
     void incrementStock(const QString& name);
     void decrementStock(const QString& name);
     QMap<QString, int> getConfinementStock() const;
-
     void setGameValue(const QString& key, const QVariant& value);
     QVariant getGameValue(const QString& key) const;
     void addCharacterExperience(qulonglong amount);
     void logGuildAction(const QString& actionDescription);
     void printAllGameState() const;
     bool areResourcesLoaded() const;
-
     // Character Status Methods
     void setCharacterPoisoned(bool isPoisoned);
     bool isCharacterPoisoned() const;
@@ -116,36 +110,42 @@ public:
     bool isCharacterBlinded() const;
     void setCharacterOnFire(bool isOnFire);
     bool isCharacterOnFire() const;
-    void setIsAlive(int alive) {
+    void setIsAlive(int alive) 
+    {
         setGameValue("isAlive", alive);
     }
-
-    int getIsAlive() const {
+    int getIsAlive() const 
+    {
         return m_gameStateData.value("isAlive").toInt();
     }
- 
-    static QStringList statNames() {
+    static QStringList statNames() 
+    {
         return {"Strength", "Intelligence", "Wisdom", "Constitution", "Charisma", "Dexterity"};
     }
     static int defaultStatPoints() { return 5; }
-    static QStringList alignmentNames() {
+    static QStringList alignmentNames() 
+    {
         return {"Good", "Neutral", "Evil"};
     }
-    static QStringList sexOptions() {
+    static QStringList sexOptions() 
+    {
         return {"Male", "Female"};
     }
-    static int defaultAlignmentIndex() {
+    static int defaultAlignmentIndex() 
+    {
         return 1; // Default to "Neutral"
     }
     // In GameStateManager.h public section:
-    static QStringList guildNames() {
+    static QStringList guildNames() 
+    {
         return {
             "Nomad", "Paladin", "Warrior", "Villain", 
             "Seeker", "Thief", "Scavenger", "Mage", 
             "Sorcerer", "Wizard", "Healer", "Ninja"
         };
     }
-    static QMap<QString, QString> guildMasters() {
+    static QMap<QString, QString> guildMasters() 
+    {
         return {
             {"Nomad", "Goch"},
             {"Paladin", "Tuadar"},
@@ -161,7 +161,6 @@ public:
             {"Ninja", "Shadowblade"}
         };
     }
-
     // --- Inventory Management ---
     void setBankInventory(const QStringList& items);
     QStringList getBankInventory() const;

@@ -8,7 +8,6 @@
 #include <QLabel>
 
 #include "GameStateManager.h" // Include the GameStateManager header
-
 /**
  * @brief The dialog window for displaying and managing the list of characters.
  */
@@ -23,26 +22,21 @@ public:
      */
     explicit CharacterListDialog(QWidget *parent = nullptr);
     ~CharacterListDialog();
-
     // void addCharacter(const QString &characterName); 
-
 private slots:
     /**
      * @brief Slot called when the "Select" button is clicked.
      */
     void onSelectClicked();
-
     /**
      * @brief Slot called when the "Delete" button is clicked.
      */
     void onDeleteClicked();
-
 private:
     /**
      * @brief Dynamically loads character names from .txt files in the "characters" folder.
      */
     void loadCharactersFromFiles();
-
     // UI elements
     QLabel *titleLabel;
     QListWidget *characterListWidget;

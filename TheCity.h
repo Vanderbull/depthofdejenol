@@ -15,7 +15,6 @@ class TheCity : public QDialog
 public:
     explicit TheCity(QWidget *parent = nullptr);
     ~TheCity();
-
 private slots:
     void on_generalStoreButton_clicked();
     void on_morgueButton_clicked();
@@ -25,11 +24,8 @@ private slots:
     void on_seerButton_clicked();
     void on_bankButton_clicked();
     void on_exitButton_clicked();
-
 private:
-    // Widgets (All now QToolButton)
     QLabel *titleLabel;
-    
     QToolButton *generalStoreButton;
     QToolButton *morgueButton;
     QToolButton *guildsButton;
@@ -38,7 +34,6 @@ private:
     QToolButton *seerButton;
     QToolButton *bankButton;
     QToolButton *exitButton;
-
     // Helper Functions
     void setupUi();
     void setupStyling();

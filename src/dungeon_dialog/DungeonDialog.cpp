@@ -20,7 +20,6 @@
 #include <QRandomGenerator>
 #include <QJsonObject> 
 #include <QGraphicsPolygonItem>
-
 // Constants that depend on MAP_SIZE (which is now in the header)
 const int TILE_SIZE = 10;
 const int MAP_WIDTH_PIXELS = MAP_SIZE * TILE_SIZE; 
@@ -31,42 +30,32 @@ const int MAP_MAX = MAP_SIZE - 1;
 void DungeonDialog::populateRandomTreasures(int level)
 {
     GameStateManager* gsm = GameStateManager::instance();
-    
     // MDATA3 is loaded into m_itemData in GameStateManager
     const QList<QVariantMap>& allItems = gsm->itemData(); 
-
     if (allItems.isEmpty()) {
         qDebug() << "MDATA3 not loaded or empty.";
         return;
     }
-
     QRandomGenerator* rng = QRandomGenerator::global();
     int itemsPlaced = 0;
-
     while (itemsPlaced < 100) {
         // 1. Pick a random coordinate
         int x = rng->bounded(MAP_SIZE);
         int y = rng->bounded(MAP_SIZE);
         QPair<int, int> pos = {x, y};
-
         // 2. Ensure it is a floor tile (not a wall/obstacle) and not already a treasure
         if (!m_obstaclePositions.contains(pos) && !m_treasurePositions.contains(pos)) {
-            
             // 3. Pick a random item from the MDATA3 list
             int itemIdx = rng->bounded(allItems.size());
             QString itemName = allItems.at(itemIdx).value("name").toString();
-
             // 4. Add to local level map (for rendering/interaction)
             m_treasurePositions.insert(pos, itemName);
-
             // 5. Add to the Global Array in GameStateManager
             gsm->addPlacedItem(level, x, y, itemName);
             qDebug() << itemName;
-
             itemsPlaced++;
         }
     }
-    
     qDebug() << "Successfully placed 10 random items from MDATA3 on level" << level;
 }
 
@@ -89,7 +78,6 @@ void DungeonDialog::revealAroundPlayer(int x, int y, int z=0)
 void DungeonDialog::resizeEvent(QResizeEvent *event)
 {
     QDialog::resizeEvent(event);
-    
     // This ensures the dungeon graphic scales to fit the new window size
     QGraphicsView* dungeonView = findChild<QGraphicsView*>();
     if (dungeonView && m_dungeonScene) {
@@ -102,14 +90,12 @@ void DungeonDialog::refreshHealthUI()
     GameStateManager* gsm = GameStateManager::instance();
     int currentHp = gsm->getGameValue("CurrentCharacterHP").toInt();
     int maxHp = gsm->getGameValue("MaxCharacterHP").toInt();
-
     QTableWidgetItem *hpItem = m_partyTable->item(0, 2);
     if (hpItem) {
         hpItem->setText(QString("%1/%2").arg(currentHp).arg(maxHp));
         hpItem->setForeground(currentHp <= (maxHp * 0.2) ? Qt::red : Qt::black);
     }
 }
-
 // --- Helper Function: logMessage (Must be defined as a member) ---
 void DungeonDialog::logMessage(const QString& message)
 {
@@ -118,7 +104,6 @@ void DungeonDialog::logMessage(const QString& message)
         m_messageLog->scrollToBottom();
     }
 }
-
 // --- Gold Management Helper Function ---
 void DungeonDialog::updateGoldLabel()
 {
@@ -129,19 +114,15 @@ void DungeonDialog::updateGoldLabel()
         m_goldLabel->setText(QString("You have a total of **%1 Gold**.").arg(goldString));
     }
 }
-
 // --- Party Management Helper Function ---
 void DungeonDialog::updatePartyMemberHealth(int row, int damage)
 {
-    GameStateManager* gsm = GameStateManager::instance();
-    
+    GameStateManager* gsm = GameStateManager::instance();   
     // Only handling row 0 (Main Character) for this example
     if (row == 0) {
         int currentHp = gsm->getGameValue("CurrentCharacterHP").toInt();
         int newHp = qMax(0, currentHp - damage);
-        
         gsm->setGameValue("CurrentCharacterHP", newHp);
-        
         if (newHp <= 0) {
             logMessage("You have been defeated!");
             gsm->setGameValue("isAlive", 0);
@@ -149,49 +130,36 @@ void DungeonDialog::updatePartyMemberHealth(int row, int damage)
             this->close(); 
             emit exitedDungeonToCity(); // Assuming this returns you to the menu/city
         }
-        
         refreshHealthUI();
     }
 }
-
 // --- Dungeon Management (Movement, Drawing, Encounters) ---
-
 void DungeonDialog::movePlayer(int dx, int dy, int dz=0)
 {
     GameStateManager* gsm = GameStateManager::instance();
-    
     int currentX = gsm->getGameValue("DungeonX").toInt();
     int currentY = gsm->getGameValue("DungeonY").toInt();
     int currentZ = gsm->getGameValue("DungeonLevel").toInt();
-
     int newX = currentX + dx;
     int newY = currentY + dy;
-
     if (newX < MAP_MIN || newX > MAP_MAX || newY < MAP_MIN || newY > MAP_MAX) {
         logMessage("You hit the dungeon wall.");
         return;
     }
-
     QPair<int, int> newPos = {newX, newY};
-
     if (m_obstaclePositions.contains(newPos)) {
         logMessage("A solid rock wall blocks your path.");
         return;
     }
-
     // Record current position as a breadcrumb before moving
     m_breadcrumbPath.append({currentX, currentY});
     if (m_breadcrumbPath.size() > MAX_BREADCRUMBS) {
         m_breadcrumbPath.removeFirst(); // Keep the trail from getting too long
     }
-
     gsm->setGameValue("DungeonX", newX);
     gsm->setGameValue("DungeonY", newY);
-
     revealAroundPlayer(newX, newY);
-    
     updateLocation(QString("Dungeon Level %1, (%2, %3)").arg(currentZ).arg(newX).arg(newY));
-
     m_visitedTiles.insert({newX, newY});
     updateMinimap(newX, newY, 0);
     DungeonHandlers::handleTreasure(this, newX, newY); // Now only logs chest presence
@@ -217,54 +185,43 @@ void DungeonDialog::updateLocation(const QString& location)
 void DungeonDialog::generateRandomObstacles(int roomCount, QRandomGenerator& rng)
 {
     m_obstaclePositions.clear();
-    
     // 1. Fill entire map with rock
     for (int x = 0; x < MAP_SIZE; ++x)
         for (int y = 0; y < MAP_SIZE; ++y)
             m_obstaclePositions.insert({x, y});
-
     struct Room { int x, y, w, h; };
     QList<Room> rooms;
     QList<Room> processingQueue;
-
     // 2. Start Room in a random corner
     int startX = rng.bounded(2) == 0 ? 1 : MAP_SIZE - 6;
     int startY = rng.bounded(2) == 0 ? 1 : MAP_SIZE - 6;
     Room seed = {startX, startY, rng.bounded(3, 5), rng.bounded(3, 5)};
-    
     for (int rx = seed.x; rx < seed.x + seed.w; ++rx)
         for (int ry = seed.y; ry < seed.y + seed.h; ++ry)
             m_obstaclePositions.remove({rx, ry});
-    
     rooms.append(seed);
     processingQueue.append(seed);
-
     int roomsCreated = 1;
     // 3. Sprout until we hit the target count or run out of space
     while (!processingQueue.isEmpty() && roomsCreated < roomCount) {
         // Pick a room from the queue (shuffling makes it more "web-like")
         int idx = rng.bounded(processingQueue.size());
         Room current = processingQueue.takeAt(idx);
-        
         // Try to sprout in all 4 directions
         QList<int> directions = {0, 1, 2, 3};
         for(int i=0; i<4; ++i) { // Randomize direction order
             int swapIdx = rng.bounded(4);
             directions.swapItemsAt(i, swapIdx);
         }
-
         for (int dir : directions) {
             if (roomsCreated >= roomCount) break;
-
             int corridorLen = rng.bounded(2, 5); // Shorter corridors allow more rooms
             int newW = rng.bounded(3, 6);
             int newH = rng.bounded(3, 6);
-            
             int cX = current.x + current.w / 2;
             int cY = current.y + current.h / 2;
             int endX = cX, endY = cY;
             int roomX = 0, roomY = 0;
-
             // Direction Logic
             if (dir == 0) { // North
                 endY = current.y - corridorLen;
@@ -279,7 +236,6 @@ void DungeonDialog::generateRandomObstacles(int roomCount, QRandomGenerator& rng
                 endX = current.x - corridorLen;
                 roomY = endY - newH / 2; roomX = endX - newW;
             }
-
             // Boundary and Overlap Check
             if (roomX > 0 && roomY > 0 && roomX + newW < MAP_MAX && roomY + newH < MAP_MAX) {
                 bool overlaps = false;
@@ -290,7 +246,6 @@ void DungeonDialog::generateRandomObstacles(int roomCount, QRandomGenerator& rng
                         overlaps = true; break;
                     }
                 }
-
                 if (!overlaps) {
                     // Carve Corridor
                     int stepX = cX, stepY = cY;
@@ -299,7 +254,6 @@ void DungeonDialog::generateRandomObstacles(int roomCount, QRandomGenerator& rng
                         if (stepY < endY) stepY++; else if (stepY > endY) stepY--;
                         m_obstaclePositions.remove({stepX, stepY});
                     }
-
                     // Carve Room
                     Room nextRoom = {roomX, roomY, newW, newH};
                     for (int rx = roomX; rx < roomX + newW; ++rx) {
@@ -315,7 +269,6 @@ void DungeonDialog::generateRandomObstacles(int roomCount, QRandomGenerator& rng
             }
         }
     }
-    
     // Start player in the first room created
     GameStateManager::instance()->setGameValue("DungeonX", rooms[0].x + 1);
     GameStateManager::instance()->setGameValue("DungeonY", rooms[0].y + 1);
@@ -327,17 +280,14 @@ void DungeonDialog::generateStairs(QRandomGenerator& rng)
     int currentX = gsm->getGameValue("DungeonX").toInt();
     int currentY = gsm->getGameValue("DungeonY").toInt();
     QPair<int, int> currentPos = {currentX, currentY};
-    
     do {
         m_stairsUpPosition = {rng.bounded(MAP_SIZE), rng.bounded(MAP_SIZE)};
         //m_stairsUpPosition = {QRandomGenerator::global()->bounded(MAP_SIZE), QRandomGenerator::global()->bounded(MAP_SIZE)};
     } while (m_stairsUpPosition == currentPos || m_obstaclePositions.contains(m_stairsUpPosition));
-
     do {
         m_stairsDownPosition = {rng.bounded(MAP_SIZE), rng.bounded(MAP_SIZE)};
         //m_stairsDownPosition = {QRandomGenerator::global()->bounded(MAP_SIZE), QRandomGenerator::global()->bounded(MAP_SIZE)};
     } while (m_stairsDownPosition == currentPos || m_stairsDownPosition == m_stairsUpPosition || m_obstaclePositions.contains(m_stairsDownPosition));
-    
     m_obstaclePositions.remove(m_stairsUpPosition);
     m_obstaclePositions.remove(m_stairsDownPosition);
 }
@@ -357,10 +307,8 @@ void DungeonDialog::generateSpecialTiles(int tileCount, QRandomGenerator& rng)
     m_trapPositions.clear();
     m_waterPositions.clear();
     m_teleporterPositions.clear();
-
     GameStateManager* gsm = GameStateManager::instance();
     QPair<int, int> playerPos = {gsm->getGameValue("DungeonX").toInt(), gsm->getGameValue("DungeonY").toInt()};
-
     // Helper A: Get a tile ONLY from a room (No corridors!)
     auto getValidRoomTile = [&]() -> QPair<int, int> {
         if (m_roomFloorTiles.isEmpty()) return {-1, -1};
@@ -371,7 +319,6 @@ void DungeonDialog::generateSpecialTiles(int tileCount, QRandomGenerator& rng)
         }
         return {-1, -1};
     };
-
     // Helper: Get ANY floor tile (Rooms OR Corridors)
     auto getAnyFloorTile = [&]() -> QPair<int, int> {
         for (int i = 0; i < 500; ++i) {
@@ -395,12 +342,10 @@ void DungeonDialog::generateSpecialTiles(int tileCount, QRandomGenerator& rng)
         QPair<int, int> tp = getValidRoomTile();
         if (tp.first != -1) m_teleporterPositions.insert(tp);
     }
-
     // 3. General Population Loop
     for (int i = 0; i < tileCount; ++i) {
         int roll = rng.bounded(100); // Using 100 for better percentage control
         QPair<int, int> pos;
-
         if (roll < 15) { // 15% Monsters
             pos = getAnyFloorTile();
             if (pos.first != -1) m_monsterPositions.insert(pos, "Orc");
@@ -409,10 +354,6 @@ void DungeonDialog::generateSpecialTiles(int tileCount, QRandomGenerator& rng)
             pos = getAnyFloorTile();
             if (pos.first != -1) m_treasurePositions.insert(pos, "Gold Pouch");
         } 
-        //else if (roll < 45) { // 15% Traps (Can be in corridors!)
-        //    pos = getAnyFloorTile();
-        //    if (pos.first != -1) m_trapPositions.insert(pos, "Spike Trap");
-        //} 
         else if (roll < 55) { // 10% Water
             pos = getAnyFloorTile();
             if (pos.first != -1) m_waterPositions.insert(pos);
@@ -434,30 +375,23 @@ DungeonDialog::DungeonDialog(QWidget *parent)
       m_dungeonScene(new QGraphicsScene(this))
 {
     GameStateManager* gsm = GameStateManager::instance();
-
     if (!GameStateManager::instance()) {
         qCritical() << "CRITICAL: GameStateManager is NULL!";
         return; 
     }
-
     m_experienceLabel = new QLabel(this);
-
     m_standaloneMinimap = new MinimapDialog(this);
     connect(m_standaloneMinimap, &MinimapDialog::requestMapUpdate, this, &DungeonDialog::drawMinimap);
-
     setWindowTitle("Dungeon: Depth of Dejenol");
     setMinimumSize(1000, 750);
     // Load GameStateManager data
-    
     // RETRIEVE CHARACTER DATA FROM GAME STATE MANAGER
     m_partyLeaderName = gsm->getGameValue("CurrentCharacterName").toString();
     m_partyLeaderRace = gsm->getGameValue("CurrentCharacterRace").toString();
     m_partyLeaderAlignment = gsm->getGameValue("CurrentCharacterAlignment").toString();
-    
     // Retrieve Constitution to calculate a simple placeholder for maximum HP
     int con = gsm->getGameValue("CurrentCharacterConstitution").toInt();
     int maxHP = (con > 0) ? con * 5 : 50; 
-
     if (m_partyLeaderName.isEmpty()) {
         m_partyLeaderName = "Unnamed Hero";
         m_partyLeaderRace = "Human";
@@ -465,20 +399,17 @@ DungeonDialog::DungeonDialog(QWidget *parent)
         maxHP = 50;
         logMessage("WARNING: No character data found in GameState. Using defaults.");
     }
-    
     // --- Retrieve/Set persistent dungeon state (New GameState logic) ---
     int initialLevel = gsm->getGameValue("DungeonLevel").toInt();
     int initialX = gsm->getGameValue("DungeonX").toInt();
     int initialY = gsm->getGameValue("DungeonY").toInt();
     quint64 initialGold = gsm->getGameValue("PlayerGold").toULongLong();
-
     // Set defaults if state data is missing (e.g., first time entering)
     if (initialLevel == 0) {
         initialLevel = 1;
         initialX = MAP_SIZE / 2;
         initialY = MAP_SIZE / 2;
         initialGold = 123456789; // Using the original default value
-        
         // Save initial defaults to GameState
         gsm->setGameValue("DungeonLevel", initialLevel);
         gsm->setGameValue("DungeonX", initialX);
@@ -486,7 +417,6 @@ DungeonDialog::DungeonDialog(QWidget *parent)
         gsm->setGameValue("PlayerGold", initialGold);
     }
     // -----------------------------------------------------------------
-
     // --- Main Layout Setup ---
     QHBoxLayout *rootLayout = new QHBoxLayout(this);
     // Ensure the left panel takes up the majority of the space (e.g., a ratio of 3:1)
@@ -494,87 +424,67 @@ DungeonDialog::DungeonDialog(QWidget *parent)
     QVBoxLayout *leftPanelLayout = new QVBoxLayout();
     // --- Right Panel: Info, Compass, Minimap, Controls ---
     QVBoxLayout *rightPanelLayout = new QVBoxLayout();
-
     rootLayout->addLayout(leftPanelLayout, 3);
     rootLayout->addLayout(rightPanelLayout, 1);
     // 1. Party Status Table
     QGroupBox *partyBox = new QGroupBox("Party Status");
     QVBoxLayout *partyLayout = new QVBoxLayout(partyBox);
-    
     m_partyTable = new QTableWidget(1, 4); // This member is now confirmed in the header
     // 1. Party Status Table - Change Height to Minimum/Preferred
     m_partyTable->setMinimumHeight(70); 
     m_partyTable->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
-
     m_partyTable->setHorizontalHeaderLabels({"Name", "Race", "HP", "Status"});
     m_partyTable->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
     m_partyTable->verticalHeader()->setVisible(false);
     m_partyTable->setEditTriggers(QAbstractItemView::NoEditTriggers);
-    //m_partyTable->setFixedHeight(70); 
-
     // Insert the character data retrieved from Game State
     m_partyTable->setItem(0, 0, new QTableWidgetItem(m_partyLeaderName));
     m_partyTable->setItem(0, 1, new QTableWidgetItem(m_partyLeaderRace));
     m_partyTable->setItem(0, 2, new QTableWidgetItem(QString("%1/%1").arg(maxHP)));
     m_partyTable->setItem(0, 3, new QTableWidgetItem("Healthy"));
-
     partyLayout->addWidget(m_partyTable);
     leftPanelLayout->addWidget(partyBox);
-
     // 2. Dungeon View (Dungeon Scene/View will be here)
     QGraphicsView *dungeonView = new QGraphicsView(m_dungeonScene);
     dungeonView->setRenderHint(QPainter::Antialiasing);
     //dungeonView->setFixedSize(600, 350); 
     dungeonView->setMinimumSize(400, 300);
     leftPanelLayout->addWidget(dungeonView);
-    
     // 3. Message Log
     QGroupBox *logBox = new QGroupBox("Adventure Log");
     QVBoxLayout *logLayout = new QVBoxLayout(logBox);
     m_messageLog = new QListWidget();
     logLayout->addWidget(m_messageLog);
     leftPanelLayout->addWidget(logBox, 1); 
-    
     rootLayout->addLayout(leftPanelLayout, 1); 
-    
     rightPanelLayout->setSpacing(15);
-    
     // 1. Location and Compass
     QGroupBox *infoBox = new QGroupBox("Current Location");
     QGridLayout *infoLayout = new QGridLayout(infoBox);
-    
     m_locationLabel = new QLabel("Dungeon Level 1, (15, 15)"); // Placeholder
     m_locationLabel->setStyleSheet("font-weight: bold;");
     infoLayout->addWidget(m_locationLabel, 0, 0, 1, 2);
-    
     m_compassLabel = new QLabel("Facing North");
     infoLayout->addWidget(m_compassLabel, 1, 0);
-    
     // Display Character Alignment as part of info
     QLabel *alignmentLabel = new QLabel(QString("Alignment: **%1**").arg(m_partyLeaderAlignment));
     infoLayout->addWidget(alignmentLabel, 1, 1);
-    
     rightPanelLayout->addWidget(infoBox);
     updateExperienceLabel();
     rightPanelLayout->addWidget(m_experienceLabel);
-
     // 2. Gold Display
     m_goldLabel = new QLabel();
     updateGoldLabel(); // Call to update label with GameState value
     rightPanelLayout->addWidget(m_goldLabel);
-
     // Initialize map state and draw the initial view
     QRandomGenerator initialRng(1 + 12345); 
-
     // 2. Pass 'initialRng' to the functions as the second argument
     generateRandomObstacles(40, initialRng);  
     generateStairs(initialRng);               
     generateSpecialTiles(20, initialRng);
     drawMinimap(); 
-    
     // 4. Action Buttons
     QGridLayout *actionLayout = new QGridLayout();
-    
     m_fightButton = new QPushButton("Fight (F)");
     m_spellButton = new QPushButton("Spell (S)");
     m_restButton = new QPushButton("Rest (R)");
@@ -587,7 +497,6 @@ DungeonDialog::DungeonDialog(QWidget *parent)
     m_chestButton = new QPushButton("Chest (C)"); 
     m_exitButton = new QPushButton("Exit");
     m_teleportButton = new QPushButton("Teleport (U)");
-    
     actionLayout->addWidget(m_fightButton, 0, 0);
     actionLayout->addWidget(m_spellButton, 0, 1);
     actionLayout->addWidget(m_restButton, 0, 2);
@@ -600,13 +509,10 @@ DungeonDialog::DungeonDialog(QWidget *parent)
     actionLayout->addWidget(m_chestButton, 3, 0);
     actionLayout->addWidget(m_teleportButton, 3, 1);
     actionLayout->addWidget(m_exitButton, 3, 2);
-
     rightPanelLayout->addLayout(actionLayout);
-
     // 5. Directional Buttons (Movement)
     QGroupBox *moveBox = new QGroupBox("Movement");
     QGridLayout *moveLayout = new QGridLayout(moveBox);
-    
     m_upButton = new QPushButton("^");
     m_downButton = new QPushButton("v");
     m_leftButton = new QPushButton("<");
@@ -614,16 +520,13 @@ DungeonDialog::DungeonDialog(QWidget *parent)
     // Rotate
     m_rotateLeftButton = new QPushButton("Rotate L");
     m_rotateRightButton = new QPushButton("Rotate R");
-
     moveLayout->addWidget(m_rotateLeftButton, 0, 0);
     moveLayout->addWidget(m_upButton, 0, 1);
     moveLayout->addWidget(m_rotateRightButton, 0, 2);
     moveLayout->addWidget(m_leftButton, 1, 0);
     moveLayout->addWidget(m_downButton, 1, 1);
     moveLayout->addWidget(m_rightButton, 1, 2);
-    
     rightPanelLayout->addWidget(moveBox);
-    
     // 6. Stairs Buttons
     QHBoxLayout *stairsLayout = new QHBoxLayout();
     QPushButton *stairsUpButton = new QPushButton("Stairs Up");
@@ -631,13 +534,10 @@ DungeonDialog::DungeonDialog(QWidget *parent)
     stairsLayout->addWidget(stairsUpButton);
     stairsLayout->addWidget(stairsDownButton);
     rightPanelLayout->addLayout(stairsLayout);
-    
     rootLayout->addLayout(rightPanelLayout); 
-
     // Initial log messages
     logMessage(QString("Welcome, **%1** (the %2 %3), to the Dungeon!").arg(m_partyLeaderName).arg(m_partyLeaderAlignment).arg(m_partyLeaderRace));
     enterLevel(initialLevel); // Use initialLevel retrieved from GameState
-    
     // Connections (Movements)
     connect(m_upButton, &QPushButton::clicked, this, &DungeonDialog::moveForward);
     connect(m_downButton, &QPushButton::clicked, this, &DungeonDialog::moveBackward);
@@ -645,7 +545,6 @@ DungeonDialog::DungeonDialog(QWidget *parent)
     connect(m_rightButton, &QPushButton::clicked, this, &DungeonDialog::moveStepRight); // Updated
     connect(m_rotateLeftButton, &QPushButton::clicked, this, &DungeonDialog::on_rotateLeftButton_clicked);
     connect(m_rotateRightButton, &QPushButton::clicked, this, &DungeonDialog::on_rotateRightButton_clicked);
-    
     // Connections (Actions)
     connect(m_fightButton, &QPushButton::clicked, this, &DungeonDialog::on_fightButton_clicked);
     connect(m_spellButton, &QPushButton::clicked, this, &DungeonDialog::on_spellButton_clicked);
@@ -663,12 +562,12 @@ DungeonDialog::DungeonDialog(QWidget *parent)
     connect(stairsDownButton, &QPushButton::clicked, this, &DungeonDialog::on_stairsDownButton_clicked);
     connect(stairsUpButton, &QPushButton::clicked, this, &DungeonDialog::on_stairsUpButton_clicked);
 }
+
 void DungeonDialog::updateExperienceLabel()
 {
     // Retrieve Experience from GameStateManager
     // Assuming the key is "PlayerExperience"
     quint64 currentXP = GameStateManager::instance()->getGameValue("PlayerExperience").toULongLong();
-    
     if (m_experienceLabel) {
         QString xpString = QStringLiteral("%L1").arg(currentXP);
         m_experienceLabel->setText(QString("Experience: **%1 XP**").arg(xpString));
@@ -683,50 +582,47 @@ void DungeonDialog::enterLevel(int level, bool movingUp)
 {
     m_breadcrumbPath.clear();
     m_visitedTiles.clear();
-
     // Clear treasures specifically at the start of level generation
     m_treasurePositions.clear();
-    
     GameStateManager* gsm = GameStateManager::instance();
-
     // 1. Generate the map using Room-and-Corridor logic
     // Seed by level to ensure the layout is deterministic
     QRandomGenerator levelRng(level + 12345);
-
     populateRandomTreasures(level);
-
     // We pass a 'Room Count' instead of 'Obstacle Count'. 
     // 7 rooms at level 1, increasing slightly as you go deeper.
     generateRandomObstacles(40, levelRng); 
-
     // 2. Place Stairs and Special Tiles
     // These must be called AFTER generateRandomObstacles so they know where the floor is.
     generateStairs(levelRng);
-    
     // Scale the number of special tiles (monsters/traps) with the level
     generateSpecialTiles(20, levelRng);
-
     // 3. Determine Landing Position
     // Arrive at the Down stairs if moving Up, or Up stairs if moving Down
     QPair<int, int> landingPos = movingUp ? m_stairsDownPosition : m_stairsUpPosition;
-
     // 4. Update Game State and UI
     gsm->setGameValue("DungeonLevel", level);
     gsm->setGameValue("DungeonX", landingPos.first);
     gsm->setGameValue("DungeonY", landingPos.second);
-
     revealAroundPlayer(landingPos.first, landingPos.second);
     m_visitedTiles.insert(landingPos);
     updateLocation(QString("Dungeon Level %1, (%2, %3)").arg(level).arg(landingPos.first).arg(landingPos.second));
-    
     drawMinimap();
     logMessage(QString("You have entered **Dungeon Level %1**.").arg(level));
 }
 
-void DungeonDialog::on_attackCompanionButton_clicked() { logMessage("Attacking companions is bad."); }
-void DungeonDialog::on_carryCompanionButton_clicked() { logMessage("Carrying companions is tiring."); }
+void DungeonDialog::on_attackCompanionButton_clicked() 
+{
+    logMessage("Attacking companions is bad.");
+}
 
-void DungeonDialog::on_mapButton_clicked() {
+void DungeonDialog::on_carryCompanionButton_clicked() 
+{
+    logMessage("Carrying companions is tiring.");
+}
+
+void DungeonDialog::on_mapButton_clicked() 
+{
     logMessage("You start looking at your map.");
     if (m_standaloneMinimap->isVisible()) {
         m_standaloneMinimap->hide();
@@ -737,34 +633,37 @@ void DungeonDialog::on_mapButton_clicked() {
         drawMinimap(); 
     }
 }
-void DungeonDialog::on_pickupButton_clicked() { logMessage("You try to pickup something but is unable to."); }
-void DungeonDialog::on_dropButton_clicked() { logMessage("You try to drop something but is unable to."); }
+
+void DungeonDialog::on_pickupButton_clicked() 
+{
+    logMessage("You try to pickup something but is unable to.");
+}
+
+void DungeonDialog::on_dropButton_clicked() 
+{
+    logMessage("You try to drop something but is unable to.");
+}
 
 void DungeonDialog::on_teleportButton_clicked() 
 { 
     GameStateManager* gsm = GameStateManager::instance();
     int newX, newY;
     QPair<int, int> newPos;
-
     // 1. Find a random valid location (not a wall)
     do {
         newX = QRandomGenerator::global()->bounded(MAP_SIZE);
         newY = QRandomGenerator::global()->bounded(MAP_SIZE);
         newPos = {newX, newY};
     } while (m_obstaclePositions.contains(newPos));
-
     // 2. Update the Game State
     gsm->setGameValue("DungeonX", newX);
     gsm->setGameValue("DungeonY", newY);
-
     // 3. Log the event to the user
     logMessage(QString("A mystical force teleports you to (%1, %2)!")
                .arg(newX).arg(newY));
-
     // 4. Update the UI
     updateLocation(QString("Dungeon Level %1, (%2, %3)")
                    .arg(gsm->getGameValue("DungeonLevel").toInt()).arg(newX).arg(newY));
-    
     // Refresh the map and trigger encounter checks at the new location
     drawMinimap();
     DungeonHandlers::handleTreasure(this, newX, newY);
@@ -777,45 +676,50 @@ void DungeonDialog::on_teleportButton_clicked()
 void DungeonDialog::on_fightButton_clicked() 
 {
     GameStateManager* gsm = GameStateManager::instance();
-    
     // Check if character is already dead before fighting
     if (gsm->getGameValue("isAlive").toInt() == 0) {
         logMessage("You are too dead to fight.");
         return;
     }
-
     // Example combat logic
     int monsterDamage = QRandomGenerator::global()->bounded(5, 15);
     logMessage(QString("The monster hits you for %1 damage!").arg(monsterDamage));
-    
     // This call now handles the HP < 0 check and the return to menu
     updatePartyMemberHealth(0, monsterDamage); 
 }
-void DungeonDialog::on_spellButton_clicked() { 
+
+void DungeonDialog::on_spellButton_clicked() 
+{ 
     logMessage("You try to cast some sort of spell but fail."); 
 }
 
-void DungeonDialog::on_takeButton_clicked() { 
+void DungeonDialog::on_takeButton_clicked() 
+{ 
     logMessage("You try to take something, but there is nothing there."); 
 }
 
-void DungeonDialog::on_searchButton_clicked() { 
+void DungeonDialog::on_searchButton_clicked() 
+{ 
     logMessage("You carefully search the area. Found nothing."); 
 }
 
-void DungeonDialog::on_talkButton_clicked() { 
+void DungeonDialog::on_talkButton_clicked() 
+{ 
     logMessage("You try talking, but the silence replies."); 
 }
 
-void DungeonDialog::on_chestButton_clicked() {
+void DungeonDialog::on_chestButton_clicked() 
+{
     processTreasureOpening();
 }
 
 void DungeonDialog::checkMonsterSpawn() {}
+
 void DungeonDialog::initiateFight() {}
+
 void DungeonDialog::on_winBattle_trigger() {}
 
-void DungeonDialog::onEventTriggered(const GameEvent& ) { /* handle event */ }
+void DungeonDialog::onEventTriggered(const GameEvent& ) { }
 
 void DungeonDialog::keyPressEvent(QKeyEvent *event)
 {
@@ -833,7 +737,6 @@ void DungeonDialog::keyPressEvent(QKeyEvent *event)
         case Qt::Key_D:
             moveStepRight();
             break;
-
         // --- Rotation (QE) ---
         case Qt::Key_Q:
             on_rotateLeftButton_clicked();
@@ -841,7 +744,6 @@ void DungeonDialog::keyPressEvent(QKeyEvent *event)
         case Qt::Key_E:
             on_rotateRightButton_clicked();
             break;
-
         // --- Other Action Shortcuts ---
         case Qt::Key_F:
             on_fightButton_clicked();
@@ -858,14 +760,12 @@ void DungeonDialog::keyPressEvent(QKeyEvent *event)
         case Qt::Key_I: 
         { // The opening brace starts a new local scope
             logMessage("Inventory Key Pressed"); 
-            
             // Using 'new' ensures the dialog stays open after this function ends
             InventoryDialog *inventory = new InventoryDialog(this); 
             inventory->setAttribute(Qt::WA_DeleteOnClose); 
             inventory->show();
             inventory->raise();
             inventory->activateWindow();
-            
             break; // Break MUST be inside or immediately after the case
         }
         // NEW: Character Sheet Hotkey
@@ -894,22 +794,20 @@ void DungeonDialog::keyPressEvent(QKeyEvent *event)
             break;
     }
 }
-
 // Suppress unused parameter warnings
-void DungeonDialog::spawnMonsters(const QString& , int ) { /* spawn logic */ }
+void DungeonDialog::spawnMonsters(const QString& , int ) 
+{
+}
 
 void DungeonDialog::on_restButton_clicked() 
 {
     GameStateManager* gsm = GameStateManager::instance();
     int constitution = gsm->getGameValue("CurrentCharacterConstitution").toInt();
-    int healAmount = qMax(1, constitution / 2); 
-    
+    int healAmount = qMax(1, constitution / 2);    
     int currentHp = gsm->getGameValue("CurrentCharacterHP").toInt();
     int maxHp = gsm->getGameValue("MaxCharacterHP").toInt();
-    
     int newHp = qMin(maxHp, currentHp + healAmount);
     gsm->setGameValue("CurrentCharacterHP", newHp);
-
     logMessage(QString("You rest and recover %1 HP.").arg(newHp - currentHp));
     refreshHealthUI();
 }
@@ -935,7 +833,6 @@ void DungeonDialog::updateDungeonView(const QImage& dungeonImage)
     QPixmap pixmap = QPixmap::fromImage(dungeonImage);
     m_dungeonScene->addPixmap(pixmap);
     m_dungeonScene->setSceneRect(pixmap.rect());
-
     QGraphicsView* dungeonView = findChild<QGraphicsView*>();
     if (dungeonView && dungeonView->scene() == m_dungeonScene) {
         dungeonView->fitInView(m_dungeonScene->sceneRect(), Qt::KeepAspectRatio);
@@ -947,11 +844,11 @@ void DungeonDialog::on_exitButton_clicked()
     QMessageBox::StandardButton reply = QMessageBox::question(
         this, "Exit", "Exit to the City?", QMessageBox::Yes | QMessageBox::No
     );
-
     if (reply == QMessageBox::Yes) {
         handleSurfaceExit(); // Reuse the logic above
     }
 }
+
 void DungeonDialog::on_rotateLeftButton_clicked()
 {
     rotate(-1);
@@ -961,6 +858,7 @@ void DungeonDialog::on_rotateRightButton_clicked()
 {
     rotate(1);
 }
+
 void DungeonDialog::moveForward()
 {
     // Index 0: Forward, 1: Backward, 2: Left, 3: Right
@@ -983,7 +881,8 @@ void DungeonDialog::moveStepRight() {
     handleMovement(3); 
 }
 
-void DungeonDialog::handleMovement(int actionIndex) {
+void DungeonDialog::handleMovement(int actionIndex) 
+{
     // Map current facing to a list of vectors
     static const QMap<QString, QVector<QPoint>> moveMap = {
         {"Facing North", {QPoint(0,-1), QPoint(0,1),  QPoint(-1,0), QPoint(1,0)}}, // Right is (+1, 0)
@@ -991,7 +890,6 @@ void DungeonDialog::handleMovement(int actionIndex) {
         {"Facing East",  {QPoint(1,0),  QPoint(-1,0), QPoint(0,-1), QPoint(0,1)}},  // Right is (0, +1)
         {"Facing West",  {QPoint(-1,0), QPoint(1,0),  QPoint(0,1),  QPoint(0,-1)}}  // Right is (0, -1)
     };
-
     QString facing = m_compassLabel->text(); //
     if (moveMap.contains(facing)) {
         QPoint delta = moveMap[facing][actionIndex];
@@ -999,17 +897,15 @@ void DungeonDialog::handleMovement(int actionIndex) {
     }
 }
 
-void DungeonDialog::rotate(int step) {
+void DungeonDialog::rotate(int step) 
+{
     // List must match the layout of your compass logic
-    static const QStringList dirs = {"North", "East", "South", "West"};
-    
+    static const QStringList dirs = {"North", "East", "South", "West"};    
     // Find current index
     int currentIdx = dirs.indexOf(m_compassLabel->text().mid(7));
-    
     // Calculate new index using modulo to wrap around
     // Adding 4 ensures the result is positive when turning left from North (index 0)
     int nextIdx = (currentIdx + step + 4) % 4;
-    
     updateCompass(dirs[nextIdx]);
     logMessage(QString("You turn to the %1.").arg(step > 0 ? "right" : "left"));
     drawMinimap();
@@ -1018,23 +914,19 @@ void DungeonDialog::rotate(int step) {
 void DungeonDialog::transitionLevel(StairDirection direction)
 {
     GameStateManager* gsm = GameStateManager::instance();
-    
     // Retrieve current position once
     int currentZ = gsm->getGameValue("DungeonLevel").toInt();
     QPair<int, int> currentPos = { 
         gsm->getGameValue("DungeonX").toInt(), 
         gsm->getGameValue("DungeonY").toInt() 
     };
-
     // Use the Enum to pick the correct target
     bool isGoingUp = (direction == StairDirection::Up);
     QPair<int, int> targetStair = isGoingUp ? m_stairsUpPosition : m_stairsDownPosition;
-
     if (currentPos != targetStair) {
         logMessage("There are no stairs here to take.");
         return;
     }
-
     if (isGoingUp) {
         int newLevel = currentZ - 1;
         if (newLevel >= 1) {
@@ -1054,10 +946,8 @@ void DungeonDialog::handleSurfaceExit()
 {
     // Log the exit for the user
     logMessage("You climb the stairs and emerge into the bright sunlight of The City.");
-    
     // 1. Emit the signal so the parent/manager knows we are leaving
     emit exitedDungeonToCity();
-    
     // 2. Close the dungeon dialog
     this->close();
 }
@@ -1069,7 +959,6 @@ void DungeonDialog::processTreasureOpening()
         gsm->getGameValue("DungeonX").toInt(),
         gsm->getGameValue("DungeonY").toInt()
     };
-
     if (m_treasurePositions.contains(pos)) {
         QString treasure = m_treasurePositions.value(pos);
         int activeIdx = gsm->getGameValue("ActiveCharacterIndex").toInt(); //
@@ -1085,7 +974,6 @@ void DungeonDialog::processTreasureOpening()
             gsm->addItemToCharacter(activeIdx, treasure);
             logMessage(QString("You found a %1 and added it to your inventory!").arg(treasure));
         }
-
         m_treasurePositions.remove(pos);
         drawMinimap();
     }

@@ -21,32 +21,26 @@ public:
 
 private slots:
     // Bind/Acquire
-    void bindCompanion();
-    
+    void bindCompanion();    
     // Identify/Sell/Realign
     void identifyCompanion();
     void identifyCompanionGNE(); // Calculate GNE value
     void sellCompanion();
     void realignCompanionID();   // Realign ID
-
     // Buy
     void buyCompanion();
     void showCompanionInfo();
-    void searchCompanion();      
-
+    void searchCompanion();
     // Handles selection change in the creature list
     void updateBuyFieldsFromList();
     // Slot to be triggered when exiting the dungeon
     void addGhostHoundOnExit();
-
 private:
     void setupUi();
-
     // Bind Companions
     QLineEdit *bindCompLineEdit;
     QLineEdit *bindCostLineEdit;
     QPushButton *bindButton;
-
     // Identify, Realign & Sell Companions
     QLineEdit *identifyCompLineEdit;
     QLineEdit *identifyValueLineEdit; // Value output (Read-only)
@@ -55,7 +49,6 @@ private:
     QPushButton *identifySellButton;
     QPushButton *identifyIdButton;
     QLineEdit *identifyIdCostLineEdit;
-
     // Buy Companions
     QListWidget *buyCreatureListWidget;
     QLineEdit *buyCompanionLineEdit; 
@@ -64,7 +57,6 @@ private:
     QPushButton *buyInfoButton;
     QLineEdit *searchLineEdit;
     QPushButton *exitButton;
-
     // Labels for "G N E" in "Buy Companions" section
     QLabel *gneLabel;
 };

@@ -16,34 +16,30 @@
 class StoryDialog : public QDialog {
     Q_OBJECT
 public:
-    explicit StoryDialog(QWidget *parent = nullptr) : QDialog(parent) {
-        setWindowFlags(Qt::FramelessWindowHint);
-        
+    explicit StoryDialog(QWidget *parent = nullptr) : QDialog(parent) 
+    {
+        setWindowFlags(Qt::FramelessWindowHint);    
         QVBoxLayout *layout = new QVBoxLayout(this);
         m_label = new QLabel("", this);
         m_label->setAlignment(Qt::AlignCenter);
         m_label->setWordWrap(true);
-        
         QPalette pal = m_label->palette();
         pal.setColor(QPalette::WindowText, Qt::white);
         m_label->setPalette(pal);
         m_label->setFont(QFont("Georgia", 24));
-
         QGraphicsOpacityEffect *eff = new QGraphicsOpacityEffect(this);
         m_label->setGraphicsEffect(eff);
         layout->addWidget(m_label);
-
         m_group = new QSequentialAnimationGroup(this);
-        
         // --- LOAD TILES FROM ONE IMAGE ---
         loadStoryTiles("resources/images/story_spritesheet.png"); // Use your actual filename
-
         showFullScreen();
         showNextPart();
     }
 
 protected:
-    void paintEvent(QPaintEvent *event) override {
+    void paintEvent(QPaintEvent *event) override 
+    {
         Q_UNUSED(event);
         QPainter painter(this);
         if (!m_currentBg.isNull()) {
@@ -55,7 +51,8 @@ protected:
         }
     }
 
-    void keyPressEvent(QKeyEvent *event) override {
+    void keyPressEvent(QKeyEvent *event) override 
+    {
         if (event->key() == Qt::Key_Space || event->key() == Qt::Key_Enter || event->key() == Qt::Key_Return) {
             m_group->stop();      
             showNextPart();       
@@ -72,7 +69,6 @@ private:
     QPixmap m_currentBg;
     QList<QPixmap> m_storyTiles; // Stores the extracted tiles
     int m_currentPart = 0;
-
     QStringList m_storyParts = { 
         "The Golden Age of Rohin\n Fifteen hundred years ago, the land of Mordor was home to the legendary city of Rohin—known to historians as 'Dejenol,' or the 'City of the Mines'. Built by the Dwarves, it was the wealthiest city in the ancient world. From its deep shafts, they extracted a fortune in Platinum, Gold, Mithril, and the indestructible Adamantite. For centuries, the city thrived on the infinite riches of the earth.", 
         "The Doorway to Hell\n the upper veins were depleted, the miners dug ever deeper, descending for days into the lightless depths. Then, the disaster struck—a floor gave way in the lower levels, releasing foul and mystical creatures that killed everything in their path. The few who escaped returned with glazed, terrified looks, referring to the abyss as 'The Doorway to Hell'.", 
@@ -82,16 +78,15 @@ private:
         "Welcome to The Depth of Dejenol."
     };
     // Helper to slice the large image into 6 pieces (2x3 grid)
-    void loadStoryTiles(const QString &fileName) {
+    void loadStoryTiles(const QString &fileName) 
+    {
         QPixmap fullImage;
         if (!fullImage.load(fileName)) {
             qDebug() << "Failed to load composite image:" << fileName;
             return;
         }
-
         int tileWidth = fullImage.width() / 2;
         int tileHeight = fullImage.height() / 3;
-
         for (int row = 0; row < 3; ++row) {
             for (int col = 0; col < 2; ++col) {
                 // Extract the specific rectangle for this part
@@ -99,8 +94,9 @@ private:
             }
         }
     }
-
-    void showNextPart() {
+    
+    void showNextPart() 
+    {
         if (m_currentPart >= m_storyParts.size()) {
             accept(); 
             return;
@@ -114,29 +110,22 @@ private:
 
         m_label->setText(m_storyParts[m_currentPart]);
         m_currentPart++;
-
         m_label->graphicsEffect()->setProperty("opacity", 0.0);
         m_group->clear();
-
         QPropertyAnimation *fadeIn = new QPropertyAnimation(m_label->graphicsEffect(), "opacity");
         fadeIn->setDuration(1000);
         fadeIn->setStartValue(0.0);
         fadeIn->setEndValue(1.0);
-
         QPauseAnimation *pause = new QPauseAnimation(4000, this);
-
         QPropertyAnimation *fadeOut = new QPropertyAnimation(m_label->graphicsEffect(), "opacity");
         fadeOut->setDuration(1000);
         fadeOut->setStartValue(1.0);
         fadeOut->setEndValue(0.0);
-
         m_group->addAnimation(fadeIn);
         m_group->addAnimation(pause);
         m_group->addAnimation(fadeOut);
-
         disconnect(m_group, &QSequentialAnimationGroup::finished, nullptr, nullptr);
         connect(m_group, &QSequentialAnimationGroup::finished, this, &StoryDialog::showNextPart);
-        
         m_group->start();
     }
 };

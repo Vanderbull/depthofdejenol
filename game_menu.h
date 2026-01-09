@@ -38,10 +38,9 @@ private slots:
     void onHelpClicked();
     void onShowStatisticsClicked(); 
     void onRunClicked();
-    void toggleMenuState(bool characterIsLoaded); 
-    void onEventTriggered(const GameEvent& event);
-    
+    void onEventTriggered(const GameEvent& event);    
     void onCharacterCreated(const QString &characterName);
+    void toggleMenuState(bool characterIsLoaded); 
 
 private:
     QLabel *m_titleLabel = nullptr;
@@ -55,12 +54,10 @@ private:
     QPushButton *m_aboutButton = nullptr;
     QPushButton *m_characterListButton = nullptr;
     QPushButton *m_runButton = nullptr;
-    
     // Member variables for state/config
     QSettings m_settings;
     QString m_subfolderName;
-    QPixmap m_backgroundPixmap; 
-    
+    QPixmap m_backgroundPixmap;     
     // Audio components
     QMediaPlayer *m_player = nullptr;
     QAudioOutput *m_audioOutput = nullptr;

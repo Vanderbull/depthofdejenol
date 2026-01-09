@@ -39,13 +39,11 @@ private:
     QListView *bankListView;
     QLabel *bankLabel;
     QPushButton *closeButton;
-
     // --- Data Models ---
     // Reference to the player's current inventory model
     QStandardItemModel *playerItemModel; 
     // Reference to the bank's item model
     QStandardItemModel *bankItemModel;   
-
     // --- Core Methods ---
     void setupUi();
     void createConnections();

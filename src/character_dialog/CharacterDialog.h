@@ -1,4 +1,3 @@
-// CharacterDialog.h
 #ifndef CHARACTERDIALOG_H
 #define CHARACTERDIALOG_H
 
@@ -12,18 +11,17 @@ class CharacterDialog : public QDialog {
     Q_OBJECT
 
 public:
-    // CORRECTED: Constructor signature now takes only the parent widget
+    // Constructor signature now takes only the parent widget
     explicit CharacterDialog(QWidget *parent = nullptr);
     ~CharacterDialog() override = default;
 
 private slots:
-    // NEW: Slot to receive state change notifications from GameStateManager
+    // Slot to receive state change notifications from GameStateManager
     void updateGameStateValue(const QString& key, const QVariant& value);
 
 private:
-    // NEW: Pointer to the label displaying current gold, for dynamic updates
+    // Pointer to the label displaying current gold, for dynamic updates
     QLabel *m_goldValueLabel = nullptr;
-
     void setupUi();
 };
 
