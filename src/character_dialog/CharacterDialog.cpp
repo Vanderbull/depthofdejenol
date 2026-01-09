@@ -85,9 +85,10 @@ void CharacterDialog::setupUi()
     headerLayout->addWidget(new QLabel(QString("<b>%1 %2</b>")
         .arg(GSM->getGameValue("CurrentCharacterSex").toString())
         .arg(GSM->getGameValue("CurrentCharacterRace").toString())));
-    headerLayout->addWidget(new QLabel(QString("Level %1 Vagrant (%2)")
-        .arg(GSM->getGameValue("CurrentCharacterLevel").toInt())
-        .arg(GSM->getGameValue("CurrentCharacterAlignment").toString())));
+    headerLayout->addWidget(new QLabel(QString("Level %1 %2 (%3)")
+    .arg(GSM->getGameValue("CurrentCharacterLevel").toInt())       // Fetches level
+    .arg(GSM->getGameValue("CurrentCharacterGuild").toString())   // Fetches Guild (e.g., Nomad)
+    .arg(GSM->getGameValue("CurrentCharacterAlignment").toString())));
     statsLayout->addWidget(headerFrame);
     // Attributes
     QGroupBox *attrGroup = new QGroupBox("Attributes");
