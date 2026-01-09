@@ -102,8 +102,13 @@ void LibraryDialog::setupUI()
     // Call update count once during setup (Assuming updateCountLabel is declared in header)
     updateCountLabel();
     // --- Connections ---
-    connect(bookList, &QListWidget::itemClicked, this, &LibraryDialog::onItemSelected);
-    // Use the member pointer closeButton
+    //connect(bookList, &QListWidget::itemClicked, this, &LibraryDialog::onItemSelected);
+    connect(bookList, &QListWidget::currentItemChanged, this, 
+        [this](QListWidgetItem *current, QListWidgetItem *previous) {
+            Q_UNUSED(previous);
+            this->onItemSelected(current);
+        });
+ // Use the member pointer closeButton
     connect(closeButton, &QPushButton::clicked, this, &LibraryDialog::onCloseClicked);
     // Use the member pointer addItemButton
     connect(addItemButton, &QPushButton::clicked, this, &LibraryDialog::onAddItemClicked); 
