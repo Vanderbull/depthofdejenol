@@ -13,7 +13,8 @@
 - Dungeon map and automap support (levels, parties, exploration)
 - Character management and dialogs (creation, confinement, party info, morgue)
 - In-game facilities: General Store, Guilds, Bank, Seer
-- Statistics and records dialogs
+- Statistics and records dialog
+- Extremly basic city multiplayer server and client functions with chat
 
 ## Installation
 
