@@ -1082,20 +1082,15 @@ void DungeonDialog::renderWireframeView() {
     int py = gsm->getGameValue("DungeonY").toInt();
     QString facing = m_compassLabel->text();
 
-    // SQUARE VIEWPORT CONSTANTS
     const int size = 300; 
     const int w = size; 
     const int h = size;
     
-    // PERSPECTIVE MAP (Square)
-    // d=0: Screen edges (0, 300)
-    // d=1: First step in (75, 225)
-    // d=2: Second step in (120, 180)
-    // d=3: Far vanishing point (150, 150)
+    // Perspective points: x-coordinates for the "Main" center corridor
     int xs[] = {0, 75, 120, 150}; 
     int ys[] = {0, 75, 120, 150};
 
-    // Draw 3 tiles deep, back-to-front (Depth 2 -> 1 -> 0)
+    // Render back-to-front (Depth 2 down to 0)
     for (int d = 2; d >= 0; --d) {
         int tx = px, ty = py;
         if (facing.contains("North")) ty -= d;
@@ -1107,38 +1102,43 @@ void DungeonDialog::renderWireframeView() {
         bool wallLeft = isWallAtSide(tx, ty, "left");
         bool wallRight = isWallAtSide(tx, ty, "right");
 
-        // Near frame of tile 'd'
+        // Center Tile Coordinates
         int xL = xs[d];     int xR = w - xs[d];
         int yT = ys[d];     int yB = h - ys[d];
-
-        // Far frame of tile 'd'
         int nxL = xs[d+1];  int nxR = w - xs[d+1];
         int nyT = ys[d+1];  int nyB = h - ys[d+1];
 
-        // 1. FLOOR & CEILING
+        // --- 1. DRAW WIDE FLOOR & CEILING (Depth d) ---
+        // We draw the floor spanning from the far-left potential edge to far-right
+        // For a simple 3-tile wide view, we extend the floor/ceiling bounds
         QPolygon floor, ceil;
-        floor << QPoint(xL, yB) << QPoint(xR, yB) << QPoint(nxR, nyB) << QPoint(nxL, nyB);
-        ceil << QPoint(xL, yT) << QPoint(xR, yT) << QPoint(nxR, nyT) << QPoint(nxL, nyT);
         
-        m_dungeonScene->addPolygon(floor, QPen(Qt::NoPen), QBrush(QColor(40, 40, 40)));
-        m_dungeonScene->addPolygon(ceil, QPen(Qt::NoPen), QBrush(QColor(20, 20, 20)));
+        // Floor points: Bottom-Left, Bottom-Right, Top-Right(far), Top-Left(far)
+        floor << QPoint(0, yB) << QPoint(w, yB) << QPoint(w, nyB) << QPoint(0, nyB);
+        ceil << QPoint(0, yT) << QPoint(w, yT) << QPoint(w, nyT) << QPoint(0, nyT);
+        
+        // Apply fog/depth shading
+        int colorVal = 60 - (d * 15); // Closer tiles are lighter
+        m_dungeonScene->addPolygon(floor, QPen(Qt::darkGray), QBrush(QColor(colorVal, colorVal, colorVal)));
+        m_dungeonScene->addPolygon(ceil, QPen(Qt::darkGray), QBrush(QColor(colorVal/2, colorVal/2, colorVal/2)));
 
-        // 2. SIDE WALLS
-        // Because it's square, the slope is a perfect 1:1 diagonal
+        // --- 2. SIDE WALLS (Only if they exist at this tile) ---
         if (wallLeft) {
             QPolygon lWall;
             lWall << QPoint(xL, yT) << QPoint(nxL, nyT) << QPoint(nxL, nyB) << QPoint(xL, yB);
-            m_dungeonScene->addPolygon(lWall, QPen(Qt::black), QBrush(QColor(80, 80, 80)));
+            m_dungeonScene->addPolygon(lWall, QPen(Qt::black), QBrush(QColor(80 - (d*10), 80 - (d*10), 80 - (d*10))));
         }
+        
         if (wallRight) {
             QPolygon rWall;
             rWall << QPoint(xR, yT) << QPoint(nxR, nyT) << QPoint(nxR, nyB) << QPoint(xR, yB);
-            m_dungeonScene->addPolygon(rWall, QPen(Qt::black), QBrush(QColor(80, 80, 80)));
+            m_dungeonScene->addPolygon(rWall, QPen(Qt::black), QBrush(QColor(80 - (d*10), 80 - (d*10), 80 - (d*10))));
         }
 
-        // 3. FRONT WALL
+        // --- 3. FRONT WALL ---
         if (wallFront) {
-            m_dungeonScene->addRect(xL, yT, xR - xL, yB - yT, QPen(Qt::black), QBrush(QColor(110, 110, 110)));
+            // Draws a solid block in the center corridor
+            m_dungeonScene->addRect(xL, yT, xR - xL, yB - yT, QPen(Qt::black), QBrush(QColor(110 - (d*15), 110 - (d*15), 110 - (d*15))));
         }
     }
 }
