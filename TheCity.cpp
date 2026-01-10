@@ -24,20 +24,34 @@ TheCity::TheCity(QWidget *parent) :
     setupStyling();
     setupMultiplayerConnections();
 
-    // 1. Listen for the 'connected' signal before sending data
-    connect(NetworkManager::instance(), &NetworkManager::connected, this, [this]() {
-        quint32 randomId = QRandomGenerator::global()->bounded(1000);
-        QString tempName = "Player_" + QString::number(randomId);
+    // 1. Set up a timeout (e.g., 3 seconds)
+    QTimer *connectionTimer = new QTimer(this);
+    connectionTimer->setSingleShot(true);
 
-        QVariantMap joinData;
-        joinData["zone"] = "TheCity";
-        joinData["username"] = tempName;
-        
-        NetworkManager::instance()->sendAction("enter_zone", joinData);
+    connect(connectionTimer, &QTimer::timeout, this, [this]() {
+        if (NetworkManager::instance()->state() != QAbstractSocket::ConnectedState) {
+            qDebug() << "Server not found. Switching to Offline Mode.";
+            startOfflineMode();
+        }
     });
 
-    // 2. Start the connection
+    // 2. Handle successful connection
+    connect(NetworkManager::instance(), &NetworkManager::connected, this, [this, connectionTimer]() {
+        connectionTimer->stop(); // Stop the "Offline" timer
+        isOfflineMode = false;
+        setWindowTitle("The City - Online");
+        
+        // Register with server
+        quint32 randomId = QRandomGenerator::global()->bounded(1000);
+        NetworkManager::instance()->sendAction("enter_zone", {
+            {"zone", "TheCity"}, 
+            {"username", "Hero_" + QString::number(randomId)}
+        });
+    });
+
+    // 3. Try to connect
     NetworkManager::instance()->connectToServer("127.0.0.1", 12345);
+    connectionTimer->start(3000); // Wait 3 seconds for server
 }
 
 void TheCity::setupUi()
@@ -134,10 +148,14 @@ void TheCity::handleChatReceived(QString from, QString message) {
 }
 
 void TheCity::sendChatMessage() {
+    if (isOfflineMode) {
+        chatDisplay->append("<b>You (Offline):</b> " + chatInput->text());
+        chatInput->clear();
+        return;
+    }
+
     QString msg = chatInput->text().trimmed();
     if (!msg.isEmpty()) {
-        // The server will take your username from the socket property 
-        // we set during "enter_zone" and relay it to everyone.
         NetworkManager::instance()->sendAction("chat", {{"message", msg}});
         chatInput->clear();
     }
@@ -242,4 +260,11 @@ void TheCity::keyPressEvent(QKeyEvent *event) {
     }
 }
 
+void TheCity::startOfflineMode() {
+    isOfflineMode = true;
+    setWindowTitle("The City - Offline Mode");
+    
+    playerList->addItem("Local Hero (You)");
+    chatDisplay->append("<i style='color:orange;'>You are playing offline. Multiplayer features disabled.</i>");
+}
 TheCity::~TheCity() {}

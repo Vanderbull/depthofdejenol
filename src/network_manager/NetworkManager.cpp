@@ -65,3 +65,6 @@ void NetworkManager::onDisconnected() {
     qDebug() << "Disconnected from game server.";
     emit disconnected();
 }
+QAbstractSocket::SocketState NetworkManager::state() const {
+    return m_socket->state();
+}

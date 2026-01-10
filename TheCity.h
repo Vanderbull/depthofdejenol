@@ -62,6 +62,10 @@ private:
     void loadButtonIcons();
     void setupMultiplayerConnections();
 
+    // Standalone
+    bool isOfflineMode = false;
+    void startOfflineMode();
+
 protected:
     void keyPressEvent(QKeyEvent *event) override;
 };

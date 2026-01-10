@@ -15,6 +15,7 @@ public:
     
     void connectToServer(const QString &host, quint16 port);
     void sendAction(const QString &action, const QVariantMap &data);
+    QAbstractSocket::SocketState state() const;
 
 signals:
     void connected();
