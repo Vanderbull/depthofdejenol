@@ -52,6 +52,14 @@ INCLUDEPATH += \
 #    $$PWD/include
 
 QMAKE_FILE_GROUP = Everything
+
+# Add the network module for QTcpSocket
+QT += network
+
+# Ensure the new files are included in the build
+HEADERS += src/network_manager/NetworkManager.h
+SOURCES += src/network_manager/NetworkManager.cpp
+
 SOURCES += GameStateManager.cpp \
     game_menu.cpp \
     TheCity.cpp \
