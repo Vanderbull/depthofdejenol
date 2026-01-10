@@ -195,11 +195,14 @@ private:
     void processTreasureOpening();
     void keyPressEvent(QKeyEvent *event) override;
     QGraphicsScene* m_threeDScene;
+// ... other private members ...
+    QGraphicsView* m_graphicsView;   // Add this line
     void update3DView();
     void drawWireframeWall(int depth, bool left, bool right, bool front);
     bool isWallAt(int x, int y);
     bool isWallAtSide(int x, int y, const QString& side);
     void renderWireframeView();
+
 protected:
     void resizeEvent(QResizeEvent *event) override;
 };

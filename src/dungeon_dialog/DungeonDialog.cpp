@@ -563,6 +563,13 @@ DungeonDialog::DungeonDialog(QWidget *parent)
     // Connections (Stairs)
     connect(stairsDownButton, &QPushButton::clicked, this, &DungeonDialog::on_stairsDownButton_clicked);
     connect(stairsUpButton, &QPushButton::clicked, this, &DungeonDialog::on_stairsUpButton_clicked);
+m_graphicsView = new QGraphicsView(this);
+m_graphicsView->setFixedSize(300, 300); // Force the widget to be square
+m_graphicsView->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+m_graphicsView->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+
+m_dungeonScene = new QGraphicsScene(0, 0, 300, 300, this);
+m_graphicsView->setScene(m_dungeonScene);
 }
 
 void DungeonDialog::updateExperienceLabel()
@@ -1068,19 +1075,27 @@ bool DungeonDialog::isWallAtSide(int x, int y, const QString& side) {
 
 void DungeonDialog::renderWireframeView() {
     m_dungeonScene->clear();
-    m_dungeonScene->setBackgroundBrush(Qt::black); // The "Void"
+    m_dungeonScene->setBackgroundBrush(Qt::black);
 
     GameStateManager *gsm = GameStateManager::instance();
     int px = gsm->getGameValue("DungeonX").toInt();
     int py = gsm->getGameValue("DungeonY").toInt();
     QString facing = m_compassLabel->text();
 
-    const int w = 400; const int h = 300;
-    // Perspective points (Near to Far)
-    int xs[] = {0, 70, 130, 175}; 
-    int ys[] = {0, 50, 95, 125};
+    // SQUARE VIEWPORT CONSTANTS
+    const int size = 300; 
+    const int w = size; 
+    const int h = size;
+    
+    // PERSPECTIVE MAP (Square)
+    // d=0: Screen edges (0, 300)
+    // d=1: First step in (75, 225)
+    // d=2: Second step in (120, 180)
+    // d=3: Far vanishing point (150, 150)
+    int xs[] = {0, 75, 120, 150}; 
+    int ys[] = {0, 75, 120, 150};
 
-    // Draw from back to front (Painter's Algorithm)
+    // Draw 3 tiles deep, back-to-front (Depth 2 -> 1 -> 0)
     for (int d = 2; d >= 0; --d) {
         int tx = px, ty = py;
         if (facing.contains("North")) ty -= d;
@@ -1092,35 +1107,38 @@ void DungeonDialog::renderWireframeView() {
         bool wallLeft = isWallAtSide(tx, ty, "left");
         bool wallRight = isWallAtSide(tx, ty, "right");
 
+        // Near frame of tile 'd'
         int xL = xs[d];     int xR = w - xs[d];
         int yT = ys[d];     int yB = h - ys[d];
+
+        // Far frame of tile 'd'
         int nxL = xs[d+1];  int nxR = w - xs[d+1];
         int nyT = ys[d+1];  int nyB = h - ys[d+1];
 
-        // 1. Draw Floor and Ceiling (Solid Dark Gray)
-        QPolygon floor;
+        // 1. FLOOR & CEILING
+        QPolygon floor, ceil;
         floor << QPoint(xL, yB) << QPoint(xR, yB) << QPoint(nxR, nyB) << QPoint(nxL, nyB);
+        ceil << QPoint(xL, yT) << QPoint(xR, yT) << QPoint(nxR, nyT) << QPoint(nxL, nyT);
+        
         m_dungeonScene->addPolygon(floor, QPen(Qt::NoPen), QBrush(QColor(40, 40, 40)));
+        m_dungeonScene->addPolygon(ceil, QPen(Qt::NoPen), QBrush(QColor(20, 20, 20)));
 
-        QPolygon ceiling;
-        ceiling << QPoint(xL, yT) << QPoint(xR, yT) << QPoint(nxR, nyT) << QPoint(nxL, nyT);
-        m_dungeonScene->addPolygon(ceiling, QPen(Qt::NoPen), QBrush(QColor(30, 30, 30)));
-
-        // 2. Side Walls (Darker Gray for depth)
+        // 2. SIDE WALLS
+        // Because it's square, the slope is a perfect 1:1 diagonal
         if (wallLeft) {
             QPolygon lWall;
             lWall << QPoint(xL, yT) << QPoint(nxL, nyT) << QPoint(nxL, nyB) << QPoint(xL, yB);
-            m_dungeonScene->addPolygon(lWall, QPen(Qt::black), QBrush(QColor(60, 60, 60)));
+            m_dungeonScene->addPolygon(lWall, QPen(Qt::black), QBrush(QColor(80, 80, 80)));
         }
         if (wallRight) {
             QPolygon rWall;
             rWall << QPoint(xR, yT) << QPoint(nxR, nyT) << QPoint(nxR, nyB) << QPoint(xR, yB);
-            m_dungeonScene->addPolygon(rWall, QPen(Qt::black), QBrush(QColor(60, 60, 60)));
+            m_dungeonScene->addPolygon(rWall, QPen(Qt::black), QBrush(QColor(80, 80, 80)));
         }
 
-        // 3. Front Wall (Lighter Gray to look direct)
+        // 3. FRONT WALL
         if (wallFront) {
-            m_dungeonScene->addRect(xL, yT, xR - xL, yB - yT, QPen(Qt::black), QBrush(QColor(90, 90, 90)));
+            m_dungeonScene->addRect(xL, yT, xR - xL, yB - yT, QPen(Qt::black), QBrush(QColor(110, 110, 110)));
         }
     }
 }
