@@ -170,6 +170,8 @@ void DungeonDialog::movePlayer(int dx, int dy, int dz=0)
     DungeonHandlers::handleExtinguisher(this, newX, newY);
     DungeonHandlers::handleEncounters(this, newX, newY);
     logMessage(QString("You move to (%1, %2).").arg(newX).arg(newY));
+    drawMinimap();
+    renderWireframeView();
 }
 
 void DungeonDialog::updateCompass(const QString& direction)
@@ -909,6 +911,7 @@ void DungeonDialog::rotate(int step)
     updateCompass(dirs[nextIdx]);
     logMessage(QString("You turn to the %1.").arg(step > 0 ? "right" : "left"));
     drawMinimap();
+    renderWireframeView();
 }
 
 void DungeonDialog::transitionLevel(StairDirection direction)
@@ -976,5 +979,148 @@ void DungeonDialog::processTreasureOpening()
         }
         m_treasurePositions.remove(pos);
         drawMinimap();
+    }
+}
+void DungeonDialog::update3DView() {
+    m_threeDScene->clear();
+    m_threeDScene->setBackgroundBrush(Qt::black);
+    QPen wirePen(Qt::green, 2); // Classic green phosphor look
+
+    GameStateManager* gsm = GameStateManager::instance();
+    int px = gsm->getGameValue("DungeonX").toInt();
+    int py = gsm->getGameValue("DungeonY").toInt();
+    QString facing = m_compassLabel->text(); // e.g., "Facing North"
+
+    // Scan up to 3 tiles ahead
+    for (int d = 3; d >= 0; --d) {
+        int tx = px, ty = py;
+        // Determine target coordinates based on facing
+        if (facing.contains("North")) ty -= d;
+        else if (facing.contains("South")) ty += d;
+        else if (facing.contains("East")) tx += d;
+        else if (facing.contains("West")) tx -= d;
+
+        // Check for walls (Logic depends on your map data structure)
+        bool hasFrontWall = isWallAt(tx, ty); 
+        bool hasLeftWall = isWallAtSide(tx, ty, "left");
+        bool hasRightWall = isWallAtSide(tx, ty, "right");
+
+        drawWireframeWall(d, hasLeftWall, hasRightWall, hasFrontWall);
+    }
+}
+void DungeonDialog::drawWireframeWall(int depth, bool left, bool right, bool front) {
+    // Example coordinates for a 400x400 view
+    int w = 400, h = 400;
+    int inset = depth * 50; // Each step forward shrinks the box
+    
+    QRect currentRect(inset, inset, w - (inset * 2), h - (inset * 2));
+    QRect nextRect(inset + 50, inset + 50, w - ((inset + 50) * 2), h - ((inset + 50) * 2));
+
+    QPen pen(Qt::green, 2);
+
+    if (front) {
+        m_threeDScene->addRect(currentRect, pen);
+    } else {
+        // Draw floor and ceiling lines connecting current depth to next depth
+        m_threeDScene->addLine(currentRect.left(), currentRect.top(), nextRect.left(), nextRect.top(), pen);
+        m_threeDScene->addLine(currentRect.right(), currentRect.top(), nextRect.right(), nextRect.top(), pen);
+        m_threeDScene->addLine(currentRect.left(), currentRect.bottom(), nextRect.left(), nextRect.bottom(), pen);
+        m_threeDScene->addLine(currentRect.right(), currentRect.bottom(), nextRect.right(), nextRect.bottom(), pen);
+    }
+    if (left) {
+        m_threeDScene->addLine(currentRect.left(), currentRect.top(), currentRect.left(), currentRect.bottom(), pen);
+    }
+    if (right) {
+        m_threeDScene->addLine(currentRect.right(), currentRect.top(), currentRect.right(), currentRect.bottom(), pen);
+    }
+    // Repeat logic for right walls...
+}
+
+bool DungeonDialog::isWallAt(int x, int y) {
+    // Check if the coordinates are outside the map boundaries
+    if (x < 0 || x >= MAP_SIZE || y < 0 || y >= MAP_SIZE) {
+        return true; 
+    }
+    // Check if the position is in our obstacle set
+    return m_obstaclePositions.contains({x, y});
+}
+
+bool DungeonDialog::isWallAtSide(int x, int y, const QString& side) {
+    // Retrieve the current facing direction from the UI label
+    QString facing = m_compassLabel->text(); 
+    int targetX = x;
+    int targetY = y;
+
+    // Relative logic: If facing North, "left" is West (-1, 0).
+    // If facing South, "left" is East (+1, 0), etc.
+    if (facing == "Facing North") {
+        targetX = (side == "left") ? x - 1 : x + 1;
+    } else if (facing == "Facing South") {
+        targetX = (side == "left") ? x + 1 : x - 1;
+    } else if (facing == "Facing East") {
+        targetY = (side == "left") ? y - 1 : y + 1;
+    } else if (facing == "Facing West") {
+        targetY = (side == "left") ? y + 1 : y - 1;
+    }
+
+    return isWallAt(targetX, targetY);
+}
+
+void DungeonDialog::renderWireframeView() {
+    m_dungeonScene->clear();
+    m_dungeonScene->setBackgroundBrush(Qt::black); // The "Void"
+
+    GameStateManager *gsm = GameStateManager::instance();
+    int px = gsm->getGameValue("DungeonX").toInt();
+    int py = gsm->getGameValue("DungeonY").toInt();
+    QString facing = m_compassLabel->text();
+
+    const int w = 400; const int h = 300;
+    // Perspective points (Near to Far)
+    int xs[] = {0, 70, 130, 175}; 
+    int ys[] = {0, 50, 95, 125};
+
+    // Draw from back to front (Painter's Algorithm)
+    for (int d = 2; d >= 0; --d) {
+        int tx = px, ty = py;
+        if (facing.contains("North")) ty -= d;
+        else if (facing.contains("South")) ty += d;
+        else if (facing.contains("East")) tx += d;
+        else if (facing.contains("West")) tx -= d;
+
+        bool wallFront = isWallAt(tx, ty);
+        bool wallLeft = isWallAtSide(tx, ty, "left");
+        bool wallRight = isWallAtSide(tx, ty, "right");
+
+        int xL = xs[d];     int xR = w - xs[d];
+        int yT = ys[d];     int yB = h - ys[d];
+        int nxL = xs[d+1];  int nxR = w - xs[d+1];
+        int nyT = ys[d+1];  int nyB = h - ys[d+1];
+
+        // 1. Draw Floor and Ceiling (Solid Dark Gray)
+        QPolygon floor;
+        floor << QPoint(xL, yB) << QPoint(xR, yB) << QPoint(nxR, nyB) << QPoint(nxL, nyB);
+        m_dungeonScene->addPolygon(floor, QPen(Qt::NoPen), QBrush(QColor(40, 40, 40)));
+
+        QPolygon ceiling;
+        ceiling << QPoint(xL, yT) << QPoint(xR, yT) << QPoint(nxR, nyT) << QPoint(nxL, nyT);
+        m_dungeonScene->addPolygon(ceiling, QPen(Qt::NoPen), QBrush(QColor(30, 30, 30)));
+
+        // 2. Side Walls (Darker Gray for depth)
+        if (wallLeft) {
+            QPolygon lWall;
+            lWall << QPoint(xL, yT) << QPoint(nxL, nyT) << QPoint(nxL, nyB) << QPoint(xL, yB);
+            m_dungeonScene->addPolygon(lWall, QPen(Qt::black), QBrush(QColor(60, 60, 60)));
+        }
+        if (wallRight) {
+            QPolygon rWall;
+            rWall << QPoint(xR, yT) << QPoint(nxR, nyT) << QPoint(nxR, nyB) << QPoint(xR, yB);
+            m_dungeonScene->addPolygon(rWall, QPen(Qt::black), QBrush(QColor(60, 60, 60)));
+        }
+
+        // 3. Front Wall (Lighter Gray to look direct)
+        if (wallFront) {
+            m_dungeonScene->addRect(xL, yT, xR - xL, yB - yT, QPen(Qt::black), QBrush(QColor(90, 90, 90)));
+        }
     }
 }
