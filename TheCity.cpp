@@ -262,7 +262,13 @@ void TheCity::keyPressEvent(QKeyEvent *event) {
         InventoryDialog *inv = new InventoryDialog(this);
         inv->setAttribute(Qt::WA_DeleteOnClose);
         inv->exec(); 
-    } else {
+    }
+    else if (event->key() == Qt::Key_1) {
+        PartyInfoDialog *partyInfo = new PartyInfoDialog(this);
+        partyInfo->setAttribute(Qt::WA_DeleteOnClose);
+        partyInfo->show(); // Use show() for non-modal or exec() for modal
+    }
+    else {
         QDialog::keyPressEvent(event);
     }
 }
