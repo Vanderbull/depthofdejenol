@@ -172,6 +172,8 @@ public:
     void updatePartyMemberHP(int index, int newHP);
     void syncActiveCharacterToParty();
     void listGameData();
+    bool verifySaveGame(const QString& characterName);
+    bool repairSaveGame(const QString& characterName);
 };
 
 #endif // GAMESTATEMANAGER_H

@@ -276,7 +276,7 @@ void TheCity::startOfflineMode() {
         QListWidgetItem* selfItem = new QListWidgetItem(
             GameStateManager::instance()->getGameValue("CurrentCharacterName").toString() + " (You)"
         );
-        selfItem->setForeground(Qt::blue); 
+        selfItem->setForeground(Qt::blue);
         playerList->addItem(selfItem);
     }
 
@@ -291,7 +291,14 @@ void TheCity::startOfflineMode() {
 
             // Skip the character we are currently playing
             if (charName == currentHero) continue;
-
+            
+        // If verification fails, try to repair it
+            if (!GameStateManager::instance()->verifySaveGame(charName)) {
+                qDebug() << "Attempting to repair broken savegame:" << charName;
+                if (!GameStateManager::instance()->repairSaveGame(charName)) {
+                    continue; // Skip if repair also fails
+                }
+            }
             // Peek into the file to check position
             QFile file(charDir.absoluteFilePath(fileName));
             if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {

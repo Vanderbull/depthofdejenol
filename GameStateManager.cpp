@@ -714,3 +714,122 @@ void GameStateManager::listGameData() {
         qDebug() << "Record" << i + 1 << ":" << dataList.at(i);
     }
 }
+
+bool GameStateManager::verifySaveGame(const QString& characterName) {
+    QString cleanName = characterName;
+    if (cleanName.endsWith(".txt")) cleanName.chop(4);
+    
+    QString filename = QString("data/characters/%1.txt").arg(cleanName);
+    QFile file(filename);
+    
+    if (!file.exists()) {
+        qWarning() << "Verification failed: File does not exist -" << filename;
+        return false;
+    }
+
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) return false;
+
+    QTextStream in(&file);
+    bool hasVersion = false;
+    bool hasLocation = false;
+    bool hasName = false;
+    
+    int foundCoords = 0;
+
+    while (!in.atEnd()) {
+        QString line = in.readLine().trimmed();
+        
+        // Check for the header version string
+        if (line.startsWith("CHARACTER_FILE_VERSION:")) hasVersion = true;
+        
+        // Check for the character name match
+        if (line.startsWith("Name: ")) {
+            if (line.mid(6) == cleanName) hasName = true;
+        }
+
+        // Verify that location data exists (required for the city check)
+        if (line.startsWith("DungeonX:") || 
+            line.startsWith("DungeonY:") || 
+            line.startsWith("DungeonLevel:")) {
+            foundCoords++;
+        }
+    }
+    file.close();
+
+    hasLocation = (foundCoords == 3);
+
+    if (!hasVersion) qWarning() << "Savegame" << cleanName << "is missing version header.";
+    if (!hasLocation) qWarning() << "Savegame" << cleanName << "is missing coordinate data.";
+    if (!hasName) qWarning() << "Savegame" << cleanName << "name mismatch inside file.";
+
+    return (hasVersion && hasLocation && hasName);
+}
+
+bool GameStateManager::repairSaveGame(const QString& characterName) {
+    QString cleanName = characterName;
+    if (cleanName.endsWith(".txt")) cleanName.chop(4);
+    
+    QString path = QString("data/characters/%1.txt").arg(cleanName);
+    QFile file(path);
+    
+    if (!file.exists()) return false;
+
+    // 1. Read existing data into a temporary map
+    QMap<QString, QString> dataMap;
+    if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        QTextStream in(&file);
+        while (!in.atEnd()) {
+            QString line = in.readLine().trimmed();
+            if (line.contains(": ")) {
+                QStringList parts = line.split(": ");
+                dataMap[parts[0]] = parts[1];
+            }
+        }
+        file.close();
+    }
+
+    // 2. Identify and fix missing critical data
+    bool modified = false;
+
+    // Ensure version exists
+    if (!dataMap.contains("CHARACTER_FILE_VERSION")) {
+        dataMap["CHARACTER_FILE_VERSION"] = "1.0";
+        modified = true;
+    }
+
+    // Fix missing coordinates (Default to City Entrance: 17, 12, Level 1)
+    if (!dataMap.contains("DungeonX")) { dataMap["DungeonX"] = "17"; modified = true; }
+    if (!dataMap.contains("DungeonY")) { dataMap["DungeonY"] = "12"; modified = true; }
+    if (!dataMap.contains("DungeonLevel")) { dataMap["DungeonLevel"] = "1"; modified = true; }
+
+    // Ensure Name is correct
+    if (dataMap["Name"] != cleanName) {
+        dataMap["Name"] = cleanName;
+        modified = true;
+    }
+
+    // 3. Rewrite the file if repairs were made
+    if (modified) {
+        if (file.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Truncate)) {
+            QTextStream out(&file);
+            // Prioritize header and name
+            out << "CHARACTER_FILE_VERSION: " << dataMap["CHARACTER_FILE_VERSION"] << "\n";
+            out << "Name: " << dataMap["Name"] << "\n";
+            
+            // Remove handled keys to loop through the rest
+            dataMap.remove("CHARACTER_FILE_VERSION");
+            dataMap.remove("Name");
+
+            QMapIterator<QString, QString> i(dataMap);
+            while (i.hasNext()) {
+                i.next();
+                out << i.key() << ": " << i.value() << "\n";
+            }
+            file.close();
+            qDebug() << "Successfully repaired savegame for:" << cleanName;
+            return true;
+        }
+    }
+
+    return false;
+}

@@ -1,19 +1,16 @@
 CHARACTER_FILE_VERSION: 1.0
 Name: c
+Alignment: Neutral
+Charisma: 5
+Constitution: 6
+Dexterity: 6
+DungeonLevel: 1
+DungeonX: 17
+DungeonY: 12
+Guild: Thief
+Intelligence: 9
 Race: Human
 Sex: Male
-Alignment: Neutral
-
---- STATS ---
-isAlive: 1
-
---- STATS ---
 Strength: 4
-Intelligence: 9
 Wisdom: 4
-Constitution: 6
-Charisma: 5
-Dexterity: 6
-
---- GUILD ---
-Guild: Thief
+isAlive: 1
