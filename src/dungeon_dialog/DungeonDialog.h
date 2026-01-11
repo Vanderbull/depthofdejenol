@@ -203,7 +203,12 @@ private:
     bool isWallAtSide(int x, int y, const QString& side);
     void renderWireframeView();
     void drawBrickPattern(const QPolygon& wallPoly, int depth);
-    void drawChute(int d, int xL, int xR, int yB, int nxL, int nxR, int nyB);
+    void  drawChute(int d, int xL, int xR, int yB, int nxL, int nxR, int nyB);
+    void drawMonster(int d, int xL, int xR, int yB);
+    void drawTeleporter(int d, int xL, int xR, int yB, int nxL, int nxR, int nyB);
+    void drawSpinner(int d, int xL, int xR, int yB, int nxL, int nxR, int nyB);
+    void drawWater(int d, int xL, int xR, int yB, int nxL, int nxR, int nyB);
+    void drawAntimagic(int d, int xL, int xR, int yB, int nxL, int nxR, int nyB);
 
 protected:
     void resizeEvent(QResizeEvent *event) override;

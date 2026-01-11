@@ -1153,6 +1153,60 @@ void DungeonDialog::renderWireframeView() {
             // Draw a wall on the right wing of the screen
             m_dungeonScene->addRect(xR, yT, w - xR, yB - yT, QPen(Qt::black), QBrush(QColor(sideRoomWallCol, sideRoomWallCol, sideRoomWallCol)));
         }
+        
+        
+        
+bool hasAntimagic = m_antimagicPositions.contains({tx, ty});
+
+        // 1. Draw floor/ceiling
+        // ... 
+
+        // 2. Draw Antimagic effect on the floor
+        if (hasAntimagic) {
+            drawAntimagic(d, xL, xR, yB, nxL, nxR, nyB);
+        }
+        // Identify if tile is water (Adjust based on your tile type logic)
+        // Assuming you have a set or map for water tiles
+        bool hasWater = m_waterPositions.contains({tx, ty});
+
+        // 1. Draw floor and ceiling first
+        // ... (existing floor drawing) ...
+
+        // 2. Draw Water on top of the floor
+        if (hasWater) {
+            drawWater(d, xL, xR, yB, nxL, nxR, nyB);
+        }
+
+
+// 1. Check if this tile is a Spinner (Rotator)
+        bool hasSpinner = m_rotatorPositions.contains({tx, ty});
+
+        // ... (Existing Floor, Ceiling, and Side Wall rendering)
+
+        // 2. Draw the Spinner effect
+        if (hasSpinner) {
+            drawSpinner(d, xL, xR, yB, nxL, nxR, nyB);
+        }
+
+// 1. Check for teleporter at this map coordinate
+        bool hasTeleporter = m_teleporterPositions.contains({tx, ty});
+
+        // ... existing Floor/Ceiling/Side Wall rendering ...
+
+        // 2. Draw the Teleporter effect on the floor
+        if (hasTeleporter) {
+            drawTeleporter(d, xL, xR, yB, nxL, nxR, nyB);
+        }
+
+// Check if there is a monster at this coordinate
+        bool hasMonster = m_monsterPositions.contains({tx, ty});
+
+        // ... (draw floor and side walls)
+
+        // Draw the monster if present
+        if (hasMonster) {
+            drawMonster(d, xL, xR, yB);
+        }   
 
         // --- 4. FRONT WALL (Main Path) ---
         if (wallFront) {
@@ -1242,5 +1296,155 @@ void DungeonDialog::drawChute(int d, int xL, int xR, int yB, int nxL, int nxR, i
     
     int depthShade = qMax(0, 30 - (d * 10));
     m_dungeonScene->addPolygon(leftInner, QPen(Qt::NoPen), QBrush(QColor(depthShade, depthShade, depthShade)));
+}
+void DungeonDialog::drawMonster(int d, int xL, int xR, int yB) {
+    // Calculate size based on depth
+    // d=0 (Near): Large, d=2 (Far): Small
+    int monsterWidth = (xR - xL) * 0.6; 
+    int monsterHeight = monsterWidth * 1.2;
+    
+    // Center horizontally, sit on the floor (yB)
+    int centerX = xL + (xR - xL) / 2;
+    int xPos = centerX - (monsterWidth / 2);
+    int yPos = yB - monsterHeight;
+
+    // Depth shading: make monsters darker in the distance
+    int shade = qMax(0, 200 - (d * 60));
+    QColor monsterColor(shade, 0, 0); // Dark red silhouette
+
+    // Draw a simple head and body (billboard style)
+    QRect body(xPos, yPos + (monsterHeight * 0.3), monsterWidth, monsterHeight * 0.7);
+    QRect head(centerX - (monsterWidth / 4), yPos, monsterWidth / 2, monsterHeight * 0.4);
+
+    m_dungeonScene->addEllipse(head, QPen(Qt::black), QBrush(monsterColor));
+    m_dungeonScene->addRect(body, QPen(Qt::black), QBrush(monsterColor));
+}
+
+void DungeonDialog::drawTeleporter(int d, int xL, int xR, int yB, int nxL, int nxR, int nyB) {
+    // Calculate the center and size of the tile floor
+    int centerX = xL + (xR - xL) / 2;
+    int centerY = yB + (nyB - yB) / 2;
+    
+    // Scale radius based on depth
+    int baseRadius = (xR - xL) / 3;
+    
+    // Create a shimmering effect with multiple ellipses
+    for (int i = 0; i < 3; ++i) {
+        int r = baseRadius - (i * (baseRadius / 4));
+        QRectF glowRect(centerX - r, centerY - (r / 2), r * 2, r); // Flattened for perspective
+        
+        // Alternating cyan/blue glow
+        QColor glowColor = (i % 2 == 0) ? QColor(0, 255, 255, 150) : QColor(0, 100, 255, 100);
+        
+        // Depth shading: make it dimmer in the distance
+        int alpha = glowColor.alpha() - (d * 30);
+        glowColor.setAlpha(qMax(0, alpha));
+
+        m_dungeonScene->addEllipse(glowRect, QPen(Qt::white, 1), QBrush(glowColor));
+    }
+
+    // Optional: Add some "sparkles" (small white dots)
+    for (int j = 0; j < 5; ++j) {
+        int sx = centerX + (QRandomGenerator::global()->bounded(baseRadius * 2) - baseRadius);
+        int sy = centerY + (QRandomGenerator::global()->bounded(baseRadius) - (baseRadius / 2));
+        m_dungeonScene->addRect(sx, sy, 1, 1, QPen(Qt::white), QBrush(Qt::white));
+    }
+}
+void DungeonDialog::drawSpinner(int d, int xL, int xR, int yB, int nxL, int nxR, int nyB) {
+    // Calculate the center of the tile floor using both near and far bounds
+    int centerX = (xL + xR + nxL + nxR) / 4;
+    int centerY = (yB + nyB) / 2;
+    
+    // Scale the size of the spinner based on the available floor width at this depth
+    int radius = (xR - xL) / 3;
+    QPen spinnerPen(QColor(200, 200, 0), 2); 
+    
+    // Depth shading to make it darker in the distance
+    int alpha = qMax(0, 200 - (d * 50));
+    spinnerPen.setColor(QColor(200, 200, 0, alpha));
+
+    // Define the bounding rect for the ellipse/arcs, flattened for perspective
+    QRectF arcRect(centerX - radius, centerY - (radius / 2), radius * 2, radius);
+
+    // QGraphicsScene doesn't have addArc; we use QPainterPath instead
+    for (int i = 0; i < 4; ++i) {
+        QPainterPath path;
+        int startAngle = i * 90; // Angles in QPainterPath are in degrees
+        int spanAngle = 60;
+        
+        path.arcMoveTo(arcRect, startAngle);
+        path.arcTo(arcRect, startAngle, spanAngle);
+        
+        m_dungeonScene->addPath(path, spinnerPen);
+    }
+    
+    // Add a center point (uses near/far center)
+    m_dungeonScene->addEllipse(centerX - 2, centerY - 1, 4, 2, spinnerPen, QBrush(spinnerPen.color()));
+}
+
+void DungeonDialog::drawWater(int d, int xL, int xR, int yB, int nxL, int nxR, int nyB) {
+    // 1. Create the water surface polygon (the floor area)
+    QPolygon waterPoly;
+    waterPoly << QPoint(xL, yB) << QPoint(xR, yB) << QPoint(nxR, nyB) << QPoint(nxL, nyB);
+
+    // Deep blue color, semi-transparent so you can still see the floor/chutes
+    int alpha = qMax(0, 180 - (d * 40));
+    QColor waterColor(0, 105, 148, alpha); // Sea Blue
+    
+    m_dungeonScene->addPolygon(waterPoly, QPen(Qt::NoPen), QBrush(waterColor));
+
+    // 2. Add "Ripples" (shimmering lines)
+    QPen ripplePen(QColor(255, 255, 255, qMax(0, 100 - (d * 30))));
+    ripplePen.setWidth(1);
+
+    // Draw 3 horizontal lines at different depths within the tile
+    for (int i = 1; i <= 3; ++i) {
+        double ratio = i / 4.0;
+        
+        // Interpolate Y position between near (yB) and far (nyB)
+        int ry = yB + (nyB - yB) * ratio;
+        
+        // Interpolate X width based on perspective
+        int rxL = xL + (nxL - xL) * ratio;
+        int rxR = xR + (nxR - xR) * ratio;
+
+        // Draw a partial shimmering line (not the whole width for a natural look)
+        int rippleWidth = (rxR - rxL) * 0.6;
+        int rippleStart = rxL + (rxR - rxL) * 0.2;
+        
+        m_dungeonScene->addLine(rippleStart, ry, rippleStart + rippleWidth, ry, ripplePen);
+    }
+}
+void DungeonDialog::drawAntimagic(int d, int xL, int xR, int yB, int nxL, int nxR, int nyB) {
+    // Define the floor polygon for clipping or reference
+    QPolygon floorPoly;
+    floorPoly << QPoint(xL, yB) << QPoint(xR, yB) << QPoint(nxR, nyB) << QPoint(nxL, nyB);
+
+    // Color: A muted, "dulling" purple or gray
+    int alpha = qMax(0, 120 - (d * 30));
+    QColor fieldColor(100, 100, 150, alpha); 
+    
+    // Draw a subtle tint first
+    m_dungeonScene->addPolygon(floorPoly, QPen(Qt::NoPen), QBrush(fieldColor));
+
+    // Draw "Static" lines (cross-hatch pattern)
+    QPen staticPen(QColor(200, 200, 255, qMax(0, 150 - (d * 40))));
+    staticPen.setWidth(1);
+
+    int lines = 5;
+    for (int i = 0; i <= lines; ++i) {
+        double ratio = (double)i / lines;
+
+        // Vertical-ish lines (converging towards vanishing point)
+        int xNear = xL + (xR - xL) * ratio;
+        int xFar = nxL + (nxR - nxL) * ratio;
+        m_dungeonScene->addLine(xNear, yB, xFar, nyB, staticPen);
+
+        // Horizontal lines (interpolated by depth)
+        int yHoriz = yB + (nyB - yB) * ratio;
+        int xHLeft = xL + (nxL - xL) * ratio;
+        int xHRight = xR + (nxR - xR) * ratio;
+        m_dungeonScene->addLine(xHLeft, yHoriz, xHRight, yHoriz, staticPen);
+    }
 }
 
