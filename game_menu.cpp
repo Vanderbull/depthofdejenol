@@ -264,6 +264,8 @@ void GameMenu::onCharacterCreated(const QString &characterName)
     QMessageBox::information(this, tr("Creation Successful"), 
                              tr("Character **%1** created successfully. Ready to run.").arg(characterName));
     toggleMenuState(true);
+// Start the 10-second loop
+    GameStateManager::instance()->startAutosave(10000);
 }
 
 void GameMenu::onRunClicked() 
@@ -315,6 +317,8 @@ void GameMenu::startNewGame()
 
 void GameMenu::loadGame() 
 {
+// Start the 10-second loop
+    GameStateManager::instance()->startAutosave(10000);
     // 1. Setup file path and selection dialog 
     QString basePath = QCoreApplication::applicationDirPath();
     QString fullPath = QDir::cleanPath(basePath + QDir::separator() + m_subfolderName);

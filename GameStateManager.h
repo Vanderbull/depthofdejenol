@@ -4,6 +4,7 @@
 #include <QObject>
 #include <QVariantMap>
 #include <QtGlobal>
+#include <QTimer>
 
 class GameStateManager : public QObject
 {
@@ -57,6 +58,8 @@ private:
     QList<QVariantMap> m_itemData;    // In-memory storage for MDATA3
     QList<QVariantMap> m_spellData;    // In-memory storage for MDATA2
     QList<QVariantMap> m_gameData;    // In-memory storage for MDATA1
+    QTimer *m_autosaveTimer = nullptr;
+    
 
 public:
     QVariantMap getCharacterData(int index) const;
@@ -174,6 +177,10 @@ public:
     void listGameData();
     bool verifySaveGame(const QString& characterName);
     bool repairSaveGame(const QString& characterName);
+    void startAutosave(int intervalms = 10000); // 10 seconds default
+    void stopAutosave();
+private slots:
+    void handleAutosave();
 };
 
 #endif // GAMESTATEMANAGER_H

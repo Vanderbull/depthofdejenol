@@ -39,6 +39,8 @@ QMap<QString, int> GameStateManager::getConfinementStock() const
 GameStateManager::GameStateManager(QObject *parent)
     : QObject(parent)
 {
+    m_autosaveTimer = new QTimer(this);
+    connect(m_autosaveTimer, &QTimer::timeout, this, &GameStateManager::handleAutosave);
     // Initialize party members
     QVariantList party;
     for (int i = 0; i < MAX_PARTY_SIZE; ++i) {
@@ -832,4 +834,34 @@ bool GameStateManager::repairSaveGame(const QString& characterName) {
     }
 
     return false;
+}
+void GameStateManager::startAutosave(int intervalms) {
+    if (m_autosaveTimer) {
+        m_autosaveTimer->start(intervalms);
+        qDebug() << "Autosave started with interval:" << intervalms << "ms";
+    }
+}
+
+void GameStateManager::stopAutosave() {
+    if (m_autosaveTimer) m_autosaveTimer->stop();
+}
+
+void GameStateManager::handleAutosave() {
+    // Check if a character is actually loaded before saving
+    QString currentHero = getGameValue("CurrentCharacterName").toString();
+    if (currentHero.isEmpty() || currentHero == "Empty Slot") {
+        return; 
+    }
+
+    qDebug() << "Autosaving character:" << currentHero;
+    
+    // 1. Sync the live UI/Game values to the Party structure first
+    syncActiveCharacterToParty();
+    
+    // 2. Save Party Slot 0 (the active player) to the .txt file
+    if (saveCharacterToFile(0)) {
+        qDebug() << "Autosave successful.";
+    } else {
+        qWarning() << "Autosave failed!";
+    }
 }
