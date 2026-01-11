@@ -1082,63 +1082,165 @@ void DungeonDialog::renderWireframeView() {
     int py = gsm->getGameValue("DungeonY").toInt();
     QString facing = m_compassLabel->text();
 
-    const int size = 300; 
-    const int w = size; 
-    const int h = size;
+    const int w = 300; 
+    const int h = 300;
     
-    // Perspective points: x-coordinates for the "Main" center corridor
+    // Perspective points
     int xs[] = {0, 75, 120, 150}; 
     int ys[] = {0, 75, 120, 150};
 
-    // Render back-to-front (Depth 2 down to 0)
     for (int d = 2; d >= 0; --d) {
+        // 1. Calculate tile coordinates for the CENTER path
         int tx = px, ty = py;
-        if (facing.contains("North")) ty -= d;
-        else if (facing.contains("South")) ty += d;
-        else if (facing.contains("East")) tx += d;
-        else if (facing.contains("West")) tx -= d;
+        int dx = 0, dy = 0; 
+        if (facing.contains("North")) dy = -1;
+        else if (facing.contains("South")) dy = 1;
+        else if (facing.contains("East"))  dx = 1;
+        else if (facing.contains("West"))  dx = -1;
 
-        bool wallFront = isWallAt(tx, ty);
-        bool wallLeft = isWallAtSide(tx, ty, "left");
-        bool wallRight = isWallAtSide(tx, ty, "right");
+        tx += (dx * d);
+        ty += (dy * d);
 
-        // Center Tile Coordinates
+        // 2. Calculate coordinates for adjacent tiles (Left/Right) at this depth
+        // This is necessary to see if the side-corridor is blocked by a wall
+        int lx = tx + dy, ly = ty - dx; // Left tile relative to facing
+        int rx = tx - dy, ry = ty + dx; // Right tile relative to facing
+
+        // Wall Checks
+        bool wallFront      = isWallAt(tx, ty);
+        bool wallLeftSide   = isWallAtSide(tx, ty, "left");  // The plane parallel to you
+        bool wallRightSide  = isWallAtSide(tx, ty, "right"); // The plane parallel to you
+        bool wallInLeftTile = isWallAt(lx, ly);              // The wall inside the side corridor
+        bool wallInRightTile = isWallAt(rx, ry);             // The wall inside the side corridor
+
+        // Screen coordinates for this depth
         int xL = xs[d];     int xR = w - xs[d];
         int yT = ys[d];     int yB = h - ys[d];
         int nxL = xs[d+1];  int nxR = w - xs[d+1];
         int nyT = ys[d+1];  int nyB = h - ys[d+1];
 
-        // --- 1. DRAW WIDE FLOOR & CEILING (Depth d) ---
-        // We draw the floor spanning from the far-left potential edge to far-right
-        // For a simple 3-tile wide view, we extend the floor/ceiling bounds
+        // --- 1. FLOOR & CEILING (Full Span) ---
         QPolygon floor, ceil;
-        
-        // Floor points: Bottom-Left, Bottom-Right, Top-Right(far), Top-Left(far)
         floor << QPoint(0, yB) << QPoint(w, yB) << QPoint(w, nyB) << QPoint(0, nyB);
         ceil << QPoint(0, yT) << QPoint(w, yT) << QPoint(w, nyT) << QPoint(0, nyT);
         
-        // Apply fog/depth shading
-        int colorVal = 60 - (d * 15); // Closer tiles are lighter
-        m_dungeonScene->addPolygon(floor, QPen(Qt::darkGray), QBrush(QColor(colorVal, colorVal, colorVal)));
-        m_dungeonScene->addPolygon(ceil, QPen(Qt::darkGray), QBrush(QColor(colorVal/2, colorVal/2, colorVal/2)));
+        int floorCol = qMax(0, 40 - (d * 10));
+        int ceilR = qMax(0, 80 - (d * 20)); // Brown base
+        m_dungeonScene->addPolygon(floor, QPen(Qt::NoPen), QBrush(QColor(floorCol, floorCol, floorCol)));
+        m_dungeonScene->addPolygon(ceil, QPen(Qt::NoPen), QBrush(QColor(ceilR, qMax(0, 50-(d*15)), qMax(0, 30-(d*10)))));
 
-        // --- 2. SIDE WALLS (Only if they exist at this tile) ---
-        if (wallLeft) {
-            QPolygon lWall;
-            lWall << QPoint(xL, yT) << QPoint(nxL, nyT) << QPoint(nxL, nyB) << QPoint(xL, yB);
-            m_dungeonScene->addPolygon(lWall, QPen(Qt::black), QBrush(QColor(80 - (d*10), 80 - (d*10), 80 - (d*10))));
+        // --- 2. SIDE-FACING WALLS (Corridor Walls) ---
+        int sideWallCol = qMax(0, 80 - (d * 15));
+        if (wallLeftSide) {
+            QPolygon p; p << QPoint(xL, yT) << QPoint(nxL, nyT) << QPoint(nxL, nyB) << QPoint(xL, yB);
+            m_dungeonScene->addPolygon(p, QPen(Qt::black), QBrush(QColor(sideWallCol, sideWallCol, sideWallCol)));
+            drawBrickPattern(p, d);
+        }
+        if (wallRightSide) {
+            QPolygon p; p << QPoint(xR, yT) << QPoint(nxR, nyT) << QPoint(nxR, nyB) << QPoint(xR, yB);
+            m_dungeonScene->addPolygon(p, QPen(Qt::black), QBrush(QColor(sideWallCol, sideWallCol, sideWallCol)));
+            drawBrickPattern(p, d);
+        }
+
+        // --- 3. FRONT-FACING WALLS IN SIDE CORRIDORS ---
+        // If there is NO side wall blocking the view, check if the adjacent tile has a wall
+        int sideRoomWallCol = qMax(0, 65 - (d * 15));
+        if (!wallLeftSide && wallInLeftTile) {
+            // Draw a wall on the left wing of the screen
+            m_dungeonScene->addRect(0, yT, xL, yB - yT, QPen(Qt::black), QBrush(QColor(sideRoomWallCol, sideRoomWallCol, sideRoomWallCol)));
+        }
+        if (!wallRightSide && wallInRightTile) {
+            // Draw a wall on the right wing of the screen
+            m_dungeonScene->addRect(xR, yT, w - xR, yB - yT, QPen(Qt::black), QBrush(QColor(sideRoomWallCol, sideRoomWallCol, sideRoomWallCol)));
+        }
+
+        // --- 4. FRONT WALL (Main Path) ---
+        if (wallFront) {
+            int frontCol = qMax(0, 110 - (d * 20));
+            m_dungeonScene->addRect(xL, yT, xR - xL, yB - yT, QPen(Qt::black), QBrush(QColor(frontCol, frontCol, frontCol)));
         }
         
-        if (wallRight) {
-            QPolygon rWall;
-            rWall << QPoint(xR, yT) << QPoint(nxR, nyT) << QPoint(nxR, nyB) << QPoint(xR, yB);
-            m_dungeonScene->addPolygon(rWall, QPen(Qt::black), QBrush(QColor(80 - (d*10), 80 - (d*10), 80 - (d*10))));
-        }
-
-        // --- 3. FRONT WALL ---
-        if (wallFront) {
-            // Draws a solid block in the center corridor
-            m_dungeonScene->addRect(xL, yT, xR - xL, yB - yT, QPen(Qt::black), QBrush(QColor(110 - (d*15), 110 - (d*15), 110 - (d*15))));
+        // 1. Check if there is a chute at this specific map tile
+        bool hasChute = m_chutePositions.contains({tx, ty});
+        // 2. Draw the chute on top of the floor
+        if (hasChute) {
+            drawChute(d, xL, xR, yB, nxL, nxR, nyB);
         }
     }
 }
+
+void DungeonDialog::drawBrickPattern(const QPolygon& wallPoly, int depth) {
+    QRect bounds = wallPoly.boundingRect();
+    QPen mortarPen(QColor(40, 40, 40, 150)); // Semi-transparent dark gray
+    mortarPen.setWidth(1);
+
+    int rows = 6;    // Number of brick layers
+    int columns = 4; // Number of bricks per row
+    
+    // Calculate row height
+    double rowHeight = static_cast<double>(bounds.height()) / rows;
+
+    for (int i = 1; i < rows; ++i) {
+        int y = bounds.top() + (i * rowHeight);
+        
+        // Find left and right edges of the polygon at this specific Y height
+        // to ensure bricks don't float outside the perspective wall
+        int xMin = bounds.right();
+        int xMax = bounds.left();
+        
+        // Basic scan-line logic to keep lines inside the trapezoid
+        for (int x = bounds.left(); x <= bounds.right(); ++x) {
+            if (wallPoly.containsPoint(QPoint(x, y), Qt::OddEvenFill)) {
+                xMin = qMin(xMin, x);
+                xMax = qMax(xMax, x);
+            }
+        }
+
+        // Draw horizontal mortar line
+        if (xMin < xMax) {
+            m_dungeonScene->addLine(xMin, y, xMax, y, mortarPen);
+            
+            // Draw vertical "staggered" mortar lines
+            double colWidth = static_cast<double>(xMax - xMin) / columns;
+            double offset = (i % 2 == 0) ? 0 : colWidth / 2; // Stagger bricks
+            
+            for (int j = 0; j <= columns; ++j) {
+                int vx = xMin + (j * colWidth) + offset;
+                if (vx > xMin && vx < xMax) {
+                    m_dungeonScene->addLine(vx, y, vx, y - rowHeight, mortarPen);
+                }
+            }
+        }
+    }
+}
+void DungeonDialog::drawChute(int d, int xL, int xR, int yB, int nxL, int nxR, int nyB) {
+    // We want the chute to be in the center of the tile floor
+    // Calculate a 40% width/depth hole
+    double margin = 0.3; 
+    
+    // Interpolate points for the "hole" on the floor
+    int cxL = xL + (xR - xL) * margin;
+    int cxR = xR - (xR - xL) * margin;
+    int cnxL = nxL + (nxR - nxL) * margin;
+    int cnxR = nxR - (nxR - nxL) * margin;
+    
+    // Perspective depth for the floor (yB to nyB)
+    int cyNear = yB;
+    int cyFar = yB + (nyB - yB) * 0.6; // The hole doesn't take the whole tile
+
+    QPolygon chuteHole;
+    chuteHole << QPoint(cxL, cyNear) << QPoint(cxR, cyNear) 
+              << QPoint(cnxR, cyFar) << QPoint(cnxL, cyFar);
+
+    // Draw the "void" (black hole)
+    m_dungeonScene->addPolygon(chuteHole, QPen(Qt::black), QBrush(Qt::black));
+
+    // Draw inner "walls" of the chute for a 3D effect
+    QPolygon leftInner;
+    leftInner << QPoint(cxL, cyNear) << QPoint(cnxL, cyFar) 
+              << QPoint(cnxL, cyFar + 10) << QPoint(cxL, cyNear + 10);
+    
+    int depthShade = qMax(0, 30 - (d * 10));
+    m_dungeonScene->addPolygon(leftInner, QPen(Qt::NoPen), QBrush(QColor(depthShade, depthShade, depthShade)));
+}
+

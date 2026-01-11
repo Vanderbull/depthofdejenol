@@ -202,6 +202,8 @@ private:
     bool isWallAt(int x, int y);
     bool isWallAtSide(int x, int y, const QString& side);
     void renderWireframeView();
+    void drawBrickPattern(const QPolygon& wallPoly, int depth);
+    void drawChute(int d, int xL, int xR, int yB, int nxL, int nxR, int nyB);
 
 protected:
     void resizeEvent(QResizeEvent *event) override;
