@@ -1,12 +1,12 @@
 CHARACTER_FILE_VERSION: 1.0
 Name: adam
 Race: Human
-DungeonX: 17
-DungeonY: 12
-DungeonLevel: 1
+DungeonX: 9
+DungeonY: 10
+DungeonLevel: 2
 Guild: Sorcerer
 Level: 1
-HP: 50
+HP: 45
 MaxHP: 50
 Gold: 1500
 Experience: 0

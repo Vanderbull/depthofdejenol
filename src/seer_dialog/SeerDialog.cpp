@@ -78,18 +78,65 @@ SeerDialog::~SeerDialog()
 
 void SeerDialog::on_characterButton_clicked()
 {
-    // High chance to find a character/clue
-    int randomChance = QRandomGenerator::global()->bounded(100);
-    int successThreshold = 60; // 60% chance of success
-    if (randomChance < successThreshold) {
-        // Success: Found a character clue
-        QString characterName = "Elara, The Sun's Blade";
-        QString message = QString("Success! You sense the spirit of a forgotten hero.\nSeek out **%1**.").arg(characterName);
+    // 1. Access the character save directory
+    QDir charDir("data/characters/");
+    QStringList files = charDir.entryList(QStringList() << "*.txt", QDir::Files);
 
-        QMessageBox::information(this, "Seer Option - Character Insight", message);
+    if (files.isEmpty()) {
+        QMessageBox::information(this, "The Seer", "The archives are empty. No souls reside in this realm yet.");
+        return;
+    }
+
+    // 2. Determine success (60% chance)
+    int randomChance = QRandomGenerator::global()->bounded(100);
+    if (randomChance < 60) {
+        // 3. Pick a random character file
+        int randomIndex = QRandomGenerator::global()->bounded(files.size());
+        QFile file(charDir.absoluteFilePath(files.at(randomIndex)));
+
+        QString name, level, guild, dX, dY, dLevel;
+        bool isAlive = true; // Default to true
+
+        // 4. Parse the file
+        if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+            QTextStream in(&file);
+            while (!in.atEnd()) {
+                QString line = in.readLine().trimmed();
+                if (line.startsWith("Name: ")) name = line.mid(6).trimmed();
+                if (line.startsWith("Level: ")) level = line.mid(7).trimmed();
+                if (line.startsWith("Guild: ")) guild = line.mid(7).trimmed();
+                if (line.startsWith("DungeonX: ")) dX = line.mid(10).trimmed();
+                if (line.startsWith("DungeonY: ")) dY = line.mid(10).trimmed();
+                if (line.startsWith("DungeonLevel: ")) dLevel = line.mid(14).trimmed();
+                
+                // Check for the isAlive flag
+                if (line.startsWith("isAlive: ")) {
+                    isAlive = (line.mid(9).trimmed() == "1" || line.mid(9).toLower() == "true");
+                }
+            }
+            file.close();
+        }
+
+        // 5. Build the vision description based on status
+        QString statusText = isAlive ? "<b style='color:green;'>Living</b>" : "<b style='color:red;'>Deceased (Ghost)</b>";
+        QString intro = isAlive ? "The mists part! You see a vision of a fellow explorer:" 
+                                : "The mists turn cold... You see the spirit of a fallen adventurer:";
+
+        if (!name.isEmpty()) {
+            QString message = QString(
+                "%1\n\n"
+                "**Name:** %2\n"
+                "**Status:** %3\n"
+                "**Rank:** Level %4 %5\n"
+                "**Location:** Floor %6, Position [%7, %8]"
+            ).arg(intro, name, statusText, level, guild, dLevel, dX, dY);
+
+            QMessageBox::information(this, "Seer Insight", message);
+        } else {
+            QMessageBox::warning(this, "Seer Insight", "The vision is too clouded to discern a name.");
+        }
     } else {
-        // Failure: No character insight this time
-        QMessageBox::information(this, "Seer Option - Search Failed", "The fates are silent. No notable character can be found at this time.");
+        QMessageBox::information(this, "Seer Option", "The mists remain thick. No notable characters appear in the glass.");
     }
 }
 
