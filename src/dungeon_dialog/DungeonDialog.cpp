@@ -107,9 +107,9 @@ void DungeonDialog::logMessage(const QString& message)
 // --- Gold Management Helper Function ---
 void DungeonDialog::updateGoldLabel()
 {
-    // UPDATED: Retrieve gold from GameStateManager
     quint64 currentGold = GameStateManager::instance()->getGameValue("PlayerGold").toULongLong();
-    if (m_goldLabel) {
+    if (m_goldLabel) 
+    {
         QString goldString = QStringLiteral("%L1").arg(currentGold);
         m_goldLabel->setText(QString("You have a total of **%1 Gold**.").arg(goldString));
     }
@@ -305,10 +305,10 @@ void DungeonDialog::generateSpecialTiles(int tileCount, QRandomGenerator& rng)
     m_studPositions.clear();
     m_chutePositions.clear();
     m_monsterPositions.clear();
-    //m_treasurePositions.clear();
     m_trapPositions.clear();
     m_waterPositions.clear();
     m_teleporterPositions.clear();
+
     GameStateManager* gsm = GameStateManager::instance();
     QPair<int, int> playerPos = {gsm->getGameValue("DungeonX").toInt(), gsm->getGameValue("DungeonY").toInt()};
     // Helper A: Get a tile ONLY from a room (No corridors!)
@@ -428,6 +428,7 @@ DungeonDialog::DungeonDialog(QWidget *parent)
     QVBoxLayout *rightPanelLayout = new QVBoxLayout();
     rootLayout->addLayout(leftPanelLayout, 3);
     rootLayout->addLayout(rightPanelLayout, 1);
+/*
     // 1. Party Status Table
     QGroupBox *partyBox = new QGroupBox("Party Status");
     QVBoxLayout *partyLayout = new QVBoxLayout(partyBox);
@@ -446,6 +447,7 @@ DungeonDialog::DungeonDialog(QWidget *parent)
     m_partyTable->setItem(0, 3, new QTableWidgetItem("Healthy"));
     partyLayout->addWidget(m_partyTable);
     leftPanelLayout->addWidget(partyBox);
+*/
     // 2. Dungeon View (Dungeon Scene/View will be here)
     QGraphicsView *dungeonView = new QGraphicsView(m_dungeonScene);
     dungeonView->setRenderHint(QPainter::Antialiasing);
@@ -563,13 +565,12 @@ DungeonDialog::DungeonDialog(QWidget *parent)
     // Connections (Stairs)
     connect(stairsDownButton, &QPushButton::clicked, this, &DungeonDialog::on_stairsDownButton_clicked);
     connect(stairsUpButton, &QPushButton::clicked, this, &DungeonDialog::on_stairsUpButton_clicked);
-m_graphicsView = new QGraphicsView(this);
-m_graphicsView->setFixedSize(300, 300); // Force the widget to be square
-m_graphicsView->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-m_graphicsView->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-
-m_dungeonScene = new QGraphicsScene(0, 0, 300, 300, this);
-m_graphicsView->setScene(m_dungeonScene);
+    m_graphicsView = new QGraphicsView(this);
+    m_graphicsView->setFixedSize(300, 300); // Force the widget to be square
+    m_graphicsView->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    m_graphicsView->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    m_dungeonScene = new QGraphicsScene(0, 0, 300, 300, this);
+    m_graphicsView->setScene(m_dungeonScene);
 }
 
 void DungeonDialog::updateExperienceLabel()
@@ -692,28 +693,28 @@ void DungeonDialog::on_fightButton_clicked()
     }
     // Example combat logic
     int monsterDamage = QRandomGenerator::global()->bounded(5, 15);
-    logMessage(QString("The monster hits you for %1 damage!").arg(monsterDamage));
     // This call now handles the HP < 0 check and the return to menu
     updatePartyMemberHealth(0, monsterDamage); 
+    logMessage(QString("The monster hits you for %1 damage!").arg(monsterDamage));
 }
 
 void DungeonDialog::on_spellButton_clicked() 
-{ 
+{
     logMessage("You try to cast some sort of spell but fail."); 
 }
 
 void DungeonDialog::on_takeButton_clicked() 
-{ 
+{
     logMessage("You try to take something, but there is nothing there."); 
 }
 
 void DungeonDialog::on_searchButton_clicked() 
-{ 
+{
     logMessage("You carefully search the area. Found nothing."); 
 }
 
 void DungeonDialog::on_talkButton_clicked() 
-{ 
+{
     logMessage("You try talking, but the silence replies."); 
 }
 
@@ -722,13 +723,25 @@ void DungeonDialog::on_chestButton_clicked()
     processTreasureOpening();
 }
 
-void DungeonDialog::checkMonsterSpawn() {}
+void DungeonDialog::checkMonsterSpawn() 
+{
+    logMessage("checking monster spawn");
+}
 
-void DungeonDialog::initiateFight() {}
+void DungeonDialog::initiateFight() 
+{
+    logMessage("Initiate fighting");
+}
 
-void DungeonDialog::on_winBattle_trigger() {}
+void DungeonDialog::on_winBattle_trigger() 
+{
+    logMessage("You won the battle");
+}
 
-void DungeonDialog::onEventTriggered(const GameEvent& ) { }
+void DungeonDialog::onEventTriggered(const GameEvent& ) 
+{
+    logMessage("Some kind of event was triggered");
+}
 
 void DungeonDialog::keyPressEvent(QKeyEvent *event)
 {
@@ -806,6 +819,7 @@ void DungeonDialog::keyPressEvent(QKeyEvent *event)
 // Suppress unused parameter warnings
 void DungeonDialog::spawnMonsters(const QString& , int ) 
 {
+    logMessage("Spawning some monsters");
 }
 
 void DungeonDialog::on_restButton_clicked() 
@@ -850,12 +864,15 @@ void DungeonDialog::updateDungeonView(const QImage& dungeonImage)
 
 void DungeonDialog::on_exitButton_clicked()
 {
+    handleSurfaceExit();
+    /*
     QMessageBox::StandardButton reply = QMessageBox::question(
         this, "Exit", "Exit to the City?", QMessageBox::Yes | QMessageBox::No
     );
     if (reply == QMessageBox::Yes) {
         handleSurfaceExit(); // Reuse the logic above
     }
+    */
 }
 
 void DungeonDialog::on_rotateLeftButton_clicked()
@@ -916,9 +933,9 @@ void DungeonDialog::rotate(int step)
     // Adding 4 ensures the result is positive when turning left from North (index 0)
     int nextIdx = (currentIdx + step + 4) % 4;
     updateCompass(dirs[nextIdx]);
-    logMessage(QString("You turn to the %1.").arg(step > 0 ? "right" : "left"));
     drawMinimap();
     renderWireframeView();
+    logMessage(QString("You turn to the %1.").arg(step > 0 ? "right" : "left"));
 }
 
 void DungeonDialog::transitionLevel(StairDirection direction)
@@ -988,7 +1005,8 @@ void DungeonDialog::processTreasureOpening()
         drawMinimap();
     }
 }
-void DungeonDialog::update3DView() {
+void DungeonDialog::update3DView() 
+{
     m_threeDScene->clear();
     m_threeDScene->setBackgroundBrush(Qt::black);
     QPen wirePen(Qt::green, 2); // Classic green phosphor look
@@ -1006,12 +1024,10 @@ void DungeonDialog::update3DView() {
         else if (facing.contains("South")) ty += d;
         else if (facing.contains("East")) tx += d;
         else if (facing.contains("West")) tx -= d;
-
         // Check for walls (Logic depends on your map data structure)
         bool hasFrontWall = isWallAt(tx, ty); 
         bool hasLeftWall = isWallAtSide(tx, ty, "left");
         bool hasRightWall = isWallAtSide(tx, ty, "right");
-
         drawWireframeWall(d, hasLeftWall, hasRightWall, hasFrontWall);
     }
 }
@@ -1040,7 +1056,6 @@ void DungeonDialog::drawWireframeWall(int depth, bool left, bool right, bool fro
     if (right) {
         m_threeDScene->addLine(currentRect.right(), currentRect.top(), currentRect.right(), currentRect.bottom(), pen);
     }
-    // Repeat logic for right walls...
 }
 
 bool DungeonDialog::isWallAt(int x, int y) {
@@ -1057,7 +1072,6 @@ bool DungeonDialog::isWallAtSide(int x, int y, const QString& side) {
     QString facing = m_compassLabel->text(); 
     int targetX = x;
     int targetY = y;
-
     // Relative logic: If facing North, "left" is West (-1, 0).
     // If facing South, "left" is East (+1, 0), etc.
     if (facing == "Facing North") {
@@ -1069,7 +1083,6 @@ bool DungeonDialog::isWallAtSide(int x, int y, const QString& side) {
     } else if (facing == "Facing West") {
         targetY = (side == "left") ? y + 1 : y - 1;
     }
-
     return isWallAt(targetX, targetY);
 }
 
@@ -1097,15 +1110,12 @@ void DungeonDialog::renderWireframeView() {
         else if (facing.contains("South")) dy = 1;
         else if (facing.contains("East"))  dx = 1;
         else if (facing.contains("West"))  dx = -1;
-
         tx += (dx * d);
         ty += (dy * d);
-
         // 2. Calculate coordinates for adjacent tiles (Left/Right) at this depth
         // This is necessary to see if the side-corridor is blocked by a wall
         int lx = tx + dy, ly = ty - dx; // Left tile relative to facing
         int rx = tx - dy, ry = ty + dx; // Right tile relative to facing
-
         // Wall Checks
         bool wallFront      = isWallAt(tx, ty);
         bool wallLeftSide   = isWallAtSide(tx, ty, "left");  // The plane parallel to you
@@ -1128,7 +1138,6 @@ void DungeonDialog::renderWireframeView() {
         int ceilR = qMax(0, 80 - (d * 20)); // Brown base
         m_dungeonScene->addPolygon(floor, QPen(Qt::NoPen), QBrush(QColor(floorCol, floorCol, floorCol)));
         m_dungeonScene->addPolygon(ceil, QPen(Qt::NoPen), QBrush(QColor(ceilR, qMax(0, 50-(d*15)), qMax(0, 30-(d*10)))));
-
         // --- 2. SIDE-FACING WALLS (Corridor Walls) ---
         int sideWallCol = qMax(0, 80 - (d * 15));
         if (wallLeftSide) {
@@ -1141,7 +1150,6 @@ void DungeonDialog::renderWireframeView() {
             m_dungeonScene->addPolygon(p, QPen(Qt::black), QBrush(QColor(sideWallCol, sideWallCol, sideWallCol)));
             drawBrickPattern(p, d);
         }
-
         // --- 3. FRONT-FACING WALLS IN SIDE CORRIDORS ---
         // If there is NO side wall blocking the view, check if the adjacent tile has a wall
         int sideRoomWallCol = qMax(0, 65 - (d * 15));
@@ -1153,10 +1161,8 @@ void DungeonDialog::renderWireframeView() {
             // Draw a wall on the right wing of the screen
             m_dungeonScene->addRect(xR, yT, w - xR, yB - yT, QPen(Qt::black), QBrush(QColor(sideRoomWallCol, sideRoomWallCol, sideRoomWallCol)));
         }
-        
-        
-        
-bool hasAntimagic = m_antimagicPositions.contains({tx, ty});
+
+        bool hasAntimagic = m_antimagicPositions.contains({tx, ty});
 
         // 1. Draw floor/ceiling
         // ... 
@@ -1178,7 +1184,7 @@ bool hasAntimagic = m_antimagicPositions.contains({tx, ty});
         }
 
 
-// 1. Check if this tile is a Spinner (Rotator)
+        // 1. Check if this tile is a Spinner (Rotator)
         bool hasSpinner = m_rotatorPositions.contains({tx, ty});
 
         // ... (Existing Floor, Ceiling, and Side Wall rendering)
@@ -1188,7 +1194,7 @@ bool hasAntimagic = m_antimagicPositions.contains({tx, ty});
             drawSpinner(d, xL, xR, yB, nxL, nxR, nyB);
         }
 
-// 1. Check for teleporter at this map coordinate
+        // 1. Check for teleporter at this map coordinate
         bool hasTeleporter = m_teleporterPositions.contains({tx, ty});
 
         // ... existing Floor/Ceiling/Side Wall rendering ...
@@ -1198,7 +1204,7 @@ bool hasAntimagic = m_antimagicPositions.contains({tx, ty});
             drawTeleporter(d, xL, xR, yB, nxL, nxR, nyB);
         }
 
-// Check if there is a monster at this coordinate
+        // Check if there is a monster at this coordinate
         bool hasMonster = m_monsterPositions.contains({tx, ty});
 
         // ... (draw floor and side walls)
@@ -1213,7 +1219,6 @@ bool hasAntimagic = m_antimagicPositions.contains({tx, ty});
             int frontCol = qMax(0, 110 - (d * 20));
             m_dungeonScene->addRect(xL, yT, xR - xL, yB - yT, QPen(Qt::black), QBrush(QColor(frontCol, frontCol, frontCol)));
         }
-        
         // 1. Check if there is a chute at this specific map tile
         bool hasChute = m_chutePositions.contains({tx, ty});
         // 2. Draw the chute on top of the floor
@@ -1223,7 +1228,8 @@ bool hasAntimagic = m_antimagicPositions.contains({tx, ty});
     }
 }
 
-void DungeonDialog::drawBrickPattern(const QPolygon& wallPoly, int depth) {
+void DungeonDialog::drawBrickPattern(const QPolygon& wallPoly, int depth) 
+{
     QRect bounds = wallPoly.boundingRect();
     QPen mortarPen(QColor(40, 40, 40, 150)); // Semi-transparent dark gray
     mortarPen.setWidth(1);
@@ -1267,7 +1273,8 @@ void DungeonDialog::drawBrickPattern(const QPolygon& wallPoly, int depth) {
         }
     }
 }
-void DungeonDialog::drawChute(int d, int xL, int xR, int yB, int nxL, int nxR, int nyB) {
+void DungeonDialog::drawChute(int d, int xL, int xR, int yB, int nxL, int nxR, int nyB) 
+{
     // We want the chute to be in the center of the tile floor
     // Calculate a 40% width/depth hole
     double margin = 0.3; 
@@ -1320,7 +1327,8 @@ void DungeonDialog::drawMonster(int d, int xL, int xR, int yB) {
     m_dungeonScene->addRect(body, QPen(Qt::black), QBrush(monsterColor));
 }
 
-void DungeonDialog::drawTeleporter(int d, int xL, int xR, int yB, int nxL, int nxR, int nyB) {
+void DungeonDialog::drawTeleporter(int d, int xL, int xR, int yB, int nxL, int nxR, int nyB) 
+{
     // Calculate the center and size of the tile floor
     int centerX = xL + (xR - xL) / 2;
     int centerY = yB + (nyB - yB) / 2;
@@ -1350,7 +1358,9 @@ void DungeonDialog::drawTeleporter(int d, int xL, int xR, int yB, int nxL, int n
         m_dungeonScene->addRect(sx, sy, 1, 1, QPen(Qt::white), QBrush(Qt::white));
     }
 }
-void DungeonDialog::drawSpinner(int d, int xL, int xR, int yB, int nxL, int nxR, int nyB) {
+
+void DungeonDialog::drawSpinner(int d, int xL, int xR, int yB, int nxL, int nxR, int nyB) 
+{
     // Calculate the center of the tile floor using both near and far bounds
     int centerX = (xL + xR + nxL + nxR) / 4;
     int centerY = (yB + nyB) / 2;
@@ -1415,7 +1425,9 @@ void DungeonDialog::drawWater(int d, int xL, int xR, int yB, int nxL, int nxR, i
         m_dungeonScene->addLine(rippleStart, ry, rippleStart + rippleWidth, ry, ripplePen);
     }
 }
-void DungeonDialog::drawAntimagic(int d, int xL, int xR, int yB, int nxL, int nxR, int nyB) {
+
+void DungeonDialog::drawAntimagic(int d, int xL, int xR, int yB, int nxL, int nxR, int nyB) 
+{
     // Define the floor polygon for clipping or reference
     QPolygon floorPoly;
     floorPoly << QPoint(xL, yB) << QPoint(xR, yB) << QPoint(nxR, nyB) << QPoint(nxL, nyB);
@@ -1447,4 +1459,3 @@ void DungeonDialog::drawAntimagic(int d, int xL, int xR, int yB, int nxL, int nx
         m_dungeonScene->addLine(xHLeft, yHoriz, xHRight, yHoriz, staticPen);
     }
 }
-
