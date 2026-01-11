@@ -170,24 +170,31 @@ void TheCity::loadButtonIcons()
 
     morgueButton->setIcon(QIcon(GameResources::getPixmap("morgue")));
     morgueButton->setIconSize(iconSize);
+    morgueButton->setToolTip("Morgue");
 
     guildsButton->setIcon(QIcon(GameResources::getPixmap("guilds")));
     guildsButton->setIconSize(iconSize);
+    guildsButton->setToolTip("Guilds");
 
     dungeonButton->setIcon(QIcon(GameResources::getPixmap("dungeon")));
     dungeonButton->setIconSize(iconSize);
+    dungeonButton->setToolTip("Dungeon");
 
     confinementButton->setIcon(QIcon(GameResources::getPixmap("confinement")));
     confinementButton->setIconSize(iconSize);
+    confinementButton->setToolTip("Confinement");
 
     seerButton->setIcon(QIcon(GameResources::getPixmap("seer")));
     seerButton->setIconSize(iconSize);
+    seerButton->setToolTip("Seer");
 
     bankButton->setIcon(QIcon(GameResources::getPixmap("bank")));
     bankButton->setIconSize(iconSize);
+    bankButton->setToolTip("Bank");
 
     exitButton->setIcon(QIcon(GameResources::getPixmap("exit_icon")));
     exitButton->setIconSize(iconSize);
+    exitButton->setToolTip("Exit to main menu");
 }
 
 void TheCity::setupStyling()

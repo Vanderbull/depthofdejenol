@@ -1,8 +1,8 @@
 CHARACTER_FILE_VERSION: 1.0
 Name: a
 Race: Human
-DungeonX: 19
-DungeonY: 8
+DungeonX: 17
+DungeonY: 12
 DungeonLevel: 1
 Guild: Sorcerer
 Level: 1
