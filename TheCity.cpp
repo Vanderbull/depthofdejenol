@@ -264,7 +264,57 @@ void TheCity::startOfflineMode() {
     isOfflineMode = true;
     setWindowTitle("The City - Offline Mode");
     
-    playerList->addItem("Local Hero (You)");
-    chatDisplay->append("<i style='color:orange;'>You are playing offline. Multiplayer features disabled.</i>");
+    playerList->clear();
+
+    // 1. ADD THE CURRENT ACTIVE PLAYER (IF IN CITY)
+    int curX = GameStateManager::instance()->getGameValue("DungeonX").toInt();
+    int curY = GameStateManager::instance()->getGameValue("DungeonY").toInt();
+    int curLvl = GameStateManager::instance()->getGameValue("DungeonLevel").toInt();
+
+    // Check if current player is at entrance (1, 17, 12)
+    if (curLvl == 1 && curX == 17 && curY == 12) {
+        QListWidgetItem* selfItem = new QListWidgetItem(
+            GameStateManager::instance()->getGameValue("CurrentCharacterName").toString() + " (You)"
+        );
+        selfItem->setForeground(Qt::blue); 
+        playerList->addItem(selfItem);
+    }
+
+    // 2. SCAN FOR OTHER SAVED CHARACTERS
+    QDir charDir("data/characters/");
+    if (charDir.exists()) {
+        QStringList saveFiles = charDir.entryList({"*.txt"}, QDir::Files);
+        QString currentHero = GameStateManager::instance()->getGameValue("CurrentCharacterName").toString();
+
+        for (const QString& fileName : saveFiles) {
+            QString charName = fileName.left(fileName.lastIndexOf('.'));
+
+            // Skip the character we are currently playing
+            if (charName == currentHero) continue;
+
+            // Peek into the file to check position
+            QFile file(charDir.absoluteFilePath(fileName));
+            if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+                QTextStream in(&file);
+                int x = -1, y = -1, lvl = -1;
+
+                while (!in.atEnd()) {
+                    QString line = in.readLine();
+                    if (line.startsWith("DungeonX:")) x = line.split(": ")[1].toInt();
+                    else if (line.startsWith("DungeonY:")) y = line.split(": ")[1].toInt();
+                    else if (line.startsWith("DungeonLevel:")) lvl = line.split(": ")[1].toInt();
+                }
+
+                // Only add if they are at the City Entrance coordinates
+                if (lvl == 1 && x == 17 && y == 12) {
+                    playerList->addItem(charName);
+                }
+                file.close();
+            }
+        }
+    }
+    
+    chatDisplay->append("<i style='color:gray;'>Offline mode: Local heroes at the entrance are visible.</i>");
 }
+
 TheCity::~TheCity() {}

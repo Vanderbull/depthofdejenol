@@ -640,6 +640,9 @@ bool GameStateManager::saveCharacterToFile(int partyIndex)
     out << "CHARACTER_FILE_VERSION: 1.0\n";
     out << "Name: " << characterName << "\n";
     out << "Race: " << character["Race"].toString() << "\n";
+    out << "DungeonX: " << getGameValue("DungeonX").toInt() << "\n";
+    out << "DungeonY: " << getGameValue("DungeonY").toInt() << "\n";
+    out << "DungeonLevel: " << getGameValue("DungeonLevel").toInt() << "\n";
     out << "Guild: " << character["Guild"].toString() << "\n";
     out << "Level: " << character["Level"].toInt() << "\n";
     out << "HP: " << character["HP"].toInt() << "\n";
