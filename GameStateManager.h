@@ -1,10 +1,12 @@
 #ifndef GAMESTATEMANAGER_H
 #define GAMESTATEMANAGER_H
 
+#include "character.h"
 #include <QObject>
 #include <QVariantMap>
 #include <QtGlobal>
 #include <QTimer>
+
 
 class GameStateManager : public QObject
 {
@@ -40,6 +42,7 @@ signals:
     void gameValueChanged(const QString& key, const QVariant& value);
 
 private:
+    QList<Character> m_PC;
     QList<PlacedItem> m_placedItems;
     QVariantMap m_gameStateData;
     QMap<QString, int> m_confinementStock;
