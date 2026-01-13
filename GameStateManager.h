@@ -42,6 +42,7 @@ signals:
     void gameValueChanged(const QString& key, const QVariant& value);
 
 private:
+    QVariantList party;
     QList<Character> m_PC;
     QList<PlacedItem> m_placedItems;
     QVariantMap m_gameStateData;

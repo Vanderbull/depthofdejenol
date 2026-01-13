@@ -2,29 +2,58 @@
 #define CHARACTER_H
 
 #include <QString>
+#include <QStringList>
 #include <QVariantMap>
 
 struct Character {
-    QVariantMap map;
-    Character()
-    {
-        map["name"] = "NoName";
-        map["level"] = 0;
-        map["experience"] = 0;
-        map["hp"] = 0;
-        map["maxhp"] = 0;
-        map["gold"] = 1500;
-        map["Strength"] = 0;
-        map["Intelligence"] = 0;
-        map["Wisdom"] = 0;
-        map["Constitution"] = 0;
-        map["Charisma"] = 0;
-        map["Dexterity"] = 0;
-        map["poisoned"] = 0;
-        map["blinded"] = 0;
-        map["diseased"] = 0;
-        map["isAlive"] = 0;
-        map["inventory"] = QStringList();
+    // Basic Info
+    QString name;
+    int level;
+    int experience;
+    int hp;
+    int maxHp;
+    int gold;
+
+    // Stats
+    int strength;
+    int intelligence;
+    int wisdom;
+    int constitution;
+    int charisma;
+    int dexterity;
+
+    // Status Effects
+    bool poisoned;
+    bool blinded;
+    bool diseased;
+    bool isAlive;
+
+    // Items
+    QStringList inventory;
+
+    // Helper function to map data safely
+    void loadFromMap(const QVariantMap &map) {
+        name         = map.value("Name").toString();
+        level        = map.value("Level").toInt();
+        experience   = map.value("Experience").toInt();
+        hp           = map.value("HP").toInt();
+        maxHp        = map.value("MaxHP").toInt();
+        gold         = map.value("Gold").toInt();
+        
+        strength     = map.value("Strength").toInt();
+        intelligence = map.value("Intelligence").toInt();
+        wisdom       = map.value("Wisdom").toInt();
+        constitution = map.value("Constitution").toInt();
+        charisma     = map.value("Charisma").toInt();
+        dexterity    = map.value("Dexterity").toInt();
+        
+        // Using toBool() or comparing to 1 for status
+        poisoned     = map.value("Poisoned").toBool();
+        blinded      = map.value("Blinded").toBool();
+        diseased     = map.value("Diseased").toBool();
+        isAlive      = map.value("isAlive").toBool();
+        
+        inventory    = map.value("Inventory").toStringList();
     }
 };
 

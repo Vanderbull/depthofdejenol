@@ -1,4 +1,5 @@
 #include "GameStateManager.h"
+//#include "character.h"
 #include <QDebug> 
 #include <QVariantList> 
 #include <QVariantMap> 
@@ -20,18 +21,18 @@ GameStateManager* GameStateManager::instance()
     return &instance;
 }
 // Add these helper methods
-void GameStateManager::incrementStock(const QString& name) 
+void GameStateManager::incrementStock(const QString& name)
 {
     m_confinementStock[name] = m_confinementStock.value(name, 0) + 1;
 }
 
-void GameStateManager::decrementStock(const QString& name) 
+void GameStateManager::decrementStock(const QString& name)
 {
     int current = m_confinementStock.value(name, 0);
     if (current > 0) m_confinementStock[name] = current - 1;
 }
 
-QMap<QString, int> GameStateManager::getConfinementStock() const 
+QMap<QString, int> GameStateManager::getConfinementStock() const
 {
     return m_confinementStock;
 }
@@ -39,10 +40,13 @@ QMap<QString, int> GameStateManager::getConfinementStock() const
 GameStateManager::GameStateManager(QObject *parent)
     : QObject(parent)
 {
+    struct GameState {
+        QList<Character> Party;
+    };
     m_autosaveTimer = new QTimer(this);
     connect(m_autosaveTimer, &QTimer::timeout, this, &GameStateManager::handleAutosave);
     // Initialize party members
-    QVariantList party;
+    //QVariantList party;
     for (int i = 0; i < MAX_PARTY_SIZE; ++i) {
         QVariantMap character;
         character["Name"] = "Empty Slot";
@@ -64,8 +68,12 @@ GameStateManager::GameStateManager(QObject *parent)
         character["Diseased"] = 0;
         character["isAlive"] = 0;
         character["Inventory"] = QStringList();
-
         party.append(character);
+        Character c;
+        // 3. Fill the struct using the helper function
+        c.loadFromMap(character);
+        // 4. Add to your list
+        m_PC.append(c);
     }
     // You can also initialize a list for the whole party if needed
     m_gameStateData["PartyHP"] = QVariantList({50, 40, 30});
