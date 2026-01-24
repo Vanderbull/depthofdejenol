@@ -104,9 +104,9 @@ private:
     bool m_chestFound;
     MonsterAttitude m_currentMonsterAttitude;
     // Character State Members (for GameState)
-    QString m_partyLeaderName; 
-    QString m_partyLeaderRace; 
-    QString m_partyLeaderAlignment; 
+    //QString m_partyLeaderName; 
+    //QString m_partyLeaderRace; 
+    //QString m_partyLeaderAlignment; 
     // UI Member Widgets
     QLabel *m_locationLabel;
     QLabel *m_compassLabel;
@@ -138,11 +138,11 @@ private:
     void updateExperienceLabel();
     // Gold Management Members
     QLabel *m_goldLabel;
-    void refreshHealthUI();
+    //void refreshHealthUI();
     void updateGoldLabel();
     PartyInfoDialog *m_partyInfoDialog;
     // Party Management Member
-    QTableWidget *m_partyTable;
+    //QTableWidget *m_partyTable;
     // Health Management Helper
     void updatePartyMemberHealth(int row, int damage);
     // Map generation/management

@@ -85,17 +85,6 @@ void DungeonDialog::resizeEvent(QResizeEvent *event)
     }
 }
 
-void DungeonDialog::refreshHealthUI()
-{
-    GameStateManager* gsm = GameStateManager::instance();
-    int currentHp = gsm->getGameValue("CurrentCharacterHP").toInt();
-    int maxHp = gsm->getGameValue("MaxCharacterHP").toInt();
-    QTableWidgetItem *hpItem = m_partyTable->item(0, 2);
-    if (hpItem) {
-        hpItem->setText(QString("%1/%2").arg(currentHp).arg(maxHp));
-        hpItem->setForeground(currentHp <= (maxHp * 0.2) ? Qt::red : Qt::black);
-    }
-}
 // --- Helper Function: logMessage (Must be defined as a member) ---
 void DungeonDialog::logMessage(const QString& message)
 {
@@ -130,7 +119,6 @@ void DungeonDialog::updatePartyMemberHealth(int row, int damage)
             this->close(); 
             emit exitedDungeonToCity(); // Assuming this returns you to the menu/city
         }
-        refreshHealthUI();
     }
 }
 // --- Dungeon Management (Movement, Drawing, Encounters) ---
@@ -387,20 +375,10 @@ DungeonDialog::DungeonDialog(QWidget *parent)
     setWindowTitle("Dungeon: Depth of Dejenol");
     setMinimumSize(1000, 750);
     // Load GameStateManager data
-    // RETRIEVE CHARACTER DATA FROM GAME STATE MANAGER
-    m_partyLeaderName = gsm->getGameValue("CurrentCharacterName").toString();
-    m_partyLeaderRace = gsm->getGameValue("CurrentCharacterRace").toString();
-    m_partyLeaderAlignment = gsm->getGameValue("CurrentCharacterAlignment").toString();
+
     // Retrieve Constitution to calculate a simple placeholder for maximum HP
     int con = gsm->getGameValue("CurrentCharacterConstitution").toInt();
     int maxHP = (con > 0) ? con * 5 : 50; 
-    if (m_partyLeaderName.isEmpty()) {
-        m_partyLeaderName = "Unnamed Hero";
-        m_partyLeaderRace = "Human";
-        m_partyLeaderAlignment = "Neutral";
-        maxHP = 50;
-        logMessage("WARNING: No character data found in GameState. Using defaults.");
-    }
     // --- Retrieve/Set persistent dungeon state (New GameState logic) ---
     int initialLevel = gsm->getGameValue("DungeonLevel").toInt();
     int initialX = gsm->getGameValue("DungeonX").toInt();
@@ -431,24 +409,6 @@ DungeonDialog::DungeonDialog(QWidget *parent)
     QVBoxLayout *rightPanelLayout = new QVBoxLayout();
     rootLayout->addLayout(leftPanelLayout, 3);
     rootLayout->addLayout(rightPanelLayout, 1);
-    // 1. Party Status Table
-    QGroupBox *partyBox = new QGroupBox("Party Status");
-    QVBoxLayout *partyLayout = new QVBoxLayout(partyBox);
-    m_partyTable = new QTableWidget(1, 4); // This member is now confirmed in the header
-    // 1. Party Status Table - Change Height to Minimum/Preferred
-    m_partyTable->setMinimumHeight(70); 
-    m_partyTable->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
-    m_partyTable->setHorizontalHeaderLabels({"Name", "Race", "HP", "Status"});
-    m_partyTable->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
-    m_partyTable->verticalHeader()->setVisible(false);
-    m_partyTable->setEditTriggers(QAbstractItemView::NoEditTriggers);
-    // Insert the character data retrieved from Game State
-    m_partyTable->setItem(0, 0, new QTableWidgetItem(m_partyLeaderName));
-    m_partyTable->setItem(0, 1, new QTableWidgetItem(m_partyLeaderRace));
-    m_partyTable->setItem(0, 2, new QTableWidgetItem(QString("%1/%1").arg(maxHP)));
-    m_partyTable->setItem(0, 3, new QTableWidgetItem("Healthy"));
-    partyLayout->addWidget(m_partyTable);
-    leftPanelLayout->addWidget(partyBox);
     // 2. Dungeon View (Dungeon Scene/View will be here)
     QGraphicsView *dungeonView = new QGraphicsView(m_dungeonScene);
     dungeonView->setRenderHint(QPainter::Antialiasing);
@@ -472,7 +432,7 @@ DungeonDialog::DungeonDialog(QWidget *parent)
     m_compassLabel = new QLabel("Facing North");
     infoLayout->addWidget(m_compassLabel, 1, 0);
     // Display Character Alignment as part of info
-    QLabel *alignmentLabel = new QLabel(QString("Alignment: **%1**").arg(m_partyLeaderAlignment));
+    QLabel *alignmentLabel = new QLabel(QString("Alignment: **%1**").arg("TODO"));
     infoLayout->addWidget(alignmentLabel, 1, 1);
     rightPanelLayout->addWidget(infoBox);
     updateExperienceLabel();
@@ -541,7 +501,6 @@ DungeonDialog::DungeonDialog(QWidget *parent)
     rightPanelLayout->addLayout(stairsLayout);
     rootLayout->addLayout(rightPanelLayout); 
     // Initial log messages
-    logMessage(QString("Welcome, **%1** (the %2 %3), to the Dungeon!").arg(m_partyLeaderName).arg(m_partyLeaderAlignment).arg(m_partyLeaderRace));
     enterLevel(initialLevel); // Use initialLevel retrieved from GameState
     // Connections (Movements)
     connect(m_upButton, &QPushButton::clicked, this, &DungeonDialog::moveForward);
@@ -821,7 +780,6 @@ void DungeonDialog::on_restButton_clicked()
     int newHp = qMin(maxHp, currentHp + healAmount);
     gsm->setGameValue("CurrentCharacterHP", newHp);
     logMessage(QString("You rest and recover %1 HP.").arg(newHp - currentHp));
-    refreshHealthUI();
 }
 
 void DungeonDialog::on_stairsDownButton_clicked()
