@@ -532,6 +532,10 @@ m_graphicsView->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 
 m_dungeonScene = new QGraphicsScene(0, 0, 300, 300, this);
 m_graphicsView->setScene(m_dungeonScene);
+
+// ADD THESE LINES AT THE END OF THE CONSTRUCTOR:
+    drawMinimap();
+    renderWireframeView();
 }
 
 void DungeonDialog::updateExperienceLabel()
