@@ -59,6 +59,8 @@ signals:
     void companionCarried(int companionId);
     void exitedDungeonToCity();
 private slots:
+    void processCombatTick(); // Add this under private slots
+    void on_fightButton_clicked();
     // --- NEW MOVEMENT SLOTS ---
     void moveForward();
     void moveBackward();
@@ -72,7 +74,7 @@ private slots:
     void on_mapButton_clicked();
     void on_pickupButton_clicked();
     void on_dropButton_clicked();
-    void on_fightButton_clicked();
+    //void on_fightButton_clicked();
     void on_spellButton_clicked();
     void on_takeButton_clicked();
     void on_openButton_clicked();
@@ -87,7 +89,18 @@ private slots:
     void checkMonsterSpawn();
     void initiateFight();
     void on_winBattle_trigger();
+    
 private:
+    QPair<int, int> getCurrentPosition(); // The helper function
+    QTimer *m_combatTimer = nullptr; // MUST be here
+    int m_playerAttackCooldown = 0;
+    int m_monsterAttackCooldown = 0;
+    bool m_isFighting = false;
+
+
+    void performPlayerAttack();
+    void performMonsterAttack();
+
     QString m_activeMonsterName;
     int m_activeMonsterHP;
     bool m_isInCombat = false;

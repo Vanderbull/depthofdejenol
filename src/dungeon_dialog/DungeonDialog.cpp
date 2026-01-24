@@ -536,6 +536,8 @@ m_graphicsView->setScene(m_dungeonScene);
 // ADD THESE LINES AT THE END OF THE CONSTRUCTOR:
     drawMinimap();
     renderWireframeView();
+    // ADD THIS LINE TO PREVENT THE CRASH:
+    m_combatTimer = new QTimer(this);
 }
 
 void DungeonDialog::updateExperienceLabel()
@@ -648,46 +650,96 @@ void DungeonDialog::on_teleportButton_clicked()
     emit teleporterUsed();
 }
 
-void DungeonDialog::on_fightButton_clicked()
+void DungeonDialog::on_fightButton_clicked() 
+{
+    // If it exists, kill it so we start fresh for this test
+    if (m_combatTimer) {
+        m_combatTimer->stop();
+        delete m_combatTimer;
+    }
+
+    m_combatTimer = new QTimer(this);
+    
+    // Use the Lambda to bypass all slot logic
+    connect(m_combatTimer, &QTimer::timeout, [this]() {
+        qDebug() << "--- ACTUAL HARDWARE TICK ---"; 
+        this->processCombatTick();
+    });
+
+    m_isFighting = true;
+    m_combatTimer->start(100); 
+    logMessage("FORCING TIMER START...");
+}
+/*
+void DungeonDialog::processCombatTick() 
+{
+    // Verification: Look at your console output!
+    qDebug() << "TICK - isFighting:" << m_isFighting;
+
+    if (!m_isFighting) return;
+
+    // Mordor Logic: Build up energy for an attack
+    // We increment by 100 because our timer runs every 100ms
+    m_playerAttackCooldown += 100; 
+
+    // Once we reach 1000ms (1 second), we swing
+    if (m_playerAttackCooldown >= 1000) {
+        performPlayerAttack();
+        m_playerAttackCooldown = 0; // Reset for next swing
+    }
+}*/
+void DungeonDialog::processCombatTick() 
+{
+    if (!m_isFighting) return;
+
+    // --- PLAYER LOGIC ---
+    m_playerAttackCooldown += 100; 
+    if (m_playerAttackCooldown >= 1000) { // Player swings every 1.0s
+        performPlayerAttack();
+        m_playerAttackCooldown = 0;
+    }
+
+    // --- MONSTER LOGIC ---
+    // Increment monster cooldown by 100ms per tick
+    m_monsterAttackCooldown += 100;
+
+    // Let's say the monster is slightly slower, attacking every 1.4 seconds
+    if (m_monsterAttackCooldown >= 1400) {
+        performMonsterAttack();
+        m_monsterAttackCooldown = 0;
+    }
+}
+
+
+void DungeonDialog::performPlayerAttack() {
+    int damage = QRandomGenerator::global()->bounded(5, 15);
+    m_activeMonsterHP -= damage;
+    logMessage(QString("You hit the monster for %1 damage!").arg(damage));
+
+    if (m_activeMonsterHP <= 0) {
+        logMessage("The monster falls!");
+        m_isFighting = false;
+        m_combatTimer->stop();
+        
+        // Remove monster from map and refresh view
+        QPair<int, int> pos = getCurrentPosition();
+        m_monsterPositions.remove(pos);
+        renderWireframeView();
+    }
+}
+
+void DungeonDialog::performMonsterAttack() {
+    int damage = QRandomGenerator::global()->bounded(1, 10);
+    updatePartyMemberHealth(0, damage);
+    logMessage(QString("<font color='red'>The monster hits you for %1 damage!</font>").arg(damage));
+}
+
+// DungeonDialog.cpp
+QPair<int, int> DungeonDialog::getCurrentPosition()
 {
     GameStateManager* gsm = GameStateManager::instance();
-    QPair<int, int> pos = {gsm->getGameValue("DungeonX").toInt(), gsm->getGameValue("DungeonY").toInt()};
-
-    // 1. Check if there is actually a monster here
-    if (!m_monsterPositions.contains(pos)) {
-        logMessage("There is nothing here to fight.");
-        return;
-    }
-
-    m_activeMonsterName = m_monsterPositions.value(pos);
-    
-    // 2. Simple Combat Loop
-    int strength = gsm->getGameValue("CurrentCharacterStrength").toInt();
-    int damageToMonster = QRandomGenerator::global()->bounded(1, strength + 1);
-    
-    logMessage(QString("You attack the **%1** for %2 damage!").arg(m_activeMonsterName).arg(damageToMonster));
-
-    // 3. Monster Counter-Attack
-    int monsterDamage = QRandomGenerator::global()->bounded(1, 8);
-    updatePartyMemberHealth(0, monsterDamage); 
-    logMessage(QString("The %1 hits you back for %2 damage!").arg(m_activeMonsterName).arg(monsterDamage));
-
-    // 4. Handle Victory (Placeholder for HP tracking)
-    // For now, let's say 50% chance to kill on every hit for testing
-    if (QRandomGenerator::global()->bounded(100) < 40) {
-        logMessage(QString("You have defeated the **%1**!").arg(m_activeMonsterName));
-        m_monsterPositions.remove(pos); // Remove from map
-        
-        // Reward Gold and XP
-        quint64 xpReward = 50;
-        quint64 goldReward = 20;
-        gsm->setGameValue("PlayerExperience", gsm->getGameValue("PlayerExperience").toULongLong() + xpReward);
-        gsm->setGameValue("PlayerGold", gsm->getGameValue("PlayerGold").toULongLong() + goldReward);
-        
-        updateExperienceLabel();
-        updateGoldLabel();
-        renderWireframeView(); // Refresh view to remove monster sprite
-    }
+    return qMakePair(gsm->getGameValue("DungeonX").toInt(), 
+                     gsm->getGameValue("DungeonY").toInt());
 }
 
 void DungeonDialog::on_spellButton_clicked() 

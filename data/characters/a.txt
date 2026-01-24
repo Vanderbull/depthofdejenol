@@ -1,12 +1,12 @@
 CHARACTER_FILE_VERSION: 1.0
 Name: a
 Race: 
-DungeonX: 4
-DungeonY: 27
-DungeonLevel: 1
+DungeonX: 9
+DungeonY: 3
+DungeonLevel: 2
 Guild: 
 Level: 1
-HP: 4
+HP: 15
 MaxHP: 50
 CurrentCharacterGold: 1500
 Experience: 0
