@@ -1,20 +1,22 @@
 CHARACTER_FILE_VERSION: 1.0
 Name: a
-Race: Human
-DungeonX: 11
-DungeonY: 23
+Race: 
+DungeonX: 17
+DungeonY: 12
 DungeonLevel: 1
-Guild: Sorcerer
+Guild: 
 Level: 1
-HP: 0
+HP: 50
 MaxHP: 50
-Gold: 1500
+CurrentCharacterGold: 1500
 Experience: 0
 isAlive: 1
-Strength: 4
-Intelligence: 4
-Wisdom: 9
-Constitution: 6
-Charisma: 5
-Dexterity: 6
+isAlive: 1
+inCity: 0
+Strength: 0
+Intelligence: 0
+Wisdom: 0
+Constitution: 0
+Charisma: 0
+Dexterity: 0
 Inventory: 

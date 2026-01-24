@@ -405,13 +405,16 @@ DungeonDialog::DungeonDialog(QWidget *parent)
     int initialLevel = gsm->getGameValue("DungeonLevel").toInt();
     int initialX = gsm->getGameValue("DungeonX").toInt();
     int initialY = gsm->getGameValue("DungeonY").toInt();
-    quint64 initialGold = gsm->getGameValue("PlayerGold").toULongLong();
+    //quint64 initialGold = gsm->getGameValue("PlayerGold").toULongLong();
+    gsm->setGameValue("PlayerGold", gsm->getPC().at(0).Gold);
+    //initialGold = gsm->getPC().at(0).gold;
+    
     // Set defaults if state data is missing (e.g., first time entering)
     if (initialLevel == 0) {
         initialLevel = 1;
         initialX = MAP_SIZE / 2;
         initialY = MAP_SIZE / 2;
-        initialGold = 123456789; // Using the original default value
+        quint64 initialGold = 1500;
         // Save initial defaults to GameState
         gsm->setGameValue("DungeonLevel", initialLevel);
         gsm->setGameValue("DungeonX", initialX);

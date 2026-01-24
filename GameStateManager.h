@@ -66,13 +66,39 @@ private:
     
 
 public:
+    bool isActiveCharacterInCity() const {
+        if (m_PC.isEmpty()) return false;
+        return m_PC[0].DungeonLevel == 0;
+    }
+    // Getter to provide access to the party list
+    QList<Character>& getPC() { return m_PC; }
     const QList<Character>& getPC() const { return m_PC; }
+
+    /**
+     * @brief Directly sets the gold for a specific character in the party.
+     * @param index The party slot (0 to MAX_PARTY_SIZE - 1)
+     * @param newGold the exact amount of gold to set
+     */
+    void setCharacterGold(int index, qulonglong newGold) {
+        if (index >= 0 && index < m_PC.size()) {
+            m_PC[index].Gold = newGold;
+            
+            // If this is the active character (usually index 0), 
+            // sync it to the global game state for UI updates.
+            if (index == 0) {
+                setGameValue("Gold", newGold);
+            }
+            qDebug() << "Gold for PC" << index << "set to:" << newGold;
+        }
+    }
+
+    // Logic to "Ready" a body into the active party for resurrection
+    bool readyBodyForResurrection(const QString& characterName);
 
     void setInCity(bool inCity) 
     {
         setGameValue("inCity", inCity);
     }
-
     bool isInCity() const 
     {
         return m_gameStateData.value("inCity", false).toBool();

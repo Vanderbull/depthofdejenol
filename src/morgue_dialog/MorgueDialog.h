@@ -8,7 +8,7 @@
 class QLabel;
 class QPushButton;
 
-// Structure to track character state from files
+// Metadata for dead characters found in the save folder
 struct DeadCharacterInfo {
     QString fileName;
     bool inCity;
@@ -29,17 +29,18 @@ private slots:
 private:
     void setupUi();
     QList<DeadCharacterInfo> fetchDeadCharacterData() const;
-    bool resurrectCharacter(const QString &fileName);
-    bool moveBodyToCity(const QString &fileName);
+    
+    // File manipulation helpers
+    bool updateCharacterFile(const QString &fileName, bool resurrect);
+    bool moveBodyToCityInFile(const QString &fileName);
+    
     int calculateRescueCost(int level) const;
 
-    QLabel *m_welcomeLabel = nullptr;
-    QPushButton *m_raiseBtn = nullptr;
-    QPushButton *m_hireBtn = nullptr;
-    QPushButton *m_grabBtn = nullptr;
-    QPushButton *m_exitBtn = nullptr;
-
-    QString m_selectedCharacter; 
+    QLabel *m_welcomeLabel;
+    QPushButton *m_raiseBtn;
+    QPushButton *m_hireBtn;
+    QPushButton *m_grabBtn;
+    QPushButton *m_exitBtn;
 };
 
 #endif // MORGUEDIALOG_H

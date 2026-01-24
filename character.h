@@ -12,7 +12,7 @@ struct Character {
     int experience;
     int hp;
     int maxHp;
-    int gold;
+    int Gold;
 
     // Stats
     int strength;
@@ -27,6 +27,11 @@ struct Character {
     bool blinded;
     bool diseased;
     bool isAlive;
+    
+    // Location
+    int DungeonLevel;
+    int DungeonX;
+    int DungeonY;
 
     // Items
     QStringList inventory;
@@ -38,7 +43,7 @@ struct Character {
         experience   = map.value("Experience").toInt();
         hp           = map.value("HP").toInt();
         maxHp        = map.value("MaxHP").toInt();
-        gold         = map.value("Gold").toInt();
+        Gold         = map.value("CurrentCharacterGold").toInt();
         
         strength     = map.value("Strength").toInt();
         intelligence = map.value("Intelligence").toInt();
@@ -47,7 +52,10 @@ struct Character {
         charisma     = map.value("Charisma").toInt();
         dexterity    = map.value("Dexterity").toInt();
         
-        // Using toBool() or comparing to 1 for status
+        DungeonLevel = map.value("DungeonLevel").toInt();
+        DungeonX     = map.value("DungeonX").toInt();
+        DungeonY     = map.value("DungeonY").toInt();
+        
         poisoned     = map.value("Poisoned").toBool();
         blinded      = map.value("Blinded").toBool();
         diseased     = map.value("Diseased").toBool();
@@ -57,4 +65,4 @@ struct Character {
     }
 };
 
-#endif
+#endif // CHARACTER_H
