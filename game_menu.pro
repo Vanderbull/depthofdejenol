@@ -94,7 +94,9 @@ SOURCES += GameStateManager.cpp \
     src/game_resources.cpp \
     src/dungeon_dialog/DungeonMinimap.cpp \
     src/dungeon_dialog/DungeonHandlers.cpp \
-    src/event/EventManager.cpp
+    src/event/EventManager.cpp \
+    src/update/UpdateManager.cpp \
+    src/update/UpdateDialog.cpp
 
 HEADERS += GameStateManager.h \
     game_menu.h \
@@ -131,7 +133,9 @@ HEADERS += GameStateManager.h \
     include/game_resources.h \
     src/dungeon_dialog/DungeonHandlers.h \
     src/event/EventManager.h \
-    src/dungeon_dialog/MinimapDialog.h
+    src/dungeon_dialog/MinimapDialog.h \
+    src/update/UpdateManager.h \
+    src/update/UpdateDialog.h
     
 CXXFLAGS += -std=c++17
 

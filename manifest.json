@@ -1,0 +1,6 @@
+{
+  "version": "1.0.1-test",
+  "notes": "Test patch for integration testing of the updater. This patch updates a single README_patch.txt file.",
+  "patchUrl": "https://raw.githubusercontent.com/Vanderbull/depthofdejenol/main/tools/patches/test_patch.zip",
+  "sha256": ""
+}

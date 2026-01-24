@@ -1,3 +1,4 @@
+#include "../update/UpdateDialog.h" 
 #include "AboutDialog.h"
 #include <QVBoxLayout>
 #include <QHBoxLayout>
@@ -65,6 +66,24 @@ void AboutDialog::setupUi()
     scrollLayout->addWidget(infoText);
     scrollLayout->addStretch();
     scrollArea->setWidget(scrollContent);
+    // Add "Check for Updates" button under the about text
+    QPushButton *checkUpdatesBtn = new QPushButton(tr("Check for Updates"), this);
+    scrollLayout->addWidget(checkUpdatesBtn, 0, Qt::AlignLeft);
+
+    scrollContent->setLayout(scrollLayout);
+    scrollArea->setWidget(scrollContent);
+
+    mainLayout->addWidget(scrollArea);
+
+    connect(checkUpdatesBtn, &QPushButton::clicked, this, [=]() {
+        UpdateDialog *dlg = new UpdateDialog(this);
+        // Manifest placed at the repository root -> raw.githubusercontent.com path
+        dlg->setManifestUrl(QUrl(QStringLiteral("https://raw.githubusercontent.com/Vanderbull/depthofdejenol/main/manifest.json")));
+        dlg->exec();
+        dlg->deleteLater();
+    });
+
+
 
     mainLayout->addWidget(scrollArea);
 
