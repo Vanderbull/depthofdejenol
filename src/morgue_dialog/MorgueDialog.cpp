@@ -1,152 +1,150 @@
 #include "MorgueDialog.h"
-#include <QMessageBox>
-#include <QComboBox>
-#include <QDir>
-#include <QFileInfoList>
-#include <QDebug>
+#include <QtWidgets>
 #include <QSettings>
-#include <QCoreApplication>
-// --- Helper function to find a list of 'dead' character files ---
-// This mimics the file-finding logic from GameMenu::loadGame
-QStringList findDeadCharacterFiles() 
+#include <QDir>
+#include <QFile>
+#include <QTextStream>
+
+MorgueDialog::MorgueDialog(QWidget *parent) : QDialog(parent)
 {
-    // 1. Simulate finding the character data path
+    setupUi();
+}
+
+MorgueDialog::~MorgueDialog() = default;
+
+void MorgueDialog::setupUi()
+{
+    setWindowTitle(tr("Morgue"));
+    setMinimumWidth(380);
+
+    auto *mainLayout = new QVBoxLayout(this);
+    mainLayout->setSpacing(15);
+
+    // Header styling
+    m_welcomeLabel = new QLabel(tr("Welcome to the Morgue!"));
+    m_welcomeLabel->setStyleSheet("color: #2c3e50; font-weight: bold; font-size: 18px;");
+    m_welcomeLabel->setAlignment(Qt::AlignCenter);
+    mainLayout->addWidget(m_welcomeLabel);
+
+    // Action Buttons Grid
+    auto *buttonGrid = new QGridLayout();
+    m_raiseBtn = new QPushButton(tr("Raise Character"));
+    m_hireBtn = new QPushButton(tr("Hire Rescuers"));
+    m_grabBtn = new QPushButton(tr("Grab Body"));
+
+    buttonGrid->addWidget(m_raiseBtn, 0, 0);
+    buttonGrid->addWidget(m_hireBtn, 0, 1);
+    buttonGrid->addWidget(m_grabBtn, 1, 0, 1, 2); 
+
+    mainLayout->addLayout(buttonGrid);
+    mainLayout->addStretch();
+
+    // Exit Button
+    m_exitBtn = new QPushButton(tr("Exit"));
+    mainLayout->addWidget(m_exitBtn, 0, Qt::AlignRight);
+
+    // Signal/Slot Connections
+    connect(m_raiseBtn, &QPushButton::clicked, this, &MorgueDialog::onActionClicked);
+    connect(m_hireBtn, &QPushButton::clicked, this, &MorgueDialog::onActionClicked);
+    connect(m_grabBtn, &QPushButton::clicked, this, &MorgueDialog::onActionClicked);
+    
+    // Direct connection to close() fixes the "undefined reference to onExitClicked" error
+    connect(m_exitBtn, &QPushButton::clicked, this, &MorgueDialog::close);
+}
+
+QStringList MorgueDialog::fetchDeadCharacterFiles() const
+{
     QSettings settings("MyCompany", "MyApp");
-    QString subfolderName = settings.value("Paths/SubfolderName", "data/characters").toString();
+    QString subfolder = settings.value("Paths/SubfolderName", "data/characters").toString();
     QString basePath = QCoreApplication::applicationDirPath();
-    QString fullPath = QDir::cleanPath(basePath + QDir::separator() + subfolderName);
-    QDir currentDir(fullPath);
-    if (!currentDir.exists()) {
-        qDebug() << "Character subfolder not found for morgue file listing.";
-        return {}; // Return empty list
+    QString fullPath = QDir::cleanPath(basePath + QDir::separator() + subfolder);
+
+    QDir dir(fullPath);
+    QStringList allFiles = dir.entryList({"*.txt"}, QDir::Files);
+    QStringList deadCharacters;
+
+    for (const QString &fileName : allFiles) {
+        QFile file(dir.absoluteFilePath(fileName));
+        if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+            QTextStream in(&file);
+            bool characterIsDead = false;
+
+            while (!in.atEnd()) {
+                QString line = in.readLine().trimmed();
+                // Specifically matches the savegame format: isAlive: 0
+                if (line == "isAlive: 0") {
+                    characterIsDead = true;
+                    break;
+                }
+            }
+            if (characterIsDead) deadCharacters << fileName;
+            file.close();
+        }
     }
-    // 2. Filter for .txt files (Simulating character files)
-    QStringList nameFilters;
-    nameFilters << "*.txt"; // Assume dead characters are also .txt files
-    QFileInfoList fileList = currentDir.entryInfoList(nameFilters, QDir::Files);
-    QStringList characterFiles;
-    for (const QFileInfo &fileInfo : fileList) {
-        // In a real game, you would check a flag in the file 
-        // to see if the character is *actually* dead.
-        // For this example, we just list all found files.
-        characterFiles << fileInfo.fileName();
-    }
-    return characterFiles;
-}
-// --- Helper function to show the character selection dialog ---
-bool MorgueDialog::showCharacterSelectionDialog(const QString &actionName) 
-{
-    QStringList characterFiles = findDeadCharacterFiles();
-    if (characterFiles.isEmpty()) {
-        QMessageBox::warning(this, tr("No Bodies Found"), 
-                             tr("No dead character files (*.txt) were found in the current directory."));
-        return false;
-    }
-    // Create Temporary Selection Dialog
-    QDialog selectionDialog(this);
-    selectionDialog.setWindowTitle(actionName + " Character");
-    QVBoxLayout *layout = new QVBoxLayout(&selectionDialog);
-    QLabel *promptLabel = new QLabel(QString("Select a character's body for: **%1**").arg(actionName));
-    layout->addWidget(promptLabel);
-    QComboBox *charComboBox = new QComboBox();
-    charComboBox->addItems(characterFiles);
-    layout->addWidget(charComboBox);
-    QPushButton *confirmButton = new QPushButton(actionName);
-    layout->addWidget(confirmButton);
-    QPushButton *cancelButton = new QPushButton("Cancel");
-    layout->addWidget(cancelButton);
-    // Connect dialog buttons
-    QObject::connect(confirmButton, &QPushButton::clicked, &selectionDialog, &QDialog::accept);
-    QObject::connect(cancelButton, &QPushButton::clicked, &selectionDialog, &QDialog::reject);
-    // Execute the dialog modally
-    int result = selectionDialog.exec();
-    if (result == QDialog::Accepted) {
-        // User clicked the action button
-        m_selectedDeadCharacter = charComboBox->currentText();
-        qDebug() << "Character selected for" << actionName << ":" << m_selectedDeadCharacter;
-        return true;
-    } else {
-        // User cancelled
-        qDebug() << "Morgue action" << actionName << "cancelled by user.";
-        m_selectedDeadCharacter.clear();
-        return false;
-    }
+    return deadCharacters;
 }
 
-MorgueDialog::MorgueDialog(QWidget *parent) :
-    QDialog(parent)
+bool MorgueDialog::updateCharacterVitality(const QString &fileName, bool alive)
 {
-    setWindowTitle("Morgue");
-    // Welcome Label
-    welcomeLabel = new QLabel("Welcome to the Morgue!");
-    welcomeLabel->setStyleSheet("color: blue; font-weight: bold; font-size: 16px;");
-    welcomeLabel->setAlignment(Qt::AlignCenter);
-    // Buttons
-    raiseCharacterButton = new QPushButton("Raise Character");
-    hireRescuersButton = new QPushButton("Hire Rescuers");
-    grabBodyButton = new QPushButton("Grab Body");
-    exitButton = new QPushButton("Exit");
-    // Connect signals to slots
-    connect(raiseCharacterButton, &QPushButton::clicked, this, &MorgueDialog::onRaiseCharacterClicked);
-    connect(hireRescuersButton, &QPushButton::clicked, this, &MorgueDialog::onHireRescuersClicked);
-    connect(grabBodyButton, &QPushButton::clicked, this, &MorgueDialog::onGrabBodyClicked);
-    connect(exitButton, &QPushButton::clicked, this, &MorgueDialog::onExitClicked);
-    // Layouts
-    QHBoxLayout *topButtonLayout = new QHBoxLayout();
-    topButtonLayout->addWidget(raiseCharacterButton);
-    topButtonLayout->addWidget(hireRescuersButton);
-    QHBoxLayout *middleButtonLayout = new QHBoxLayout();
-    middleButtonLayout->addWidget(grabBodyButton);
-    //middleButtonLayout->addStretch(); // Pushes "Grab Body" to the left
-    QVBoxLayout *mainLayout = new QVBoxLayout(this);
-    mainLayout->addWidget(welcomeLabel);
-    mainLayout->addLayout(topButtonLayout);
-    mainLayout->addLayout(middleButtonLayout);
-    mainLayout->addStretch(); // Pushes everything upwards
-    mainLayout->addWidget(exitButton, 0, Qt::AlignRight); // Align Exit button to the right
-    setLayout(mainLayout);
-    // Set a fixed size to mimic the image's appearance more closely
-    //setFixedSize(300, 200);
-}
+    QSettings settings("MyCompany", "MyApp");
+    QString subfolder = settings.value("Paths/SubfolderName", "data/characters").toString();
+    QString fullPath = QDir::cleanPath(QCoreApplication::applicationDirPath() + 
+                                     QDir::separator() + subfolder + 
+                                     QDir::separator() + fileName);
+    
+    QFile file(fullPath);
+    if (!file.open(QIODevice::ReadWrite | QIODevice::Text)) return false;
 
-MorgueDialog::~MorgueDialog()
-{
-}
+    QString content = QString::fromUtf8(file.readAll());
+    QString oldStatus = alive ? "isAlive: 0" : "isAlive: 1";
+    QString newStatus = alive ? "isAlive: 1" : "isAlive: 0";
 
-void MorgueDialog::onRaiseCharacterClicked()
-{
-    // 1. Show the selection dialog
-    if (showCharacterSelectionDialog("Raise Character")) {
-        // 2. Execute the action if a character was selected
-        QMessageBox::information(this, "Morgue Action", 
-                                 QString("Attempting to **Raise** character: **%1** (Action simulated).").arg(m_selectedDeadCharacter));
-        // Real logic (e.g., character data modification) would go here
+    if (!content.contains(oldStatus)) {
+        file.close();
+        return false; 
     }
+
+    content.replace(oldStatus, newStatus);
+    
+    file.resize(0); // Clear file before rewriting 
+    QTextStream out(&file);
+    out << content;
+    file.close();
+    return true;
 }
 
-void MorgueDialog::onHireRescuersClicked()
+void MorgueDialog::onActionClicked()
 {
-    // 1. Show the selection dialog
-    if (showCharacterSelectionDialog("Hire Rescuers")) {
-        // 2. Execute the action if a character was selected
-        QMessageBox::information(this, "Morgue Action", 
-                                 QString("Hiring rescuers for body of: **%1** (Action simulated).").arg(m_selectedDeadCharacter));
-        // Real logic (e.g., cost calculation, character data modification) would go here
+    auto *btn = qobject_cast<QPushButton*>(sender());
+    if (!btn) return;
+
+    QString actionName = btn->text();
+    QStringList deadChars = fetchDeadCharacterFiles();
+
+    if (deadChars.isEmpty()) {
+        QMessageBox::warning(this, tr("Morgue Empty"), tr("No dead character files were found."));
+        return;
     }
-}
 
-void MorgueDialog::onGrabBodyClicked()
-{
-    // 1. Show the selection dialog
-    if (showCharacterSelectionDialog("Grab Body")) {
-        // 2. Execute the action if a character was selected
-        QMessageBox::information(this, "Morgue Action", 
-                                 QString("Body of **%1** grabbed (Action simulated).").arg(m_selectedDeadCharacter));
-        // Real logic (e.g., body retrieval, inventory update) would go here
+    bool ok;
+    QString selected = QInputDialog::getItem(this, actionName, 
+                                            tr("Select a character's body:"), 
+                                            deadChars, 0, false, &ok);
+
+    if (ok && !selected.isEmpty()) {
+        m_selectedCharacter = selected;
+
+        if (actionName == tr("Raise Character")) {
+            if (updateCharacterVitality(m_selectedCharacter, true)) {
+                QMessageBox::information(this, tr("Success"), 
+                    tr("**%1** has been returned to the land of the living.").arg(m_selectedCharacter));
+            } else {
+                QMessageBox::critical(this, tr("Error"), tr("Could not update character file."));
+            }
+        } else {
+            // Simulated response for other actions
+            QMessageBox::information(this, tr("Morgue Action"), 
+                tr("Action **%1** performed on **%2**.").arg(actionName, m_selectedCharacter));
+        }
     }
-}
-
-void MorgueDialog::onExitClicked()
-{
-    close(); // Close the dialog
 }

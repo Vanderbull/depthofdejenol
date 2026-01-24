@@ -2,33 +2,36 @@
 #define MORGUEDIALOG_H
 
 #include <QDialog>
-#include <QLabel>
-#include <QPushButton>
-#include <QVBoxLayout>
-#include <QHBoxLayout>
-#include <QComboBox>
+#include <QStringList>
 
-#include "GameStateManager.h" // Include the GameStateManager header
+class QLabel;
+class QPushButton;
 
 class MorgueDialog : public QDialog
 {
     Q_OBJECT
+
 public:
     explicit MorgueDialog(QWidget *parent = nullptr);
-    ~MorgueDialog();
+    ~MorgueDialog() override;
+
 private slots:
-    void onRaiseCharacterClicked();
-    void onHireRescuersClicked();
-    void onGrabBodyClicked();
-    void onExitClicked();
+    // Unified slot to handle all morgue actions (Raise, Hire, Grab)
+    void onActionClicked();
+
 private:
-    QLabel *welcomeLabel;
-    QPushButton *raiseCharacterButton;
-    QPushButton *hireRescuersButton;
-    QPushButton *grabBodyButton;
-    QPushButton *exitButton;
-    bool showCharacterSelectionDialog(const QString &actionName);
-    QString m_selectedDeadCharacter; 
+    void setupUi();
+    QStringList fetchDeadCharacterFiles() const;
+    bool updateCharacterVitality(const QString &fileName, bool alive);
+
+    // UI Members
+    QLabel *m_welcomeLabel = nullptr;
+    QPushButton *m_raiseBtn = nullptr;
+    QPushButton *m_hireBtn = nullptr;
+    QPushButton *m_grabBtn = nullptr;
+    QPushButton *m_exitBtn = nullptr;
+
+    QString m_selectedCharacter; 
 };
 
 #endif // MORGUEDIALOG_H
