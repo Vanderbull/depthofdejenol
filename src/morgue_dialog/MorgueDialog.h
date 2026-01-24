@@ -3,9 +3,17 @@
 
 #include <QDialog>
 #include <QStringList>
+#include <QList>
 
 class QLabel;
 class QPushButton;
+
+// Structure to track character state from files
+struct DeadCharacterInfo {
+    QString fileName;
+    bool inCity;
+    int dungeonLevel;
+};
 
 class MorgueDialog : public QDialog
 {
@@ -16,15 +24,15 @@ public:
     ~MorgueDialog() override;
 
 private slots:
-    // Unified slot to handle all morgue actions (Raise, Hire, Grab)
     void onActionClicked();
 
 private:
     void setupUi();
-    QStringList fetchDeadCharacterFiles() const;
-    bool updateCharacterVitality(const QString &fileName, bool alive);
+    QList<DeadCharacterInfo> fetchDeadCharacterData() const;
+    bool resurrectCharacter(const QString &fileName);
+    bool moveBodyToCity(const QString &fileName);
+    int calculateRescueCost(int level) const;
 
-    // UI Members
     QLabel *m_welcomeLabel = nullptr;
     QPushButton *m_raiseBtn = nullptr;
     QPushButton *m_hireBtn = nullptr;

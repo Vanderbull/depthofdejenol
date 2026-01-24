@@ -66,6 +66,17 @@ private:
     
 
 public:
+    const QList<Character>& getPC() const { return m_PC; }
+
+    void setInCity(bool inCity) 
+    {
+        setGameValue("inCity", inCity);
+    }
+
+    bool isInCity() const 
+    {
+        return m_gameStateData.value("inCity", false).toBool();
+    }
     QVariantMap getCharacterData(int index) const;
     void updateCharacterData(int index, const QVariantMap& data);
     // Game Data Method

@@ -80,6 +80,7 @@ GameStateManager::GameStateManager(QObject *parent)
     m_gameStateData["Party"] = party;
     // --- End party ---
     // --- Current Character ---
+    m_gameStateData["inCity"] = false;
     m_gameStateData["CurrentCharacterSex"] = GameStateManager::sexOptions().at(0);
     m_gameStateData["CurrentCharacterAlignment"] = GameStateManager::alignmentNames().at(GameStateManager::defaultAlignmentIndex());
     m_gameStateData["CurrentCharacterStatPointsLeft"] = GameStateManager::defaultStatPoints();
@@ -589,6 +590,7 @@ bool GameStateManager::loadCharacterFromFile(const QString& characterName)
         else if (key == "Gold") characterMap["Gold"] = QVariant::fromValue(value.toULongLong());
         else if (key == "Experience") characterMap["Experience"] = QVariant::fromValue(value.toULongLong());
         else if (key == "isAlive") characterMap["Dead"] = (value.toInt() == 0);
+        else if (key == "inCity") setGameValue("inCity", value.toInt() == 1); // Add this line
         else if (key == "Inventory") {
             if (!value.isEmpty()) characterMap["Inventory"] = value.split(",");
         }
@@ -660,6 +662,9 @@ bool GameStateManager::saveCharacterToFile(int partyIndex)
     out << "Gold: " << character["Gold"].toULongLong() << "\n";
     out << "Experience: " << character["Experience"].toULongLong() << "\n";
     out << "isAlive: " << (character["Dead"].toBool() ? 0 : 1) << "\n";
+    out << "isAlive: " << (character["Dead"].toBool() ? 0 : 1) << "\n";
+    out << "inCity: " << (getGameValue("inCity").toBool() ? 1 : 0) << "\n"; // Add this line
+    
     // Save Stats using the helper list
     for (const QString& stat : statNames()) {
         out << stat << ": " << character[stat].toInt() << "\n";
