@@ -648,19 +648,46 @@ void DungeonDialog::on_teleportButton_clicked()
     emit teleporterUsed();
 }
 
-void DungeonDialog::on_fightButton_clicked() 
+void DungeonDialog::on_fightButton_clicked()
 {
     GameStateManager* gsm = GameStateManager::instance();
-    // Check if character is already dead before fighting
-    if (gsm->getGameValue("isAlive").toInt() == 0) {
-        logMessage("You are too dead to fight.");
+    QPair<int, int> pos = {gsm->getGameValue("DungeonX").toInt(), gsm->getGameValue("DungeonY").toInt()};
+
+    // 1. Check if there is actually a monster here
+    if (!m_monsterPositions.contains(pos)) {
+        logMessage("There is nothing here to fight.");
         return;
     }
-    // Example combat logic
-    int monsterDamage = QRandomGenerator::global()->bounded(5, 15);
-    logMessage(QString("The monster hits you for %1 damage!").arg(monsterDamage));
-    // This call now handles the HP < 0 check and the return to menu
+
+    m_activeMonsterName = m_monsterPositions.value(pos);
+    
+    // 2. Simple Combat Loop
+    int strength = gsm->getGameValue("CurrentCharacterStrength").toInt();
+    int damageToMonster = QRandomGenerator::global()->bounded(1, strength + 1);
+    
+    logMessage(QString("You attack the **%1** for %2 damage!").arg(m_activeMonsterName).arg(damageToMonster));
+
+    // 3. Monster Counter-Attack
+    int monsterDamage = QRandomGenerator::global()->bounded(1, 8);
     updatePartyMemberHealth(0, monsterDamage); 
+    logMessage(QString("The %1 hits you back for %2 damage!").arg(m_activeMonsterName).arg(monsterDamage));
+
+    // 4. Handle Victory (Placeholder for HP tracking)
+    // For now, let's say 50% chance to kill on every hit for testing
+    if (QRandomGenerator::global()->bounded(100) < 40) {
+        logMessage(QString("You have defeated the **%1**!").arg(m_activeMonsterName));
+        m_monsterPositions.remove(pos); // Remove from map
+        
+        // Reward Gold and XP
+        quint64 xpReward = 50;
+        quint64 goldReward = 20;
+        gsm->setGameValue("PlayerExperience", gsm->getGameValue("PlayerExperience").toULongLong() + xpReward);
+        gsm->setGameValue("PlayerGold", gsm->getGameValue("PlayerGold").toULongLong() + goldReward);
+        
+        updateExperienceLabel();
+        updateGoldLabel();
+        renderWireframeView(); // Refresh view to remove monster sprite
+    }
 }
 
 void DungeonDialog::on_spellButton_clicked() 

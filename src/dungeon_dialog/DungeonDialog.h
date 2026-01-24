@@ -88,6 +88,9 @@ private slots:
     void initiateFight();
     void on_winBattle_trigger();
 private:
+    QString m_activeMonsterName;
+    int m_activeMonsterHP;
+    bool m_isInCombat = false;
     QSet<QPair<int, int>> m_roomFloorTiles; // Tracks tiles that are part of rooms
     MinimapDialog *m_standaloneMinimap = nullptr;
     QList<QPair<int, int>> m_breadcrumbPath; // Stores the history of player positions
