@@ -537,19 +537,29 @@ DungeonDialog::DungeonDialog(QWidget *parent)
     // Connections (Stairs)
     connect(stairsDownButton, &QPushButton::clicked, this, &DungeonDialog::on_stairsDownButton_clicked);
     connect(stairsUpButton, &QPushButton::clicked, this, &DungeonDialog::on_stairsUpButton_clicked);
-m_graphicsView = new QGraphicsView(this);
-m_graphicsView->setFixedSize(300, 300); // Force the widget to be square
-m_graphicsView->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-m_graphicsView->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    m_graphicsView = new QGraphicsView(this);
+    m_graphicsView->setFixedSize(300, 300); // Force the widget to be square
+    m_graphicsView->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    m_graphicsView->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 
-m_dungeonScene = new QGraphicsScene(0, 0, 300, 300, this);
-m_graphicsView->setScene(m_dungeonScene);
+    m_dungeonScene = new QGraphicsScene(0, 0, 300, 300, this);
+    m_graphicsView->setScene(m_dungeonScene);
 
-// ADD THESE LINES AT THE END OF THE CONSTRUCTOR:
+    // ADD THESE LINES AT THE END OF THE CONSTRUCTOR:
     drawMinimap();
     renderWireframeView();
     // ADD THIS LINE TO PREVENT THE CRASH:
     m_combatTimer = new QTimer(this);
+    // Add this to your Constructor for every button and widget
+    m_upButton->setFocusPolicy(Qt::NoFocus);
+    m_downButton->setFocusPolicy(Qt::NoFocus);
+    m_leftButton->setFocusPolicy(Qt::NoFocus);
+    m_rightButton->setFocusPolicy(Qt::NoFocus);
+    m_messageLog->setFocusPolicy(Qt::NoFocus);
+    m_graphicsView->setFocusPolicy(Qt::NoFocus);
+    // Do this for ALL buttons (Fight, Spell, Map, etc.)
+    this->setFocusPolicy(Qt::StrongFocus);
+    this->setFocus();
 }
 
 void DungeonDialog::updateExperienceLabel()
@@ -789,19 +799,29 @@ void DungeonDialog::onEventTriggered(const GameEvent& ) { }
 
 void DungeonDialog::keyPressEvent(QKeyEvent *event)
 {
+    // Add this to see if the event is even reaching the function
+    qDebug() << "Key Pressed:" << event->key();
     switch (event->key()) {
         // --- Movement (WASD) ---
-        case Qt::Key_W:
+        case Qt::Key_Up:
+            qDebug() << "up";
             moveForward();
+            event->accept();
             break;
-        case Qt::Key_S:
+        case Qt::Key_Down:
+            qDebug() << "down";
             moveBackward();
+            event->accept();
             break;
-        case Qt::Key_A:
+        case Qt::Key_Left:
+            qDebug() << "left";
             moveStepLeft();
+            event->accept();
             break;
-        case Qt::Key_D:
+        case Qt::Key_Right:
+            qDebug() << "right";
             moveStepRight();
+            event->accept();
             break;
         // --- Rotation (QE) ---
         case Qt::Key_Q:
