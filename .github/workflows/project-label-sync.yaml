@@ -1,10 +1,10 @@
-name: Sync Project Status to Labels
+name: Project Status to Label Sync
 on:
-  project_next_item:
+  project_item:
     types: [edited, converted]
 
 jobs:
-  sync-labels:
+  sync:
     runs-on: ubuntu-latest
     permissions:
       issues: write
@@ -14,26 +14,34 @@ jobs:
         uses: actions/github-script@v7
         with:
           script: |
-            const item = context.payload.project_next_item;
+            const { project_item } = context.payload;
             
-            // 1. Get the status value from the project item
-            // Note: This assumes your field is named "Status"
-            const statusValue = item.field_values.find(f => f.field_name === 'Status')?.value;
+            // 1. Get the new status value
+            // We look through field_values to find the one named 'Status'
+            const statusField = project_item.field_values.find(f => f.field_name === 'Status');
+            const statusValue = statusField?.value;
 
             if (!statusValue) {
-              console.log("No status change detected.");
+              console.log("No status change detected or field is not 'Status'.");
               return;
             }
 
-            // 2. Identify the linked issue
-            const issueNumber = item.content_node_id; // This is a GraphQL ID
+            // 2. Identify the issue number 
+            // project_item.content_type must be 'Issue'
+            const issueNumber = project_item.content?.number;
+            
+            if (!issueNumber) {
+              console.log("This project item is not a repository issue.");
+              return;
+            }
 
-            // 3. Apply the label (GitHub creates it if it doesn't exist)
+            // 3. Apply the label
+            // GitHub automatically handles creating the label if it's new
             await github.rest.issues.addLabels({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              issue_number: item.number, 
+              issue_number: issueNumber,
               labels: [statusValue]
             });
 
-            console.log(`Successfully added label: ${statusValue}`);
+            console.log(`Synced issue #${issueNumber} with label: ${statusValue}`);
