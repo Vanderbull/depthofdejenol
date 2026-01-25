@@ -1,5 +1,4 @@
 #include "CharacterDialog.h"
-
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QGridLayout>
@@ -73,10 +72,10 @@ void CharacterDialog::setupUi()
     tabWidget->addTab(resistanceTab, "Resist");
     tabWidget->addTab(charTab, "Char");
     tabWidget->addTab(guildTab, "Guild");
-    QVBoxLayout *lookLayout = new QVBoxLayout(lookTab);
-    QVBoxLayout *miscLayout = new QVBoxLayout(miscTab);
+    //QVBoxLayout *lookLayout = new QVBoxLayout(lookTab);
+    //QVBoxLayout *miscLayout = new QVBoxLayout(miscTab);
     QVBoxLayout *statsLayout = new QVBoxLayout(statsTab);
-    QVBoxLayout *charLayout = new QVBoxLayout(charTab);
+    //QVBoxLayout *charLayout = new QVBoxLayout(charTab);
     // Identity Header (Class and Level)
     QFrame *headerFrame = new QFrame();
     headerFrame->setFrameStyle(QFrame::Panel | QFrame::Sunken);

@@ -1,10 +1,9 @@
 #include "GameStateManager.h"
-//#include "character.h"
-#include <QDebug> 
-#include <QVariantList> 
-#include <QVariantMap> 
-#include <QMapIterator> 
-#include <QDateTime> 
+#include <QDebug>
+#include <QVariantList>
+#include <QVariantMap>
+#include <QMapIterator>
+#include <QDateTime>
 #include <QFile>
 #include <QTextStream>
 #include <QIODevice>
@@ -245,7 +244,7 @@ void GameStateManager::loadGameData(const QString& filePath)
 
             QVariant val = it.value();
             // 1. Handle Nested Lists (Arrays)
-            if (val.type() == QVariant::List || val.type() == QVariant::StringList) {
+            if (val.typeId() == QMetaType::QVariantList || val.typeId() == QMetaType::QStringList) {
                 QVariantList list = val.toList();
                 qDebug() << "  " << it.key() << ": [Array]";
                 for (int j = 0; j < list.size(); ++j) {
@@ -253,7 +252,7 @@ void GameStateManager::loadGameData(const QString& filePath)
                 }
             } 
             // 2. Handle Nested Maps (Objects)
-            else if (val.type() == QVariant::Map) {
+            else if (val.typeId() == QMetaType::QVariantMap) {
                 QVariantMap nestedMap = val.toMap();
                 qDebug() << "  " << it.key() << ": [Nested Object]";
                 QMapIterator<QString, QVariant> mapIt(nestedMap);

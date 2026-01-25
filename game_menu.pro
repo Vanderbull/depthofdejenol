@@ -1,70 +1,42 @@
-# Define a central directory for all build-related files.
-# The actual path will depend on where qmake is run.
-# Here, it creates a 'build' folder relative to the project root.
-BUILD_DIR = build
+#--------------------------------------------------
+# Project Configuration
+#--------------------------------------------------
+QT += core gui widgets multimedia network
+TARGET = game_menu
 
-# Specifies the directory for compiled object files (*.o).
+# Qt 6 & Silent mode (only outputs warnings/errors)
+CONFIG += c++17 silent
+QMAKE_PARALLEL_BUILD = 1
+
+# Define a central directory for all build-related files
+BUILD_DIR = build
+DESTDIR = $$BUILD_DIR/bin
+
 # Differentiate between debug and release objects
 CONFIG(debug, debug|release): OBJECTS_DIR = $$BUILD_DIR/obj/debug
 CONFIG(release, debug|release): OBJECTS_DIR = $$BUILD_DIR/obj/release
 
-# Specifies the directory for MOC (Meta-Object Compiler) files.
 MOC_DIR = $$BUILD_DIR/moc
-
-# Paralleling
-QMAKE_PARALLEL_BUILD = 1
-
-# Specifies the directory where the final executable or library will be placed.
-DESTDIR = $$BUILD_DIR/bin
-
-# Specifies the directory for compiled object files (*.o).
-#OBJECTS_DIR = $$BUILD_DIR/obj
-
-# Specifies the directory for MOC (Meta-Object Compiler) files.
-#MOC_DIR = $$BUILD_DIR/moc
-
-# Specifies the directory for RCC (Resource Compiler) files.
 RCC_DIR = $$BUILD_DIR/rcc
-
-# Specifies the directory for UIC (User Interface Compiler) files (for .ui files).
 UI_DIR = $$BUILD_DIR/ui
 
-# 1. Define a variable (group) for the files to copy.
-# $$PWD points to the directory containing the .pro file (the root).
-#asset_copy.files = $$PWD/assets
-
-# 2. Set the destination path.
-# $$DESTDIR points to the final build/bin/ folder.
-#asset_copy.path = $$DESTDIR
-
-# 3. Register the group to be installed/copied during the build process.
-#INSTALLS += asset_copy
-
+#--------------------------------------------------
+# Compiler & Search Paths
 #--------------------------------------------------
 QMAKE_RESOURCE_FLAGS += --root /
 
-QT += core gui widgets multimedia
-TARGET = game_menu
+INCLUDEPATH += _PRO_FILE_PWD_/include
 
-# Add the 'include' directory so the compiler can find the header files
-INCLUDEPATH += \
-    _PRO_FILE_PWD_/include
-#    $$PWD/include
-
-QMAKE_FILE_GROUP = Everything
-
-# Add the network module for QTcpSocket
-QT += network
-
-# Ensure the new files are included in the build
-HEADERS += src/network_manager/NetworkManager.h
-SOURCES += src/network_manager/NetworkManager.cpp
-
-SOURCES += GameStateManager.cpp \
+#--------------------------------------------------
+# Source Files
+#--------------------------------------------------
+SOURCES += \
+    GameStateManager.cpp \
     game_menu.cpp \
     TheCity.cpp \
     tools/monster_editor/MonsterEditorDialog.cpp \
     tools/spellbook_editor/SpellbookEditorDialog.cpp \
+    src/network_manager/NetworkManager.cpp \
     src/hall_of_records/hallofrecordsdialog.cpp \
     src/create_character/createcharacterdialog.cpp \
     src/about_dialog/AboutDialog.cpp \
@@ -89,7 +61,7 @@ SOURCES += GameStateManager.cpp \
     src/options_dialog/optionsdialog.cpp \
     src/dungeon_dialog/DungeonDialog.cpp \
     src/partyinfo_dialog/partyinfodialog.cpp \
-    src/dungeonmap/dungeonmap.cpp \ 
+    src/dungeonmap/dungeonmap.cpp \
     src/bank_dialog/TradeDialog.cpp \
     src/game_resources.cpp \
     src/dungeon_dialog/DungeonMinimap.cpp \
@@ -98,12 +70,17 @@ SOURCES += GameStateManager.cpp \
     src/update/UpdateManager.cpp \
     src/update/UpdateDialog.cpp
 
-HEADERS += GameStateManager.h \
+#--------------------------------------------------
+# Header Files
+#--------------------------------------------------
+HEADERS += \
+    GameStateManager.h \
     game_menu.h \
     TheCity.h \
     StoryDialog.h \
     tools/monster_editor/MonsterEditorDialog.h \
     tools/spellbook_editor/SpellbookEditorDialog.h \
+    src/network_manager/NetworkManager.h \
     src/hall_of_records/hallofrecordsdialog.h \
     src/create_character/createcharacterdialog.h \
     src/about_dialog/AboutDialog.h \
@@ -136,33 +113,14 @@ HEADERS += GameStateManager.h \
     src/dungeon_dialog/MinimapDialog.h \
     src/update/UpdateManager.h \
     src/update/UpdateDialog.h
-    
-CXXFLAGS += -std=c++17
 
-DISTFILES += \
-    .gitignore
-#QMAKE_EXTRA_OBJECTS += qrc_resources.o
-# Lägg till din byggkatalog som en sökväg för bibliotek
-#LIBS += -L.
-
-# Add object file as a "library"
-#LIBS += qrc_resources.o
-
-# Force linker to handle .o file as a normal object file
-#QMAKE_LFLAGS += -Wl,-whole-archive qrc_resources.o -Wl,-no-whole-archive
-
-# This forces the copy of the assets folder from $$PWD (Project Root)
-# to $$DESTDIR (build/bin/) after the executable is linked.
-#QMAKE_POST_LINK += $(COPY_DIR) $$quote($$PWD/data) $$quote($$DESTDIR)
-# Use $(COPY_FILE) to copy the compiled executable from its location ($$DESTDIR/$$TARGET)
-# to the project root ($$PWD/).
-#QMAKE_POST_LINK += $(COPY_FILE) $$quote($$DESTDIR/$$TARGET) $$quote($$PWD/$$TARGET)
-# --- Copying the 'assets' folder (The likely source of the initial confusion) ---
-# NOTE: Using a single destination argument for COPY_DIR to avoid confusion.
+#--------------------------------------------------
+# Post-Link Operations
+#--------------------------------------------------
+# Copy data folder from project root to build/bin/
 QMAKE_POST_LINK += $$escape_expand(\\n\\t) $(COPY_DIR) $$quote($$PWD/data) $$quote($$DESTDIR)
 
-# --- Copying the binary back to the root ---
-# Ensure this command is entirely separate and well-formed.
+# Copy final binary back to root for easy execution
 QMAKE_POST_LINK += $$escape_expand(\\n\\t) $(COPY_FILE) $$quote($$DESTDIR/$$TARGET) $$quote($$PWD/$$TARGET)
 
-
+DISTFILES += .gitignore
