@@ -89,8 +89,10 @@ private slots:
     void checkMonsterSpawn();
     void initiateFight();
     void on_winBattle_trigger();
+    void togglePartyInfo();
     
 private:
+    PartyInfoDialog *m_charSheet = nullptr; // Track the window here
     QPair<int, int> getCurrentPosition(); // The helper function
     QTimer *m_combatTimer = nullptr; // MUST be here
     int m_playerAttackCooldown = 0;

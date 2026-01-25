@@ -18,8 +18,11 @@
 #include <QTimer>
 #include <QtDebug>
 #include <QRandomGenerator>
-#include <QJsonObject> 
+#include <QJsonObject>
 #include <QGraphicsPolygonItem>
+#include <QScreen>
+#include <QGuiApplication>
+
 // Constants that depend on MAP_SIZE (which is now in the header)
 const int TILE_SIZE = 10;
 const int MAP_WIDTH_PIXELS = MAP_SIZE * TILE_SIZE; 
@@ -373,6 +376,13 @@ DungeonDialog::DungeonDialog(QWidget *parent)
     }
     m_experienceLabel = new QLabel(this);
     m_standaloneMinimap = new MinimapDialog(this);
+    QScreen *screen = QGuiApplication::primaryScreen();
+    if (screen) {
+        QRect screenGeometry = screen->availableGeometry();
+        int x = screenGeometry.width() - m_standaloneMinimap->width() - 20; // 20px padding
+        int y = 50; // 50px padding from top
+        m_standaloneMinimap->move(x, y);
+    }
     connect(m_standaloneMinimap, &MinimapDialog::requestMapUpdate, this, &DungeonDialog::drawMinimap);
     setWindowTitle("Dungeon: Depth of Dejenol");
     setMinimumSize(1000, 750);
@@ -827,13 +837,7 @@ void DungeonDialog::keyPressEvent(QKeyEvent *event)
         // NEW: Character Sheet Hotkey
         case Qt::Key_C:
         {
-            logMessage("Opening Character Sheet...");
-            // Using PartyInfoDialog for the character sheet
-            PartyInfoDialog *charSheet = new PartyInfoDialog(this);
-            charSheet->setAttribute(Qt::WA_DeleteOnClose);
-            charSheet->show();
-            charSheet->raise();
-            charSheet->activateWindow();
+            togglePartyInfo();
             break;
         }
         case Qt::Key_1: {
@@ -1498,4 +1502,77 @@ void DungeonDialog::drawAntimagic(int d, int xL, int xR, int yB, int nxL, int nx
         m_dungeonScene->addLine(xHLeft, yHoriz, xHRight, yHoriz, staticPen);
     }
 }
+/*
+void DungeonDialog::togglePartyInfo() {
+    // If it exists and is visible, close it
+    if (m_charSheet) {
+        m_charSheet->close();
+        m_charSheet = nullptr; // Pointer is reset because WA_DeleteOnClose is set
+        return;
+    }
 
+    logMessage("Opening Character Sheet...");
+    m_charSheet = new PartyInfoDialog(this);
+
+    // Set flags for floating, stay-on-top behavior
+    m_charSheet->setWindowFlags(Qt::Tool | Qt::WindowStaysOnTopHint | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
+    
+    // Crucial: ensure pointer is cleared when user clicks the 'X' button
+    m_charSheet->setAttribute(Qt::WA_DeleteOnClose);
+    connect(m_charSheet, &QObject::destroyed, this, [this]() { m_charSheet = nullptr; });
+
+    m_charSheet->show();
+
+    // Position in Bottom-Right Corner
+    QScreen *screen = QGuiApplication::primaryScreen();
+    if (screen) {
+        QRect screenGeometry = screen->availableGeometry();
+        int dialogWidth = m_charSheet->frameGeometry().width();
+        int dialogHeight = m_charSheet->frameGeometry().height();
+        int padding = 10;
+
+        m_charSheet->move(screenGeometry.width() - dialogWidth - padding,
+                          screenGeometry.height() - dialogHeight - padding);
+    }
+    
+    m_charSheet->raise();
+    m_charSheet->activateWindow();
+}
+*/
+void DungeonDialog::togglePartyInfo() {
+    if (m_charSheet) {
+        m_charSheet->close();
+        m_charSheet = nullptr; 
+        return;
+    }
+
+    m_charSheet = new PartyInfoDialog(this);
+
+    // 1. ADD Qt::WindowDoesNotAcceptFocus
+    // This allows the main window to keep keyboard focus for movement
+    m_charSheet->setWindowFlags(Qt::Tool | 
+                                Qt::WindowStaysOnTopHint | 
+                                Qt::WindowDoesNotAcceptFocus |
+                                Qt::CustomizeWindowHint | 
+                                Qt::WindowTitleHint | 
+                                Qt::WindowCloseButtonHint);
+
+    m_charSheet->setAttribute(Qt::WA_DeleteOnClose);
+    connect(m_charSheet, &QObject::destroyed, this, [this]() { m_charSheet = nullptr; });
+
+    // 2. Use show() but DO NOT call activateWindow() or raise()
+    // activateWindow() is what forces the focus change; we want to avoid that.
+    m_charSheet->show();
+
+    // 3. Position in Bottom-Right
+    QScreen *screen = QGuiApplication::primaryScreen();
+    if (screen) {
+        QRect screenGeometry = screen->availableGeometry();
+        int dialogWidth = m_charSheet->frameGeometry().width();
+        int dialogHeight = m_charSheet->frameGeometry().height();
+        int padding = 10;
+
+        m_charSheet->move(screenGeometry.width() - dialogWidth - padding,
+                          screenGeometry.height() - dialogHeight - padding);
+    }
+}
