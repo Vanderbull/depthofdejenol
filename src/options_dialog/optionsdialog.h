@@ -25,6 +25,7 @@ private slots:
     void onOkClicked();
     void onCancelClicked();
     void onDefaultClicked();
+    void onNoMusicToggled(bool checked);
 
 private:
     void setupUi();
@@ -54,6 +55,7 @@ private:
     QPushButton *okButton;
     QPushButton *cancelButton;
     QPushButton *defaultButton;
+
 };
 
 #endif // OPTIONSDIALOG_H

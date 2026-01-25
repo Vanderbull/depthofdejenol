@@ -14,6 +14,18 @@
 #include <QString>
 #include <QDateTime>
 
+
+void OptionsDialog::onNoMusicToggled(bool checked) 
+{
+    if (checked) {
+        GameStateManager::instance()->stopMusic();
+        qDebug() << "Music muted. Sound FX slider remains at current level.";
+    } else {
+        GameStateManager::instance()->playMusic("resources/waves/main.wav");
+        qDebug() << "Music restored";
+    }
+}
+
 /**
  * @brief Copies all files from a source directory to a "backup/YYYY-MM-DD" subfolder within it.
  * * It ignores subdirectories within the source folder and only copies individual files.
@@ -97,11 +109,13 @@ OptionsDialog::OptionsDialog(QWidget *parent) : QDialog(parent) {
     connect(okButton, &QPushButton::clicked, this, &OptionsDialog::onOkClicked);
     connect(cancelButton, &QPushButton::clicked, this, &OptionsDialog::onCancelClicked);
     connect(defaultButton, &QPushButton::clicked, this, &OptionsDialog::onDefaultClicked);
+    connect(noMusicCheckBox, &QCheckBox::toggled, this, &OptionsDialog::onNoMusicToggled);
 }
 
 OptionsDialog::~OptionsDialog() {}
 
-void OptionsDialog::setupUi() {
+void OptionsDialog::setupUi() 
+{
     QVBoxLayout *mainLayout = new QVBoxLayout(this);
     QGridLayout *topGrid = new QGridLayout();
 
@@ -140,29 +154,96 @@ void OptionsDialog::setupUi() {
     defaultButton = new QPushButton("Default");
     fontSettingsLayout->addWidget(defaultButton, 0, Qt::AlignCenter);
     topGrid->addWidget(fontSettingsBox, 0, 1);
-
+/*
     // Music Settings Group
     QGroupBox *musicSettingsBox = new QGroupBox("Music Settings");
     QVBoxLayout *musicSettingsLayout = new QVBoxLayout(musicSettingsBox);
+    
     musicSettingsLayout->addWidget(new QLabel("Music Vol."));
+    
+    // Initialize the member variable (don't use 'QSlider*' here, use the class member)
     musicVolSlider = new QSlider(Qt::Horizontal);
+    musicVolSlider->setRange(0, 100);
+
+    // Fetch and set current volume
+    float currentVol = GameStateManager::instance()->getVolume();
+    musicVolSlider->setValue(static_cast<int>(currentVol * 100.0f));
+
+    // Connect logic to the slider
+    connect(musicVolSlider, &QSlider::valueChanged, this, [](int value) {
+        float volume = static_cast<float>(value) / 100.0f;
+        GameStateManager::instance()->setVolume(volume);
+    });
+
     noMusicCheckBox = new QCheckBox("No Music");
     QHBoxLayout *musicSliderLayout = new QHBoxLayout();
-    musicSliderLayout->addWidget(musicVolSlider);
+    musicSliderLayout->addWidget(musicVolSlider); // This adds the functional slider to UI
     musicSliderLayout->addWidget(noMusicCheckBox);
     musicSettingsLayout->addLayout(musicSliderLayout);
 
-    musicSettingsLayout->addWidget(new QLabel("Sfx Vol."));
+    // --- SFX Settings Group ---
+    QGroupBox *sfxBox = new QGroupBox("Sound FX Settings");
+    QVBoxLayout *sfxLayout = new QVBoxLayout(sfxBox);
+
+    sfxLayout->addWidget(new QLabel("Sfx Vol."));
+
     sfxVolSlider = new QSlider(Qt::Horizontal);
-    noSoundFxCheckBox = new QCheckBox("No Sound FX");
-    QHBoxLayout *sfxSliderLayout = new QHBoxLayout();
-    sfxSliderLayout->addWidget(sfxVolSlider);
-    sfxSliderLayout->addWidget(noSoundFxCheckBox);
-    musicSettingsLayout->addLayout(sfxSliderLayout);
+    sfxVolSlider->setRange(0, 100);
+    sfxVolSlider->setValue(50); // Default middle
+
+    connect(sfxVolSlider, &QSlider::valueChanged, this, [](int value) {
+        float vol = static_cast<float>(value) / 100.0f;
+        // Placeholder for GameStateManager::instance()->setSfxVolume(vol);
+        qDebug() << "SFX Volume set to:" << vol;
+    });
+
+    sfxLayout->addWidget(sfxVolSlider);
+    mainLayout->addWidget(sfxBox);
+*/
+// --- Combined Audio Settings Group ---
+    QGroupBox *audioBox = new QGroupBox("Music & Sound Settings");
+    QVBoxLayout *audioLayout = new QVBoxLayout(audioBox);
+
+    // 1. Music Volume Section
+    audioLayout->addWidget(new QLabel("Music Vol."));
+    musicVolSlider = new QSlider(Qt::Horizontal);
+    musicVolSlider->setRange(0, 100);
+    musicVolSlider->setValue(static_cast<int>(GameStateManager::instance()->getVolume() * 100.0f));
     
-    useSoundCanvasMIDICheckBox = new QCheckBox("Huse Sound Canvas MIDI");
-    musicSettingsLayout->addWidget(useSoundCanvasMIDICheckBox);
-    topGrid->addWidget(musicSettingsBox, 1, 0);
+    connect(musicVolSlider, &QSlider::valueChanged, this, [](int value) {
+        float vol = static_cast<float>(value) / 100.0f;
+        GameStateManager::instance()->setVolume(vol);
+    });
+
+    noMusicCheckBox = new QCheckBox("No Music");
+    connect(noMusicCheckBox, &QCheckBox::toggled, this, &OptionsDialog::onNoMusicToggled);
+
+    QHBoxLayout *musicRow = new QHBoxLayout();
+    musicRow->addWidget(musicVolSlider);
+    musicRow->addWidget(noMusicCheckBox);
+    audioLayout->addLayout(musicRow);
+
+    // 2. SFX Volume Section (Now inside the same group)
+    audioLayout->addWidget(new QLabel("Sfx Vol."));
+    sfxVolSlider = new QSlider(Qt::Horizontal);
+    sfxVolSlider->setRange(0, 100);
+    sfxVolSlider->setValue(50); // Default
+
+    connect(sfxVolSlider, &QSlider::valueChanged, this, [](int value) {
+        float vol = static_cast<float>(value) / 100.0f;
+        // Placeholder for GameStateManager SFX logic
+    });
+
+    noSoundFxCheckBox = new QCheckBox("No Sound FX");
+    QHBoxLayout *sfxRow = new QHBoxLayout();
+    sfxRow->addWidget(sfxVolSlider);
+    sfxRow->addWidget(noSoundFxCheckBox);
+    audioLayout->addLayout(sfxRow);
+
+    mainLayout->addWidget(audioBox);
+
+
+    topGrid->addWidget(audioBox, 1, 0);
 
     // File Backups Group
     QGroupBox *fileBackupsBox = new QGroupBox("File Backups");

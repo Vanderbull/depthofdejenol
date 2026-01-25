@@ -6,7 +6,9 @@
 #include <QVariantMap>
 #include <QtGlobal>
 #include <QTimer>
-
+#include <QMediaPlayer>
+#include <QAudioOutput>
+#include <QUrl>
 
 class GameStateManager : public QObject
 {
@@ -20,6 +22,11 @@ private:
     GameStateManager& operator=(const GameStateManager&) = delete;
 
 public:
+    // --- Global Audio Methods ---
+    void playMusic(const QString& fileName, bool loop = true);
+    void stopMusic();
+    void setVolume(float volume); // 0.0 to 1.0
+
     // Improved thread-safe static accessor
     static GameStateManager* instance();
     static const int MAX_PARTY_SIZE = 4;
@@ -42,6 +49,9 @@ signals:
     void gameValueChanged(const QString& key, const QVariant& value);
 
 private:
+    QMediaPlayer* m_globalPlayer = nullptr;
+    QAudioOutput* m_globalAudioOutput = nullptr;
+
     QVariantList party;
     QList<Character> m_PC;
     QList<PlacedItem> m_placedItems;
@@ -66,6 +76,12 @@ private:
     
 
 public:
+    // Add to the public section of GameStateManager.h
+    float getVolume() const {
+        return m_globalAudioOutput ? m_globalAudioOutput->volume() : 0.5f;
+    }
+
+
     bool isActiveCharacterInCity() const {
         if (m_PC.isEmpty()) return false;
         return m_PC[0].DungeonLevel == 0;

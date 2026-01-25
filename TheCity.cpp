@@ -16,18 +16,7 @@
 TheCity::TheCity(QWidget *parent) :
     QDialog(parent)
 {
-// --- Setup City Audio ---
-    m_cityPlayer = new QMediaPlayer(this);
-    m_cityAudioOutput = new QAudioOutput(this);
-    m_cityPlayer->setAudioOutput(m_cityAudioOutput);
-    
-    // Replace "city.wav" with your actual file path
-    m_cityPlayer->setSource(QUrl::fromLocalFile("resources/waves/city.wav")); 
-    m_cityAudioOutput->setVolume(0.5); // Adjust volume as needed
-    
-    m_cityPlayer->play();
-
-
+    GameStateManager::instance()->playMusic("resources/waves/city.wav");
 
     setWindowTitle("The City - Online");
     setFixedSize(800, 600); // Expanded for multiplayer UI

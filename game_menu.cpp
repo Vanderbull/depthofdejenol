@@ -36,8 +36,8 @@
 #include <QLabel>
 #include <QPushButton>
 #include <QPixmap>
-#include <QMediaPlayer>
-#include <QAudioOutput>
+//#include <QMediaPlayer>
+//#include <QAudioOutput>
 #include <QUrl>
 #include <QDateTime>
 #include <QFileDialog>
@@ -61,17 +61,7 @@ GameMenu::GameMenu(QWidget *parent)
     , m_settings("MyCompany", "MyApp")
     , m_subfolderName(m_settings.value("Paths/SubfolderName", "data/characters").toString()) 
 {
-
-    // --- Setup City Audio ---
-    m_Player = new QMediaPlayer(this);
-    m_AudioOutput = new QAudioOutput(this);
-    m_Player->setAudioOutput(m_AudioOutput);
-    
-    // Replace "city.wav" with your actual file path
-    m_Player->setSource(QUrl::fromLocalFile("resources/waves/main.wav")); 
-    m_AudioOutput->setVolume(0.5); // Adjust volume as needed
-    
-    m_Player->play();
+    GameStateManager::instance()->playMusic("resources/waves/main.wav");
 
     // 1. DONT USE GLOBAL STYLESHEETS (prevents black buttons)
     // 2. USE PALETTE FOR BACKGROUND (Wayland friendly)
@@ -282,7 +272,8 @@ void GameMenu::onCharacterCreated(const QString &characterName)
 
 void GameMenu::onRunClicked() 
 {
-    m_Player->stop();
+    // Example: Playing a sound effect or music in a different dialog
+    GameStateManager::instance()->stopMusic();
     // 1. Instantiate the City dialog
     TheCity *cityDialog = new TheCity(this);  
     cityDialog->setAttribute(Qt::WA_DeleteOnClose);    
@@ -315,7 +306,8 @@ void GameMenu::onCharacterListClicked()
 
 void GameMenu::startNewGame() 
 {
-    m_Player->stop();
+    // Example: Playing a sound effect or music in a different dialog
+    GameStateManager::instance()->stopMusic();
     // 1. Load data required by the new CreateCharacterDialog constructor.
     QVector<RaceStats> raceData = loadRaceData();
     QVector<QString> guildData = loadGuildData();    
@@ -332,7 +324,7 @@ void GameMenu::startNewGame()
 
 void GameMenu::loadGame() 
 {
-// Start the 10-second loop
+    // Start the 10-second loop
     GameStateManager::instance()->startAutosave(10000);
     // 1. Setup file path and selection dialog 
     QString basePath = QCoreApplication::applicationDirPath();
