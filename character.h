@@ -8,6 +8,8 @@
 struct Character {
     // Basic Info
     QString name;
+    QString Race;
+    int Age;
     int level;
     int experience;
     int hp;
@@ -62,6 +64,8 @@ struct Character {
         isAlive      = map.value("isAlive").toBool();
         
         inventory    = map.value("Inventory").toStringList();
+        Race         = map.value("Race").toString(); // Sync from map
+        Age          = map.value("Age", 16).toInt();   // Default starting age
     }
 };
 

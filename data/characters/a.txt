@@ -1,8 +1,10 @@
 CHARACTER_FILE_VERSION: 1.0
 Name: a
 Race: 
-DungeonX: 17
-DungeonY: 12
+Age: 0
+Race: 
+DungeonX: 24
+DungeonY: 9
 DungeonLevel: 1
 Guild: 
 Level: 1

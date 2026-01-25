@@ -60,7 +60,9 @@ GameStateManager::GameStateManager(QObject *parent)
         character["Experience"] = 0;
         character["HP"] = 0;
         character["MaxHP"] = 0;
-        character["CurrentCharacterGold"] = 1500;        
+        character["CurrentCharacterGold"] = 1500;
+        character["Race"] = "Human"; // Default race
+        character["Age"] = 16;       // Default age
         // Stats
         character["Strength"] = 0;
         character["Intelligence"] = 0;
@@ -589,6 +591,8 @@ bool GameStateManager::loadCharacterFromFile(const QString& characterName)
 
         // Map file keys to QVariantMap keys
         if (key == "Name") characterMap["Name"] = value;
+        else if (key == "Race") characterMap["Race"] = value; // New
+        else if (key == "Age") characterMap["Age"] = value.toInt(); // New
         else if (key == "HP") characterMap["HP"] = value.toInt();
         else if (key == "MaxHP") characterMap["MaxHP"] = value.toInt();
         else if (key == "Level") characterMap["Level"] = value.toInt();
@@ -652,6 +656,8 @@ bool GameStateManager::saveCharacterToFile(int partyIndex)
     QTextStream out(&file);
     out << "CHARACTER_FILE_VERSION: 1.0\n";
     out << "Name: " << characterName << "\n";
+    out << "Race: " << character["Race"].toString() << "\n"; // Updated
+    out << "Age: " << character["Age"].toInt() << "\n";      // Updated
     out << "Race: " << character["Race"].toString() << "\n";
     out << "DungeonX: " << getGameValue("DungeonX").toInt() << "\n";
     out << "DungeonY: " << getGameValue("DungeonY").toInt() << "\n";
@@ -813,6 +819,8 @@ bool GameStateManager::repairSaveGame(const QString& characterName) {
         modified = true;
     }
 
+    if (!dataMap.contains("Race")) { dataMap["Race"] = "Human"; modified = true; }
+    if (!dataMap.contains("Age")) { dataMap["Age"] = "16"; modified = true; }
     // Fix missing coordinates (Default to City Entrance: 17, 12, Level 1)
     if (!dataMap.contains("DungeonX")) { dataMap["DungeonX"] = "17"; modified = true; }
     if (!dataMap.contains("DungeonY")) { dataMap["DungeonY"] = "12"; modified = true; }
@@ -905,4 +913,101 @@ void GameStateManager::stopMusic()
 void GameStateManager::setVolume(float volume)
 {
     if (m_globalAudioOutput) m_globalAudioOutput->setVolume(volume);
+}
+
+// 1. Static helper for the raw data
+QMap<QString, int> GameStateManager::getRaceAgeLimits()
+{
+    return {
+        {"Human", 100}, {"Elf", 400}, {"Giant", 225},
+        {"Gnome", 300}, {"Dwarf", 275}, {"Ogre", 265},
+        {"Morloch", 175}, {"Osiri", 325}, {"Troll", 285}
+    };
+}
+
+int GameStateManager::getMaxAgeForRace(const QString& raceName) const
+{
+    // Check dynamic state first (e.g., m_gameStateData["MaxHumanAge"])
+    QString key = QString("Max%1Age").arg(raceName);
+    if (m_gameStateData.contains(key)) {
+        return m_gameStateData.value(key).toInt();
+    }
+    
+    // Fallback to the constants you provided
+    static const QMap<QString, int> defaultAges = {
+        {"Human", 100}, {"Elf", 400}, {"Giant", 225},
+        {"Gnome", 300}, {"Dwarf", 275}, {"Ogre", 265},
+        {"Morloch", 175}, {"Osiri", 325}, {"Troll", 285}
+    };
+    return defaultAges.value(raceName, 100); 
+}
+
+bool GameStateManager::isCharacterPastMaxAge(int index) const
+{
+    if (index < 0 || index >= m_PC.size()) return false;
+
+    const Character& c = m_PC.at(index);
+    int maxAge = getMaxAgeForRace(c.Race); // Now resolves!
+    
+    return (c.Age >= maxAge); // Now resolves!
+}
+
+void GameStateManager::incrementPartyAge(int years)
+{
+    // 1. Update the internal Character structs (m_PC)
+    for (int i = 0; i < m_PC.size(); ++i) {
+        if (m_PC[i].name != "Empty Slot") {
+            m_PC[i].Age += years;
+        }
+    }
+
+    // 2. Sync changes back to the QVariantMap for the UI
+    QVariantList partyList = m_gameStateData["Party"].toList();
+    for (int i = 0; i < partyList.size(); ++i) {
+        QVariantMap characterMap = partyList[i].toMap();
+        if (characterMap["Name"].toString() != "Empty Slot") {
+            characterMap["Age"] = m_PC[i].Age;
+            partyList[i] = characterMap;
+        }
+    }
+    
+    // 3. Update master state and notify UI
+    m_gameStateData["Party"] = partyList;
+    emit gameValueChanged("Party", partyList);
+
+    // 4. Update the "CurrentCharacterAge" global value if index 0 changed
+    if (!m_PC.isEmpty()) {
+        setGameValue("CurrentCharacterAge", m_PC[0].Age);
+    }
+
+    qDebug() << "The party has aged by" << years << "year(s).";
+    
+    // 5. Check if anyone died of natural causes
+    processAgingConsequences();
+}
+
+void GameStateManager::processAgingConsequences()
+{
+    for (int i = 0; i < m_PC.size(); ++i) {
+        if (m_PC[i].name == "Empty Slot") continue;
+
+        if (isCharacterPastMaxAge(i)) {
+            // Log the event
+            QString deathMsg = QString("%1 has passed away peacefully of old age at %2.")
+                               .arg(m_PC[i].name)
+                               .arg(m_PC[i].Age);
+            logGuildAction(deathMsg);
+            qDebug() << deathMsg;
+
+            // Handle death logic
+            if (i == 0) {
+                // If it's the player, set the global "isAlive" state to 0
+                setIsAlive(0); 
+            } else {
+                // Handle party member death (e.g., mark as dead in struct/map)
+                m_PC[i].isAlive = 0;
+                updatePartyMemberHP(i, 0);
+            }
+        }
+    }
 }

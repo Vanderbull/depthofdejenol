@@ -76,6 +76,33 @@ private:
     
 
 public:
+    /**
+     * @brief Increments the age of all party members.
+     * Called during time skips, long rests, or yearly transitions.
+     */
+    void incrementPartyAge(int years = 1);
+
+    /**
+     * @brief Checks if any party member has died of old age and handles the state change.
+     */
+    void processAgingConsequences();
+
+    // --- Age Management ---
+    /**
+     * @brief Returns the maximum age for a given race name.
+     */
+    int getMaxAgeForRace(const QString& raceName) const;
+
+    /**
+     * @brief Checks if a specific character in the party has exceeded their natural lifespan.
+     */
+    bool isCharacterPastMaxAge(int index) const;
+
+    /**
+     * @brief Static helper to get the full mapping of ages.
+     */
+    static QMap<QString, int> getRaceAgeLimits();
+
     // Add to the public section of GameStateManager.h
     float getVolume() const {
         return m_globalAudioOutput ? m_globalAudioOutput->volume() : 0.5f;
