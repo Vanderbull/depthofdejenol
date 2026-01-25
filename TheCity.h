@@ -12,6 +12,8 @@
 #include <QTextEdit>
 #include <QLineEdit>
 #include <QPushButton>
+#include <QMediaPlayer>
+#include <QAudioOutput>
 
 class TheCity : public QDialog
 {
@@ -39,6 +41,8 @@ private slots:
     void handleChatReceived(QString from, QString message);
 
 private:
+    QMediaPlayer *m_cityPlayer;
+    QAudioOutput *m_cityAudioOutput;
     // UI Elements - Header & Grid
     QLabel *titleLabel;
     QToolButton *generalStoreButton;

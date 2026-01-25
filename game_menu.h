@@ -43,6 +43,8 @@ private slots:
     void toggleMenuState(bool characterIsLoaded); 
 
 private:
+    QMediaPlayer *m_Player;
+    QAudioOutput *m_AudioOutput;
     QLabel *m_titleLabel = nullptr;
     QLabel *m_subTitleLabel = nullptr;
     QPushButton *m_newButton = nullptr;
