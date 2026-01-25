@@ -3,17 +3,17 @@ Name: a
 Race: 
 Age: 0
 Race: 
-DungeonX: 24
+DungeonX: 26
 DungeonY: 7
 DungeonLevel: 1
 Guild: 
 Level: 1
-HP: 50
+HP: 0
 MaxHP: 50
 CurrentCharacterGold: 1500
 Experience: 0
-isAlive: 1
-isAlive: 1
+isAlive: 0
+isAlive: 0
 inCity: 0
 Strength: 0
 Intelligence: 0

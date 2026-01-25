@@ -47,7 +47,8 @@ GuildsDialog::GuildsDialog(QWidget *parent)
     // --- Right Side Widgets ---
     guildsLabel = new QLabel("<b><font color='red'>Guilds</font></b>");
     guildsListWidget = new QListWidget();
-    QStringList guilds = GameStateManager::guildNames();
+    QStringList guilds = GameConstants::GUILD_NAMES;
+    //QStringList guilds = GameStateManager::guildNames();
     for (const QString& guild : guilds) {
         guildsListWidget->addItem(guild);
     }
@@ -325,7 +326,8 @@ void GuildsDialog::on_guildsListWidget_itemSelectionChanged()
     // 1. Update the Welcome Label
     welcomeLabel->setText(QString("<b><font color='blue' size='4'>Welcome to the %1's guild!</font></b>").arg(guildName));
     // 2. Fetch the Master from GameStateManager
-    QMap<QString, QString> masters = GameStateManager::guildMasters();
+    QMap<QString, QString> masters = GameConstants::getGuildMasters();
+    //QMap<QString, QString> masters = GameStateManager::guildMasters();
     QString masterName = masters.value(guildName, "Unknown Master");
     // 3. Update Stats Required from GameStateManager (MDATA1)
     const QList<QVariantMap>& allGuilds = GameStateManager::instance()->gameData();

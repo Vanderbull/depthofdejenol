@@ -93,7 +93,8 @@ GameStateManager::GameStateManager(QObject *parent)
     //m_gameStateData["CurrentCharacterSex"] = GameStateManager::sexOptions().at(0);
     m_gameStateData["CurrentCharacterAlignment"] = GameConstants::ALIGNMENT_NAMES.at(GameConstants::DEFAULT_ALIGNMENT_INDEX);
     //m_gameStateData["CurrentCharacterAlignment"] = GameStateManager::alignmentNames().at(GameStateManager::defaultAlignmentIndex());
-    m_gameStateData["CurrentCharacterStatPointsLeft"] = GameStateManager::defaultStatPoints();
+    m_gameStateData["CurrentCharacterStatPointsLeft"] = GameConstants::DEFAULT_STAT_POINTS;
+    //m_gameStateData["CurrentCharacterStatPointsLeft"] = GameStateManager::defaultStatPoints();
     m_gameStateData["CurrentCharacterHP"] = 50;
     m_gameStateData["CurrentCharacterLevel"] = 1;
     m_gameStateData["CurrentCharacterAge"] = 16; // Starting age for all races

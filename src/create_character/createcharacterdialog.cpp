@@ -124,8 +124,10 @@ void CreateCharacterDialog::updateRaceStats(int index)
 */
     updateAlignmentOptions(selectedRace);
     updateGuildListStyle(selectedRace);
-    GameStateManager::instance()->setGameValue("CurrentCharacterStatPointsLeft", GameStateManager::defaultStatPoints());
-    this->statPointsLeftLabel->setText(QString("%1 Stat Points Left").arg(GameStateManager::defaultStatPoints()));
+    //GameStateManager::instance()->setGameValue("CurrentCharacterStatPointsLeft", GameStateManager::defaultStatPoints());
+    //this->statPointsLeftLabel->setText(QString("%1 Stat Points Left").arg(GameStateManager::defaultStatPoints()));
+    GameStateManager::instance()->setGameValue("CurrentCharacterStatPointsLeft", GameConstants::DEFAULT_STAT_POINTS);
+    this->statPointsLeftLabel->setText(QString("%1 Stat Points Left").arg(GameConstants::DEFAULT_STAT_POINTS));
 }
 
 CreateCharacterDialog::CreateCharacterDialog(const QVector<RaceStats>& raceData, 

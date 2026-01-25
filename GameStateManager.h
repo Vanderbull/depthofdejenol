@@ -173,57 +173,6 @@ public:
     {
         return m_gameStateData.value("isAlive").toInt();
     }
-    /*
-    static QStringList statNames() 
-    {
-        return {"Strength", "Intelligence", "Wisdom", "Constitution", "Charisma", "Dexterity"};
-    }
-    */
-    static int defaultStatPoints() { return 5; }
-/*
-    static QStringList alignmentNames() 
-    {
-        return {"Good", "Neutral", "Evil"};
-    }
-*/
-/*
-    static QStringList sexOptions() 
-    {
-        return {"Male", "Female"};
-    }
-*/
-/*
-    static int defaultAlignmentIndex() 
-    {
-        return 1; // Default to "Neutral"
-    }
-*/
-    // In GameStateManager.h public section:
-    static QStringList guildNames() 
-    {
-        return {
-            "Nomad", "Paladin", "Warrior", "Villain", 
-            "Seeker", "Thief", "Scavenger", "Mage", 
-            "Sorcerer", "Wizard", "Healer", "Ninja"
-        };
-    }
-    static QMap<QString, QString> guildMasters() 
-    {
-        return {
-            {"Nomad", "Goch"},
-            {"Paladin", "Tuadar"},
-            {"Warrior", "Spore"},
-            {"Villain", "Darkness"},
-            {"Seeker", "Healer"},
-            {"Thief", "Nimblefingers"},      
-            {"Scavenger", "Morgul"},         
-            {"Mage", "Ge'nal"},              
-            {"Sorcerer", "Ge'nal"},          
-            {"Wizard", "Archmage"},
-            {"Healer", "Theshal"},           
-            {"Ninja", "Shadowblade"}
-        };
-    }
     // --- Inventory Management ---
     void setBankInventory(const QStringList& items);
     QStringList getBankInventory() const;
