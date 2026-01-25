@@ -18,7 +18,7 @@
 
 ## Installation
 
-1. **Remove any Qt 5 dependencies. Only Qt 6 is supported.**
+1. **Only Qt 6 is supported.**
 2. Install all Qt 6 packages (e.g., `qt6-base`, `qt6-multimedia`, etc.).
 3. Use `qmake6` to generate Makefiles.
 4. Run `make` to build the project.
