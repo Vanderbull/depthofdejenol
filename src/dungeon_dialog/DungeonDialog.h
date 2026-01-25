@@ -92,6 +92,7 @@ private slots:
     void togglePartyInfo();
     
 private:
+    QSet<QPair<int, int>> m_bodyPositions;
     PartyInfoDialog *m_charSheet = nullptr; // Track the window here
     QPair<int, int> getCurrentPosition(); // The helper function
     QTimer *m_combatTimer = nullptr; // MUST be here

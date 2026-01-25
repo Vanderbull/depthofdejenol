@@ -1,4 +1,4 @@
-    #include "src/character_dialog/CharacterDialog.h"
+#include "src/character_dialog/CharacterDialog.h"
 #include "DungeonDialog.h"
 #include "DungeonHandlers.h"
 #include "../../GameStateManager.h" // REQUIRED: Include for GameState access
@@ -295,6 +295,7 @@ void DungeonDialog::generateStairs(QRandomGenerator& rng)
 
 void DungeonDialog::generateSpecialTiles(int tileCount, QRandomGenerator& rng)
 {
+    m_bodyPositions.clear();
     // 1. Reset all containers
     m_antimagicPositions.clear();
     m_extinguisherPositions.clear();
@@ -646,7 +647,37 @@ void DungeonDialog::on_pickupButton_clicked()
 
 void DungeonDialog::on_dropButton_clicked() 
 {
-    logMessage("You try to drop something but is unable to.");
+    GameStateManager* gsm = GameStateManager::instance();
+
+    QPair<int, int> pos = {10, 10};
+    m_bodyPositions.insert(pos);
+    
+    // Check if the player is actually carrying a body
+    // Assuming "IsCarryingBody" is a flag in your GameStateManager
+    if (gsm->getGameValue("IsCarryingBody").toBool()) {
+        
+        // Get current position
+        int curX = gsm->getGameValue("DungeonX").toInt();
+        int curY = gsm->getGameValue("DungeonY").toInt();
+        QPair<int, int> pos = {curX, curY};
+
+        // Logic to check if the player is actually carrying a body would go here
+        // For now, we add the tile at the current location
+        m_bodyPositions.insert(pos);
+        // Update GameState: No longer carrying, and place body on map
+        gsm->setGameValue("IsCarryingBody", false);
+        
+        // You might want to add this to a specific set like m_monsterPositions 
+        // or a new m_deadBodyPositions if you want it to persist/be seen.
+        // For now, we log the action:
+        logMessage("<font color='gray'>You carefully lay the carried body onto the cold stone floor.</font>");
+        
+        // Refresh view to show the dropped object if applicable
+        renderWireframeView();
+    } else {
+        logMessage("You aren't carrying anything to drop.");
+    }
+    drawMinimap();
 }
 
 void DungeonDialog::on_teleportButton_clicked() 
@@ -836,6 +867,26 @@ void DungeonDialog::keyPressEvent(QKeyEvent *event)
             on_rotateRightButton_clicked();
             break;
         // --- Other Action Shortcuts ---
+        case Qt::Key_T: {
+            GameStateManager* gsm = GameStateManager::instance();
+            QPair<int, int> currentPos = { 
+                gsm->getGameValue("DungeonX").toInt(), 
+                gsm->getGameValue("DungeonY").toInt() 
+            };
+
+            if (currentPos == m_stairsUpPosition) {
+                logMessage("Taking shortcut: Climbing up...");
+                transitionLevel(StairDirection::Up);
+            } 
+            else if (currentPos == m_stairsDownPosition) {
+                logMessage("Taking shortcut: Descending down...");
+                transitionLevel(StairDirection::Down);
+            } 
+            else {
+                logMessage("There are no stairs here to use.");
+            }
+            break;
+        }
         case Qt::Key_F:
             on_fightButton_clicked();
             break;
@@ -876,15 +927,18 @@ void DungeonDialog::keyPressEvent(QKeyEvent *event)
         }
         case Qt::Key_D: {
             if (m_isFighting) {
-                m_isDefending = !m_isDefending; // Toggle the state
+                // Toggle defending state
+                m_isDefending = !m_isDefending; 
                 if (m_isDefending) {
-                    logMessage("<font color='blue'>You take a defensive stance.</font>");
+                    logMessage("<font color='blue'>You raise your guard! (Half damage taken)</font>");
                 } else {
-                    logMessage("You return to a balanced stance.");
+                    logMessage("You lower your guard.");
                 }
             } else {
-                // You could trigger on_dropButton_clicked() here if not in combat
+                // Not fighting: Trigger the drop functionality
+                on_dropButton_clicked();
             }
+            event->accept();
             break;
         }
         default:

@@ -315,6 +315,27 @@ void DungeonDialog::drawMinimap()
     } else {
         delete scene; // Cleanup if window doesn't exist
     }
+
+    QString bodyPath = "resources/images/minimap/body.png";
+    QPixmap bodyPixmap(bodyPath);
+    QPixmap scaledBody = bodyPixmap.scaled(TILE_SIZE, TILE_SIZE, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
+
+    // ... (Inside the drawing loop after other special tiles) ...
+    for (const auto& pos : m_bodyPositions) {
+        if (revealAll || m_visitedTiles.contains(pos)) {
+            if (!bodyPixmap.isNull()) {
+                QGraphicsPixmapItem* bodyTile = scene->addPixmap(scaledBody);
+                bodyTile->setPos(pos.first * TILE_SIZE, pos.second * TILE_SIZE);
+                bodyTile->setZValue(1); 
+            } else {
+                // Fallback: Draw a red cross if the image is missing
+                scene->addRect(pos.first * TILE_SIZE + 2, pos.second * TILE_SIZE + 2, 
+                               TILE_SIZE - 4, TILE_SIZE - 4, 
+                               QPen(Qt::red), QBrush(Qt::red));
+            }
+        }
+    }
+
 }
 
 void DungeonDialog::updateMinimap(int x, int y, int z=0)

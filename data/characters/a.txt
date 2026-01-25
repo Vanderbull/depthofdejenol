@@ -3,12 +3,12 @@ Name: a
 Race: 
 Age: 0
 Race: 
-DungeonX: 9
-DungeonY: 3
-DungeonLevel: 2
+DungeonX: 24
+DungeonY: 7
+DungeonLevel: 1
 Guild: 
 Level: 1
-HP: 9
+HP: 50
 MaxHP: 50
 CurrentCharacterGold: 1500
 Experience: 0
