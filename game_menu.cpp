@@ -278,6 +278,7 @@ void GameMenu::onRunClicked()
     // 3. Connect the finished signal to handle returning to the menu
     // This lambda triggers when TheCity is closed or the Exit button is clicked
     connect(cityDialog, &QDialog::finished, this, [this](int result){
+	Q_UNUSED(result);
         // Check the current state of "ResourcesLoaded" from the GameStateManager
         // If the City's Exit button reset this flag, toggleMenuState will hide "Run Character"
         bool isLoaded = GameStateManager::instance()->getGameValue("ResourcesLoaded").toBool();

@@ -61,6 +61,7 @@ void DungeonDialog::populateRandomTreasures(int level)
 
 void DungeonDialog::revealAroundPlayer(int x, int y, int z=0)
 {
+    Q_UNUSED(z);
     // Loops through the 3x3 grid centered on the player
     for (int dx = -1; dx <= 1; ++dx) {
         for (int dy = -1; dy <= 1; ++dy) {
@@ -124,6 +125,7 @@ void DungeonDialog::updatePartyMemberHealth(int row, int damage)
 // --- Dungeon Management (Movement, Drawing, Encounters) ---
 void DungeonDialog::movePlayer(int dx, int dy, int dz=0)
 {
+    Q_UNUSED(dz);
     GameStateManager* gsm = GameStateManager::instance();
     int currentX = gsm->getGameValue("DungeonX").toInt();
     int currentY = gsm->getGameValue("DungeonY").toInt();
@@ -377,8 +379,8 @@ DungeonDialog::DungeonDialog(QWidget *parent)
     // Load GameStateManager data
 
     // Retrieve Constitution to calculate a simple placeholder for maximum HP
-    int con = gsm->getGameValue("CurrentCharacterConstitution").toInt();
-    int maxHP = (con > 0) ? con * 5 : 50; 
+    // int con = gsm->getGameValue("CurrentCharacterConstitution").toInt();
+    //int maxHP = (con > 0) ? con * 5 : 50; 
     // --- Retrieve/Set persistent dungeon state (New GameState logic) ---
     int initialLevel = gsm->getGameValue("DungeonLevel").toInt();
     int initialX = gsm->getGameValue("DungeonX").toInt();
@@ -1267,7 +1269,9 @@ bool hasAntimagic = m_antimagicPositions.contains({tx, ty});
     }
 }
 
-void DungeonDialog::drawBrickPattern(const QPolygon& wallPoly, int depth) {
+void DungeonDialog::drawBrickPattern(const QPolygon& wallPoly, int depth) 
+{
+    Q_UNUSED(depth);
     QRect bounds = wallPoly.boundingRect();
     QPen mortarPen(QColor(40, 40, 40, 150)); // Semi-transparent dark gray
     mortarPen.setWidth(1);
@@ -1364,7 +1368,10 @@ void DungeonDialog::drawMonster(int d, int xL, int xR, int yB) {
     m_dungeonScene->addRect(body, QPen(Qt::black), QBrush(monsterColor));
 }
 
-void DungeonDialog::drawTeleporter(int d, int xL, int xR, int yB, int nxL, int nxR, int nyB) {
+void DungeonDialog::drawTeleporter(int d, int xL, int xR, int yB, int nxL, int nxR, int nyB) 
+{
+    Q_UNUSED(nxR);
+    Q_UNUSED(nxL);
     // Calculate the center and size of the tile floor
     int centerX = xL + (xR - xL) / 2;
     int centerY = yB + (nyB - yB) / 2;

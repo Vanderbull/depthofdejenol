@@ -44,8 +44,10 @@ void PartyInfoDialog::refreshFromGameState()
     updatePartyLabels();
 }
 
+
 void PartyInfoDialog::onGameStateChanged(const QString& key, const QVariant& value) 
 {
+    Q_UNUSED(value);
     if (key == "Party" || key == "ActiveCharacterIndex") {
         refreshFromGameState();
     }

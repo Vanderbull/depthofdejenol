@@ -35,7 +35,7 @@ ConfinementAndHoldingDialog::ConfinementAndHoldingDialog(QWidget *parent)
     QMap<QString, int> currentStock = gsm->getConfinementStock();
     for (auto it = currentStock.begin(); it != currentStock.end(); ++it) {
         QString creatureName = it.key();
-        int count = it.value();
+        //int count = it.value();
         buyCreatureListWidget->addItem(creatureName);
     }
     // --- Connect signals and slots ---    

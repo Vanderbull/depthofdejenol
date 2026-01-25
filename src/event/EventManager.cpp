@@ -50,6 +50,7 @@ void EventManager::update(const QString& trigger, QJsonObject context)
 
 void EventManager::checkEvents(const QString& trigger, QJsonObject context)
 {
+    Q_UNUSED(context);
     for (auto& event : m_allEvents) {
         if (!event.resolved && event.trigger == trigger) {
             m_activeEvents.append(event);
