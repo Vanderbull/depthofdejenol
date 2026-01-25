@@ -1,0 +1,39 @@
+name: Sync Project Status to Labels
+on:
+  project_next_item:
+    types: [edited, converted]
+
+jobs:
+  sync-labels:
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+      repository-projects: read
+    steps:
+      - name: Sync Status to Label
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const item = context.payload.project_next_item;
+            
+            // 1. Get the status value from the project item
+            // Note: This assumes your field is named "Status"
+            const statusValue = item.field_values.find(f => f.field_name === 'Status')?.value;
+
+            if (!statusValue) {
+              console.log("No status change detected.");
+              return;
+            }
+
+            // 2. Identify the linked issue
+            const issueNumber = item.content_node_id; // This is a GraphQL ID
+
+            // 3. Apply the label (GitHub creates it if it doesn't exist)
+            await github.rest.issues.addLabels({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: item.number, 
+              labels: [statusValue]
+            });
+
+            console.log(`Successfully added label: ${statusValue}`);
