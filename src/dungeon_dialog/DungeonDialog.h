@@ -98,7 +98,7 @@ private:
     int m_playerAttackCooldown = 0;
     int m_monsterAttackCooldown = 0;
     bool m_isFighting = false;
-
+    bool m_isDefending = false;
 
     void performPlayerAttack();
     void performMonsterAttack();

@@ -1,4 +1,4 @@
-#include "src/character_dialog/CharacterDialog.h"
+    #include "src/character_dialog/CharacterDialog.h"
 #include "DungeonDialog.h"
 #include "DungeonHandlers.h"
 #include "../../GameStateManager.h" // REQUIRED: Include for GameState access
@@ -111,17 +111,23 @@ void DungeonDialog::updateGoldLabel()
 void DungeonDialog::updatePartyMemberHealth(int row, int damage)
 {
     GameStateManager* gsm = GameStateManager::instance();   
-    // Only handling row 0 (Main Character) for this example
+    
+    // Check if player is defending to halve damage
+    int finalDamage = damage;
+    if (m_isDefending && row == 0) {
+        finalDamage = qMax(1, damage / 2); // Halve damage, minimum of 1
+    }
+
     if (row == 0) {
         int currentHp = gsm->getGameValue("CurrentCharacterHP").toInt();
-        int newHp = qMax(0, currentHp - damage);
+        int newHp = qMax(0, currentHp - finalDamage);
         gsm->setGameValue("CurrentCharacterHP", newHp);
+
         if (newHp <= 0) {
             logMessage("You have been defeated!");
             gsm->setGameValue("isAlive", 0);
-            // Return to main menu (closes current dungeon dialog)
             this->close(); 
-            emit exitedDungeonToCity(); // Assuming this returns you to the menu/city
+            emit exitedDungeonToCity(); 
         }
     }
 }
@@ -732,7 +738,6 @@ void DungeonDialog::processCombatTick()
     }
 }
 
-
 void DungeonDialog::performPlayerAttack() {
     int damage = QRandomGenerator::global()->bounded(5, 15);
     m_activeMonsterHP -= damage;
@@ -741,9 +746,9 @@ void DungeonDialog::performPlayerAttack() {
     if (m_activeMonsterHP <= 0) {
         logMessage("The monster falls!");
         m_isFighting = false;
+        m_isDefending = false; // Reset defense state
         m_combatTimer->stop();
         
-        // Remove monster from map and refresh view
         QPair<int, int> pos = getCurrentPosition();
         m_monsterPositions.remove(pos);
         renderWireframeView();
@@ -867,6 +872,19 @@ void DungeonDialog::keyPressEvent(QKeyEvent *event)
             charDialog->show();
             charDialog->raise();
             charDialog->activateWindow();
+            break;
+        }
+        case Qt::Key_D: {
+            if (m_isFighting) {
+                m_isDefending = !m_isDefending; // Toggle the state
+                if (m_isDefending) {
+                    logMessage("<font color='blue'>You take a defensive stance.</font>");
+                } else {
+                    logMessage("You return to a balanced stance.");
+                }
+            } else {
+                // You could trigger on_dropButton_clicked() here if not in combat
+            }
             break;
         }
         default:
