@@ -1,0 +1,21 @@
+name: Sync Project Status to Labels
+on:
+  project_card:
+    types: [moved]
+
+jobs:
+  label_sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Add Label on Backlog Move
+        # This is a simplified logic block
+        if: github.event.project_card.column_name == 'Backlog'
+        uses: actions/github-script@v6
+        with:
+          script: |
+            github.rest.issues.addLabels({
+              issue_number: context.payload.project_card.content_url.split('/').pop(),
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              labels: ['backlog']
+            })
