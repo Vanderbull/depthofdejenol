@@ -1,6 +1,7 @@
 #ifndef GAMESTATEMANAGER_H
 #define GAMESTATEMANAGER_H
 
+#include "GameConstants.h"
 #include "character.h"
 #include <QObject>
 #include <QVariantMap>
@@ -76,39 +77,15 @@ private:
     
 
 public:
-    /**
-     * @brief Increments the age of all party members.
-     * Called during time skips, long rests, or yearly transitions.
-     */
     void incrementPartyAge(int years = 1);
-
-    /**
-     * @brief Checks if any party member has died of old age and handles the state change.
-     */
     void processAgingConsequences();
-
-    // --- Age Management ---
-    /**
-     * @brief Returns the maximum age for a given race name.
-     */
     int getMaxAgeForRace(const QString& raceName) const;
-
-    /**
-     * @brief Checks if a specific character in the party has exceeded their natural lifespan.
-     */
     bool isCharacterPastMaxAge(int index) const;
-
-    /**
-     * @brief Static helper to get the full mapping of ages.
-     */
     static QMap<QString, int> getRaceAgeLimits();
-
     // Add to the public section of GameStateManager.h
     float getVolume() const {
         return m_globalAudioOutput ? m_globalAudioOutput->volume() : 0.5f;
     }
-
-
     bool isActiveCharacterInCity() const {
         if (m_PC.isEmpty()) return false;
         return m_PC[0].DungeonLevel == 0;
@@ -116,16 +93,9 @@ public:
     // Getter to provide access to the party list
     QList<Character>& getPC() { return m_PC; }
     const QList<Character>& getPC() const { return m_PC; }
-
-    /**
-     * @brief Directly sets the gold for a specific character in the party.
-     * @param index The party slot (0 to MAX_PARTY_SIZE - 1)
-     * @param newGold the exact amount of gold to set
-     */
     void setCharacterGold(int index, qulonglong newGold) {
         if (index >= 0 && index < m_PC.size()) {
             m_PC[index].Gold = newGold;
-            
             // If this is the active character (usually index 0), 
             // sync it to the global game state for UI updates.
             if (index == 0) {
@@ -134,10 +104,8 @@ public:
             qDebug() << "Gold for PC" << index << "set to:" << newGold;
         }
     }
-
     // Logic to "Ready" a body into the active party for resurrection
     bool readyBodyForResurrection(const QString& characterName);
-
     void setInCity(bool inCity) 
     {
         setGameValue("inCity", inCity);
@@ -205,23 +173,31 @@ public:
     {
         return m_gameStateData.value("isAlive").toInt();
     }
+    /*
     static QStringList statNames() 
     {
         return {"Strength", "Intelligence", "Wisdom", "Constitution", "Charisma", "Dexterity"};
     }
+    */
     static int defaultStatPoints() { return 5; }
+/*
     static QStringList alignmentNames() 
     {
         return {"Good", "Neutral", "Evil"};
     }
+*/
+/*
     static QStringList sexOptions() 
     {
         return {"Male", "Female"};
     }
+*/
+/*
     static int defaultAlignmentIndex() 
     {
         return 1; // Default to "Neutral"
     }
+*/
     // In GameStateManager.h public section:
     static QStringList guildNames() 
     {

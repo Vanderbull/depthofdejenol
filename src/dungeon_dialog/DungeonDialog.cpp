@@ -649,7 +649,9 @@ void DungeonDialog::on_dropButton_clicked()
 {
     GameStateManager* gsm = GameStateManager::instance();
 
-    QPair<int, int> pos = {10, 10};
+    int x = gsm->getGameValue("DungeonX").toInt();
+    int y = gsm->getGameValue("DungeonY").toInt();
+    QPair<int, int> pos = {x, y};
     m_bodyPositions.insert(pos);
     
     // Check if the player is actually carrying a body

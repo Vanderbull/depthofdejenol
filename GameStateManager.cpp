@@ -89,8 +89,10 @@ GameStateManager::GameStateManager(QObject *parent)
     // --- End party ---
     // --- Current Character ---
     m_gameStateData["inCity"] = false;
-    m_gameStateData["CurrentCharacterSex"] = GameStateManager::sexOptions().at(0);
-    m_gameStateData["CurrentCharacterAlignment"] = GameStateManager::alignmentNames().at(GameStateManager::defaultAlignmentIndex());
+    m_gameStateData["CurrentCharacterSex"] = GameConstants::SEX_OPTIONS.at(0);
+    //m_gameStateData["CurrentCharacterSex"] = GameStateManager::sexOptions().at(0);
+    m_gameStateData["CurrentCharacterAlignment"] = GameConstants::ALIGNMENT_NAMES.at(GameConstants::DEFAULT_ALIGNMENT_INDEX);
+    //m_gameStateData["CurrentCharacterAlignment"] = GameStateManager::alignmentNames().at(GameStateManager::defaultAlignmentIndex());
     m_gameStateData["CurrentCharacterStatPointsLeft"] = GameStateManager::defaultStatPoints();
     m_gameStateData["CurrentCharacterHP"] = 50;
     m_gameStateData["CurrentCharacterLevel"] = 1;
@@ -433,10 +435,12 @@ void GameStateManager::setGameValue(const QString& key, const QVariant& value)
             // Check for stats (CurrentCharacterStrength, etc)
             QString statName = key;
             statName.remove("CurrentCharacter");
-            if (statNames().contains(statName)) {
+            if (GameConstants::STAT_NAMES.contains(statName)) {
                 character[statName] = value;
             }
-            
+            //if (statNames().contains(statName)) {
+            //    character[statName] = value;
+            //}
             partyList[0] = character;
             m_gameStateData["Party"] = partyList;
         }
@@ -602,7 +606,10 @@ bool GameStateManager::loadCharacterFromFile(const QString& characterName)
         else if (key == "DungeonX") characterMap["DungeonX"] = value.toInt();
         else if (key == "DungeonY") characterMap["DungeonY"] = value.toInt();
         // Check if the key is a stat (Str, Int, etc)
-        else if (statNames().contains(key)) characterMap[key] = value.toInt();
+        else if (GameConstants::STAT_NAMES.contains(key)) {
+            characterMap[key] = value.toInt();
+        }
+        //else if (statNames().contains(key)) characterMap[key] = value.toInt();
     }
     file.close();
 
@@ -673,9 +680,12 @@ bool GameStateManager::saveCharacterToFile(int partyIndex)
     out << "inCity: " << (getGameValue("inCity").toBool() ? 1 : 0) << "\n"; // Add this line
     
     // Save Stats using the helper list
-    for (const QString& stat : statNames()) {
+    for (const QString& stat : GameConstants::STAT_NAMES) {
         out << stat << ": " << character[stat].toInt() << "\n";
     }
+    //for (const QString& stat : statNames()) {
+    //    out << stat << ": " << character[stat].toInt() << "\n";
+    //}
     // Save Inventory as a comma-separated list
     QStringList inv = character["Inventory"].toStringList();
     out << "Inventory: " << inv.join(",") << "\n";

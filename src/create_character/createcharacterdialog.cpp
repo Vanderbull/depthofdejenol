@@ -27,7 +27,8 @@ void CreateCharacterDialog::updateAlignmentOptions(const RaceStats& race)
     // RAII approach to blocking signals: automatically unblocks when 'blocker' goes out of scope
     QSignalBlocker blocker(this->alignmentBox);    
     this->alignmentBox->clear();
-    const QStringList allAlignments = GameStateManager::alignmentNames();
+    const QStringList allAlignments = GameConstants::ALIGNMENT_NAMES;
+    //const QStringList allAlignments = GameStateManager::alignmentNames();
     if (allAlignments.size() < 3) return; // Guard against uninitialized data
     // 1. Filter alignments using a mapping strategy
     QStringList allowed;
@@ -38,7 +39,8 @@ void CreateCharacterDialog::updateAlignmentOptions(const RaceStats& race)
     this->alignmentBox->addItems(allowed);
     // 2. Determine the best default
     // We prefer the system default if available, otherwise fallback to the first allowed item
-    const QString systemDefault = allAlignments.value(GameStateManager::defaultAlignmentIndex());
+    const QString systemDefault = allAlignments.value(GameConstants::DEFAULT_ALIGNMENT_INDEX);
+    //const QString systemDefault = allAlignments.value(GameStateManager::defaultAlignmentIndex());
     int defaultIndex = this->alignmentBox->findText(systemDefault);
     this->alignmentBox->setCurrentIndex(defaultIndex != -1 ? defaultIndex : 0);
 }
@@ -81,6 +83,26 @@ void CreateCharacterDialog::updateRaceStats(int index)
     statMap["Charisma"]     = selectedRace.charisma;
     statMap["Dexterity"]    = selectedRace.dexterity;
     // Use GameStateManager to iterate through stat names
+    for (const QString& statName : GameConstants::STAT_NAMES) {
+        QSpinBox* spinBox = statSpinBoxes.value(statName);
+        if (!spinBox) continue;
+        RaceStat raceStat = statMap.value(statName);
+        spinBox->blockSignals(true);
+        spinBox->setRange(raceStat.min, raceStat.min + 5);
+        spinBox->setValue(raceStat.start);
+        spinBox->setProperty(PROPERTY_PREVIOUS_VALUE, raceStat.start);
+        spinBox->blockSignals(false);
+        QLabel* rangeLabel = statRangeLabels.value(statName);
+        if (rangeLabel) {
+            rangeLabel->setText(QString("(%1-%2)").arg(raceStat.min).arg(raceStat.max));
+        }
+        QLabel* valueLabel = statValueLabels.value(statName);
+        if (valueLabel) {
+             valueLabel->setText(QString::number(raceStat.start));
+        }
+    }
+
+/*
     for (const QString& statName : GameStateManager::statNames()) {
         QSpinBox* spinBox = statSpinBoxes.value(statName);
         if (!spinBox) continue;
@@ -99,6 +121,7 @@ void CreateCharacterDialog::updateRaceStats(int index)
              valueLabel->setText(QString::number(raceStat.start));
         }
     }
+*/
     updateAlignmentOptions(selectedRace);
     updateGuildListStyle(selectedRace);
     GameStateManager::instance()->setGameValue("CurrentCharacterStatPointsLeft", GameStateManager::defaultStatPoints());
@@ -151,7 +174,8 @@ CreateCharacterDialog::CreateCharacterDialog(const QVector<RaceStats>& raceData,
     infoLayout->addWidget(raceBox, 3, 0, 1, 2);
     infoLayout->addWidget(new QLabel("Sex"), 4, 0);
     sexBox = new QComboBox();
-    sexBox->addItems(GameStateManager::sexOptions());
+    sexBox->addItems(GameConstants::SEX_OPTIONS);
+    //sexBox->addItems(GameStateManager::sexOptions());
     infoLayout->addWidget(sexBox, 5, 0, 1, 2);
     infoLayout->addWidget(new QLabel("Alignment"), 6, 0);
     alignmentBox = new QComboBox();
@@ -169,8 +193,9 @@ CreateCharacterDialog::CreateCharacterDialog(const QVector<RaceStats>& raceData,
     this->statPointsLeftLabel->setStyleSheet("color: red; font-weight: bold; padding-top: 5px;");
     statsLayout->addWidget(this->statPointsLeftLabel, 7, 0, 1, 4, Qt::AlignCenter);
     const RaceStats& initialRace = raceData.at(0);
-    // Refactored to use GameStateManager::statNames()
-    const QStringList statList = GameStateManager::statNames();
+
+    const QStringList statList = GameConstants::STAT_NAMES;
+    //const QStringList statList = GameStateManager::statNames();
     for (int i = 0; i < statList.size(); ++i) {
         QString statName = statList.at(i);
         statsLayout->addWidget(new QLabel(statName), i + 1, 0);
@@ -286,6 +311,22 @@ void CreateCharacterDialog::updateSpinBoxLimits()
     statMap["Constitution"] = selectedRace.constitution;
     statMap["Charisma"]     = selectedRace.charisma;
     statMap["Dexterity"]    = selectedRace.dexterity;
+    for (const QString& statName : GameConstants::STAT_NAMES) {
+        QSpinBox* sb = statSpinBoxes.value(statName);
+        if (!sb) continue;
+        
+        RaceStat raceStat = statMap.value(statName);
+        sb->blockSignals(true);
+        
+        // The maximum is the lower of:
+        // 1. The absolute racial maximum (e.g., 18)
+        // 2. The current value + whatever points are remaining in the pool
+        int allowedMax = qMin(raceStat.max, sb->value() + pointsLeft);
+        
+        sb->setMaximum(allowedMax);
+        sb->blockSignals(false);
+    }
+/*
     for (const QString& statName : GameStateManager::statNames()) {
         QSpinBox* sb = statSpinBoxes.value(statName);
         if (!sb) continue;
@@ -298,6 +339,7 @@ void CreateCharacterDialog::updateSpinBoxLimits()
         sb->setMaximum(allowedMax);
         sb->blockSignals(false);
     }
+*/
 }
 
 CreateCharacterDialog::~CreateCharacterDialog() {}
@@ -337,12 +379,20 @@ void CreateCharacterDialog::onSaveCharacterClicked()
     // Set the initial survival status to true for a new character
     gsm->setGameValue("CurrentCharacterIsAlive", 1);
     // Use the central list to save values
+    for (const QString& statName : GameConstants::STAT_NAMES) {
+        QSpinBox* spin = statSpinBoxes.value(statName);
+        if (spin) {
+            gsm->setGameValue(QString("CurrentCharacter%1").arg(statName), spin->value());
+        }
+    }
+/*
     for (const QString& statName : GameStateManager::statNames()) {
         QSpinBox* spin = statSpinBoxes.value(statName);
         if (spin) {
             gsm->setGameValue(QString("CurrentCharacter%1").arg(statName), spin->value());
         }
     }
+*/
     gsm->setGameValue("CurrentCharacterStatPointsLeft", this->statPoints);
     // Ensure the data/characters directory exists
     QString saveDirPath = QCoreApplication::applicationDirPath() + "/data/characters";
@@ -363,12 +413,20 @@ void CreateCharacterDialog::onSaveCharacterClicked()
 	// Add the isAlive status to the file output
         bool isAlive = gsm->getGameValue("CurrentCharacterIsAlive").toBool();
         out << "isAlive: " << isAlive << "\n\n--- STATS ---\n";
+    for (const QString& statName : GameConstants::STAT_NAMES) {
+        QSpinBox* spin = statSpinBoxes.value(statName);
+        if (spin) {
+            out << statName << ": " << spin->value() << "\n";
+        }
+    }
+/*
         for (const QString& statName : GameStateManager::statNames()) {
             QSpinBox* spin = statSpinBoxes.value(statName);
             if (spin) {
                 out << statName << ": " << spin->value() << "\n";
             }
         }
+*/
         out << "\n--- GUILD ---\nGuild: " << selectedGuild << "\n";
         file.close();
         QMessageBox::information(this, "Save Character", QString("Character **%1** saved successfully.").arg(characterName));

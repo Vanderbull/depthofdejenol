@@ -16,7 +16,7 @@
 TheCity::TheCity(QWidget *parent) :
     QDialog(parent)
 {
-    GameStateManager::instance()->playMusic("resources/waves/city.wav");
+    //GameStateManager::instance()->playMusic("resources/waves/city.wav");
 
     setWindowTitle("The City - Online");
     setFixedSize(800, 600); // Expanded for multiplayer UI
