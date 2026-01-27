@@ -18,13 +18,6 @@
 - Statistics and records dialog
 - Extremly basic city multiplayer server and client functions with chat
 
-## Installation
-
-1. **Only Qt 6 is supported.**
-2. Install all Qt 6 packages (e.g., `qt6-base`, `qt6-multimedia`, etc.).
-3. Use `qmake6` to generate Makefiles.
-4. Run `make` to build the project.
-5. Execute with `./game_menu`.
 
 For more details, see: [Mdata1.mdr documentation](https://dejenol.com/index.php?title=Mdata1.mdr)
 
