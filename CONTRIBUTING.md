@@ -10,3 +10,11 @@ To get a fully working environment with autocomplete:
 
 ## Code Style
 Please run `make format` (or use clang-format) before submitting a PR.
+
+## Old installation stuff
+
+1. **Only Qt 6 is supported.**
+2. Install all Qt 6 packages (e.g., `qt6-base`, `qt6-multimedia`, etc.).
+3. Use `qmake6` to generate Makefiles.
+4. Run `make` to build the project.
+5. Execute with `./game_menu`.
