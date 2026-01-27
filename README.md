@@ -90,3 +90,16 @@ make clean
 rm compile_commands.json
 
     Note for Contributors: Please do not commit compile_commands.json or Makefile to the repository. These are machine-specific files.
+
+# Prerequisites
+
+    C++20 Compiler (gcc or clang)
+
+    Qt 6.x Framework
+
+    Bear (Optional, required for generating LSP metadata/autocomplete)
+
+Install on Debian 13:
+Bash
+
+sudo apt install build-essential qt6-base-dev bear
