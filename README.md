@@ -39,4 +39,51 @@
 
 For more details, see: [Mdata1.mdr documentation](https://dejenol.com/index.php?title=Mdata1.mdr)
 
+# ⚔️ Black Land
+
+<div align="center">
+
+[![Quest Status](https://img.shields.io/github/actions/workflow/status/Vanderbull/depthofdejenol/build.yaml?label=QUEST%20STATUS&logo=github&style=for-the-badge)](https://github.com/Vanderbull/depthofdejenol/actions)
+![Graphics](https://img.shields.io/badge/Visuals-OpenGL-gold?style=for-the-badge&logo=opengl&logoColor=white)
+![Realm](https://img.shields.io/badge/Realm-Debian%2013-red?style=for-the-badge&logo=debian&logoColor=white)
+
+</div>
+
+---
+
+## 📜 The Arcanum (Technical Lore)
+
+Every great adventurer needs to understand the laws of the world they inhabit. In the realm of *Depth of Dejenol*, these laws are written in **C++20** and powered by the **Qt6 Engine**.
+
+### 🧪 Equipped Potions (Resource Management)
+* **Potion of Memory Safety (RAII):** We use Smart Pointers ($inline$ $std::unique\_ptr$ $inline$ and $inline$ $std::shared\_ptr$ $inline$) to ensure memory is reclaimed. No manual `delete` calls are allowed.
+* **Elixir of High FPS (Optimization):** Utilizing the **Qt RHI**, we draw frames efficiently without the overhead of heavy abstractions.
+* **Draft of Resource Loading:** Assets are managed via **Qt Resource Files (.qrc)**, bundling textures into the binary "flask" for instant access.
+
+### 🪄 Active Spells (Code Logic)
+* **The Signal-Slot Incantation:** Communication is handled via **Qt's Signal/Slot system**, allowing decoupled "spell casting" between objects.
+* **The Bear's Scrying Mirror (LSP):** We use **Bear** to generate a `compile_commands.json`, granting your editor foresight into the code structure.
+* **The Ritual of qmake:** The `.pro` blueprint must be read by **qmake6** to prepare the "Scroll of Construction" (Makefile).
+
+---
+
+## 🗺️ Quest Log (Roadmap)
+
+| Quest | Status | Reward |
+| :--- | :--- | :--- |
+| **The Foundation** | ✅ Complete | Basic Engine & Qt Window |
+| **Lighting the Torches** | 🏃 In Progress | OpenGL Shader Integration |
+| **Dungeon Generation** | 🔒 Locked | Procedural Level Logic |
+| **The Final Boss** | 🔒 Locked | Release v1.0 |
+
+---
+
+## 🛡️ The Developer's Character Sheet
+
+| Attribute | Required Level | Tool |
+| :--- | :--- | :--- |
+| **Intelligence** | C++20 Standard | `g++` / `clang` |
+| **Wisdom** | Qt 6.x Framework | `qt6-base-dev` |
+| **Perception** | Language Server |
+
 ---
