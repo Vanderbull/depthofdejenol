@@ -61,7 +61,7 @@ GameMenu::GameMenu(QWidget *parent)
     , m_settings("MyCompany", "MyApp")
     , m_subfolderName(m_settings.value("Paths/SubfolderName", "data/characters").toString()) 
 {
-    GameStateManager::instance()->playMusic("resources/waves/main.wav");
+    //GameStateManager::instance()->playMusic("resources/waves/main.wav");
     GameStateManager::instance()->incrementPartyAge(1);
 
     // 1. DONT USE GLOBAL STYLESHEETS (prevents black buttons)

@@ -54,3 +54,7 @@ moc_*.h
 # folders
 /build
 Makefile
+
+# lsp
+.cache/
+compile_commands.json
