@@ -5,10 +5,7 @@
 #include <QDialog>
 #include <QLabel>
 #include <QPushButton>
-
 #include <QSettings>
-//#include <QMediaPlayer>
-//#include <QAudioOutput>
 
 #include "./src/event/EventManager.h" 
 
@@ -43,8 +40,6 @@ private slots:
     void toggleMenuState(bool characterIsLoaded); 
 
 private:
-    //QMediaPlayer *m_Player;
-    //QAudioOutput *m_AudioOutput;
     QLabel *m_titleLabel = nullptr;
     QLabel *m_subTitleLabel = nullptr;
     QPushButton *m_newButton = nullptr;
@@ -60,9 +55,6 @@ private:
     QSettings m_settings;
     QString m_subfolderName;
     QPixmap m_backgroundPixmap;     
-    // Audio components
-    QMediaPlayer *m_player = nullptr;
-    QAudioOutput *m_audioOutput = nullptr;
 
 signals:
     void logMessageTriggered(const QString &message);
