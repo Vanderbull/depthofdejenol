@@ -9,7 +9,7 @@
 #include <QSpinBox>
 #include <QRegularExpression> // For Qt 6 regex parsing
 
-#include "GameStateManager.h" // Include the GameStateManager header (assumed)
+#include "GameStateManager.h"
 
 class ConfinementAndHoldingDialog : public QDialog
 {

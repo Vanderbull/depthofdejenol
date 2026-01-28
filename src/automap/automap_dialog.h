@@ -58,7 +58,6 @@ private slots:
 private:
     void setupUI();
     void updatePositionLabel();
-
     // UI Components
     MapViewWidget *mapDisplay = nullptr;
     QLabel *headerLabel = nullptr;
@@ -67,7 +66,6 @@ private:
     QPushButton *clearButton = nullptr;
     QPushButton *legendButton = nullptr;
     QPushButton *closeButton = nullptr;
-
     // Internal State
     bool isPositionVisible;
     int currentX;

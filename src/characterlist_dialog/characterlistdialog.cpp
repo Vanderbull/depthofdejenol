@@ -44,7 +44,6 @@ CharacterListDialog::CharacterListDialog(QWidget *parent)
  */
 void CharacterListDialog::loadCharactersFromFiles()
 {
-    // Definiera mappen där karaktärsfilerna ska finnas
     QString charactersDir = "./data/characters";
     QDir dir(charactersDir);
     if (!dir.exists()) {
@@ -58,9 +57,7 @@ void CharacterListDialog::loadCharactersFromFiles()
         QMessageBox::information(this, "No Characters", "No character save files (.txt) found in the 'characters' folder.");
     }
     foreach (const QFileInfo &fileInfo, fileList) {
-        // Karaktärsnamnet: Filnamnet utan filändelse
         QString characterName = fileInfo.baseName(); 
-
         characterListWidget->addItem(characterName);
     }
 }
@@ -73,7 +70,6 @@ void CharacterListDialog::onSelectClicked()
         QMessageBox::information(this, "Character Selected",
                                  "You have selected the character: " + characterName +
                                  "\n(The game would proceed to load the character data from 'characters/" + characterName + ".txt' here)");
-        // In a real implementaton,use accept() or emit a signal.
         accept();
     } else {
         QMessageBox::warning(this, "No Selection", "Please select a character from the list.");
@@ -109,4 +105,3 @@ void CharacterListDialog::onDeleteClicked()
 CharacterListDialog::~CharacterListDialog()
 {
 }
-

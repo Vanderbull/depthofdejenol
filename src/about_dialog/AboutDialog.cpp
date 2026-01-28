@@ -26,7 +26,6 @@ QString AboutDialog::getGameVersionInfo() const
 void AboutDialog::setupUi() 
 {
     QVBoxLayout *mainLayout = new QVBoxLayout(this);
-
     // Create Scrollable Area
     QScrollArea *scrollArea = new QScrollArea(this);
     scrollArea->setWidgetResizable(true);
@@ -83,19 +82,13 @@ void AboutDialog::setupUi()
         dlg->deleteLater();
     });
 
-
-
     mainLayout->addWidget(scrollArea);
-
-    // Ok Button
     QPushButton *closeButton = new QPushButton("Ok");
     connect(closeButton, &QPushButton::clicked, this, &QDialog::accept);
-    
     QHBoxLayout *buttonLayout = new QHBoxLayout();
     buttonLayout->addStretch();
     buttonLayout->addWidget(closeButton);
     buttonLayout->addStretch();
-    
     mainLayout->addLayout(buttonLayout);
 }
 

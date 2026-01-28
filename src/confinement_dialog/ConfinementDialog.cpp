@@ -156,7 +156,7 @@ void ConfinementAndHoldingDialog::setupUi()
     mainLayout->addLayout(leftColLayout);
     mainLayout->addLayout(rightColLayout);
 }
-// --- Slot Implementations ---
+
 void ConfinementAndHoldingDialog::bindCompanion()
 {
     QMessageBox::information(this, "Bind Companion", "Binding companion: " + bindCompLineEdit->text());
@@ -270,4 +270,3 @@ void ConfinementAndHoldingDialog::addGhostHoundOnExit()
 ConfinementAndHoldingDialog::~ConfinementAndHoldingDialog()
 {
 }
-

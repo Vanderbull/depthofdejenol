@@ -22,7 +22,6 @@
 #include <QGraphicsPolygonItem>
 #include <QScreen>
 #include <QGuiApplication>
-
 // Constants that depend on MAP_SIZE (which is now in the header)
 const int TILE_SIZE = 10;
 const int MAP_WIDTH_PIXELS = MAP_SIZE * TILE_SIZE; 
@@ -578,10 +577,6 @@ void DungeonDialog::updateExperienceLabel()
         QString xpString = QStringLiteral("%L1").arg(currentXP);
         m_experienceLabel->setText(QString("Experience: **%1 XP**").arg(xpString));
     }
-}
-
-DungeonDialog::~DungeonDialog()
-{
 }
 
 void DungeonDialog::enterLevel(int level, bool movingUp)
@@ -1670,3 +1665,5 @@ void DungeonDialog::togglePartyInfo() {
                           screenGeometry.height() - dialogHeight - padding);
     }
 }
+
+DungeonDialog::~DungeonDialog(){}

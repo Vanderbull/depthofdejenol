@@ -26,14 +26,13 @@ long long BankDialog::getBankedGold()
     // Fetch and convert BankedGold from GSM (qulonglong)
     return GameStateManager::instance()->getGameValue("BankedGold").toULongLong();
 }
-// --- NEW Helper Methods to Read FreeSlots from GSM ---
+
 int BankDialog::getFreeSlots()
 {
     // Fetch and convert BankSlotsFree from GSM (int or QVariant conversion)
     // Assuming the key is "BankSlotsFree" and returns an int.
     return GameStateManager::instance()->getGameValue("BankSlotsFree").toInt();
 }
-// ---------------------------------------------
 // --- Constructor ---
 BankDialog::BankDialog(QWidget *parent) :
     QDialog(parent)
@@ -55,13 +54,12 @@ BankDialog::BankDialog(QWidget *parent) :
     // Use the values retrieved from GameStateManager, including the new getFreeSlots()
     updateAccountStatus(getPlayerGold(), getBankedGold(), getFreeSlots());
 }
-// --- Destructor (REQUIRED for Linker Fix) ---
+
 BankDialog::~BankDialog()
 {
     // Qt's parent-child hierarchy handles the deletion of widgets
 }
-// --- Setup Methods (REQUIRED for Linker Fix) ---
-// ... (setupUi remains the same)
+
 void BankDialog::setupUi()
 {
     setWindowTitle("Bank Deposit/Withdrawal");
@@ -153,7 +151,7 @@ void BankDialog::createConnections()
     connect(infoButton, &QPushButton::clicked, this, &BankDialog::on_infoButton_clicked);
     connect(exitButton, &QPushButton::clicked, this, &BankDialog::on_exitButton_clicked);
 }
-// --- Private Logic Methods ---
+
 void BankDialog::updateAccountStatus(long long playerGold, long long bankGold, int freeSlots)
 {
     QString statusText = QString("Your Wallet: **%L1 gold** | Bank Vault: **%L2 gold** | Slots Free: **%3**")
@@ -162,7 +160,7 @@ void BankDialog::updateAccountStatus(long long playerGold, long long bankGold, i
                              .arg(freeSlots);
     statusLabel->setText(statusText); 
 }
-// --- Slot Implementations ---
+
 void BankDialog::on_depositAllButton_clicked()
 {
     // 1. Get the current active player's gold

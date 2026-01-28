@@ -9,9 +9,6 @@
 #include <QBrush>   
 #include <QKeyEvent> // REQUIRED for keyPressEvent implementation
 
-// --- MapViewWidget Implementation (omitted for brevity) ---
-// ... (Your MapViewWidget code goes here) ...
-
 MapViewWidget::MapViewWidget(QWidget *parent) : QWidget(parent) {
     // Styling for the map area
     setStyleSheet("background-color: #000000; border: 3px solid #5D4037;");
@@ -34,7 +31,6 @@ void MapViewWidget::paintEvent(QPaintEvent *event) {
 
     int width = this->width();
     int height = this->height();
-
     // 1. Draw Map Placeholder (Boundary)
     QPen borderPen(QColor("#7FFF00"));
     borderPen.setWidth(1);
@@ -47,7 +43,6 @@ void MapViewWidget::paintEvent(QPaintEvent *event) {
         painter.drawText(rect(), Qt::AlignCenter, "Map Data (Position Hidden)");
         return;
     }
-
     // 2. Draw the Player Marker (The Dot)
     const int MAP_MAX_COORD = 100;
     qreal normalizedX = (qreal)playerX / MAP_MAX_COORD;
@@ -94,15 +89,12 @@ AutomapDialog::AutomapDialog(QWidget *parent)
 {
     setWindowTitle("Automap");
     setupUI();
-    
     // Pass initial data to the map widget
     mapDisplay->setPlayerPosition(currentX, currentY, currentZ, currentFacing, isPositionVisible);
     updatePositionLabel();
-    
     // Crucial: Ensure the dialog can receive keyboard focus
     setFocusPolicy(Qt::StrongFocus);
 }
-
 /**
  * @brief Public interface to move the player's position on the map and update the view.
  */
@@ -118,9 +110,6 @@ void AutomapDialog::updatePlayerPosition(int x, int y, const QString &facing) {
     
     qDebug() << "Map position updated to X:" << currentX << "Y:" << currentY << "Facing:" << currentFacing;
 }
-
-
-// --- NEW/RESTORED IMPLEMENTATION: keyPressEvent ---
 /**
  * @brief Handles key presses for map movement.
  */
@@ -168,32 +157,25 @@ void AutomapDialog::keyPressEvent(QKeyEvent *event) {
         QDialog::keyPressEvent(event);
     }
 }
-// --- END NEW/RESTORED IMPLEMENTATION ---
-
-
 /**
  * @brief Sets up the main UI layout for the Automap dialog.
  */
 void AutomapDialog::setupUI() {
     setFixedSize(550, 600); 
     QVBoxLayout *mainLayout = new QVBoxLayout(this);
-
     // --- Header ---
     headerLabel = new QLabel("Mordor Automap", this);
     headerLabel->setStyleSheet("font-size: 22px; font-weight: bold; color: #FFD700; padding: 10px; border-bottom: 2px solid #5D4037;");
     headerLabel->setAlignment(Qt::AlignCenter);
     mainLayout->addWidget(headerLabel);
-
     // --- Position/Status Label ---
     positionLabel = new QLabel(this);
     positionLabel->setStyleSheet("color: #7FFF00; font-size: 14px; padding: 8px; background-color: #121212; border: 1px solid #5D4037;");
     positionLabel->setAlignment(Qt::AlignCenter);
     mainLayout->addWidget(positionLabel);
-
     // --- Map Display Area (MapViewWidget) ---
     mapDisplay = new MapViewWidget(this);
     mainLayout->addWidget(mapDisplay);
-
     // --- Button Layout (omitted for brevity) ---
     QHBoxLayout *buttonLayout = new QHBoxLayout();
     
@@ -221,10 +203,8 @@ void AutomapDialog::setupUI() {
     buttonLayout->addWidget(closeButton); 
     
     mainLayout->addLayout(buttonLayout);
-
     // Set dialog background style
     setStyleSheet("QDialog { background-color: #212121; }");
-
     // --- Connections ---
     connect(closeButton, &QPushButton::clicked, this, &AutomapDialog::onCloseClicked);
     connect(clearButton, &QPushButton::clicked, this, &AutomapDialog::onClearMapClicked);
@@ -233,7 +213,6 @@ void AutomapDialog::setupUI() {
     
     setLayout(mainLayout);
 }
-
 /**
  * @brief Updates the status label with current coordinates and facing direction.
  */
@@ -245,7 +224,6 @@ void AutomapDialog::updatePositionLabel() {
     ).arg(currentX).arg(currentY).arg(currentZ).arg(currentFacing).arg(visibility);
         
     positionLabel->setText(text);
-    
     // Update button text based on visibility state
     if (isPositionVisible) {
         positionButton->setText("Hide Party Position");
@@ -253,8 +231,6 @@ void AutomapDialog::updatePositionLabel() {
         positionButton->setText("Show Party Position");
     }
 }
-
-// --- SLOTS Implementation (omitted for brevity) ---
 
 void AutomapDialog::onCloseClicked() {
     this->accept(); 

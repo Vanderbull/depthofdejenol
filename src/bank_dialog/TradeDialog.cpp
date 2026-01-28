@@ -140,4 +140,3 @@ void TradeDialog::on_closeButton_clicked()
 }
 
 TradeDialog::~TradeDialog() {}
-

@@ -8,7 +8,7 @@
 #include <QListView>
 #include <QStandardItemModel>
 
-#include "GameStateManager.h" // Include the GameStateManager header
+#include "GameStateManager.h"
 
 class BankDialog : public QDialog
 {
@@ -63,7 +63,6 @@ private:
     // Bottom Buttons
     QPushButton *infoButton;
     QPushButton *exitButton;
-    // --- Private Data ---
     // --- Core Methods ---
     void setupUi();
     void createConnections();

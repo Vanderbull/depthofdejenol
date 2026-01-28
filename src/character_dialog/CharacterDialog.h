@@ -3,8 +3,8 @@
 
 #include <QDialog>
 #include <QString>
-#include <QVariant> // Added for the slot's QVariant argument
-#include <QLabel> // Added for private member m_goldValueLabel
+#include <QVariant>
+#include <QLabel>
 #include "GameStateManager.h"
 
 class CharacterDialog : public QDialog {
