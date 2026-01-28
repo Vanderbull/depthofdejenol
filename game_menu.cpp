@@ -24,7 +24,6 @@
 #include "src/loadingscreen/LoadingScreen.h"
 #include "src/race_data/RaceData.h"
 #include "src/event/EventManager.h"
-// Qt component includes
 #include <QVBoxLayout>
 #include <QGridLayout>
 #include <QApplication>
@@ -36,8 +35,6 @@
 #include <QLabel>
 #include <QPushButton>
 #include <QPixmap>
-//#include <QMediaPlayer>
-//#include <QAudioOutput>
 #include <QUrl>
 #include <QDateTime>
 #include <QFileDialog>
@@ -136,39 +133,30 @@ GameMenu::GameMenu(QWidget *parent)
     gridLayout->setSpacing(20);
     
     // --- Button Widgets (using member variables) ---
-    // SECOND MENU BUTTON: Run Character
     m_runButton = new QPushButton("Run Character");
     gridLayout->addWidget(m_runButton, 1, 1, 1, 2, Qt::AlignBottom | Qt::AlignCenter);
     connect(m_runButton, &QPushButton::clicked, this, &GameMenu::onRunClicked);
-    // FIRST MENU BUTTONS
     m_newButton = new QPushButton("Create a Character");
     gridLayout->addWidget(m_newButton, 1, 1, 1, 2, Qt::AlignBottom | Qt::AlignCenter);
     connect(m_newButton, &QPushButton::clicked, this, &GameMenu::startNewGame);
-
     m_loadButton = new QPushButton("Load Character");
     gridLayout->addWidget(m_loadButton, 2, 1, 1, 2, Qt::AlignTop | Qt::AlignCenter);
     connect(m_loadButton, &QPushButton::clicked, this, &GameMenu::loadGame);
-    
     m_helpButton = new QPushButton("Help/Lesson");
     gridLayout->addWidget(m_helpButton, 3, 1);
     connect(m_helpButton, &QPushButton::clicked, this, &GameMenu::onHelpClicked);
-
     m_recordsButton = new QPushButton("Hall of Records");
     gridLayout->addWidget(m_recordsButton, 2, 3);
     connect(m_recordsButton, &QPushButton::clicked, this, &GameMenu::showRecords);
-
     m_characterListButton = new QPushButton("Character List");
     gridLayout->addWidget(m_characterListButton, 2, 0);
     connect(m_characterListButton, &QPushButton::clicked, this, &GameMenu::onCharacterListClicked);
-
     m_optionsButton = new QPushButton("Options...");
     gridLayout->addWidget(m_optionsButton, 3, 2);
     connect(m_optionsButton, &QPushButton::clicked, this, &GameMenu::onOptionsClicked);
-
     m_exitButton = new QPushButton("Exit");
     gridLayout->addWidget(m_exitButton, 4, 1);
     connect(m_exitButton, &QPushButton::clicked, this, &GameMenu::quitGame);
-
     m_aboutButton = new QPushButton("About");
     gridLayout->addWidget(m_aboutButton, 4, 2);
     connect(m_aboutButton, &QPushButton::clicked, this, &GameMenu::onAboutClicked);
@@ -181,28 +169,6 @@ GameMenu::GameMenu(QWidget *parent)
     emit logMessageTriggered("GameMenu has successfully initialized the Messages Log.");
 
     toggleMenuState(false); 
-    
-    m_player = new QMediaPlayer(this);
-    m_audioOutput = new QAudioOutput(this);
-    m_player->setAudioOutput(m_audioOutput);
-    m_player->setSource(QUrl::fromLocalFile("mordor.mp3"));
-    // Connect signals to handle different states
-    QObject::connect(m_player, &QMediaPlayer::mediaStatusChanged, [](QMediaPlayer::MediaStatus status) {
-        if (status == QMediaPlayer::LoadedMedia) {
-            qDebug() << "Media loaded successfully.";
-        } else if (status == QMediaPlayer::EndOfMedia) {
-            qDebug() << "Playback finished.";
-        }
-    });
-
-    QObject::connect(m_player, &QMediaPlayer::errorOccurred, 
-                     [](QMediaPlayer::Error /*error*/, const QString &errorString) {
-        qDebug() << "Error playing audio:" << errorString;
-    });
-
-    m_audioOutput->setVolume(0.5); // Set volume (0.0 to 1.0 in modern Qt)
-    m_player->play();
-    qDebug() << "Playing audio from GameMenu constructor...";
     
     if (GameStateManager::instance()->areResourcesLoaded()) {
         qDebug() << "Initial resource check passed via GameStateManager. Player Gold:" << GameStateManager::instance()->getGameValue("PlayerGold").toULongLong();
@@ -248,7 +214,6 @@ void GameMenu::toggleMenuState(bool characterIsLoaded)
         m_newButton->setVisible(true);
     }
 }
-
 /**
  * @brief Handles the signal that a character was successfully created and saved.
  * Switches the main menu buttons to show the 'Run Character' option.
@@ -295,7 +260,6 @@ void GameMenu::onRunClicked()
     cityDialog->show();
     qDebug() << "Run Character clicked - GameMenu hidden, launching TheCity";
 }
-
 
 void GameMenu::onCharacterListClicked() 
 {
@@ -516,4 +480,3 @@ int main(int argc, char *argv[])
     w.show();
     return a.exec();
 }
-
