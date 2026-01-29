@@ -1,9 +1,10 @@
 #pragma once
 
 #include <QObject>
-#include <QNetworkAccessManager>
-#include <QNetworkReply>
-#include <QTemporaryDir>
+#include <QUrl>
+
+// Forward declaration of the private implementation class
+class UpdateManagerPrivate;
 
 class UpdateManager : public QObject
 {
@@ -12,10 +13,10 @@ public:
     explicit UpdateManager(QObject *parent = nullptr);
     ~UpdateManager() override;
 
-    // Existing manifest-based check
+    // Standard manifest-based check
     void checkForUpdates(const QUrl &manifestUrl);
 
-    // New: check the latest GitHub release for owner/repo (e.g., "Vanderbull","depthofdejenol")
+    // GitHub API-based check
     void checkForUpdatesFromGitHub(const QString &owner, const QString &repo);
 
     void downloadPatch(const QUrl &patchUrl, const QByteArray &expectedSha256Hex);
@@ -34,15 +35,9 @@ private slots:
     void onDownloadReadyRead();
     void onDownloadFinished();
     void onDownloadProgress(qint64, qint64);
-    // New: handle GitHub checksum asset reply (if any)
     void onChecksumReplyFinished();
 
 private:
-    QNetworkAccessManager m_net;
-    QNetworkReply *m_manifestReply = nullptr;
-    QNetworkReply *m_downloadReply = nullptr;
-    QNetworkReply *m_checksumReply = nullptr;
-    QFile *m_downloadFile = nullptr;
-    QTemporaryDir m_tempDir;
-    QByteArray m_expectedSha256;
+    // Pointer to the implementation details (The "Pimpl")
+    UpdateManagerPrivate *d;
 };

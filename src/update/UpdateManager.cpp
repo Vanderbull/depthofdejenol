@@ -1,257 +1,185 @@
 #include "UpdateManager.h"
-#include <QJsonDocument>
-#include <QJsonObject>
-#include <QJsonArray>
+#include <QNetworkAccessManager>
+#include <QNetworkReply>
+#include <QTemporaryDir>
 #include <QFile>
 #include <QFileInfo>
 #include <QCryptographicHash>
+#include <QJsonDocument>
+#include <QJsonObject>
+#include <QJsonArray>
 #include <QDir>
 #include <QDebug>
-#include <QCoreApplication>
-#include <QJsonParseError>
+
+// The private implementation class definition
+class UpdateManagerPrivate {
+public:
+    QNetworkAccessManager net;
+    QNetworkReply *manifestReply = nullptr;
+    QNetworkReply *downloadReply = nullptr;
+    QNetworkReply *checksumReply = nullptr;
+    QFile *downloadFile = nullptr;
+    QTemporaryDir tempDir;
+    QByteArray expectedSha256;
+};
 
 UpdateManager::UpdateManager(QObject *parent)
-    : QObject(parent)
+    : QObject(parent), d(new UpdateManagerPrivate)
 {
 }
 
 UpdateManager::~UpdateManager()
 {
-    if (m_manifestReply) m_manifestReply->deleteLater();
-    if (m_downloadReply) m_downloadReply->deleteLater();
-    if (m_checksumReply) m_checksumReply->deleteLater();
-    delete m_downloadFile;
+    if (d->manifestReply) d->manifestReply->deleteLater();
+    if (d->downloadReply) d->downloadReply->deleteLater();
+    if (d->checksumReply) d->checksumReply->deleteLater();
+    delete d->downloadFile;
+    delete d; // Delete the Pimpl data
 }
 
 void UpdateManager::checkForUpdates(const QUrl &manifestUrl)
 {
     emit checkingStarted();
 
-    if (m_manifestReply) {
-        m_manifestReply->abort();
-        m_manifestReply->deleteLater();
-        m_manifestReply = nullptr;
+    if (d->manifestReply) {
+        d->manifestReply->abort();
+        d->manifestReply->deleteLater();
     }
     QNetworkRequest req(manifestUrl);
     req.setHeader(QNetworkRequest::UserAgentHeader, QStringLiteral("DepthOfDejenol-Updater/1.0"));
-    m_manifestReply = m_net.get(req);
-    connect(m_manifestReply, &QNetworkReply::finished, this, &UpdateManager::onManifestReplyFinished);
+    d->manifestReply = d->net.get(req);
+    connect(d->manifestReply, &QNetworkReply::finished, this, &UpdateManager::onManifestReplyFinished);
 }
-// New: Query GitHub Releases API for the latest release of owner/repo
+
 void UpdateManager::checkForUpdatesFromGitHub(const QString &owner, const QString &repo)
 {
     emit checkingStarted();
 
-    if (m_manifestReply) {
-        m_manifestReply->abort();
-        m_manifestReply->deleteLater();
-        m_manifestReply = nullptr;
+    if (d->manifestReply) {
+        d->manifestReply->abort();
+        d->manifestReply->deleteLater();
     }
 
     const QString apiUrl = QStringLiteral("https://api.github.com/repos/%1/%2/releases/latest").arg(owner, repo);
-    QNetworkRequest req{QUrl(apiUrl)}; // use braces to avoid vexing parse
+    QNetworkRequest req{QUrl(apiUrl)};
     req.setHeader(QNetworkRequest::UserAgentHeader, QStringLiteral("DepthOfDejenol-Updater/1.0"));
-    // Ask for JSON explicitly (not strictly necessary)
     req.setRawHeader("Accept", "application/vnd.github.v3+json");
 
-    m_manifestReply = m_net.get(req);
-    connect(m_manifestReply, &QNetworkReply::finished, this, &UpdateManager::onManifestReplyFinished);
+    d->manifestReply = d->net.get(req);
+    connect(d->manifestReply, &QNetworkReply::finished, this, &UpdateManager::onManifestReplyFinished);
 }
 
 void UpdateManager::onManifestReplyFinished()
 {
-    QNetworkReply *reply = qobject_cast<QNetworkReply*>(sender());
-    if (!reply) return;
+    if (!d->manifestReply) return;
+    QNetworkReply *reply = d->manifestReply;
 
     if (reply->error() != QNetworkReply::NoError) {
         emit checkingFailed(reply->errorString());
         reply->deleteLater();
-        m_manifestReply = nullptr;
+        d->manifestReply = nullptr;
         return;
     }
+
     const QByteArray body = reply->readAll();
     reply->deleteLater();
-    m_manifestReply = nullptr;
-    // Try to parse as JSON (works for both our manifest JSON and GitHub release JSON)
-    QJsonParseError err;
-    QJsonDocument doc = QJsonDocument::fromJson(body, &err);
-    if (doc.isNull() || !doc.isObject() || err.error != QJsonParseError::NoError) {
-        emit checkingFailed(QStringLiteral("Invalid manifest/release JSON: %1").arg(err.errorString()));
+    d->manifestReply = nullptr;
+
+    QJsonDocument doc = QJsonDocument::fromJson(body);
+    if (doc.isNull() || !doc.isObject()) {
+        emit checkingFailed(QStringLiteral("Invalid JSON response"));
         return;
     }
 
     QJsonObject root = doc.object();
-    // Distinguish between a plain manifest and GitHub release JSON.
-    // If 'tag_name' exists we assume GitHub release format.
-    QString remoteVersion;
-    QString notes;
-    QString patchUrlStr;
-    QString sha256;
-
     if (root.contains(QStringLiteral("tag_name"))) {
-        // GitHub release JSON
-        remoteVersion = root.value(QStringLiteral("tag_name")).toString();
-        notes = root.value(QStringLiteral("body")).toString();
-
-        // Find assets: prefer first asset with a downloadable URL (browser_download_url)
+        // GitHub Logic
+        QString remoteVersion = root.value(QStringLiteral("tag_name")).toString();
+        QString notes = root.value(QStringLiteral("body")).toString();
         QJsonArray assets = root.value(QStringLiteral("assets")).toArray();
         QUrl assetUrl;
-        QString checksumAssetUrlStr;
+        QString checksumUrl;
 
         for (const QJsonValue &v : assets) {
-            if (!v.isObject()) continue;
             QJsonObject a = v.toObject();
             QString name = a.value(QStringLiteral("name")).toString();
             QString browserUrl = a.value(QStringLiteral("browser_download_url")).toString();
-            if (browserUrl.isEmpty()) continue;
-            // Prefer archive/executable assets as patch
-            if (name.endsWith(QStringLiteral(".zip"), Qt::CaseInsensitive) ||
-                name.endsWith(QStringLiteral(".tar.gz"), Qt::CaseInsensitive) ||
-                name.endsWith(QStringLiteral(".exe"), Qt::CaseInsensitive) ||
-                name.endsWith(QStringLiteral(".AppImage"), Qt::CaseInsensitive) ||
-                name.endsWith(QStringLiteral(".dmg"), Qt::CaseInsensitive)) {
+            
+            if (name.endsWith(QStringLiteral(".zip"), Qt::CaseInsensitive)) {
                 assetUrl = QUrl(browserUrl);
-            }
-            // If asset looks like a checksum, prefer to fetch it
-            if (name.endsWith(QStringLiteral(".sha256"), Qt::CaseInsensitive) ||
-                name.endsWith(QStringLiteral(".sha256.txt"), Qt::CaseInsensitive) ||
-                name.endsWith(QStringLiteral(".sha256sum"), Qt::CaseInsensitive)) {
-                checksumAssetUrlStr = browserUrl;
+            } else if (name.contains(QStringLiteral("sha256"))) {
+                checksumUrl = browserUrl;
             }
         }
-        // Fallback: if no preferred asset found, take first asset if present
-        if (assetUrl.isEmpty() && !assets.isEmpty()) {
-            QJsonObject first = assets.first().toObject();
-            QString browserUrl = first.value(QStringLiteral("browser_download_url")).toString();
-            assetUrl = QUrl(browserUrl);
-        }
-        if (assetUrl.isEmpty()) {
-            emit checkingFailed(QStringLiteral("No downloadable release asset found in GitHub release"));
-            return;
-        }
-        // If checksum asset exists, fetch it asynchronously, then emit updateAvailable when checksum reply finishes.
-        if (!checksumAssetUrlStr.isEmpty()) {
-            QNetworkRequest creq{QUrl(checksumAssetUrlStr)}; // braces to avoid vexing parse
+
+        if (!checksumUrl.isEmpty()) {
+            QNetworkRequest creq{QUrl(checksumUrl)};
             creq.setHeader(QNetworkRequest::UserAgentHeader, QStringLiteral("DepthOfDejenol-Updater/1.0"));
-            m_checksumReply = m_net.get(creq);
-            // Store the parsed fields on the reply as properties so we can access them later
-            m_checksumReply->setProperty("assetUrl", assetUrl.toString());
-            m_checksumReply->setProperty("remoteVersion", remoteVersion);
-            m_checksumReply->setProperty("notes", notes);
-            connect(m_checksumReply, &QNetworkReply::finished, this, &UpdateManager::onChecksumReplyFinished);
-            return;
+            d->checksumReply = d->net.get(creq);
+            d->checksumReply->setProperty("assetUrl", assetUrl.toString());
+            d->checksumReply->setProperty("remoteVersion", remoteVersion);
+            d->checksumReply->setProperty("notes", notes);
+            connect(d->checksumReply, &QNetworkReply::finished, this, &UpdateManager::onChecksumReplyFinished);
         } else {
-            // No checksum available; emit updateAvailable without sha256
             emit updateAvailable(remoteVersion, notes, assetUrl, QByteArray());
-            return;
         }
     } else {
-        // Treat as simple manifest format
-        remoteVersion = root.value(QStringLiteral("version")).toString();
-        notes = root.value(QStringLiteral("notes")).toString();
-        patchUrlStr = root.value(QStringLiteral("patchUrl")).toString();
-        sha256 = root.value(QStringLiteral("sha256")).toString();
-        if (remoteVersion.isEmpty() || patchUrlStr.isEmpty()) {
-            emit checkingFailed(QStringLiteral("Manifest missing required fields (version/patchUrl)"));
-            return;
-        }
-        QByteArray shaBytes;
-        if (!sha256.isEmpty()) shaBytes = QByteArray::fromHex(sha256.toUtf8());
-
+        // Simple Manifest Logic
+        QString remoteVersion = root.value(QStringLiteral("version")).toString();
+        QString notes = root.value(QStringLiteral("notes")).toString();
+        QString patchUrlStr = root.value(QStringLiteral("patchUrl")).toString();
+        QByteArray shaBytes = QByteArray::fromHex(root.value(QStringLiteral("sha256")).toString().toUtf8());
         emit updateAvailable(remoteVersion, notes, QUrl(patchUrlStr), shaBytes);
-        return;
     }
 }
 
 void UpdateManager::onChecksumReplyFinished()
 {
-    QNetworkReply *reply = qobject_cast<QNetworkReply*>(sender());
-    if (!reply) return;
-
+    if (!d->checksumReply) return;
+    QNetworkReply *reply = d->checksumReply;
+    
     QUrl assetUrl = QUrl(reply->property("assetUrl").toString());
     QString remoteVersion = reply->property("remoteVersion").toString();
     QString notes = reply->property("notes").toString();
 
-    if (reply->error() != QNetworkReply::NoError) {
-        // Could not fetch checksum; still offer update but without verification
-        emit updateAvailable(remoteVersion, notes, assetUrl, QByteArray());
-        reply->deleteLater();
-        m_checksumReply = nullptr;
-        return;
-    }
     QByteArray checksumBody = reply->readAll();
     reply->deleteLater();
-    m_checksumReply = nullptr;
-    // Try to extract first hex-looking token from checksum body
-    // Common formats: "<hex>  filename" or just "<hex>"
-    QByteArray hex;
-    const QList<QByteArray> parts = checksumBody.split('\n');
-    for (const QByteArray &line : parts) {
-        QByteArray trimmed = line.trimmed();
-        if (trimmed.isEmpty()) continue;
-        // take the first token (space/tab separated)
-        QList<QByteArray> tokens = trimmed.split(' ');
-        if (!tokens.isEmpty()) {
-            QByteArray candidate = tokens.first().trimmed();
-            // keep only hex chars
-            QByteArray filtered;
-            for (char c : candidate) {
-                if (QByteArray("0123456789abcdefABCDEF").contains(c)) filtered.append(c);
-            }
-            if (filtered.size() >= 64) { // SHA256 hex length
-                hex = filtered.left(64).toLower();
-                break;
-            }
-        }
-    }
-    QByteArray shaBytes;
-    if (!hex.isEmpty()) {
-        shaBytes = QByteArray::fromHex(hex);
-    }
-    emit updateAvailable(remoteVersion, notes, assetUrl, shaBytes);
+    d->checksumReply = nullptr;
+
+    QByteArray hex = checksumBody.split(' ').first().trimmed();
+    emit updateAvailable(remoteVersion, notes, assetUrl, QByteArray::fromHex(hex));
 }
 
 void UpdateManager::downloadPatch(const QUrl &patchUrl, const QByteArray &expectedSha256Hex)
 {
-    m_expectedSha256 = expectedSha256Hex;
+    d->expectedSha256 = expectedSha256Hex;
+    QString localPath = d->tempDir.path() + QDir::separator() + "patch.zip";
 
-    if (!m_tempDir.isValid()) {
-        // QTemporaryDir should allocate, but check
-        qWarning() << "Temporary dir invalid";
+    if (d->downloadReply) {
+        d->downloadReply->abort();
+        d->downloadReply->deleteLater();
     }
 
-    QString tmpPath = m_tempDir.path();
-    QFileInfo fi(patchUrl.path());
-    QString fileName = fi.fileName();
-    if (fileName.isEmpty()) fileName = QStringLiteral("patch.zip");
-
-    QString localPath = tmpPath + QDir::separator() + fileName;
-
-    if (m_downloadReply) {
-        m_downloadReply->abort();
-        m_downloadReply->deleteLater();
-        m_downloadReply = nullptr;
-    }
-    delete m_downloadFile;
-    m_downloadFile = new QFile(localPath, this);
-    if (!m_downloadFile->open(QIODevice::WriteOnly)) {
-        emit downloadFinished(false, QString(), QStringLiteral("Could not open temporary file for writing"));
-        delete m_downloadFile;
-        m_downloadFile = nullptr;
+    delete d->downloadFile;
+    d->downloadFile = new QFile(localPath, this);
+    if (!d->downloadFile->open(QIODevice::WriteOnly)) {
+        emit downloadFinished(false, QString(), QStringLiteral("IO Error"));
         return;
     }
+
     QNetworkRequest req(patchUrl);
     req.setHeader(QNetworkRequest::UserAgentHeader, QStringLiteral("DepthOfDejenol-Updater/1.0"));
-    m_downloadReply = m_net.get(req);
-    connect(m_downloadReply, &QNetworkReply::readyRead, this, &UpdateManager::onDownloadReadyRead);
-    connect(m_downloadReply, &QNetworkReply::downloadProgress, this, &UpdateManager::onDownloadProgress);
-    connect(m_downloadReply, &QNetworkReply::finished, this, &UpdateManager::onDownloadFinished);
+    d->downloadReply = d->net.get(req);
+    connect(d->downloadReply, &QNetworkReply::readyRead, this, &UpdateManager::onDownloadReadyRead);
+    connect(d->downloadReply, &QNetworkReply::downloadProgress, this, &UpdateManager::onDownloadProgress);
+    connect(d->downloadReply, &QNetworkReply::finished, this, &UpdateManager::onDownloadFinished);
 }
 
 void UpdateManager::onDownloadReadyRead()
 {
-    if (!m_downloadReply || !m_downloadFile) return;
-    m_downloadFile->write(m_downloadReply->readAll());
+    if (d->downloadReply && d->downloadFile) {
+        d->downloadFile->write(d->downloadReply->readAll());
+    }
 }
 
 void UpdateManager::onDownloadProgress(qint64 bytesReceived, qint64 bytesTotal)
@@ -261,55 +189,29 @@ void UpdateManager::onDownloadProgress(qint64 bytesReceived, qint64 bytesTotal)
 
 void UpdateManager::onDownloadFinished()
 {
-    if (!m_downloadReply || !m_downloadFile) return;
+    if (!d->downloadReply || !d->downloadFile) return;
 
-    if (m_downloadReply->error() != QNetworkReply::NoError) {
-        QString err = m_downloadReply->errorString();
-        m_downloadReply->deleteLater();
-        m_downloadReply = nullptr;
-        m_downloadFile->close();
-        QString path = m_downloadFile->fileName();
-        delete m_downloadFile;
-        m_downloadFile = nullptr;
-        emit downloadFinished(false, path, err);
-        return;
+    d->downloadFile->close();
+    QString path = d->downloadFile->fileName();
+
+    if (d->downloadReply->error() != QNetworkReply::NoError) {
+        emit downloadFinished(false, path, d->downloadReply->errorString());
+    } else {
+        // Simplified Verification
+        if (!d->expectedSha256.isEmpty()) {
+            QCryptographicHash hash(QCryptographicHash::Sha256);
+            QFile f(path);
+            if (f.open(QIODevice::ReadOnly)) {
+                hash.addData(&f);
+                if (hash.result() != d->expectedSha256) {
+                    emit downloadFinished(false, path, "SHA256 Mismatch");
+                    return;
+                }
+            }
+        }
+        emit downloadFinished(true, path, QString());
     }
-
-    m_downloadFile->flush();
-    m_downloadFile->close();
-
-    QString path = m_downloadFile->fileName();
-    // verify sha256 if provided
-    if (!m_expectedSha256.isEmpty()) {
-        QFile f(path);
-        if (!f.open(QIODevice::ReadOnly)) {
-            emit downloadFinished(false, path, QStringLiteral("Failed to open downloaded file for verification"));
-            delete m_downloadFile;
-            m_downloadFile = nullptr;
-            m_downloadReply->deleteLater();
-            m_downloadReply = nullptr;
-            return;
-        }
-        QCryptographicHash hash(QCryptographicHash::Sha256);
-        while (!f.atEnd()) {
-            hash.addData(f.read(64 * 1024));
-        }
-        QByteArray computed = hash.result();
-        f.close();
-
-        if (computed != m_expectedSha256) {
-            emit downloadFinished(false, path, QStringLiteral("SHA256 mismatch - file may be corrupted"));
-            delete m_downloadFile;
-            m_downloadFile = nullptr;
-            m_downloadReply->deleteLater();
-            m_downloadReply = nullptr;
-            return;
-        }
-    }
-    // success
-    m_downloadReply->deleteLater();
-    m_downloadReply = nullptr;
-
-    emit downloadFinished(true, path, QString());
-    // leave the file in temp for caller to apply/execute
+    
+    d->downloadReply->deleteLater();
+    d->downloadReply = nullptr;
 }
