@@ -2,10 +2,13 @@
 #define NETWORKMANAGER_H
 
 #include <QObject>
-#include <QTcpSocket>
-#include <QVariantMap>
-#include <QJsonDocument>
-#include <QJsonObject>
+#include <QAbstractSocket>
+
+// Forward declarations to reduce header weight
+class QTcpSocket;
+class QString;
+template <typename K, typename V> class QMap;
+typedef QMap<QString, QVariant> QVariantMap;
 
 class NetworkManager : public QObject
 {
@@ -20,10 +23,11 @@ public:
 signals:
     void connected();
     void disconnected();
-    void playerJoined(QString playerName);
-    void playerLeft(QString playerName);
-    void chatReceived(QString from, QString message);
-    void zoneUpdateReceived(QVariantMap zoneData);
+    // Use const references to avoid unnecessary object copies
+    void playerJoined(const QString &playerName);
+    void playerLeft(const QString &playerName);
+    void chatReceived(const QString &from, const QString &message);
+    void zoneUpdateReceived(const QVariantMap &zoneData);
 
 private slots:
     void onReadyRead();

@@ -1,6 +1,8 @@
 #include "NetworkManager.h"
-#include <QJsonDocument>
-#include <QJsonObject>
+#include <QTcpSocket>    // Included here instead of the header
+#include <QJsonDocument> // Included here instead of the header
+#include <QJsonObject>   // Included here instead of the header
+#include <QVariantMap>   // Included here instead of the header
 #include <QDebug>
 
 NetworkManager* NetworkManager::m_instance = nullptr;
@@ -31,7 +33,8 @@ void NetworkManager::sendAction(const QString &action, const QVariantMap &data) 
     obj["action"] = action;
 
     QJsonDocument doc(obj);
-    m_socket->write(doc.toJson(QJsonDocument::Compact) + "\n"); // Newline acting as packet delimiter
+    // Newline acting as packet delimiter
+    m_socket->write(doc.toJson(QJsonDocument::Compact) + "\n");
 }
 
 void NetworkManager::onReadyRead() {
@@ -65,6 +68,7 @@ void NetworkManager::onDisconnected() {
     qDebug() << "Disconnected from game server.";
     emit disconnected();
 }
+
 QAbstractSocket::SocketState NetworkManager::state() const {
     return m_socket->state();
 }
