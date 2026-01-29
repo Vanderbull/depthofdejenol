@@ -7,7 +7,7 @@
 #include <QCheckBox>
 #include <QSlider>
 
-#include "GameStateManager.h" // Include the GameStateManager header
+#include "GameStateManager.h"
 
 class QCheckBox;
 class QSlider;

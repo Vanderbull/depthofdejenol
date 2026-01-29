@@ -3,7 +3,6 @@
 
 #include <QPair>
 #include <QString>
-
 // Forward declaration to avoid circular includes
 class DungeonDialog;
 

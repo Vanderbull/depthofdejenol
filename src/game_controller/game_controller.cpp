@@ -1,6 +1,5 @@
 #include "game_controller.h"
 // No need for other includes if they are in the header
-
 GameController::GameController(QWidget *parent) : QWidget(parent)
 {
     // Important: Set the focus policy to ensure the widget receives key events.

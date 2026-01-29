@@ -1,5 +1,5 @@
 #include "Map.h"
-#include <QDebug> // Useful for debugging/error messages
+#include <QDebug>
 
 Map::Map(QObject *parent)
     : QObject(parent)
@@ -7,7 +7,6 @@ Map::Map(QObject *parent)
     // Initialize the grid in the constructor
     initialize();
 }
-
 /**
  * @brief Initializes the 30x30 grid.
  */
@@ -23,7 +22,6 @@ void Map::initialize()
     }
     qDebug() << "Map initialized with dimensions:" << WIDTH << "x" << HEIGHT;
 }
-
 /**
  * @brief Returns the data of the cell at coordinates (x, y).
  * @param x The column index (0 to WIDTH - 1).
@@ -40,7 +38,6 @@ Map::CellData Map::cellAt(int x, int y) const
     // Return a safe/default value on error
     return 0;
 }
-
 /**
  * @brief Sets the data of the cell at coordinates (x, y).
  * @param x The column index (0 to WIDTH - 1).

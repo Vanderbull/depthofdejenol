@@ -128,10 +128,6 @@ void GeneralStore::setupUi()
     resize(800, 600); // Set a reasonable default size
 }
 
-GeneralStore::~GeneralStore()
-{
-}
-
 void GeneralStore::populateBuyItemsList()
 {
     // The QStringList array to hold all item data from MDATA3.csv.
@@ -302,7 +298,6 @@ void GeneralStore::uncurseItem()
         QString oldName = inventory[invIndex];
         QString newName = oldName + "-uncursed";
         inventory[invIndex] = newName;
-
         // 4. Persist the changes
         gsm->setCharacterInventory(activeCharIndex, inventory);
 
@@ -489,3 +484,5 @@ void GeneralStore::exitStore()
 {
     this->close();
 }
+
+GeneralStore::~GeneralStore(){}

@@ -85,8 +85,6 @@ LoadingScreen::LoadingScreen(QWidget *parent) :
     m_closeTimer->start(100);
 }
 
-LoadingScreen::~LoadingScreen() {}
-
 void LoadingScreen::checkSettingsFile()
 {
     QSettings settings("game_settings.ini", QSettings::IniFormat);
@@ -114,3 +112,5 @@ void LoadingScreen::closeDialogAutomatically()
     m_closeTimer->stop();
     this->accept(); 
 }
+
+LoadingScreen::~LoadingScreen() {}

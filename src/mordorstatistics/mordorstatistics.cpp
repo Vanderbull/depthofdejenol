@@ -7,10 +7,6 @@ MordorStatistics::MordorStatistics(QWidget *parent) :
     populateTable();
 }
 
-MordorStatistics::~MordorStatistics()
-{
-}
-
 void MordorStatistics::setupUi()
 {
     setWindowTitle("Mordor Statistics");
@@ -78,7 +74,8 @@ void MordorStatistics::populateTable()
             guildTable->setItem(row, col, item);
         }
     }
-
     // Adjust column widths to fit content
     guildTable->resizeColumnsToContents();
 }
+
+MordorStatistics::~MordorStatistics(){}

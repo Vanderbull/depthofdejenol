@@ -82,10 +82,6 @@ GuildsDialog::GuildsDialog(QWidget *parent)
     hasPassedVisitCheck = false;
 }
 
-GuildsDialog::~GuildsDialog()
-{
-}
-
 void GuildsDialog::setupConnections()
 {
     // Left side button connections
@@ -155,36 +151,29 @@ void GuildsDialog::on_makeLevelButton_clicked()
     }
 }
 
-
 void GuildsDialog::on_reAcquaintButton_clicked()
 {
     QListWidgetItem *selectedItem = guildsListWidget->currentItem();
     GameStateManager* gsm = GameStateManager::instance();
-
     // 1. Check if a guild is selected
     if (!selectedItem) {
         gsm->logGuildAction("Attempted to re-acquaint, but no guild was selected.");
         QMessageBox::warning(this, "Selection Required", "Please select a guild from the list first to re-acquaint.");
         return;
     }
-
     // 2. Get the full item text and remove the visual mark (* )
     QString newGuildName = selectedItem->text();
     if (newGuildName.startsWith("* ")) {
         newGuildName.remove(0, 2); 
     }
-
     // 3. Update the Game State Manager
     gsm->setGameValue("CurrentCharacterGuild", newGuildName);
     gsm->logGuildAction(QString("Re-acquainted with the %1 guild.").arg(newGuildName));
-
     // 4. Provide confirmation feedback
     QMessageBox::information(this, "Acquaintance Made", 
         QString("You have successfully re-acquainted yourself with the %1 guild.").arg(newGuildName));
-
     // 5. Refresh the list to move the visual mark
     setInitialGuildSelection();
-
     // 6. Reset the visit check state and gray out the button
     // This ensures they must "Visit" again if they switch selections later.
     hasPassedVisitCheck = false;
@@ -226,7 +215,6 @@ void GuildsDialog::on_readGuildLogButton_clicked()
         for (int i = logList.count() - 1; i >= 0; --i) {
             logContent += logList.at(i).toString() + "\n";
         }
-        
         // Remove trailing newline if it exists (not strictly needed with setDetailedText)
         if (!logContent.isEmpty()) {
             logContent.chop(1);
@@ -250,7 +238,6 @@ void GuildsDialog::on_visitButton_clicked()
         QMessageBox::warning(this, "No Selection", "Please select a guild first.");
         return;
     }
-
     QString guildName = selectedItem->text();
     if (guildName.startsWith("* ")) guildName.remove(0, 2);
 
@@ -262,10 +249,8 @@ void GuildsDialog::on_visitButton_clicked()
             break;
         }
     }
-
     if (selectedGuildData.isEmpty()) return;
     QVariantMap reqs = selectedGuildData["reqStats"].toMap();
-
     // 2. Fetch Player's Natural Stats using your specific keys
     int pStr = gsm->getGameValue("CurrentCharacterStrength").toInt(); 
     int pInt = gsm->getGameValue("CurrentCharacterIntelligence").toInt();
@@ -273,7 +258,6 @@ void GuildsDialog::on_visitButton_clicked()
     int pCon = gsm->getGameValue("CurrentCharacterConstitution").toInt();
     int pCha = gsm->getGameValue("CurrentCharacterCharisma").toInt();
     int pDex = gsm->getGameValue("CurrentCharacterDexterity").toInt();
-
     // --- DEBUG SECTION ---
     qDebug() << "--- Guild Visit Debug ---";
     qDebug() << "Guild Name:" << guildName;
@@ -283,7 +267,6 @@ void GuildsDialog::on_visitButton_clicked()
              << reqs["Str"].toInt() << reqs["Int"].toInt() << reqs["Wis"].toInt() 
              << reqs["Con"].toInt() << reqs["Cha"].toInt() << reqs["Dex"].toInt();
     // ---------------------
-
     // 3. Compare Stats
     bool meetsReqs = (pStr >= reqs["Str"].toInt() &&
                       pInt >= reqs["Int"].toInt() &&
@@ -291,7 +274,6 @@ void GuildsDialog::on_visitButton_clicked()
                       pCon >= reqs["Con"].toInt() &&
                       pCha >= reqs["Cha"].toInt() &&
                       pDex >= reqs["Dex"].toInt());
-
     // 4. Update UI and Provide Feedback
     if (meetsReqs) {
         tooLowLabel->hide();
@@ -362,3 +344,5 @@ void GuildsDialog::on_guildsListWidget_itemSelectionChanged()
     hasPassedVisitCheck = false;
     reAcquaintButton->setEnabled(false);
 }
+
+GuildsDialog::~GuildsDialog(){}

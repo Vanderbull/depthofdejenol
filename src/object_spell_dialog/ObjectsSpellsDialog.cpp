@@ -16,43 +16,34 @@ ObjectsSpellsDialog::ObjectsSpellsDialog(QWidget *parent) :
 {
     // --- 1. Tab Widget Setup (Lists and Display Areas) ---
     m_tabWidget = new QTabWidget(this);
-
     // Items Tab
     m_itemsListView = new QListView;
     m_itemsListView->setModel(m_itemsModel);
     m_tabWidget->addTab(m_itemsListView, "Items");
-
     // Spells Tab
     m_spellsListView = new QListView;
     m_spellsListView->setModel(m_spellsModel);
     m_tabWidget->addTab(m_spellsListView, "Spells");
-
     // Companions Tab
     m_companionsListView = new QListView;
     m_companionsListView->setModel(m_companionsModel);
     m_tabWidget->addTab(m_companionsListView, "Companions");
-
     // Char Tab (Assuming details are displayed here, possibly read-only text)
     m_charInfoDisplay = new QTextEdit;
     m_charInfoDisplay->setReadOnly(true);
     m_tabWidget->addTab(m_charInfoDisplay, "Char");
-
     // Guild Tab
     m_guildInfoDisplay = new QTextEdit;
     m_guildInfoDisplay->setReadOnly(true);
     m_tabWidget->addTab(m_guildInfoDisplay, "Guild");
-
     // Buffers Tab
     m_buffsInfoDisplay = new QTextEdit;
     m_buffsInfoDisplay->setReadOnly(true);
     m_tabWidget->addTab(m_buffsInfoDisplay, "Buffers");
-
     // Misc Tab
     m_miscInfoDisplay = new QTextEdit;
     m_miscInfoDisplay->setReadOnly(true);
     m_tabWidget->addTab(m_miscInfoDisplay, "Misc");
-
-
     // --- 2. Character Details Panel (Right Side) ---
     m_charNameLabel = new QLabel("<b>Goodie Gil'N'Rhaile</b>");
     m_leadLabel = new QLabel("lead: 120");
@@ -67,26 +58,20 @@ ObjectsSpellsDialog::ObjectsSpellsDialog(QWidget *parent) :
     detailsLayout->addWidget(m_guildLabel);
     detailsLayout->addWidget(m_expLabel);
     detailsLayout->addStretch(1); // Push everything to the top
-
     // Create a container widget for the details panel
     QWidget *detailsPanel = new QWidget;
     detailsPanel->setLayout(detailsLayout);
     detailsPanel->setFixedWidth(200); // Fixed width to separate from tabs
-
-
     // --- 3. Main Center Layout ---
     QHBoxLayout *centerLayout = new QHBoxLayout;
     centerLayout->addWidget(m_tabWidget);
     centerLayout->addWidget(detailsPanel); // Add the details panel to the right
-
     // --- 4. Assemble Main Dialog Layout ---
     QVBoxLayout *mainLayout = new QVBoxLayout(this);
     mainLayout->addLayout(centerLayout);
 
     setWindowTitle("Objects & Spells");
     this->setMinimumSize(800, 600); // Set a reasonable default size
-
-
     // --- 5. Initial Data and Connections ---
     updateItems({"Item #15: Static Sash [g][49] (cursed)", "Item #14: Unicorn Horn [12]", "Item #12: Ring of Frost [g][15]", "Item #10: Rod of Entrapment [g][9]"});
     updateCompanions({"1. (Defender) 571210", "2. (Defender) 72V229"});
@@ -94,24 +79,14 @@ ObjectsSpellsDialog::ObjectsSpellsDialog(QWidget *parent) :
     updateChar({"HP: 100/100", "MP: 50/50", "Damage: 10-20", "Armor: 50"});
     updateGuild({"Guild Name: The Mages", "Rank: Master", "Members: 12/12"});
     updateMisc({"Current Quest: Find the Rod", "Game Version: 1.0"});
-
-
     // Connect tab change signal
     connect(m_tabWidget, &QTabWidget::currentChanged, this, &ObjectsSpellsDialog::on_tabWidget_currentChanged);
-
     // Connect list view item clicks
     connect(m_itemsListView, &QListView::clicked, this, &ObjectsSpellsDialog::on_itemsListView_clicked);
     connect(m_spellsListView, &QListView::clicked, this, &ObjectsSpellsDialog::on_spellsListView_clicked);
     connect(m_companionsListView, &QListView::clicked, this, &ObjectsSpellsDialog::on_companionsListView_clicked);
 }
-
-ObjectsSpellsDialog::~ObjectsSpellsDialog()
-{
-    // The QDialog handles the deletion of all widgets parented to it.
-}
-
 // --- Update Methods ---
-
 void ObjectsSpellsDialog::updateItems(const QStringList& items)
 {
     m_itemsModel->setStringList(items);
@@ -146,10 +121,7 @@ void ObjectsSpellsDialog::updateMisc(const QStringList& miscInfo)
 {
     m_miscInfoDisplay->setText(miscInfo.join("\n"));
 }
-
-
 // --- Slot Implementations ---
-
 void ObjectsSpellsDialog::on_tabWidget_currentChanged(int index)
 {
     QString tabName = m_tabWidget->tabText(index);
@@ -183,3 +155,5 @@ void ObjectsSpellsDialog::on_companionsListView_clicked(const QModelIndex& index
         QMessageBox::information(this, "Companion Selected", "Selected: " + companionDescription);
     }
 }
+
+ObjectsSpellsDialog::~ObjectsSpellsDialog(){}

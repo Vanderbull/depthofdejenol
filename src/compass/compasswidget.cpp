@@ -18,21 +18,17 @@ void CompassWidget::paintEvent(QPaintEvent *event)
 
     QPainter painter(this);
     painter.setRenderHint(QPainter::Antialiasing);
-
     // Get the center of the widget
     qreal side = qMin(width(), height());
     painter.translate(width() / 2, height() / 2);
     painter.scale(side / 200.0, side / 200.0);
-
     // Draw the compass face
     painter.setPen(Qt::black);
     painter.setBrush(Qt::white);
     painter.drawEllipse(-90, -90, 180, 180);
-
     // Draw the "N" for North
     painter.setFont(QFont("Arial", 15));
     painter.drawText(-10, -80, "N");
-
     // Rotate and draw the needle
     painter.rotate(-m_heading);
     painter.setPen(Qt::red);

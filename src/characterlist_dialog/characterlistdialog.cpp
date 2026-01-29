@@ -102,6 +102,4 @@ void CharacterListDialog::onDeleteClicked()
     }
 }
 
-CharacterListDialog::~CharacterListDialog()
-{
-}
+CharacterListDialog::~CharacterListDialog(){}

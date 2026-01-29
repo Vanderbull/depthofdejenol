@@ -34,7 +34,6 @@ private slots:
     void onDownloadReadyRead();
     void onDownloadFinished();
     void onDownloadProgress(qint64, qint64);
-
     // New: handle GitHub checksum asset reply (if any)
     void onChecksumReplyFinished();
 

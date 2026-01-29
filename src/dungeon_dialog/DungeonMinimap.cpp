@@ -315,11 +315,9 @@ void DungeonDialog::drawMinimap()
     } else {
         delete scene; // Cleanup if window doesn't exist
     }
-
     QString bodyPath = "resources/images/minimap/body.png";
     QPixmap bodyPixmap(bodyPath);
     QPixmap scaledBody = bodyPixmap.scaled(TILE_SIZE, TILE_SIZE, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
-
     // ... (Inside the drawing loop after other special tiles) ...
     for (const auto& pos : m_bodyPositions) {
         if (revealAll || m_visitedTiles.contains(pos)) {

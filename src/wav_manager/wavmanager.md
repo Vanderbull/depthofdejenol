@@ -1,9 +1,11 @@
-Viktiga Anmärkningar:
+Important Notes
 
-    QtMultimedia: Se till att du har modulen QtMultimedia installerad och att du lägger till QT += multimedia i din .pro-fil.
+    QtMultimedia: Ensure the QtMultimedia module is installed and that you add QT += multimedia to your .pro file.
 
-    Sökväg: Ändra variabeln wavFolder i ditt main.cpp till den korrekta sökvägen där dina .wav-filer finns.
+    File Path: Update the wavFolder variable in your main.cpp to the correct directory path where your .wav files are stored.
 
-    Filnamn: Funktionen playWav() tar endast filnamnet, utan sökvägen och utan .wav-ändelsen (t.ex. om filen heter alarm.wav anropar du manager.playWav("alarm")).
+    Filenames: The playWav() function requires only the filename—exclude both the directory path and the .wav extension (e.g., if the file is named alarm.wav, you should call manager.playWav("alarm")).
 
-    QSoundEffect vs. QMediaPlayer: QSoundEffect är bäst för korta, okomprimerade ljudeffekter (som varningsljud eller klick). Om du behöver spela längre ljudfiler, strömmande innehåll, eller använda komprimerade format som MP3, bör du använda QMediaPlayer istället.
+    QSoundEffect vs. QMediaPlayer: * QSoundEffect is ideal for short, uncompressed sound effects (such as alerts or button clicks).
+
+        If you need to play longer audio files, streaming content, or compressed formats like MP3, you should use QMediaPlayer instead.

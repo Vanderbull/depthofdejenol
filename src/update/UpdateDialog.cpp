@@ -76,7 +76,6 @@ void UpdateDialog::onCheckClicked()
         m_updater->checkForUpdates(m_manifestUrl);
         return;
     }
-
     // Fallback: check the repository's latest GitHub release
     m_notes->clear();
     m_progress->setValue(0);
@@ -162,9 +161,7 @@ void UpdateDialog::onDownloadFinished(bool ok, const QString &localFilePath, con
         m_downloadBtn->setEnabled(true);
         return;
     }
-
     m_statusLabel->setText(tr("Download complete. Applying patch..."));
-
     // APPLY STRATEGY:
     // - If the patch is a ZIP that contains files to overwrite, invoke a platform tool to extract to application dir.
     // - This example uses 'unzip -o' if available; you can replace with a built-in extraction library.

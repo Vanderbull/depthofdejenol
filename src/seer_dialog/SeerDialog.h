@@ -8,7 +8,7 @@
 #include <QLabel>
 #include <QLineEdit>
 
-#include "GameStateManager.h" // Include the GameStateManager header
+#include "GameStateManager.h"
 
 class SeerDialog : public QDialog
 {
@@ -24,7 +24,6 @@ private slots:
 private:
     QLineEdit *searchLineEdit;
     QLabel *welcomeLabel;
-    //QLabel *optionsLabel;
     QPushButton *characterButton;
     QPushButton *monsterButton;
     QPushButton *itemButton;

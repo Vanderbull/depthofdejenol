@@ -14,8 +14,6 @@ InventoryDialog::InventoryDialog(QWidget *parent) : QDialog(parent)
     loadInventoryData(); // Pulls the real data from GameStateManager
 }
 
-InventoryDialog::~InventoryDialog() {}
-
 void InventoryDialog::setupUi() 
 {
     QHBoxLayout *mainLayout = new QHBoxLayout(this);
@@ -85,6 +83,7 @@ void InventoryDialog::initializeItemData()
     itemInfoMap["Leather Armor"] = "Light leather armor.\nStats: 10 Defense";
     // Add other treasure items here to provide descriptions
 }
+
 void InventoryDialog::onEquipButtonClicked() 
 {
     if (inventoryList->currentItem()) {
@@ -154,3 +153,5 @@ void InventoryDialog::onInfoButtonClicked()
         }
     }
 }
+
+InventoryDialog::~InventoryDialog() {}

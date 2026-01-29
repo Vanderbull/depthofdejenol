@@ -7,15 +7,12 @@
 #include <QPainter> // Added for drawing functionality
 #include <QPen>     // Added for drawing lines
 #include <QBrush>   // Added for drawing filled shapes
-
 // --- MapViewWidget Implementation ---
-
 MapViewWidget::MapViewWidget(QWidget *parent) : QWidget(parent) {
     // Styling for the map area
     setStyleSheet("background-color: #000000; border: 3px solid #5D4037;");
     setMinimumSize(400, 400); 
 }
-
 /**
  * @brief Sets the player's map data and triggers a repaint.
  */
@@ -27,7 +24,6 @@ void MapViewWidget::setPlayerPosition(int x, int y, int z, const QString& facing
     playerVisible = visible;
     update(); // Schedules a repaint event
 }
-
 /**
  * @brief Handles drawing the map content and player marker.
  */
@@ -38,15 +34,12 @@ void MapViewWidget::paintEvent(QPaintEvent *event) {
 
     int width = this->width();
     int height = this->height();
-
     // 1. Draw Map Placeholder (Boundary)
     QPen borderPen(QColor("#7FFF00")); // Neon green for lines
     borderPen.setWidth(1);
     painter.setPen(borderPen);
-    
     // Draw a placeholder grid or border to represent the dungeon floor
     painter.drawRect(0, 0, width - 1, height - 1);
-    
     // Add text overlay if the position is hidden
     if (!playerVisible) {
         painter.setPen(QColor("#5D4037")); // Darker color for hidden state
@@ -54,7 +47,6 @@ void MapViewWidget::paintEvent(QPaintEvent *event) {
         painter.drawText(rect(), Qt::AlignCenter, "Map Data (Position Hidden)");
         return; // Stop drawing the dot if hidden
     }
-
     // 2. Draw the Player Marker (The Dot)
     
     // Since we are using mock X, Y coordinates (e.g., 52, 89), we need to map 
@@ -66,26 +58,21 @@ void MapViewWidget::paintEvent(QPaintEvent *event) {
     // Calculate normalized position (0.0 to 1.0)
     qreal normalizedX = (qreal)playerX / MAP_MAX_COORD;
     qreal normalizedY = (qreal)playerY / MAP_MAX_COORD; 
-
     // Calculate pixel position on the widget
     // NOTE: In dungeon crawlers, Y often increases DOWN, so 1.0 - normalizedY might be needed.
     // We'll use Y increasing downward for screen coordinates:
     int pixelX = qRound(normalizedX * width);
     int pixelY = qRound(height - (normalizedY * height)); // Invert Y for typical map drawing
-
     // Ensure the dot stays within bounds
     pixelX = qBound(5, pixelX, width - 5);
     pixelY = qBound(5, pixelY, height - 5);
-    
     // Set the brush and pen for the player dot
     QBrush dotBrush(QColor("#FF4500")); // Bright red/orange for visibility
     painter.setBrush(dotBrush);
     painter.setPen(QPen(QColor("#FFFFFF"), 2)); // White border for contrast
-
     // Draw a filled circle (the player dot)
     const int DOT_SIZE = 8;
     painter.drawEllipse(pixelX - DOT_SIZE / 2, pixelY - DOT_SIZE / 2, DOT_SIZE, DOT_SIZE);
-    
     // Optional: Draw facing indicator (simple line)
     QPointF start(pixelX, pixelY);
     QPointF end = start;
@@ -101,7 +88,6 @@ void MapViewWidget::paintEvent(QPaintEvent *event) {
     painter.setPen(arrowPen);
     painter.drawLine(start, end);
 }
-
 // --- AutomapDialog Implementation ---
 
 // Constructor
@@ -120,7 +106,6 @@ AutomapDialog::AutomapDialog(QWidget *parent)
     mapDisplay->setPlayerPosition(currentX, currentY, currentZ, currentFacing, isPositionVisible);
     updatePositionLabel();
 }
-
 /**
  * @brief Public interface to move the player's position on the map and update the view.
  * * @param x The new X coordinate.
@@ -141,8 +126,6 @@ void AutomapDialog::updatePlayerPosition(int x, int y, const QString &facing) {
     
     qDebug() << "Map position updated to X:" << currentX << "Y:" << currentY << "Facing:" << currentFacing;
 }
-
-
 /**
  * @brief Sets up the main UI layout for the Automap dialog.
  */
@@ -205,7 +188,6 @@ void AutomapDialog::setupUI() {
     
     setLayout(mainLayout);
 }
-
 /**
  * @brief Updates the status label with current coordinates and facing direction.
  */
@@ -225,9 +207,7 @@ void AutomapDialog::updatePositionLabel() {
         positionButton->setText("Show Party Position");
     }
 }
-
 // --- SLOTS Implementation ---
-
 void AutomapDialog::onCloseClicked() {
     this->accept(); 
 }

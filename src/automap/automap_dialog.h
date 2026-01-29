@@ -37,10 +37,8 @@ class AutomapDialog : public QDialog
 
 public:
     explicit AutomapDialog(QWidget *parent = nullptr);
-
     // Public method to be called by keyPressEvent
     void updatePlayerPosition(int x, int y, const QString &facing);
-
     // Getters for current position (optional if keyPressEvent uses currentX/Y directly)
     int getCurrentX() const { return currentX; }
     int getCurrentY() const { return currentY; }

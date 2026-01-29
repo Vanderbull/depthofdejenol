@@ -13,7 +13,7 @@ WavManager::WavManager(const QString &folderPath, QObject *parent)
 
 bool WavManager::loadWavFiles()
 {
-    m_wavFiles.clear(); // Clear existing files
+    m_wavFiles.clear();
     QDir dir(m_folderPath);
     if (!dir.exists()) {
         qWarning() << "Could not find folder:" << m_folderPath;
@@ -59,7 +59,6 @@ bool WavManager::playWav(const QString &fileName)
             qWarning() << "Could not load sound source for:" << fileName << ". Status:" << m_soundEffect.status();
             return false;
         }
-
     } else {
         qWarning() << "File" << fileName << "not found in the manager.";
         return false;

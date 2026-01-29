@@ -126,14 +126,12 @@ void MorgueDialog::onActionClicked()
     auto *btn = qobject_cast<QPushButton*>(sender());
     QString action = btn->text();
     auto* gsm = GameStateManager::instance();
-
     // 1. Refresh data from files immediately on click
     QList<DeadCharacterInfo> deadChars = fetchDeadCharacterData();
     if (deadChars.isEmpty()) {
         QMessageBox::information(this, tr("Morgue"), tr("No dead heroes found."));
         return;
     }
-
     QStringList names;
     for (const auto& info : deadChars) names << info.fileName;
     bool ok;
@@ -151,7 +149,6 @@ void MorgueDialog::onActionClicked()
             QMessageBox::warning(this, tr("Funds"), tr("Rescue requires %1 gold.").arg(cost));
             return;
         }
-
         if (QMessageBox::Yes == QMessageBox::question(this, tr("Hire"), tr("Pay %1 to rescue %2?").arg(cost).arg(selected))) {
             gsm->updateCharacterGold(0, (qulonglong)cost, false);
             if (moveBodyToCityInFile(selected)) {
@@ -165,7 +162,6 @@ void MorgueDialog::onActionClicked()
             QMessageBox::critical(this, tr("Error"), tr("The body of %1 is still in the dungeon!").arg(selected));
             return;
         }
-
         QString nameOnly = selected;
         if (nameOnly.endsWith(".txt")) nameOnly.chop(4);
 
@@ -180,13 +176,11 @@ void MorgueDialog::onActionClicked()
             QMessageBox::warning(this, tr("Not Ready"), tr("You must 'Grab Body' for %1 first.").arg(selected));
             return;
         }
-
         // Use GameStateManager live memory to check level
         if (!gsm->isActiveCharacterInCity()) {
             QMessageBox::critical(this, tr("Error"), tr("%1 is not in the city!").arg(selected));
             return;
         }
-
         if (updateCharacterFile(selected, true)) {
             QString nameOnly = selected;
             nameOnly.remove(".txt");

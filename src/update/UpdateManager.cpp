@@ -32,13 +32,11 @@ void UpdateManager::checkForUpdates(const QUrl &manifestUrl)
         m_manifestReply->deleteLater();
         m_manifestReply = nullptr;
     }
-
     QNetworkRequest req(manifestUrl);
     req.setHeader(QNetworkRequest::UserAgentHeader, QStringLiteral("DepthOfDejenol-Updater/1.0"));
     m_manifestReply = m_net.get(req);
     connect(m_manifestReply, &QNetworkReply::finished, this, &UpdateManager::onManifestReplyFinished);
 }
-
 // New: Query GitHub Releases API for the latest release of owner/repo
 void UpdateManager::checkForUpdatesFromGitHub(const QString &owner, const QString &repo)
 {
@@ -71,11 +69,9 @@ void UpdateManager::onManifestReplyFinished()
         m_manifestReply = nullptr;
         return;
     }
-
     const QByteArray body = reply->readAll();
     reply->deleteLater();
     m_manifestReply = nullptr;
-
     // Try to parse as JSON (works for both our manifest JSON and GitHub release JSON)
     QJsonParseError err;
     QJsonDocument doc = QJsonDocument::fromJson(body, &err);
@@ -85,7 +81,6 @@ void UpdateManager::onManifestReplyFinished()
     }
 
     QJsonObject root = doc.object();
-
     // Distinguish between a plain manifest and GitHub release JSON.
     // If 'tag_name' exists we assume GitHub release format.
     QString remoteVersion;
@@ -109,7 +104,6 @@ void UpdateManager::onManifestReplyFinished()
             QString name = a.value(QStringLiteral("name")).toString();
             QString browserUrl = a.value(QStringLiteral("browser_download_url")).toString();
             if (browserUrl.isEmpty()) continue;
-
             // Prefer archive/executable assets as patch
             if (name.endsWith(QStringLiteral(".zip"), Qt::CaseInsensitive) ||
                 name.endsWith(QStringLiteral(".tar.gz"), Qt::CaseInsensitive) ||
@@ -118,7 +112,6 @@ void UpdateManager::onManifestReplyFinished()
                 name.endsWith(QStringLiteral(".dmg"), Qt::CaseInsensitive)) {
                 assetUrl = QUrl(browserUrl);
             }
-
             // If asset looks like a checksum, prefer to fetch it
             if (name.endsWith(QStringLiteral(".sha256"), Qt::CaseInsensitive) ||
                 name.endsWith(QStringLiteral(".sha256.txt"), Qt::CaseInsensitive) ||
@@ -126,19 +119,16 @@ void UpdateManager::onManifestReplyFinished()
                 checksumAssetUrlStr = browserUrl;
             }
         }
-
         // Fallback: if no preferred asset found, take first asset if present
         if (assetUrl.isEmpty() && !assets.isEmpty()) {
             QJsonObject first = assets.first().toObject();
             QString browserUrl = first.value(QStringLiteral("browser_download_url")).toString();
             assetUrl = QUrl(browserUrl);
         }
-
         if (assetUrl.isEmpty()) {
             emit checkingFailed(QStringLiteral("No downloadable release asset found in GitHub release"));
             return;
         }
-
         // If checksum asset exists, fetch it asynchronously, then emit updateAvailable when checksum reply finishes.
         if (!checksumAssetUrlStr.isEmpty()) {
             QNetworkRequest creq{QUrl(checksumAssetUrlStr)}; // braces to avoid vexing parse
@@ -161,12 +151,10 @@ void UpdateManager::onManifestReplyFinished()
         notes = root.value(QStringLiteral("notes")).toString();
         patchUrlStr = root.value(QStringLiteral("patchUrl")).toString();
         sha256 = root.value(QStringLiteral("sha256")).toString();
-
         if (remoteVersion.isEmpty() || patchUrlStr.isEmpty()) {
             emit checkingFailed(QStringLiteral("Manifest missing required fields (version/patchUrl)"));
             return;
         }
-
         QByteArray shaBytes;
         if (!sha256.isEmpty()) shaBytes = QByteArray::fromHex(sha256.toUtf8());
 
@@ -191,11 +179,9 @@ void UpdateManager::onChecksumReplyFinished()
         m_checksumReply = nullptr;
         return;
     }
-
     QByteArray checksumBody = reply->readAll();
     reply->deleteLater();
     m_checksumReply = nullptr;
-
     // Try to extract first hex-looking token from checksum body
     // Common formats: "<hex>  filename" or just "<hex>"
     QByteArray hex;
@@ -218,12 +204,10 @@ void UpdateManager::onChecksumReplyFinished()
             }
         }
     }
-
     QByteArray shaBytes;
     if (!hex.isEmpty()) {
         shaBytes = QByteArray::fromHex(hex);
     }
-
     emit updateAvailable(remoteVersion, notes, assetUrl, shaBytes);
 }
 
@@ -256,7 +240,6 @@ void UpdateManager::downloadPatch(const QUrl &patchUrl, const QByteArray &expect
         m_downloadFile = nullptr;
         return;
     }
-
     QNetworkRequest req(patchUrl);
     req.setHeader(QNetworkRequest::UserAgentHeader, QStringLiteral("DepthOfDejenol-Updater/1.0"));
     m_downloadReply = m_net.get(req);
@@ -296,7 +279,6 @@ void UpdateManager::onDownloadFinished()
     m_downloadFile->close();
 
     QString path = m_downloadFile->fileName();
-
     // verify sha256 if provided
     if (!m_expectedSha256.isEmpty()) {
         QFile f(path);
@@ -324,7 +306,6 @@ void UpdateManager::onDownloadFinished()
             return;
         }
     }
-
     // success
     m_downloadReply->deleteLater();
     m_downloadReply = nullptr;

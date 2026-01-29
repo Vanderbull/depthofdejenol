@@ -101,11 +101,8 @@ void CreateCharacterDialog::updateRaceStats(int index)
              valueLabel->setText(QString::number(raceStat.start));
         }
     }
-
     updateAlignmentOptions(selectedRace);
     updateGuildListStyle(selectedRace);
-    //GameStateManager::instance()->setGameValue("CurrentCharacterStatPointsLeft", GameStateManager::defaultStatPoints());
-    //this->statPointsLeftLabel->setText(QString("%1 Stat Points Left").arg(GameStateManager::defaultStatPoints()));
     GameStateManager::instance()->setGameValue("CurrentCharacterStatPointsLeft", GameConstants::DEFAULT_STAT_POINTS);
     this->statPointsLeftLabel->setText(QString("%1 Stat Points Left").arg(GameConstants::DEFAULT_STAT_POINTS));
 }
@@ -177,7 +174,6 @@ CreateCharacterDialog::CreateCharacterDialog(const QVector<RaceStats>& raceData,
     const RaceStats& initialRace = raceData.at(0);
 
     const QStringList statList = GameConstants::STAT_NAMES;
-    //const QStringList statList = GameStateManager::statNames();
     for (int i = 0; i < statList.size(); ++i) {
         QString statName = statList.at(i);
         statsLayout->addWidget(new QLabel(statName), i + 1, 0);
@@ -298,8 +294,7 @@ void CreateCharacterDialog::updateSpinBoxLimits()
         if (!sb) continue;
         
         RaceStat raceStat = statMap.value(statName);
-        sb->blockSignals(true);
-        
+        sb->blockSignals(true);        
         // The maximum is the lower of:
         // 1. The absolute racial maximum (e.g., 18)
         // 2. The current value + whatever points are remaining in the pool
@@ -351,7 +346,6 @@ void CreateCharacterDialog::onSaveCharacterClicked()
             gsm->setGameValue(QString("CurrentCharacter%1").arg(statName), spin->value());
         }
     }
-
     gsm->setGameValue("CurrentCharacterStatPointsLeft", this->statPoints);
     // Ensure the data/characters directory exists
     QString saveDirPath = QCoreApplication::applicationDirPath() + "/data/characters";

@@ -75,7 +75,6 @@ void MapViewWidget::paintEvent(QPaintEvent *event) {
     painter.setPen(arrowPen);
     painter.drawLine(start, end);
 }
-
 // --- AutomapDialog Implementation ---
 
 // Constructor

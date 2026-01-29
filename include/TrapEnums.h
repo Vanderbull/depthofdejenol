@@ -1,5 +1,3 @@
-// In your header file (e.g., TrapEnums.h)
-
 #include <QObject>
 
 class TrapEnums : public QObject

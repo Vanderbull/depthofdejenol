@@ -1,7 +1,7 @@
 #include "src/character_dialog/CharacterDialog.h"
 #include "DungeonDialog.h"
 #include "DungeonHandlers.h"
-#include "../../GameStateManager.h" // REQUIRED: Include for GameState access
+#include "../../GameStateManager.h"
 #include "../event/EventManager.h"
 #include <QVBoxLayout>
 #include <QHBoxLayout>
@@ -87,7 +87,6 @@ void DungeonDialog::resizeEvent(QResizeEvent *event)
         dungeonView->fitInView(m_dungeonScene->sceneRect(), Qt::KeepAspectRatio);
     }
 }
-
 // --- Helper Function: logMessage (Must be defined as a member) ---
 void DungeonDialog::logMessage(const QString& message)
 {
@@ -550,7 +549,6 @@ DungeonDialog::DungeonDialog(QWidget *parent)
 
     m_dungeonScene = new QGraphicsScene(0, 0, 300, 300, this);
     m_graphicsView->setScene(m_dungeonScene);
-
     // ADD THESE LINES AT THE END OF THE CONSTRUCTOR:
     drawMinimap();
     renderWireframeView();
@@ -726,24 +724,7 @@ void DungeonDialog::on_fightButton_clicked()
     m_combatTimer->start(100); 
     logMessage("FORCING TIMER START...");
 }
-/*
-void DungeonDialog::processCombatTick() 
-{
-    // Verification: Look at your console output!
-    qDebug() << "TICK - isFighting:" << m_isFighting;
 
-    if (!m_isFighting) return;
-
-    // Mordor Logic: Build up energy for an attack
-    // We increment by 100 because our timer runs every 100ms
-    m_playerAttackCooldown += 100; 
-
-    // Once we reach 1000ms (1 second), we swing
-    if (m_playerAttackCooldown >= 1000) {
-        performPlayerAttack();
-        m_playerAttackCooldown = 0; // Reset for next swing
-    }
-}*/
 void DungeonDialog::processCombatTick() 
 {
     if (!m_isFighting) return;
@@ -1293,9 +1274,7 @@ void DungeonDialog::renderWireframeView() {
             m_dungeonScene->addRect(xR, yT, w - xR, yB - yT, QPen(Qt::black), QBrush(QColor(sideRoomWallCol, sideRoomWallCol, sideRoomWallCol)));
         }
         
-        
-        
-bool hasAntimagic = m_antimagicPositions.contains({tx, ty});
+        bool hasAntimagic = m_antimagicPositions.contains({tx, ty});
 
         // 1. Draw floor/ceiling
         // ... 
@@ -1316,8 +1295,7 @@ bool hasAntimagic = m_antimagicPositions.contains({tx, ty});
             drawWater(d, xL, xR, yB, nxL, nxR, nyB);
         }
 
-
-// 1. Check if this tile is a Spinner (Rotator)
+        // 1. Check if this tile is a Spinner (Rotator)
         bool hasSpinner = m_rotatorPositions.contains({tx, ty});
 
         // ... (Existing Floor, Ceiling, and Side Wall rendering)
@@ -1327,7 +1305,7 @@ bool hasAntimagic = m_antimagicPositions.contains({tx, ty});
             drawSpinner(d, xL, xR, yB, nxL, nxR, nyB);
         }
 
-// 1. Check for teleporter at this map coordinate
+        // 1. Check for teleporter at this map coordinate
         bool hasTeleporter = m_teleporterPositions.contains({tx, ty});
 
         // ... existing Floor/Ceiling/Side Wall rendering ...
@@ -1337,7 +1315,7 @@ bool hasAntimagic = m_antimagicPositions.contains({tx, ty});
             drawTeleporter(d, xL, xR, yB, nxL, nxR, nyB);
         }
 
-// Check if there is a monster at this coordinate
+        // Check if there is a monster at this coordinate
         bool hasMonster = m_monsterPositions.contains({tx, ty});
 
         // ... (draw floor and side walls)
@@ -1408,17 +1386,16 @@ void DungeonDialog::drawBrickPattern(const QPolygon& wallPoly, int depth)
         }
     }
 }
+
 void DungeonDialog::drawChute(int d, int xL, int xR, int yB, int nxL, int nxR, int nyB) {
     // We want the chute to be in the center of the tile floor
     // Calculate a 40% width/depth hole
-    double margin = 0.3; 
-    
+    double margin = 0.3;     
     // Interpolate points for the "hole" on the floor
     int cxL = xL + (xR - xL) * margin;
     int cxR = xR - (xR - xL) * margin;
     int cnxL = nxL + (nxR - nxL) * margin;
     int cnxR = nxR - (nxR - nxL) * margin;
-    
     // Perspective depth for the floor (yB to nyB)
     int cyNear = yB;
     int cyFar = yB + (nyB - yB) * 0.6; // The hole doesn't take the whole tile
@@ -1426,10 +1403,8 @@ void DungeonDialog::drawChute(int d, int xL, int xR, int yB, int nxL, int nxR, i
     QPolygon chuteHole;
     chuteHole << QPoint(cxL, cyNear) << QPoint(cxR, cyNear) 
               << QPoint(cnxR, cyFar) << QPoint(cnxL, cyFar);
-
     // Draw the "void" (black hole)
     m_dungeonScene->addPolygon(chuteHole, QPen(Qt::black), QBrush(Qt::black));
-
     // Draw inner "walls" of the chute for a 3D effect
     QPolygon leftInner;
     leftInner << QPoint(cxL, cyNear) << QPoint(cnxL, cyFar) 
@@ -1438,6 +1413,7 @@ void DungeonDialog::drawChute(int d, int xL, int xR, int yB, int nxL, int nxR, i
     int depthShade = qMax(0, 30 - (d * 10));
     m_dungeonScene->addPolygon(leftInner, QPen(Qt::NoPen), QBrush(QColor(depthShade, depthShade, depthShade)));
 }
+
 void DungeonDialog::drawMonster(int d, int xL, int xR, int yB) {
     // Calculate size based on depth
     // d=0 (Near): Large, d=2 (Far): Small
@@ -1467,26 +1443,20 @@ void DungeonDialog::drawTeleporter(int d, int xL, int xR, int yB, int nxL, int n
     Q_UNUSED(nxL);
     // Calculate the center and size of the tile floor
     int centerX = xL + (xR - xL) / 2;
-    int centerY = yB + (nyB - yB) / 2;
-    
+    int centerY = yB + (nyB - yB) / 2;    
     // Scale radius based on depth
     int baseRadius = (xR - xL) / 3;
-    
     // Create a shimmering effect with multiple ellipses
     for (int i = 0; i < 3; ++i) {
         int r = baseRadius - (i * (baseRadius / 4));
         QRectF glowRect(centerX - r, centerY - (r / 2), r * 2, r); // Flattened for perspective
-        
         // Alternating cyan/blue glow
         QColor glowColor = (i % 2 == 0) ? QColor(0, 255, 255, 150) : QColor(0, 100, 255, 100);
-        
         // Depth shading: make it dimmer in the distance
         int alpha = glowColor.alpha() - (d * 30);
         glowColor.setAlpha(qMax(0, alpha));
-
         m_dungeonScene->addEllipse(glowRect, QPen(Qt::white, 1), QBrush(glowColor));
     }
-
     // Optional: Add some "sparkles" (small white dots)
     for (int j = 0; j < 5; ++j) {
         int sx = centerX + (QRandomGenerator::global()->bounded(baseRadius * 2) - baseRadius);
@@ -1494,22 +1464,19 @@ void DungeonDialog::drawTeleporter(int d, int xL, int xR, int yB, int nxL, int n
         m_dungeonScene->addRect(sx, sy, 1, 1, QPen(Qt::white), QBrush(Qt::white));
     }
 }
+
 void DungeonDialog::drawSpinner(int d, int xL, int xR, int yB, int nxL, int nxR, int nyB) {
     // Calculate the center of the tile floor using both near and far bounds
     int centerX = (xL + xR + nxL + nxR) / 4;
-    int centerY = (yB + nyB) / 2;
-    
+    int centerY = (yB + nyB) / 2;    
     // Scale the size of the spinner based on the available floor width at this depth
     int radius = (xR - xL) / 3;
     QPen spinnerPen(QColor(200, 200, 0), 2); 
-    
     // Depth shading to make it darker in the distance
     int alpha = qMax(0, 200 - (d * 50));
     spinnerPen.setColor(QColor(200, 200, 0, alpha));
-
     // Define the bounding rect for the ellipse/arcs, flattened for perspective
     QRectF arcRect(centerX - radius, centerY - (radius / 2), radius * 2, radius);
-
     // QGraphicsScene doesn't have addArc; we use QPainterPath instead
     for (int i = 0; i < 4; ++i) {
         QPainterPath path;
@@ -1521,7 +1488,6 @@ void DungeonDialog::drawSpinner(int d, int xL, int xR, int yB, int nxL, int nxR,
         
         m_dungeonScene->addPath(path, spinnerPen);
     }
-    
     // Add a center point (uses near/far center)
     m_dungeonScene->addEllipse(centerX - 2, centerY - 1, 4, 2, spinnerPen, QBrush(spinnerPen.color()));
 }
@@ -1530,28 +1496,21 @@ void DungeonDialog::drawWater(int d, int xL, int xR, int yB, int nxL, int nxR, i
     // 1. Create the water surface polygon (the floor area)
     QPolygon waterPoly;
     waterPoly << QPoint(xL, yB) << QPoint(xR, yB) << QPoint(nxR, nyB) << QPoint(nxL, nyB);
-
     // Deep blue color, semi-transparent so you can still see the floor/chutes
     int alpha = qMax(0, 180 - (d * 40));
     QColor waterColor(0, 105, 148, alpha); // Sea Blue
-    
     m_dungeonScene->addPolygon(waterPoly, QPen(Qt::NoPen), QBrush(waterColor));
-
     // 2. Add "Ripples" (shimmering lines)
     QPen ripplePen(QColor(255, 255, 255, qMax(0, 100 - (d * 30))));
     ripplePen.setWidth(1);
-
     // Draw 3 horizontal lines at different depths within the tile
     for (int i = 1; i <= 3; ++i) {
         double ratio = i / 4.0;
-        
         // Interpolate Y position between near (yB) and far (nyB)
         int ry = yB + (nyB - yB) * ratio;
-        
         // Interpolate X width based on perspective
         int rxL = xL + (nxL - xL) * ratio;
         int rxR = xR + (nxR - xR) * ratio;
-
         // Draw a partial shimmering line (not the whole width for a natural look)
         int rippleWidth = (rxR - rxL) * 0.6;
         int rippleStart = rxL + (rxR - rxL) * 0.2;
@@ -1563,14 +1522,11 @@ void DungeonDialog::drawAntimagic(int d, int xL, int xR, int yB, int nxL, int nx
     // Define the floor polygon for clipping or reference
     QPolygon floorPoly;
     floorPoly << QPoint(xL, yB) << QPoint(xR, yB) << QPoint(nxR, nyB) << QPoint(nxL, nyB);
-
     // Color: A muted, "dulling" purple or gray
     int alpha = qMax(0, 120 - (d * 30));
     QColor fieldColor(100, 100, 150, alpha); 
-    
     // Draw a subtle tint first
     m_dungeonScene->addPolygon(floorPoly, QPen(Qt::NoPen), QBrush(fieldColor));
-
     // Draw "Static" lines (cross-hatch pattern)
     QPen staticPen(QColor(200, 200, 255, qMax(0, 150 - (d * 40))));
     staticPen.setWidth(1);
@@ -1591,43 +1547,7 @@ void DungeonDialog::drawAntimagic(int d, int xL, int xR, int yB, int nxL, int nx
         m_dungeonScene->addLine(xHLeft, yHoriz, xHRight, yHoriz, staticPen);
     }
 }
-/*
-void DungeonDialog::togglePartyInfo() {
-    // If it exists and is visible, close it
-    if (m_charSheet) {
-        m_charSheet->close();
-        m_charSheet = nullptr; // Pointer is reset because WA_DeleteOnClose is set
-        return;
-    }
 
-    logMessage("Opening Character Sheet...");
-    m_charSheet = new PartyInfoDialog(this);
-
-    // Set flags for floating, stay-on-top behavior
-    m_charSheet->setWindowFlags(Qt::Tool | Qt::WindowStaysOnTopHint | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
-    
-    // Crucial: ensure pointer is cleared when user clicks the 'X' button
-    m_charSheet->setAttribute(Qt::WA_DeleteOnClose);
-    connect(m_charSheet, &QObject::destroyed, this, [this]() { m_charSheet = nullptr; });
-
-    m_charSheet->show();
-
-    // Position in Bottom-Right Corner
-    QScreen *screen = QGuiApplication::primaryScreen();
-    if (screen) {
-        QRect screenGeometry = screen->availableGeometry();
-        int dialogWidth = m_charSheet->frameGeometry().width();
-        int dialogHeight = m_charSheet->frameGeometry().height();
-        int padding = 10;
-
-        m_charSheet->move(screenGeometry.width() - dialogWidth - padding,
-                          screenGeometry.height() - dialogHeight - padding);
-    }
-    
-    m_charSheet->raise();
-    m_charSheet->activateWindow();
-}
-*/
 void DungeonDialog::togglePartyInfo() {
     if (m_charSheet) {
         m_charSheet->close();
@@ -1636,7 +1556,6 @@ void DungeonDialog::togglePartyInfo() {
     }
 
     m_charSheet = new PartyInfoDialog(this);
-
     // 1. ADD Qt::WindowDoesNotAcceptFocus
     // This allows the main window to keep keyboard focus for movement
     m_charSheet->setWindowFlags(Qt::Tool | 
@@ -1648,11 +1567,9 @@ void DungeonDialog::togglePartyInfo() {
 
     m_charSheet->setAttribute(Qt::WA_DeleteOnClose);
     connect(m_charSheet, &QObject::destroyed, this, [this]() { m_charSheet = nullptr; });
-
     // 2. Use show() but DO NOT call activateWindow() or raise()
     // activateWindow() is what forces the focus change; we want to avoid that.
     m_charSheet->show();
-
     // 3. Position in Bottom-Right
     QScreen *screen = QGuiApplication::primaryScreen();
     if (screen) {

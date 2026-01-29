@@ -1,6 +1,6 @@
 #include "SeerDialog.h"
 #include <QMessageBox>
-#include <QRandomGenerator> // Include for random number generation
+#include <QRandomGenerator>
 #include <QFile>
 #include <QTextStream>
 #include <QFile>
@@ -37,7 +37,6 @@ SeerDialog::SeerDialog(QWidget *parent)
         qDebug() << "Style file not found at:" << qssPath;
     }
     setWindowTitle("The Seer");
-    //setFixedSize(350, 200); // Adjust size as needed
     resize(700,400);
     setMinimumSize(400,300);
     // --- Widgets ---
@@ -72,10 +71,6 @@ SeerDialog::SeerDialog(QWidget *parent)
     setLayout(mainLayout);
 }
 
-SeerDialog::~SeerDialog()
-{
-}
-
 void SeerDialog::on_characterButton_clicked()
 {
     // 1. Access the character save directory
@@ -86,17 +81,14 @@ void SeerDialog::on_characterButton_clicked()
         QMessageBox::information(this, "The Seer", "The archives are empty. No souls reside in this realm yet.");
         return;
     }
-
     // 2. Determine success (60% chance)
     int randomChance = QRandomGenerator::global()->bounded(100);
     if (randomChance < 60) {
         // 3. Pick a random character file
         int randomIndex = QRandomGenerator::global()->bounded(files.size());
         QFile file(charDir.absoluteFilePath(files.at(randomIndex)));
-
         QString name, level, guild, dX, dY, dLevel;
         bool isAlive = true; // Default to true
-
         // 4. Parse the file
         if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {
             QTextStream in(&file);
@@ -116,7 +108,6 @@ void SeerDialog::on_characterButton_clicked()
             }
             file.close();
         }
-
         // 5. Build the vision description based on status
         QString statusText = isAlive ? "<b style='color:green;'>Living</b>" : "<b style='color:red;'>Deceased (Ghost)</b>";
         QString intro = isAlive ? "The mists part! You see a vision of a fellow explorer:" 
@@ -223,5 +214,7 @@ void SeerDialog::on_itemButton_clicked()
 void SeerDialog::on_exitButton_clicked()
 {
     QMessageBox::information(this, "Exit", "Exiting the Seer!");
-    accept(); // Closes the dialog with QDialog::Accepted result
+    accept();
 }
+
+SeerDialog::~SeerDialog(){}

@@ -3,7 +3,6 @@
 #include <QJsonDocument>
 #include <QJsonArray>
 #include <QDebug>
-
 // Static instance for singleton
 EventManager* s_instance = nullptr;
 

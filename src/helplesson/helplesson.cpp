@@ -1,5 +1,5 @@
 #include "helplesson.h"
-#include <QPushButton> // Not strictly needed, removed.
+#include <QPushButton>
 #include <QAction>
 #include <QDebug>
 #include <QTextDocument>
@@ -8,16 +8,13 @@
 #include <QToolBar> // Added for forward declaration in H file
 #include <QLabel>
 #include <QTextBrowser>
-
 // Use anonymous namespace for utility functions if needed, but keeping them as class methods for now.
-
 HelpLessonDialog::HelpLessonDialog(QWidget *parent)
     : QDialog(parent)
 {
     // Use tr() for user-visible strings
     setWindowTitle(tr("Mordor HelpLesson"));
     resize(700, 600);
-    
     // Set 'this' as the parent for the mainLayout and use it directly.
     QVBoxLayout *mainLayout = new QVBoxLayout(this);
     mainLayout->setContentsMargins(0, 0, 0, 0);
@@ -27,16 +24,9 @@ HelpLessonDialog::HelpLessonDialog(QWidget *parent)
     
     QWidget *contentArea = createContentArea();
     mainLayout->addWidget(contentArea);
-    
     // In Qt 5/6, prefer QPalette/Q_PROPERTY styles over global stylesheets for simple properties.
     // However, keeping the stylesheet for the requested look-and-feel.
     setStyleSheet("QDialog { background-color: #f0f0f0; }");
-}
-
-HelpLessonDialog::~HelpLessonDialog()
-{
-    // QDialog is a QWidget, so its children (like the layouts and widgets)
-    // are automatically deleted upon destruction due to the parent-child mechanism.
 }
 
 QToolBar* HelpLessonDialog::createToolBar()
@@ -44,18 +34,12 @@ QToolBar* HelpLessonDialog::createToolBar()
     QToolBar *toolbar = new QToolBar(this);
     // Keep stylesheet for custom look
     toolbar->setStyleSheet("QToolBar { background-color: #e5e5e5; border-bottom: 1px solid #c0c0c0; }");
-
     // Add standard navigation and content actions
     toolbar->addAction(tr("Contents"));
     toolbar->addAction(tr("Search"));
     toolbar->addAction(tr("Back")); // History Back
     toolbar->addAction(tr("Forward")); // Renaming >> to Forward for clarity
     toolbar->addAction(tr("History"));
-    
-    // Remove the redundant '<<' action as 'Back' covers history navigation.
-    // toolbar->addAction(tr("<<"));
-    // toolbar->addAction(tr(">>"));
-
     // Connect actionTriggered to the handler
     connect(toolbar, &QToolBar::actionTriggered, this, &HelpLessonDialog::handleToolbarAction);
     return toolbar;
@@ -67,7 +51,6 @@ QWidget* HelpLessonDialog::createContentArea()
     // Use 'container' as the parent for the layout for automatic management
     QHBoxLayout *hLayout = new QHBoxLayout(container); 
     hLayout->setContentsMargins(10, 10, 10, 10); 
-
     // --- Implementation for m_dwarfImageLabel ---
     // Ensure 'this' (the dialog) is not the parent of inner widgets if 'container' is the intended parent.
     // Giving 'container' as parent ensures automatic deletion when 'container' is deleted.
@@ -78,25 +61,20 @@ QWidget* HelpLessonDialog::createContentArea()
     m_dwarfImageLabel->setFixedWidth(150);
     
     hLayout->addWidget(m_dwarfImageLabel);
-    // ----------------------------------------------------------------------
-    
+    // ----------------------------------------------------------------------    
     m_textEdit = new QTextBrowser(container); // Use 'container' as parent
     m_textEdit->setReadOnly(true);
     m_textEdit->setFrameShape(QFrame::NoFrame);
     m_textEdit->document()->setDefaultStyleSheet("a { color: blue; text-decoration: none; }");
     // Load the HTML content
     m_textEdit->setHtml(createHelpContentHtml());
-
     // Use the non-deprecated signal signature for anchorClicked
     connect(m_textEdit, &QTextBrowser::anchorClicked,
             this, &HelpLessonDialog::handleAnchorClicked);
-    
     // Add the QTextBrowser to the right side, giving it stretch priority (1)
     hLayout->addWidget(m_textEdit, 1);
-    
     return container;
 }
-
 // NOTE: Fix the duplicated IDs: 'createchar' was used for character creation and several spell sections.
 // Renaming the spell sections to unique, specific IDs.
 QString HelpLessonDialog::createHelpContentHtml()
@@ -834,7 +812,6 @@ void HelpLessonDialog::handleToolbarAction(QAction *action)
 {
     QString text = action->text();
     qDebug() << "Toolbar action triggered: " << text;
-    
     // Check against the translated strings
     if (text == tr("Back")) {
         m_textEdit->backward();
@@ -851,5 +828,6 @@ void HelpLessonDialog::handleToolbarAction(QAction *action)
         // Implement search dialog if needed
         qDebug() << "Search action clicked. Needs implementation.";
     }
-    // Note: The '<<' was removed from createToolBar, so no need to handle it here.
 }
+
+HelpLessonDialog::~HelpLessonDialog(){}

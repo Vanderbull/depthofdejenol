@@ -15,7 +15,6 @@ class UpdateDialog : public QDialog
 public:
     explicit UpdateDialog(QWidget *parent = nullptr);
     ~UpdateDialog() override;
-
     // Manifest URL to check (example: https://example.com/depthofdejenol/manifest.json)
     void setManifestUrl(const QUrl &url);
 
@@ -24,7 +23,6 @@ private slots:
     void onUpdateAvailable(const QString &newVersion, const QString &notes, const QUrl &patchUrl, const QByteArray &sha256Hex);
     void onNoUpdate();
     void onCheckingFailed(const QString &reason);
-
     void onDownloadClicked();
     void onDownloadProgress(qint64, qint64);
     void onDownloadFinished(bool ok, const QString &localFilePath, const QString &errorMessage);

@@ -74,7 +74,6 @@ private slots:
     void on_mapButton_clicked();
     void on_pickupButton_clicked();
     void on_dropButton_clicked();
-    //void on_fightButton_clicked();
     void on_spellButton_clicked();
     void on_takeButton_clicked();
     void on_openButton_clicked();
@@ -122,10 +121,6 @@ private:
     QTimer *m_spawnTimer;           
     bool m_chestFound;
     MonsterAttitude m_currentMonsterAttitude;
-    // Character State Members (for GameState)
-    //QString m_partyLeaderName; 
-    //QString m_partyLeaderRace; 
-    //QString m_partyLeaderAlignment; 
     // UI Member Widgets
     QLabel *m_locationLabel;
     QLabel *m_compassLabel;
@@ -160,8 +155,6 @@ private:
     //void refreshHealthUI();
     void updateGoldLabel();
     PartyInfoDialog *m_partyInfoDialog;
-    // Party Management Member
-    //QTableWidget *m_partyTable;
     // Health Management Helper
     void updatePartyMemberHealth(int row, int damage);
     // Map generation/management
@@ -214,7 +207,7 @@ private:
     void processTreasureOpening();
     void keyPressEvent(QKeyEvent *event) override;
     QGraphicsScene* m_threeDScene;
-// ... other private members ...
+    // ... other private members ...
     QGraphicsView* m_graphicsView;   // Add this line
     void update3DView();
     void drawWireframeWall(int depth, bool left, bool right, bool front);

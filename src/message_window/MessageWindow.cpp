@@ -1,28 +1,23 @@
 #include "MessageWindow.h"
 #include <QDateTime> 
-#include <QApplication> // Optional: For logging startup/shutdown
+#include <QApplication>
 
 MessagesWindow::MessagesWindow(QWidget *parent)
     : QWidget(parent)
 {
     // Set the window title
     setWindowTitle("Messages Log");
-    
     // Set a fixed minimum size for usability
     setMinimumSize(400, 300);
-
     // Initialize the QTextEdit widget
     messageDisplay = new QTextEdit(this);
     messageDisplay->setReadOnly(true); // Users shouldn't edit the log
     messageDisplay->setFontPointSize(9); // Smaller font for log data
-
     // Set up the layout
     QVBoxLayout *layout = new QVBoxLayout(this);
     layout->addWidget(messageDisplay);
-
     // Set the layout on the widget
     setLayout(layout);
-
     // Initial log message
     logMessage("Message Window Initialized.");
 }

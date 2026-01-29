@@ -55,11 +55,6 @@ BankDialog::BankDialog(QWidget *parent) :
     updateAccountStatus(getPlayerGold(), getBankedGold(), getFreeSlots());
 }
 
-BankDialog::~BankDialog()
-{
-    // Qt's parent-child hierarchy handles the deletion of widgets
-}
-
 void BankDialog::setupUi()
 {
     setWindowTitle("Bank Deposit/Withdrawal");
@@ -265,9 +260,9 @@ void BankDialog::on_partyPoolAndDepositButton_clicked()
         QMessageBox::warning(this, "Party Deposit", "There is no gold to pool.");
     }
 }
+
 void BankDialog::on_exitButton_clicked()
 {
-    // Use the standard reject() slot to close the dialog
     reject();
 }
 
@@ -343,3 +338,5 @@ void BankDialog::handleItemSelectionChanged()
         qDebug() << "Selected item:" << itemModel->data(index, Qt::DisplayRole).toString();
     }
 } 
+
+BankDialog::~BankDialog(){}

@@ -3,7 +3,7 @@
 
 #include <QDialog>
 #include "Map.h"
-#include "MapWidget.h" // Include the custom widget
+#include "MapWidget.h"
 
 class MapDialog : public QDialog
 {

@@ -38,7 +38,6 @@ void MapWidget::paintEvent(QPaintEvent* event) {
             }
         }
     }
-
     // Second, draw the wall overlay layer
     const auto& wallMap = m_mapEditor->getWallMap();
     painter.setPen(QPen(Qt::darkGray, 2));

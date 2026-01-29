@@ -4,7 +4,6 @@
 #include <QDialog>
 #include <QMap>
 #include <QString>
-
 // Forward declarations to avoid unnecessary includes in the header
 class QListWidget;
 class QTextEdit;

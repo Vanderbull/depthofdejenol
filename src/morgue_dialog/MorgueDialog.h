@@ -7,7 +7,6 @@
 
 class QLabel;
 class QPushButton;
-
 // Metadata for dead characters found in the save folder
 struct DeadCharacterInfo {
     QString fileName;

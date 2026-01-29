@@ -108,7 +108,7 @@ void LibraryDialog::setupUI()
             Q_UNUSED(previous);
             this->onItemSelected(current);
         });
- // Use the member pointer closeButton
+    // Use the member pointer closeButton
     connect(closeButton, &QPushButton::clicked, this, &LibraryDialog::onCloseClicked);
     // Use the member pointer addItemButton
     connect(addItemButton, &QPushButton::clicked, this, &LibraryDialog::onAddItemClicked); 
@@ -414,5 +414,5 @@ void LibraryDialog::onAddItemClicked()
 // Slot called when the 'Close' button is clicked
 void LibraryDialog::onCloseClicked() 
 {
-    this->accept(); // Closes the modal dialog
+    this->accept();
 }

@@ -19,7 +19,6 @@ protected:
         clients << client;
 
         qDebug() << "New connection from:" << client->peerAddress().toString();
-
         // Handle incoming packets
         connect(client, &QTcpSocket::readyRead, this, [this, client]() {
             while (client->canReadLine()) {
@@ -29,16 +28,13 @@ protected:
                 if (doc.isNull()) continue;
                 QJsonObject obj = doc.object();
                 QString action = obj["action"].toString();
-
                 // LOGIC: Player joins the city
                 if (action == "enter_zone") {
                     QString username = obj["username"].toString();
                     if (username.isEmpty()) username = "Unknown Hero";
-                    
                     // Store the name on the socket object for later reference
                     client->setProperty("username", username);
                     qDebug() << "Player Identified:" << username;
-
                     // 1. Tell the NEW player about everyone who is ALREADY here
                     for (QTcpSocket *otherClient : clients) {
                         if (otherClient != client && otherClient->property("username").isValid()) {
@@ -48,14 +44,12 @@ protected:
                             client->write(QJsonDocument(syncObj).toJson(QJsonDocument::Compact) + "\n");
                         }
                     }
-
                     // 2. Tell EVERYONE (including the new player) to add this player to the list
                     QJsonObject joinObj;
                     joinObj["type"] = "player_join";
                     joinObj["username"] = username;
                     broadcast(joinObj);
                 }
-                
                 // LOGIC: Chat relay
                 else if (action == "chat") {
                     QJsonObject chatObj;
@@ -66,7 +60,6 @@ protected:
                 }
             }
         });
-
         // Cleanup and Notify on Disconnect
         connect(client, &QTcpSocket::disconnected, this, [this, client]() {
             QString username = client->property("username").toString();
@@ -78,7 +71,6 @@ protected:
                 leaveObj["username"] = username;
                 broadcast(leaveObj);
             }
-
             qDebug() << "Player disconnected:" << username << ". Online:" << clients.size();
             client->deleteLater();
         });
@@ -86,7 +78,6 @@ protected:
 
 private:
     QList<QTcpSocket*> clients;
-
     // Helper to send JSON to every connected player
     void broadcast(const QJsonObject &obj) {
         QByteArray data = QJsonDocument(obj).toJson(QJsonDocument::Compact) + "\n";

@@ -267,6 +267,4 @@ void ConfinementAndHoldingDialog::addGhostHoundOnExit()
     qDebug() << "Character exited dungeon: Ghost Hound added to Confinement stock.";
 }
 
-ConfinementAndHoldingDialog::~ConfinementAndHoldingDialog()
-{
-}
+ConfinementAndHoldingDialog::~ConfinementAndHoldingDialog(){}

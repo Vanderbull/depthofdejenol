@@ -1,7 +1,6 @@
 #pragma once
 #include <cmath>
 #include <algorithm>
-
 // Clamp utility for percentage limits
 inline double clamp(double value, double minval, double maxval) 
 {

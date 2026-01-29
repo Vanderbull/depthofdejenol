@@ -11,7 +11,7 @@
 #include <QGroupBox>
 #include <QMessageBox>
 
-#include "GameStateManager.h" // Include the GameStateManager header
+#include "GameStateManager.h"
 
 class GuildsDialog : public QDialog
 {

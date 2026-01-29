@@ -159,5 +159,5 @@ void LibraryDialog::onCategoryChanged(const QString &categoryName)
 // Slot called when the 'Close' button is clicked
 void LibraryDialog::onCloseClicked() 
 {
-    this->accept(); // Closes the modal dialog
+    this->accept();
 }

@@ -1,5 +1,3 @@
-// In your header file (e.g., SpellEnums.h)
-
 #include <QObject>
 
 class SpellEnums : public QObject
