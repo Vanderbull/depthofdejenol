@@ -3,7 +3,7 @@ name: Qt 6 Production Release
 on:
   push:
     branches: [ "main", "develop" ]
-    tags: ["v*"] # Professional standard: trigger real releases via tags
+    tags: ["v*"]
   pull_request:
     branches: [ "main" ]
   workflow_dispatch:
@@ -11,7 +11,7 @@ on:
     - cron: '0 10 * * 5'
 
 permissions:
-  contents: write # Essential for creating releases
+  contents: write
 
 jobs:
   build:
@@ -22,7 +22,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          lfs: true # Crucial for game assets
+          lfs: true
 
       - name: Install Qt 6 & Dependencies
         run: |
@@ -32,20 +32,19 @@ jobs:
       - name: Configure and Compile
         run: |
           qmake6
-          make -j$(nproc) # Faster builds using all available cores
+          make -j$(nproc)
 
-      # --- NEW: Stage the binary for the release job ---
+      # --- Upload the specific game_menu binary ---
       - name: Upload Build Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: game-binary
-          path: | 
-            YOUR_BINARY_NAME
-            # Add any assets/folders needed to run the game here
+          name: linux-binary
+          # This assumes game_menu is created in the root directory
+          path: game_menu
+          if-no-files-found: error # Fails the build if the binary wasn't created
 
   release:
     needs: build
-    # Only create a release if a tag was pushed (e.g., v1.0.1)
     if: startsWith(github.ref, 'refs/tags/')
     runs-on: ubuntu-latest
     
@@ -53,15 +52,19 @@ jobs:
       - name: Download Artifact
         uses: actions/download-artifact@v4
         with:
-          name: game-binary
+          name: linux-binary
 
       - name: Package Release Assets
-        run: tar -czvf game-linux-x64.tar.gz *
+        run: |
+          # Grant execution permissions just in case
+          chmod +x game_menu
+          # Package into a compressed tarball
+          tar -czvf game_menu_linux_x64.tar.gz game_menu
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          files: game-linux-x64.tar.gz
+          files: game_menu_linux_x64.tar.gz
           generate_release_notes: true
           draft: false
           prerelease: false
