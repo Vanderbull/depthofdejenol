@@ -14,10 +14,9 @@
 ![Memory](https://img.shields.io/badge/Potion-Memory%20Safety-EC2F2F?style=for-the-badge&logo=flask&logoColor=white)
 ![Optimization](https://img.shields.io/badge/Potion-High%20FPS-2ECC71?style=for-the-badge&logo=speedtest&logoColor=white)
 ![Assets](https://img.shields.io/badge/Potion-Asset%20Mana-3498DB?style=for-the-badge&logo=liquity&logoColor=white)
+[![Quest Status](https://img.shields.io/github/actions/workflow/status/Vanderbull/depthofdejenol/build.yaml?label=QUEST%20STATUS&logo=github&style=for-the-badge)](https://github.com/Vanderbull/depthofdejenol/actions)
 
 </div>
-
-[![Qt 6 Build & Compile](https://github.com/Vanderbull/depthofdejenol/actions/workflows/build.yaml/badge.svg)](https://github.com/Vanderbull/depthofdejenol/actions/workflows/build.yaml)
 
 <img width="1019" height="216" alt="title_banner" src="https://github.com/user-attachments/assets/555af4ae-3b9a-442d-8d4d-8bd12da5f87f" />
 <img width="1404" height="515" alt="races_banner" src="https://github.com/user-attachments/assets/84a36ce2-efab-49fe-8c1d-a92310ec23ba" />
@@ -44,7 +43,6 @@ For more details, see: [Mdata1.mdr documentation](https://dejenol.com/index.php?
 <div align="center">
 
 [![Quest Status](https://img.shields.io/github/actions/workflow/status/Vanderbull/depthofdejenol/build.yaml?label=QUEST%20STATUS&logo=github&style=for-the-badge)](https://github.com/Vanderbull/depthofdejenol/actions)
-![Graphics](https://img.shields.io/badge/Visuals-OpenGL-gold?style=for-the-badge&logo=opengl&logoColor=white)
 ![Realm](https://img.shields.io/badge/Realm-Debian%2013-red?style=for-the-badge&logo=debian&logoColor=white)
 
 </div>
