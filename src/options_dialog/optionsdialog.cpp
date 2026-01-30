@@ -1,5 +1,4 @@
 #include "optionsdialog.h"
-
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QGridLayout>
@@ -91,7 +90,7 @@ bool backupFilesToDateSubfolder(const QString& sourceDirPath) {
 
 OptionsDialog::OptionsDialog(QWidget *parent) : QDialog(parent) {
     setWindowTitle("Options");
-    setFixedSize(550, 450); // Adjust size to match the screenshot
+    setFixedSize(650, 550);
     setupUi();
     // Connect the buttons to their slots
     connect(okButton, &QPushButton::clicked, this, &OptionsDialog::onOkClicked);
@@ -200,7 +199,6 @@ void OptionsDialog::setupUi()
 }
 
 void OptionsDialog::onOkClicked() {
-    // Logic to save settings
     accept();
 }
 
@@ -209,24 +207,11 @@ void OptionsDialog::onCancelClicked() {
 }
 
 void OptionsDialog::onDefaultClicked() {
-    // Logic to reset settings to default
-    // For example: noPartySoundCheckBox->setChecked(false);
-// IMPORTANT: Replace this with the actual path to the folder you want to backup
-    // For this example, we'll use a relative path that points to a folder 
-    // named "my_source_folder" in the application's current working directory.
     QString folderToBackup = "."; 
 
-    // Note: For a real-world application, you should use absolute paths 
-    // (e.g., QDir::homePath() + "/Documents/Data") or ensure the relative path is correct.
-
-    // --- You would call the function here in a real application ---
-    // backupFilesToSubfolder(folderToBackup);
-
-    // --- Self-Contained Example Setup (for testing/demonstration) ---
-    // This section creates a dummy folder and some files to show the function working.
     QDir testDir(folderToBackup);
     if (!testDir.exists()) {
-        testDir.mkpath("."); // Create the test folder
+        testDir.mkpath(".");
     }
 
     qDebug() << "--- Starting Backup Operation ---";
@@ -238,3 +223,4 @@ void OptionsDialog::onDefaultClicked() {
 }
 
 OptionsDialog::~OptionsDialog() {}
+
