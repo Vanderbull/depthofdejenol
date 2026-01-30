@@ -6,6 +6,8 @@
 #include <QPushButton>
 #include <QCheckBox>
 #include <QSlider>
+#include <QFont>
+#include <QFontDialog>
 
 #include "GameStateManager.h"
 
@@ -26,6 +28,10 @@ private slots:
     void onCancelClicked();
     void onDefaultClicked();
     void onNoMusicToggled(bool checked);
+    void onBackupClicked();
+    void onRestoreClicked();
+    void onSelectProportionalFont();
+    void onSelectFixedFont();
 
 private:
     void setupUi();
@@ -47,6 +53,10 @@ private:
     QCheckBox *useSoundCanvasMIDICheckBox;
     // Font Settings
     QCheckBox *nonProportionalFontCheckBox;
+    QPushButton *propFontButton;
+    QPushButton *fixedFontButton;
+    QFont currentPropFont;
+    QFont currentFixedFont;
     // File Backups
     QLabel *lastBackupLabel;
     QPushButton *backupButton;

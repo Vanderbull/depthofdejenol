@@ -90,13 +90,19 @@ bool backupFilesToDateSubfolder(const QString& sourceDirPath) {
 
 OptionsDialog::OptionsDialog(QWidget *parent) : QDialog(parent) {
     setWindowTitle("Options");
-    setFixedSize(650, 550);
+    setFixedSize(850, 550);
+    // Set the default font values
+    currentPropFont = QFont("MS Sans Serif", 8); 
+    currentFixedFont = QFont("Courier New", 9); // Keeping your original Courier default
     setupUi();
     // Connect the buttons to their slots
     connect(okButton, &QPushButton::clicked, this, &OptionsDialog::onOkClicked);
     connect(cancelButton, &QPushButton::clicked, this, &OptionsDialog::onCancelClicked);
-    connect(defaultButton, &QPushButton::clicked, this, &OptionsDialog::onDefaultClicked);
     connect(noMusicCheckBox, &QCheckBox::toggled, this, &OptionsDialog::onNoMusicToggled);
+    connect(defaultButton, &QPushButton::clicked, this, &OptionsDialog::onDefaultClicked);
+    // Connect the new Backup/Restore buttons
+    connect(backupButton, &QPushButton::clicked, this, &OptionsDialog::onBackupClicked);
+    connect(restoreButton, &QPushButton::clicked, this, &OptionsDialog::onRestoreClicked);
 }
 
 void OptionsDialog::setupUi() 
@@ -126,17 +132,29 @@ void OptionsDialog::setupUi()
     gameSettingsLayout->addWidget(noAutosaveCheckBox, 3, 1);
     gameSettingsLayout->addWidget(noAutomapCursorBlinkCheckBox, 4, 0);
     topGrid->addWidget(gameSettingsBox, 0, 0);
+    
     // Font Settings Group
     QGroupBox *fontSettingsBox = new QGroupBox("Font Settings");
     QVBoxLayout *fontSettingsLayout = new QVBoxLayout(fontSettingsBox);
-    // Add font-related widgets here
-    fontSettingsLayout->addWidget(new QLabel("Non-Proportional Font"));
-    fontSettingsLayout->addWidget(new QLabel("Courier New (9)")); // Placeholder
+
     fontSettingsLayout->addWidget(new QLabel("Proportional Font"));
-    fontSettingsLayout->addWidget(new QLabel("MS Sans Serif (8)")); // Placeholder
+    
+    // Create the button and set its text to the default font name
+    propFontButton = new QPushButton(currentPropFont.family() + " (" + QString::number(currentPropFont.pointSize()) + ")");
+    fontSettingsLayout->addWidget(propFontButton);
+
+    fontSettingsLayout->addWidget(new QLabel("Non-Proportional Font"));
+    fixedFontButton = new QPushButton(currentFixedFont.family() + " (" + QString::number(currentFixedFont.pointSize()) + ")");
+    fontSettingsLayout->addWidget(fixedFontButton);
+
     defaultButton = new QPushButton("Default");
     fontSettingsLayout->addWidget(defaultButton, 0, Qt::AlignCenter);
+    
     topGrid->addWidget(fontSettingsBox, 0, 1);
+    // Connect font buttons
+    connect(propFontButton, &QPushButton::clicked, this, &OptionsDialog::onSelectProportionalFont);
+    connect(fixedFontButton, &QPushButton::clicked, this, &OptionsDialog::onSelectFixedFont); 
+
     // --- Combined Audio Settings Group ---
     QGroupBox *audioBox = new QGroupBox("Music & Sound Settings");
     QVBoxLayout *audioLayout = new QVBoxLayout(audioBox);
@@ -180,7 +198,7 @@ void OptionsDialog::setupUi()
     // File Backups Group
     QGroupBox *fileBackupsBox = new QGroupBox("File Backups");
     QVBoxLayout *fileBackupsLayout = new QVBoxLayout(fileBackupsBox);
-    lastBackupLabel = new QLabel("Last Backup was on 8/9/2014"); // Placeholder date
+    lastBackupLabel = new QLabel(""); // Placeholder date
     backupButton = new QPushButton("Backup");
     restoreButton = new QPushButton("Restore");
     fileBackupsLayout->addWidget(lastBackupLabel, 0, Qt::AlignCenter);
@@ -205,22 +223,97 @@ void OptionsDialog::onOkClicked() {
 void OptionsDialog::onCancelClicked() {
     reject();
 }
-
 void OptionsDialog::onDefaultClicked() {
-    QString folderToBackup = "."; 
+    // 1. Reset the font variables to the requested defaults
+    currentPropFont = QFont("MS Sans Serif", 8);
+    currentFixedFont = QFont("Courier New", 9);
 
-    QDir testDir(folderToBackup);
-    if (!testDir.exists()) {
-        testDir.mkpath(".");
+    // 2. Update the button labels to reflect the reset
+    propFontButton->setText(currentPropFont.family() + " (" + QString::number(currentPropFont.pointSize()) + ")");
+    fixedFontButton->setText(currentFixedFont.family() + " (" + QString::number(currentFixedFont.pointSize()) + ")");
+
+    // 3. (Optional) Apply the default font to the application immediately
+    // QGuiApplication::setFont(currentPropFont);
+
+    qDebug() << "Fonts reset to default: MS Sans Serif and Courier New";
+}
+
+/**
+ * @brief Restores files from the "backup/YYYY-MM-DD" subfolder back to the source directory.
+ */
+bool restoreFilesFromDateSubfolder(const QString& sourceDirPath) {
+    QString dateString = QDate::currentDate().toString("yyyy-MM-dd");
+    QString backupPath = sourceDirPath + "/backup/" + dateString;
+    QDir backupDir(backupPath);
+
+    if (!backupDir.exists()) {
+        qDebug() << "Error: No backup found for today at" << backupPath;
+        return false;
     }
 
-    qDebug() << "--- Starting Backup Operation ---";
-    bool success = backupFilesToDateSubfolder(folderToBackup);
-    qDebug() << "Operation result:" << (success ? "SUCCESS" : "FAILURE");
-    qDebug() << "--- Verification ---";
-    QDir finalBackupDir(testDir.absoluteFilePath("backup"));
-    qDebug() << "Files in backup folder:" << finalBackupDir.entryList(QDir::Files | QDir::NoDotAndDotDot);
+    QStringList files = backupDir.entryList(QDir::Files | QDir::NoDotAndDotDot);
+    bool allSuccessful = true;
+
+    for (const QString& fileName : files) {
+        QString src = backupDir.absoluteFilePath(fileName);
+        QString dest = QDir(sourceDirPath).absoluteFilePath(fileName);
+
+        if (QFile::exists(dest)) QFile::remove(dest);
+        if (QFile::copy(src, dest)) {
+            qDebug() << "Restored:" << fileName;
+        } else {
+            allSuccessful = false;
+        }
+    }
+    return allSuccessful;
 }
+
+// --- New Slot Implementations ---
+
+void OptionsDialog::onBackupClicked() {
+    qDebug() << "--- Starting Backup ---";
+    if (backupFilesToDateSubfolder(".")) {
+        lastBackupLabel->setText("Last Backup: " + QDate::currentDate().toString("yyyy-MM-dd"));
+    }
+}
+
+void OptionsDialog::onRestoreClicked() {
+    qDebug() << "--- Starting Restore ---";
+    if (restoreFilesFromDateSubfolder(".")) {
+        qDebug() << "Restore complete.";
+    }
+}
+void OptionsDialog::onSelectProportionalFont() {
+    bool ok;
+    QFont font = QFontDialog::getFont(&ok, currentPropFont, this, "Select Proportional Font");
+    if (ok) {
+        currentPropFont = font;
+        propFontButton->setText(font.family() + " (" + QString::number(font.pointSize()) + ")");
+        
+        // Apply to Game - Assuming GameStateManager handles global styling
+        // If you want to change the whole app:
+        // QGuiApplication::setFont(font); 
+        
+        qDebug() << "Proportional font updated to:" << font.family();
+    }
+}
+
+void OptionsDialog::onSelectFixedFont() {
+    bool ok;
+    // We add the 'Monospace' filter to help users pick a fixed-width font
+    QFontDialog dialog(currentFixedFont, this);
+    dialog.setWindowTitle("Select Fixed-Width Font");
+    
+    if (dialog.exec() == QDialog::Accepted) {
+        QFont font = dialog.selectedFont();
+        currentFixedFont = font;
+        fixedFontButton->setText(font.family() + " (" + QString::number(font.pointSize()) + ")");
+        
+        // Placeholder: GameStateManager::instance()->setGameFont(font);
+        qDebug() << "Fixed font updated to:" << font.family();
+    }
+}
+
 
 OptionsDialog::~OptionsDialog() {}
 
