@@ -11,60 +11,71 @@ permissions:
 
 jobs:
   cleanup:
-    name: Purge Old Drafts and Artifacts
+    name: Purge Old Data
     runs-on: ubuntu-latest
     
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
-      - name: Delete Drafts Older Than 7 Days
+      - name: Clean Old Drafts and Orphan Tags
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          # 1. Set the date 7 days ago
           THRESHOLD_DATE=$(date -d "7 days ago" +%Y-%m-%dT%H:%M:%SZ)
-          echo "Scanning for drafts created before: $THRESHOLD_DATE"
+          echo "Cleaning items created before: $THRESHOLD_DATE"
 
-          # 2. Get JSON data (more reliable than parsing text columns)
-          # This specifically asks for drafts only.
+          # 1. Handle actual Release Drafts first
           DRAFTS_JSON=$(gh release list --limit 100 --json tagName,isDraft,createdAt)
-
-          # 3. Process the JSON using 'jq' (pre-installed on runners)
           echo "$DRAFTS_JSON" | jq -c '.[] | select(.isDraft == true)' | while read -r release; do
             TAG=$(echo "$release" | jq -r '.tagName')
             CREATED_AT=$(echo "$release" | jq -r '.createdAt')
 
             if [[ "$CREATED_AT" < "$THRESHOLD_DATE" ]]; then
-              echo "!!! Found old draft: $TAG (Created: $CREATED_AT). Deleting..."
-              gh release delete "$TAG" --yes --cleanup-tag
-            else
-              echo "--- Keeping draft: $TAG (Too new: $CREATED_AT)"
+              echo "!!! Deleting old draft: $TAG"
+              # We use || true so if the tag is already gone, the script keeps running
+              gh release delete "$TAG" --yes --cleanup-tag || true
             fi
           done
 
-      - name: Delete Artifacts Older Than 7 Days
+          # 2. Handle Orphan Tags (Tags that aren't releases, like your v1e3c084)
+          # We list all tags and check their age
+          gh api repos/${{ github.repository }}/git/matching-refs/tags --paginate | jq -c '.[]' | while read -r ref; do
+            TAG_NAME=$(echo "$ref" | jq -r '.ref' | sed 's/refs\/tags\///')
+            SHA=$(echo "$ref" | jq -r '.object.sha')
+            
+            # Get commit date
+            COMMIT_DATE=$(gh api repos/${{ github.repository }}/commits/$SHA --json commit -q '.commit.committer.date' || echo "unknown")
+            
+            if [[ "$COMMIT_DATE" < "$THRESHOLD_DATE" && "$COMMIT_DATE" != "unknown" ]]; then
+              # Check if it has a release; if not, it's an orphan
+              if ! gh release view "$TAG_NAME" > /dev/null 2>&1; then
+                echo "!!! Deleting orphan tag: $TAG_NAME"
+                gh api -X DELETE repos/${{ github.repository }}/git/refs/tags/$TAG_NAME || true
+              fi
+            fi
+          done
+
+      - name: Delete Old Artifacts
         uses: actions/github-script@v7
         with:
           script: |
             const sevenDaysAgo = Date.now() - (7 * 24 * 60 * 60 * 1000);
-            const { data: { artifacts } } = await github.rest.actions.listArtifactsForRepo({
-              owner: context.repo.owner,
-              repo: context.repo.repo
-            });
-
-            if (artifacts.length === 0) {
-              console.log("No artifacts found.");
-            }
-
-            for (const artifact of artifacts) {
-              const createdAt = new Date(artifact.created_at).getTime();
-              if (createdAt < sevenDaysAgo) {
-                console.log(`Deleting expired artifact: ${artifact.name}`);
-                await github.rest.actions.deleteArtifact({
-                  owner: context.repo.owner,
-                  repo: context.repo.repo,
-                  artifact_id: artifact.id
-                });
+            try {
+              const { data: { artifacts } } = await github.rest.actions.listArtifactsForRepo({
+                owner: context.repo.owner,
+                repo: context.repo.repo
+              });
+              for (const artifact of artifacts) {
+                if (new Date(artifact.created_at).getTime() < sevenDaysAgo) {
+                  console.log(`Deleting artifact: ${artifact.name}`);
+                  await github.rest.actions.deleteArtifact({
+                    owner: context.repo.owner,
+                    repo: context.repo.repo,
+                    artifact_id: artifact.id
+                  });
+                }
               }
-            }
+            } catch (e) { console.log("Artifact cleanup skipped: " + e.message); }
