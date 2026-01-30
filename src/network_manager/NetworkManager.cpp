@@ -4,6 +4,9 @@
 #include <QJsonObject>   // Included here instead of the header
 #include <QVariantMap>   // Included here instead of the header
 #include <QDebug>
+#include <QVariant>
+#include <QMap>
+#include <QString>
 
 NetworkManager* NetworkManager::m_instance = nullptr;
 
