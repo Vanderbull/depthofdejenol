@@ -102,7 +102,53 @@ OptionsDialog::OptionsDialog(QWidget *parent) : QDialog(parent) {
     connect(defaultButton, &QPushButton::clicked, this, &OptionsDialog::onDefaultClicked);
     // Connect the new Backup/Restore buttons
     connect(backupButton, &QPushButton::clicked, this, &OptionsDialog::onBackupClicked);
+    // --- Connect Game Settings Checkboxes ---
+    connect(noPartySoundCheckBox, &QCheckBox::toggled, this, [](bool checked) {
+        qDebug() << "No Party Sound:" << checked;
+        // GameStateManager::instance()->setPartySound(!checked);
+    });
+
+    connect(noMsgDingCheckBox, &QCheckBox::toggled, this, [](bool checked) {
+        qDebug() << "No Msg Ding:" << checked;
+    });
+
+    connect(noHelpSoundCheckBox, &QCheckBox::toggled, this, [](bool checked) {
+        qDebug() << "No Help Sound:" << checked;
+    });
+
+    connect(noToolbarCheckBox, &QCheckBox::toggled, this, [](bool checked) {
+        qDebug() << "No Toolbar:" << checked;
+    });
+
+    connect(noAutomapCursorBlinkCheckBox, &QCheckBox::toggled, this, [](bool checked) {
+        qDebug() << "No Automap Blink:" << checked;
+    });
+
+    connect(no3DCheckBox, &QCheckBox::toggled, this, [](bool checked) {
+        qDebug() << "No 3D:" << checked;
+    });
+
+    connect(noStretchBltCheckBox, &QCheckBox::toggled, this, [](bool checked) {
+        qDebug() << "No StretchBlt:" << checked;
+    });
+
+    connect(noLoadAutomapCheckBox, &QCheckBox::toggled, this, [](bool checked) {
+        qDebug() << "No Load Automap:" << checked;
+    });
+
+    connect(noAutosaveCheckBox, &QCheckBox::toggled, this, [](bool checked) {
+        qDebug() << "No Autosave:" << checked;
+    });
+
+    // --- Connect Audio Settings Checkboxes ---
+    // Note: noMusicCheckBox is already connected to onNoMusicToggled in your original code
+
+    connect(noSoundFxCheckBox, &QCheckBox::toggled, this, [](bool checked) {
+        qDebug() << "No Sound FX:" << checked;
+        // GameStateManager::instance()->setSfxMuted(checked);
+    });
     connect(restoreButton, &QPushButton::clicked, this, &OptionsDialog::onRestoreClicked);
+
 }
 
 void OptionsDialog::setupUi() 
