@@ -2,13 +2,12 @@ name: Repo Maintenance
 
 on:
   schedule:
-    # Runs every Sunday at 00:00 UTC
     - cron: '0 0 * * 0'
-  workflow_dispatch: # Allows manual cleanup via the "Actions" tab
+  workflow_dispatch:
 
 permissions:
   contents: write
-  actions: write # Required to delete workflow artifacts
+  actions: write
 
 jobs:
   cleanup:
@@ -19,7 +18,7 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      # --- STEP 1: PURGE OLD DRAFTS ---
+      # --- STEP 1: PURGE OLD DRAFTS (Fixed for "Release Not Found" error) ---
       - name: Delete Drafts Older Than 7 Days
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -27,15 +26,25 @@ jobs:
           THRESHOLD_DATE=$(date -d "7 days ago" +%Y-%m-%dT%H:%M:%SZ)
           echo "Scanning for drafts created before: $THRESHOLD_DATE"
 
-          gh release list --limit 100 | grep -i "Draft" | while read -r line; do
-            TAG=$(echo "$line" | awk '{print $1}')
-            CREATED_AT=$(gh release view "$TAG" --json createdAt --template '{{.createdAt}}')
+          # Get the list of drafts first. || true prevents the script from crashing if none exist.
+          DRAFTS=$(gh release list --limit 100 | grep -i "Draft" || true)
 
-            if [[ "$CREATED_AT" < "$THRESHOLD_DATE" ]]; then
-              echo "Purging old draft: $TAG (Created: $CREATED_AT)"
-              gh release delete "$TAG" --yes --cleanup-tag
-            fi
-          done
+          if [ -z "$DRAFTS" ]; then
+            echo "No drafts found. Skipping cleanup."
+          else
+            echo "$DRAFTS" | while read -r line; do
+              # The tag is the first column in 'gh release list'
+              TAG=$(echo "$line" | awk '{print $1}')
+              
+              # Fetch creation date
+              CREATED_AT=$(gh release view "$TAG" --json createdAt --template '{{.createdAt}}' || echo "skip")
+
+              if [[ "$CREATED_AT" != "skip" && "$CREATED_AT" < "$THRESHOLD_DATE" ]]; then
+                echo "Purging old draft: $TAG (Created: $CREATED_AT)"
+                gh release delete "$TAG" --yes --cleanup-tag
+              fi
+            done
+          fi
 
       # --- STEP 2: PURGE OLD ARTIFACTS ---
       - name: Delete Artifacts Older Than 7 Days
@@ -46,20 +55,20 @@ jobs:
             const repo = context.repo.repo;
             const sevenDaysAgo = Date.now() - (7 * 24 * 60 * 60 * 1000);
 
-            const artifacts = await github.rest.actions.listArtifactsForRepo({
-              owner,
-              repo,
-              per_page: 100
-            });
+            try {
+              const artifacts = await github.rest.actions.listArtifactsForRepo({
+                owner,
+                repo,
+                per_page: 100
+              });
 
-            for (const artifact of artifacts.data.artifacts) {
-              const createdAt = new Date(artifact.created_at).getTime();
-              if (createdAt < sevenDaysAgo) {
-                console.log(`Deleting expired artifact: ${artifact.name} (ID: ${artifact.id})`);
-                await github.rest.actions.deleteArtifact({
-                  owner,
-                  repo,
-                  artifact_id: artifact.id,
-                });
+              for (const artifact of artifacts.data.artifacts) {
+                const createdAt = new Date(artifact.created_at).getTime();
+                if (createdAt < sevenDaysAgo) {
+                  console.log(`Deleting expired artifact: ${artifact.name} (ID: ${artifact.id})`);
+                  await github.rest.actions.deleteArtifact({ owner, repo, artifact_id: artifact.id });
+                }
               }
+            } catch (e) {
+              console.log("No artifacts found or error fetching them: " + e.message);
             }
