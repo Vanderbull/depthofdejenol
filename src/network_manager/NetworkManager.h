@@ -3,6 +3,10 @@
 
 #include <QObject>
 #include <QAbstractSocket>
+#include <QVariant>
+#include <QMap>
+#include <QString>
+
 
 // Forward declarations to reduce header weight
 class QTcpSocket;
