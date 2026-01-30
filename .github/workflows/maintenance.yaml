@@ -24,40 +24,39 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          # 1. Set Threshold
+          # 1. Set Threshold (7 days ago)
           THRESHOLD_DATE=$(date -d "7 days ago" +%Y-%m-%dT%H:%M:%SZ)
+          THRESHOLD_SEC=$(date -d "$THRESHOLD_DATE" +%s)
           echo "Cleaning items created before: $THRESHOLD_DATE"
 
-          # 2. Get all Draft Releases
-          # We delete ONLY the release object first (no --cleanup-tag yet)
-          DRAFTS_JSON=$(gh release list --limit 100 --json tagName,isDraft,createdAt)
-          
-          echo "$DRAFTS_JSON" | jq -c '.[] | select(.isDraft == true)' | while read -r release; do
+          # 2. Delete Release Drafts
+          # Note: gh release list DOES support --json
+          gh release list --limit 100 --json tagName,isDraft,createdAt | jq -c '.[] | select(.isDraft == true)' | while read -r release; do
             TAG=$(echo "$release" | jq -r '.tagName')
             CREATED_AT=$(echo "$release" | jq -r '.createdAt')
-
+            
             if [[ "$CREATED_AT" < "$THRESHOLD_DATE" ]]; then
               echo "Purging release draft: $TAG"
-              # Delete the release but DON'T touch the tag here to avoid 422 errors
               gh release delete "$TAG" --yes || true
             fi
           done
 
-          # 3. Clean up ALL orphaned or old tags (the actual vXXXXXXX tags)
-          # This handles both the tags left behind by drafts and your push-tags
+          # 3. Delete Old Orphaned Tags
+          # gh api returns JSON by default, no --json flag needed
           gh api repos/${{ github.repository }}/git/matching-refs/tags --paginate | jq -c '.[]' | while read -r ref; do
             TAG_NAME=$(echo "$ref" | jq -r '.ref' | sed 's/refs\/tags\///')
             SHA=$(echo "$ref" | jq -r '.object.sha')
             
-            # Get the date the commit was actually made
-            COMMIT_DATE=$(gh api repos/${{ github.repository }}/commits/$SHA --json commit -q '.commit.committer.date' || echo "unknown")
+            # Fetch commit date using the correct gh api syntax
+            # Use jq to extract the date from the raw JSON response
+            COMMIT_DATE=$(gh api repos/${{ github.repository }}/commits/$SHA | jq -r '.commit.committer.date')
+            COMMIT_SEC=$(date -d "$COMMIT_DATE" +%s)
             
-            if [[ "$COMMIT_DATE" < "$THRESHOLD_DATE" && "$COMMIT_DATE" != "unknown" ]]; then
-              # Final check: Don't delete it if it's attached to a real (non-draft) release
+            if [ "$COMMIT_SEC" -lt "$THRESHOLD_SEC" ]; then
+              # Only delete if it doesn't belong to a non-draft release
               if ! gh release view "$TAG_NAME" > /dev/null 2>&1; then
                 echo "Deleting old/orphaned tag: $TAG_NAME"
-                # Use the API directly for deletion; the || true ensures the script continues on 422/404
-                gh api -X DELETE "repos/${{ github.repository }}/git/refs/tags/$TAG_NAME" || echo "Tag $TAG_NAME already gone."
+                gh api -X DELETE "repos/${{ github.repository }}/git/refs/tags/$TAG_NAME" || echo "Skip: $TAG_NAME"
               fi
             fi
           done
