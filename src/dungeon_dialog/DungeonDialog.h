@@ -6,11 +6,11 @@
 #include <QGraphicsView>
 #include <QMap>
 #include <QImage>
-#include <QTimer>
-#include <QLabel>
-#include <QListWidget>
+//#include <QTimer>
+//#include <QLabel>
+//#include <QListWidget>
 #include <QKeyEvent>
-#include <QPushButton>
+//#include <QPushButton>
 #include <QSet>
 #include <QPair>
 #include <QTableWidget>
@@ -22,6 +22,18 @@
 #include "../event/EventManager.h"
 #include "../../GameStateManager.h"
 #include "MiniMapDialog.h"
+
+// Forward declarations
+//class InventoryDialog;
+//class PartyInfoDialog;
+//class MinimapDialog;
+class QGraphicsScene;
+class QGraphicsView;
+class QLabel;
+class QPushButton;
+class QListWidget;
+class QTimer;
+
 // Define MAP_SIZE here to resolve initialization errors in the class definition
 const int MAP_SIZE = 30; 
 struct TilePos {

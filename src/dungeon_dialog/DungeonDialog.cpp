@@ -22,6 +22,10 @@
 #include <QGraphicsPolygonItem>
 #include <QScreen>
 #include <QGuiApplication>
+#include <QGraphicsScene>
+#include <QGraphicsView>
+
+
 // Constants that depend on MAP_SIZE (which is now in the header)
 const int TILE_SIZE = 10;
 const int MAP_WIDTH_PIXELS = MAP_SIZE * TILE_SIZE; 
