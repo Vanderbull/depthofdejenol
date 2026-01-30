@@ -72,7 +72,7 @@ Every great adventurer needs to understand the laws of the world they inhabit. I
 | Quest | Status | Reward |
 | :--- | :--- | :--- |
 | **The Foundation** | ✅ Complete | Basic Engine & Qt Window |
-| **Cleaning the dungeon** | 🏃 In Progress | Polishing stuff 
+| **Cleaning the dungeon** | 🏃 In Progress | Nicer looking game | 
 | **Dungeon Generation** | 🔒 Locked | Procedural Level Logic |
 | **The Final Boss** | 🔒 Locked | Release v1.0 |
 
