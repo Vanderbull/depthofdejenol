@@ -29,6 +29,10 @@ namespace GameConstants {
             {"Mage", "Ge'nal"}, {"Healer", "Theshal"}, {"Ninja", "Shadowblade"}
         };
     }
+    // Library Dialog
+    const QString CATEGORY_MAGIC = "Magic Books";
+    const QString CATEGORY_MONSTERS = "Creatures";
+    const QString CATEGORY_ITEMS = "Items";
 }
 
 #endif

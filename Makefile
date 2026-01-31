@@ -654,8 +654,8 @@ build/moc/moc_SenderWindow.cpp: src/sender_window/SenderWindow.h \
 	@echo moc src/sender_window/SenderWindow.h && /usr/lib/qt6/libexec/moc $(DEFINES) --include /home/rickard/Documents/GitHub/depthofdejenol/build/moc/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt6/mkspecs/linux-g++ -I/home/rickard/Documents/GitHub/depthofdejenol -I/home/rickard/Documents/GitHub/depthofdejenol/_PRO_FILE_PWD_/include -I/usr/include/x86_64-linux-gnu/qt6 -I/usr/include/x86_64-linux-gnu/qt6/QtWidgets -I/usr/include/x86_64-linux-gnu/qt6/QtMultimedia -I/usr/include/x86_64-linux-gnu/qt6/QtGui -I/usr/include/x86_64-linux-gnu/qt6/QtNetwork -I/usr/include/x86_64-linux-gnu/qt6/QtCore -I/usr/include/c++/15 -I/usr/include/x86_64-linux-gnu/c++/15 -I/usr/include/c++/15/backward -I/usr/lib/gcc/x86_64-linux-gnu/15/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include src/sender_window/SenderWindow.h -o build/moc/moc_SenderWindow.cpp
 
 build/moc/moc_library_dialog.cpp: src/library_dialog/library_dialog.h \
-		GameStateManager.h \
 		GameConstants.h \
+		GameStateManager.h \
 		character.h \
 		build/moc/moc_predefs.h \
 		/usr/lib/qt6/libexec/moc
@@ -926,8 +926,8 @@ build/obj/release/SenderWindow.o: src/sender_window/SenderWindow.cpp src/sender_
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/SenderWindow.o src/sender_window/SenderWindow.cpp
 
 build/obj/release/library_dialog.o: src/library_dialog/library_dialog.cpp src/library_dialog/library_dialog.h \
-		GameStateManager.h \
 		GameConstants.h \
+		GameStateManager.h \
 		character.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/library_dialog.o src/library_dialog/library_dialog.cpp
 

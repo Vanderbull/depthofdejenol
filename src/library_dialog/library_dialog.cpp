@@ -1,5 +1,4 @@
 #include "library_dialog.h"
-
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QListWidgetItem>
@@ -19,7 +18,12 @@ LibraryDialog::LibraryDialog(QWidget *parent) : QDialog(parent)
     loadKnowledge();
     setupUI();
     // Set default category to "Magic Books" and update the list
-    onCategoryChanged(CATEGORY_MAGIC);
+    //GameStateManager::instance()->stopMusic();
+    // Access using Namespace::ConstantName
+    QString category = GameConstants::CATEGORY_MAGIC;
+    
+    qDebug() << "Selected Category:" << category;
+    onCategoryChanged(GameConstants::CATEGORY_MAGIC);
     // Select the first item in the default list
     if (bookList->count() > 0) {
         bookList->setCurrentRow(0);
@@ -33,7 +37,7 @@ void LibraryDialog::setupUI()
     QVBoxLayout *mainLayout = new QVBoxLayout(this);
     // --- Header ---
     headerLabel = new QLabel("Mordor: The Library of Knowledge", this);
-    headerLabel->setStyleSheet("font-size: 20px; font-weight: bold; color: #FFD700; padding: 10px;");
+    //headerLabel->setStyleSheet("font-size: 20px; font-weight: bold; color: #FFD700; padding: 10px;");
     headerLabel->setAlignment(Qt::AlignCenter);
     mainLayout->addWidget(headerLabel);
     // --- Category and Search Layout ---
@@ -41,19 +45,19 @@ void LibraryDialog::setupUI()
     // Category Selection
     QHBoxLayout *categoryLayout = new QHBoxLayout();
     QLabel *categoryLabel = new QLabel("Knowledge Category:", this);
-    categoryLabel->setStyleSheet("color: #AFAFAF; font-weight: bold;");
+    //categoryLabel->setStyleSheet("color: #AFAFAF; font-weight: bold;");
     categoryComboBox = new QComboBox(this);
-    categoryComboBox->setStyleSheet("background-color: #3e2723; color: #FFFFFF; border: 1px solid #5D4037; padding: 5px;");
-    categoryComboBox->addItem(CATEGORY_MAGIC);
-    categoryComboBox->addItem(CATEGORY_MONSTERS);
-    categoryComboBox->addItem(CATEGORY_ITEMS);
+    //categoryComboBox->setStyleSheet("background-color: #3e2723; color: #FFFFFF; border: 1px solid #5D4037; padding: 5px;");
+    categoryComboBox->addItem(GameConstants::CATEGORY_MAGIC);
+    categoryComboBox->addItem(GameConstants::CATEGORY_MONSTERS);
+    categoryComboBox->addItem(GameConstants::CATEGORY_ITEMS);
     categoryLayout->addWidget(categoryLabel);
     categoryLayout->addWidget(categoryComboBox);
     topControlsLayout->addLayout(categoryLayout);
     // Search Field (New)
     searchField = new QLineEdit(this);
     searchField->setPlaceholderText("Search for Item, Spell, or Monster...");
-    searchField->setStyleSheet("background-color: #1a1a1a; color: #FFFFFF; border: 1px solid #5D4037; padding: 5px; border-radius: 4px;");
+    //searchField->setStyleSheet("background-color: #1a1a1a; color: #FFFFFF; border: 1px solid #5D4037; padding: 5px; border-radius: 4px;");
     searchField->setMaximumWidth(250);
     topControlsLayout->addStretch(1); // Push category left and search right
     topControlsLayout->addWidget(searchField); 
@@ -62,13 +66,13 @@ void LibraryDialog::setupUI()
     QHBoxLayout *contentLayout = new QHBoxLayout();
     // 1. List (Left side)
     bookList = new QListWidget(this);
-    bookList->setStyleSheet("background-color: #3e2723; color: #FFFFFF; border: 2px solid #5D4037; selection-background-color: #5D4037; font-size: 14px;");
+    //bookList->setStyleSheet("background-color: #3e2723; color: #FFFFFF; border: 2px solid #5D4037; selection-background-color: #5D4037; font-size: 14px;");
     bookList->setMaximumWidth(250);
     contentLayout->addWidget(bookList);
     // 2. Description Text (Right side)
     descriptionText = new QTextEdit(this);
     descriptionText->setReadOnly(true);
-    descriptionText->setStyleSheet("background-color: #121212; color: #AFAFAF; font-family: 'Consolas', monospace; border: 2px solid #5D4037; padding: 10px;");
+    //descriptionText->setStyleSheet("background-color: #121212; color: #AFAFAF; font-family: 'Consolas', monospace; border: 2px solid #5D4037; padding: 10px;");
     contentLayout->addWidget(descriptionText);
     mainLayout->addLayout(contentLayout);
     // --- Bottom Control Layout (Buttons and Count) ---
@@ -77,25 +81,25 @@ void LibraryDialog::setupUI()
     QHBoxLayout *buttonLayout = new QHBoxLayout();
     // Initialize member variable addItemButton
     addItemButton = new QPushButton("Add New Entry", this);
-    QString addButton = "QPushButton { background-color: #388E3C; color: #FFFFFF; border: 2px solid #2E7D32; border-radius: 8px; padding: 10px; }"
-                          "QPushButton:hover { background-color: #4CAF50; }";
-    addItemButton->setStyleSheet(addButton);
+    //QString addButton = "QPushButton { background-color: #388E3C; color: #FFFFFF; border: 2px solid #2E7D32; border-radius: 8px; padding: 10px; }"
+    //                      "QPushButton:hover { background-color: #4CAF50; }";
+    //addItemButton->setStyleSheet(addButton);
     addItemButton->setCursor(Qt::PointingHandCursor);
     buttonLayout->addWidget(addItemButton);
     // Initialize member variable closeButton
     closeButton = new QPushButton("Close Library", this);
     // FIX: Renamed local variable to avoid shadowing the member variable 'closeButton'
-    QString closeButtonStyle = "QPushButton { background-color: #3e2723; color: #FFFFFF; border: 2px solid #5D4037; border-radius: 8px; padding: 10px; }"
-                          "QPushButton:hover { background-color: #5d4037; }";
+    //QString closeButtonStyle = "QPushButton { background-color: #3e2723; color: #FFFFFF; border: 2px solid #5D4037; border-radius: 8px; padding: 10px; }"
+    //                      "QPushButton:hover { background-color: #5d4037; }";
     // Use the member pointer and the renamed string
-    closeButton->setStyleSheet(closeButtonStyle);
+    //closeButton->setStyleSheet(closeButtonStyle);
     closeButton->setCursor(Qt::PointingHandCursor);
     buttonLayout->addWidget(closeButton); 
     bottomLayout->addLayout(buttonLayout);
     // 2. Count Label
     // Initialize member variable countLabel
     countLabel = new QLabel(this); 
-    countLabel->setStyleSheet("color: #7FFF00; font-size: 13px; padding-top: 5px;");
+    //countLabel->setStyleSheet("color: #7FFF00; font-size: 13px; padding-top: 5px;");
     countLabel->setAlignment(Qt::AlignCenter);
     bottomLayout->addWidget(countLabel);
     mainLayout->addLayout(bottomLayout);
@@ -122,7 +126,7 @@ void LibraryDialog::setupUI()
     // Connect Search Field (New)
     connect(searchField, &QLineEdit::textChanged, this, &LibraryDialog::onSearchTextChanged);
     // Set dialog background style
-    setStyleSheet("QDialog { background-color: #212121; }");
+    //setStyleSheet("QDialog { background-color: #212121; }");
     setLayout(mainLayout);
 }
 /**
@@ -152,19 +156,56 @@ void LibraryDialog::loadKnowledge()
     magicMap["Resistant Magic"] = "Teaches defensive spells that provide temporary resistance or immunity to various damage types.";
     magicMap["Visual Magic"] = "Spells for improving sight in darkness, revealing hidden objects, or creating light sources.";
     magicMap["Protection Magic"] = "Focuses on enhancing armor class and providing a magical barrier against incoming physical and magical attacks.";
-    knowledgeBase[CATEGORY_MAGIC] = magicMap;
+    knowledgeBase[GameConstants::CATEGORY_MAGIC] = magicMap;
     // Creatures (Monsters)
     QMap<QString, QString> monsterMap;
     monsterMap["Goblin Shaman"] = "Weak but clever. Uses minor elemental spells. Avoid low-level encounters if injured.";
     monsterMap["Stone Golem"] = "Immune to physical damage from non-magical weapons. Highly resistant to elemental magic, weak to critical hits.";
     monsterMap["Giant Spider"] = "Fast and deadly. Its bite injects a powerful poison that causes rapid health loss. Requires a high-level cure.";
     monsterMap["Dark Imp"] = "A flying demon that relies on hit-and-run tactics. Highly resistant to Mind and Charm magic.";
-    knowledgeBase[CATEGORY_MONSTERS] = monsterMap;
-    // Items (Initial/Placeholder Data - will be overwritten/appended by CSV)
-    QMap<QString, QString> itemMap;
-    itemMap["Bronze Sword"] = "A simple, low-level weapon.";
-    itemMap["Mithril Sword"] = "Lightweight and magical, grants quick attacks.";
-    knowledgeBase[CATEGORY_ITEMS] = itemMap;
+    knowledgeBase[GameConstants::CATEGORY_MONSTERS] = monsterMap;
+    QFile monsterFile("MDATA5.csv");
+    QFile itemFile("MDATA3.csv");
+    QFile spellFile("MDATA2.csv");
+    if (monsterFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        QTextStream in(&monsterFile);
+        // Read and parse the header line
+        if(in.atEnd()) {
+            qDebug() << "Error: MDATA5.csv is empty.";
+            monsterFile.close();
+        }
+        QStringList header = in.readLine().trimmed().split(',');
+        QMap<QString, int> columnMap;
+        for(int i = 0; i < header.size(); ++i) {
+            columnMap[header[i].trimmed()] = i;
+        }
+    }
+    if (itemFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        QTextStream in(&itemFile);
+        // Read and parse the header line
+        if(in.atEnd()) {
+            qDebug() << "Error: MDATA3.csv is empty.";
+            itemFile.close();
+        }
+        QStringList header = in.readLine().trimmed().split(',');
+        QMap<QString, int> columnMap;
+        for(int i = 0; i < header.size(); ++i) {
+            columnMap[header[i].trimmed()] = i;
+        }
+    }
+    if (spellFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        QTextStream in(&spellFile);
+        // Read and parse the header line
+        if(in.atEnd()) {
+            qDebug() << "Error: MDATA2.csv is empty.";
+            spellFile.close();
+        }
+        QStringList header = in.readLine().trimmed().split(',');
+        QMap<QString, int> columnMap;
+        for(int i = 0; i < header.size(); ++i) {
+            columnMap[header[i].trimmed()] = i;
+        }
+    }
     // --- 2. Load Item Knowledge from CSV File (MDATA3.csv) ---
     QFile file("MDATA3.csv"); // **Updated filename here**
     if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {
@@ -183,23 +224,8 @@ void LibraryDialog::loadKnowledge()
         }
         // Define required indices for description formatting
         int nameIndex = columnMap.value("name", -1);
-        int IDIndex = columnMap.value("ID", -1);
-        int attIndex = columnMap.value("att", -1);
-        int defIndex = columnMap.value("def", -1);
-        int damageModIndex = columnMap.value("damageMod", -1);
-        //int typeIndex = columnMap.value("type", -1);
-        int StrReqIndex = columnMap.value("StrReq", -1);
-        int IntReqIndex = columnMap.value("IntReq", -1);
-        int WisReqIndex = columnMap.value("WisReq", -1);
-        int ConReqIndex = columnMap.value("ConReq", -1);
-        int ChaReqIndex = columnMap.value("ChaReq", -1);
-        int DexReqIndex = columnMap.value("DexReq", -1);
-        int priceIndex = columnMap.value("price", -1);
-        int rarityIndex = columnMap.value("rarity", -1);
-        int cursedIndex = columnMap.value("cursed", -1);
-        int typeNameIndex = columnMap.value("type", -1); // Use a cleaner name for type column
         // We need 'name' and 'ID' at minimum
-        if (nameIndex == -1 || IDIndex == -1) {
+        if (nameIndex == -1 || columnMap.value("ID",-1) == -1) {
             qDebug() << "Error: CSV is missing required 'name' or 'ID' columns. Cannot load item data.";
             file.close();
             return;
@@ -219,34 +245,46 @@ void LibraryDialog::loadKnowledge()
                 }
                 // --- Build the detailed description string ---
                 QString description;
-                description += QString("<b>ID:</b> %1 | ").arg(parts.value(IDIndex));
-                description += QString("<b>Type:</b> %1 | ").arg(parts.value(typeNameIndex));
-                description += QString("<b>Rarity:</b> %1<br>").arg(parts.value(rarityIndex));
-                description += QString("<b>Attack:</b> %1 | ").arg(parts.value(attIndex, "0"));
-                description += QString("<b>Defense:</b> %1 | ").arg(parts.value(defIndex, "0"));
-                description += QString("<b>Damage Mod:</b> %1<br>").arg(parts.value(damageModIndex, "0"));
+                description += QString("<b>ID new:</b> %1 ").arg(parts.value(columnMap.value("ID",-1)));
+                description += QString("<b>Type:</b> %1 | ").arg(parts.value(columnMap.value("type",-1)));
+                description += QString("<b>Rarity:</b> %1<br>").arg(parts.value(columnMap.value("rarity",-1)));
+                description += QString("<b>Attack:</b> %1 | ").arg(parts.value(columnMap.value("att",-1)));
+                description += QString("<b>Defense:</b> %1 | ").arg(parts.value(columnMap.value("def",-1)));
+                description += QString("<b>Damage Mod:</b> %1<br>").arg(parts.value(columnMap.value("damageMod",-1)));
                 // Requirements
                 QString requirements;
-                if (parts.value(StrReqIndex).toInt() > 0) requirements += QString("Str: %1 ").arg(parts.value(StrReqIndex));
-                if (parts.value(IntReqIndex).toInt() > 0) requirements += QString("Int: %1 ").arg(parts.value(IntReqIndex));
-                if (parts.value(WisReqIndex).toInt() > 0) requirements += QString("Wis: %1 ").arg(parts.value(WisReqIndex));
-                if (parts.value(ConReqIndex).toInt() > 0) requirements += QString("Con: %1 ").arg(parts.value(ConReqIndex));
-                if (parts.value(ChaReqIndex).toInt() > 0) requirements += QString("Cha: %1 ").arg(parts.value(ChaReqIndex));
-                if (parts.value(DexReqIndex).toInt() > 0) requirements += QString("Dex: %1 ").arg(parts.value(DexReqIndex));
+                if (parts.value(columnMap.value("StrReq",-1)).toInt() > 0) {
+                    requirements += QString("Str: %1 ").arg(parts.value(columnMap.value("StrReq",-1)));
+                }
+                if (parts.value(columnMap.value("IntReq",-1)).toInt() > 0) {
+                    requirements += QString("Int: %1 ").arg(parts.value(columnMap.value("IntReq",-1)));
+                }
+                if (parts.value(columnMap.value("WisReq",-1)).toInt() > 0) {
+                    requirements += QString("Wis: %1 ").arg(parts.value(columnMap.value("WisReq",-1)));
+                }
+                if (parts.value(columnMap.value("ConReq",-1)).toInt() > 0) {
+                    requirements += QString("Con: %1 ").arg(parts.value(columnMap.value("ConReq",-1)));
+                }
+                if (parts.value(columnMap.value("ChaReq",-1)).toInt() > 0) {
+                    requirements += QString("Cha: %1 ").arg(parts.value(columnMap.value("ChaReq",-1)));
+                }
+                if (parts.value(columnMap.value("DexReq",-1)).toInt() > 0) {
+                    requirements += QString("Dex: %1 ").arg(parts.value(columnMap.value("DexReq",-1)));
+                }
                 if (!requirements.isEmpty()) {
                     description += QString("<b>Requirements:</b> %1<br>").arg(requirements.trimmed());
                 } else {
                     description += QString("<b>Requirements:</b> None<br>");
                 }
                 // Price and Cursed status
-                description += QString("<b>Price:</b> %1 gold | ").arg(parts.value(priceIndex, "0"));
-                if (parts.value(cursedIndex).toInt() == 1) {
+                description += QString("<b>Price:</b> %1 gold | ").arg(parts.value(columnMap.value("price",-1)));
+                if (parts.value(columnMap.value("cursed",-1)).toInt() == 1) {
                     description += "<b><span style='color:red;'>CURSED!</span></b>";
                 } else {
                     description += "Not cursed.";
                 }
                 // Insert the new entry.
-                knowledgeBase[CATEGORY_ITEMS].insert(itemName, description);
+                knowledgeBase[GameConstants::CATEGORY_ITEMS].insert(itemName, description);
             } else {
                 qDebug() << "Warning: Corrupt line in CSV (too few columns) on line" << rowCount << ":" << line;
             }
@@ -296,9 +334,9 @@ void LibraryDialog::updateList(const QString &category)
  */
 void LibraryDialog::updateCountLabel() 
 {
-    int spellCount = knowledgeBase.value(CATEGORY_MAGIC).count();
-    int monsterCount = knowledgeBase.value(CATEGORY_MONSTERS).count();
-    int itemCount = knowledgeBase.value(CATEGORY_ITEMS).count();
+    int spellCount = knowledgeBase.value(GameConstants::CATEGORY_MAGIC).count();
+    int monsterCount = knowledgeBase.value(GameConstants::CATEGORY_MONSTERS).count();
+    int itemCount = knowledgeBase.value(GameConstants::CATEGORY_ITEMS).count();
     QString text = QString("Library Contents: <b>%1</b> Spells | <b>%2</b> Creatures | <b>%3</b> Items")
         .arg(spellCount)
         .arg(monsterCount)
@@ -316,7 +354,7 @@ void LibraryDialog::onItemSelected(QListWidgetItem *item)
         description = knowledgeBase.value(currentCategory).value(itemName, "The details of this item are lost to time.");
     }
     // Format the text for the QTextEdit
-    QString formattedText = QString("<h2>%1</h2><p style='color:#E0E0E0;'>%2</p>")
+    QString formattedText = QString("<h2>%1</h2><p>%2</p>")
                                 .arg(itemName)
                                 .arg(description);
     descriptionText->setHtml(formattedText);
@@ -349,8 +387,7 @@ void LibraryDialog::onSearchTextChanged(const QString &searchText)
                 firstVisible = bookList->item(i);
                 break;
             }
-        }
-        
+        }  
         if (firstVisible) {
             bookList->setCurrentItem(firstVisible);
             onItemSelected(firstVisible);
@@ -365,7 +402,8 @@ void LibraryDialog::onAddItemClicked()
 {
     bool ok;    
     // 1. Get Category
-    QStringList categories = {CATEGORY_MAGIC, CATEGORY_MONSTERS, CATEGORY_ITEMS};
+    QStringList categories = {GameConstants::CATEGORY_MAGIC, GameConstants
+        ::CATEGORY_MONSTERS, GameConstants::CATEGORY_ITEMS};
     QString selectedCategory = QInputDialog::getItem(this, 
         tr("Add New Entry"), 
         tr("Select Category:"), 

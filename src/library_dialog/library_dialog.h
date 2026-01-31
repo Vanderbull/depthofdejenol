@@ -1,6 +1,7 @@
 #ifndef LIBRARY_DIALOG_H
 #define LIBRARY_DIALOG_H
 
+#include "GameConstants.h"
 #include <QDialog>
 #include <QMap>
 #include <QString>
@@ -10,11 +11,11 @@
 #include <QLabel>
 #include <QPushButton>
 #include <QLineEdit>
-#include "GameStateManager.h" // Include the GameStateManager header
+#include "GameStateManager.h"
 // Define Category Constants
-const QString CATEGORY_MAGIC = "Magic Books";
-const QString CATEGORY_MONSTERS = "Creatures";
-const QString CATEGORY_ITEMS = "Items";
+//const QString CATEGORY_MAGIC = "Magic Books";
+//const QString CATEGORY_MONSTERS = "Creatures";
+//const QString CATEGORY_ITEMS = "Items";
 
 class LibraryDialog : public QDialog 
 {
