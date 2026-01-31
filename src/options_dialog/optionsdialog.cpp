@@ -329,6 +329,7 @@ void OptionsDialog::onRestoreClicked() {
         qDebug() << "Restore complete.";
     }
 }
+
 void OptionsDialog::onSelectProportionalFont() {
     bool ok;
     QFont font = QFontDialog::getFont(&ok, currentPropFont, this, "Select Proportional Font");
@@ -336,17 +337,13 @@ void OptionsDialog::onSelectProportionalFont() {
         currentPropFont = font;
         propFontButton->setText(font.family() + " (" + QString::number(font.pointSize()) + ")");
         
-        // Apply to Game - Assuming GameStateManager handles global styling
-        // If you want to change the whole app:
-        // QGuiApplication::setFont(font); 
-        
+        // Push to Global Manager
+        GameStateManager::instance()->setProportionalFont(font);
         qDebug() << "Proportional font updated to:" << font.family();
     }
 }
 
 void OptionsDialog::onSelectFixedFont() {
-    bool ok;
-    // We add the 'Monospace' filter to help users pick a fixed-width font
     QFontDialog dialog(currentFixedFont, this);
     dialog.setWindowTitle("Select Fixed-Width Font");
     
@@ -355,7 +352,8 @@ void OptionsDialog::onSelectFixedFont() {
         currentFixedFont = font;
         fixedFontButton->setText(font.family() + " (" + QString::number(font.pointSize()) + ")");
         
-        // Placeholder: GameStateManager::instance()->setGameFont(font);
+        // Push to Global Manager
+        GameStateManager::instance()->setFixedFont(font);
         qDebug() << "Fixed font updated to:" << font.family();
     }
 }

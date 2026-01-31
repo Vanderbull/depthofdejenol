@@ -10,6 +10,10 @@
 #include <QMediaPlayer>
 #include <QAudioOutput>
 #include <QUrl>
+#include <QFont>
+#include <QGuiApplication>
+#include <QApplication>
+#include <QWidget>
 
 class GameStateManager : public QObject
 {
@@ -23,6 +27,10 @@ private:
     GameStateManager& operator=(const GameStateManager&) = delete;
 
 public:
+    void setProportionalFont(const QFont& font);
+    void setFixedFont(const QFont& font);
+    QFont getProportionalFont() const;
+    QFont getFixedFont() const;
     // --- Global Audio Methods ---
     void playMusic(const QString& fileName, bool loop = true);
     void stopMusic();
@@ -48,8 +56,11 @@ public:
     
 signals:
     void gameValueChanged(const QString& key, const QVariant& value);
+    void fontChanged(); // Notify all widgets to refresh their fonts
 
 private:
+    QFont m_proportionalFont;
+    QFont m_fixedFont;
     QMediaPlayer* m_globalPlayer = nullptr;
     QAudioOutput* m_globalAudioOutput = nullptr;
 

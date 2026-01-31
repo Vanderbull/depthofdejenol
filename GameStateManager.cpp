@@ -39,6 +39,8 @@ QMap<QString, int> GameStateManager::getConfinementStock() const
 GameStateManager::GameStateManager(QObject *parent)
     : QObject(parent)
 {
+    m_proportionalFont = QFont("MS Sans Serif", 8); 
+    m_fixedFont = QFont("Courier New", 9);
     // Initialize Global Audio
     m_globalPlayer = new QMediaPlayer(this);
     m_globalAudioOutput = new QAudioOutput(this);
@@ -1022,3 +1024,29 @@ void GameStateManager::processAgingConsequences()
         }
     }
 }
+
+void GameStateManager::setProportionalFont(const QFont& font) {
+//    m_proportionalFont = font;
+//    QGuiApplication::setFont(font); // Updates all standard widgets automatically
+//    emit fontChanged();
+m_proportionalFont = font;
+    
+    // Apply to the entire application instance
+    if (qApp) {
+        qApp->setFont(font);
+    }
+
+    // Force every top-level widget to update immediately
+    for (QWidget *widget : QApplication::allWidgets()) {
+        widget->setFont(font);
+        widget->update();
+    }
+    
+    emit fontChanged();
+}
+
+void GameStateManager::setFixedFont(const QFont& font) {
+    m_fixedFont = font;
+    emit fontChanged();
+}
+
