@@ -31,6 +31,16 @@ Platform: PC (Windows/Mac/Linux)
 
 Core Loop: Recruit heroes → Descend into the Depths → Kill monsters/Find loot → Return to the surface to level up/identify items.
 
+# Core Pillars
+
+The Grid: Movement is strictly tile-based and 90-degree turns.
+
+The Grind: Leveling should feel meaningful. The 1% stat increases matter.
+
+The Mystery: Hidden doors, teleporters, and pits must be mapped (or memorized) by the player.
+
+The Library: A massive database of items and monsters that rewards "collecting" knowledge.
+    
 ## Features
 
 - 401 Monsters (with Monster Editor tool and monster conversion utilities)
