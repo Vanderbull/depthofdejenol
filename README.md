@@ -21,9 +21,9 @@
 <img width="1019" height="216" alt="title_banner" src="https://github.com/user-attachments/assets/555af4ae-3b9a-442d-8d4d-8bd12da5f87f" />
 <img width="1404" height="515" alt="races_banner" src="https://github.com/user-attachments/assets/84a36ce2-efab-49fe-8c1d-a92310ec23ba" />
 
-# Black Lands: Depth of Dejenol
+# Black Land: Depth of Dejenol
 
-Title: Black Lands (Working Title)
+Title: Black Land (Working Title)
 
 Genre: Party-based Dungeon Crawler / RPG
 
@@ -46,7 +46,7 @@ Core Loop: Recruit heroes → Descend into the Depths → Kill monsters/Find loo
 
 For more details, see: [Mdata1.mdr documentation](https://dejenol.com/index.php?title=Mdata1.mdr)
 
-# ⚔️ Black Lands
+# ⚔️ Black Land
 
 <div align="center">
 
