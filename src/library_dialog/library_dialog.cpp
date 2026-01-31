@@ -134,166 +134,93 @@ void LibraryDialog::setupUI()
  * including loading data from a CSV file.
  */
 void LibraryDialog::loadKnowledge() 
-{    
-    // Clear existing knowledge base
-    knowledgeBase.clear();   
-    // --- 1. Hardcoded Knowledge (Base Data) ---
-    // Magic Books (Based on "The Teachings of Magic")
-    QMap<QString, QString> magicMap;
-    magicMap["Fire Magic"] = "Teaches spells focusing on destructive heat and flame. Essential for destroying creatures vulnerable to fire.";
-    magicMap["Cold Magic"] = "Focuses on chilling and freezing enemies. Used to slow opponents and deal devastating cold damage.";
-    magicMap["Electrical Magic"] = "Harnesses the power of lightning and shock. Effective against metal-clad or water-based enemies.";
-    magicMap["Mind Magic"] = "Involves psychic attacks and illusions. Used to confuse, frighten, and influence the minds of creatures.";
-    magicMap["Damage Magic"] = "General offensive spells that deal raw physical or magical damage to a single target.";
-    magicMap["Element Magic"] = "Spells that call upon the basic elements (Earth, Air, Water, Fire) to affect the environment or enemies.";
-    magicMap["Kill Magic"] = "Potentially devastating spells designed to instantly slay weak or powerful foes, often resisted by high-level creatures.";
-    magicMap["Charm Magic"] = "Spells used to pacify or temporarily control creatures, turning them into allies or stopping them from attacking.";
-    magicMap["Bind Magic"] = "Focuses on rooting or binding targets, preventing them from moving or attacking for a duration.";
-    magicMap["Heal Magic"] = "Essential spells for restoring health and curing status ailments like poison and disease.";
-    magicMap["Movement Magic"] = "Allows for teleportation or rapid travel within the depths, bypassing dangerous areas.";
-    magicMap["Banish Magic"] = "Used to forcibly remove certain types of enemies from the area or send them back to their origin.";
-    magicMap["Dispell Magic"] = "Spells designed to counter and nullify hostile magical effects and enchantments on the party or the environment.";
-    magicMap["Resistant Magic"] = "Teaches defensive spells that provide temporary resistance or immunity to various damage types.";
-    magicMap["Visual Magic"] = "Spells for improving sight in darkness, revealing hidden objects, or creating light sources.";
-    magicMap["Protection Magic"] = "Focuses on enhancing armor class and providing a magical barrier against incoming physical and magical attacks.";
-    knowledgeBase[GameConstants::CATEGORY_MAGIC] = magicMap;
-    // Creatures (Monsters)
-    QMap<QString, QString> monsterMap;
-    monsterMap["Goblin Shaman"] = "Weak but clever. Uses minor elemental spells. Avoid low-level encounters if injured.";
-    monsterMap["Stone Golem"] = "Immune to physical damage from non-magical weapons. Highly resistant to elemental magic, weak to critical hits.";
-    monsterMap["Giant Spider"] = "Fast and deadly. Its bite injects a powerful poison that causes rapid health loss. Requires a high-level cure.";
-    monsterMap["Dark Imp"] = "A flying demon that relies on hit-and-run tactics. Highly resistant to Mind and Charm magic.";
-    knowledgeBase[GameConstants::CATEGORY_MONSTERS] = monsterMap;
-    QFile monsterFile("MDATA5.csv");
-    QFile itemFile("MDATA3.csv");
-    QFile spellFile("MDATA2.csv");
-    if (monsterFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
-        QTextStream in(&monsterFile);
-        // Read and parse the header line
-        if(in.atEnd()) {
-            qDebug() << "Error: MDATA5.csv is empty.";
-            monsterFile.close();
-        }
-        QStringList header = in.readLine().trimmed().split(',');
-        QMap<QString, int> columnMap;
-        for(int i = 0; i < header.size(); ++i) {
-            columnMap[header[i].trimmed()] = i;
-        }
-    }
-    if (itemFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
-        QTextStream in(&itemFile);
-        // Read and parse the header line
-        if(in.atEnd()) {
-            qDebug() << "Error: MDATA3.csv is empty.";
-            itemFile.close();
-        }
-        QStringList header = in.readLine().trimmed().split(',');
-        QMap<QString, int> columnMap;
-        for(int i = 0; i < header.size(); ++i) {
-            columnMap[header[i].trimmed()] = i;
-        }
-    }
-    if (spellFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
-        QTextStream in(&spellFile);
-        // Read and parse the header line
-        if(in.atEnd()) {
-            qDebug() << "Error: MDATA2.csv is empty.";
-            spellFile.close();
-        }
-        QStringList header = in.readLine().trimmed().split(',');
-        QMap<QString, int> columnMap;
-        for(int i = 0; i < header.size(); ++i) {
-            columnMap[header[i].trimmed()] = i;
-        }
-    }
-    // --- 2. Load Item Knowledge from CSV File (MDATA3.csv) ---
-    QFile file("MDATA3.csv"); // **Updated filename here**
-    if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-        QTextStream in(&file);
-        // Read and parse the header line
-        if (in.atEnd()) {
-            qDebug() << "Error: CSV file is empty.";
-            file.close();
+{
+    knowledgeBase.clear();
+
+    // Helper lambda to load and parse CSV files into categories
+    auto loadCSV = [this](const QString& fileName, const QString& category, 
+                         std::function<QString(const QStringList&, const QMap<QString, int>&)> descFormatter) {
+        QFile file(fileName);
+        if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+            qDebug() << "Could not open" << fileName;
             return;
         }
-        // Read header and map columns
-        QStringList header = in.readLine().trimmed().split(','); 
+
+        QTextStream in(&file);
+        if (in.atEnd()) return;
+
+        // Parse Header
+        QStringList header = in.readLine().trimmed().split(',');
         QMap<QString, int> columnMap;
         for (int i = 0; i < header.size(); ++i) {
             columnMap[header[i].trimmed()] = i;
         }
-        // Define required indices for description formatting
-        int nameIndex = columnMap.value("name", -1);
-        // We need 'name' and 'ID' at minimum
-        if (nameIndex == -1 || columnMap.value("ID",-1) == -1) {
-            qDebug() << "Error: CSV is missing required 'name' or 'ID' columns. Cannot load item data.";
-            file.close();
-            return;
-        }
-        int rowCount = 0;
+
+        int nameIdx = columnMap.value("name", -1);
+        if (nameIdx == -1) return;
+
         while (!in.atEnd()) {
             QString line = in.readLine().trimmed();
-            if (line.isEmpty()) continue; 
-            rowCount++;
-            // Use simple comma-separated split. 
+            if (line.isEmpty()) continue;
+            
+            // Note: Simple split used; if names have commas, use QRegularExpression
             QStringList parts = line.split(',');
-            if (parts.size() > nameIndex) {
-                QString itemName = parts.value(nameIndex).trimmed();
-                if (itemName.isEmpty()) {
-                    qDebug() << "Warning: Skipping item with empty name on line" << rowCount;
-                    continue;
+            if (parts.size() > nameIdx) {
+                QString name = parts[nameIdx].trimmed();
+                if (!name.isEmpty()) {
+                    knowledgeBase[category].insert(name, descFormatter(parts, columnMap));
                 }
-                // --- Build the detailed description string ---
-                QString description;
-                description += QString("<b>ID new:</b> %1 ").arg(parts.value(columnMap.value("ID",-1)));
-                description += QString("<b>Type:</b> %1 | ").arg(parts.value(columnMap.value("type",-1)));
-                description += QString("<b>Rarity:</b> %1<br>").arg(parts.value(columnMap.value("rarity",-1)));
-                description += QString("<b>Attack:</b> %1 | ").arg(parts.value(columnMap.value("att",-1)));
-                description += QString("<b>Defense:</b> %1 | ").arg(parts.value(columnMap.value("def",-1)));
-                description += QString("<b>Damage Mod:</b> %1<br>").arg(parts.value(columnMap.value("damageMod",-1)));
-                // Requirements
-                QString requirements;
-                if (parts.value(columnMap.value("StrReq",-1)).toInt() > 0) {
-                    requirements += QString("Str: %1 ").arg(parts.value(columnMap.value("StrReq",-1)));
-                }
-                if (parts.value(columnMap.value("IntReq",-1)).toInt() > 0) {
-                    requirements += QString("Int: %1 ").arg(parts.value(columnMap.value("IntReq",-1)));
-                }
-                if (parts.value(columnMap.value("WisReq",-1)).toInt() > 0) {
-                    requirements += QString("Wis: %1 ").arg(parts.value(columnMap.value("WisReq",-1)));
-                }
-                if (parts.value(columnMap.value("ConReq",-1)).toInt() > 0) {
-                    requirements += QString("Con: %1 ").arg(parts.value(columnMap.value("ConReq",-1)));
-                }
-                if (parts.value(columnMap.value("ChaReq",-1)).toInt() > 0) {
-                    requirements += QString("Cha: %1 ").arg(parts.value(columnMap.value("ChaReq",-1)));
-                }
-                if (parts.value(columnMap.value("DexReq",-1)).toInt() > 0) {
-                    requirements += QString("Dex: %1 ").arg(parts.value(columnMap.value("DexReq",-1)));
-                }
-                if (!requirements.isEmpty()) {
-                    description += QString("<b>Requirements:</b> %1<br>").arg(requirements.trimmed());
-                } else {
-                    description += QString("<b>Requirements:</b> None<br>");
-                }
-                // Price and Cursed status
-                description += QString("<b>Price:</b> %1 gold | ").arg(parts.value(columnMap.value("price",-1)));
-                if (parts.value(columnMap.value("cursed",-1)).toInt() == 1) {
-                    description += "<b><span style='color:red;'>CURSED!</span></b>";
-                } else {
-                    description += "Not cursed.";
-                }
-                // Insert the new entry.
-                knowledgeBase[GameConstants::CATEGORY_ITEMS].insert(itemName, description);
-            } else {
-                qDebug() << "Warning: Corrupt line in CSV (too few columns) on line" << rowCount << ":" << line;
             }
         }
         file.close();
-        qDebug() << "Successfully loaded" << rowCount << "items from MDATA3.csv";
-    } else {
-        qDebug() << "Could not open MDATA3.csv. Using hardcoded item knowledge only.";
-    }
+    };
+
+    // 1. Load Monsters (MDATA5.csv)
+    loadCSV("tools/monsterconverter/data/MDATA5.csv", GameConstants::CATEGORY_MONSTERS, [](const QStringList& p, const QMap<QString, int>& m) {
+        return QString( "<br>att:</b> %1 | <b>def:</b> %2 | <b>id:</b> %3<br>"
+                        "<b>hits:</b> %4 | <b>numGroups:</b> %5 | <b>picID:</b> %6<br>"
+                        "<b>lockedChance:</b> %7 | <b>levelFound:</b> %8<br>"
+                        "<b>Resistances:</b> Fire:%9, Cold:%10, Electric:%11 Mind:%11 Poison:%12 Disease:%13 Magic:%14 Physical:%15 Weapon:%16 Spell:%17 Special:%18<br>"
+                        "<b>specialPropertyFlags: </b>%19<b>specialAttackFlags: </b>%20<b>spellFlags: </b>%21<b>chance: </b>%22<br>"
+                        "<b>boxChance0: </b>%23<b>boxChance1: </b>%24<b>boxChance2: </b>%25<br>"
+                        "<b>alignment: </b>%26<b>ingroup: </b>%27<b>goldFactor: </b>%28<b>trapFlags: </b>%29<b>guildlevel: </b>%30<br>"
+                        "<b>StatStr: </b>%31<b>StatInt: </b>%32<b>StatWis: </b>%33<b>StatCon: </b>%34<b>StatCha: </b>%35<b>StatDex: </b>%36<br>"
+                        "<b>type: </b>%37<b>damageMod: </b>%38<b>companionType: </b>%39<b>companionSpawnMode: </b>%40<b>companionID: </b>%41<br>"
+                        "<b>Item0: </b>%42<b>Item1: </b>%43<b>Item2: </b>%44<b>Item3: </b>%45<b>Item4: </b>%46<b>Item5: </b>%47<b>Item6: </b>%48<b>Item7: </b>%49<b>Item8: </b>%50<b>Item9: </b>%51<b>subtype: </b>%52<b>companionSubtype: </b>%53<b>deleted: </b>%54<b>unknown: </b>%55"
+                        )
+                .arg(p.value(m["att"]), p.value(m["def"]), p.value(m["id"]))
+                .arg(p.value(m["hits"]), p.value(m["numGroups"]), p.value(m["picID"]))
+                .arg(p.value(m["lockedChance"]), p.value(m["levelFound"]))
+                .arg(p.value(m["ResFire"]), p.value(m["ResCold"]), p.value(m["ResElectric"]), p.value(m["ResMind"]), p.value(m["ResPoison"]), p.value(m["ResDisease"]), p.value(m["ResMagic"]), p.value(m["ResPhysical"]), p.value(m["ResWeapon"]), p.value(m["ResSpell"]), p.value(m["ResSpecial"]))
+                .arg(p.value(m["specialPropertyFlags"]), p.value(m["specialAttackFlags"]), p.value(m["spellFlags"]), p.value(m["chance"]))
+                .arg(p.value(m["boxChance0"]), p.value(m["boxChance1"]), p.value(m["boxChance2"]))
+                .arg(p.value(m["alignment"]), p.value(m["ingroup"]), p.value(m["goldFactor"]), p.value(m["trapFlags"]), p.value(m["guildlevel"]))
+                .arg(p.value(m["type"]), p.value(m["damageMod"]), p.value(m["companionType"]), p.value(m["companionSpawnMode"]), p.value(m["companionID"]))
+                .arg(p.value(m["Item0"]), p.value(m["Item1"]), p.value(m["Item2"]), p.value(m["Item3"]), p.value(m["Item4"]), p.value(m["Item5"]), p.value(m["Item6"]), p.value(m["Item7"]), p.value(m["Item8"]), p.value(m["Item9"]))
+                .arg(p.value(m["subType"]), p.value(m["companionSubType"]), p.value(m["deleted"]), p.value(m["unknown"]));
+    });
+
+    // 2. Load Spells (MDATA2.csv)
+    // Note: Column names in your CSV have leading spaces, e.g., " Level"
+    loadCSV("tools/spellconverter/data/MDATA2.csv", GameConstants::CATEGORY_MAGIC, [](const QStringList& p, const QMap<QString, int>& m) {
+        return QString("<b>Spell Level:</b> %1 | <b>Class:</b> %2<br>"
+                       "<b>Damage:</b> %3-%4<br>"
+                       "<b>Req:</b> Int:%5, Wis:%6")
+                .arg(p.value(m["Level"]), p.value(m["Class"]))
+                .arg(p.value(m["damage1"]), p.value(m["damage2"]))
+                .arg(p.value(m["ReqInt"]), p.value(m["ReqWis"]));
+    });
+
+    // 3. Load Items (MDATA3.csv)
+    loadCSV("tools/itemconverter/data/MDATA3.csv", GameConstants::CATEGORY_ITEMS, [](const QStringList& p, const QMap<QString, int>& m) {
+        QString cursed = p.value(m["cursed"]) == "1" ? "<span style='color:red;'>CURSED</span>" : "Normal";
+        return QString("<b>Price:</b> %1 gold | <b>Status:</b> %2<br>"
+                       "<b>Stats:</b> Att:%3, Def:%4, Swings:%5<br>"
+                       "<b>Min Requirements:</b> Str:%6, Dex:%7")
+                .arg(p.value(m["price"]), cursed)
+                .arg(p.value(m["att"]), p.value(m["def"]), p.value(m["swings"]))
+                .arg(p.value(m["StrReq"]), p.value(m["DexReq"]));
+    });
 }
 /**
  * @brief Updates the QListWidget based on the selected category.
