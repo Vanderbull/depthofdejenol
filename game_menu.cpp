@@ -45,6 +45,23 @@
 #include <QComboBox>
 #include <QFileInfoList>
 #include <QResizeEvent>
+#include <QPainter>
+
+void GameMenu::paintEvent(QPaintEvent *event)
+{
+    // 1. Call base class paint event to ensure background/palettes are drawn
+    QWidget::paintEvent(event);
+
+    // 2. Initialize the painter for this widget
+    QPainter painter(this);
+
+    // 3. Define the position where you want "Hello" to appear (e.g., x=100, y=100)
+    QPoint textPosition(100, 100);
+
+    // 4. Use GameStateManager to draw the text using the loaded sprite font
+    GameStateManager::instance()->drawCustomText(&painter, "HELLO", textPosition);
+    GameStateManager::instance()->drawCustomText(&painter, "A B C D E F G H", QPoint(0, 0));
+}
 // Global function to launch Automap
 void launchAutomapDialog() 
 {
@@ -58,6 +75,8 @@ GameMenu::GameMenu(QWidget *parent)
     , m_settings("MyCompany", "MyApp")
     , m_subfolderName(m_settings.value("Paths/SubfolderName", "data/characters").toString()) 
 {
+    GameStateManager::instance()->loadFontSprite("resources/images/font_spritesheet_transparent.png");
+
     //GameStateManager::instance()->playMusic("resources/waves/main.wav");
     GameStateManager::instance()->incrementPartyAge(1);
 

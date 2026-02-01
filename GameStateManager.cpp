@@ -12,7 +12,7 @@
 #include <QJsonArray>
 #include <QDir>
 #include <QMetaType>
-
+#include <QPainter>
 GameStateManager* GameStateManager::instance()
 {
     // Thread-safe initialization guaranteed by C++11
@@ -1049,4 +1049,59 @@ void GameStateManager::setFixedFont(const QFont& font) {
     m_fixedFont = font;
     emit fontChanged();
 }
+void GameStateManager::loadFontSprite(const QString& path) {
+    m_fontSpriteSheet.load(path);
+}
 
+void GameStateManager::drawCustomText(QPainter* painter, const QString& text, const QPoint& position) {
+    if (m_fontSpriteSheet.isNull()) return;
+
+    // The sequence exactly as it appears in the image, row by row
+    const QString layout = "ABCDEFGHI"   // Row 0
+                           "HIJKLMM"     // Row 1
+                           "NOPQRSTUUV"  // Row 2
+                           "UWXYZ"       // Row 3
+                           "124578901";  // Row 4
+
+    // Measurements based on the spritesheet proportions
+    static constexpr int SPRITE_WIDTH = 80;   
+    static constexpr int SPRITE_HEIGHT = 90;  
+    static constexpr int KERNING = 48; // Adjust this to tighten/loosen spacing
+
+    QString upperText = text.toUpper();
+
+    for (int i = 0; i < upperText.length(); ++i) {
+        QChar c = upperText[i];
+        
+        if (c == ' ') continue; // Simple space handling
+
+        // Find character in the layout string
+        int index = layout.indexOf(c);
+        if (index == -1) continue; 
+
+        int row = 0;
+        int col = 0;
+
+        // Map index to the specific grid coordinates
+        if (index < 9) { 
+            row = 0; col = index; 
+        } else if (index < 16) { 
+            row = 1; col = (index - 9); 
+        } else if (index < 26) { 
+            row = 2; col = (index - 16); 
+        } else if (index < 31) { 
+            row = 3; col = (index - 26); 
+        } else { 
+            row = 4; col = (index - 31); 
+        }
+
+        // Source: Where the letter is in the PNG
+        QRect sourceRect(col * SPRITE_WIDTH, row * SPRITE_HEIGHT, SPRITE_WIDTH, SPRITE_HEIGHT);
+        
+        // Target: Where to draw on the UI
+        // We use KERNING for the X offset so letters don't have huge gaps
+        QRect targetRect(position.x() + (i * KERNING), position.y(), SPRITE_WIDTH, SPRITE_HEIGHT);
+
+        painter->drawPixmap(targetRect, m_fontSpriteSheet, sourceRect);
+    }
+}

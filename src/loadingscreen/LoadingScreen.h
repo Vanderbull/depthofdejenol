@@ -32,6 +32,10 @@ private:
     // Animation System Members
     QGraphicsOpacityEffect *m_titleOpacityEffect; // The "bridge" between the widget and animation
     QPropertyAnimation *m_titleFadeAnimation;     // The animation controller
+                                                  //
+    QPixmap m_fontSpriteSheet; // To hold the image you uploaded
+protected:
+    void paintEvent(QPaintEvent *event) override; // Override to handle custom drawing
 };
 
 #endif // LOADINGSCREEN_H

@@ -20,6 +20,11 @@ class GameStateManager : public QObject
     Q_OBJECT
 
 private:
+    QPixmap m_fontSpriteSheet;
+    //const int CHAR_WIDTH = 8;  // Adjust based on your actual sprite size
+    //const int CHAR_HEIGHT = 12; // Adjust based on your actual sprite size
+    static constexpr int FONT_CHAR_WIDTH = 32;  // Renamed to avoid macro conflicts
+    static constexpr int FONT_CHAR_HEIGHT = 42;
     // Private constructor
     explicit GameStateManager(QObject *parent = nullptr);
     // Prevent copy and assignment
@@ -27,6 +32,9 @@ private:
     GameStateManager& operator=(const GameStateManager&) = delete;
 
 public:
+    void loadFontSprite(const QString& path);
+    void drawCustomText(QPainter* painter, const QString& text, const QPoint& position);
+
     void setProportionalFont(const QFont& font);
     void setFixedFont(const QFont& font);
     QFont getProportionalFont() const;

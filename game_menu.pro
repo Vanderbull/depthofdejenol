@@ -5,7 +5,7 @@ QT += core gui widgets multimedia network
 TARGET = game_menu
 
 # Qt 6 & Silent mode (only outputs warnings/errors)
-CONFIG += c++17 silent
+CONFIG += c++20 silent
 QMAKE_PARALLEL_BUILD = 1
 
 # Define a central directory for all build-related files
