@@ -2,7 +2,7 @@
 #define ABOUTDIALOG_H
 
 #include <QDialog>
-
+#include <memory>
 // Forward declarations
 class GameStateManager;
 
@@ -11,11 +11,11 @@ class AboutDialog : public QDialog {
 
 public:
     explicit AboutDialog(QWidget *parent = nullptr);
-    ~AboutDialog();
+    ~AboutDialog() override;
 
 private:
     void setupUi();
-    QString getGameVersionInfo() const;
+    static QString getGameVersionInfo();
 };
 
 #endif // ABOUTDIALOG_H
