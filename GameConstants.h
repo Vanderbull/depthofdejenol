@@ -33,6 +33,34 @@ namespace GameConstants {
     const QString CATEGORY_MAGIC = "Magic Books";
     const QString CATEGORY_MONSTERS = "Creatures";
     const QString CATEGORY_ITEMS = "Items";
+
+    // Add to GameConstants namespace in GameConstants.h
+    struct RaceStat {
+        int start;
+        int min;
+        int max;
+    };
+
+    enum AlignmentStatus {
+        AS_Allowed,
+        AS_NotAllowed
+    };
+
+    struct RaceStats {
+        QString raceName;
+        int maxAge;
+        int experience;
+        RaceStat strength;
+        RaceStat intelligence;
+        RaceStat wisdom;
+        RaceStat constitution;
+        RaceStat charisma;
+        RaceStat dexterity;
+        AlignmentStatus good;
+        AlignmentStatus neutral;
+        AlignmentStatus evil;
+        QMap<QString, AlignmentStatus> guildEligibility; 
+    };
 }
 
 #endif

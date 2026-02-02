@@ -2,7 +2,9 @@
 #define ABOUTDIALOG_H
 
 #include <QDialog>
-#include "GameStateManager.h"
+
+// Forward declarations
+class GameStateManager;
 
 class AboutDialog : public QDialog {
     Q_OBJECT

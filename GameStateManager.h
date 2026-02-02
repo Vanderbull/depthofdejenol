@@ -20,6 +20,9 @@ class GameStateManager : public QObject
     Q_OBJECT
 
 private:
+
+    QVector<GameConstants::RaceStats> m_raceDefinitions;
+
     QPixmap m_fontSpriteSheet;
     //const int CHAR_WIDTH = 8;  // Adjust based on your actual sprite size
     //const int CHAR_HEIGHT = 12; // Adjust based on your actual sprite size
@@ -32,6 +35,11 @@ private:
     GameStateManager& operator=(const GameStateManager&) = delete;
 
 public:
+
+    void loadRaceDefinitions();
+    const QVector<GameConstants::RaceStats>& getRaceDefinitions() const { return m_raceDefinitions; }
+    GameConstants::RaceStats getStatsForRace(const QString& raceName) const;
+
     void loadFontSprite(const QString& path);
     void drawCustomText(QPainter* painter, const QString& text, const QPoint& position);
 

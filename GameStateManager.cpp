@@ -1105,3 +1105,30 @@ void GameStateManager::drawCustomText(QPainter* painter, const QString& text, co
         painter->drawPixmap(targetRect, m_fontSpriteSheet, sourceRect);
     }
 }
+
+// GameStateManager.cpp
+
+void GameStateManager::loadRaceDefinitions() {
+    m_raceDefinitions = {
+        // Human
+        {"Human", 100, 3, {4,4,17}, {4,4,18}, {4,4,18}, {6,6,17}, {5,5,18}, {6,6,18}, 
+         GameConstants::AS_Allowed, GameConstants::AS_Allowed, GameConstants::AS_Allowed, {}},
+        // Elf
+        {"Elf", 400, 7, {3,3,15}, {7,7,20}, {7,7,20}, {3,3,16}, {3,3,18}, {3,3,18}, 
+         GameConstants::AS_Allowed, GameConstants::AS_Allowed, GameConstants::AS_NotAllowed, {}},
+        // ... (Add the rest of the races from your RaceData.cpp here)
+    };
+
+    // After loading the list, you can initialize your game state map 
+    // using the dynamic data instead of hardcoded numbers:
+    for(const auto& race : m_raceDefinitions) {
+        m_gameStateData[race.raceName + "MaxAge"] = race.maxAge;
+    }
+}
+
+GameConstants::RaceStats GameStateManager::getStatsForRace(const QString& raceName) const {
+    for (const auto& stats : m_raceDefinitions) {
+        if (stats.raceName == raceName) return stats;
+    }
+    return {}; // Return empty if not found
+}
