@@ -3,6 +3,7 @@
 #include "DungeonHandlers.h"
 #include "../../GameStateManager.h"
 #include "../event/EventManager.h"
+#include "src/spell_casting/SpellCastingDialog.h"
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QGridLayout>
@@ -782,11 +783,6 @@ QPair<int, int> DungeonDialog::getCurrentPosition()
                      gsm->getGameValue("DungeonY").toInt());
 }
 
-void DungeonDialog::on_spellButton_clicked() 
-{ 
-    logMessage("You try to cast some sort of spell but fail."); 
-}
-
 void DungeonDialog::on_takeButton_clicked() 
 { 
     logMessage("You try to take something, but there is nothing there."); 
@@ -877,6 +873,9 @@ void DungeonDialog::keyPressEvent(QKeyEvent *event)
             break;
         case Qt::Key_R:
             on_restButton_clicked();
+            break;
+        case Qt::Key_S:
+            on_spellButton_clicked();
             break;
         case Qt::Key_U:
             on_teleportButton_clicked();
@@ -1585,6 +1584,57 @@ void DungeonDialog::togglePartyInfo() {
         m_charSheet->move(screenGeometry.width() - dialogWidth - padding,
                           screenGeometry.height() - dialogHeight - padding);
     }
+}
+
+void DungeonDialog::on_spellButton_clicked() 
+{ 
+    logMessage("You try to cast some sort of spell but fail."); 
+    // Check if in antimagic zone
+    GameStateManager* gsm = GameStateManager::instance();
+    int x = gsm->getGameValue("DungeonX").toInt();
+    int y = gsm->getGameValue("DungeonY").toInt();
+    QPair<int, int> pos = {x, y};
+    
+    if (m_antimagicPositions.contains(pos)) {
+        logMessage("<font color='purple'>An antimagic field prevents you from casting spells here!</font>");
+        return;
+    }
+    
+    // Open the spell casting dialog
+    SpellCastingDialog* spellDialog = new SpellCastingDialog(this, m_isFighting);
+    spellDialog->setAttribute(Qt::WA_DeleteOnClose);
+    
+    // Connect spell effects to dungeon actions
+    connect(spellDialog, &SpellCastingDialog::spellCast, this, 
+            [this](const QString& spellName, const SpellResult& result) {
+        logMessage(QString("<font color='cyan'>%1</font>").arg(result.message));
+        
+        // Handle damage to current monster if in combat
+        if (result.damageDealt > 0 && m_isFighting && m_activeMonsterHP > 0) {
+            m_activeMonsterHP -= result.damageDealt;
+            logMessage(QString("<font color='yellow'>The %1 takes %2 spell damage!</font>")
+                      .arg(m_activeMonsterName).arg(result.damageDealt));
+            
+            if (m_activeMonsterHP <= 0) {
+                logMessage(QString("<font color='green'>The %1 is destroyed by your magic!</font>")
+                          .arg(m_activeMonsterName));
+                m_isFighting = false;
+                m_isDefending = false;
+                if (m_combatTimer) m_combatTimer->stop();
+                
+                QPair<int, int> pos = getCurrentPosition();
+                m_monsterPositions.remove(pos);
+                renderWireframeView();
+            }
+        }
+        
+        // Handle teleport spell
+        if (result.effectApplied == "Teleport") {
+            on_teleportButton_clicked();
+        }
+    });
+    
+    spellDialog->exec();
 }
 
 DungeonDialog::~DungeonDialog(){}

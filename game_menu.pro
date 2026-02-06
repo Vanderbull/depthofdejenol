@@ -114,6 +114,8 @@ HEADERS += \
     src/update/UpdateManager.h \
     src/update/UpdateDialog.h
 
+HEADERS += src/spell_casting/SpellCastingDialog.h
+SOURCES += src/spell_casting/SpellCastingDialog.cpp
 #--------------------------------------------------
 # Post-Link Operations
 #--------------------------------------------------

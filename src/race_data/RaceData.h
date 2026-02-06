@@ -5,8 +5,9 @@
 #include <QString>
 #include <QMap>
 #include <QStringList>
-#include "GameStateManager.h"
-
+//#include "GameStateManager.h"
+#include "GameConstants.h"
+/*
 struct RaceStat 
 {
     int start;
@@ -19,7 +20,8 @@ enum AlignmentStatus
     AS_Allowed,
     AS_NotAllowed
 };
-
+*/
+/*
 struct RaceStats 
 {
     QString raceName;
@@ -36,7 +38,14 @@ struct RaceStats
     AlignmentStatus evil;
     QMap<QString, AlignmentStatus> guildEligibility; 
 };
+*/
 
+// Use types from GameConstants namespace
+using RaceStat = GameConstants::RaceStat;
+using RaceStats = GameConstants::RaceStats;
+using AlignmentStatus = GameConstants::AlignmentStatus;
+constexpr auto AS_Allowed = GameConstants::AS_Allowed;
+constexpr auto AS_NotAllowed = GameConstants::AS_NotAllowed;
 QVector<QString> loadGuildData();
 QVector<RaceStats> loadRaceData();
 

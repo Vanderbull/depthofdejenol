@@ -1,4 +1,5 @@
 #include "GameStateManager.h"
+#include "src/race_data/RaceData.h"
 #include <QDebug>
 #include <QVariantList>
 #include <QVariantMap>
@@ -113,6 +114,8 @@ GameStateManager::GameStateManager(QObject *parent)
     m_gameStateData["CurrentCharacterDexterity"] = 0;
     m_gameStateData["CurrentCharacterStatPointsLeft"] = 0;
     m_gameStateData["CurrentCharacterGold"] = QVariant::fromValue((qulonglong)1500);
+    m_gameStateData["CurrentMana"] = 50;
+    m_gameStateData["MaxMana"] = 50;
 
     // --- End Current Character ---
 
@@ -189,6 +192,13 @@ GameStateManager::GameStateManager(QObject *parent)
     addLeader("Master of Thieving", "Healer", "5/17/2002", 22, "Thieving Skill");
 
     m_gameStateData["GuildLeaders"] = guildLeadersList;
+
+    
+    // Initialize race definitions
+    m_raceDefinitions = loadRaceData();
+    qDebug() << "Loaded" << m_raceDefinitions.size() << "race definitions.";
+    
+
     qDebug() << "GameStateManager initialized.";
     listGameData();
 }
@@ -1131,4 +1141,61 @@ GameConstants::RaceStats GameStateManager::getStatsForRace(const QString& raceNa
         if (stats.raceName == raceName) return stats;
     }
     return {}; // Return empty if not found
+}
+const GameConstants::RaceStat& GameStateManager::getStatRef(const GameConstants::RaceStats& race, const QString& statName) const {
+    if (statName == "Strength")     return race.strength;
+    if (statName == "Intelligence") return race.intelligence;
+    if (statName == "Wisdom")       return race.wisdom;
+    if (statName == "Constitution") return race.constitution;
+    if (statName == "Charisma")     return race.charisma;
+    return race.dexterity;
+}
+
+QVector<QString> GameStateManager::getAvailableRaces() const {
+    QVector<QString> names;
+    for (const auto& race : m_raceDefinitions) {
+        names.append(race.raceName);
+    }
+    return names;
+}
+
+int GameStateManager::getRaceMin(const QString& raceName, const QString& statName) const {
+    for (const auto& race : m_raceDefinitions) {
+        if (race.raceName == raceName) return getStatRef(race, statName).min;
+    }
+    return 1;
+}
+
+int GameStateManager::getRaceMax(const QString& raceName, const QString& statName) const {
+    for (const auto& race : m_raceDefinitions) {
+        if (race.raceName == raceName) return getStatRef(race, statName).max;
+    }
+    return 18;
+}
+
+int GameStateManager::getRaceStart(const QString& raceName, const QString& statName) const {
+    for (const auto& race : m_raceDefinitions) {
+        if (race.raceName == raceName) return getStatRef(race, statName).start;
+    }
+    return 1;
+}
+
+bool GameStateManager::isAlignmentAllowed(const QString& raceName, const QString& alignmentName) const {
+    for (const auto& race : m_raceDefinitions) {
+        if (race.raceName == raceName) {
+            if (alignmentName == "Good")    return race.good == GameConstants::AS_Allowed;
+            if (alignmentName == "Neutral") return race.neutral == GameConstants::AS_Allowed;
+            if (alignmentName == "Evil")    return race.evil == GameConstants::AS_Allowed;
+        }
+    }
+    return false;
+}
+
+bool GameStateManager::isGuildAllowed(const QString& raceName, const QString& guildName) const {
+    for (const auto& race : m_raceDefinitions) {
+        if (race.raceName == raceName) {
+            return race.guildEligibility.value(guildName, GameConstants::AS_Allowed) == GameConstants::AS_Allowed;
+        }
+    }
+    return true;
 }

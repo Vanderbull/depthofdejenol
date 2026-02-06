@@ -21,7 +21,7 @@ class GameStateManager : public QObject
 
 private:
 
-    QVector<GameConstants::RaceStats> m_raceDefinitions;
+    const GameConstants::RaceStat& getStatRef(const GameConstants::RaceStats& race, const QString& statName) const;
 
     QPixmap m_fontSpriteSheet;
     //const int CHAR_WIDTH = 8;  // Adjust based on your actual sprite size
@@ -35,6 +35,13 @@ private:
     GameStateManager& operator=(const GameStateManager&) = delete;
 
 public:
+
+    QVector<QString> getAvailableRaces() const;
+    int getRaceMin(const QString& raceName, const QString& statName) const;
+    int getRaceMax(const QString& raceName, const QString& statName) const;
+    int getRaceStart(const QString& raceName, const QString& statName) const;
+    bool isAlignmentAllowed(const QString& raceName, const QString& alignmentName) const;
+    bool isGuildAllowed(const QString& raceName, const QString& guildName) const;
 
     void loadRaceDefinitions();
     const QVector<GameConstants::RaceStats>& getRaceDefinitions() const { return m_raceDefinitions; }
@@ -69,6 +76,8 @@ public:
     }
 
     QList<PlacedItem> getPlacedItems() const { return m_placedItems; }
+    QVector<GameConstants::RaceStats> m_raceDefinitions; // Race stat definitions
+
     
 signals:
     void gameValueChanged(const QString& key, const QVariant& value);
@@ -215,6 +224,62 @@ public:
     bool repairSaveGame(const QString& characterName);
     void startAutosave(int intervalms = 10000); // 10 seconds default
     void stopAutosave();
+    // --- Mana Management ---
+    // --- Mana Management ---
+    int getCurrentMana() const 
+    {
+        // Instead of hardcoded 50, get from the active character
+        int idx = m_gameStateData.value("ActiveCharacterIndex", 0).toInt();
+        if (idx >= 0 && idx < m_PC.size()) {
+            return m_PC[idx].mana;
+        }
+        return m_gameStateData.value("CurrentMana", 0).toInt(); 
+    }
+
+    int getMaxMana() const 
+    {
+        int idx = m_gameStateData.value("ActiveCharacterIndex", 0).toInt();
+        if (idx >= 0 && idx < m_PC.size()) {
+            return m_PC[idx].maxMana;
+        }
+        return m_gameStateData.value("MaxMana", 0).toInt();
+    }
+
+    void setCurrentMana(int mana) 
+    {
+        // 1. Calculate the clamped value
+        int cappedMana = qMax(0, qMin(mana, getMaxMana()));
+        
+        // 2. Find the active character
+        int idx = m_gameStateData.value("ActiveCharacterIndex", 0).toInt();
+        
+        // 3. Write to the SAME source used by getCurrentMana()
+        if (idx >= 0 && idx < m_PC.size()) {
+            m_PC[idx].mana = cappedMana;
+        } else {
+            // Fallback for when no character is active
+            setGameValue("CurrentMana", cappedMana);
+        }
+    }
+
+    void setMaxMana(int maxMana) 
+    {
+        setGameValue("MaxMana", maxMana);
+    }
+    bool spendMana(int cost) 
+    {
+        int current = getCurrentMana();
+        if (current >= cost) {
+            setCurrentMana(current - cost);
+            return true;
+        }
+        return false;
+    }
+    void restoreMana(int amount) 
+    {
+        setCurrentMana(getCurrentMana() + amount);
+    }
+
 private slots:
     void handleAutosave();
 };

@@ -3,8 +3,8 @@ Name: b
 Race: 
 Age: 0
 Race: 
-DungeonX: 17
-DungeonY: 12
+DungeonX: 24
+DungeonY: 9
 DungeonLevel: 1
 Guild: 
 Level: 1

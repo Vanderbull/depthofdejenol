@@ -23,6 +23,8 @@ struct Character {
     int constitution;
     int charisma;
     int dexterity;
+    int mana;
+    int maxMana;
 
     // Status Effects
     bool poisoned;
@@ -53,6 +55,9 @@ struct Character {
         constitution = map.value("Constitution").toInt();
         charisma     = map.value("Charisma").toInt();
         dexterity    = map.value("Dexterity").toInt();
+
+        mana         = map.value("Mana", 50).toInt();
+        maxMana      = map.value("MaxMana", 50).toInt();
         
         DungeonLevel = map.value("DungeonLevel").toInt();
         DungeonX     = map.value("DungeonX").toInt();
