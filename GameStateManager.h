@@ -2,6 +2,7 @@
 #define GAMESTATEMANAGER_H
 
 #include "include/GameConstants.h"
+#include "DataRegistry.h"
 #include "character.h"
 #include <QObject>
 #include <QVariantMap>
@@ -14,6 +15,11 @@
 #include <QGuiApplication>
 #include <QApplication>
 #include <QWidget>
+
+#include <QJsonDocument>
+#include <QJsonObject>
+#include <QJsonArray>
+#include <QFile>
 
 class GameStateManager : public QObject
 {
@@ -34,11 +40,26 @@ private:
     GameStateManager(const GameStateManager&) = delete;
     GameStateManager& operator=(const GameStateManager&) = delete;
 
-public:
+    // The Registry replaces manual QLists like m_raceDefinitions
+    DataRegistry m_registry; 
 
+// Helper to find a race map in the registry
+    QVariantMap findRaceMap(const QString& raceName) const;
+    
+    // Helper to convert Registry data to Structs
+    GameConstants::RaceStats createRaceFromVariant(const QVariant& data) const;
+
+public:
+    bool loadGameConfig(const QString& filePath);
+
+    // Updated Getters that use the Registry
     QVector<QString> getAvailableRaces() const;
     int getRaceMin(const QString& raceName, const QString& statName) const;
     int getRaceMax(const QString& raceName, const QString& statName) const;
+
+//    QVector<QString> getAvailableRaces() const;
+//    int getRaceMin(const QString& raceName, const QString& statName) const;
+//    int getRaceMax(const QString& raceName, const QString& statName) const;
     int getRaceStart(const QString& raceName, const QString& statName) const;
     bool isAlignmentAllowed(const QString& raceName, const QString& alignmentName) const;
     bool isGuildAllowed(const QString& raceName, const QString& guildName) const;
@@ -77,6 +98,7 @@ public:
 
     QList<PlacedItem> getPlacedItems() const { return m_placedItems; }
     QVector<GameConstants::RaceStats> m_raceDefinitions; // Race stat definitions
+
 
     
 signals:

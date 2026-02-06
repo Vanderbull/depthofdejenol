@@ -1,0 +1,29 @@
+{
+  "Races": [
+    {
+      "raceName": "Elf",
+      "maxAge": 500,
+      "experience": 0,
+      "str_start": 8, "str_min": 5, "str_max": 18,
+      "int_start": 12, "int_min": 10, "int_max": 20,
+      "good": 0, "neutral": 0, "evil": 1,
+      "guildEligibility": { "Mage": 0, "Warrior": 0, "Paladin": 1 }
+    },
+    {
+      "raceName": "Human",
+      "maxAge": 80,
+      "experience": 0,
+      "str_start": 10, "str_min": 3, "str_max": 18,
+      "int_start": 10, "int_min": 3, "int_max": 18,
+      "good": 0, "neutral": 0, "evil": 0,
+      "guildEligibility": { "Nomad": 0, "Thief": 0 }
+    }
+  ],
+  "Guilds": ["Nomad", "Paladin", "Warrior", "Villain", "Mage", "Ninja"],
+  "GuildMasters": {
+    "Nomad": "Goch",
+    "Paladin": "Tuadar",
+    "Mage": "Ge'nal",
+    "Ninja": "Shadowblade"
+  }
+}

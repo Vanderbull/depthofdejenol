@@ -20,6 +20,76 @@ GameStateManager* GameStateManager::instance()
     static GameStateManager instance;
     return &instance;
 }
+// --- The Loader Logic ---
+bool GameStateManager::loadGameConfig(const QString& filePath) {
+    QFile file(filePath);
+    if (!file.open(QIODevice::ReadOnly)) {
+        qWarning() << "Failed to open config:" << filePath;
+        return false;
+    }
+
+    QJsonDocument doc = QJsonDocument::fromJson(file.readAll());
+    if (!doc.isObject()) return false;
+
+    QJsonObject root = doc.object();
+    m_registry.clear();
+
+    for (auto it = root.begin(); it != root.end(); ++it) {
+        QVariant val = it.value().toVariant();
+        if (val.type() == QVariant::List) {
+            m_registry.registerData(it.key(), val.toList());
+        } else {
+            m_registry.registerData(it.key(), QVariantList() << val);
+        }
+    }
+    return true;
+}
+
+// Helper to prevent code duplication
+QVariantMap GameStateManager::findRaceMap(const QString& raceName) const {
+    QVariantList races = m_registry.getData(GameConstants::CAT_RACES);
+    for (const QVariant& v : races) {
+        QVariantMap map = v.toMap();
+        if (map["raceName"].toString() == raceName) return map;
+    }
+    return QVariantMap();
+}
+
+// --- Using the Registry in existing methods ---
+int GameStateManager::getRaceMin(const QString& raceName, const QString& statName) const {
+    QVariantList races = m_registry.getData(GameConstants::CAT_RACES);
+    for (const QVariant& v : races) {
+        QVariantMap map = v.toMap();
+        if (map["raceName"].toString() == raceName) {
+            // Dynamically fetch the stat based on the string name
+            // e.g., "Strength" becomes key "str_min"
+            QString key = statName.left(3).toLower() + "_min"; 
+            return map[key].toInt();
+        }
+    }
+    return 1;
+}
+
+// --- Factory Method ---
+GameConstants::RaceStats GameStateManager::createRaceFromVariant(const QVariant& data) const {
+    QVariantMap map = data.toMap();
+    GameConstants::RaceStats s;
+    s.raceName = map["raceName"].toString();
+    s.maxAge = map["maxAge"].toInt();
+    
+    // Helper lambda for nested stats
+    auto parse = [&](const QString& p) -> GameConstants::RaceStat {
+        return { map[p+"_start"].toInt(), map[p+"_min"].toInt(), map[p+"_max"].toInt() };
+    };
+
+    s.strength = parse("str");
+    s.intelligence = parse("int");
+    // ... add other stats (wisdom, dex, etc)
+    
+    return s;
+}
+
+
 // Add these helper methods
 void GameStateManager::incrementStock(const QString& name)
 {
@@ -1158,7 +1228,7 @@ QVector<QString> GameStateManager::getAvailableRaces() const {
     }
     return names;
 }
-
+/*
 int GameStateManager::getRaceMin(const QString& raceName, const QString& statName) const {
     for (const auto& race : m_raceDefinitions) {
         if (race.raceName == raceName) return getStatRef(race, statName).min;
@@ -1199,3 +1269,4 @@ bool GameStateManager::isGuildAllowed(const QString& raceName, const QString& gu
     }
     return true;
 }
+*/

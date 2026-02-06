@@ -8,6 +8,11 @@
 
 namespace GameConstants {
 
+// --- Add these for the Registry ---
+    const QString CAT_RACES = "Races";
+    const QString CAT_GUILDS = "Guilds";
+    const QString CAT_MASTERS = "GuildMasters";
+
     // --- Race Stat Types ---
     struct RaceStat 
     {
