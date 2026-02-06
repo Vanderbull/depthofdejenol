@@ -1,7 +1,7 @@
 #ifndef GAMESTATEMANAGER_H
 #define GAMESTATEMANAGER_H
 
-#include "GameConstants.h"
+#include "include/GameConstants.h"
 #include "character.h"
 #include <QObject>
 #include <QVariantMap>

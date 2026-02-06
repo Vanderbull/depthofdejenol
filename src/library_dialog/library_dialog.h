@@ -1,7 +1,7 @@
 #ifndef LIBRARY_DIALOG_H
 #define LIBRARY_DIALOG_H
 
-#include "GameConstants.h"
+#include "include/GameConstants.h"
 #include <QDialog>
 #include <QMap>
 #include <QString>

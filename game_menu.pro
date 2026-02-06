@@ -74,6 +74,7 @@ SOURCES += \
 # Header Files
 #--------------------------------------------------
 HEADERS += \
+    include/GameConstants.h \
     GameStateManager.h \
     game_menu.h \
     TheCity.h \
