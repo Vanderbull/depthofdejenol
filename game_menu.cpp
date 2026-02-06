@@ -308,34 +308,48 @@ void GameMenu::startNewGame()
 
 void GameMenu::loadGame() 
 {
-    // Start the 10-second loop
     GameStateManager::instance()->startAutosave(10000);
-    // 1. Setup file path and selection dialog 
+
     QString basePath = QCoreApplication::applicationDirPath();
     QString fullPath = QDir::cleanPath(basePath + QDir::separator() + m_subfolderName);
     QDir subfolderDir(fullPath);
 
     if (!subfolderDir.exists()) {
-        subfolderDir.mkpath("."); //
+        subfolderDir.mkpath("."); 
         emit logMessageTriggered("No character folder found. Created one.");
         return;
     }
-    // Filter for .txt files
-    QStringList characterFiles = subfolderDir.entryList({"*.txt"}, QDir::Files);
 
-    if (characterFiles.isEmpty()) {
-        emit logMessageTriggered("No character (.txt) files found to load.");
+    QStringList allFiles = subfolderDir.entryList({"*.txt"}, QDir::Files);
+    QStringList aliveCharacters;
+
+    // --- NEW: Filter for alive characters only ---
+    for (const QString& fileName : allFiles) {
+        QString charName = QFileInfo(fileName).baseName();
+        
+        // Temporarily load to check status
+        if (GameStateManager::instance()->loadCharacterFromFile(charName)) {
+            int isAlive = GameStateManager::instance()->getGameValue("isAlive").toInt();
+            if (isAlive != 0) {
+                aliveCharacters.append(fileName);
+            }
+        }
+    }
+
+    if (aliveCharacters.isEmpty()) {
+        emit logMessageTriggered("No living characters found to load.");
         QMessageBox::warning(this, tr("No Characters Found"), 
-                             tr("No character files were found in: %1").arg(m_subfolderName));
+                             tr("No living character files were found in: %1").arg(m_subfolderName));
         return;
     }
+
     // 2. Create Selection Dialog
     QDialog selectionDialog(this);
     selectionDialog.setWindowTitle("Load Character");
     QVBoxLayout *layout = new QVBoxLayout(&selectionDialog);
     
     QComboBox *charComboBox = new QComboBox();
-    charComboBox->addItems(characterFiles);
+    charComboBox->addItems(aliveCharacters); // Only contains alive characters
     layout->addWidget(new QLabel("Select a character:"));
     layout->addWidget(charComboBox);
     
@@ -345,32 +359,15 @@ void GameMenu::loadGame()
 
     if (selectionDialog.exec() == QDialog::Accepted) {
         QString selectedFileName = charComboBox->currentText();
-        // Remove .txt extension to pass the "name" to the manager 
         QString characterName = QFileInfo(selectedFileName).baseName();
-        emit logMessageTriggered(QString("Attempting to load: %1").arg(characterName));
-        // 3. Perform the Load and check Vitality
+        
+        // Final load (now guaranteed to be alive)
         if (GameStateManager::instance()->loadCharacterFromFile(characterName)) {
-            // We check the "isAlive" flag from the newly loaded state
-            int isAlive = GameStateManager::instance()->getGameValue("isAlive").toInt();
-            qDebug() << "DEBUG: Character" << characterName << "isAlive status is:" << isAlive;
-            if (isAlive == 0) {
-                emit logMessageTriggered(QString("Load failed: %1 is dead.").arg(characterName));
-                QMessageBox::critical(this, tr("Character Deceased"), 
-                                     tr("The character **%1** is dead and cannot be loaded.").arg(characterName));
-                return; // Stop the loading process here
-            }
-            // Post-load initialization (only if alive)
             GameStateManager::instance()->setGameValue("CurrentCharacterStatPointsLeft", 0);
-            
             emit logMessageTriggered(QString("Success: %1 is ready.").arg(characterName));
             QMessageBox::information(this, tr("Load Successful"), 
                                      tr("Character **%1** loaded successfully.").arg(characterName));
-            // Switch UI state to show 'Run Character'
             toggleMenuState(true);
-        } else {
-            emit logMessageTriggered(QString("Error: Failed to load %1.").arg(selectedFileName));
-            QMessageBox::critical(this, tr("Load Failed"), 
-                                 tr("The file **%1** could not be parsed.").arg(selectedFileName));
         }
     }
 }

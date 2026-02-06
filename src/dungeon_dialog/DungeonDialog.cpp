@@ -92,14 +92,26 @@ void DungeonDialog::resizeEvent(QResizeEvent *event)
         dungeonView->fitInView(m_dungeonScene->sceneRect(), Qt::KeepAspectRatio);
     }
 }
-// --- Helper Function: logMessage (Must be defined as a member) ---
+
 void DungeonDialog::logMessage(const QString& message)
 {
     if (m_messageLog) {
-        m_messageLog->addItem(message);
+        // Create a standard list item
+        QListWidgetItem* item = new QListWidgetItem(m_messageLog);
+        
+        // Create a QLabel to hold the HTML content
+        QLabel* label = new QLabel(message);
+        label->setStyleSheet("background: transparent;"); // Keep log background
+        
+        // Set the label as the widget for this item
+        m_messageLog->addItem(item);
+        m_messageLog->setItemWidget(item, label);
+        
+        // Auto-scroll to the bottom
         m_messageLog->scrollToBottom();
     }
 }
+
 // --- Gold Management Helper Function ---
 void DungeonDialog::updateGoldLabel()
 {
@@ -1607,7 +1619,8 @@ void DungeonDialog::on_spellButton_clicked()
     // Connect spell effects to dungeon actions
     connect(spellDialog, &SpellCastingDialog::spellCast, this, 
             [this](const QString& spellName, const SpellResult& result) {
-        logMessage(QString("<font color='cyan'>%1</font>").arg(result.message));
+        
+logMessage(QString("<font color='cyan'>%1</font>").arg(result.message));
         
         // Handle damage to current monster if in combat
         if (result.damageDealt > 0 && m_isFighting && m_activeMonsterHP > 0) {
