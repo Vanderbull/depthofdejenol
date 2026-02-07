@@ -35,7 +35,6 @@ SOURCES += \
     game_menu.cpp \
     TheCity.cpp \
     tools/monster_editor/MonsterEditorDialog.cpp \
-    tools/spellbook_editor/SpellbookEditorDialog.cpp \
     src/network_manager/NetworkManager.cpp \
     src/hall_of_records/hallofrecordsdialog.cpp \
     src/create_character/createcharacterdialog.cpp \
@@ -80,7 +79,6 @@ HEADERS += \
     TheCity.h \
     StoryDialog.h \
     tools/monster_editor/MonsterEditorDialog.h \
-    tools/spellbook_editor/SpellbookEditorDialog.h \
     src/network_manager/NetworkManager.h \
     src/hall_of_records/hallofrecordsdialog.h \
     src/create_character/createcharacterdialog.h \

@@ -4,7 +4,6 @@
 #include "TheCity.h"
 #include "StoryDialog.h"
 
-#include "tools/spellbook_editor/SpellbookEditorDialog.h"
 #include "tools/monster_editor/MonsterEditorDialog.h"
 
 #include "src/characterlist_dialog/characterlistdialog.h"
@@ -446,6 +445,7 @@ void GameMenu::onEditMonsterClicked()
 
 void GameMenu::onEditSpellbookClicked() 
 {
+/*
     SpellbookEditorDialog editor(this);
     // Run the dialog modally (blocks until closed)
     if (editor.exec() == QDialog::Accepted) {
@@ -455,6 +455,7 @@ void GameMenu::onEditSpellbookClicked()
     } else {
         qDebug() << "Spell editing cancelled.";
     }
+*/
 }
 
 void GameMenu::onShowStatisticsClicked() 
