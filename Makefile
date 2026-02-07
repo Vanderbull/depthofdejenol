@@ -55,7 +55,6 @@ OBJECTS_DIR   = build/obj/release/
 SOURCES       = GameStateManager.cpp \
 		game_menu.cpp \
 		TheCity.cpp \
-		tools/monster_editor/MonsterEditorDialog.cpp \
 		src/network_manager/NetworkManager.cpp \
 		src/hall_of_records/hallofrecordsdialog.cpp \
 		src/create_character/createcharacterdialog.cpp \
@@ -93,7 +92,6 @@ SOURCES       = GameStateManager.cpp \
 		build/moc/moc_game_menu.cpp \
 		build/moc/moc_TheCity.cpp \
 		build/moc/moc_StoryDialog.cpp \
-		build/moc/moc_MonsterEditorDialog.cpp \
 		build/moc/moc_NetworkManager.cpp \
 		build/moc/moc_hallofrecordsdialog.cpp \
 		build/moc/moc_createcharacterdialog.cpp \
@@ -128,7 +126,6 @@ SOURCES       = GameStateManager.cpp \
 OBJECTS       = build/obj/release/GameStateManager.o \
 		build/obj/release/game_menu.o \
 		build/obj/release/TheCity.o \
-		build/obj/release/MonsterEditorDialog.o \
 		build/obj/release/NetworkManager.o \
 		build/obj/release/hallofrecordsdialog.o \
 		build/obj/release/createcharacterdialog.o \
@@ -167,7 +164,6 @@ OBJECTS       = build/obj/release/GameStateManager.o \
 		build/obj/release/moc_game_menu.o \
 		build/obj/release/moc_TheCity.o \
 		build/obj/release/moc_StoryDialog.o \
-		build/obj/release/moc_MonsterEditorDialog.o \
 		build/obj/release/moc_NetworkManager.o \
 		build/obj/release/moc_hallofrecordsdialog.o \
 		build/obj/release/moc_createcharacterdialog.o \
@@ -277,7 +273,6 @@ DIST          = .gitignore \
 		game_menu.h \
 		TheCity.h \
 		StoryDialog.h \
-		tools/monster_editor/MonsterEditorDialog.h \
 		src/network_manager/NetworkManager.h \
 		src/hall_of_records/hallofrecordsdialog.h \
 		src/create_character/createcharacterdialog.h \
@@ -314,7 +309,6 @@ DIST          = .gitignore \
 		src/spell_casting/SpellCastingDialog.h GameStateManager.cpp \
 		game_menu.cpp \
 		TheCity.cpp \
-		tools/monster_editor/MonsterEditorDialog.cpp \
 		src/network_manager/NetworkManager.cpp \
 		src/hall_of_records/hallofrecordsdialog.cpp \
 		src/create_character/createcharacterdialog.cpp \
@@ -536,8 +530,8 @@ distdir: FORCE
 	@test -d $(DISTDIR) || mkdir -p $(DISTDIR)
 	$(COPY_FILE) --parents $(DIST) $(DISTDIR)/
 	$(COPY_FILE) --parents /usr/lib/x86_64-linux-gnu/qt6/mkspecs/features/data/dummy.cpp $(DISTDIR)/
-	$(COPY_FILE) --parents include/GameConstants.h GameStateManager.h game_menu.h TheCity.h StoryDialog.h tools/monster_editor/MonsterEditorDialog.h src/network_manager/NetworkManager.h src/hall_of_records/hallofrecordsdialog.h src/create_character/createcharacterdialog.h src/about_dialog/AboutDialog.h src/character_dialog/CharacterDialog.h src/message_window/MessageWindow.h src/sender_window/SenderWindow.h src/library_dialog/library_dialog.h src/automap/automap_dialog.h src/game_controller/game_controller.h src/characterlist_dialog/characterlistdialog.h src/helplesson/helplesson.h src/mordorstatistics/mordorstatistics.h src/loadingscreen/LoadingScreen.h src/guilds_dialog/GuildsDialog.h src/general_store/GeneralStore.h src/morgue_dialog/MorgueDialog.h src/seer_dialog/SeerDialog.h src/confinement_dialog/ConfinementDialog.h src/bank_dialog/BankDialog.h src/race_data/RaceData.h src/inventory_dialog/inventorydialog.h src/options_dialog/optionsdialog.h src/dungeon_dialog/DungeonDialog.h src/partyinfo_dialog/partyinfodialog.h src/dungeonmap/dungeonmap.h src/bank_dialog/TradeDialog.h include/game_resources.h src/dungeon_dialog/DungeonHandlers.h src/event/EventManager.h src/dungeon_dialog/MiniMapDialog.h src/update/UpdateManager.h src/update/UpdateDialog.h src/spell_casting/SpellCastingDialog.h $(DISTDIR)/
-	$(COPY_FILE) --parents GameStateManager.cpp game_menu.cpp TheCity.cpp tools/monster_editor/MonsterEditorDialog.cpp src/network_manager/NetworkManager.cpp src/hall_of_records/hallofrecordsdialog.cpp src/create_character/createcharacterdialog.cpp src/about_dialog/AboutDialog.cpp src/character_dialog/CharacterDialog.cpp src/message_window/MessageWindow.cpp src/sender_window/SenderWindow.cpp src/library_dialog/library_dialog.cpp src/automap/automap_dialog.cpp src/game_controller/game_controller.cpp src/characterlist_dialog/characterlistdialog.cpp src/helplesson/helplesson.cpp src/mordorstatistics/mordorstatistics.cpp src/loadingscreen/LoadingScreen.cpp src/guilds_dialog/GuildsDialog.cpp src/general_store/GeneralStore.cpp src/morgue_dialog/MorgueDialog.cpp src/seer_dialog/SeerDialog.cpp src/confinement_dialog/ConfinementDialog.cpp src/bank_dialog/BankDialog.cpp src/race_data/RaceData.cpp src/inventory_dialog/inventorydialog.cpp src/options_dialog/optionsdialog.cpp src/dungeon_dialog/DungeonDialog.cpp src/partyinfo_dialog/partyinfodialog.cpp src/dungeonmap/dungeonmap.cpp src/bank_dialog/TradeDialog.cpp src/game_resources.cpp src/dungeon_dialog/DungeonMinimap.cpp src/dungeon_dialog/DungeonHandlers.cpp src/event/EventManager.cpp src/update/UpdateManager.cpp src/update/UpdateDialog.cpp src/spell_casting/SpellCastingDialog.cpp $(DISTDIR)/
+	$(COPY_FILE) --parents include/GameConstants.h GameStateManager.h game_menu.h TheCity.h StoryDialog.h src/network_manager/NetworkManager.h src/hall_of_records/hallofrecordsdialog.h src/create_character/createcharacterdialog.h src/about_dialog/AboutDialog.h src/character_dialog/CharacterDialog.h src/message_window/MessageWindow.h src/sender_window/SenderWindow.h src/library_dialog/library_dialog.h src/automap/automap_dialog.h src/game_controller/game_controller.h src/characterlist_dialog/characterlistdialog.h src/helplesson/helplesson.h src/mordorstatistics/mordorstatistics.h src/loadingscreen/LoadingScreen.h src/guilds_dialog/GuildsDialog.h src/general_store/GeneralStore.h src/morgue_dialog/MorgueDialog.h src/seer_dialog/SeerDialog.h src/confinement_dialog/ConfinementDialog.h src/bank_dialog/BankDialog.h src/race_data/RaceData.h src/inventory_dialog/inventorydialog.h src/options_dialog/optionsdialog.h src/dungeon_dialog/DungeonDialog.h src/partyinfo_dialog/partyinfodialog.h src/dungeonmap/dungeonmap.h src/bank_dialog/TradeDialog.h include/game_resources.h src/dungeon_dialog/DungeonHandlers.h src/event/EventManager.h src/dungeon_dialog/MiniMapDialog.h src/update/UpdateManager.h src/update/UpdateDialog.h src/spell_casting/SpellCastingDialog.h $(DISTDIR)/
+	$(COPY_FILE) --parents GameStateManager.cpp game_menu.cpp TheCity.cpp src/network_manager/NetworkManager.cpp src/hall_of_records/hallofrecordsdialog.cpp src/create_character/createcharacterdialog.cpp src/about_dialog/AboutDialog.cpp src/character_dialog/CharacterDialog.cpp src/message_window/MessageWindow.cpp src/sender_window/SenderWindow.cpp src/library_dialog/library_dialog.cpp src/automap/automap_dialog.cpp src/game_controller/game_controller.cpp src/characterlist_dialog/characterlistdialog.cpp src/helplesson/helplesson.cpp src/mordorstatistics/mordorstatistics.cpp src/loadingscreen/LoadingScreen.cpp src/guilds_dialog/GuildsDialog.cpp src/general_store/GeneralStore.cpp src/morgue_dialog/MorgueDialog.cpp src/seer_dialog/SeerDialog.cpp src/confinement_dialog/ConfinementDialog.cpp src/bank_dialog/BankDialog.cpp src/race_data/RaceData.cpp src/inventory_dialog/inventorydialog.cpp src/options_dialog/optionsdialog.cpp src/dungeon_dialog/DungeonDialog.cpp src/partyinfo_dialog/partyinfodialog.cpp src/dungeonmap/dungeonmap.cpp src/bank_dialog/TradeDialog.cpp src/game_resources.cpp src/dungeon_dialog/DungeonMinimap.cpp src/dungeon_dialog/DungeonHandlers.cpp src/event/EventManager.cpp src/update/UpdateManager.cpp src/update/UpdateDialog.cpp src/spell_casting/SpellCastingDialog.cpp $(DISTDIR)/
 
 
 clean: compiler_clean 
@@ -570,9 +564,9 @@ build/moc/moc_predefs.h: /usr/lib/x86_64-linux-gnu/qt6/mkspecs/features/data/dum
 	@echo generating build/moc/moc_predefs.h
 	@g++ -pipe -O2 -std=gnu++2a -Wall -Wextra -dM -E -o build/moc/moc_predefs.h /usr/lib/x86_64-linux-gnu/qt6/mkspecs/features/data/dummy.cpp
 
-compiler_moc_header_make_all: build/moc/moc_GameStateManager.cpp build/moc/moc_game_menu.cpp build/moc/moc_TheCity.cpp build/moc/moc_StoryDialog.cpp build/moc/moc_MonsterEditorDialog.cpp build/moc/moc_NetworkManager.cpp build/moc/moc_hallofrecordsdialog.cpp build/moc/moc_createcharacterdialog.cpp build/moc/moc_AboutDialog.cpp build/moc/moc_CharacterDialog.cpp build/moc/moc_MessageWindow.cpp build/moc/moc_SenderWindow.cpp build/moc/moc_library_dialog.cpp build/moc/moc_automap_dialog.cpp build/moc/moc_game_controller.cpp build/moc/moc_characterlistdialog.cpp build/moc/moc_helplesson.cpp build/moc/moc_mordorstatistics.cpp build/moc/moc_LoadingScreen.cpp build/moc/moc_GuildsDialog.cpp build/moc/moc_GeneralStore.cpp build/moc/moc_MorgueDialog.cpp build/moc/moc_SeerDialog.cpp build/moc/moc_ConfinementDialog.cpp build/moc/moc_BankDialog.cpp build/moc/moc_inventorydialog.cpp build/moc/moc_optionsdialog.cpp build/moc/moc_DungeonDialog.cpp build/moc/moc_partyinfodialog.cpp build/moc/moc_dungeonmap.cpp build/moc/moc_TradeDialog.cpp build/moc/moc_EventManager.cpp build/moc/moc_MiniMapDialog.cpp build/moc/moc_UpdateManager.cpp build/moc/moc_UpdateDialog.cpp build/moc/moc_SpellCastingDialog.cpp
+compiler_moc_header_make_all: build/moc/moc_GameStateManager.cpp build/moc/moc_game_menu.cpp build/moc/moc_TheCity.cpp build/moc/moc_StoryDialog.cpp build/moc/moc_NetworkManager.cpp build/moc/moc_hallofrecordsdialog.cpp build/moc/moc_createcharacterdialog.cpp build/moc/moc_AboutDialog.cpp build/moc/moc_CharacterDialog.cpp build/moc/moc_MessageWindow.cpp build/moc/moc_SenderWindow.cpp build/moc/moc_library_dialog.cpp build/moc/moc_automap_dialog.cpp build/moc/moc_game_controller.cpp build/moc/moc_characterlistdialog.cpp build/moc/moc_helplesson.cpp build/moc/moc_mordorstatistics.cpp build/moc/moc_LoadingScreen.cpp build/moc/moc_GuildsDialog.cpp build/moc/moc_GeneralStore.cpp build/moc/moc_MorgueDialog.cpp build/moc/moc_SeerDialog.cpp build/moc/moc_ConfinementDialog.cpp build/moc/moc_BankDialog.cpp build/moc/moc_inventorydialog.cpp build/moc/moc_optionsdialog.cpp build/moc/moc_DungeonDialog.cpp build/moc/moc_partyinfodialog.cpp build/moc/moc_dungeonmap.cpp build/moc/moc_TradeDialog.cpp build/moc/moc_EventManager.cpp build/moc/moc_MiniMapDialog.cpp build/moc/moc_UpdateManager.cpp build/moc/moc_UpdateDialog.cpp build/moc/moc_SpellCastingDialog.cpp
 compiler_moc_header_clean:
-	-$(DEL_FILE) build/moc/moc_GameStateManager.cpp build/moc/moc_game_menu.cpp build/moc/moc_TheCity.cpp build/moc/moc_StoryDialog.cpp build/moc/moc_MonsterEditorDialog.cpp build/moc/moc_NetworkManager.cpp build/moc/moc_hallofrecordsdialog.cpp build/moc/moc_createcharacterdialog.cpp build/moc/moc_AboutDialog.cpp build/moc/moc_CharacterDialog.cpp build/moc/moc_MessageWindow.cpp build/moc/moc_SenderWindow.cpp build/moc/moc_library_dialog.cpp build/moc/moc_automap_dialog.cpp build/moc/moc_game_controller.cpp build/moc/moc_characterlistdialog.cpp build/moc/moc_helplesson.cpp build/moc/moc_mordorstatistics.cpp build/moc/moc_LoadingScreen.cpp build/moc/moc_GuildsDialog.cpp build/moc/moc_GeneralStore.cpp build/moc/moc_MorgueDialog.cpp build/moc/moc_SeerDialog.cpp build/moc/moc_ConfinementDialog.cpp build/moc/moc_BankDialog.cpp build/moc/moc_inventorydialog.cpp build/moc/moc_optionsdialog.cpp build/moc/moc_DungeonDialog.cpp build/moc/moc_partyinfodialog.cpp build/moc/moc_dungeonmap.cpp build/moc/moc_TradeDialog.cpp build/moc/moc_EventManager.cpp build/moc/moc_MiniMapDialog.cpp build/moc/moc_UpdateManager.cpp build/moc/moc_UpdateDialog.cpp build/moc/moc_SpellCastingDialog.cpp
+	-$(DEL_FILE) build/moc/moc_GameStateManager.cpp build/moc/moc_game_menu.cpp build/moc/moc_TheCity.cpp build/moc/moc_StoryDialog.cpp build/moc/moc_NetworkManager.cpp build/moc/moc_hallofrecordsdialog.cpp build/moc/moc_createcharacterdialog.cpp build/moc/moc_AboutDialog.cpp build/moc/moc_CharacterDialog.cpp build/moc/moc_MessageWindow.cpp build/moc/moc_SenderWindow.cpp build/moc/moc_library_dialog.cpp build/moc/moc_automap_dialog.cpp build/moc/moc_game_controller.cpp build/moc/moc_characterlistdialog.cpp build/moc/moc_helplesson.cpp build/moc/moc_mordorstatistics.cpp build/moc/moc_LoadingScreen.cpp build/moc/moc_GuildsDialog.cpp build/moc/moc_GeneralStore.cpp build/moc/moc_MorgueDialog.cpp build/moc/moc_SeerDialog.cpp build/moc/moc_ConfinementDialog.cpp build/moc/moc_BankDialog.cpp build/moc/moc_inventorydialog.cpp build/moc/moc_optionsdialog.cpp build/moc/moc_DungeonDialog.cpp build/moc/moc_partyinfodialog.cpp build/moc/moc_dungeonmap.cpp build/moc/moc_TradeDialog.cpp build/moc/moc_EventManager.cpp build/moc/moc_MiniMapDialog.cpp build/moc/moc_UpdateManager.cpp build/moc/moc_UpdateDialog.cpp build/moc/moc_SpellCastingDialog.cpp
 build/moc/moc_GameStateManager.cpp: GameStateManager.h \
 		include/GameConstants.h \
 		DataRegistry.h \
@@ -600,11 +594,6 @@ build/moc/moc_StoryDialog.cpp: StoryDialog.h \
 		build/moc/moc_predefs.h \
 		/usr/lib/qt6/libexec/moc
 	@echo moc StoryDialog.h && /usr/lib/qt6/libexec/moc $(DEFINES) --include /home/rickard/Documents/GitHub/depthofdejenol/build/moc/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt6/mkspecs/linux-g++ -I/home/rickard/Documents/GitHub/depthofdejenol -I/home/rickard/Documents/GitHub/depthofdejenol/_PRO_FILE_PWD_/include -I/usr/include/x86_64-linux-gnu/qt6 -I/usr/include/x86_64-linux-gnu/qt6/QtWidgets -I/usr/include/x86_64-linux-gnu/qt6/QtMultimedia -I/usr/include/x86_64-linux-gnu/qt6/QtGui -I/usr/include/x86_64-linux-gnu/qt6/QtNetwork -I/usr/include/x86_64-linux-gnu/qt6/QtCore -I/usr/include/c++/15 -I/usr/include/x86_64-linux-gnu/c++/15 -I/usr/include/c++/15/backward -I/usr/lib/gcc/x86_64-linux-gnu/15/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include StoryDialog.h -o build/moc/moc_StoryDialog.cpp
-
-build/moc/moc_MonsterEditorDialog.cpp: tools/monster_editor/MonsterEditorDialog.h \
-		build/moc/moc_predefs.h \
-		/usr/lib/qt6/libexec/moc
-	@echo moc tools/monster_editor/MonsterEditorDialog.h && /usr/lib/qt6/libexec/moc $(DEFINES) --include /home/rickard/Documents/GitHub/depthofdejenol/build/moc/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt6/mkspecs/linux-g++ -I/home/rickard/Documents/GitHub/depthofdejenol -I/home/rickard/Documents/GitHub/depthofdejenol/_PRO_FILE_PWD_/include -I/usr/include/x86_64-linux-gnu/qt6 -I/usr/include/x86_64-linux-gnu/qt6/QtWidgets -I/usr/include/x86_64-linux-gnu/qt6/QtMultimedia -I/usr/include/x86_64-linux-gnu/qt6/QtGui -I/usr/include/x86_64-linux-gnu/qt6/QtNetwork -I/usr/include/x86_64-linux-gnu/qt6/QtCore -I/usr/include/c++/15 -I/usr/include/x86_64-linux-gnu/c++/15 -I/usr/include/c++/15/backward -I/usr/lib/gcc/x86_64-linux-gnu/15/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include tools/monster_editor/MonsterEditorDialog.h -o build/moc/moc_MonsterEditorDialog.cpp
 
 build/moc/moc_NetworkManager.cpp: src/network_manager/NetworkManager.h \
 		build/moc/moc_predefs.h \
@@ -865,7 +854,6 @@ build/obj/release/game_menu.o: game_menu.cpp GameStateManager.h \
 		src/event/EventManager.h \
 		TheCity.h \
 		StoryDialog.h \
-		tools/monster_editor/MonsterEditorDialog.h \
 		src/characterlist_dialog/characterlistdialog.h \
 		src/hall_of_records/hallofrecordsdialog.h \
 		src/create_character/createcharacterdialog.h \
@@ -903,9 +891,6 @@ build/obj/release/TheCity.o: TheCity.cpp TheCity.h \
 		src/event/EventManager.h \
 		src/dungeon_dialog/MiniMapDialog.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/TheCity.o TheCity.cpp
-
-build/obj/release/MonsterEditorDialog.o: tools/monster_editor/MonsterEditorDialog.cpp tools/monster_editor/MonsterEditorDialog.h
-	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/MonsterEditorDialog.o tools/monster_editor/MonsterEditorDialog.cpp
 
 build/obj/release/NetworkManager.o: src/network_manager/NetworkManager.cpp src/network_manager/NetworkManager.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/NetworkManager.o src/network_manager/NetworkManager.cpp
@@ -1143,9 +1128,6 @@ build/obj/release/moc_TheCity.o: build/moc/moc_TheCity.cpp
 
 build/obj/release/moc_StoryDialog.o: build/moc/moc_StoryDialog.cpp 
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/moc_StoryDialog.o build/moc/moc_StoryDialog.cpp
-
-build/obj/release/moc_MonsterEditorDialog.o: build/moc/moc_MonsterEditorDialog.cpp 
-	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/moc_MonsterEditorDialog.o build/moc/moc_MonsterEditorDialog.cpp
 
 build/obj/release/moc_NetworkManager.o: build/moc/moc_NetworkManager.cpp 
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/moc_NetworkManager.o build/moc/moc_NetworkManager.cpp

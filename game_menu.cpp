@@ -4,8 +4,6 @@
 #include "TheCity.h"
 #include "StoryDialog.h"
 
-#include "tools/monster_editor/MonsterEditorDialog.h"
-
 #include "src/characterlist_dialog/characterlistdialog.h"
 #include "src/hall_of_records/hallofrecordsdialog.h"
 #include "src/create_character/createcharacterdialog.h"
@@ -431,6 +429,7 @@ void GameMenu::onHelpClicked()
 
 void GameMenu::onEditMonsterClicked() 
 {
+/*
     MonsterEditorDialog editor(this);
     // Show the dialog modally and check the result
     if (editor.exec() == QDialog::Accepted) {
@@ -441,6 +440,7 @@ void GameMenu::onEditMonsterClicked()
     } else {
         qDebug() << "Monster editing cancelled.";
     }
+*/
 }
 
 void GameMenu::onEditSpellbookClicked() 
