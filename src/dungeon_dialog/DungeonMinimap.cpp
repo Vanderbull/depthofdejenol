@@ -257,6 +257,37 @@ void DungeonDialog::drawMinimap()
             }
         }
     }
+    // Draw pits
+    for (const auto& pos : m_pitPositions) {
+        if (revealAll || m_visitedTiles.contains(pos)) {
+            scene->addRect(pos.first * TILE_SIZE + 1, pos.second * TILE_SIZE + 1, 
+                           TILE_SIZE - 2, TILE_SIZE - 2, 
+                           QPen(Qt::darkRed), QBrush(Qt::black));
+        }
+    }
+
+    // Define a path and pixmap for the door icon
+    QString doorPath = "resources/images/minimap/hiddendoor.png";
+    QPixmap doorPixmap(doorPath);
+    QPixmap scaledDoor = doorPixmap.scaled(TILE_SIZE, TILE_SIZE, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
+
+    // Draw Hidden Doors
+    for (const auto& pos : m_hiddenDoorPositions) {
+        // Logic: Show if debug 'revealAll' is on, OR if the tile is visited
+        if (revealAll || m_visitedTiles.contains(pos)) {
+            if (!doorPixmap.isNull()) {
+                QGraphicsPixmapItem* doorTile = scene->addPixmap(scaledDoor);
+                doorTile->setPos(pos.first * TILE_SIZE, pos.second * TILE_SIZE);
+                doorTile->setZValue(1); 
+            } else {
+                // Fallback: Draw a yellow rectangle for testing if image is missing
+                scene->addRect(pos.first * TILE_SIZE + 2, pos.second * TILE_SIZE + 2, 
+                               TILE_SIZE - 4, TILE_SIZE - 4, 
+                               QPen(Qt::yellow), QBrush(Qt::yellow));
+            }
+        }
+    }
+
     // 8. Draw Fog of War Overlay
     if (!revealAll) {
         for (int x = 0; x < MAP_SIZE; ++x) { 
@@ -282,10 +313,11 @@ void DungeonDialog::drawMinimap()
         int opacity = static_cast<int>((static_cast<float>(i) / m_breadcrumbPath.size()) * 150);
         // Draw a small subtle dot in the center of the tile
         scene->addEllipse(pos.first * TILE_SIZE + (TILE_SIZE / 3), 
-                          pos.second * TILE_SIZE + (TILE_SIZE / 3), 
-                          TILE_SIZE / 4, TILE_SIZE / 4, 
-                          Qt::NoPen, 
-                          QBrush(QColor(0, 200, 255, opacity))); // Fading cyan trail
+                            pos.second * TILE_SIZE + (TILE_SIZE / 3), 
+                            TILE_SIZE / 4, TILE_SIZE / 4, 
+                            Qt::NoPen, 
+                            //QBrush(QColor(0, 200, 255, opacity))); // Fading cyan trail
+                            QBrush(QColor(255, 255, 0, opacity + 100))); // Brighter yellow trail
     }
     // 9. Draw Player Arrow (Blue)
     QGraphicsPolygonItem* playerArrow = new QGraphicsPolygonItem();

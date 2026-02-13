@@ -103,6 +103,7 @@ private slots:
     void togglePartyInfo();
     
 private:
+    void handleFalling(); // New method to handle falling through a pit
     QSet<QPair<int, int>> m_bodyPositions;
     PartyInfoDialog *m_charSheet = nullptr; // Track the window here
     QPair<int, int> getCurrentPosition(); // The helper function
@@ -193,6 +194,7 @@ private:
     QSet<QPair<int, int>> m_teleportPositions; // implemented
     QSet<QPair<int, int>> m_waterPositions; // implemented
     QSet<QPair<int, int>> m_teleporterPositions; // implemented
+    QSet<QPair<int, int>> m_hiddenDoorPositions;
     // Map data
     // In the private section of DungeonDialog class
     QSet<QPair<int, int>> m_visitedTiles; // Tracks which (x, y) coordinates have been seen

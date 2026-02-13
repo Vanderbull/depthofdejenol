@@ -2,6 +2,23 @@
 #include "DungeonDialog.h"
 #include "../../GameStateManager.h"
 
+void DungeonHandlers::handlePit(DungeonDialog* dialog, int x, int y)
+{
+    QPair<int, int> pos = {x, y};
+    if (dialog->m_pitPositions.contains(pos)) {
+        int damage = QRandomGenerator::global()->bounded(2, 13);
+        dialog->updatePartyMemberHealth(0, damage);
+        dialog->logMessage(QString("<font color='red'>You fall into a pit and take %1 damage!</font>").arg(damage));
+
+        // 25% chance to fall to the next level
+        if (QRandomGenerator::global()->bounded(100) < 25) {
+            dialog->logMessage("<font color='orange'>The floor crumbles away! You tumble to the level below...</font>");
+            int nextLevel = GameStateManager::instance()->getGameValue("DungeonLevel").toInt() + 1;
+            dialog->enterLevel(nextLevel);
+        }
+    }
+}
+
 void DungeonHandlers::handleWater(DungeonDialog* dialog, int x, int y) 
 {
     QPair<int, int> pos = {x, y};    

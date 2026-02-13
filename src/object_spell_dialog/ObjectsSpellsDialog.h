@@ -3,11 +3,12 @@
 
 #include <QDialog>
 #include <QStringListModel>
-#include <QTabWidget>
-#include <QListView>
-#include <QLabel>
-#include <QTextEdit>
-#include "GameStateManager.h"
+
+// Forward declarations speed up compilation
+class QTabWidget;
+class QListView;
+class QTextEdit;
+class QLabel;
 
 class ObjectsSpellsDialog : public QDialog
 {
@@ -15,43 +16,36 @@ class ObjectsSpellsDialog : public QDialog
 
 public:
     explicit ObjectsSpellsDialog(QWidget *parent = nullptr);
-    ~ObjectsSpellsDialog();
+    ~ObjectsSpellsDialog() = default; // Use default if no custom cleanup is needed
 
+    // Update methods (Consider passing a custom Struct/Object instead of QStringList later)
     void updateItems(const QStringList& items);
     void updateSpells(const QStringList& spells);
-    void updateCompanions(const QStringList& companions);
-    void updateGuild(const QStringList& guildInfo);
-    void updateChar(const QStringList& charInfo);
-    void updateBuffs(const QStringList& buffs);
-    void updateMisc(const QStringList& miscInfo);
+    void updateCharStats(const QString& name, int lead, int cast, const QString& guild, long long exp);
 
 signals:
     void itemSelected(const QString& itemDescription);
     void spellSelected(const QString& spellDescription);
-    void companionSelected(const QString& companionDescription);
-
-private slots:
-    void on_tabWidget_currentChanged(int index); // Slot for QTabWidget
-
-    void on_itemsListView_clicked(const QModelIndex& index);
-    void on_spellsListView_clicked(const QModelIndex& index);
-    void on_companionsListView_clicked(const QModelIndex& index);
 
 private:
-    // Models for the list views
+    void setupUi();
+    void createConnections();
+
+    // Models
     QStringListModel *m_itemsModel;
     QStringListModel *m_spellsModel;
     QStringListModel *m_companionsModel;
-    // UI Widgets that need member access for updates
+
+    // UI Elements
     QTabWidget *m_tabWidget;
     QListView *m_itemsListView;
     QListView *m_spellsListView;
     QListView *m_companionsListView;
+    
     QTextEdit *m_charInfoDisplay;
     QTextEdit *m_guildInfoDisplay;
-    QTextEdit *m_buffsInfoDisplay;
-    QTextEdit *m_miscInfoDisplay;
-    // Details panel widgets
+
+    // Right side detail labels
     QLabel *m_charNameLabel;
     QLabel *m_leadLabel;
     QLabel *m_castLabel;
@@ -59,4 +53,4 @@ private:
     QLabel *m_expLabel;
 };
 
-#endif // OBJECTSSPELLSDIALOG_H
+#endif

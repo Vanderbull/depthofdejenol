@@ -8,6 +8,7 @@ class DungeonDialog;
 
 class DungeonHandlers {
 public:
+    static void handlePit(DungeonDialog* dialog, int x, int y);
     static void handleWater(DungeonDialog* dialog, int x, int y);
     static void handleAntimagic(DungeonDialog* dialog, int x, int y);
     static void handleTrap(DungeonDialog* dialog, int x, int y);

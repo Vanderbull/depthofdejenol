@@ -1,8 +1,8 @@
-#--------------------------------------------------
-# Project Configuration
+#-------------------------------------------------- Project 
+# Configuration
 #--------------------------------------------------
 QT += core gui widgets multimedia network
-TARGET = game_menu
+TARGET = blacklands
 
 # Qt 6 & Silent mode (only outputs warnings/errors)
 CONFIG += c++20 silent
@@ -32,7 +32,7 @@ INCLUDEPATH += _PRO_FILE_PWD_/include
 #--------------------------------------------------
 SOURCES += \
     GameStateManager.cpp \
-    game_menu.cpp \
+    blacklands.cpp \
     TheCity.cpp \
     src/network_manager/NetworkManager.cpp \
     src/hall_of_records/hallofrecordsdialog.cpp \
@@ -74,7 +74,7 @@ SOURCES += \
 HEADERS += \
     include/GameConstants.h \
     GameStateManager.h \
-    game_menu.h \
+    blacklands.h \
     TheCity.h \
     StoryDialog.h \
     src/network_manager/NetworkManager.h \

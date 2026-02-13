@@ -1,4 +1,4 @@
-# Contributing to Black Lands: Depth of Dejenol
+# Contributing to BlackLands
 
 First off, thank you for considering contributing! 
 
@@ -20,7 +20,7 @@ To build the project for the first time, follow these steps:
     Generate the Makefile:
     Bash
 
-qmake6 project.pro
+qmake6 blacklands.pro
 
 Build and Generate LSP Metadata: We use bear to intercept the build process and create compile_commands.json. This enables "IntelliSense" features (Autocomplete, Go-to-Definition) in your editor.
 Bash
@@ -33,7 +33,7 @@ Adding New Files
 If you add new .cpp or .h files to the .pro file, you must refresh the build scripts:
 Bash
 
-qmake6 project.pro
+qmake6 blacklands.pro
 make clean
 bear -- make
 
@@ -83,7 +83,7 @@ sudo apt install build-essential qt6-base-dev bear
 ## Development Environment Setup
 To get a fully working environment with autocomplete:
 1. Install **Qt6**, **make**, and **Bear**.
-2. Run `qmake6 project.pro`.
+2. Run `qmake6 blacklands.pro`.
 3. Run `make lsp` to generate the `compile_commands.json`.
 
 ## Code Style
@@ -95,4 +95,4 @@ Please run `make format` (or use clang-format) before submitting a PR.
 2. Install all Qt 6 packages (e.g., `qt6-base`, `qt6-multimedia`, etc.).
 3. Use `qmake6` to generate Makefiles.
 4. Run `make` to build the project.
-5. Execute with `./game_menu`.
+5. Execute with `./blacklands`.

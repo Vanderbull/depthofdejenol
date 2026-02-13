@@ -183,6 +183,7 @@ void DungeonDialog::movePlayer(int dx, int dy, int dz=0)
     DungeonHandlers::handleChute(this, newX, newY);
     DungeonHandlers::handleExtinguisher(this, newX, newY);
     DungeonHandlers::handleEncounters(this, newX, newY);
+    DungeonHandlers::handlePit(this, newX, newY); // Added pit check
     logMessage(QString("You move to (%1, %2).").arg(newX).arg(newY));
     drawMinimap();
     renderWireframeView();
@@ -324,7 +325,9 @@ void DungeonDialog::generateSpecialTiles(int tileCount, QRandomGenerator& rng)
     m_trapPositions.clear();
     m_waterPositions.clear();
     m_teleporterPositions.clear();
+    m_hiddenDoorPositions.clear();
     GameStateManager* gsm = GameStateManager::instance();
+int currentLevel = gsm->getGameValue("DungeonLevel").toInt();
     QPair<int, int> playerPos = {gsm->getGameValue("DungeonX").toInt(), gsm->getGameValue("DungeonY").toInt()};
     // Helper A: Get a tile ONLY from a room (No corridors!)
     auto getValidRoomTile = [&]() -> QPair<int, int> {
@@ -383,6 +386,41 @@ void DungeonDialog::generateSpecialTiles(int tileCount, QRandomGenerator& rng)
         else if (roll < 70) { 
             pos = getValidRoomTile();
             if (pos.first != -1) m_chutePositions.insert(pos);
+        }
+        else if (roll < 75) { // 5% Pits
+            pos = getAnyFloorTile();
+            if (pos.first != -1) m_pitPositions.insert(pos);
+        }
+    }
+    if (currentLevel == 1) {
+        QList<QPair<int, int>> wallList = m_obstaclePositions.values();
+        bool placed = false;
+        
+        // Shuffle wall list to get a random wall tile for the door
+        std::shuffle(wallList.begin(), wallList.end(), std::default_random_engine(rng.generate()));
+
+        for (const auto& wallPos : wallList) {
+            // Check 4 cardinal directions for a floor tile
+            QList<QPair<int, int>> neighbors = {
+                {wallPos.first, wallPos.second - 1}, // North
+                {wallPos.first, wallPos.second + 1}, // South
+                {wallPos.first - 1, wallPos.second}, // West
+                {wallPos.first + 1, wallPos.second}  // East
+            };
+
+            for (const auto& neighbor : neighbors) {
+                // Check boundaries and ensure neighbor is NOT a wall
+                if (neighbor.first >= 0 && neighbor.first < MAP_SIZE && 
+                    neighbor.second >= 0 && neighbor.second < MAP_SIZE &&
+                    !m_obstaclePositions.contains(neighbor)) {
+                    
+                    m_hiddenDoorPositions.insert(wallPos);
+                    qDebug() << "Accessible Hidden Door placed in wall at:" << wallPos << " next to floor at:" << neighbor;
+                    placed = true;
+                    break; 
+                }
+            }
+            if (placed) break;
         }
     }
 }
@@ -801,10 +839,32 @@ void DungeonDialog::on_takeButton_clicked()
 }
 
 void DungeonDialog::on_searchButton_clicked() 
-{ 
-    logMessage("You carefully search the area. Found nothing."); 
-}
+{
+    QPair<int, int> currentPos = getCurrentPosition();
+    bool found = false;
 
+    // Search in a 1-tile radius around the player (3x3 area)
+    for (int dx = -1; dx <= 1; ++dx) {
+        for (int dy = -1; dy <= 1; ++dy) {
+            QPair<int, int> checkPos = {currentPos.first + dx, currentPos.second + dy};
+            
+            if (m_hiddenDoorPositions.contains(checkPos)) {
+                logMessage(QString("Your search reveals a hidden door at %1, %2!")
+                           .arg(checkPos.first).arg(checkPos.second));
+                
+                // Add to visited tiles so it stays on the map
+                m_visitedTiles.insert(checkPos);
+                found = true;
+            }
+        }
+    }
+
+    if (found) {
+        drawMinimap(); // Redraw map to show the discovered door
+    } else {
+        logMessage("You search the area but find nothing hidden.");
+    }
+}
 void DungeonDialog::on_talkButton_clicked() 
 { 
     logMessage("You try talking, but the silence replies."); 
