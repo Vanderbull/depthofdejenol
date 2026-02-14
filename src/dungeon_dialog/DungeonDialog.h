@@ -6,11 +6,7 @@
 #include <QGraphicsView>
 #include <QMap>
 #include <QImage>
-//#include <QTimer>
-//#include <QLabel>
-//#include <QListWidget>
 #include <QKeyEvent>
-//#include <QPushButton>
 #include <QSet>
 #include <QPair>
 #include <QTableWidget>
@@ -24,9 +20,6 @@
 #include "MiniMapDialog.h"
 
 // Forward declarations
-//class InventoryDialog;
-//class PartyInfoDialog;
-//class MinimapDialog;
 class QGraphicsScene;
 class QGraphicsView;
 class QLabel;
@@ -103,6 +96,7 @@ private slots:
     void togglePartyInfo();
     
 private:
+    void setupControls();
     void handleFalling(); // New method to handle falling through a pit
     QSet<QPair<int, int>> m_bodyPositions;
     PartyInfoDialog *m_charSheet = nullptr; // Track the window here
@@ -140,18 +134,10 @@ private:
     QGraphicsView *m_miniMapView;
     QListWidget *m_messageLog;
     // Buttons
-    QPushButton *m_fightButton;
-    QPushButton *m_spellButton;
-    QPushButton *m_restButton;
-    QPushButton *m_talkButton;
-    QPushButton *m_searchButton;
-    QPushButton *m_pickupButton;
-    QPushButton *m_dropButton;
-    QPushButton *m_openButton;
-    QPushButton *m_mapButton;
-    QPushButton *m_chestButton;
-    QPushButton *m_exitButton;
-    QPushButton *m_teleportButton;
+    QMap<QString, QPushButton*> m_controls;
+    // A helper to make button creation cleaner
+    QPushButton* createButton(const QString& text, const char* slot);
+    
     QPushButton *m_upButton;
     QPushButton *m_downButton;
     QPushButton *m_leftButton;
@@ -165,7 +151,6 @@ private:
     void updateExperienceLabel();
     // Gold Management Members
     QLabel *m_goldLabel;
-    //void refreshHealthUI();
     void updateGoldLabel();
     PartyInfoDialog *m_partyInfoDialog;
     // Health Management Helper
