@@ -1727,7 +1727,7 @@ void DungeonDialog::on_spellButton_clicked()
     
     // Connect spell effects to dungeon actions
     connect(spellDialog, &SpellCastingDialog::spellCast, this, 
-            [this](const QString& spellName, const SpellResult& result) {
+            [this](const QString& /*spellName*/, const SpellResult& result) {
         
     logMessage(QString("<font color='cyan'>%1</font>").arg(result.message));
         

@@ -3,8 +3,8 @@ Name: adam
 Race: 
 Age: 0
 Race: 
-DungeonX: 5
-DungeonY: 23
+DungeonX: 18
+DungeonY: 27
 DungeonLevel: 1
 Guild: 
 Level: 1

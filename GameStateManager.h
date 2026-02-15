@@ -1,21 +1,37 @@
 #ifndef GAMESTATEMANAGER_H
 #define GAMESTATEMANAGER_H
 
+// Project Includes
 #include "include/GameConstants.h"
 #include "DataRegistry.h"
 #include "character.h"
+
+// Qt Core
 #include <QObject>
+#include <QString>
+#include <QStringList>
+#include <QVector>
+#include <QList>
+#include <QMap>
+#include <QVariant>
 #include <QVariantMap>
-#include <QtGlobal>
+#include <QPoint>
+#include <QUrl>
 #include <QTimer>
+#include <QDebug>
+
+// Qt Multimedia
 #include <QMediaPlayer>
 #include <QAudioOutput>
-#include <QUrl>
+
+// Qt GUI & Widgets
 #include <QFont>
-#include <QGuiApplication>
+#include <QPixmap>
+#include <QPainter>
 #include <QApplication>
 #include <QWidget>
 
+// Qt JSON/IO
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QJsonArray>
@@ -26,270 +42,196 @@ class GameStateManager : public QObject
     Q_OBJECT
 
 private:
-
     const GameConstants::RaceStat& getStatRef(const GameConstants::RaceStats& race, const QString& statName) const;
-
     QPixmap m_fontSpriteSheet;
-    //const int CHAR_WIDTH = 8;  // Adjust based on your actual sprite size
-    //const int CHAR_HEIGHT = 12; // Adjust based on your actual sprite size
-    static constexpr int FONT_CHAR_WIDTH = 32;  // Renamed to avoid macro conflicts
+    static constexpr int FONT_CHAR_WIDTH = 32;
     static constexpr int FONT_CHAR_HEIGHT = 42;
-    // Private constructor
+
     explicit GameStateManager(QObject *parent = nullptr);
-    // Prevent copy and assignment
     GameStateManager(const GameStateManager&) = delete;
     GameStateManager& operator=(const GameStateManager&) = delete;
 
-    // The Registry replaces manual QLists like m_raceDefinitions
     DataRegistry m_registry; 
-
-// Helper to find a race map in the registry
     QVariantMap findRaceMap(const QString& raceName) const;
-    
-    // Helper to convert Registry data to Structs
     GameConstants::RaceStats createRaceFromVariant(const QVariant& data) const;
 
 public:
+    static GameStateManager* instance();
     bool loadGameConfig(const QString& filePath);
 
-    // Updated Getters that use the Registry
+    // --- Race and Stat Definitions ---
     QVector<QString> getAvailableRaces() const;
     int getRaceMin(const QString& raceName, const QString& statName) const;
     int getRaceMax(const QString& raceName, const QString& statName) const;
+    
+    // RESTORED: These were commented out in your .cpp, so they must be inline or implemented
+    int getRaceStart(const QString& raceName, const QString& statName) const {
+        for (const auto& race : m_raceDefinitions) {
+            if (race.raceName == raceName) return getStatRef(race, statName).start;
+        }
+        return 1;
+    }
 
-//    QVector<QString> getAvailableRaces() const;
-//    int getRaceMin(const QString& raceName, const QString& statName) const;
-//    int getRaceMax(const QString& raceName, const QString& statName) const;
-    int getRaceStart(const QString& raceName, const QString& statName) const;
-    bool isAlignmentAllowed(const QString& raceName, const QString& alignmentName) const;
-    bool isGuildAllowed(const QString& raceName, const QString& guildName) const;
+    bool isAlignmentAllowed(const QString& raceName, const QString& alignmentName) const {
+        for (const auto& race : m_raceDefinitions) {
+            if (race.raceName == raceName) {
+                if (alignmentName == "Good")    return race.good == GameConstants::AS_Allowed;
+                if (alignmentName == "Neutral") return race.neutral == GameConstants::AS_Allowed;
+                if (alignmentName == "Evil")    return race.evil == GameConstants::AS_Allowed;
+            }
+        }
+        return false;
+    }
+
+    bool isGuildAllowed(const QString& raceName, const QString& guildName) const {
+        for (const auto& race : m_raceDefinitions) {
+            if (race.raceName == raceName) {
+                return race.guildEligibility.value(guildName, GameConstants::AS_Allowed) == GameConstants::AS_Allowed;
+            }
+        }
+        return true;
+    }
 
     void loadRaceDefinitions();
     const QVector<GameConstants::RaceStats>& getRaceDefinitions() const { return m_raceDefinitions; }
     GameConstants::RaceStats getStatsForRace(const QString& raceName) const;
 
+    // --- Font and Rendering ---
     void loadFontSprite(const QString& path);
     void drawCustomText(QPainter* painter, const QString& text, const QPoint& position);
-
     void setProportionalFont(const QFont& font);
     void setFixedFont(const QFont& font);
-    QFont getProportionalFont() const;
-    QFont getFixedFont() const;
-    // --- Global Audio Methods ---
+    QFont getProportionalFont() const { return m_proportionalFont; }
+    QFont getFixedFont() const { return m_fixedFont; }
+
+    // --- Global Audio ---
     void playMusic(const QString& fileName, bool loop = true);
     void stopMusic();
-    void setVolume(float volume); // 0.0 to 1.0
-
-    // Improved thread-safe static accessor
-    static GameStateManager* instance();
-    static const int MAX_PARTY_SIZE = 4;
-    struct PlacedItem 
-    {
-        int level;
-        int x;
-        int y;
-        QString itemName;
-    };
-
-    void addPlacedItem(int level, int x, int y, const QString& name) 
-    {
-        m_placedItems.append({level, x, y, name});
+    void setVolume(float volume);
+    float getVolume() const {
+        return m_globalAudioOutput ? m_globalAudioOutput->volume() : 0.5f;
     }
 
+    // --- Party and World Objects ---
+    static const int MAX_PARTY_SIZE = 4;
+    struct PlacedItem {
+        int level; int x; int y; QString itemName;
+    };
+
+    void addPlacedItem(int level, int x, int y, const QString& name) {
+        m_placedItems.append({level, x, y, name});
+    }
     QList<PlacedItem> getPlacedItems() const { return m_placedItems; }
-    QVector<GameConstants::RaceStats> m_raceDefinitions; // Race stat definitions
+    QVector<GameConstants::RaceStats> m_raceDefinitions;
 
-
+    // --- Character Management ---
+    QList<Character>& getPC() { return m_PC; }
+    const QList<Character>& getPC() const { return m_PC; }
+    void setCharacterGold(int index, qulonglong newGold);
+    void updateCharacterGold(int characterIndex, qulonglong amount, bool add = true);
+    void updatePartyMemberHP(int index, int newHP);
+    void syncActiveCharacterToParty();
+    bool readyBodyForResurrection(const QString& characterName);
     
-signals:
-    void gameValueChanged(const QString& key, const QVariant& value);
-    void fontChanged(); // Notify all widgets to refresh their fonts
-
-private:
-    QFont m_proportionalFont;
-    QFont m_fixedFont;
-    QMediaPlayer* m_globalPlayer = nullptr;
-    QAudioOutput* m_globalAudioOutput = nullptr;
-
-    QVariantList party;
-    QList<Character> m_PC;
-    QList<PlacedItem> m_placedItems;
-    QVariantMap m_gameStateData;
-    QMap<QString, int> m_confinementStock;
-    QList<QVariantMap> m_confinementcreaturesData; // In-memory storage for MDATA15
-    QList<QVariantMap> m_hallofrecordsData; // In-memory storage for MDATA14
-    QList<QVariantMap> m_libraryentriesData; // In-memory storage for MDATA13
-    QList<QVariantMap> m_existingpartiesData; // In-memory storage for MDATA12
-    QList<QVariantMap> m_dungeonlayoutData; // In-memory storage for MDATA11
-    QList<QVariantMap> m_dungeonstuffData; // In-memory storage for MDATA10
-    QList<QVariantMap> m_guildlogsData; // In-memory storage for MDATA9
-    QList<QVariantMap> m_automapData; // In-memory storage for MDATA8
-    QList<QVariantMap> m_guildmastersData; // In-memory storage for MDATA7
-    QList<QVariantMap> m_generalstoreData; // In-memory storage for MDATA6
-    QList<QVariantMap> m_monsterData; // In-memory storage for MDATA5
-    QList<QVariantMap> m_characterData; // In-memory storage for MDATA4
-    QList<QVariantMap> m_itemData;    // In-memory storage for MDATA3
-    QList<QVariantMap> m_spellData;    // In-memory storage for MDATA2
-    QList<QVariantMap> m_gameData;    // In-memory storage for MDATA1
-    QTimer *m_autosaveTimer = nullptr;
-    
-
-public:
+    // --- Aging and Progression ---
     void incrementPartyAge(int years = 1);
     void processAgingConsequences();
     int getMaxAgeForRace(const QString& raceName) const;
     bool isCharacterPastMaxAge(int index) const;
     static QMap<QString, int> getRaceAgeLimits();
-    // Add to the public section of GameStateManager.h
-    float getVolume() const {
-        return m_globalAudioOutput ? m_globalAudioOutput->volume() : 0.5f;
-    }
+    void addCharacterExperience(qulonglong amount);
+
+    // --- City/Dungeon State ---
+    void setInCity(bool inCity) { setGameValue("inCity", inCity); }
+    bool isInCity() const { return m_gameStateData.value("inCity", false).toBool(); }
+    
     bool isActiveCharacterInCity() const {
         if (m_PC.isEmpty()) return false;
         return m_PC[0].DungeonLevel == 0;
     }
-    // Getter to provide access to the party list
-    QList<Character>& getPC() { return m_PC; }
-    const QList<Character>& getPC() const { return m_PC; }
-    void setCharacterGold(int index, qulonglong newGold) {
-        if (index >= 0 && index < m_PC.size()) {
-            m_PC[index].Gold = newGold;
-            // If this is the active character (usually index 0), 
-            // sync it to the global game state for UI updates.
-            if (index == 0) {
-                setGameValue("Gold", newGold);
-            }
-            qDebug() << "Gold for PC" << index << "set to:" << newGold;
-        }
-    }
-    // Logic to "Ready" a body into the active party for resurrection
-    bool readyBodyForResurrection(const QString& characterName);
-    void setInCity(bool inCity) 
-    {
-        setGameValue("inCity", inCity);
-    }
-    bool isInCity() const 
-    {
-        return m_gameStateData.value("inCity", false).toBool();
-    }
-    QVariantMap getCharacterData(int index) const;
-    void updateCharacterData(int index, const QVariantMap& data);
-    // Game Data Method
+
+    // --- Data Accessors (M-DATA) ---
     void loadGameData(const QString& filePath); 
+    void listGameData();
     const QList<QVariantMap>& gameData() const { return m_gameData; }
-    int gameCount() const { return m_gameData.size(); }
-    QVariantMap getGame(int index) const 
-    {
-        return (index >= 0 && index < m_gameData.size()) ? m_gameData[index] : QVariantMap();
-    }
-    // Spell Data Method
+    
     void loadSpellData(const QString& filePath); 
     const QList<QVariantMap>& spellData() const { return m_spellData; }
-    int spellCount() const { return m_spellData.size(); }
-    QVariantMap getSpell(int index) const 
-    {
-        return (index >= 0 && index < m_spellData.size()) ? m_spellData[index] : QVariantMap();
-    }
-    // Item Data Method
+    
     void loadItemData(const QString& filePath);
     const QList<QVariantMap>& itemData() const { return m_itemData; }
-    int itemCount() const { return m_itemData.size(); }
-    QVariantMap getItem(int index) const 
-    {
-        return (index >= 0 && index < m_itemData.size()) ? m_itemData[index] : QVariantMap();
-    }
-    // Monster Data Methods
+    
     void loadMonsterData(const QString& filePath);
     const QList<QVariantMap>& monsterData() const { return m_monsterData; }
-    int monsterCount() const { return m_monsterData.size(); }
-    QVariantMap getMonster(int index) const 
-    {
+    
+    QVariantMap getGame(int index) const {
+        return (index >= 0 && index < m_gameData.size()) ? m_gameData[index] : QVariantMap();
+    }
+    QVariantMap getSpell(int index) const {
+        return (index >= 0 && index < m_spellData.size()) ? m_spellData[index] : QVariantMap();
+    }
+    QVariantMap getItem(int index) const {
+        return (index >= 0 && index < m_itemData.size()) ? m_itemData[index] : QVariantMap();
+    }
+    QVariantMap getMonster(int index) const {
         return (index >= 0 && index < m_monsterData.size()) ? m_monsterData[index] : QVariantMap();
     }
-    void performSanityCheck();
+
+    // --- Inventory and Stock ---
     void incrementStock(const QString& name);
     void decrementStock(const QString& name);
     QMap<QString, int> getConfinementStock() const;
+    void setBankInventory(const QStringList& items);
+    QStringList getBankInventory() const;
+    void setCharacterInventory(int characterIndex, const QStringList& items);
+    void addItemToCharacter(int characterIndex, const QString& itemName);
+
+    // --- Persistence ---
+    bool loadCharacterFromFile(const QString& characterName);
+    bool saveCharacterToFile(int partyIndex);
+    bool verifySaveGame(const QString& characterName);
+    bool repairSaveGame(const QString& characterName);
+    void startAutosave(int intervalms = 10000);
+    void stopAutosave();
+
+    // --- Global Values System ---
     void setGameValue(const QString& key, const QVariant& value);
     QVariant getGameValue(const QString& key) const;
-    void addCharacterExperience(qulonglong amount);
     void logGuildAction(const QString& actionDescription);
-    void printAllGameState() const;
-    bool areResourcesLoaded() const;
-    // Character Status Methods
+    
+    // --- Status Flags ---
     void setCharacterPoisoned(bool isPoisoned);
     bool isCharacterPoisoned() const;
     void setCharacterBlinded(bool isBlinded);
     bool isCharacterBlinded() const;
     void setCharacterOnFire(bool isOnFire);
     bool isCharacterOnFire() const;
-    void setIsAlive(int alive) 
-    {
-        setGameValue("isAlive", alive);
-    }
-    int getIsAlive() const 
-    {
-        return m_gameStateData.value("isAlive").toInt();
-    }
-    // --- Inventory Management ---
-    void setBankInventory(const QStringList& items);
-    QStringList getBankInventory() const;
-    void setCharacterInventory(int characterIndex, const QStringList& items);
-    void addItemToCharacter(int characterIndex, const QString& itemName);
-    void updateCharacterGold(int characterIndex, qulonglong amount, bool add = true);
-    bool loadCharacterFromFile(const QString& characterName);
-    bool saveCharacterToFile(int partyIndex);
-    void updatePartyMemberHP(int index, int newHP);
-    void syncActiveCharacterToParty();
-    void listGameData();
-    bool verifySaveGame(const QString& characterName);
-    bool repairSaveGame(const QString& characterName);
-    void startAutosave(int intervalms = 10000); // 10 seconds default
-    void stopAutosave();
+    void setIsAlive(int alive) { setGameValue("isAlive", alive); }
+    int getIsAlive() const { return m_gameStateData.value("isAlive").toInt(); }
+
     // --- Mana Management ---
-    // --- Mana Management ---
-    int getCurrentMana() const 
-    {
-        // Instead of hardcoded 50, get from the active character
+    int getCurrentMana() const {
         int idx = m_gameStateData.value("ActiveCharacterIndex", 0).toInt();
-        if (idx >= 0 && idx < m_PC.size()) {
-            return m_PC[idx].mana;
-        }
-        return m_gameStateData.value("CurrentMana", 0).toInt(); 
+        if (idx >= 0 && idx < m_PC.size()) return m_PC[idx].mana;
+        return m_gameStateData.value("CurrentMana", 0).toInt();
     }
 
-    int getMaxMana() const 
-    {
+    int getMaxMana() const {
         int idx = m_gameStateData.value("ActiveCharacterIndex", 0).toInt();
-        if (idx >= 0 && idx < m_PC.size()) {
-            return m_PC[idx].maxMana;
-        }
+        if (idx >= 0 && idx < m_PC.size()) return m_PC[idx].maxMana;
         return m_gameStateData.value("MaxMana", 0).toInt();
     }
 
-    void setCurrentMana(int mana) 
-    {
-        // 1. Calculate the clamped value
+    void setCurrentMana(int mana) {
         int cappedMana = qMax(0, qMin(mana, getMaxMana()));
-        
-        // 2. Find the active character
         int idx = m_gameStateData.value("ActiveCharacterIndex", 0).toInt();
-        
-        // 3. Write to the SAME source used by getCurrentMana()
-        if (idx >= 0 && idx < m_PC.size()) {
-            m_PC[idx].mana = cappedMana;
-        } else {
-            // Fallback for when no character is active
-            setGameValue("CurrentMana", cappedMana);
-        }
+        if (idx >= 0 && idx < m_PC.size()) m_PC[idx].mana = cappedMana;
+        else setGameValue("CurrentMana", cappedMana);
     }
 
-    void setMaxMana(int maxMana) 
-    {
-        setGameValue("MaxMana", maxMana);
-    }
-    bool spendMana(int cost) 
-    {
+    void setMaxMana(int maxMana) { setGameValue("MaxMana", maxMana); }
+
+    bool spendMana(int cost) {
         int current = getCurrentMana();
         if (current >= cost) {
             setCurrentMana(current - cost);
@@ -297,13 +239,52 @@ public:
         }
         return false;
     }
-    void restoreMana(int amount) 
-    {
+
+    void restoreMana(int amount) {
         setCurrentMana(getCurrentMana() + amount);
     }
 
+    // --- Diagnostics ---
+    void performSanityCheck();
+    void printAllGameState() const;
+    bool areResourcesLoaded() const;
+
+signals:
+    void gameValueChanged(const QString& key, const QVariant& value);
+    void fontChanged();
+
 private slots:
     void handleAutosave();
+
+private:
+    QFont m_proportionalFont;
+    QFont m_fixedFont;
+    QMediaPlayer* m_globalPlayer = nullptr;
+    QAudioOutput* m_globalAudioOutput = nullptr;
+
+    QVariantList party; 
+    QList<Character> m_PC;
+    QList<PlacedItem> m_placedItems;
+    QVariantMap m_gameStateData;
+    QMap<QString, int> m_confinementStock;
+
+    QList<QVariantMap> m_gameData;
+    QList<QVariantMap> m_spellData;
+    QList<QVariantMap> m_itemData;
+    QList<QVariantMap> m_characterData;
+    QList<QVariantMap> m_monsterData;
+    QList<QVariantMap> m_generalstoreData;
+    QList<QVariantMap> m_guildmastersData;
+    QList<QVariantMap> m_automapData;
+    QList<QVariantMap> m_guildlogsData;
+    QList<QVariantMap> m_dungeonstuffData;
+    QList<QVariantMap> m_dungeonlayoutData;
+    QList<QVariantMap> m_existingpartiesData;
+    QList<QVariantMap> m_libraryentriesData;
+    QList<QVariantMap> m_hallofrecordsData;
+    QList<QVariantMap> m_confinementcreaturesData;
+    
+    QTimer *m_autosaveTimer = nullptr;
 };
 
 #endif // GAMESTATEMANAGER_H

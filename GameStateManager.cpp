@@ -36,7 +36,7 @@ bool GameStateManager::loadGameConfig(const QString& filePath) {
 
     for (auto it = root.begin(); it != root.end(); ++it) {
         QVariant val = it.value().toVariant();
-        if (val.type() == QVariant::List) {
+        if (val.typeId() == QMetaType::QVariantList) {
             m_registry.registerData(it.key(), val.toList());
         } else {
             m_registry.registerData(it.key(), QVariantList() << val);

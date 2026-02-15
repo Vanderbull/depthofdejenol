@@ -230,7 +230,7 @@ void OptionsDialog::setupUi()
 
     connect(sfxVolSlider, &QSlider::valueChanged, this, [](int value) {
         float vol = static_cast<float>(value) / 100.0f;
-        // Placeholder for GameStateManager SFX logic
+        GameStateManager::instance()->setVolume(vol);
     });
 
     noSoundFxCheckBox = new QCheckBox("No Sound FX");
