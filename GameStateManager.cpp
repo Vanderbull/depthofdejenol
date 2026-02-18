@@ -44,6 +44,25 @@ bool GameStateManager::loadGameConfig(const QString& filePath) {
     }
     return true;
 }
+void GameStateManager::refreshUI() {
+    QVariantList partyList;
+    for (const auto& character : m_PC) {
+        partyList.append(character.toMap());
+    }
+    
+    // Update the master list that the UI/QML binds to
+    m_gameStateData["Party"] = partyList;
+    
+    // If you have specific UI elements bound to "CurrentCharacterHP", 
+    // update only those two or three global keys here.
+    if (!m_PC.isEmpty()) {
+        m_gameStateData["CurrentCharacterHP"] = m_PC[0].hp;
+        m_gameStateData["isAlive"] = m_PC[0].isAlive;
+    }
+
+    emit gameValueChanged("Party", partyList);
+}
+
 
 // Helper to prevent code duplication
 QVariantMap GameStateManager::findRaceMap(const QString& raceName) const {
@@ -785,6 +804,7 @@ void GameStateManager::updatePartyMemberHP(int index, int newHP)
     }
 }
 
+/*
 void GameStateManager::syncActiveCharacterToParty() 
 {
     // 1. Get the current party list
@@ -813,6 +833,7 @@ void GameStateManager::syncActiveCharacterToParty()
     setGameValue("Party", party);
     qDebug() << "Synced active character" << character["Name"].toString() << "to Party Slot 0.";
 }
+*/
 
 void GameStateManager::listGameData() {
     // Remove the () and the instance() call
@@ -965,7 +986,8 @@ void GameStateManager::handleAutosave() {
     qDebug() << "Autosaving character:" << currentHero;
     
     // 1. Sync the live UI/Game values to the Party structure first
-    syncActiveCharacterToParty();
+    refreshUI();
+    //syncActiveCharacterToParty();
     
     // 2. Save Party Slot 0 (the active player) to the .txt file
     if (saveCharacterToFile(0)) {
@@ -1195,45 +1217,3 @@ QVector<QString> GameStateManager::getAvailableRaces() const {
     }
     return names;
 }
-/*
-int GameStateManager::getRaceMin(const QString& raceName, const QString& statName) const {
-    for (const auto& race : m_raceDefinitions) {
-        if (race.raceName == raceName) return getStatRef(race, statName).min;
-    }
-    return 1;
-}
-
-int GameStateManager::getRaceMax(const QString& raceName, const QString& statName) const {
-    for (const auto& race : m_raceDefinitions) {
-        if (race.raceName == raceName) return getStatRef(race, statName).max;
-    }
-    return 18;
-}
-
-int GameStateManager::getRaceStart(const QString& raceName, const QString& statName) const {
-    for (const auto& race : m_raceDefinitions) {
-        if (race.raceName == raceName) return getStatRef(race, statName).start;
-    }
-    return 1;
-}
-
-bool GameStateManager::isAlignmentAllowed(const QString& raceName, const QString& alignmentName) const {
-    for (const auto& race : m_raceDefinitions) {
-        if (race.raceName == raceName) {
-            if (alignmentName == "Good")    return race.good == GameConstants::AS_Allowed;
-            if (alignmentName == "Neutral") return race.neutral == GameConstants::AS_Allowed;
-            if (alignmentName == "Evil")    return race.evil == GameConstants::AS_Allowed;
-        }
-    }
-    return false;
-}
-
-bool GameStateManager::isGuildAllowed(const QString& raceName, const QString& guildName) const {
-    for (const auto& race : m_raceDefinitions) {
-        if (race.raceName == raceName) {
-            return race.guildEligibility.value(guildName, GameConstants::AS_Allowed) == GameConstants::AS_Allowed;
-        }
-    }
-    return true;
-}
-*/

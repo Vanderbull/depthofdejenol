@@ -1,3 +1,4 @@
+
 #include "createcharacterdialog.h"
 #include "src/race_data/RaceData.h"
 #include "../../GameStateManager.h"
@@ -317,7 +318,8 @@ void CreateCharacterDialog::onGuildStatsClicked()
 
 void CreateCharacterDialog::onSaveCharacterClicked() 
 {
-    GameStateManager::instance()->syncActiveCharacterToParty();
+    //GameStateManager::instance()->syncActiveCharacterToParty();
+    GameStateManager::instance()->refreshUI();
     QString characterName = nameEdit->text().trimmed();
     if (characterName.isEmpty()) {
         QMessageBox::warning(this, "Save Error", "Please enter a **Character Name** before saving.");

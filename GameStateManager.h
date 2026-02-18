@@ -54,6 +54,7 @@ private:
 public:
     static GameStateManager* instance();
     bool loadGameConfig(const QString& filePath);
+    void refreshUI();
 
     // --- Race and Stat Definitions ---
     QVector<QString> getAvailableRaces() const;
@@ -118,7 +119,7 @@ public:
     void setCharacterGold(int index, qulonglong newGold);
     void updateCharacterGold(int characterIndex, qulonglong amount, bool add = true);
     void updatePartyMemberHP(int index, int newHP);
-    void syncActiveCharacterToParty();
+//    void syncActiveCharacterToParty();
     bool readyBodyForResurrection(const QString& characterName);
     
     // --- Aging and Progression ---
