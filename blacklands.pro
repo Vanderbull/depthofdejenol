@@ -32,6 +32,7 @@ INCLUDEPATH += _PRO_FILE_PWD_/include
 #--------------------------------------------------
 SOURCES += \
     GameStateManager.cpp \
+    AudioManager.cpp \
     blacklands.cpp \
     TheCity.cpp \
     src/network_manager/NetworkManager.cpp \
@@ -74,6 +75,7 @@ SOURCES += \
 HEADERS += \
     include/GameConstants.h \
     GameStateManager.h \
+    AudioManager.h \
     blacklands.h \
     TheCity.h \
     StoryDialog.h \

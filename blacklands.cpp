@@ -1,6 +1,8 @@
 
 #include "GameStateManager.h"
 #include "blacklands.h"
+#include "AudioManager.h"
+
 #include "TheCity.h"
 #include "StoryDialog.h"
 
@@ -255,7 +257,7 @@ void GameMenu::onCharacterCreated(const QString &characterName)
 void GameMenu::onRunClicked() 
 {
     // Example: Playing a sound effect or music in a different dialog
-    GameStateManager::instance()->stopMusic();
+    AudioManager::instance()->stopAllAudio();
     // 1. Instantiate the City dialog
     TheCity *cityDialog = new TheCity(this);  
     cityDialog->setAttribute(Qt::WA_DeleteOnClose);    
@@ -288,7 +290,7 @@ void GameMenu::onCharacterListClicked()
 void GameMenu::startNewGame() 
 {
     // Example: Playing a sound effect or music in a different dialog
-    GameStateManager::instance()->stopMusic();
+    AudioManager::instance()->stopAllAudio();
     // 1. Load data required by the new CreateCharacterDialog constructor.
     QVector<RaceStats> raceData = loadRaceData();
     QVector<QString> guildData = loadGuildData();    

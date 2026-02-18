@@ -53,6 +53,7 @@ OBJECTS_DIR   = build/obj/release/
 ####### Files
 
 SOURCES       = GameStateManager.cpp \
+		AudioManager.cpp \
 		blacklands.cpp \
 		TheCity.cpp \
 		src/network_manager/NetworkManager.cpp \
@@ -89,6 +90,7 @@ SOURCES       = GameStateManager.cpp \
 		src/update/UpdateManager.cpp \
 		src/update/UpdateDialog.cpp \
 		src/spell_casting/SpellCastingDialog.cpp build/moc/moc_GameStateManager.cpp \
+		build/moc/moc_AudioManager.cpp \
 		build/moc/moc_blacklands.cpp \
 		build/moc/moc_TheCity.cpp \
 		build/moc/moc_StoryDialog.cpp \
@@ -124,6 +126,7 @@ SOURCES       = GameStateManager.cpp \
 		build/moc/moc_UpdateDialog.cpp \
 		build/moc/moc_SpellCastingDialog.cpp
 OBJECTS       = build/obj/release/GameStateManager.o \
+		build/obj/release/AudioManager.o \
 		build/obj/release/blacklands.o \
 		build/obj/release/TheCity.o \
 		build/obj/release/NetworkManager.o \
@@ -161,6 +164,7 @@ OBJECTS       = build/obj/release/GameStateManager.o \
 		build/obj/release/UpdateDialog.o \
 		build/obj/release/SpellCastingDialog.o \
 		build/obj/release/moc_GameStateManager.o \
+		build/obj/release/moc_AudioManager.o \
 		build/obj/release/moc_blacklands.o \
 		build/obj/release/moc_TheCity.o \
 		build/obj/release/moc_StoryDialog.o \
@@ -270,6 +274,7 @@ DIST          = .gitignore \
 		/usr/lib/x86_64-linux-gnu/qt6/mkspecs/features/silent.prf \
 		blacklands.pro include/GameConstants.h \
 		GameStateManager.h \
+		AudioManager.h \
 		blacklands.h \
 		TheCity.h \
 		StoryDialog.h \
@@ -307,6 +312,7 @@ DIST          = .gitignore \
 		src/update/UpdateManager.h \
 		src/update/UpdateDialog.h \
 		src/spell_casting/SpellCastingDialog.h GameStateManager.cpp \
+		AudioManager.cpp \
 		blacklands.cpp \
 		TheCity.cpp \
 		src/network_manager/NetworkManager.cpp \
@@ -530,8 +536,8 @@ distdir: FORCE
 	@test -d $(DISTDIR) || mkdir -p $(DISTDIR)
 	$(COPY_FILE) --parents $(DIST) $(DISTDIR)/
 	$(COPY_FILE) --parents /usr/lib/x86_64-linux-gnu/qt6/mkspecs/features/data/dummy.cpp $(DISTDIR)/
-	$(COPY_FILE) --parents include/GameConstants.h GameStateManager.h blacklands.h TheCity.h StoryDialog.h src/network_manager/NetworkManager.h src/hall_of_records/hallofrecordsdialog.h src/create_character/createcharacterdialog.h src/about_dialog/AboutDialog.h src/character_dialog/CharacterDialog.h src/message_window/MessageWindow.h src/sender_window/SenderWindow.h src/library_dialog/library_dialog.h src/automap/automap_dialog.h src/game_controller/game_controller.h src/characterlist_dialog/characterlistdialog.h src/helplesson/helplesson.h src/mordorstatistics/mordorstatistics.h src/loadingscreen/LoadingScreen.h src/guilds_dialog/GuildsDialog.h src/general_store/GeneralStore.h src/morgue_dialog/MorgueDialog.h src/seer_dialog/SeerDialog.h src/confinement_dialog/ConfinementDialog.h src/bank_dialog/BankDialog.h src/race_data/RaceData.h src/inventory_dialog/inventorydialog.h src/options_dialog/optionsdialog.h src/dungeon_dialog/DungeonDialog.h src/partyinfo_dialog/partyinfodialog.h src/dungeonmap/dungeonmap.h src/bank_dialog/TradeDialog.h include/game_resources.h src/dungeon_dialog/DungeonHandlers.h src/event/EventManager.h src/dungeon_dialog/MiniMapDialog.h src/update/UpdateManager.h src/update/UpdateDialog.h src/spell_casting/SpellCastingDialog.h $(DISTDIR)/
-	$(COPY_FILE) --parents GameStateManager.cpp blacklands.cpp TheCity.cpp src/network_manager/NetworkManager.cpp src/hall_of_records/hallofrecordsdialog.cpp src/create_character/createcharacterdialog.cpp src/about_dialog/AboutDialog.cpp src/character_dialog/CharacterDialog.cpp src/message_window/MessageWindow.cpp src/sender_window/SenderWindow.cpp src/library_dialog/library_dialog.cpp src/automap/automap_dialog.cpp src/game_controller/game_controller.cpp src/characterlist_dialog/characterlistdialog.cpp src/helplesson/helplesson.cpp src/mordorstatistics/mordorstatistics.cpp src/loadingscreen/LoadingScreen.cpp src/guilds_dialog/GuildsDialog.cpp src/general_store/GeneralStore.cpp src/morgue_dialog/MorgueDialog.cpp src/seer_dialog/SeerDialog.cpp src/confinement_dialog/ConfinementDialog.cpp src/bank_dialog/BankDialog.cpp src/race_data/RaceData.cpp src/inventory_dialog/inventorydialog.cpp src/options_dialog/optionsdialog.cpp src/dungeon_dialog/DungeonDialog.cpp src/partyinfo_dialog/partyinfodialog.cpp src/dungeonmap/dungeonmap.cpp src/bank_dialog/TradeDialog.cpp src/game_resources.cpp src/dungeon_dialog/DungeonMinimap.cpp src/dungeon_dialog/DungeonHandlers.cpp src/event/EventManager.cpp src/update/UpdateManager.cpp src/update/UpdateDialog.cpp src/spell_casting/SpellCastingDialog.cpp $(DISTDIR)/
+	$(COPY_FILE) --parents include/GameConstants.h GameStateManager.h AudioManager.h blacklands.h TheCity.h StoryDialog.h src/network_manager/NetworkManager.h src/hall_of_records/hallofrecordsdialog.h src/create_character/createcharacterdialog.h src/about_dialog/AboutDialog.h src/character_dialog/CharacterDialog.h src/message_window/MessageWindow.h src/sender_window/SenderWindow.h src/library_dialog/library_dialog.h src/automap/automap_dialog.h src/game_controller/game_controller.h src/characterlist_dialog/characterlistdialog.h src/helplesson/helplesson.h src/mordorstatistics/mordorstatistics.h src/loadingscreen/LoadingScreen.h src/guilds_dialog/GuildsDialog.h src/general_store/GeneralStore.h src/morgue_dialog/MorgueDialog.h src/seer_dialog/SeerDialog.h src/confinement_dialog/ConfinementDialog.h src/bank_dialog/BankDialog.h src/race_data/RaceData.h src/inventory_dialog/inventorydialog.h src/options_dialog/optionsdialog.h src/dungeon_dialog/DungeonDialog.h src/partyinfo_dialog/partyinfodialog.h src/dungeonmap/dungeonmap.h src/bank_dialog/TradeDialog.h include/game_resources.h src/dungeon_dialog/DungeonHandlers.h src/event/EventManager.h src/dungeon_dialog/MiniMapDialog.h src/update/UpdateManager.h src/update/UpdateDialog.h src/spell_casting/SpellCastingDialog.h $(DISTDIR)/
+	$(COPY_FILE) --parents GameStateManager.cpp AudioManager.cpp blacklands.cpp TheCity.cpp src/network_manager/NetworkManager.cpp src/hall_of_records/hallofrecordsdialog.cpp src/create_character/createcharacterdialog.cpp src/about_dialog/AboutDialog.cpp src/character_dialog/CharacterDialog.cpp src/message_window/MessageWindow.cpp src/sender_window/SenderWindow.cpp src/library_dialog/library_dialog.cpp src/automap/automap_dialog.cpp src/game_controller/game_controller.cpp src/characterlist_dialog/characterlistdialog.cpp src/helplesson/helplesson.cpp src/mordorstatistics/mordorstatistics.cpp src/loadingscreen/LoadingScreen.cpp src/guilds_dialog/GuildsDialog.cpp src/general_store/GeneralStore.cpp src/morgue_dialog/MorgueDialog.cpp src/seer_dialog/SeerDialog.cpp src/confinement_dialog/ConfinementDialog.cpp src/bank_dialog/BankDialog.cpp src/race_data/RaceData.cpp src/inventory_dialog/inventorydialog.cpp src/options_dialog/optionsdialog.cpp src/dungeon_dialog/DungeonDialog.cpp src/partyinfo_dialog/partyinfodialog.cpp src/dungeonmap/dungeonmap.cpp src/bank_dialog/TradeDialog.cpp src/game_resources.cpp src/dungeon_dialog/DungeonMinimap.cpp src/dungeon_dialog/DungeonHandlers.cpp src/event/EventManager.cpp src/update/UpdateManager.cpp src/update/UpdateDialog.cpp src/spell_casting/SpellCastingDialog.cpp $(DISTDIR)/
 
 
 clean: compiler_clean 
@@ -564,22 +570,29 @@ build/moc/moc_predefs.h: /usr/lib/x86_64-linux-gnu/qt6/mkspecs/features/data/dum
 	@echo generating build/moc/moc_predefs.h
 	@g++ -pipe -O2 -std=gnu++2a -Wall -Wextra -dM -E -o build/moc/moc_predefs.h /usr/lib/x86_64-linux-gnu/qt6/mkspecs/features/data/dummy.cpp
 
-compiler_moc_header_make_all: build/moc/moc_GameStateManager.cpp build/moc/moc_blacklands.cpp build/moc/moc_TheCity.cpp build/moc/moc_StoryDialog.cpp build/moc/moc_NetworkManager.cpp build/moc/moc_hallofrecordsdialog.cpp build/moc/moc_createcharacterdialog.cpp build/moc/moc_AboutDialog.cpp build/moc/moc_CharacterDialog.cpp build/moc/moc_MessageWindow.cpp build/moc/moc_SenderWindow.cpp build/moc/moc_library_dialog.cpp build/moc/moc_automap_dialog.cpp build/moc/moc_game_controller.cpp build/moc/moc_characterlistdialog.cpp build/moc/moc_helplesson.cpp build/moc/moc_mordorstatistics.cpp build/moc/moc_LoadingScreen.cpp build/moc/moc_GuildsDialog.cpp build/moc/moc_GeneralStore.cpp build/moc/moc_MorgueDialog.cpp build/moc/moc_SeerDialog.cpp build/moc/moc_ConfinementDialog.cpp build/moc/moc_BankDialog.cpp build/moc/moc_inventorydialog.cpp build/moc/moc_optionsdialog.cpp build/moc/moc_DungeonDialog.cpp build/moc/moc_partyinfodialog.cpp build/moc/moc_dungeonmap.cpp build/moc/moc_TradeDialog.cpp build/moc/moc_EventManager.cpp build/moc/moc_MiniMapDialog.cpp build/moc/moc_UpdateManager.cpp build/moc/moc_UpdateDialog.cpp build/moc/moc_SpellCastingDialog.cpp
+compiler_moc_header_make_all: build/moc/moc_GameStateManager.cpp build/moc/moc_AudioManager.cpp build/moc/moc_blacklands.cpp build/moc/moc_TheCity.cpp build/moc/moc_StoryDialog.cpp build/moc/moc_NetworkManager.cpp build/moc/moc_hallofrecordsdialog.cpp build/moc/moc_createcharacterdialog.cpp build/moc/moc_AboutDialog.cpp build/moc/moc_CharacterDialog.cpp build/moc/moc_MessageWindow.cpp build/moc/moc_SenderWindow.cpp build/moc/moc_library_dialog.cpp build/moc/moc_automap_dialog.cpp build/moc/moc_game_controller.cpp build/moc/moc_characterlistdialog.cpp build/moc/moc_helplesson.cpp build/moc/moc_mordorstatistics.cpp build/moc/moc_LoadingScreen.cpp build/moc/moc_GuildsDialog.cpp build/moc/moc_GeneralStore.cpp build/moc/moc_MorgueDialog.cpp build/moc/moc_SeerDialog.cpp build/moc/moc_ConfinementDialog.cpp build/moc/moc_BankDialog.cpp build/moc/moc_inventorydialog.cpp build/moc/moc_optionsdialog.cpp build/moc/moc_DungeonDialog.cpp build/moc/moc_partyinfodialog.cpp build/moc/moc_dungeonmap.cpp build/moc/moc_TradeDialog.cpp build/moc/moc_EventManager.cpp build/moc/moc_MiniMapDialog.cpp build/moc/moc_UpdateManager.cpp build/moc/moc_UpdateDialog.cpp build/moc/moc_SpellCastingDialog.cpp
 compiler_moc_header_clean:
-	-$(DEL_FILE) build/moc/moc_GameStateManager.cpp build/moc/moc_blacklands.cpp build/moc/moc_TheCity.cpp build/moc/moc_StoryDialog.cpp build/moc/moc_NetworkManager.cpp build/moc/moc_hallofrecordsdialog.cpp build/moc/moc_createcharacterdialog.cpp build/moc/moc_AboutDialog.cpp build/moc/moc_CharacterDialog.cpp build/moc/moc_MessageWindow.cpp build/moc/moc_SenderWindow.cpp build/moc/moc_library_dialog.cpp build/moc/moc_automap_dialog.cpp build/moc/moc_game_controller.cpp build/moc/moc_characterlistdialog.cpp build/moc/moc_helplesson.cpp build/moc/moc_mordorstatistics.cpp build/moc/moc_LoadingScreen.cpp build/moc/moc_GuildsDialog.cpp build/moc/moc_GeneralStore.cpp build/moc/moc_MorgueDialog.cpp build/moc/moc_SeerDialog.cpp build/moc/moc_ConfinementDialog.cpp build/moc/moc_BankDialog.cpp build/moc/moc_inventorydialog.cpp build/moc/moc_optionsdialog.cpp build/moc/moc_DungeonDialog.cpp build/moc/moc_partyinfodialog.cpp build/moc/moc_dungeonmap.cpp build/moc/moc_TradeDialog.cpp build/moc/moc_EventManager.cpp build/moc/moc_MiniMapDialog.cpp build/moc/moc_UpdateManager.cpp build/moc/moc_UpdateDialog.cpp build/moc/moc_SpellCastingDialog.cpp
+	-$(DEL_FILE) build/moc/moc_GameStateManager.cpp build/moc/moc_AudioManager.cpp build/moc/moc_blacklands.cpp build/moc/moc_TheCity.cpp build/moc/moc_StoryDialog.cpp build/moc/moc_NetworkManager.cpp build/moc/moc_hallofrecordsdialog.cpp build/moc/moc_createcharacterdialog.cpp build/moc/moc_AboutDialog.cpp build/moc/moc_CharacterDialog.cpp build/moc/moc_MessageWindow.cpp build/moc/moc_SenderWindow.cpp build/moc/moc_library_dialog.cpp build/moc/moc_automap_dialog.cpp build/moc/moc_game_controller.cpp build/moc/moc_characterlistdialog.cpp build/moc/moc_helplesson.cpp build/moc/moc_mordorstatistics.cpp build/moc/moc_LoadingScreen.cpp build/moc/moc_GuildsDialog.cpp build/moc/moc_GeneralStore.cpp build/moc/moc_MorgueDialog.cpp build/moc/moc_SeerDialog.cpp build/moc/moc_ConfinementDialog.cpp build/moc/moc_BankDialog.cpp build/moc/moc_inventorydialog.cpp build/moc/moc_optionsdialog.cpp build/moc/moc_DungeonDialog.cpp build/moc/moc_partyinfodialog.cpp build/moc/moc_dungeonmap.cpp build/moc/moc_TradeDialog.cpp build/moc/moc_EventManager.cpp build/moc/moc_MiniMapDialog.cpp build/moc/moc_UpdateManager.cpp build/moc/moc_UpdateDialog.cpp build/moc/moc_SpellCastingDialog.cpp
 build/moc/moc_GameStateManager.cpp: GameStateManager.h \
 		include/GameConstants.h \
 		DataRegistry.h \
+		AudioManager.h \
 		character.h \
 		build/moc/moc_predefs.h \
 		/usr/lib/qt6/libexec/moc
 	@echo moc GameStateManager.h && /usr/lib/qt6/libexec/moc $(DEFINES) --include /home/rickard/Documents/GitHub/depthofdejenol/build/moc/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt6/mkspecs/linux-g++ -I/home/rickard/Documents/GitHub/depthofdejenol -I/home/rickard/Documents/GitHub/depthofdejenol/_PRO_FILE_PWD_/include -I/usr/include/x86_64-linux-gnu/qt6 -I/usr/include/x86_64-linux-gnu/qt6/QtWidgets -I/usr/include/x86_64-linux-gnu/qt6/QtMultimedia -I/usr/include/x86_64-linux-gnu/qt6/QtGui -I/usr/include/x86_64-linux-gnu/qt6/QtNetwork -I/usr/include/x86_64-linux-gnu/qt6/QtCore -I/usr/include/c++/15 -I/usr/include/x86_64-linux-gnu/c++/15 -I/usr/include/c++/15/backward -I/usr/lib/gcc/x86_64-linux-gnu/15/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include GameStateManager.h -o build/moc/moc_GameStateManager.cpp
+
+build/moc/moc_AudioManager.cpp: AudioManager.h \
+		build/moc/moc_predefs.h \
+		/usr/lib/qt6/libexec/moc
+	@echo moc AudioManager.h && /usr/lib/qt6/libexec/moc $(DEFINES) --include /home/rickard/Documents/GitHub/depthofdejenol/build/moc/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt6/mkspecs/linux-g++ -I/home/rickard/Documents/GitHub/depthofdejenol -I/home/rickard/Documents/GitHub/depthofdejenol/_PRO_FILE_PWD_/include -I/usr/include/x86_64-linux-gnu/qt6 -I/usr/include/x86_64-linux-gnu/qt6/QtWidgets -I/usr/include/x86_64-linux-gnu/qt6/QtMultimedia -I/usr/include/x86_64-linux-gnu/qt6/QtGui -I/usr/include/x86_64-linux-gnu/qt6/QtNetwork -I/usr/include/x86_64-linux-gnu/qt6/QtCore -I/usr/include/c++/15 -I/usr/include/x86_64-linux-gnu/c++/15 -I/usr/include/c++/15/backward -I/usr/lib/gcc/x86_64-linux-gnu/15/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include AudioManager.h -o build/moc/moc_AudioManager.cpp
 
 build/moc/moc_blacklands.cpp: blacklands.h \
 		src/event/EventManager.h \
 		GameStateManager.h \
 		include/GameConstants.h \
 		DataRegistry.h \
+		AudioManager.h \
 		character.h \
 		build/moc/moc_predefs.h \
 		/usr/lib/qt6/libexec/moc
@@ -610,6 +623,7 @@ build/moc/moc_createcharacterdialog.cpp: src/create_character/createcharacterdia
 		include/GameConstants.h \
 		GameStateManager.h \
 		DataRegistry.h \
+		AudioManager.h \
 		character.h \
 		build/moc/moc_predefs.h \
 		/usr/lib/qt6/libexec/moc
@@ -624,6 +638,7 @@ build/moc/moc_CharacterDialog.cpp: src/character_dialog/CharacterDialog.h \
 		GameStateManager.h \
 		include/GameConstants.h \
 		DataRegistry.h \
+		AudioManager.h \
 		character.h \
 		build/moc/moc_predefs.h \
 		/usr/lib/qt6/libexec/moc
@@ -643,6 +658,7 @@ build/moc/moc_library_dialog.cpp: src/library_dialog/library_dialog.h \
 		include/GameConstants.h \
 		GameStateManager.h \
 		DataRegistry.h \
+		AudioManager.h \
 		character.h \
 		build/moc/moc_predefs.h \
 		/usr/lib/qt6/libexec/moc
@@ -652,6 +668,7 @@ build/moc/moc_automap_dialog.cpp: src/automap/automap_dialog.h \
 		GameStateManager.h \
 		include/GameConstants.h \
 		DataRegistry.h \
+		AudioManager.h \
 		character.h \
 		build/moc/moc_predefs.h \
 		/usr/lib/qt6/libexec/moc
@@ -661,6 +678,7 @@ build/moc/moc_game_controller.cpp: src/game_controller/game_controller.h \
 		GameStateManager.h \
 		include/GameConstants.h \
 		DataRegistry.h \
+		AudioManager.h \
 		character.h \
 		build/moc/moc_predefs.h \
 		/usr/lib/qt6/libexec/moc
@@ -670,6 +688,7 @@ build/moc/moc_characterlistdialog.cpp: src/characterlist_dialog/characterlistdia
 		GameStateManager.h \
 		include/GameConstants.h \
 		DataRegistry.h \
+		AudioManager.h \
 		character.h \
 		build/moc/moc_predefs.h \
 		/usr/lib/qt6/libexec/moc
@@ -679,6 +698,7 @@ build/moc/moc_helplesson.cpp: src/helplesson/helplesson.h \
 		GameStateManager.h \
 		include/GameConstants.h \
 		DataRegistry.h \
+		AudioManager.h \
 		character.h \
 		build/moc/moc_predefs.h \
 		/usr/lib/qt6/libexec/moc
@@ -698,6 +718,7 @@ build/moc/moc_GuildsDialog.cpp: src/guilds_dialog/GuildsDialog.h \
 		GameStateManager.h \
 		include/GameConstants.h \
 		DataRegistry.h \
+		AudioManager.h \
 		character.h \
 		build/moc/moc_predefs.h \
 		/usr/lib/qt6/libexec/moc
@@ -707,6 +728,7 @@ build/moc/moc_GeneralStore.cpp: src/general_store/GeneralStore.h \
 		GameStateManager.h \
 		include/GameConstants.h \
 		DataRegistry.h \
+		AudioManager.h \
 		character.h \
 		build/moc/moc_predefs.h \
 		/usr/lib/qt6/libexec/moc
@@ -721,6 +743,7 @@ build/moc/moc_SeerDialog.cpp: src/seer_dialog/SeerDialog.h \
 		GameStateManager.h \
 		include/GameConstants.h \
 		DataRegistry.h \
+		AudioManager.h \
 		character.h \
 		build/moc/moc_predefs.h \
 		/usr/lib/qt6/libexec/moc
@@ -730,6 +753,7 @@ build/moc/moc_ConfinementDialog.cpp: src/confinement_dialog/ConfinementDialog.h 
 		GameStateManager.h \
 		include/GameConstants.h \
 		DataRegistry.h \
+		AudioManager.h \
 		character.h \
 		build/moc/moc_predefs.h \
 		/usr/lib/qt6/libexec/moc
@@ -739,6 +763,7 @@ build/moc/moc_BankDialog.cpp: src/bank_dialog/BankDialog.h \
 		GameStateManager.h \
 		include/GameConstants.h \
 		DataRegistry.h \
+		AudioManager.h \
 		character.h \
 		build/moc/moc_predefs.h \
 		/usr/lib/qt6/libexec/moc
@@ -748,6 +773,7 @@ build/moc/moc_inventorydialog.cpp: src/inventory_dialog/inventorydialog.h \
 		GameStateManager.h \
 		include/GameConstants.h \
 		DataRegistry.h \
+		AudioManager.h \
 		character.h \
 		build/moc/moc_predefs.h \
 		/usr/lib/qt6/libexec/moc
@@ -757,6 +783,7 @@ build/moc/moc_optionsdialog.cpp: src/options_dialog/optionsdialog.h \
 		GameStateManager.h \
 		include/GameConstants.h \
 		DataRegistry.h \
+		AudioManager.h \
 		character.h \
 		build/moc/moc_predefs.h \
 		/usr/lib/qt6/libexec/moc
@@ -767,6 +794,7 @@ build/moc/moc_DungeonDialog.cpp: src/dungeon_dialog/DungeonDialog.h \
 		GameStateManager.h \
 		include/GameConstants.h \
 		DataRegistry.h \
+		AudioManager.h \
 		character.h \
 		src/partyinfo_dialog/partyinfodialog.h \
 		src/event/EventManager.h \
@@ -789,6 +817,7 @@ build/moc/moc_TradeDialog.cpp: src/bank_dialog/TradeDialog.h \
 		GameStateManager.h \
 		include/GameConstants.h \
 		DataRegistry.h \
+		AudioManager.h \
 		character.h \
 		build/moc/moc_predefs.h \
 		/usr/lib/qt6/libexec/moc
@@ -798,6 +827,7 @@ build/moc/moc_EventManager.cpp: src/event/EventManager.h \
 		GameStateManager.h \
 		include/GameConstants.h \
 		DataRegistry.h \
+		AudioManager.h \
 		character.h \
 		build/moc/moc_predefs.h \
 		/usr/lib/qt6/libexec/moc
@@ -842,14 +872,21 @@ compiler_clean: compiler_moc_predefs_clean compiler_moc_header_clean
 build/obj/release/GameStateManager.o: GameStateManager.cpp GameStateManager.h \
 		include/GameConstants.h \
 		DataRegistry.h \
+		AudioManager.h \
 		character.h \
 		src/race_data/RaceData.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/GameStateManager.o GameStateManager.cpp
 
+build/obj/release/AudioManager.o: AudioManager.cpp AudioManager.h
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/AudioManager.o AudioManager.cpp
+
 build/obj/release/blacklands.o: blacklands.cpp GameStateManager.h \
 		include/GameConstants.h \
 		DataRegistry.h \
+		AudioManager.h \
 		character.h \
+		blacklands.h \
+		src/event/EventManager.h \
 		TheCity.h \
 		StoryDialog.h \
 		src/characterlist_dialog/characterlistdialog.h \
@@ -867,8 +904,7 @@ build/obj/release/blacklands.o: blacklands.cpp GameStateManager.h \
 		src/game_controller/game_controller.h \
 		src/helplesson/helplesson.h \
 		src/mordorstatistics/mordorstatistics.h \
-		src/loadingscreen/LoadingScreen.h \
-		src/event/EventManager.h
+		src/loadingscreen/LoadingScreen.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/blacklands.o blacklands.cpp
 
 build/obj/release/TheCity.o: TheCity.cpp TheCity.h \
@@ -879,6 +915,7 @@ build/obj/release/TheCity.o: TheCity.cpp TheCity.h \
 		GameStateManager.h \
 		include/GameConstants.h \
 		DataRegistry.h \
+		AudioManager.h \
 		character.h \
 		src/guilds_dialog/GuildsDialog.h \
 		src/morgue_dialog/MorgueDialog.h \
@@ -898,6 +935,7 @@ build/obj/release/hallofrecordsdialog.o: src/hall_of_records/hallofrecordsdialog
 		GameStateManager.h \
 		include/GameConstants.h \
 		DataRegistry.h \
+		AudioManager.h \
 		character.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/hallofrecordsdialog.o src/hall_of_records/hallofrecordsdialog.cpp
 
@@ -906,6 +944,7 @@ build/obj/release/createcharacterdialog.o: src/create_character/createcharacterd
 		include/GameConstants.h \
 		GameStateManager.h \
 		DataRegistry.h \
+		AudioManager.h \
 		character.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/createcharacterdialog.o src/create_character/createcharacterdialog.cpp
 
@@ -913,6 +952,7 @@ build/obj/release/AboutDialog.o: src/about_dialog/AboutDialog.cpp src/about_dial
 		GameStateManager.h \
 		include/GameConstants.h \
 		DataRegistry.h \
+		AudioManager.h \
 		character.h \
 		src/update/UpdateDialog.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/AboutDialog.o src/about_dialog/AboutDialog.cpp
@@ -921,6 +961,7 @@ build/obj/release/CharacterDialog.o: src/character_dialog/CharacterDialog.cpp sr
 		GameStateManager.h \
 		include/GameConstants.h \
 		DataRegistry.h \
+		AudioManager.h \
 		character.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/CharacterDialog.o src/character_dialog/CharacterDialog.cpp
 
@@ -934,6 +975,7 @@ build/obj/release/library_dialog.o: src/library_dialog/library_dialog.cpp src/li
 		include/GameConstants.h \
 		GameStateManager.h \
 		DataRegistry.h \
+		AudioManager.h \
 		character.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/library_dialog.o src/library_dialog/library_dialog.cpp
 
@@ -941,6 +983,7 @@ build/obj/release/automap_dialog.o: src/automap/automap_dialog.cpp src/automap/a
 		GameStateManager.h \
 		include/GameConstants.h \
 		DataRegistry.h \
+		AudioManager.h \
 		character.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/automap_dialog.o src/automap/automap_dialog.cpp
 
@@ -948,6 +991,7 @@ build/obj/release/game_controller.o: src/game_controller/game_controller.cpp src
 		GameStateManager.h \
 		include/GameConstants.h \
 		DataRegistry.h \
+		AudioManager.h \
 		character.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/game_controller.o src/game_controller/game_controller.cpp
 
@@ -955,6 +999,7 @@ build/obj/release/characterlistdialog.o: src/characterlist_dialog/characterlistd
 		GameStateManager.h \
 		include/GameConstants.h \
 		DataRegistry.h \
+		AudioManager.h \
 		character.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/characterlistdialog.o src/characterlist_dialog/characterlistdialog.cpp
 
@@ -962,6 +1007,7 @@ build/obj/release/helplesson.o: src/helplesson/helplesson.cpp src/helplesson/hel
 		GameStateManager.h \
 		include/GameConstants.h \
 		DataRegistry.h \
+		AudioManager.h \
 		character.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/helplesson.o src/helplesson/helplesson.cpp
 
@@ -973,6 +1019,7 @@ build/obj/release/LoadingScreen.o: src/loadingscreen/LoadingScreen.cpp include/g
 		GameStateManager.h \
 		include/GameConstants.h \
 		DataRegistry.h \
+		AudioManager.h \
 		character.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/LoadingScreen.o src/loadingscreen/LoadingScreen.cpp
 
@@ -980,6 +1027,7 @@ build/obj/release/GuildsDialog.o: src/guilds_dialog/GuildsDialog.cpp src/guilds_
 		GameStateManager.h \
 		include/GameConstants.h \
 		DataRegistry.h \
+		AudioManager.h \
 		character.h \
 		src/library_dialog/library_dialog.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/GuildsDialog.o src/guilds_dialog/GuildsDialog.cpp
@@ -988,6 +1036,7 @@ build/obj/release/GeneralStore.o: src/general_store/GeneralStore.cpp src/general
 		GameStateManager.h \
 		include/GameConstants.h \
 		DataRegistry.h \
+		AudioManager.h \
 		character.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/GeneralStore.o src/general_store/GeneralStore.cpp
 
@@ -995,6 +1044,7 @@ build/obj/release/MorgueDialog.o: src/morgue_dialog/MorgueDialog.cpp src/morgue_
 		GameStateManager.h \
 		include/GameConstants.h \
 		DataRegistry.h \
+		AudioManager.h \
 		character.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/MorgueDialog.o src/morgue_dialog/MorgueDialog.cpp
 
@@ -1002,6 +1052,7 @@ build/obj/release/SeerDialog.o: src/seer_dialog/SeerDialog.cpp src/seer_dialog/S
 		GameStateManager.h \
 		include/GameConstants.h \
 		DataRegistry.h \
+		AudioManager.h \
 		character.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/SeerDialog.o src/seer_dialog/SeerDialog.cpp
 
@@ -1009,6 +1060,7 @@ build/obj/release/ConfinementDialog.o: src/confinement_dialog/ConfinementDialog.
 		GameStateManager.h \
 		include/GameConstants.h \
 		DataRegistry.h \
+		AudioManager.h \
 		character.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/ConfinementDialog.o src/confinement_dialog/ConfinementDialog.cpp
 
@@ -1016,6 +1068,7 @@ build/obj/release/BankDialog.o: src/bank_dialog/BankDialog.cpp src/bank_dialog/B
 		GameStateManager.h \
 		include/GameConstants.h \
 		DataRegistry.h \
+		AudioManager.h \
 		character.h \
 		src/bank_dialog/TradeDialog.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/BankDialog.o src/bank_dialog/BankDialog.cpp
@@ -1028,6 +1081,7 @@ build/obj/release/inventorydialog.o: src/inventory_dialog/inventorydialog.cpp sr
 		GameStateManager.h \
 		include/GameConstants.h \
 		DataRegistry.h \
+		AudioManager.h \
 		character.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/inventorydialog.o src/inventory_dialog/inventorydialog.cpp
 
@@ -1035,6 +1089,7 @@ build/obj/release/optionsdialog.o: src/options_dialog/optionsdialog.cpp src/opti
 		GameStateManager.h \
 		include/GameConstants.h \
 		DataRegistry.h \
+		AudioManager.h \
 		character.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/optionsdialog.o src/options_dialog/optionsdialog.cpp
 
@@ -1042,6 +1097,7 @@ build/obj/release/DungeonDialog.o: src/dungeon_dialog/DungeonDialog.cpp src/char
 		GameStateManager.h \
 		include/GameConstants.h \
 		DataRegistry.h \
+		AudioManager.h \
 		character.h \
 		src/dungeon_dialog/DungeonDialog.h \
 		src/inventory_dialog/inventorydialog.h \
@@ -1056,6 +1112,7 @@ build/obj/release/partyinfodialog.o: src/partyinfo_dialog/partyinfodialog.cpp sr
 		GameStateManager.h \
 		include/GameConstants.h \
 		DataRegistry.h \
+		AudioManager.h \
 		character.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/partyinfodialog.o src/partyinfo_dialog/partyinfodialog.cpp
 
@@ -1066,6 +1123,7 @@ build/obj/release/TradeDialog.o: src/bank_dialog/TradeDialog.cpp src/bank_dialog
 		GameStateManager.h \
 		include/GameConstants.h \
 		DataRegistry.h \
+		AudioManager.h \
 		character.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/TradeDialog.o src/bank_dialog/TradeDialog.cpp
 
@@ -1077,6 +1135,7 @@ build/obj/release/DungeonMinimap.o: src/dungeon_dialog/DungeonMinimap.cpp src/du
 		GameStateManager.h \
 		include/GameConstants.h \
 		DataRegistry.h \
+		AudioManager.h \
 		character.h \
 		src/partyinfo_dialog/partyinfodialog.h \
 		src/event/EventManager.h \
@@ -1089,6 +1148,7 @@ build/obj/release/DungeonHandlers.o: src/dungeon_dialog/DungeonHandlers.cpp src/
 		GameStateManager.h \
 		include/GameConstants.h \
 		DataRegistry.h \
+		AudioManager.h \
 		character.h \
 		src/partyinfo_dialog/partyinfodialog.h \
 		src/event/EventManager.h \
@@ -1099,6 +1159,7 @@ build/obj/release/EventManager.o: src/event/EventManager.cpp src/event/EventMana
 		GameStateManager.h \
 		include/GameConstants.h \
 		DataRegistry.h \
+		AudioManager.h \
 		character.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/EventManager.o src/event/EventManager.cpp
 
@@ -1113,11 +1174,15 @@ build/obj/release/SpellCastingDialog.o: src/spell_casting/SpellCastingDialog.cpp
 		GameStateManager.h \
 		include/GameConstants.h \
 		DataRegistry.h \
+		AudioManager.h \
 		character.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/SpellCastingDialog.o src/spell_casting/SpellCastingDialog.cpp
 
 build/obj/release/moc_GameStateManager.o: build/moc/moc_GameStateManager.cpp 
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/moc_GameStateManager.o build/moc/moc_GameStateManager.cpp
+
+build/obj/release/moc_AudioManager.o: build/moc/moc_AudioManager.cpp 
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/moc_AudioManager.o build/moc/moc_AudioManager.cpp
 
 build/obj/release/moc_blacklands.o: build/moc/moc_blacklands.cpp 
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/moc_blacklands.o build/moc/moc_blacklands.cpp

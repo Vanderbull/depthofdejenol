@@ -4,6 +4,7 @@
 // Project Includes
 #include "include/GameConstants.h"
 #include "DataRegistry.h"
+#include "AudioManager.h"
 #include "character.h"
 
 // Qt Core
@@ -16,13 +17,8 @@
 #include <QVariant>
 #include <QVariantMap>
 #include <QPoint>
-#include <QUrl>
 #include <QTimer>
 #include <QDebug>
-
-// Qt Multimedia
-#include <QMediaPlayer>
-#include <QAudioOutput>
 
 // Qt GUI & Widgets
 #include <QFont>
@@ -103,14 +99,6 @@ public:
     void setFixedFont(const QFont& font);
     QFont getProportionalFont() const { return m_proportionalFont; }
     QFont getFixedFont() const { return m_fixedFont; }
-
-    // --- Global Audio ---
-    void playMusic(const QString& fileName, bool loop = true);
-    void stopMusic();
-    void setVolume(float volume);
-    float getVolume() const {
-        return m_globalAudioOutput ? m_globalAudioOutput->volume() : 0.5f;
-    }
 
     // --- Party and World Objects ---
     static const int MAX_PARTY_SIZE = 4;
@@ -259,8 +247,6 @@ private slots:
 private:
     QFont m_proportionalFont;
     QFont m_fixedFont;
-    QMediaPlayer* m_globalPlayer = nullptr;
-    QAudioOutput* m_globalAudioOutput = nullptr;
 
     QVariantList party; 
     QList<Character> m_PC;

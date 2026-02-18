@@ -1,4 +1,5 @@
 #include "optionsdialog.h"
+#include "AudioManager.h"
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QGridLayout>
@@ -16,10 +17,10 @@
 void OptionsDialog::onNoMusicToggled(bool checked) 
 {
     if (checked) {
-        GameStateManager::instance()->stopMusic();
+        AudioManager::instance()->stopAllAudio();
         qDebug() << "Music muted. Sound FX slider remains at current level.";
     } else {
-        GameStateManager::instance()->playMusic("resources/waves/main.wav");
+        AudioManager::instance()->playMusic("ressources/waves/main.wav");
         qDebug() << "Music restored";
     }
 }
@@ -208,11 +209,10 @@ void OptionsDialog::setupUi()
     audioLayout->addWidget(new QLabel("Music Vol."));
     musicVolSlider = new QSlider(Qt::Horizontal);
     musicVolSlider->setRange(0, 100);
-    musicVolSlider->setValue(static_cast<int>(GameStateManager::instance()->getVolume() * 100.0f));
-    
+    musicVolSlider->setValue(static_cast<int>(AudioManager::instance()->getMusicVolume() * 100.0f));
     connect(musicVolSlider, &QSlider::valueChanged, this, [](int value) {
         float vol = static_cast<float>(value) / 100.0f;
-        GameStateManager::instance()->setVolume(vol);
+        AudioManager::instance()->setMusicVolume(vol);
     });
 
     noMusicCheckBox = new QCheckBox("No Music");
@@ -230,7 +230,7 @@ void OptionsDialog::setupUi()
 
     connect(sfxVolSlider, &QSlider::valueChanged, this, [](int value) {
         float vol = static_cast<float>(value) / 100.0f;
-        GameStateManager::instance()->setVolume(vol);
+        AudioManager::instance()->setMusicVolume(vol);
     });
 
     noSoundFxCheckBox = new QCheckBox("No Sound FX");

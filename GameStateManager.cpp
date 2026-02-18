@@ -112,12 +112,6 @@ GameStateManager::GameStateManager(QObject *parent)
 {
     m_proportionalFont = QFont("MS Sans Serif", 8); 
     m_fixedFont = QFont("Courier New", 9);
-    // Initialize Global Audio
-    m_globalPlayer = new QMediaPlayer(this);
-    m_globalAudioOutput = new QAudioOutput(this);
-    m_globalPlayer->setAudioOutput(m_globalAudioOutput);
-    m_globalAudioOutput->setVolume(0.5f); // Default volume
-
 
     struct GameState {
         QList<Character> Party;
@@ -979,33 +973,6 @@ void GameStateManager::handleAutosave() {
     } else {
         qWarning() << "Autosave failed!";
     }
-}
-
-void GameStateManager::playMusic(const QString& fileName, bool loop)
-{
-    if (!m_globalPlayer) return;
-
-    m_globalPlayer->stop();
-    m_globalPlayer->setSource(QUrl::fromLocalFile(fileName));
-    
-    if (loop) {
-        m_globalPlayer->setLoops(QMediaPlayer::Infinite);
-    } else {
-        m_globalPlayer->setLoops(1);
-    }
-
-    m_globalPlayer->play();
-    qDebug() << "Global Audio playing:" << fileName;
-}
-
-void GameStateManager::stopMusic()
-{
-    if (m_globalPlayer) m_globalPlayer->stop();
-}
-
-void GameStateManager::setVolume(float volume)
-{
-    if (m_globalAudioOutput) m_globalAudioOutput->setVolume(volume);
 }
 
 // 1. Static helper for the raw data

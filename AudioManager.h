@@ -17,6 +17,7 @@ public:
     void playMusic(const QString& trackName);
     void playSound(const QString& effectName);
     void setMusicVolume(float volume); // 0.0 to 1.0
+    float getMusicVolume() const { return m_musicOutput->volume(); }
     void setSfxVolume(float volume);
     void stopAllAudio();
 
