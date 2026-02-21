@@ -516,32 +516,32 @@ void GameStateManager::setGameValue(const QString& key, const QVariant& value)
 {
     m_gameStateData[key] = value;
 
-    // If we update a specific "CurrentCharacter" key, we must update the Party[0] slot
-    if (key.startsWith("CurrentCharacter") || key == "isAlive" || key == "MaxCharacterHP") {
+    // 1. Check if this key affects the active party member (Slot 0)
+    bool isCore = (key == "isAlive" || key == "MaxCharacterHP");
+    if (key.startsWith("CurrentCharacter") || isCore) {
         QVariantList partyList = m_gameStateData["Party"].toList();
         if (!partyList.isEmpty()) {
             QVariantMap character = partyList[0].toMap();
-            
-            if (key == "CurrentCharacterName") character["Name"] = value;
-            else if (key == "CurrentCharacterLevel") character["Level"] = value;
-            else if (key == "CurrentCharacterHP") character["HP"] = value;
-            else if (key == "MaxCharacterHP") character["MaxHP"] = value;
-            else if (key == "isAlive") character["isAlive"] = value.toInt();
-            
-            // Check for stats (CurrentCharacterStrength, etc)
-            QString statName = key;
-            statName.remove("CurrentCharacter");
-            if (GameConstants::STAT_NAMES.contains(statName)) {
-                character[statName] = value;
-            }
-            //if (statNames().contains(statName)) {
-            //    character[statName] = value;
-            //}
+
+            // 2. Resolve the internal key name
+            // Maps "CurrentCharacterName" -> "Name", "MaxCharacterHP" -> "MaxHP", etc.
+            static const QMap<QString, QString> specialRemaps = {
+                {"CurrentCharacterName", "Name"},
+                {"CurrentCharacterLevel", "Level"},
+                {"CurrentCharacterHP", "HP"},
+                {"MaxCharacterHP", "MaxHP"}
+            };
+
+            QString internalKey = specialRemaps.value(key, key);
+            internalKey.remove("CurrentCharacter"); // Handles Stats (Strength, etc) automatically
+
+            // 3. Update and Save
+            character[internalKey] = (key == "isAlive") ? value.toInt() : value;
             partyList[0] = character;
             m_gameStateData["Party"] = partyList;
         }
     }
-    
+
     emit gameValueChanged(key, value);
 }
 

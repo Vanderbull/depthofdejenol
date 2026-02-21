@@ -3,14 +3,14 @@ Name: adam
 Race: 
 Age: 0
 Race: 
-DungeonX: 17
-DungeonY: 12
-DungeonLevel: 1
+DungeonX: 16
+DungeonY: 19
+DungeonLevel: 2
 Guild: 
 Level: 1
 HP: 50
 MaxHP: 50
-CurrentCharacterGold: 1500
+CurrentCharacterGold: 0
 Experience: 0
 isAlive: 1
 isAlive: 1
