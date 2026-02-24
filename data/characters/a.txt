@@ -1,14 +1,15 @@
 CHARACTER_FILE_VERSION: 1.0
 Name: a
-Race: 
-Level: 1
-HP: 0
-MaxHP: 50
-CurrentCharacterGold: 0
-Strength: 0
-Intelligence: 0
-Wisdom: 0
-Constitution: 0
 Charisma: 0
+Constitution: 0
+CurrentCharacterGold: 0
 Dexterity: 0
-Inventory: 
+DungeonLevel: 1
+DungeonX: 17
+DungeonY: 12
+HP: 0
+Intelligence: 0
+Level: 1
+MaxHP: 50
+Strength: 0
+Wisdom: 0

@@ -1,7 +1,9 @@
 #include "GameStateManager.h"
+#include "GameDataLoader.h"
 #include "src/race_data/RaceData.h"
 #include "RaceFactory.h"
 #include "GuildFactory.h"
+#include "SaveGameHandler.h"
 #include "CharacterIO.h"
 #include <QDebug>
 #include <QVariantList>
@@ -241,52 +243,10 @@ GameStateManager::GameStateManager(QObject *parent)
 
 void GameStateManager::loadGameData(const QString& filePath)
 {
-    QFile file(filePath);
-    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-        qWarning() << "Could not open game data file:" << filePath;
-        return;
-    }
-
-    QString fileContent = file.readAll();
-    file.close();
-
-    // 1. Extract and Parse JSON
-    int firstBrace = fileContent.indexOf('{');
-    int lastBrace = fileContent.lastIndexOf('}');
-    if (firstBrace == -1 || lastBrace == -1) return;
-
-    QString jsonString = fileContent.mid(firstBrace, (lastBrace - firstBrace) + 1);
-    QJsonObject rootObj = QJsonDocument::fromJson(jsonString.toUtf8()).object();
-    
-    m_gameData.clear();
-
-    // 2. Versioning
-    if (rootObj.contains("GameVersion")) {
-        m_gameData.append({{"DataType", "VersionInfo"}, {"VersionValue", rootObj["GameVersion"].toVariant()}});
-    }
-
-    // 3. Category Processing via Lambda
-    auto processArray = [&](const QString& key, const QString& typeTag) {
-        QJsonArray array = rootObj[key].toArray();
-        for (const QJsonValue& value : array) {
-            QVariantMap map = value.toObject().toVariantMap();
-            map["DataType"] = typeTag; 
-            m_gameData.append(map);
-        }
-    };
-
-    const QMap<QString, QString> categories = {
-        {"Guilds", "Guild"}, {"ItemTypes", "ItemType"}, {"MonsterTypes", "MonsterType"},
-        {"Races", "Race"}, {"SubItemTypes", "SubItemType"}, {"SubMonsterTypes", "SubMonsterType"}
-    };
-
-    for (auto it = categories.begin(); it != categories.end(); ++it) {
-        if (rootObj.contains(it.key())) processArray(it.key(), it.value());
-    }
-
+    QString version;
+    m_gameData = GameDataLoader::parseMDATAJson(filePath, version);
+    setGameValue("GameVersion", version);
     setGameValue("ResourcesLoaded", true);
-    
-    // Optional: Call the debug printer if you actually need to see the log
     dumpGameDataToConsole(); 
 }
 
@@ -325,38 +285,9 @@ void GameStateManager::dumpGameDataToConsole() {
 
 void GameStateManager::loadMonsterData(const QString& filePath)
 {
-    QFile file(filePath);
-    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-        qWarning() << "Could not open monster data file:" << filePath;
-        return;
-    }
-
-    m_monsterData.clear();
-    QTextStream in(&file);
-    if (in.atEnd()) return;
-
-    // 1. Parse Headers
-    QStringList headers = in.readLine().split(',');
-
-    // 2. Parse Rows
-    while (!in.atEnd()) {
-        QString line = in.readLine();
-        if (line.trimmed().isEmpty()) continue;
-        
-        QStringList fields = line.split(',');
-        if (fields.size() != headers.size()) continue; 
-
-        QVariantMap monster;
-        for (int i = 0; i < headers.size(); ++i) {
-            monster[headers[i].trimmed()] = fields[i].trimmed();
-        }
-        m_monsterData.append(monster);
-    }
-    file.close();
-
-    // 3. Clean Diagnostics
-    qDebug() << "Successfully loaded" << m_monsterData.size() << "monsters.";
-    dumpMonsterDataReport(); // Call the new helper if needed
+    m_monsterData = GameDataLoader::parseCSV(filePath); 
+    qDebug() << "Loaded" << m_monsterData.size() << "monsters.";
+    dumpMonsterDataReport();
 }
 
 void GameStateManager::dumpMonsterDataReport() const
@@ -376,66 +307,14 @@ void GameStateManager::dumpMonsterDataReport() const
 
 void GameStateManager::loadSpellData(const QString& filePath)
 {
-    QFile file(filePath);
-    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-        qWarning() << "Could not open spell data file:" << filePath;
-        return;
-    }
-    m_spellData.clear();
-    QTextStream in(&file);
-    
-    if (in.atEnd()) return;
-    QString headerLine = in.readLine();
-    QStringList headers = headerLine.split(',');
-
-    while (!in.atEnd()) {
-        QString line = in.readLine();
-        if (line.trimmed().isEmpty()) continue;
-
-        QStringList fields = line.split(',');
-        
-        if (fields.size() == headers.size()) {
-            QVariantMap spell;
-            for (int i = 0; i < headers.size(); ++i) {
-                spell[headers[i].trimmed()] = fields[i].trimmed();
-            }
-            m_spellData.append(spell);
-        }
-    }
-    file.close();
-    qDebug() << "Successfully loaded" << m_spellData.size() << "spells from MDATA2.";
+    m_spellData = parseCSV(filePath);
+    qDebug() << "Successfully loaded" << m_spellData.size() << "spells.";
 }
 
 void GameStateManager::loadItemData(const QString& filePath)
 {
-    QFile file(filePath);
-    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-        qWarning() << "Could not open item data file:" << filePath;
-        return;
-    }
-    m_itemData.clear();
-    QTextStream in(&file);
-    
-    if (in.atEnd()) return;
-    QString headerLine = in.readLine();
-    QStringList headers = headerLine.split(',');
-
-    while (!in.atEnd()) {
-        QString line = in.readLine();
-        if (line.trimmed().isEmpty()) continue;
-        
-        QStringList fields = line.split(',');
-        // MDATA3 has 35 columns; checking against header size ensures row integrity
-        if (fields.size() == headers.size()) {
-            QVariantMap item;
-            for (int i = 0; i < headers.size(); ++i) {
-                item[headers[i].trimmed()] = fields[i].trimmed();
-            }
-            m_itemData.append(item);
-        }
-    }
-    file.close();
-    qDebug() << "Successfully loaded" << m_itemData.size() << "items from MDATA3.";
+    m_itemData = parseCSV(filePath);
+    qDebug() << "Successfully loaded" << m_itemData.size() << "items.";
 }
 
 void GameStateManager::addCharacterExperience(qulonglong amount)
@@ -468,33 +347,39 @@ void GameStateManager::setGameValue(const QString& key, const QVariant& value)
 {
     m_gameStateData[key] = value;
 
-    // 1. Check if this key affects the active party member (Slot 0)
-    bool isCore = (key == "isAlive" || key == "MaxCharacterHP");
-    if (key.startsWith("CurrentCharacter") || isCore) {
-        QVariantList partyList = m_gameStateData["Party"].toList();
-        if (!partyList.isEmpty()) {
-            QVariantMap character = partyList[0].toMap();
-
-            // 2. Resolve the internal key name
-            // Maps "CurrentCharacterName" -> "Name", "MaxCharacterHP" -> "MaxHP", etc.
-            static const QMap<QString, QString> specialRemaps = {
-                {"CurrentCharacterName", "Name"},
-                {"CurrentCharacterLevel", "Level"},
-                {"CurrentCharacterHP", "HP"},
-                {"MaxCharacterHP", "MaxHP"}
-            };
-
-            QString internalKey = specialRemaps.value(key, key);
-            internalKey.remove("CurrentCharacter"); // Handles Stats (Strength, etc) automatically
-
-            // 3. Update and Save
-            character[internalKey] = (key == "isAlive") ? value.toInt() : value;
-            partyList[0] = character;
-            m_gameStateData["Party"] = partyList;
-        }
+    // Delegate the complex party syncing to the new private part
+    if (key.startsWith("CurrentCharacter") || key == "isAlive" || key == "MaxCharacterHP") {
+        syncGlobalValueToActiveMember(key, value);
     }
 
     emit gameValueChanged(key, value);
+}
+
+void GameStateManager::syncGlobalValueToActiveMember(const QString& key, const QVariant& value) 
+{
+    QVariantList partyList = m_gameStateData["Party"].toList();
+    if (partyList.isEmpty()) return;
+
+    // We assume index 0 is the "Active" member being edited
+    QVariantMap character = partyList[0].toMap();
+
+    // Mapping global keys to internal character keys
+    static const QMap<QString, QString> specialRemaps = {
+        {"CurrentCharacterName", "Name"},
+        {"CurrentCharacterLevel", "Level"},
+        {"CurrentCharacterHP", "HP"},
+        {"MaxCharacterHP", "MaxHP"}
+    };
+
+    QString internalKey = specialRemaps.value(key, key);
+    internalKey.remove("CurrentCharacter");
+
+    // Update the character map
+    character[internalKey] = (key == "isAlive") ? value.toInt() : value;
+    
+    // Put it back into the list and then back into the state
+    partyList[0] = character;
+    m_gameStateData["Party"] = partyList;
 }
 
 QVariant GameStateManager::getGameValue(const QString& key) const
@@ -616,24 +501,37 @@ void GameStateManager::updateCharacterGold(int characterIndex, qulonglong amount
 
 bool GameStateManager::loadCharacterFromFile(const QString& characterName) {
     QVariantMap characterMap = CharacterIO::loadFromFile(characterName);
-    
     if (characterMap.isEmpty()) return false;
 
+    // 1. Force the 'isAlive' flag to 1 if it's missing or set to 0 incorrectly
+    // Many older save formats use "Dead" (bool) instead of "isAlive" (int)
+    int aliveStatus = 1; 
+    if (characterMap.contains("isAlive")) {
+        aliveStatus = characterMap["isAlive"].toInt();
+    } else if (characterMap.contains("Dead")) {
+        aliveStatus = characterMap["Dead"].toBool() ? 0 : 1;
+    }
+    characterMap["isAlive"] = aliveStatus;
+
+    // 2. Update the QVariantList for the QML/UI
     QVariantList partyList = m_gameStateData["Party"].toList();
     if (!partyList.isEmpty()) {
         partyList[0] = characterMap;
-        setGameValue("Party", partyList);
-        
-        // Update UI Globals
-        setGameValue("CurrentCharacterName", characterMap["Name"]);
-        
-        // Sync internal struct
-        if (!m_PC.isEmpty()) {
-            m_PC[0].loadFromMap(characterMap);
-        }
-        return true;
+        m_gameStateData["Party"] = partyList;
     }
-    return false;
+
+    // 3. Update the logical C++ struct (This is what 'isCharacterPastMaxAge' etc. uses)
+    if (!m_PC.isEmpty()) {
+        m_PC[0].loadFromMap(characterMap);
+        m_PC[0].isAlive = aliveStatus; // Manually override to be safe
+    }
+
+    // 4. Update the Global 'isAlive' key used by the UI
+    setGameValue("isAlive", aliveStatus);
+    setGameValue("CurrentCharacterName", characterMap["Name"]);
+
+    refreshUI();
+    return true;
 }
 
 bool GameStateManager::saveCharacterToFile(int partyIndex) {
@@ -701,124 +599,11 @@ void GameStateManager::listGameData() {
 }
 
 bool GameStateManager::verifySaveGame(const QString& characterName) {
-    QString cleanName = characterName;
-    if (cleanName.endsWith(".txt")) cleanName.chop(4);
-    
-    QString filename = QString("data/characters/%1.txt").arg(cleanName);
-    QFile file(filename);
-    
-    if (!file.exists()) {
-        qWarning() << "Verification failed: File does not exist -" << filename;
-        return false;
-    }
-
-    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) return false;
-
-    QTextStream in(&file);
-    bool hasVersion = false;
-    bool hasLocation = false;
-    bool hasName = false;
-    
-    int foundCoords = 0;
-
-    while (!in.atEnd()) {
-        QString line = in.readLine().trimmed();
-        
-        // Check for the header version string
-        if (line.startsWith("CHARACTER_FILE_VERSION:")) hasVersion = true;
-        
-        // Check for the character name match
-        if (line.startsWith("Name: ")) {
-            if (line.mid(6) == cleanName) hasName = true;
-        }
-
-        // Verify that location data exists (required for the city check)
-        if (line.startsWith("DungeonX:") || 
-            line.startsWith("DungeonY:") || 
-            line.startsWith("DungeonLevel:")) {
-            foundCoords++;
-        }
-    }
-    file.close();
-
-    hasLocation = (foundCoords == 3);
-
-    if (!hasVersion) qWarning() << "Savegame" << cleanName << "is missing version header.";
-    if (!hasLocation) qWarning() << "Savegame" << cleanName << "is missing coordinate data.";
-    if (!hasName) qWarning() << "Savegame" << cleanName << "name mismatch inside file.";
-
-    return (hasVersion && hasLocation && hasName);
+    return SaveGameHandler::verifySave(characterName);
 }
 
 bool GameStateManager::repairSaveGame(const QString& characterName) {
-    QString cleanName = characterName;
-    if (cleanName.endsWith(".txt")) cleanName.chop(4);
-    
-    QString path = QString("data/characters/%1.txt").arg(cleanName);
-    QFile file(path);
-    
-    if (!file.exists()) return false;
-
-    // 1. Read existing data into a temporary map
-    QMap<QString, QString> dataMap;
-    if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-        QTextStream in(&file);
-        while (!in.atEnd()) {
-            QString line = in.readLine().trimmed();
-            if (line.contains(": ")) {
-                QStringList parts = line.split(": ");
-                dataMap[parts[0]] = parts[1];
-            }
-        }
-        file.close();
-    }
-
-    // 2. Identify and fix missing critical data
-    bool modified = false;
-
-    // Ensure version exists
-    if (!dataMap.contains("CHARACTER_FILE_VERSION")) {
-        dataMap["CHARACTER_FILE_VERSION"] = "1.0";
-        modified = true;
-    }
-
-    if (!dataMap.contains("Race")) { dataMap["Race"] = "Human"; modified = true; }
-    if (!dataMap.contains("Age")) { dataMap["Age"] = "16"; modified = true; }
-    // Fix missing coordinates (Default to City Entrance: 17, 12, Level 1)
-    if (!dataMap.contains("DungeonX")) { dataMap["DungeonX"] = "17"; modified = true; }
-    if (!dataMap.contains("DungeonY")) { dataMap["DungeonY"] = "12"; modified = true; }
-    if (!dataMap.contains("DungeonLevel")) { dataMap["DungeonLevel"] = "1"; modified = true; }
-
-    // Ensure Name is correct
-    if (dataMap["Name"] != cleanName) {
-        dataMap["Name"] = cleanName;
-        modified = true;
-    }
-
-    // 3. Rewrite the file if repairs were made
-    if (modified) {
-        if (file.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Truncate)) {
-            QTextStream out(&file);
-            // Prioritize header and name
-            out << "CHARACTER_FILE_VERSION: " << dataMap["CHARACTER_FILE_VERSION"] << "\n";
-            out << "Name: " << dataMap["Name"] << "\n";
-            
-            // Remove handled keys to loop through the rest
-            dataMap.remove("CHARACTER_FILE_VERSION");
-            dataMap.remove("Name");
-
-            QMapIterator<QString, QString> i(dataMap);
-            while (i.hasNext()) {
-                i.next();
-                out << i.key() << ": " << i.value() << "\n";
-            }
-            file.close();
-            qDebug() << "Successfully repaired savegame for:" << cleanName;
-            return true;
-        }
-    }
-
-    return false;
+    return SaveGameHandler::repairSave(characterName);
 }
 void GameStateManager::startAutosave(int intervalms) {
     if (m_autosaveTimer) {
@@ -1109,4 +894,47 @@ void GameStateManager::initializeDefaultParty() {
 
     m_gameStateData["Party"] = partyList;
     emit gameValueChanged("Party", partyList);
+}
+
+QList<QVariantMap> GameStateManager::parseCSV(const QString& filePath) {
+    QList<QVariantMap> dataList;
+    QFile file(filePath);
+
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        qWarning() << "Could not open file for parsing:" << filePath;
+        return dataList;
+    }
+
+    QTextStream in(&file);
+    if (in.atEnd()) return dataList;
+
+    // 1. Extract Headers
+    // Split by comma and trim whitespace to ensure clean keys
+    QStringList headers;
+    QString headerLine = in.readLine();
+    for (const QString& head : headerLine.split(',')) {
+        headers << head.trimmed();
+    }
+
+    // 2. Parse Rows
+    while (!in.atEnd()) {
+        QString line = in.readLine();
+        if (line.trimmed().isEmpty()) continue;
+
+        QStringList fields = line.split(',');
+        
+        // Ensure row integrity by matching header count
+        if (fields.size() == headers.size()) {
+            QVariantMap row;
+            for (int i = 0; i < headers.size(); ++i) {
+                row[headers[i]] = fields[i].trimmed();
+            }
+            dataList.append(row);
+        } else {
+            qWarning() << "Row length mismatch in" << filePath << "at line:" << line;
+        }
+    }
+
+    file.close();
+    return dataList;
 }

@@ -92,7 +92,9 @@ SOURCES       = GameStateManager.cpp \
 		src/spell_casting/SpellCastingDialog.cpp \
 		RaceFactory.cpp \
 		GuildFactory.cpp \
-		CharacterIO.cpp build/moc/moc_GameStateManager.cpp \
+		CharacterIO.cpp \
+		SaveGameHandler.cpp \
+		GameDataLoader.cpp build/moc/moc_GameStateManager.cpp \
 		build/moc/moc_AudioManager.cpp \
 		build/moc/moc_blacklands.cpp \
 		build/moc/moc_TheCity.cpp \
@@ -169,6 +171,8 @@ OBJECTS       = build/obj/release/GameStateManager.o \
 		build/obj/release/RaceFactory.o \
 		build/obj/release/GuildFactory.o \
 		build/obj/release/CharacterIO.o \
+		build/obj/release/SaveGameHandler.o \
+		build/obj/release/GameDataLoader.o \
 		build/obj/release/moc_GameStateManager.o \
 		build/obj/release/moc_AudioManager.o \
 		build/obj/release/moc_blacklands.o \
@@ -320,7 +324,9 @@ DIST          = .gitignore \
 		src/spell_casting/SpellCastingDialog.h \
 		RaceFactory.h \
 		GuildFactory.h \
-		CharacterIO.h GameStateManager.cpp \
+		CharacterIO.h \
+		SaveGameHandler.h \
+		GameDataLoader.h GameStateManager.cpp \
 		AudioManager.cpp \
 		blacklands.cpp \
 		TheCity.cpp \
@@ -360,7 +366,9 @@ DIST          = .gitignore \
 		src/spell_casting/SpellCastingDialog.cpp \
 		RaceFactory.cpp \
 		GuildFactory.cpp \
-		CharacterIO.cpp
+		CharacterIO.cpp \
+		SaveGameHandler.cpp \
+		GameDataLoader.cpp
 QMAKE_TARGET  = blacklands
 DESTDIR       = build/bin/
 TARGET        = build/bin/blacklands
@@ -548,8 +556,8 @@ distdir: FORCE
 	@test -d $(DISTDIR) || mkdir -p $(DISTDIR)
 	$(COPY_FILE) --parents $(DIST) $(DISTDIR)/
 	$(COPY_FILE) --parents /usr/lib/x86_64-linux-gnu/qt6/mkspecs/features/data/dummy.cpp $(DISTDIR)/
-	$(COPY_FILE) --parents include/GameConstants.h GameStateManager.h AudioManager.h blacklands.h TheCity.h StoryDialog.h src/network_manager/NetworkManager.h src/hall_of_records/hallofrecordsdialog.h src/create_character/createcharacterdialog.h src/about_dialog/AboutDialog.h src/character_dialog/CharacterDialog.h src/message_window/MessageWindow.h src/sender_window/SenderWindow.h src/library_dialog/library_dialog.h src/automap/automap_dialog.h src/game_controller/game_controller.h src/characterlist_dialog/characterlistdialog.h src/helplesson/helplesson.h src/mordorstatistics/mordorstatistics.h src/loadingscreen/LoadingScreen.h src/guilds_dialog/GuildsDialog.h src/general_store/GeneralStore.h src/morgue_dialog/MorgueDialog.h src/seer_dialog/SeerDialog.h src/confinement_dialog/ConfinementDialog.h src/bank_dialog/BankDialog.h src/race_data/RaceData.h src/inventory_dialog/inventorydialog.h src/options_dialog/optionsdialog.h src/dungeon_dialog/DungeonDialog.h src/partyinfo_dialog/partyinfodialog.h src/dungeonmap/dungeonmap.h src/bank_dialog/TradeDialog.h include/game_resources.h src/dungeon_dialog/DungeonHandlers.h src/event/EventManager.h src/dungeon_dialog/MiniMapDialog.h src/update/UpdateManager.h src/update/UpdateDialog.h src/spell_casting/SpellCastingDialog.h RaceFactory.h GuildFactory.h CharacterIO.h $(DISTDIR)/
-	$(COPY_FILE) --parents GameStateManager.cpp AudioManager.cpp blacklands.cpp TheCity.cpp src/network_manager/NetworkManager.cpp src/hall_of_records/hallofrecordsdialog.cpp src/create_character/createcharacterdialog.cpp src/about_dialog/AboutDialog.cpp src/character_dialog/CharacterDialog.cpp src/message_window/MessageWindow.cpp src/sender_window/SenderWindow.cpp src/library_dialog/library_dialog.cpp src/automap/automap_dialog.cpp src/game_controller/game_controller.cpp src/characterlist_dialog/characterlistdialog.cpp src/helplesson/helplesson.cpp src/mordorstatistics/mordorstatistics.cpp src/loadingscreen/LoadingScreen.cpp src/guilds_dialog/GuildsDialog.cpp src/general_store/GeneralStore.cpp src/morgue_dialog/MorgueDialog.cpp src/seer_dialog/SeerDialog.cpp src/confinement_dialog/ConfinementDialog.cpp src/bank_dialog/BankDialog.cpp src/race_data/RaceData.cpp src/inventory_dialog/inventorydialog.cpp src/options_dialog/optionsdialog.cpp src/dungeon_dialog/DungeonDialog.cpp src/partyinfo_dialog/partyinfodialog.cpp src/dungeonmap/dungeonmap.cpp src/bank_dialog/TradeDialog.cpp src/game_resources.cpp src/dungeon_dialog/DungeonMinimap.cpp src/dungeon_dialog/DungeonHandlers.cpp src/event/EventManager.cpp src/update/UpdateManager.cpp src/update/UpdateDialog.cpp src/spell_casting/SpellCastingDialog.cpp RaceFactory.cpp GuildFactory.cpp CharacterIO.cpp $(DISTDIR)/
+	$(COPY_FILE) --parents include/GameConstants.h GameStateManager.h AudioManager.h blacklands.h TheCity.h StoryDialog.h src/network_manager/NetworkManager.h src/hall_of_records/hallofrecordsdialog.h src/create_character/createcharacterdialog.h src/about_dialog/AboutDialog.h src/character_dialog/CharacterDialog.h src/message_window/MessageWindow.h src/sender_window/SenderWindow.h src/library_dialog/library_dialog.h src/automap/automap_dialog.h src/game_controller/game_controller.h src/characterlist_dialog/characterlistdialog.h src/helplesson/helplesson.h src/mordorstatistics/mordorstatistics.h src/loadingscreen/LoadingScreen.h src/guilds_dialog/GuildsDialog.h src/general_store/GeneralStore.h src/morgue_dialog/MorgueDialog.h src/seer_dialog/SeerDialog.h src/confinement_dialog/ConfinementDialog.h src/bank_dialog/BankDialog.h src/race_data/RaceData.h src/inventory_dialog/inventorydialog.h src/options_dialog/optionsdialog.h src/dungeon_dialog/DungeonDialog.h src/partyinfo_dialog/partyinfodialog.h src/dungeonmap/dungeonmap.h src/bank_dialog/TradeDialog.h include/game_resources.h src/dungeon_dialog/DungeonHandlers.h src/event/EventManager.h src/dungeon_dialog/MiniMapDialog.h src/update/UpdateManager.h src/update/UpdateDialog.h src/spell_casting/SpellCastingDialog.h RaceFactory.h GuildFactory.h CharacterIO.h SaveGameHandler.h GameDataLoader.h $(DISTDIR)/
+	$(COPY_FILE) --parents GameStateManager.cpp AudioManager.cpp blacklands.cpp TheCity.cpp src/network_manager/NetworkManager.cpp src/hall_of_records/hallofrecordsdialog.cpp src/create_character/createcharacterdialog.cpp src/about_dialog/AboutDialog.cpp src/character_dialog/CharacterDialog.cpp src/message_window/MessageWindow.cpp src/sender_window/SenderWindow.cpp src/library_dialog/library_dialog.cpp src/automap/automap_dialog.cpp src/game_controller/game_controller.cpp src/characterlist_dialog/characterlistdialog.cpp src/helplesson/helplesson.cpp src/mordorstatistics/mordorstatistics.cpp src/loadingscreen/LoadingScreen.cpp src/guilds_dialog/GuildsDialog.cpp src/general_store/GeneralStore.cpp src/morgue_dialog/MorgueDialog.cpp src/seer_dialog/SeerDialog.cpp src/confinement_dialog/ConfinementDialog.cpp src/bank_dialog/BankDialog.cpp src/race_data/RaceData.cpp src/inventory_dialog/inventorydialog.cpp src/options_dialog/optionsdialog.cpp src/dungeon_dialog/DungeonDialog.cpp src/partyinfo_dialog/partyinfodialog.cpp src/dungeonmap/dungeonmap.cpp src/bank_dialog/TradeDialog.cpp src/game_resources.cpp src/dungeon_dialog/DungeonMinimap.cpp src/dungeon_dialog/DungeonHandlers.cpp src/event/EventManager.cpp src/update/UpdateManager.cpp src/update/UpdateDialog.cpp src/spell_casting/SpellCastingDialog.cpp RaceFactory.cpp GuildFactory.cpp CharacterIO.cpp SaveGameHandler.cpp GameDataLoader.cpp $(DISTDIR)/
 
 
 clean: compiler_clean 
@@ -889,6 +897,7 @@ build/obj/release/GameStateManager.o: GameStateManager.cpp GameStateManager.h \
 		src/race_data/RaceData.h \
 		RaceFactory.h \
 		GuildFactory.h \
+		SaveGameHandler.h \
 		CharacterIO.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/GameStateManager.o GameStateManager.cpp
 
@@ -1201,9 +1210,15 @@ build/obj/release/GuildFactory.o: GuildFactory.cpp GuildFactory.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/GuildFactory.o GuildFactory.cpp
 
 build/obj/release/CharacterIO.o: CharacterIO.cpp CharacterIO.h \
-		character.h \
 		include/GameConstants.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/CharacterIO.o CharacterIO.cpp
+
+build/obj/release/SaveGameHandler.o: SaveGameHandler.cpp SaveGameHandler.h \
+		CharacterIO.h
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/SaveGameHandler.o SaveGameHandler.cpp
+
+build/obj/release/GameDataLoader.o: GameDataLoader.cpp GameDataLoader.h
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/GameDataLoader.o GameDataLoader.cpp
 
 build/obj/release/moc_GameStateManager.o: build/moc/moc_GameStateManager.cpp 
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/moc_GameStateManager.o build/moc/moc_GameStateManager.cpp

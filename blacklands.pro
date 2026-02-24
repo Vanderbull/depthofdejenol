@@ -125,6 +125,12 @@ SOURCES += GuildFactory.cpp
 HEADERS += CharacterIO.h
 SOURCES += CharacterIO.cpp
 
+HEADERS += SaveGameHandler.h
+SOURCES += SaveGameHandler.cpp
+
+HEADERS += GameDataLoader.h
+SOURCES += GameDataLoader.cpp
+
 #--------------------------------------------------
 # Post-Link Operations
 #--------------------------------------------------
