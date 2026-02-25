@@ -31,16 +31,13 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QJsonArray>
-//#include <QFile>
+#include <QFile>
 
 class GameStateManager : public QObject
 {
     Q_OBJECT
 
 private:
-    QList<QVariantMap> parseCSV(const QString& filePath);
-    void syncGlobalValueToActiveMember(const QString& key, const QVariant& value);
-
     const GameConstants::RaceStat& getStatRef(const GameConstants::RaceStats& race, const QString& statName) const;
     QPixmap m_fontSpriteSheet;
     static constexpr int FONT_CHAR_WIDTH = 32;
