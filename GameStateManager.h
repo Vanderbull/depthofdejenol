@@ -38,6 +38,10 @@ class GameStateManager : public QObject
     Q_OBJECT
 
 private:
+    // Helper functions
+    void setupTimers();             // Initializes m_autosaveTimer
+    void setupFonts();
+    // Other
     QList<QVariantMap> parseCSV(const QString& filePath);
     void syncGlobalValueToActiveMember(const QString& key, const QVariant& value);
 
@@ -59,7 +63,7 @@ private:
     void loadGuildLeaders();
     void initializeDefaultParty();
 
-public:
+    public:
     static GameStateManager* instance();
     bool loadGameConfig(const QString& filePath);
     void refreshUI();
