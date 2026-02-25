@@ -54,16 +54,19 @@ void GameStateManager::refreshUI() {
     for (const auto& character : m_PC) {
         partyList.append(character.toMap());
     }
+    
     // Update the master list that the UI/QML binds to
     m_gameStateData["Party"] = partyList;
+    
     // If you have specific UI elements bound to "CurrentCharacterHP", 
     // update only those two or three global keys here.
     if (!m_PC.isEmpty()) {
         const Character& active = m_PC[0];
         m_gameStateData["CurrentCharacterHP"] = active.hp;
-        m_gameStateData["isAlive"] = active.isAlive ? 1 : 0;
+        m_gameStateData["isAlive"] = active.isAlive;
         m_gameStateData["CurrentCharacterAge"] = active.Age;
     }
+    
     emit gameValueChanged("Party", partyList);
 }
 
@@ -112,6 +115,7 @@ GameConstants::RaceStats GameStateManager::createRaceFromVariant(const QVariant&
     return s;
 }
 
+
 // Add these helper methods
 void GameStateManager::incrementStock(const QString& name)
 {
@@ -132,17 +136,14 @@ QMap<QString, int> GameStateManager::getConfinementStock() const
 GameStateManager::GameStateManager(QObject *parent)
     : QObject(parent)
 {
-    setupTimers();
-    setupFonts();
-
-    //m_proportionalFont = QFont("MS Sans Serif", 8); 
-    //m_fixedFont = QFont("Courier New", 9);
+    m_proportionalFont = QFont("MS Sans Serif", 8); 
+    m_fixedFont = QFont("Courier New", 9);
 
     struct GameState {
         QList<Character> Party;
     };
-    //m_autosaveTimer = new QTimer(this);
-    //connect(m_autosaveTimer, &QTimer::timeout, this, &GameStateManager::handleAutosave);
+    m_autosaveTimer = new QTimer(this);
+    connect(m_autosaveTimer, &QTimer::timeout, this, &GameStateManager::handleAutosave);
     // Initialize party members
     initializeDefaultParty();
 
@@ -948,30 +949,4 @@ QList<QVariantMap> GameStateManager::parseCSV(const QString& filePath) {
 
     file.close();
     return dataList;
-}
-// Helper function
-void GameStateManager::setupTimers() {
-    if (!m_autosaveTimer) {
-        m_autosaveTimer = new QTimer(this);
-        connect(m_autosaveTimer, &QTimer::timeout, this, &GameStateManager::handleAutosave);
-    }
-}
-
-void GameStateManager::setupFonts() {
-    m_proportionalFont = QFont("MS Sans Serif", 8);
-    m_fixedFont = QFont("Courier New", 9);
-
-    if (qApp) {
-        qApp->setFont(m_proportionalFont);
-        
-        // Use a more concise loop style
-        const auto widgets = QApplication::allWidgets();
-        for (QWidget *w : widgets) {
-            if (w) {
-                w->setFont(m_proportionalFont);
-                w->update();
-            }
-        }
-    }
-    emit fontChanged();
 }
