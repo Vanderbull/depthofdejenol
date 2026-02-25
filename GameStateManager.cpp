@@ -221,7 +221,7 @@ GameStateManager::GameStateManager(QObject *parent)
     // Load monster data from CSV at start
     loadGameData("tools/gamedataconverter/data/MDATA1.js");
     loadSpellData("tools/spellconverter/data/MDATA2.csv");
-    loadMonsterData("tools/monsterconverter/MDATA5.csv");
+    loadMonsterData("tools/monsterconverter/data/MDATA5.csv");
     performSanityCheck();
     loadItemData("tools/itemconverter/data/MDATA3.csv");
     // Max ages for each race
@@ -249,6 +249,9 @@ GameStateManager::GameStateManager(QObject *parent)
     m_gameStateData["isAlive"] = 1;
     m_gameStateData["GuildActionLog"] = QVariantList();
     // Initialize Guild Leaders (Hall of Records)
+    initializeGuildLeaders();
+
+/*
     QVariantList guildLeadersList;
 
     auto addLeader = [&](QString ach, QString name, QString date, QVariant val, QString unit) {
@@ -275,8 +278,7 @@ GameStateManager::GameStateManager(QObject *parent)
     addLeader("Master of Thieving", "Healer", "5/17/2002", 22, "Thieving Skill");
 
     m_gameStateData["GuildLeaders"] = guildLeadersList;
-
-    
+*/
     // Initialize race definitions
     m_raceDefinitions = loadRaceData();
     qDebug() << "Loaded" << m_raceDefinitions.size() << "race definitions.";
@@ -1216,4 +1218,37 @@ QVector<QString> GameStateManager::getAvailableRaces() const {
         names.append(race.raceName);
     }
     return names;
+}
+
+void GameStateManager::initializeGuildLeaders()
+{
+    QVariantList guildLeadersList;
+
+    // Helper lambda to package the data into a QVariantMap
+    auto addLeader = [&](QString ach, QString name, QString date, QVariant val, QString unit) {
+        QVariantMap record;
+        record["Achievement"] = ach;
+        record["Name"] = name;
+        record["Date"] = date;
+        record["RecordValue"] = val;
+        record["RecordUnit"] = unit;
+        guildLeadersList.append(record);
+    };
+
+    // The legacy records
+    addLeader("Strongest", "Goch", "4/15/2001", 25, "Strength");
+    addLeader("Smartest", "Tuadar", "5/9/2001", 25, "Intelligence");
+    addLeader("Wisest", "Tuadar", "11/24/2000", 25, "Wisdom");
+    addLeader("Healthiest", "Spore", "5/17/2002", 22, "Constitution");
+    addLeader("Most Attractive", "Tuadar", "4/17/2001", 23, "Charisma");
+    addLeader("Quickest", "Healer", "5/17/2002", 27, "Dexterity");
+    addLeader("Deadliest Creature Defeated", "Healer", "5/17/2002", "Giant Leech", "Creature");
+    addLeader("Most Experienced Explorer", "Crashland", "5/17/2002", QVariant::fromValue((qulonglong)1322451), "Total Experience");
+    addLeader("Wealthiest Explorer", "Tuadar", "5/14/2001", QVariant::fromValue((qulonglong)1022531528), "Gold in the Bank");
+    addLeader("Master of Fighting", "Morgul", "Original RecordHolder", 17, "Fighting Skill");
+    addLeader("Master of Magic", "Spore", "5/16/2002", 17, "Spell Knowledge & Power");
+    addLeader("Master of Thieving", "Healer", "5/17/2002", 22, "Thieving Skill");
+
+    // Store it in the master game state
+    m_gameStateData["GuildLeaders"] = guildLeadersList;
 }

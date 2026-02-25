@@ -38,6 +38,7 @@ class GameStateManager : public QObject
     Q_OBJECT
 
 private:
+    void initializeGuildLeaders();
     const GameConstants::RaceStat& getStatRef(const GameConstants::RaceStats& race, const QString& statName) const;
     QPixmap m_fontSpriteSheet;
     static constexpr int FONT_CHAR_WIDTH = 32;
