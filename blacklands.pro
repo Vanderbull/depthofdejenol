@@ -115,16 +115,6 @@ HEADERS += \
 
 HEADERS += src/spell_casting/SpellCastingDialog.h
 SOURCES += src/spell_casting/SpellCastingDialog.cpp
-
-HEADERS += RaceFactory.h
-SOURCES += RaceFactory.cpp
-
-HEADERS += GuildFactory.h
-SOURCES += GuildFactory.cpp
-
-HEADERS += CharacterIO.h
-SOURCES += CharacterIO.cpp
-
 #--------------------------------------------------
 # Post-Link Operations
 #--------------------------------------------------

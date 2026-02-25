@@ -50,11 +50,6 @@ private:
     DataRegistry m_registry; 
     QVariantMap findRaceMap(const QString& raceName) const;
     GameConstants::RaceStats createRaceFromVariant(const QVariant& data) const;
-    void dumpGameDataToConsole();
-    void dumpMonsterDataReport() const;
-    void loadRacedefinitions();
-    void loadGuildLeaders();
-    void initializeDefaultParty();
 
 public:
     static GameStateManager* instance();
