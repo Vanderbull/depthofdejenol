@@ -110,7 +110,6 @@ public:
     QFont getFixedFont() const { return m_fixedFont; }
 
     // --- Party and World Objects ---
-    static const int MAX_PARTY_SIZE = 4;
     struct PlacedItem {
         int level; int x; int y; QString itemName;
     };
@@ -280,6 +279,7 @@ private:
     QList<QVariantMap> m_confinementcreaturesData;
     
     QTimer *m_autosaveTimer = nullptr;
+    static constexpr int MAX_PARTY = 4;
 };
 
 #endif // GAMESTATEMANAGER_H

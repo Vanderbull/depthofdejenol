@@ -61,10 +61,12 @@ void GameStateManager::refreshUI() {
     // If you have specific UI elements bound to "CurrentCharacterHP", 
     // update only those two or three global keys here.
     if (!m_PC.isEmpty()) {
-        m_gameStateData["CurrentCharacterHP"] = m_PC[0].hp;
-        m_gameStateData["isAlive"] = m_PC[0].isAlive;
+        const Character& active = m_PC[0];
+        m_gameStateData["CurrentCharacterHP"] = active.hp;
+        m_gameStateData["isAlive"] = active.isAlive;
+        m_gameStateData["CurrentCharacterAge"] = active.Age;
     }
-
+    
     emit gameValueChanged("Party", partyList);
 }
 
@@ -674,6 +676,16 @@ bool GameStateManager::isCharacterPastMaxAge(int index) const
     return (c.Age >= maxAge); // Now resolves!
 }
 
+void GameStateManager::incrementPartyAge(int years) {
+    for (auto& character : m_PC) {
+        if (character.name != "Empty Slot") {
+            character.Age += years; // Logic only
+        }
+    }
+    processAgingConsequences(); // Logic only
+    refreshUI(); // Single sync point for the UI
+}
+/*
 void GameStateManager::incrementPartyAge(int years)
 {
     // 1. Update the internal Character structs (m_PC)
@@ -707,7 +719,7 @@ void GameStateManager::incrementPartyAge(int years)
     // 5. Check if anyone died of natural causes
     processAgingConsequences();
 }
-
+*/
 void GameStateManager::processAgingConsequences()
 {
     for (int i = 0; i < m_PC.size(); ++i) {
@@ -859,7 +871,7 @@ void GameStateManager::initializeDefaultParty() {
     m_PC.clear();
     QVariantList partyList;
 
-    for (int i = 0; i < MAX_PARTY_SIZE; ++i) {
+    for (int i = 0; i < MAX_PARTY; ++i) {
         QVariantMap character;
         character["Name"] = "Empty Slot";
         character["Level"] = 0;
