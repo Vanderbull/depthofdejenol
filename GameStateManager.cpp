@@ -1,5 +1,9 @@
 #include "GameStateManager.h"
 #include "src/race_data/RaceData.h"
+#include <QApplication>
+#include <QMainWindow>
+#include <QWidget>
+
 #include <QDebug>
 #include <QVariantList>
 #include <QVariantMap>
@@ -128,6 +132,44 @@ QMap<QString, int> GameStateManager::getConfinementStock() const
 GameStateManager::GameStateManager(QObject *parent)
     : QObject(parent)
 {
+    // 1. Setup Lua (if not already done)
+    m_L = luaL_newstate();
+    luaL_openlibs(m_L);
+
+    lua_register(m_L, "SetTitle", [](lua_State* L) -> int {
+        if (lua_isstring(L, 1)) {
+            QString newTitle = QString::fromUtf8(lua_tostring(L, 1));
+            qDebug() << "C++: Lua is requesting title change to:" << newTitle;
+
+            const QWidgetList topWidgets = QApplication::topLevelWidgets();
+            if (topWidgets.isEmpty()) qDebug() << "C++: No top level widgets found!";
+
+            for (QWidget *widget : topWidgets) {
+                // Try casting to QMainWindow
+                QMainWindow *mainWin = qobject_cast<QMainWindow *>(widget);
+                if (mainWin) {
+                    mainWin->setWindowTitle(newTitle);
+                    qDebug() << "C++: Found QMainWindow and updated title.";
+                    return 0;
+                }
+                // Fallback: If your main window is just a QWidget and not a QMainWindow
+                widget->setWindowTitle(newTitle);
+                qDebug() << "C++: Updated title on generic QWidget:" << widget->objectName();
+            }
+        }
+        return 0; 
+    });
+
+    // 2. Setup the Timer
+    m_luaTimer = new QTimer(this);
+    connect(m_luaTimer, &QTimer::timeout, this, &GameStateManager::onLuaTimerTick);
+    
+    // Start the timer (10000 ms = 10 seconds)
+    m_luaTimer->start(10000); 
+    
+    qDebug() << "Lua Heartbeat started: Script will run every 10 seconds.";
+
+
     m_proportionalFont = QFont("MS Sans Serif", 8); 
     m_fixedFont = QFont("Courier New", 9);
 
@@ -1436,4 +1478,14 @@ Character GameStateManager::loadCharacterFromLua(const QString& filePath) {
     }
 
     return c;
+}
+
+
+void GameStateManager::onLuaTimerTick() {
+    // Path to your script
+    const char* scriptPath = "data/scripts/heartbeat.lua";
+
+    if (luaL_dofile(m_L, scriptPath) != LUA_OK) {
+        qWarning() << "LUA TIMER ERROR:" << lua_tostring(m_L, -1);
+    }
 }

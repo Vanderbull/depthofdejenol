@@ -44,6 +44,9 @@ class GameStateManager : public QObject
     Q_OBJECT
 
 private:
+    lua_State* m_L;        // <--- ADD THIS
+    QTimer* m_luaTimer;    // <--- ADD THIS
+
     // The recursive engine that converts Lua data types to Qt data types
     QVariant luaToVariant(lua_State* L, int index);
 
@@ -270,6 +273,7 @@ signals:
 
 private slots:
     void handleAutosave();
+    void onLuaTimerTick();
 
 private:
     QFont m_proportionalFont;
