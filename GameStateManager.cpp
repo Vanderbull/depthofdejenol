@@ -166,7 +166,20 @@ GameStateManager::GameStateManager(QObject *parent)
     
     // Start the timer (10000 ms = 10 seconds)
     m_luaTimer->start(10000); 
-    
+
+    // Inside GameStateManager constructor
+    m_clientSocket = new QTcpSocket(this);
+
+    // Connect to the Lua Server
+    m_clientSocket->connectToHost("127.0.0.1", 12345);
+    connect(m_clientSocket, &QTcpSocket::readyRead, this, &GameStateManager::onServerDataReceived);
+
+    if (m_clientSocket->waitForConnected(1000)) {
+        qDebug() << "Connected to Lua Server successfully!";
+    } else {
+        qDebug() << "Connection to Lua Server failed!";
+    }
+
     qDebug() << "Lua Heartbeat started: Script will run every 10 seconds.";
 
 
@@ -1482,10 +1495,39 @@ Character GameStateManager::loadCharacterFromLua(const QString& filePath) {
 
 
 void GameStateManager::onLuaTimerTick() {
-    // Path to your script
-    const char* scriptPath = "data/scripts/heartbeat.lua";
+    // 1. Run your existing local heartbeat script
+    if (luaL_dofile(m_L, "data/scripts/heartbeat.lua") != LUA_OK) {
+        qWarning() << "LUA ERROR:" << lua_tostring(m_L, -1);
+    }
 
-    if (luaL_dofile(m_L, scriptPath) != LUA_OK) {
-        qWarning() << "LUA TIMER ERROR:" << lua_tostring(m_L, -1);
+    // 2. Send a "Tick" message to the Lua Server
+    if (m_clientSocket->state() == QAbstractSocket::ConnectedState) {
+        m_tickCounter++;
+        
+        // The server.lua expects a line (ending in \n)
+        QString message = QString("Tick #%1 from %2\n")
+                          .arg(m_tickCounter)
+                          .arg(m_PC.isEmpty() ? "UnknownHero" : m_PC[0].name);
+        
+        m_clientSocket->write(message.toUtf8());
+        m_clientSocket->flush(); // Ensure data is sent immediately
+    }
+}
+
+
+void GameStateManager::onServerDataReceived() {
+    // Read all available data from the socket
+    while (m_clientSocket->canReadLine()) {
+        QByteArray data = m_clientSocket->readLine().trimmed();
+        QString message = QString::fromUtf8(data);
+
+        qDebug() << "Message from Server:" << message;
+
+        // EXTRA CREDIT: Pass the server message into your Lua engine!
+        // This allows the server to remotely run Lua code in your game.
+        if (luaL_dostring(m_L, data.constData()) != LUA_OK) {
+             // If it wasn't valid Lua, just log it
+             qDebug() << "Server said (non-Lua):" << message;
+        }
     }
 }

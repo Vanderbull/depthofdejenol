@@ -13,6 +13,7 @@ extern "C" {
 #include "AudioManager.h"
 #include "character.h"
 
+#include <QTcpSocket>
 // Qt Core
 #include <QObject>
 #include <QString>
@@ -44,6 +45,10 @@ class GameStateManager : public QObject
     Q_OBJECT
 
 private:
+
+    QTcpSocket* m_clientSocket;
+    int m_tickCounter = 0;
+
     lua_State* m_L;        // <--- ADD THIS
     QTimer* m_luaTimer;    // <--- ADD THIS
 
@@ -274,6 +279,7 @@ signals:
 private slots:
     void handleAutosave();
     void onLuaTimerTick();
+    void onServerDataReceived();
 
 private:
     QFont m_proportionalFont;
