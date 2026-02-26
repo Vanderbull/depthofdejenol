@@ -38,7 +38,15 @@ class GameStateManager : public QObject
     Q_OBJECT
 
 private:
+    QVariantMap loadRawJsonWithWrapper(const QString& filePath);
+    void loadCSVData(const QString& filePath, QList<QVariantMap>& targetList);
+    //Helper functions
     void initializeGuildLeaders();
+    void initializeRaceAges();
+    void initializeGameState();
+    void initializeConfinementStock();
+    void initializeParty();
+
     const GameConstants::RaceStat& getStatRef(const GameConstants::RaceStats& race, const QString& statName) const;
     QPixmap m_fontSpriteSheet;
     static constexpr int FONT_CHAR_WIDTH = 32;
