@@ -138,6 +138,9 @@ GameStateManager::GameStateManager(QObject *parent)
     initializeGameState();
     // You can also initialize a list for the whole party if needed
     initializeConfinementStock();
+
+    // Load monster data from LUA
+    loadGameResources();
     // Load monster data from CSV at start
     loadGameData("tools/gamedataconverter/data/MDATA1.js");
     loadSpellData("tools/spellconverter/data/MDATA2.csv");
@@ -153,6 +156,33 @@ GameStateManager::GameStateManager(QObject *parent)
     qDebug() << "Loaded" << m_raceDefinitions.size() << "race definitions.";
     qDebug() << "GameStateManager initialized.";
     listGameData();
+    
+    // 2. Test Save to the existing characters folder
+    // If you have a character in m_PC, save them:
+    if (!m_PC.isEmpty()) {
+        QString savePath = "data/characters/" + m_PC.first().name + ".lua";
+        saveCharacterToLua(m_PC.first(), savePath);
+    } else {
+        // Dummy test if no character exists yet
+        Character testChar;
+        testChar.name = "Bluebird_Test";
+        testChar.Gold = 500;
+        saveCharacterToLua(testChar, "data/characters/Bluebird_Test.lua");
+    }
+
+    // Test: Load the character we just saved
+    QString testFile = "data/characters/Empty Slot.lua";
+    
+    if (QFile::exists(testFile)) {
+        Character loadedChar = loadCharacterFromLua(testFile);
+        
+        // Add the loaded character to your active party list
+        m_PC.append(loadedChar);
+        
+        qDebug() << "Verified: Loaded character" << m_PC.last().name 
+                 << "with" << m_PC.last().Gold << "gold.";
+    }
+
 }
 
 void GameStateManager::loadGameData(const QString& filePath) {
@@ -445,6 +475,27 @@ bool GameStateManager::loadCharacterFromFile(const QString& characterName)
         // This ensures gsm->getPC().at(0).name matches the 'selected' string in MorgueDialog
         if (!m_PC.isEmpty()) {
             m_PC[0].loadFromMap(characterMap);
+        }
+
+        // 3. Sync the internal Character struct list
+        if (!m_PC.isEmpty()) {
+            m_PC[0].loadFromMap(characterMap);
+            
+            // --- LUA UPGRADE MOVED HERE ---
+            // Now this runs BEFORE the function exits!
+            Character &newChar = m_PC[0]; 
+            qDebug() << "Legacy load complete. Upgrading" << newChar.name << "to Lua...";
+
+            QString luaPath = "data/characters/" + newChar.name + ".lua";
+
+            // Only save if the file doesn't exist yet
+            if (!QFile::exists(luaPath)) {
+                qDebug() << "Migration: Creating new Lua save for" << newChar.name;
+                saveCharacterToLua(newChar, luaPath);
+            } else {
+                qDebug() << "Lua version already exists for" << newChar.name << "- skipping auto-save.";
+            }
+            // ------------------------------
         }
         
         qDebug() << "Successfully loaded and synced character to Altar:" << characterMap["Name"];
@@ -1126,4 +1177,263 @@ QVariantMap GameStateManager::loadRawJsonWithWrapper(const QString& filePath) {
     }
 
     return doc.object().toVariantMap();
+}
+
+QVariant GameStateManager::luaToVariant(lua_State* L, int index) {
+    int type = lua_type(L, index);
+    
+    switch (type) {
+        case LUA_TNUMBER:
+            return lua_tonumber(L, index);
+        case LUA_TSTRING:
+            return QString::fromUtf8(lua_tostring(L, index));
+        case LUA_TBOOLEAN:
+            return (bool)lua_toboolean(L, index);
+        case LUA_TTABLE: {
+            QVariantMap map;
+            QVariantList list;
+            bool isArray = true;
+            int n = 0;
+
+            lua_pushnil(L); // Start iteration
+            while (lua_next(L, index < 0 ? index - 1 : index) != 0) {
+                // Determine if this looks like an array (numeric keys 1, 2, 3...)
+                if (isArray) {
+                    if (lua_type(L, -2) == LUA_TNUMBER) {
+                        n++;
+                        if (lua_tonumber(L, -2) != n) isArray = false;
+                    } else {
+                        isArray = false;
+                    }
+                }
+                
+                QVariant val = luaToVariant(L, -1);
+                if (!isArray) {
+                    QString key = QString::fromUtf8(lua_tostring(L, -2));
+                    map[key] = val;
+                } else {
+                    list.append(val);
+                }
+                lua_pop(L, 1); // Remove value, keep key for next iteration
+            }
+            return isArray ? QVariant(list) : QVariant(map);
+        }
+        default:
+            return QVariant();
+    }
+}
+
+QVariantMap GameStateManager::loadLuaTable(const QString& filePath, const QString& tableName) {
+    qDebug() << "Attempting to load Lua from:" << QDir::current().absoluteFilePath(filePath);
+
+    lua_State* L = luaL_newstate();
+    luaL_openlibs(L);
+
+    if (luaL_dofile(L, filePath.toUtf8().constData()) != LUA_OK) {
+        qWarning() << "LUA ERROR (File):" << lua_tostring(L, -1);
+        lua_close(L);
+        return QVariantMap();
+    }
+
+    lua_getglobal(L, tableName.toUtf8().constData());
+    
+    // Safety check: Is it actually a table?
+    if (!lua_istable(L, -1)) {
+        qWarning() << "LUA ERROR: Table" << tableName << "not found in" << filePath;
+        lua_close(L);
+        return QVariantMap();
+    }
+
+    // Convert the Lua table to a QVariant (This will be a QVariantList for your Monsters)
+    QVariant result = luaToVariant(L, -1);
+    lua_close(L);
+
+    // MANUALLY WRAP IT:
+    // This ensures that back in loadGameResources, monsterData["Monsters"] exists.
+    QVariantMap finalMap;
+    finalMap.insert(tableName, result); 
+    return finalMap;
+}
+
+void GameStateManager::loadGameResources() {
+    qDebug() << "--- Global Resource Load Started ---";
+
+    // Define what we want to load: { "Lua_File_Path", "Table_Name", "DataType_Tag", "Target_List_Pointer" }
+    struct ResourceJob {
+        QString path;
+        QString table;
+        QString tag;
+        QList<QVariantMap>* target;
+    };
+
+    QVector<ResourceJob> jobs = {
+        {"data/MonsterData.lua", "Monsters", "MonsterType", &m_monsterData},
+        // You can add more here as you convert them:
+        // {"data/ItemData.lua", "Items", "ItemType", &m_itemData},
+        // {"data/SpellData.lua", "Spells", "SpellType", &m_spellData}
+    };
+
+    for (const auto& job : jobs) {
+        QVariantMap data = loadLuaTable(job.path, job.table);
+        
+        if (data.contains(job.table)) {
+            job.target->clear();
+            QVariantList rawList = data[job.table].toList();
+
+            for (const QVariant& item : rawList) {
+                QVariantMap m = item.toMap();
+                m["DataType"] = job.tag; // Tag it so the engine knows what it is
+                job.target->append(m);
+            }
+            qDebug() << "Loaded" << job.target->size() << job.tag << "entries.";
+        } else {
+            qWarning() << "Failed to load" << job.tag << "from" << job.path;
+        }
+    }
+
+    setGameValue("ResourcesLoaded", true);
+    qDebug() << "--- Global Resource Load Complete ---";
+}
+
+/*
+void GameStateManager::loadGameResources() {
+    qDebug() << "--- loadGameResources() started ---";
+
+    // 1. Load the raw data from Lua
+    QVariantMap monsterData = loadLuaTable("data/MonsterData.lua", "Monsters");
+    
+    // The key here must match the key used in 'finalMap[tableName]' in your loader
+    if (monsterData.contains("Monsters")) {
+        m_monsterData.clear();
+
+        // If your loader returns finalMap[tableName] = result, 
+        // and 'result' itself is the QVariantList:
+        QVariantList rawList = monsterData["Monsters"].toList();
+
+        for (const QVariant& item : rawList) {
+            QVariantMap m = item.toMap();
+            m["DataType"] = "MonsterType"; 
+            m_monsterData.append(m);
+        }
+
+        qDebug() << "SUCCESS: Loaded" << m_monsterData.size() << "monsters from Lua.";
+    } else {
+        qWarning() << "FAILURE: 'Monsters' key not found in the map returned by Lua.";
+    }
+
+    setGameValue("ResourcesLoaded", true);
+}
+*/
+
+void GameStateManager::saveCharacterToLua(const Character& c, const QString& filePath) {
+    // Use the existing toMap() helper from your character.h
+    QVariantMap data = c.toMap();
+    
+    QFile file(filePath);
+    if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
+        qWarning() << "Could not open save file:" << filePath;
+        return;
+    }
+
+    QTextStream out(&file);
+    out << "-- Blacklands Character Save\n";
+    out << "SaveData = {\n";
+
+    // Iterate through the map and write keys/values automatically
+    QMapIterator<QString, QVariant> i(data);
+    while (i.hasNext()) {
+        i.next();
+        QString key = i.key();
+        QVariant val = i.value();
+
+        if (val.typeId() == QMetaType::QString) {
+            out << "    " << key << " = \"" << val.toString() << "\",\n";
+        } else if (val.typeId() == QMetaType::Bool) {
+            out << "    " << key << " = " << (val.toBool() ? "true" : "false") << ",\n";
+        } else if (val.typeId() == QMetaType::QStringList) {
+            out << "    " << key << " = { ";
+            QStringList list = val.toStringList();
+            for(const QString& s : list) out << "\"" << s << "\", ";
+            out << "},\n";
+        } else {
+            // Numbers (int, float)
+            out << "    " << key << " = " << val.toString() << ",\n";
+        }
+    }
+
+    out << "}\n";
+    file.close();
+}
+
+/*
+void GameStateManager::saveCharacterToLua(const Character& c, const QString& filePath) {
+    // Ensure the directory exists (relative to the executable)
+    QFileInfo fileInfo(filePath);
+    QDir().mkpath(fileInfo.absolutePath());
+
+    QFile file(filePath);
+    if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
+        qWarning() << "LUA SAVE ERROR: Could not open file at" << QDir::current().absoluteFilePath(filePath);
+        return;
+    }
+
+    QTextStream out(&file);
+    out << "-- Blacklands Character Save File\n";
+    out << "SaveData = {\n";
+    out << "    Name = \"" << c.name << "\",\n";
+    out << "    Race = \"" << c.Race << "\",\n";
+    out << "    Level = " << c.level << ",\n";
+    out << "    Gold = " << c.Gold << ",\n";
+    out << "    Stats = {\n";
+    out << "        Str = " << c.strength << ",\n";
+    out << "        Int = " << c.intelligence << ",\n";
+    out << "        Dex = " << c.dexterity << "\n";
+    out << "    },\n";
+    out << "    Inventory = {\n";
+    for (const QString& item : c.inventory) {
+        out << "        \"" << item << "\",\n";
+    }
+    out << "    }\n";
+    out << "}\n";
+
+    file.close();
+    qDebug() << "SUCCESS: Character" << c.name << "saved to" << filePath;
+}
+*/
+Character GameStateManager::loadCharacterFromLua(const QString& filePath) {
+    Character c; // Create a blank character
+    
+    // 1. Use our universal loader to get the "SaveData" table from the file
+    QVariantMap saveMap = loadLuaTable(filePath, "SaveData");
+
+    // 2. Check if the table actually exists in the file
+    if (saveMap.contains("SaveData")) {
+        // Extract the inner map (the actual character data)
+        QVariantMap data = saveMap["SaveData"].toMap();
+
+        // 3. Map Lua values back to C++ variables
+        c.name = data["Name"].toString();
+        c.Race = data["Race"].toString();
+        c.level = data["Level"].toInt();
+        c.Gold = data["Gold"].toInt();
+
+        // Handle nested Stats table
+        if (data.contains("Stats")) {
+            QVariantMap stats = data["Stats"].toMap();
+            c.strength = stats["Str"].toInt();
+            c.intelligence = stats["Int"].toInt();
+            c.dexterity = stats["Dex"].toInt();
+        }
+
+        // Handle Inventory list
+        if (data.contains("Inventory")) {
+            c.inventory = data["Inventory"].toStringList();
+        }
+
+        qDebug() << "SUCCESS: Character" << c.name << "loaded from Lua.";
+    } else {
+        qWarning() << "FAILED: Could not find 'SaveData' in" << filePath;
+    }
+
+    return c;
 }

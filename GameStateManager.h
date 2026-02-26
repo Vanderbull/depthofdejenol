@@ -1,6 +1,12 @@
 #ifndef GAMESTATEMANAGER_H
 #define GAMESTATEMANAGER_H
 
+extern "C" {
+    #include "lua.h"
+    #include "lualib.h"
+    #include "lauxlib.h"
+}
+
 // Project Includes
 #include "include/GameConstants.h"
 #include "DataRegistry.h"
@@ -38,6 +44,14 @@ class GameStateManager : public QObject
     Q_OBJECT
 
 private:
+    // The recursive engine that converts Lua data types to Qt data types
+    QVariant luaToVariant(lua_State* L, int index);
+
+    // The main public/internal call to get data from a Lua file
+    QVariantMap loadLuaTable(const QString& filePath, const QString& tableName);
+    void loadGameResources();
+
+
     QVariantMap loadRawJsonWithWrapper(const QString& filePath);
     void loadCSVData(const QString& filePath, QList<QVariantMap>& targetList);
     //Helper functions
@@ -61,6 +75,9 @@ private:
     GameConstants::RaceStats createRaceFromVariant(const QVariant& data) const;
 
 public:
+    void saveCharacterToLua(const Character& character, const QString& filePath);
+    Character loadCharacterFromLua(const QString& filePath);
+
     static GameStateManager* instance();
     bool loadGameConfig(const QString& filePath);
     void refreshUI();

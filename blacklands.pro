@@ -125,3 +125,59 @@ QMAKE_POST_LINK += $$escape_expand(\\n\\t) $(COPY_DIR) $$quote($$PWD/data) $$quo
 QMAKE_POST_LINK += $$escape_expand(\\n\\t) $(COPY_FILE) $$quote($$DESTDIR/$$TARGET) $$quote($$PWD/$$TARGET)
 
 DISTFILES += .gitignore
+
+#--------------------------------------------------
+# 3rd Party: Lua 5.5.0 Scripting Engine
+#--------------------------------------------------
+# Points to the directory where lua.h and .c files live
+INCLUDEPATH += $$PWD/3rdparty/lua
+
+# Core Lua Sources (Excluding lua.c and luac.c to avoid main() conflicts)
+SOURCES += \
+    $$PWD/3rdparty/lua/lapi.c \
+    $$PWD/3rdparty/lua/lcode.c \
+    $$PWD/3rdparty/lua/lctype.c \
+    $$PWD/3rdparty/lua/ldebug.c \
+    $$PWD/3rdparty/lua/ldo.c \
+    $$PWD/3rdparty/lua/ldump.c \
+    $$PWD/3rdparty/lua/lfunc.c \
+    $$PWD/3rdparty/lua/lgc.c \
+    $$PWD/3rdparty/lua/llex.c \
+    $$PWD/3rdparty/lua/lmem.c \
+    $$PWD/3rdparty/lua/lobject.c \
+    $$PWD/3rdparty/lua/lopcodes.c \
+    $$PWD/3rdparty/lua/lparser.c \
+    $$PWD/3rdparty/lua/lstate.c \
+    $$PWD/3rdparty/lua/lstring.c \
+    $$PWD/3rdparty/lua/ltable.c \
+    $$PWD/3rdparty/lua/ltm.c \
+    $$PWD/3rdparty/lua/lundump.c \
+    $$PWD/3rdparty/lua/lvm.c \
+    $$PWD/3rdparty/lua/lzio.c \
+    $$PWD/3rdparty/lua/lauxlib.c \
+    $$PWD/3rdparty/lua/lbaselib.c \
+    $$PWD/3rdparty/lua/lcorolib.c \
+    $$PWD/3rdparty/lua/ldblib.c \
+    $$PWD/3rdparty/lua/liolib.c \
+    $$PWD/3rdparty/lua/lmathlib.c \
+    $$PWD/3rdparty/lua/loadlib.c \
+    $$PWD/3rdparty/lua/loslib.c \
+    $$PWD/3rdparty/lua/lstrlib.c \
+    $$PWD/3rdparty/lua/ltablib.c \
+    $$PWD/3rdparty/lua/lutf8lib.c \
+    $$PWD/3rdparty/lua/linit.c
+
+# Ensure the C compiler is used for these files
+QMAKE_CFLAGS += -std=c11
+DEFINES += LUA_COMPAT_5_3
+
+# --- Suppression of the 'tmpnam' warning ONLY on Linux ---
+linux {
+    DEFINES += LUA_USE_LINUX
+}
+
+# --- If you eventually port to Windows, you can add specific needs here ---
+win32 {
+    # Windows-specific Lua defines would go here if needed
+    # DEFINES += LUA_USE_WINDOWS
+}
