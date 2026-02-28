@@ -45,7 +45,6 @@ class GameStateManager : public QObject
     Q_OBJECT
 
 private:
-
     QTcpSocket* m_clientSocket;
     int m_tickCounter = 0;
 
@@ -92,7 +91,6 @@ public:
     int getRaceMin(const QString& raceName, const QString& statName) const;
     int getRaceMax(const QString& raceName, const QString& statName) const;
     
-    // RESTORED: These were commented out in your .cpp, so they must be inline or implemented
     int getRaceStart(const QString& raceName, const QString& statName) const {
         for (const auto& race : m_raceDefinitions) {
             if (race.raceName == raceName) return getStatRef(race, statName).start;
@@ -133,11 +131,9 @@ public:
     QFont getFixedFont() const { return m_fixedFont; }
 
     // --- Party and World Objects ---
-    static const int MAX_PARTY_SIZE = 4;
     struct PlacedItem {
         int level; int x; int y; QString itemName;
     };
-
     void addPlacedItem(int level, int x, int y, const QString& name) {
         m_placedItems.append({level, x, y, name});
     }
@@ -150,7 +146,6 @@ public:
     void setCharacterGold(int index, qulonglong newGold);
     void updateCharacterGold(int characterIndex, qulonglong amount, bool add = true);
     void updatePartyMemberHP(int index, int newHP);
-//    void syncActiveCharacterToParty();
     bool readyBodyForResurrection(const QString& characterName);
     
     // --- Aging and Progression ---
@@ -169,7 +164,6 @@ public:
         if (m_PC.isEmpty()) return false;
         return m_PC[0].DungeonLevel == 0;
     }
-
     // --- Data Accessors (M-DATA) ---
     void loadGameData(const QString& filePath); 
     void listGameData();

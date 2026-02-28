@@ -4,7 +4,7 @@ Race:
 Age: 0
 Race: 
 DungeonX: 17
-DungeonY: 12
+DungeonY: 8
 DungeonLevel: 1
 Guild: 
 Level: 1

@@ -115,6 +115,9 @@ HEADERS += \
 
 HEADERS += src/spell_casting/SpellCastingDialog.h
 SOURCES += src/spell_casting/SpellCastingDialog.cpp
+
+HEADERS += FontManager.h
+SOURCES += FontManager.cpp
 #--------------------------------------------------
 # Post-Link Operations
 #--------------------------------------------------

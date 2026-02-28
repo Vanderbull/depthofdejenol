@@ -8,6 +8,7 @@
 
 namespace GameConstants {
 
+    static const int MAX_PARTY_SIZE = 4;
     // Measurements based on the spritesheet proportions
     static constexpr int SPRITE_WIDTH = 80;   
     static constexpr int SPRITE_HEIGHT = 90;  

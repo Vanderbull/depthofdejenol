@@ -1,4 +1,5 @@
 #include "GameStateManager.h"
+#include "FontManager.h"
 #include "src/race_data/RaceData.h"
 #include <QApplication>
 #include <QMainWindow>
@@ -182,9 +183,17 @@ GameStateManager::GameStateManager(QObject *parent)
 
     qDebug() << "Lua Heartbeat started: Script will run every 10 seconds.";
 
+    //m_proportionalFont = QFont("MS Sans Serif", 8); 
+    //m_fixedFont = QFont("Courier New", 9);
 
-    m_proportionalFont = QFont("MS Sans Serif", 8); 
-    m_fixedFont = QFont("Courier New", 9);
+    FontManager::instance()->setProportionalFont(QFont("MS Sans Serif", 8));
+    FontManager::instance()->setFixedFont(QFont("Courier New", 9));
+
+    // If you want to load the sprite sheet at startup:
+    FontManager::instance()->loadSpriteSheet("path/to/font.png", 
+                                             GameConstants::SPRITE_WIDTH, 
+                                             GameConstants::SPRITE_HEIGHT, 
+                                             GameConstants::KERNING);
 
     m_autosaveTimer = new QTimer(this);
     connect(m_autosaveTimer, &QTimer::timeout, this, &GameStateManager::handleAutosave);
@@ -891,79 +900,24 @@ void GameStateManager::processAgingConsequences()
 }
 
 void GameStateManager::setProportionalFont(const QFont& font) {
-//    m_proportionalFont = font;
-//    QGuiApplication::setFont(font); // Updates all standard widgets automatically
-//    emit fontChanged();
-m_proportionalFont = font;
-    
-    // Apply to the entire application instance
-    if (qApp) {
-        qApp->setFont(font);
-    }
-
-    // Force every top-level widget to update immediately
-    for (QWidget *widget : QApplication::allWidgets()) {
-        widget->setFont(font);
-        widget->update();
-    }
-    
-    emit fontChanged();
+    // Simply delegate to the specialized manager
+    FontManager::instance()->setProportionalFont(font);
 }
 
 void GameStateManager::setFixedFont(const QFont& font) {
-    m_fixedFont = font;
-    emit fontChanged();
+    FontManager::instance()->setFixedFont(font);
 }
 void GameStateManager::loadFontSprite(const QString& path) {
-    m_fontSpriteSheet.load(path);
+    FontManager::instance()->loadSpriteSheet(path, 
+                                             GameConstants::SPRITE_WIDTH, 
+                                             GameConstants::SPRITE_HEIGHT, 
+                                             GameConstants::KERNING);
 }
 
 void GameStateManager::drawCustomText(QPainter* painter, const QString& text, const QPoint& position) {
-    if (m_fontSpriteSheet.isNull()) return;
-
-    // The sequence exactly as it appears in the image, row by row
-    const QString layout = "ABCDEFGHI"   // Row 0
-                           "HIJKLMM"     // Row 1
-                           "NOPQRSTUUV"  // Row 2
-                           "UWXYZ"       // Row 3
-                           "124578901";  // Row 4
-
-    QString upperText = text.toUpper();
-
-    for (int i = 0; i < upperText.length(); ++i) {
-        QChar c = upperText[i];
-        
-        if (c == ' ') continue; // Simple space handling
-
-        // Find character in the layout string
-        int index = layout.indexOf(c);
-        if (index == -1) continue; 
-
-        int row = 0;
-        int col = 0;
-
-        // Map index to the specific grid coordinates
-        if (index < 9) { 
-            row = 0; col = index; 
-        } else if (index < 16) { 
-            row = 1; col = (index - 9); 
-        } else if (index < 26) { 
-            row = 2; col = (index - 16); 
-        } else if (index < 31) { 
-            row = 3; col = (index - 26); 
-        } else { 
-            row = 4; col = (index - 31); 
-        }
-
-        // Source: Where the letter is in the PNG
-        QRect sourceRect(col * GameConstants::SPRITE_WIDTH, row * GameConstants::SPRITE_HEIGHT, GameConstants::SPRITE_WIDTH, GameConstants::SPRITE_HEIGHT);
-        
-        // Target: Where to draw on the UI
-        // We use KERNING for the X offset so letters don't have huge gaps
-        QRect targetRect(position.x() + (i * GameConstants::KERNING), position.y(), GameConstants::SPRITE_WIDTH, GameConstants::SPRITE_HEIGHT);
-
-        painter->drawPixmap(targetRect, m_fontSpriteSheet, sourceRect);
-    }
+    // GameStateManager no longer calculates rows/cols! 
+    // It just tells the FontManager to do it.
+    FontManager::instance()->drawSpriteText(painter, text, position);
 }
 
 void GameStateManager::loadRaceDefinitions() {
@@ -1118,14 +1072,12 @@ void GameStateManager::initializeConfinementStock() {
     m_confinementStock.insert("Zombie", 1);
     m_confinementStock.insert("Footpad", 1);
     m_confinementStock.insert("Gredlan Rogue", 1);
-    // These start at 0
     m_confinementStock.insert("Ghost hound", 0);
     m_confinementStock.insert("Skeleton", 0);
 }
 
 void GameStateManager::initializeParty() {
-    // This is the exact logic moved from your constructor
-    for (int i = 0; i < MAX_PARTY_SIZE; ++i) {
+    for (int i = 0; i < GameConstants::MAX_PARTY_SIZE; ++i) {
         QVariantMap character;
         character["Name"] = "Empty Slot";
         character["Level"] = 0;
@@ -1155,7 +1107,6 @@ void GameStateManager::initializeParty() {
         c.loadFromMap(character);
         m_PC.append(c);
     }
-    
     m_gameStateData["Party"] = party;
     m_gameStateData["PartyHP"] = QVariantList({50, 40, 30});
 }
@@ -1296,7 +1247,6 @@ QVariantMap GameStateManager::loadLuaTable(const QString& filePath, const QStrin
     QVariant result = luaToVariant(L, -1);
     lua_close(L);
 
-    // MANUALLY WRAP IT:
     // This ensures that back in loadGameResources, monsterData["Monsters"] exists.
     QVariantMap finalMap;
     finalMap.insert(tableName, result); 
@@ -1305,7 +1255,6 @@ QVariantMap GameStateManager::loadLuaTable(const QString& filePath, const QStrin
 
 void GameStateManager::loadGameResources() {
     qDebug() << "--- Global Resource Load Started ---";
-
     // Define what we want to load: { "Lua_File_Path", "Table_Name", "DataType_Tag", "Target_List_Pointer" }
     struct ResourceJob {
         QString path;
@@ -1318,7 +1267,6 @@ void GameStateManager::loadGameResources() {
         {"data/MonsterData.lua", "Monsters", "MonsterType", &m_monsterData},
         // You can add more here as you convert them:
         // {"data/ItemData.lua", "Items", "ItemType", &m_itemData},
-        // {"data/SpellData.lua", "Spells", "SpellType", &m_spellData}
     };
 
     for (const auto& job : jobs) {
@@ -1342,36 +1290,6 @@ void GameStateManager::loadGameResources() {
     setGameValue("ResourcesLoaded", true);
     qDebug() << "--- Global Resource Load Complete ---";
 }
-
-/*
-void GameStateManager::loadGameResources() {
-    qDebug() << "--- loadGameResources() started ---";
-
-    // 1. Load the raw data from Lua
-    QVariantMap monsterData = loadLuaTable("data/MonsterData.lua", "Monsters");
-    
-    // The key here must match the key used in 'finalMap[tableName]' in your loader
-    if (monsterData.contains("Monsters")) {
-        m_monsterData.clear();
-
-        // If your loader returns finalMap[tableName] = result, 
-        // and 'result' itself is the QVariantList:
-        QVariantList rawList = monsterData["Monsters"].toList();
-
-        for (const QVariant& item : rawList) {
-            QVariantMap m = item.toMap();
-            m["DataType"] = "MonsterType"; 
-            m_monsterData.append(m);
-        }
-
-        qDebug() << "SUCCESS: Loaded" << m_monsterData.size() << "monsters from Lua.";
-    } else {
-        qWarning() << "FAILURE: 'Monsters' key not found in the map returned by Lua.";
-    }
-
-    setGameValue("ResourcesLoaded", true);
-}
-*/
 
 void GameStateManager::saveCharacterToLua(const Character& c, const QString& filePath) {
     // Use the existing toMap() helper from your character.h
@@ -1413,41 +1331,6 @@ void GameStateManager::saveCharacterToLua(const Character& c, const QString& fil
     file.close();
 }
 
-/*
-void GameStateManager::saveCharacterToLua(const Character& c, const QString& filePath) {
-    // Ensure the directory exists (relative to the executable)
-    QFileInfo fileInfo(filePath);
-    QDir().mkpath(fileInfo.absolutePath());
-
-    QFile file(filePath);
-    if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
-        qWarning() << "LUA SAVE ERROR: Could not open file at" << QDir::current().absoluteFilePath(filePath);
-        return;
-    }
-
-    QTextStream out(&file);
-    out << "-- Blacklands Character Save File\n";
-    out << "SaveData = {\n";
-    out << "    Name = \"" << c.name << "\",\n";
-    out << "    Race = \"" << c.Race << "\",\n";
-    out << "    Level = " << c.level << ",\n";
-    out << "    Gold = " << c.Gold << ",\n";
-    out << "    Stats = {\n";
-    out << "        Str = " << c.strength << ",\n";
-    out << "        Int = " << c.intelligence << ",\n";
-    out << "        Dex = " << c.dexterity << "\n";
-    out << "    },\n";
-    out << "    Inventory = {\n";
-    for (const QString& item : c.inventory) {
-        out << "        \"" << item << "\",\n";
-    }
-    out << "    }\n";
-    out << "}\n";
-
-    file.close();
-    qDebug() << "SUCCESS: Character" << c.name << "saved to" << filePath;
-}
-*/
 Character GameStateManager::loadCharacterFromLua(const QString& filePath) {
     Character c; // Create a blank character
     
@@ -1486,7 +1369,6 @@ Character GameStateManager::loadCharacterFromLua(const QString& filePath) {
     return c;
 }
 
-
 void GameStateManager::onLuaTimerTick() {
     // 1. Run your existing local heartbeat script
     if (luaL_dofile(m_L, "data/scripts/heartbeat.lua") != LUA_OK) {
@@ -1507,7 +1389,6 @@ void GameStateManager::onLuaTimerTick() {
     }
 }
 
-
 void GameStateManager::onServerDataReceived() {
     // Read all available data from the socket
     while (m_clientSocket->canReadLine()) {
@@ -1516,7 +1397,7 @@ void GameStateManager::onServerDataReceived() {
 
         qDebug() << "Message from Server:" << message;
 
-        // EXTRA CREDIT: Pass the server message into your Lua engine!
+        // Pass the server message into your Lua engine!
         // This allows the server to remotely run Lua code in your game.
         if (luaL_dostring(m_L, data.constData()) != LUA_OK) {
              // If it wasn't valid Lua, just log it
