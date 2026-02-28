@@ -686,6 +686,7 @@ build/moc/moc_GameStateManager.cpp: GameStateManager.h \
 		src/core/GameConstants.h \
 		DataRegistry.h \
 		AudioManager.h \
+		FontManager.h \
 		character.h \
 		build/moc/moc_predefs.h \
 		/usr/lib/qt6/libexec/moc
@@ -706,6 +707,7 @@ build/moc/moc_blacklands.cpp: blacklands.h \
 		src/core/GameConstants.h \
 		DataRegistry.h \
 		AudioManager.h \
+		FontManager.h \
 		character.h \
 		build/moc/moc_predefs.h \
 		/usr/lib/qt6/libexec/moc
@@ -741,6 +743,7 @@ build/moc/moc_createcharacterdialog.cpp: src/create_character/createcharacterdia
 		3rdparty/lua/lauxlib.h \
 		DataRegistry.h \
 		AudioManager.h \
+		FontManager.h \
 		character.h \
 		build/moc/moc_predefs.h \
 		/usr/lib/qt6/libexec/moc
@@ -760,6 +763,7 @@ build/moc/moc_CharacterDialog.cpp: src/character_dialog/CharacterDialog.h \
 		src/core/GameConstants.h \
 		DataRegistry.h \
 		AudioManager.h \
+		FontManager.h \
 		character.h \
 		build/moc/moc_predefs.h \
 		/usr/lib/qt6/libexec/moc
@@ -784,6 +788,7 @@ build/moc/moc_library_dialog.cpp: src/library_dialog/library_dialog.h \
 		3rdparty/lua/lauxlib.h \
 		DataRegistry.h \
 		AudioManager.h \
+		FontManager.h \
 		character.h \
 		build/moc/moc_predefs.h \
 		/usr/lib/qt6/libexec/moc
@@ -798,6 +803,7 @@ build/moc/moc_automap_dialog.cpp: src/automap/automap_dialog.h \
 		src/core/GameConstants.h \
 		DataRegistry.h \
 		AudioManager.h \
+		FontManager.h \
 		character.h \
 		build/moc/moc_predefs.h \
 		/usr/lib/qt6/libexec/moc
@@ -812,6 +818,7 @@ build/moc/moc_game_controller.cpp: src/game_controller/game_controller.h \
 		src/core/GameConstants.h \
 		DataRegistry.h \
 		AudioManager.h \
+		FontManager.h \
 		character.h \
 		build/moc/moc_predefs.h \
 		/usr/lib/qt6/libexec/moc
@@ -826,6 +833,7 @@ build/moc/moc_characterlistdialog.cpp: src/characterlist_dialog/characterlistdia
 		src/core/GameConstants.h \
 		DataRegistry.h \
 		AudioManager.h \
+		FontManager.h \
 		character.h \
 		build/moc/moc_predefs.h \
 		/usr/lib/qt6/libexec/moc
@@ -840,6 +848,7 @@ build/moc/moc_helplesson.cpp: src/helplesson/helplesson.h \
 		src/core/GameConstants.h \
 		DataRegistry.h \
 		AudioManager.h \
+		FontManager.h \
 		character.h \
 		build/moc/moc_predefs.h \
 		/usr/lib/qt6/libexec/moc
@@ -864,6 +873,7 @@ build/moc/moc_GuildsDialog.cpp: src/guilds_dialog/GuildsDialog.h \
 		src/core/GameConstants.h \
 		DataRegistry.h \
 		AudioManager.h \
+		FontManager.h \
 		character.h \
 		build/moc/moc_predefs.h \
 		/usr/lib/qt6/libexec/moc
@@ -878,6 +888,7 @@ build/moc/moc_GeneralStore.cpp: src/general_store/GeneralStore.h \
 		src/core/GameConstants.h \
 		DataRegistry.h \
 		AudioManager.h \
+		FontManager.h \
 		character.h \
 		build/moc/moc_predefs.h \
 		/usr/lib/qt6/libexec/moc
@@ -897,6 +908,7 @@ build/moc/moc_SeerDialog.cpp: src/seer_dialog/SeerDialog.h \
 		src/core/GameConstants.h \
 		DataRegistry.h \
 		AudioManager.h \
+		FontManager.h \
 		character.h \
 		build/moc/moc_predefs.h \
 		/usr/lib/qt6/libexec/moc
@@ -911,6 +923,7 @@ build/moc/moc_ConfinementDialog.cpp: src/confinement_dialog/ConfinementDialog.h 
 		src/core/GameConstants.h \
 		DataRegistry.h \
 		AudioManager.h \
+		FontManager.h \
 		character.h \
 		build/moc/moc_predefs.h \
 		/usr/lib/qt6/libexec/moc
@@ -925,6 +938,7 @@ build/moc/moc_BankDialog.cpp: src/bank_dialog/BankDialog.h \
 		src/core/GameConstants.h \
 		DataRegistry.h \
 		AudioManager.h \
+		FontManager.h \
 		character.h \
 		build/moc/moc_predefs.h \
 		/usr/lib/qt6/libexec/moc
@@ -939,6 +953,7 @@ build/moc/moc_inventorydialog.cpp: src/inventory_dialog/inventorydialog.h \
 		src/core/GameConstants.h \
 		DataRegistry.h \
 		AudioManager.h \
+		FontManager.h \
 		character.h \
 		build/moc/moc_predefs.h \
 		/usr/lib/qt6/libexec/moc
@@ -953,6 +968,7 @@ build/moc/moc_optionsdialog.cpp: src/options_dialog/optionsdialog.h \
 		src/core/GameConstants.h \
 		DataRegistry.h \
 		AudioManager.h \
+		FontManager.h \
 		character.h \
 		build/moc/moc_predefs.h \
 		/usr/lib/qt6/libexec/moc
@@ -968,6 +984,7 @@ build/moc/moc_DungeonDialog.cpp: src/dungeon_dialog/DungeonDialog.h \
 		src/core/GameConstants.h \
 		DataRegistry.h \
 		AudioManager.h \
+		FontManager.h \
 		character.h \
 		src/partyinfo_dialog/partyinfodialog.h \
 		src/event/EventManager.h \
@@ -995,6 +1012,7 @@ build/moc/moc_TradeDialog.cpp: src/bank_dialog/TradeDialog.h \
 		src/core/GameConstants.h \
 		DataRegistry.h \
 		AudioManager.h \
+		FontManager.h \
 		character.h \
 		build/moc/moc_predefs.h \
 		/usr/lib/qt6/libexec/moc
@@ -1009,6 +1027,7 @@ build/moc/moc_EventManager.cpp: src/event/EventManager.h \
 		src/core/GameConstants.h \
 		DataRegistry.h \
 		AudioManager.h \
+		FontManager.h \
 		character.h \
 		build/moc/moc_predefs.h \
 		/usr/lib/qt6/libexec/moc
@@ -1063,8 +1082,8 @@ build/obj/release/GameStateManager.o: GameStateManager.cpp GameStateManager.h \
 		src/core/GameConstants.h \
 		DataRegistry.h \
 		AudioManager.h \
-		character.h \
 		FontManager.h \
+		character.h \
 		src/race_data/RaceData.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/GameStateManager.o GameStateManager.cpp
 
@@ -1079,6 +1098,7 @@ build/obj/release/blacklands.o: blacklands.cpp GameStateManager.h \
 		src/core/GameConstants.h \
 		DataRegistry.h \
 		AudioManager.h \
+		FontManager.h \
 		character.h \
 		blacklands.h \
 		src/event/EventManager.h \
@@ -1115,6 +1135,7 @@ build/obj/release/TheCity.o: TheCity.cpp TheCity.h \
 		src/core/GameConstants.h \
 		DataRegistry.h \
 		AudioManager.h \
+		FontManager.h \
 		character.h \
 		src/guilds_dialog/GuildsDialog.h \
 		src/morgue_dialog/MorgueDialog.h \
@@ -1139,6 +1160,7 @@ build/obj/release/hallofrecordsdialog.o: src/hall_of_records/hallofrecordsdialog
 		src/core/GameConstants.h \
 		DataRegistry.h \
 		AudioManager.h \
+		FontManager.h \
 		character.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/hallofrecordsdialog.o src/hall_of_records/hallofrecordsdialog.cpp
 
@@ -1152,6 +1174,7 @@ build/obj/release/createcharacterdialog.o: src/create_character/createcharacterd
 		3rdparty/lua/lauxlib.h \
 		DataRegistry.h \
 		AudioManager.h \
+		FontManager.h \
 		character.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/createcharacterdialog.o src/create_character/createcharacterdialog.cpp
 
@@ -1164,6 +1187,7 @@ build/obj/release/AboutDialog.o: src/about_dialog/AboutDialog.cpp src/about_dial
 		src/core/GameConstants.h \
 		DataRegistry.h \
 		AudioManager.h \
+		FontManager.h \
 		character.h \
 		src/update/UpdateDialog.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/AboutDialog.o src/about_dialog/AboutDialog.cpp
@@ -1177,6 +1201,7 @@ build/obj/release/CharacterDialog.o: src/character_dialog/CharacterDialog.cpp sr
 		src/core/GameConstants.h \
 		DataRegistry.h \
 		AudioManager.h \
+		FontManager.h \
 		character.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/CharacterDialog.o src/character_dialog/CharacterDialog.cpp
 
@@ -1195,6 +1220,7 @@ build/obj/release/library_dialog.o: src/library_dialog/library_dialog.cpp src/li
 		3rdparty/lua/lauxlib.h \
 		DataRegistry.h \
 		AudioManager.h \
+		FontManager.h \
 		character.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/library_dialog.o src/library_dialog/library_dialog.cpp
 
@@ -1207,6 +1233,7 @@ build/obj/release/automap_dialog.o: src/automap/automap_dialog.cpp src/automap/a
 		src/core/GameConstants.h \
 		DataRegistry.h \
 		AudioManager.h \
+		FontManager.h \
 		character.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/automap_dialog.o src/automap/automap_dialog.cpp
 
@@ -1219,6 +1246,7 @@ build/obj/release/game_controller.o: src/game_controller/game_controller.cpp src
 		src/core/GameConstants.h \
 		DataRegistry.h \
 		AudioManager.h \
+		FontManager.h \
 		character.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/game_controller.o src/game_controller/game_controller.cpp
 
@@ -1231,6 +1259,7 @@ build/obj/release/characterlistdialog.o: src/characterlist_dialog/characterlistd
 		src/core/GameConstants.h \
 		DataRegistry.h \
 		AudioManager.h \
+		FontManager.h \
 		character.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/characterlistdialog.o src/characterlist_dialog/characterlistdialog.cpp
 
@@ -1243,6 +1272,7 @@ build/obj/release/helplesson.o: src/helplesson/helplesson.cpp src/helplesson/hel
 		src/core/GameConstants.h \
 		DataRegistry.h \
 		AudioManager.h \
+		FontManager.h \
 		character.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/helplesson.o src/helplesson/helplesson.cpp
 
@@ -1259,6 +1289,7 @@ build/obj/release/LoadingScreen.o: src/loadingscreen/LoadingScreen.cpp src/core/
 		src/core/GameConstants.h \
 		DataRegistry.h \
 		AudioManager.h \
+		FontManager.h \
 		character.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/LoadingScreen.o src/loadingscreen/LoadingScreen.cpp
 
@@ -1271,6 +1302,7 @@ build/obj/release/GuildsDialog.o: src/guilds_dialog/GuildsDialog.cpp src/guilds_
 		src/core/GameConstants.h \
 		DataRegistry.h \
 		AudioManager.h \
+		FontManager.h \
 		character.h \
 		src/library_dialog/library_dialog.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/GuildsDialog.o src/guilds_dialog/GuildsDialog.cpp
@@ -1284,6 +1316,7 @@ build/obj/release/GeneralStore.o: src/general_store/GeneralStore.cpp src/general
 		src/core/GameConstants.h \
 		DataRegistry.h \
 		AudioManager.h \
+		FontManager.h \
 		character.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/GeneralStore.o src/general_store/GeneralStore.cpp
 
@@ -1296,6 +1329,7 @@ build/obj/release/MorgueDialog.o: src/morgue_dialog/MorgueDialog.cpp src/morgue_
 		src/core/GameConstants.h \
 		DataRegistry.h \
 		AudioManager.h \
+		FontManager.h \
 		character.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/MorgueDialog.o src/morgue_dialog/MorgueDialog.cpp
 
@@ -1308,6 +1342,7 @@ build/obj/release/SeerDialog.o: src/seer_dialog/SeerDialog.cpp src/seer_dialog/S
 		src/core/GameConstants.h \
 		DataRegistry.h \
 		AudioManager.h \
+		FontManager.h \
 		character.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/SeerDialog.o src/seer_dialog/SeerDialog.cpp
 
@@ -1320,6 +1355,7 @@ build/obj/release/ConfinementDialog.o: src/confinement_dialog/ConfinementDialog.
 		src/core/GameConstants.h \
 		DataRegistry.h \
 		AudioManager.h \
+		FontManager.h \
 		character.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/ConfinementDialog.o src/confinement_dialog/ConfinementDialog.cpp
 
@@ -1332,6 +1368,7 @@ build/obj/release/BankDialog.o: src/bank_dialog/BankDialog.cpp src/bank_dialog/B
 		src/core/GameConstants.h \
 		DataRegistry.h \
 		AudioManager.h \
+		FontManager.h \
 		character.h \
 		src/bank_dialog/TradeDialog.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/BankDialog.o src/bank_dialog/BankDialog.cpp
@@ -1349,6 +1386,7 @@ build/obj/release/inventorydialog.o: src/inventory_dialog/inventorydialog.cpp sr
 		src/core/GameConstants.h \
 		DataRegistry.h \
 		AudioManager.h \
+		FontManager.h \
 		character.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/inventorydialog.o src/inventory_dialog/inventorydialog.cpp
 
@@ -1361,6 +1399,7 @@ build/obj/release/optionsdialog.o: src/options_dialog/optionsdialog.cpp src/opti
 		src/core/GameConstants.h \
 		DataRegistry.h \
 		AudioManager.h \
+		FontManager.h \
 		character.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/optionsdialog.o src/options_dialog/optionsdialog.cpp
 
@@ -1373,6 +1412,7 @@ build/obj/release/DungeonDialog.o: src/dungeon_dialog/DungeonDialog.cpp src/char
 		src/core/GameConstants.h \
 		DataRegistry.h \
 		AudioManager.h \
+		FontManager.h \
 		character.h \
 		src/dungeon_dialog/DungeonDialog.h \
 		src/inventory_dialog/inventorydialog.h \
@@ -1392,6 +1432,7 @@ build/obj/release/partyinfodialog.o: src/partyinfo_dialog/partyinfodialog.cpp sr
 		src/core/GameConstants.h \
 		DataRegistry.h \
 		AudioManager.h \
+		FontManager.h \
 		character.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/partyinfodialog.o src/partyinfo_dialog/partyinfodialog.cpp
 
@@ -1407,6 +1448,7 @@ build/obj/release/TradeDialog.o: src/bank_dialog/TradeDialog.cpp src/bank_dialog
 		src/core/GameConstants.h \
 		DataRegistry.h \
 		AudioManager.h \
+		FontManager.h \
 		character.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/TradeDialog.o src/bank_dialog/TradeDialog.cpp
 
@@ -1423,6 +1465,7 @@ build/obj/release/DungeonMinimap.o: src/dungeon_dialog/DungeonMinimap.cpp src/du
 		src/core/GameConstants.h \
 		DataRegistry.h \
 		AudioManager.h \
+		FontManager.h \
 		character.h \
 		src/partyinfo_dialog/partyinfodialog.h \
 		src/event/EventManager.h \
@@ -1440,6 +1483,7 @@ build/obj/release/DungeonHandlers.o: src/dungeon_dialog/DungeonHandlers.cpp src/
 		src/core/GameConstants.h \
 		DataRegistry.h \
 		AudioManager.h \
+		FontManager.h \
 		character.h \
 		src/partyinfo_dialog/partyinfodialog.h \
 		src/event/EventManager.h \
@@ -1455,6 +1499,7 @@ build/obj/release/EventManager.o: src/event/EventManager.cpp src/event/EventMana
 		src/core/GameConstants.h \
 		DataRegistry.h \
 		AudioManager.h \
+		FontManager.h \
 		character.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/EventManager.o src/event/EventManager.cpp
 
@@ -1474,6 +1519,7 @@ build/obj/release/SpellCastingDialog.o: src/spell_casting/SpellCastingDialog.cpp
 		src/core/GameConstants.h \
 		DataRegistry.h \
 		AudioManager.h \
+		FontManager.h \
 		character.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/SpellCastingDialog.o src/spell_casting/SpellCastingDialog.cpp
 

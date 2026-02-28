@@ -11,6 +11,7 @@ extern "C" {
 #include "src/core/GameConstants.h"
 #include "DataRegistry.h"
 #include "AudioManager.h"
+#include "FontManager.h"
 #include "character.h"
 
 #include <QTcpSocket>
@@ -68,7 +69,7 @@ private:
     void initializeParty();
 
     const GameConstants::RaceStat& getStatRef(const GameConstants::RaceStats& race, const QString& statName) const;
-    QPixmap m_fontSpriteSheet;
+    //QPixmap m_fontSpriteSheet;
 
     explicit GameStateManager(QObject *parent = nullptr);
     GameStateManager(const GameStateManager&) = delete;
@@ -127,8 +128,10 @@ public:
     void drawCustomText(QPainter* painter, const QString& text, const QPoint& position);
     void setProportionalFont(const QFont& font);
     void setFixedFont(const QFont& font);
-    QFont getProportionalFont() const { return m_proportionalFont; }
-    QFont getFixedFont() const { return m_fixedFont; }
+    //QFont getProportionalFont() const { return m_proportionalFont; }
+    //QFont getFixedFont() const { return m_fixedFont; }
+    QFont getProportionalFont() const { return FontManager::instance()->proportionalFont(); }
+    QFont getFixedFont() const { return FontManager::instance()->fixedFont(); }
 
     // --- Party and World Objects ---
     struct PlacedItem {
@@ -273,8 +276,8 @@ private slots:
     void onServerDataReceived();
 
 private:
-    QFont m_proportionalFont;
-    QFont m_fixedFont;
+    //QFont m_proportionalFont;
+    //QFont m_fixedFont;
 
     QVariantList party; 
     QList<Character> m_PC;
