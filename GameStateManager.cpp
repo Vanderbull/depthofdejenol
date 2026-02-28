@@ -928,11 +928,6 @@ void GameStateManager::drawCustomText(QPainter* painter, const QString& text, co
                            "UWXYZ"       // Row 3
                            "124578901";  // Row 4
 
-    // Measurements based on the spritesheet proportions
-    static constexpr int SPRITE_WIDTH = 80;   
-    static constexpr int SPRITE_HEIGHT = 90;  
-    static constexpr int KERNING = 48; // Adjust this to tighten/loosen spacing
-
     QString upperText = text.toUpper();
 
     for (int i = 0; i < upperText.length(); ++i) {
@@ -961,17 +956,15 @@ void GameStateManager::drawCustomText(QPainter* painter, const QString& text, co
         }
 
         // Source: Where the letter is in the PNG
-        QRect sourceRect(col * SPRITE_WIDTH, row * SPRITE_HEIGHT, SPRITE_WIDTH, SPRITE_HEIGHT);
+        QRect sourceRect(col * GameConstants::SPRITE_WIDTH, row * GameConstants::SPRITE_HEIGHT, GameConstants::SPRITE_WIDTH, GameConstants::SPRITE_HEIGHT);
         
         // Target: Where to draw on the UI
         // We use KERNING for the X offset so letters don't have huge gaps
-        QRect targetRect(position.x() + (i * KERNING), position.y(), SPRITE_WIDTH, SPRITE_HEIGHT);
+        QRect targetRect(position.x() + (i * GameConstants::KERNING), position.y(), GameConstants::SPRITE_WIDTH, GameConstants::SPRITE_HEIGHT);
 
         painter->drawPixmap(targetRect, m_fontSpriteSheet, sourceRect);
     }
 }
-
-// GameStateManager.cpp
 
 void GameStateManager::loadRaceDefinitions() {
     m_raceDefinitions = {

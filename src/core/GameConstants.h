@@ -8,7 +8,15 @@
 
 namespace GameConstants {
 
-// --- Add these for the Registry ---
+    // Measurements based on the spritesheet proportions
+    static constexpr int SPRITE_WIDTH = 80;   
+    static constexpr int SPRITE_HEIGHT = 90;  
+    static constexpr int KERNING = 48; // Adjust this to tighten/loosen spacing
+    
+    static constexpr int FONT_CHAR_WIDTH = 32;
+    static constexpr int FONT_CHAR_HEIGHT = 42;
+    
+    // --- Add these for the Registry ---
     const QString CAT_RACES = "Races";
     const QString CAT_GUILDS = "Guilds";
     const QString CAT_MASTERS = "GuildMasters";

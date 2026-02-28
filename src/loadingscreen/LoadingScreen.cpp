@@ -1,4 +1,4 @@
-#include "include/game_resources.h"
+#include "src/core/game_resources.h"
 #include "LoadingScreen.h"
 #include "../../GameStateManager.h"
 #include <QPixmap>

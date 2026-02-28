@@ -73,7 +73,7 @@ SOURCES += \
 # Header Files
 #--------------------------------------------------
 HEADERS += \
-    include/GameConstants.h \
+    src/core/GameConstants.h \
     GameStateManager.h \
     AudioManager.h \
     blacklands.h \
@@ -106,7 +106,7 @@ HEADERS += \
     src/partyinfo_dialog/partyinfodialog.h \
     src/dungeonmap/dungeonmap.h \
     src/bank_dialog/TradeDialog.h \
-    include/game_resources.h \
+    src/core/game_resources.h \
     src/dungeon_dialog/DungeonHandlers.h \
     src/event/EventManager.h \
     src/dungeon_dialog/MinimapDialog.h \

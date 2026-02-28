@@ -1,5 +1,5 @@
 #include "TheCity.h"
-#include "include/game_resources.h"
+#include "src/core/game_resources.h"
 #include "src/network_manager/NetworkManager.h"
 #include "src/partyinfo_dialog/partyinfodialog.h"
 #include "src/general_store/GeneralStore.h"

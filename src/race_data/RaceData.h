@@ -1,7 +1,7 @@
 #ifndef RACEDATA_H
 #define RACEDATA_H
 
-#include "include/GameConstants.h"
+#include "src/core/GameConstants.h"
 #include <QVector>
 #include <QString>
 #include <QMap>

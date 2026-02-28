@@ -8,7 +8,7 @@ extern "C" {
 }
 
 // Project Includes
-#include "include/GameConstants.h"
+#include "src/core/GameConstants.h"
 #include "DataRegistry.h"
 #include "AudioManager.h"
 #include "character.h"
@@ -49,8 +49,8 @@ private:
     QTcpSocket* m_clientSocket;
     int m_tickCounter = 0;
 
-    lua_State* m_L;        // <--- ADD THIS
-    QTimer* m_luaTimer;    // <--- ADD THIS
+    lua_State* m_L;
+    QTimer* m_luaTimer;
 
     // The recursive engine that converts Lua data types to Qt data types
     QVariant luaToVariant(lua_State* L, int index);
@@ -58,7 +58,6 @@ private:
     // The main public/internal call to get data from a Lua file
     QVariantMap loadLuaTable(const QString& filePath, const QString& tableName);
     void loadGameResources();
-
 
     QVariantMap loadRawJsonWithWrapper(const QString& filePath);
     void loadCSVData(const QString& filePath, QList<QVariantMap>& targetList);
@@ -71,8 +70,6 @@ private:
 
     const GameConstants::RaceStat& getStatRef(const GameConstants::RaceStats& race, const QString& statName) const;
     QPixmap m_fontSpriteSheet;
-    static constexpr int FONT_CHAR_WIDTH = 32;
-    static constexpr int FONT_CHAR_HEIGHT = 42;
 
     explicit GameStateManager(QObject *parent = nullptr);
     GameStateManager(const GameStateManager&) = delete;
