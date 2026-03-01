@@ -1405,3 +1405,36 @@ void GameStateManager::onServerDataReceived() {
         }
     }
 }
+
+QString GameStateManager::statusKey(GameConstants::EntityStatus effect) const {
+    switch(effect) {
+        case GameConstants::Poisoned: return "status_poisoned";
+        case GameConstants::Blinded:  return "status_blinded";
+        case GameConstants::OnFire:   return "status_onfire";
+        case GameConstants::Alive:    return "isAlive";
+        default: return "status_unknown";
+    }
+}
+
+void GameStateManager::setStatus(GameConstants::EntityStatus effect, bool active) {
+    setGameValue(statusKey(effect), active);
+}
+
+bool GameStateManager::hasStatus(GameConstants::EntityStatus effect) const {
+    return getGameValue(statusKey(effect)).toBool();
+}
+
+void GameStateManager::setCharacterStatus(int index, GameConstants::EntityStatus effect, bool active) {
+    if (index < 0 || index >= m_PC.size()) return;
+
+    if (active) {
+        // This now works because status is EntityStatuses (QFlags)
+        m_PC[index].status |= effect; 
+    } else {
+        // .setFlag is a member of QFlags, which we just enabled
+        m_PC[index].status.setFlag(effect, false);
+    }
+    
+    emit gameValueChanged("party_status_updated", index);
+}
+

@@ -78,6 +78,8 @@ private:
     DataRegistry m_registry; 
     QVariantMap findRaceMap(const QString& raceName) const;
     GameConstants::RaceStats createRaceFromVariant(const QVariant& data) const;
+    
+    QString statusKey(GameConstants::EntityStatus effect) const;
 
 public:
     void saveCharacterToLua(const Character& character, const QString& filePath);
@@ -217,6 +219,22 @@ public:
     void logGuildAction(const QString& actionDescription);
     
     // --- Status Flags ---
+    // For World Events: setGlobalStatus("WorldOnFire", true);
+    void setGlobalStatus(const QString& key, bool active) { 
+        setGameValue("status_" + key, active); 
+    }
+
+    bool hasGlobalStatus(const QString& key) const { 
+        return getGameValue("status_" + key).toBool(); 
+    }
+    
+    void setCharacterStatus(int index, GameConstants::EntityStatus effect, bool active);
+    bool hasCharacterStatus(int index, GameConstants::EntityStatus effect) const;
+    
+    void setStatus(GameConstants::EntityStatus effect, bool active);
+    bool hasStatus(GameConstants::EntityStatus effect) const;
+    void clearAllStatuses();
+    
     void setCharacterPoisoned(bool isPoisoned);
     bool isCharacterPoisoned() const;
     void setCharacterBlinded(bool isBlinded);

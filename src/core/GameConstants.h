@@ -7,6 +7,22 @@
 #include <QString>
 
 namespace GameConstants {
+    enum EntityStatus {
+        Normal    = 0,
+        Poisoned  = 1 << 0,
+        Blinded   = 1 << 1,
+        OnFire    = 1 << 2,
+        Alive     = 1 << 3
+    };
+    Q_DECLARE_FLAGS(EntityStatuses, EntityStatus)
+    
+    /* Example
+    struct Monster {
+      QString name;
+      int hp;
+      EntityStatuses statuses; // Holds all active effects in one variable
+    };
+    */
 
     static const int MAX_PARTY_SIZE = 4;
     // Measurements based on the spritesheet proportions
@@ -83,5 +99,6 @@ namespace GameConstants {
     const QString CATEGORY_ITEMS = "Items";
 
 }
+Q_DECLARE_OPERATORS_FOR_FLAGS(GameConstants::EntityStatuses)
 
 #endif

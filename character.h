@@ -7,6 +7,8 @@
 #include <QDateTime>
 
 struct Character {
+
+    GameConstants::EntityStatuses status = GameConstants::Normal;
     // --- Basic Info ---
     QString name;
     QString Race;
