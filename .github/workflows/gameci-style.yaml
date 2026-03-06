@@ -37,7 +37,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: linux-binary
-          path: game_menu
+          path: blacklands
           if-no-files-found: error
 
   release:
@@ -52,14 +52,14 @@ jobs:
 
       - name: Package Release Assets
         run: |
-          chmod +x game_menu
-          tar -czvf game_menu_linux_x64.tar.gz game_menu
+          chmod +x blacklands
+          tar -czvf blacklands_linux_x64.tar.gz blacklands
 
       # MODERN RELEASE STEP (Replaces the deprecated create-release)
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          files: game_menu_linux_x64.tar.gz
+          files: blacklands_linux_x64.tar.gz
           generate_release_notes: true
           draft: false
           prerelease: false
