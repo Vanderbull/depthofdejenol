@@ -1,3 +1,4 @@
+
 #ifndef GAMESTATEMANAGER_H
 #define GAMESTATEMANAGER_H
 
@@ -82,6 +83,10 @@ private:
     QString statusKey(GameConstants::EntityStatus effect) const;
 
 public:
+    bool loadLuaScript(const QString& filePath);
+    // Add to the public section of GameStateManager.h
+    QString getLuaString(const QString& variableName);
+    
     void saveCharacterToLua(const Character& character, const QString& filePath);
     Character loadCharacterFromLua(const QString& filePath);
 

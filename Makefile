@@ -539,6 +539,7 @@ Makefile: blacklands.pro /usr/lib/x86_64-linux-gnu/qt6/mkspecs/linux-g++/qmake.c
 		/usr/lib/x86_64-linux-gnu/qt6/mkspecs/features/lex.prf \
 		/usr/lib/x86_64-linux-gnu/qt6/mkspecs/features/silent.prf \
 		blacklands.pro \
+		Version.h.in \
 		/usr/lib/x86_64-linux-gnu/libQt6Widgets.prl \
 		/usr/lib/x86_64-linux-gnu/libQt6Multimedia.prl \
 		/usr/lib/x86_64-linux-gnu/libQt6Gui.prl \
@@ -618,6 +619,7 @@ Makefile: blacklands.pro /usr/lib/x86_64-linux-gnu/qt6/mkspecs/linux-g++/qmake.c
 /usr/lib/x86_64-linux-gnu/qt6/mkspecs/features/lex.prf:
 /usr/lib/x86_64-linux-gnu/qt6/mkspecs/features/silent.prf:
 blacklands.pro:
+Version.h.in:
 /usr/lib/x86_64-linux-gnu/libQt6Widgets.prl:
 /usr/lib/x86_64-linux-gnu/libQt6Multimedia.prl:
 /usr/lib/x86_64-linux-gnu/libQt6Gui.prl:
@@ -649,7 +651,7 @@ clean: compiler_clean
 
 distclean: clean 
 	-$(DEL_FILE) $(TARGET) 
-	-$(DEL_FILE) .qmake.stash
+	-$(DEL_FILE) .qmake.stash /home/rickard/Documents/GitHub/depthofdejenol/Version.h
 	-$(DEL_FILE) Makefile
 
 

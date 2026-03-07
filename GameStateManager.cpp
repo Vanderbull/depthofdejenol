@@ -1,3 +1,5 @@
+
+
 #include "GameStateManager.h"
 //#include "FontManager.h"
 #include "src/race_data/RaceData.h"
@@ -136,6 +138,8 @@ GameStateManager::GameStateManager(QObject *parent)
     // 1. Setup Lua (if not already done)
     m_L = luaL_newstate();
     luaL_openlibs(m_L);
+
+    loadLuaScript("data/scripts/about_info.lua");
 
     lua_register(m_L, "SetTitle", [](lua_State* L) -> int {
         if (lua_isstring(L, 1)) {
@@ -1014,8 +1018,6 @@ void GameStateManager::initializeGameState()
     m_gameStateData["ResourcesLoaded"] = false;
     m_gameStateData["inCity"] = false;
     m_gameStateData["ActiveCharacterIndex"] = 0;
-    m_gameStateData["GameVersion"] = "1.1.7.6.450";
-
     // --- Current Character Defaults ---
     m_gameStateData["CurrentCharacterSex"] = GameConstants::SEX_OPTIONS.at(0);
     m_gameStateData["CurrentCharacterAlignment"] = GameConstants::ALIGNMENT_NAMES.at(GameConstants::DEFAULT_ALIGNMENT_INDEX);
@@ -1438,3 +1440,31 @@ void GameStateManager::setCharacterStatus(int index, GameConstants::EntityStatus
     emit gameValueChanged("party_status_updated", index);
 }
 
+QString GameStateManager::getLuaString(const QString& variableName) {
+    if (!m_L) return QString();
+
+    // Push the global variable onto the Lua stack
+    lua_getglobal(m_L, variableName.toUtf8().constData());
+    
+    if (lua_isstring(m_L, -1)) {
+        QString result = QString::fromUtf8(lua_tostring(m_L, -1));
+        lua_pop(m_L, 1); // Clean up stack
+        return result;
+    }
+    
+    lua_pop(m_L, 1);
+    return QString();
+}
+
+bool GameStateManager::loadLuaScript(const QString& filePath) {
+    if (!m_L) return false;
+
+    if (luaL_dofile(m_L, filePath.toUtf8().constData()) != LUA_OK) {
+        qWarning() << "Lua Error:" << lua_tostring(m_L, -1);
+        lua_pop(m_L, 1); // Remove error message
+        return false;
+    }
+    
+    qDebug() << "Successfully loaded Lua script:" << filePath;
+    return true;
+}
