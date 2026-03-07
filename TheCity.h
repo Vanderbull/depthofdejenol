@@ -1,6 +1,7 @@
 #ifndef THECITY_H
 #define THECITY_H
 
+#include "src/inventory_dialog/inventorydialog.h"
 #include <QDialog>
 #include <QToolButton>
 #include <QLabel>

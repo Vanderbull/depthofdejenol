@@ -713,6 +713,17 @@ build/moc/moc_blacklands.cpp: blacklands.h \
 	@echo moc blacklands.h && /usr/lib/qt6/libexec/moc $(DEFINES) --include /home/rickard/Documents/GitHub/depthofdejenol/build/moc/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt6/mkspecs/linux-g++ -I/home/rickard/Documents/GitHub/depthofdejenol -I/home/rickard/Documents/GitHub/depthofdejenol/_PRO_FILE_PWD_/include -I/home/rickard/Documents/GitHub/depthofdejenol/3rdparty/lua -I/usr/include/x86_64-linux-gnu/qt6 -I/usr/include/x86_64-linux-gnu/qt6/QtWidgets -I/usr/include/x86_64-linux-gnu/qt6/QtMultimedia -I/usr/include/x86_64-linux-gnu/qt6/QtGui -I/usr/include/x86_64-linux-gnu/qt6/QtNetwork -I/usr/include/x86_64-linux-gnu/qt6/QtCore -I/usr/include/c++/15 -I/usr/include/x86_64-linux-gnu/c++/15 -I/usr/include/c++/15/backward -I/usr/lib/gcc/x86_64-linux-gnu/15/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include blacklands.h -o build/moc/moc_blacklands.cpp
 
 build/moc/moc_TheCity.cpp: TheCity.h \
+		src/inventory_dialog/inventorydialog.h \
+		GameStateManager.h \
+		3rdparty/lua/lua.h \
+		3rdparty/lua/luaconf.h \
+		3rdparty/lua/lualib.h \
+		3rdparty/lua/lauxlib.h \
+		src/core/GameConstants.h \
+		DataRegistry.h \
+		AudioManager.h \
+		FontManager.h \
+		character.h \
 		build/moc/moc_predefs.h \
 		/usr/lib/qt6/libexec/moc
 	@echo moc TheCity.h && /usr/lib/qt6/libexec/moc $(DEFINES) --include /home/rickard/Documents/GitHub/depthofdejenol/build/moc/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt6/mkspecs/linux-g++ -I/home/rickard/Documents/GitHub/depthofdejenol -I/home/rickard/Documents/GitHub/depthofdejenol/_PRO_FILE_PWD_/include -I/home/rickard/Documents/GitHub/depthofdejenol/3rdparty/lua -I/usr/include/x86_64-linux-gnu/qt6 -I/usr/include/x86_64-linux-gnu/qt6/QtWidgets -I/usr/include/x86_64-linux-gnu/qt6/QtMultimedia -I/usr/include/x86_64-linux-gnu/qt6/QtGui -I/usr/include/x86_64-linux-gnu/qt6/QtNetwork -I/usr/include/x86_64-linux-gnu/qt6/QtCore -I/usr/include/c++/15 -I/usr/include/x86_64-linux-gnu/c++/15 -I/usr/include/c++/15/backward -I/usr/lib/gcc/x86_64-linux-gnu/15/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include TheCity.h -o build/moc/moc_TheCity.cpp
@@ -1103,12 +1114,12 @@ build/obj/release/blacklands.o: blacklands.cpp GameStateManager.h \
 		blacklands.h \
 		src/event/EventManager.h \
 		TheCity.h \
+		src/inventory_dialog/inventorydialog.h \
 		StoryDialog.h \
 		src/characterlist_dialog/characterlistdialog.h \
 		src/hall_of_records/hallofrecordsdialog.h \
 		src/create_character/createcharacterdialog.h \
 		src/race_data/RaceData.h \
-		src/inventory_dialog/inventorydialog.h \
 		src/options_dialog/optionsdialog.h \
 		src/about_dialog/AboutDialog.h \
 		src/character_dialog/CharacterDialog.h \
@@ -1123,10 +1134,7 @@ build/obj/release/blacklands.o: blacklands.cpp GameStateManager.h \
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/blacklands.o blacklands.cpp
 
 build/obj/release/TheCity.o: TheCity.cpp TheCity.h \
-		src/core/game_resources.h \
-		src/network_manager/NetworkManager.h \
-		src/partyinfo_dialog/partyinfodialog.h \
-		src/general_store/GeneralStore.h \
+		src/inventory_dialog/inventorydialog.h \
 		GameStateManager.h \
 		3rdparty/lua/lua.h \
 		3rdparty/lua/luaconf.h \
@@ -1137,13 +1145,16 @@ build/obj/release/TheCity.o: TheCity.cpp TheCity.h \
 		AudioManager.h \
 		FontManager.h \
 		character.h \
+		src/core/game_resources.h \
+		src/network_manager/NetworkManager.h \
+		src/partyinfo_dialog/partyinfodialog.h \
+		src/general_store/GeneralStore.h \
 		src/guilds_dialog/GuildsDialog.h \
 		src/morgue_dialog/MorgueDialog.h \
 		src/seer_dialog/SeerDialog.h \
 		src/confinement_dialog/ConfinementDialog.h \
 		src/bank_dialog/BankDialog.h \
 		src/dungeon_dialog/DungeonDialog.h \
-		src/inventory_dialog/inventorydialog.h \
 		src/event/EventManager.h \
 		src/dungeon_dialog/MiniMapDialog.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/TheCity.o TheCity.cpp

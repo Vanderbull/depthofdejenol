@@ -2,6 +2,7 @@
 #include "Version.h"
 //#include "FontManager.h"
 #include "src/race_data/RaceData.h"
+#include <QRandomGenerator>
 #include <QApplication>
 #include <QMainWindow>
 #include <QWidget>
@@ -52,6 +53,28 @@ bool GameStateManager::loadGameConfig(const QString& filePath) {
 }
 
 void GameStateManager::refreshUI() {
+    // 1. Safety check: If the party is empty, we might want to send an empty signal
+    // or return early depending on how your QML handles null data.
+    if (m_currentParty.members.isEmpty()) {
+        qDebug() << "refreshUI called: Party is currently empty.";
+        // Optional: emit gameValueChanged("party_data", QVariantMap());
+        return;
+    }
+
+    // 2. The "Single Source of Truth" approach:
+    // We call the Party struct's toMap() which already knows how to
+    // package all members, inventories, and gold into a QVariantMap.
+    QVariantMap partyData = m_currentParty.toMap();
+
+    // 3. Emit the signal that your QML/UI is listening for.
+    // In your QML, 'party_data' likely maps to a Repeater or ListView model.
+    emit gameValueChanged("party_data", partyData);
+
+    qDebug() << "UI Refreshed with" << m_currentParty.members.size() << "characters.";
+}
+
+/*
+void GameStateManager::refreshUI() {
     QVariantList partyList;
     for (const auto& character : m_PC) {
         partyList.append(character.toMap());
@@ -69,6 +92,7 @@ void GameStateManager::refreshUI() {
 
     emit gameValueChanged("Party", partyList);
 }
+*/
 
 // Helper to prevent code duplication
 QVariantMap GameStateManager::findRaceMap(const QString& raceName) const {
@@ -234,9 +258,9 @@ GameStateManager::GameStateManager(QObject *parent)
     
     // 2. Test Save to the existing characters folder
     // If you have a character in m_PC, save them:
-    if (!m_PC.isEmpty()) {
-        QString savePath = "data/characters/" + m_PC.first().name + ".lua";
-        saveCharacterToLua(m_PC.first(), savePath);
+    if (!m_currentParty.members.isEmpty()) {
+        QString savePath = "data/characters/" + m_currentParty.members.first().name + ".lua";
+        saveCharacterToLua(m_currentParty.members.first(), savePath);
     } else {
         // Dummy test if no character exists yet
         Character testChar;
@@ -252,10 +276,11 @@ GameStateManager::GameStateManager(QObject *parent)
         Character loadedChar = loadCharacterFromLua(testFile);
         
         // Add the loaded character to your active party list
-        m_PC.append(loadedChar);
+        m_currentParty.members.append(loadedChar);
+        //m_PC.append(loadedChar);
         
-        qDebug() << "Verified: Loaded character" << m_PC.last().name 
-                 << "with" << m_PC.last().Gold << "gold.";
+        qDebug() << "Verified: Loaded character" << m_currentParty.members.last().name 
+                 << "with" << m_currentParty.members.last().Gold << "gold.";
     }
 
 }
@@ -456,6 +481,16 @@ void GameStateManager::setCharacterInventory(int characterIndex, const QStringLi
     }
 }
 
+void GameStateManager::addItemToCharacter(int index, const QString& itemName) {
+    if (index >= 0 && index < m_currentParty.members.size()) {
+        // Access the character through the party struct
+        m_currentParty.members[index].inventory.append(itemName);
+        
+        // Notify UI that this specific character's data changed
+        emit gameValueChanged("party_data", m_currentParty.toMap());
+    }
+}
+/*
 void GameStateManager::addItemToCharacter(int characterIndex, const QString& itemName) 
 {
     QVariantList party = m_gameStateData["Party"].toList();
@@ -470,7 +505,7 @@ void GameStateManager::addItemToCharacter(int characterIndex, const QString& ite
         emit gameValueChanged("Party", m_gameStateData["Party"]);
     }
 }
-
+*/
 void GameStateManager::updateCharacterGold(int characterIndex, qulonglong amount, bool add) 
 {
     QVariantList party = m_gameStateData["Party"].toList();
@@ -488,6 +523,109 @@ void GameStateManager::updateCharacterGold(int characterIndex, qulonglong amount
     }
 }
 
+bool GameStateManager::loadCharacterFromFile(const QString& filePath) {
+    if (filePath.endsWith(".lua")) {
+        if (!m_L) return false;
+
+        // Execute the script to load 'SaveData' into the global Lua environment
+        if (luaL_dofile(m_L, filePath.toUtf8().constData()) != LUA_OK) {
+            qWarning() << "Lua Load Error:" << lua_tostring(m_L, -1);
+            lua_pop(m_L, 1);
+            return false;
+        }
+
+        // IMPORTANT: Your adam.lua uses "SaveData", not "Character"
+        lua_getglobal(m_L, "SaveData"); 
+        
+        QVariantMap characterMap = luaToVariant(m_L, -1).toMap();
+        lua_pop(m_L, 1);
+
+        if (characterMap.isEmpty()) {
+            qWarning() << "Could not find 'SaveData' table in" << filePath;
+            return false;
+        }
+
+        m_currentParty.members.clear();
+        Character newChar;
+        
+        // This will now map "HP" -> hp, "Name" -> name, etc.
+        newChar.loadFromMap(characterMap);
+        
+        // Force status to normal if loading from a fresh save
+        newChar.status = GameConstants::Normal;
+        
+        m_currentParty.members.append(newChar);
+    } 
+    else {
+        // ... (JSON logic remains the same)
+    }
+
+    setCurrentCharacterIndex(0);
+    refreshUI();
+    return hasLivingCharacters();
+}
+
+/*
+bool GameStateManager::loadCharacterFromFile(const QString& filePath) {
+    // 1. PHYSICAL FILE CHECK
+    QFile file(filePath);
+    if (!file.open(QIODevice::ReadOnly)) {
+        qWarning() << "SYSTEM: Could not open file at" << filePath;
+        return false;
+    }
+
+    // 2. PARSING JSON
+    QByteArray data = file.readAll();
+    QJsonDocument doc = QJsonDocument::fromJson(data);
+    
+    if (doc.isNull() || !doc.isObject()) {
+        qWarning() << "SYSTEM: Character file is corrupted or not a valid JSON object.";
+        return false;
+    }
+
+    // Convert JSON to a Map we can work with
+    QVariantMap characterMap = doc.toVariant().toMap();
+
+    // 3. CORE LOGIC: THE SWAP
+    // We clear the party because 'Loading a character' usually means starting 
+    // fresh with that specific person as the leader.
+    m_currentParty.members.clear();
+
+    // Create a temporary object to hold the data
+    Character loadedChar;
+    
+    // This is where the 'Heavy' logic lives now! 
+    // It automatically maps "Str" to loadedChar.strength, etc.
+    loadedChar.loadFromMap(characterMap);
+    
+    // Add the fully populated character to our new Party struct
+    m_currentParty.members.append(loadedChar);
+
+    // 4. STATE MANAGEMENT
+    // Ensure the game knows we are looking at the character we just loaded
+    setCurrentCharacterIndex(0);
+    
+    // Sync the "Global" Age variable used by your older systems
+    setGameValue("CurrentCharacterAge", loadedChar.Age);
+
+    // 5. THE "BRIDGE" TO THE UI
+    // This is the most important line. It takes our C++ struct, turns it into
+    // a QVariantMap, and sends it to your QML/Interface.
+    emit gameValueChanged("party_data", m_currentParty.toMap());
+
+    // 6. LEGACY MIGRATION
+    // If this was an old .txt or .json, we save a copy in the new .lua format 
+    // so the Lua engine can read it during gameplay.
+    QString luaPath = "data/characters/" + loadedChar.name + ".lua";
+    if (!QFile::exists(luaPath)) {
+        saveCharacterToLua(loadedChar, luaPath);
+    }
+
+    qDebug() << "SUCCESS: Loaded" << loadedChar.name << "into Party Slot 0.";
+    return true;
+}
+*/
+/*
 bool GameStateManager::loadCharacterFromFile(const QString& characterName) 
 {
     QString cleanName = characterName;
@@ -548,17 +686,17 @@ bool GameStateManager::loadCharacterFromFile(const QString& characterName)
         
         // 3. CRITICAL FIX: Sync the internal Character struct list
         // This ensures gsm->getPC().at(0).name matches the 'selected' string in MorgueDialog
-        if (!m_PC.isEmpty()) {
-            m_PC[0].loadFromMap(characterMap);
+        if (!m_currentParty.members.isEmpty()) {
+            m_currentParty.members[0].loadFromMap(characterMap);
         }
 
         // 3. Sync the internal Character struct list
-        if (!m_PC.isEmpty()) {
-            m_PC[0].loadFromMap(characterMap);
+        if (!m_currentParty.members.isEmpty()) {
+            m_currentParty.members[0].loadFromMap(characterMap);
             
             // --- LUA UPGRADE MOVED HERE ---
             // Now this runs BEFORE the function exits!
-            Character &newChar = m_PC[0]; 
+            Character &newChar = m_currentParty.members[0];//m_PC[0]; 
             qDebug() << "Legacy load complete. Upgrading" << newChar.name << "to Lua...";
 
             QString luaPath = "data/characters/" + newChar.name + ".lua";
@@ -579,6 +717,8 @@ bool GameStateManager::loadCharacterFromFile(const QString& characterName)
     
     return false;
 }
+*/
+
 
 bool GameStateManager::saveCharacterToFile(int partyIndex) 
 {
@@ -842,9 +982,9 @@ int GameStateManager::getMaxAgeForRace(const QString& raceName) const
 
 bool GameStateManager::isCharacterPastMaxAge(int index) const
 {
-    if (index < 0 || index >= m_PC.size()) return false;
+    if (index < 0 || index >= m_currentParty.members.size()) return false;
 
-    const Character& c = m_PC.at(index);
+    const Character& c = m_currentParty.members.at(index);
     int maxAge = getMaxAgeForRace(c.Race); // Now resolves!
     
     return (c.Age >= maxAge); // Now resolves!
@@ -853,9 +993,9 @@ bool GameStateManager::isCharacterPastMaxAge(int index) const
 void GameStateManager::incrementPartyAge(int years)
 {
     // 1. Update the internal Character structs (m_PC)
-    for (int i = 0; i < m_PC.size(); ++i) {
-        if (m_PC[i].name != "Empty Slot") {
-            m_PC[i].Age += years;
+    for (int i = 0; i < m_currentParty.members.size(); ++i) {
+        if (m_currentParty.members[i].name != "Empty Slot") {
+            m_currentParty.members[i].Age += years;
         }
     }
 
@@ -864,7 +1004,7 @@ void GameStateManager::incrementPartyAge(int years)
     for (int i = 0; i < partyList.size(); ++i) {
         QVariantMap characterMap = partyList[i].toMap();
         if (characterMap["Name"].toString() != "Empty Slot") {
-            characterMap["Age"] = m_PC[i].Age;
+            characterMap["Age"] = m_currentParty.members[i].Age;
             partyList[i] = characterMap;
         }
     }
@@ -874,8 +1014,8 @@ void GameStateManager::incrementPartyAge(int years)
     emit gameValueChanged("Party", partyList);
 
     // 4. Update the "CurrentCharacterAge" global value if index 0 changed
-    if (!m_PC.isEmpty()) {
-        setGameValue("CurrentCharacterAge", m_PC[0].Age);
+    if (!m_currentParty.members.isEmpty()) {
+        setGameValue("CurrentCharacterAge", m_currentParty.members[0].Age);
     }
 
     qDebug() << "The party has aged by" << years << "year(s).";
@@ -884,6 +1024,30 @@ void GameStateManager::incrementPartyAge(int years)
     processAgingConsequences();
 }
 
+void GameStateManager::processAgingConsequences() {
+    if (m_currentParty.members.isEmpty()) return;
+
+    bool statsChanged = false;
+
+    for (int i = 0; i < m_currentParty.members.size(); ++i) {
+        Character &pc = m_currentParty.members[i];
+
+        if (pc.Age > 70) {
+            // QRandomGenerator::global()->bounded(100) returns a 0-99 value
+            if (QRandomGenerator::global()->bounded(100) < 10) { 
+                pc.strength = qMax(3, pc.strength - 1);
+                pc.constitution = qMax(3, pc.constitution - 1);
+                statsChanged = true;
+            }
+        }
+    }
+
+    if (statsChanged) {
+        emit gameValueChanged("party_data", m_currentParty.toMap());
+    }
+}
+
+/*
 void GameStateManager::processAgingConsequences()
 {
     for (int i = 0; i < m_PC.size(); ++i) {
@@ -909,7 +1073,7 @@ void GameStateManager::processAgingConsequences()
         }
     }
 }
-
+*/
 void GameStateManager::setProportionalFont(const QFont& font) {
     // Simply delegate to the specialized manager
     FontManager::instance()->setProportionalFont(font);
@@ -1094,9 +1258,8 @@ void GameStateManager::initializeParty() {
         character["HP"] = 0;
         character["MaxHP"] = 0;
         character["CurrentCharacterGold"] = 1500;
-        character["Race"] = "Human"; 
-        character["Age"] = 16;       
-        
+        character["Race"] = "Human";
+        character["Age"] = 16;
         character["Strength"] = 0;
         character["Intelligence"] = 0;
         character["Wisdom"] = 0;
@@ -1110,13 +1273,21 @@ void GameStateManager::initializeParty() {
         character["isAlive"] = 0;
         character["Inventory"] = QStringList();
         
-        party.append(character);
-        
+        //party.append(character);
+        // 1. Convert the character data into the actual Character struct and add to members
         Character c;
+        c.loadFromMap(character); 
+        m_currentParty.members.append(c);
+
+        // 2. Notify the UI/QML layer using the new unified map
+        emit gameValueChanged("party_data", m_currentParty.toMap());
+        //Character c;
         c.loadFromMap(character);
-        m_PC.append(c);
+        //m_PC.append(c);
+        m_currentParty.members.append(c);
     }
-    m_gameStateData["Party"] = party;
+    //m_gameStateData["Party"] = party;
+    m_gameStateData["Party"] = m_currentParty.toMap();
     m_gameStateData["PartyHP"] = QVariantList({50, 40, 30});
 }
 
@@ -1379,6 +1550,11 @@ Character GameStateManager::loadCharacterFromLua(const QString& filePath) {
 }
 
 void GameStateManager::onLuaTimerTick() {
+
+    if (!hasLivingCharacters()) {
+        qDebug() << "Timer Tick: No living characters found. Skipping logic.";
+        return; 
+    }
     // 1. Run your existing local heartbeat script
     if (luaL_dofile(m_L, "data/scripts/heartbeat.lua") != LUA_OK) {
         qWarning() << "LUA ERROR:" << lua_tostring(m_L, -1);
@@ -1390,8 +1566,8 @@ void GameStateManager::onLuaTimerTick() {
         
         // The server.lua expects a line (ending in \n)
         QString message = QString("Tick #%1 from %2\n")
-                          .arg(m_tickCounter)
-                          .arg(m_PC.isEmpty() ? "UnknownHero" : m_PC[0].name);
+                            .arg(m_tickCounter)
+                            .arg(m_currentParty.members.isEmpty() ? "UnknownHero" : m_currentParty.members[0].name);
         
         m_clientSocket->write(message.toUtf8());
         m_clientSocket->flush(); // Ensure data is sent immediately
@@ -1434,6 +1610,21 @@ bool GameStateManager::hasStatus(GameConstants::EntityStatus effect) const {
 }
 
 void GameStateManager::setCharacterStatus(int index, GameConstants::EntityStatus effect, bool active) {
+    // Check bounds against the new structure
+    if (index < 0 || index >= m_currentParty.members.size()) return;
+
+    if (active) {
+        m_currentParty.members[index].status |= effect; 
+    } else {
+        m_currentParty.members[index].status.setFlag(effect, false);
+    }
+    
+    // Notify UI that the party state has changed
+    emit gameValueChanged("party_data", m_currentParty.toMap());
+}
+
+/*
+void GameStateManager::setCharacterStatus(int index, GameConstants::EntityStatus effect, bool active) {
     if (index < 0 || index >= m_PC.size()) return;
 
     if (active) {
@@ -1446,6 +1637,7 @@ void GameStateManager::setCharacterStatus(int index, GameConstants::EntityStatus
     
     emit gameValueChanged("party_status_updated", index);
 }
+*/
 
 QString GameStateManager::getLuaString(const QString& variableName) {
     if (!m_L) return QString();
@@ -1474,4 +1666,81 @@ bool GameStateManager::loadLuaScript(const QString& filePath) {
     
     qDebug() << "Successfully loaded Lua script:" << filePath;
     return true;
+}
+
+void GameStateManager::addCharacterToParty(const Character& character) {
+    // 1. Add to the internal list
+    m_currentParty.members.append(character);
+    
+    // 2. Notify the UI by sending the whole party map
+    // This replaces the old way of updating the 'party' QVariantList
+    emit gameValueChanged("party_data", m_currentParty.toMap());
+    
+    qDebug() << "Added" << character.name << "to the party. Total size:" << m_currentParty.members.size();
+}
+
+bool GameStateManager::savePartyToFile(const QString& filePath) {
+    QFile file(filePath);
+    if (!file.open(QIODevice::WriteOnly)) return false;
+
+    // Use the Party struct's built-in toMap()
+    QVariantMap data = m_currentParty.toMap();
+    
+    QJsonDocument doc = QJsonDocument::fromVariant(data);
+    file.write(doc.toJson());
+    file.close();
+    return true;
+}
+
+bool GameStateManager::loadPartyFromFile(const QString& filePath) {
+    QFile file(filePath);
+    if (!file.open(QIODevice::ReadOnly)) return false;
+
+    QJsonDocument doc = QJsonDocument::fromJson(file.readAll());
+    if (!doc.isObject()) return false;
+
+    // Use the Party struct's built-in loadFromMap()
+    m_currentParty.loadFromMap(doc.toVariant().toMap());
+    
+    // Refresh the UI/QML layer
+    emit gameValueChanged("party_data", m_currentParty.toMap());
+    return true;
+}
+
+bool GameStateManager::hasLivingCharacters() const {
+    // 1. Safety check: If the party list itself is empty, no one is living.
+    if (m_currentParty.members.isEmpty()) {
+        return false;
+    }
+
+    // 2. Iterate through the members of the struct
+    for (const Character &character : m_currentParty.members) {
+        
+        // 3. Define "Living" criteria:
+        // - Name is not the default "Empty Slot"
+        // - currentHP is greater than 0
+        // - Status is 0 (assuming 0 = Healthy/Alive in your system)
+        if (character.name != "Empty Slot" && 
+            character.hp > 0 && 
+            character.status == 0) 
+        {
+            return true; // We found at least one living hero!
+        }
+    }
+
+    // 4. If the loop finishes without returning, everyone is dead or gone.
+    return false;
+}
+
+Character GameStateManager::getCurrentCharacter() const {
+    if (m_currentCharacterIndex >= 0 && m_currentCharacterIndex < m_currentParty.members.size()) {
+        return m_currentParty.members[m_currentCharacterIndex];
+    }
+    
+    // Fallback: return the first member if index is invalid
+    if (!m_currentParty.members.isEmpty()) {
+        return m_currentParty.members.first();
+    }
+
+    return Character(); // Return a blank character if party is empty
 }

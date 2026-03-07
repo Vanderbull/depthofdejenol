@@ -83,6 +83,17 @@ private:
     QString statusKey(GameConstants::EntityStatus effect) const;
 
 public:
+    Character getCurrentCharacter() const;
+    bool hasLivingCharacters() const;
+
+    int getCurrentCharacterIndex() const { return m_currentCharacterIndex; }
+    void setCurrentCharacterIndex(int index) { m_currentCharacterIndex = index; }
+
+    bool savePartyToFile(const QString& filePath);
+    bool loadPartyFromFile(const QString& filePath);
+
+    void addCharacterToParty(const Character& character);
+
     bool loadLuaScript(const QString& filePath);
     // Add to the public section of GameStateManager.h
     QString getLuaString(const QString& variableName);
@@ -151,8 +162,7 @@ public:
     QVector<GameConstants::RaceStats> m_raceDefinitions;
 
     // --- Character Management ---
-    QList<Character>& getPC() { return m_PC; }
-    const QList<Character>& getPC() const { return m_PC; }
+    const QList<Character>& getPC() const { return m_currentParty.members; }
     void setCharacterGold(int index, qulonglong newGold);
     void updateCharacterGold(int characterIndex, qulonglong amount, bool add = true);
     void updatePartyMemberHP(int index, int newHP);
@@ -169,11 +179,32 @@ public:
     // --- City/Dungeon State ---
     void setInCity(bool inCity) { setGameValue("inCity", inCity); }
     bool isInCity() const { return m_gameStateData.value("inCity", false).toBool(); }
-    
+
+    bool isActiveCharacterInCity() const {
+        // 1. Safety check: Is there even a party?
+        if (m_currentParty.members.isEmpty()) {
+            return true; // Default to city if no party exists
+        }
+
+        // 2. Get the index of the character the player is currently controlling
+        int idx = getCurrentCharacterIndex();
+
+        // 3. Bounds check to ensure the index is valid
+        if (idx >= 0 && idx < m_currentParty.members.size()) {
+            // In your system, DungeonLevel 0 usually represents the City/Overworld
+            return m_currentParty.members[idx].DungeonLevel == 0;
+        }
+
+        // 4. Fallback: check the party leader (index 0) if current index is invalid
+        return m_currentParty.members[0].DungeonLevel == 0;
+    }
+
+/*    
     bool isActiveCharacterInCity() const {
         if (m_PC.isEmpty()) return false;
         return m_PC[0].DungeonLevel == 0;
     }
+*/
     // --- Data Accessors (M-DATA) ---
     void loadGameData(const QString& filePath); 
     void listGameData();
@@ -250,6 +281,34 @@ public:
     int getIsAlive() const { return m_gameStateData.value("isAlive").toInt(); }
 
     // --- Mana Management ---
+    // Inside GameStateManager.h
+    void setCurrentMana(int val) {
+        int idx = getCurrentCharacterIndex();
+        int cappedMana = qBound(0, val, getMaxMana());
+        
+        // Change m_PC[idx] to m_currentParty.members[idx]
+        if (idx >= 0 && idx < m_currentParty.members.size()) {
+            m_currentParty.members[idx].mana = cappedMana;
+        }
+    }
+
+    // Update your mana functions to use the new Party structure
+    int getMaxMana() const {
+        int idx = getCurrentCharacterIndex();
+        if (idx >= 0 && idx < m_currentParty.members.size()) {
+            return m_currentParty.members[idx].maxMana;
+        }
+        return 0;
+    }
+
+    int getCurrentMana() const {
+        int idx = getCurrentCharacterIndex();
+        if (idx >= 0 && idx < m_currentParty.members.size()) {
+            return m_currentParty.members[idx].mana;
+        }
+        return 0;
+    }
+/*
     int getCurrentMana() const {
         int idx = m_gameStateData.value("ActiveCharacterIndex", 0).toInt();
         if (idx >= 0 && idx < m_PC.size()) return m_PC[idx].mana;
@@ -268,7 +327,7 @@ public:
         if (idx >= 0 && idx < m_PC.size()) m_PC[idx].mana = cappedMana;
         else setGameValue("CurrentMana", cappedMana);
     }
-
+*/
     void setMaxMana(int maxMana) { setGameValue("MaxMana", maxMana); }
 
     bool spendMana(int cost) {
@@ -299,11 +358,14 @@ private slots:
     void onServerDataReceived();
 
 private:
+    int m_currentCharacterIndex = 0;
     //QFont m_proportionalFont;
     //QFont m_fixedFont;
 
-    QVariantList party; 
-    QList<Character> m_PC;
+    //QVariantList party; 
+    //QList<Character> m_PC;
+    Party m_currentParty; // This replaces QList<Character> m_PC and QVariantList party
+
     QList<PlacedItem> m_placedItems;
     QVariantMap m_gameStateData;
     QMap<QString, int> m_confinementStock;

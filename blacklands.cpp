@@ -74,7 +74,8 @@ GameMenu::GameMenu(QWidget *parent)
     , m_settings("MyCompany", "MyApp")
     , m_subfolderName(m_settings.value("Paths/SubfolderName", "data/characters").toString()) 
 {
-    GameStateManager::instance()->loadFontSprite("resources/images/font_spritesheet_transparent.png");
+    GameStateManager::instance()->
+loadFontSprite("resources/images/font_spritesheet_transparent.png");
 
     //GameStateManager::instance()->playMusic("resources/waves/main.wav");
     GameStateManager::instance()->incrementPartyAge(1);
@@ -305,6 +306,40 @@ void GameMenu::startNewGame()
     qDebug() << "Start New Game button clicked";
 }
 
+void GameMenu::loadGame() {
+    QString fileName = QFileDialog::getOpenFileName(this, tr("Open Character"), "data/characters", tr("Character Files (*.json *.lua)"));
+    
+    if (fileName.isEmpty()) return;
+
+    // 1. Tell the Manager to load the file into the new Party struct
+    if (GameStateManager::instance()->loadCharacterFromFile(fileName)) {
+        
+        // 2. Perform the "Living Character" check we just implemented
+        if (GameStateManager::instance()->hasLivingCharacters()) {
+            
+            // 3. Get the loaded character to update the "Global" state
+            Character lead = GameStateManager::instance()->getCurrentCharacter();
+            
+            // Sync the name and age to the global state (used by your Lua scripts)
+            GameStateManager::instance()->setGameValue("CurrentCharacterName", lead.name);
+            GameStateManager::instance()->setGameValue("CurrentCharacterAge", lead.Age);
+            
+            // 4. Force the UI to refresh with the new Party data
+            GameStateManager::instance()->refreshUI();
+            
+            // 5. Enable the "Play" and "Continue" buttons on your menu
+            toggleMenuState(true); 
+            
+            qDebug() << "SUCCESS: Character" << lead.name << "loaded and ready.";
+        } else {
+            QMessageBox::warning(this, tr("Load Error"), tr("The character in this file is deceased or invalid."));
+            toggleMenuState(false);
+        }
+    } else {
+        QMessageBox::critical(this, tr("File Error"), tr("Could not read the character file."));
+    }
+}
+/*
 void GameMenu::loadGame() 
 {
     GameStateManager::instance()->startAutosave(10000);
@@ -370,6 +405,7 @@ void GameMenu::loadGame()
         }
     }
 }
+*/
 
 void GameMenu::showRecords() 
 {

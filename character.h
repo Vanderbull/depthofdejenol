@@ -116,4 +116,35 @@ struct Character {
     }
 };
 
+struct Party {
+    QList<Character> members;
+    int sharedGold = 0;
+
+    QVariantMap toMap() const {
+        QVariantMap map;
+        QVariantList charList;
+
+        // Use a standard index-based loop to avoid iterator scope issues
+        for (int i = 0; i < members.size(); ++i) {
+            charList.append(members.at(i).toMap());
+        }
+        
+        map["Members"] = charList;
+        map["SharedGold"] = sharedGold;
+        return map;
+    }
+
+    void loadFromMap(const QVariantMap &map) {
+        sharedGold = map.value("SharedGold", 0).toInt();
+        QVariantList charList = map.value("Members").toList();
+        
+        members.clear();
+        for (int i = 0; i < charList.size(); ++i) {
+            Character c;
+            c.loadFromMap(charList.at(i).toMap());
+            members.append(c);
+        }
+    }
+};
+
 #endif // CHARACTER_H
