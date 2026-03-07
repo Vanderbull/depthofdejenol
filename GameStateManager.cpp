@@ -1,6 +1,5 @@
-
-
 #include "GameStateManager.h"
+#include "Version.h"
 //#include "FontManager.h"
 #include "src/race_data/RaceData.h"
 #include <QApplication>
@@ -138,6 +137,14 @@ GameStateManager::GameStateManager(QObject *parent)
     // 1. Setup Lua (if not already done)
     m_L = luaL_newstate();
     luaL_openlibs(m_L);
+
+    // Fetch the version from Version.h and push it to Lua
+    // This will be something like "528-9629655" based on your uploaded file
+    QString versionStr = QString("v%1").arg(GameConstants::FULL_VERSION);
+    
+    lua_pushstring(m_L, versionStr.toUtf8().constData());
+    lua_setglobal(m_L, "GameVersion");
+
 
     loadLuaScript("data/scripts/about_info.lua");
 

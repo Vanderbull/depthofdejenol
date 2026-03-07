@@ -18,19 +18,20 @@ AboutDialog::AboutDialog(QWidget *parent) : QDialog(parent)
 
 QString AboutDialog::getGameVersionInfo()
 {
-    // Ensure instance existence before call
+    // Retrieve the string pushed to Lua in GameStateManager's constructor
     if (auto* gsm = GameStateManager::instance()) {
-        return gsm->getGameValue(QStringLiteral("GameVersion")).toString();
+        QString version = gsm->getLuaString("GameVersion");
+        if (!version.isEmpty()) {
+            return version;
+        }
     }
-    return QStringLiteral("Unknown");
+    return QStringLiteral("v0-unknown");
 }
 
 void AboutDialog::setupUi()
 {
-    // 1. Main Layout
     auto *mainLayout = new QVBoxLayout(this);
 
-    // 2. Scroll Area Setup
     auto *scrollArea = new QScrollArea(this);
     scrollArea->setWidgetResizable(true);
     scrollArea->setFrameShape(QFrame::NoFrame);
@@ -38,18 +39,16 @@ void AboutDialog::setupUi()
     auto *scrollContent = new QWidget();
     auto *scrollLayout = new QVBoxLayout(scrollContent);
 
-    // 3. Construct Text via Lua
     auto* gsm = GameStateManager::instance();
     const QString version = getGameVersionInfo();
     
-    // Attempt to fetch the text from the Lua global variable "AboutText"
+    // Fetch HTML body from Lua script "AboutText"
     QString aboutText = gsm->getLuaString("AboutText");
 
-    // Fallback in case Lua variable is missing or script failed to load
     if (aboutText.isEmpty()) {
-        aboutText = QString("<h2>DEPTH OF DEJENOL: BLACKLANDS</h2><p><b>Version: %1</b></p>").arg(version);
+        aboutText = QString("<h2>DEPTH OF DEJENOL: BLACKLANDS</h2>"
+                            "<p><b>Version: %1</b></p>").arg(version);
     } else {
-        // Replace %1 placeholder in the Lua string with the actual version
         aboutText = aboutText.arg(version);
     }
 
@@ -58,7 +57,6 @@ void AboutDialog::setupUi()
     infoText->setTextFormat(Qt::RichText);
     infoText->setAlignment(Qt::AlignTop);
 
-    // 4. Assemble Scroll Content
     scrollLayout->addWidget(infoText);
 
     auto *checkUpdatesBtn = new QPushButton(tr("Check for Updates"), this);
@@ -68,19 +66,16 @@ void AboutDialog::setupUi()
     scrollLayout->addStretch();
     scrollArea->setWidget(scrollContent);
 
-    // 5. Bottom Button Row
     auto *closeButton = new QPushButton(tr("Ok"));
-    closeButton->setDefault(true); // Allow 'Enter' key to close
+    closeButton->setDefault(true); 
     auto *buttonLayout = new QHBoxLayout();
     buttonLayout->addStretch();
     buttonLayout->addWidget(closeButton);
     buttonLayout->addStretch();
 
-    // 6. Final Assembly
     mainLayout->addWidget(scrollArea);
     mainLayout->addLayout(buttonLayout);
 
-    // 7. Connections
     connect(closeButton, &QPushButton::clicked, this, &QDialog::accept);
 
     connect(checkUpdatesBtn, &QPushButton::clicked, this, [this]() {

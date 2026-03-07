@@ -185,29 +185,20 @@ win32 {
     # DEFINES += LUA_USE_WINDOWS
 }
 
-# 1. Get the values from the system
-GIT_HASH = $$system(git rev-parse --short HEAD)
-BUILD_TIME = $$system(date +%Y-%m-%d_%H:%M:%S)
+# 1. Capture the data from the system
+VERSION_HASH = $$system(git rev-parse --short HEAD)
+VERSION_DATE = $$system(date +%Y-%m-%d_%H:%M:%S)
+COMMIT_COUNT = $$system(git rev-list --count HEAD)
 
-COMMIT_COUNT = $$system(git rev-list --count HEAD 2>/dev/null || echo 0)
-# 2. qmake's num_add is picky. Let's ensure COMMIT_COUNT isn't empty.
-isEmpty(COMMIT_COUNT): COMMIT_COUNT = 0
-
-# 3. Calculate the version (Starting from 0)
-# If COMMIT_COUNT is 1, VERSION_INT becomes 0.
+# 2. Calculate the version integer (Commit 1 = v0)
 VERSION_INT = $$num_add($$COMMIT_COUNT, -1)
-
-# 4. Fallback: if calculation results in a negative or empty value, set to 0
 lessThan(VERSION_INT, 0): VERSION_INT = 0
-isEmpty(VERSION_INT): VERSION_INT = 0
 
-#VERSION_INT = $$num_add($$COMMIT_COUNT, -1)
-
-# 2. Tell qmake to create Version.h based on Version.h.in
-# This happens during the 'qmake' phase.
+# 3. Tell qmake to use the template
 QMAKE_SUBSTITUTES += Version.h.in
 
-# 3. Define the values so they are available to the substitute engine
-# Note: These names must match what is in your .h.in file
-VERSION_HASH = $$GIT_HASH
-VERSION_DATE = $$BUILD_TIME
+# 4. VERY IMPORTANT: Add literal quotes to the variables
+# This ensures they appear as "9629655" in Version.h instead of 9629655
+VERSION_HASH = \"$$VERSION_HASH\"
+VERSION_DATE = \"$$VERSION_DATE\"
+VERSION_INT  = \"v$$VERSION_INT\"

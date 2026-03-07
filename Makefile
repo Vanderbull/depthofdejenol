@@ -1083,6 +1083,7 @@ build/obj/release/GameStateManager.o: GameStateManager.cpp GameStateManager.h \
 		AudioManager.h \
 		FontManager.h \
 		character.h \
+		Version.h \
 		src/race_data/RaceData.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/GameStateManager.o GameStateManager.cpp
 
