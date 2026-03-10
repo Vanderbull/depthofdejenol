@@ -51,4 +51,6 @@ private:
     void setupUi();
     void populateBuyItemsList(); // Function to add example items
     void showFeedbackDialog(const QString &title, const QString &message, QMessageBox::Icon icon = QMessageBox::Information);
+    void loadItemsFromCsv(const QString &fileName);
+
 };
