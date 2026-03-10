@@ -2,6 +2,7 @@
 
 #include <QDialog>
 #include <QLineEdit>
+#include <QComboBox>
 #include <QPushButton>
 #include <QListWidget>
 #include <QLabel>
@@ -28,6 +29,7 @@ private slots:
 private:
     // UI Elements for "Uncurse Items"
     QLineEdit *uncurseItemLineEdit;
+    QComboBox *uncurseItemComboBox;
     QPushButton *uncurseButton;
     // UI Elements for "Combine Items"
     QLineEdit *combineItemLineEdit;

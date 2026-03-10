@@ -43,7 +43,8 @@ struct Character {
     int DungeonY = 0;
 
     // --- Inventory ---
-    QStringList inventory;
+    //QStringList inventory;
+    QStringList inventory = {"Hands"};
 
     // --- Serialization: TO MAP ---
     // Use this for saving to JSON or passing data to QML/UI

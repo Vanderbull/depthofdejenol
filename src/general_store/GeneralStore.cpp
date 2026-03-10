@@ -16,6 +16,11 @@ GeneralStore::GeneralStore(QWidget *parent) : QDialog(parent)
     setWindowTitle("General Store");
     setupUi();
     loadItemsFromCsv("src/general_store/items.csv");
+    // NEW: Populate the Uncurse dropdown with the current character's items
+    Character current = GameStateManager::instance()->getCurrentCharacter();
+    uncurseItemComboBox->clear();
+    uncurseItemComboBox->addItems(current.inventory);
+
 
     //populateBuyItemsList();
     // Connect signals and slots
@@ -50,6 +55,8 @@ GeneralStore::GeneralStore(QWidget *parent) : QDialog(parent)
 
 void GeneralStore::setupUi()
 {
+    uncurseItemComboBox = new QComboBox(); // Replace QLineEdit
+    uncurseButton = new QPushButton("UNCURSE");
     // Initialize UI elements
     uncurseItemLineEdit = new QLineEdit();
     uncurseButton = new QPushButton("UNCURSE");
@@ -75,9 +82,15 @@ void GeneralStore::setupUi()
     QGroupBox *uncurseBox = new QGroupBox("Uncurse Items");
     QHBoxLayout *uncurseLayout = new QHBoxLayout();
     uncurseLayout->addWidget(new QLabel("Item:"));
-    uncurseLayout->addWidget(uncurseItemLineEdit);
+    uncurseLayout->addWidget(uncurseItemComboBox); // Add the combo box here
     uncurseLayout->addWidget(uncurseButton);
     uncurseBox->setLayout(uncurseLayout);
+    //QGroupBox *uncurseBox = new QGroupBox("Uncurse Items");
+    //QHBoxLayout *uncurseLayout = new QHBoxLayout();
+    //uncurseLayout->addWidget(new QLabel("Item:"));
+    //uncurseLayout->addWidget(uncurseItemLineEdit);
+    //uncurseLayout->addWidget(uncurseButton);
+    //uncurseBox->setLayout(uncurseLayout);
     // Layout for "Combine Items"
     QGroupBox *combineBox = new QGroupBox("Combine Items");
     QGridLayout *combineGridLayout = new QGridLayout();
@@ -171,7 +184,21 @@ void GeneralStore::showFeedbackDialog(const QString &title, const QString &messa
     msgBox.setIcon(icon);
     msgBox.exec();
 }
+
+// GeneralStore.cpp
+void GeneralStore::uncurseItem() {
+    QString selectedItem = uncurseItemComboBox->currentText(); // Get from dropdown
+    
+    if (selectedItem.isEmpty()) {
+        showFeedbackDialog("No Item", "Please select an item to uncurse.", QMessageBox::Warning);
+        return;
+    }
+
+    // Logic to check if item is actually cursed and remove gold would go here
+    qDebug() << "Attempting to uncurse:" << selectedItem;
+}
 // --- Slot Implementations (Updated to use QMessageBox) --
+/*
 void GeneralStore::uncurseItem() 
 {
     QString itemName = uncurseItemLineEdit->text().trimmed();
@@ -228,7 +255,7 @@ void GeneralStore::uncurseItem()
             QMessageBox::Information);
     }
 }
-
+*/
 void GeneralStore::combineItems()
 {
     QString itemA = combineItemLineEdit->text().trimmed();

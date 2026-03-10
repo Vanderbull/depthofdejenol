@@ -547,10 +547,11 @@ bool GameStateManager::loadCharacterFromFile(const QString& filePath) {
 
         m_currentParty.members.clear();
         Character newChar;
-        
         // This will now map "HP" -> hp, "Name" -> name, etc.
         newChar.loadFromMap(characterMap);
-        
+        if (newChar.inventory.isEmpty()) {
+                newChar.inventory.append("Rations");
+        }
         // Force status to normal if loading from a fresh save
         newChar.status = GameConstants::Normal;
         
