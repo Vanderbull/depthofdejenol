@@ -26,6 +26,7 @@ private slots:
     void showItemInfo();
     void searchItems(const QString &searchText);
     void exitStore();
+
 private:
     // UI Elements for "Uncurse Items"
     QLineEdit *uncurseItemLineEdit;
@@ -34,9 +35,13 @@ private:
     // UI Elements for "Combine Items"
     QLineEdit *combineItemLineEdit;
     QLineEdit *combineItemsLineEdit; // Assuming multiple items to combine
+    
+    QComboBox *combineItemAComboBox; // Changed from QLineEdit
+    QComboBox *combineItemBComboBox; // Changed from QLineEdit
     QPushButton *combineButton;
     // UI Elements for "Identify, Realign & Sell Items"
-    QLineEdit *identifySellItemLineEdit;
+    QComboBox *identifySellItemComboBox; // Changed from QLineEdit
+    //QLineEdit *identifySellItemLineEdit;
     QLabel *itemValueLabel;
     QPushButton *infoButton;
     QPushButton *sellButton;
@@ -54,5 +59,7 @@ private:
     void populateBuyItemsList(); // Function to add example items
     void showFeedbackDialog(const QString &title, const QString &message, QMessageBox::Icon icon = QMessageBox::Information);
     void loadItemsFromCsv(const QString &fileName);
+    void refreshInventory(); 
+
 
 };

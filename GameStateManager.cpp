@@ -426,7 +426,8 @@ bool GameStateManager::isCharacterBlinded() const
     return m_gameStateData.value("CharacterBlinded").toBool();
 }
 
-void GameStateManager::setCharacterOnFire(bool isOnFire) 
+void GameStateManager::
+setCharacterOnFire(bool isOnFire) 
 {
     setGameValue("CharacterOnFire", isOnFire);
 }
@@ -471,6 +472,27 @@ QStringList GameStateManager::getBankInventory() const
 
 void GameStateManager::setCharacterInventory(int characterIndex, const QStringList& items) 
 {
+    // 1. Update the actual "Source of Truth" (the struct)
+    if (characterIndex >= 0 && characterIndex < m_currentParty.members.size()) {
+        m_currentParty.members[characterIndex].inventory = items;
+        
+        // 2. Update the legacy Map for UI/Signals (if your UI still uses it)
+        QVariantList partyList = m_gameStateData["Party"].toList();
+        if (characterIndex < partyList.size()) {
+            QVariantMap characterMap = partyList[characterIndex].toMap();
+            characterMap["Inventory"] = items;
+            partyList[characterIndex] = characterMap;
+            m_gameStateData["Party"] = partyList;
+        }
+
+        // 3. Trigger the refresh to the UI
+        refreshUI(); 
+        emit gameValueChanged("party_data", m_currentParty.toMap());
+    }
+}
+/*
+void GameStateManager::setCharacterInventory(int characterIndex, const QStringList& items) 
+{
     QVariantList party = m_gameStateData["Party"].toList();
     if (characterIndex >= 0 && characterIndex < party.size()) {
         QVariantMap character = party[characterIndex].toMap();
@@ -480,6 +502,9 @@ void GameStateManager::setCharacterInventory(int characterIndex, const QStringLi
         emit gameValueChanged("Party", m_gameStateData["Party"]);
     }
 }
+*/
+
+
 
 void GameStateManager::addItemToCharacter(int index, const QString& itemName) {
     if (index >= 0 && index < m_currentParty.members.size()) {
@@ -508,6 +533,31 @@ void GameStateManager::addItemToCharacter(int characterIndex, const QString& ite
 */
 void GameStateManager::updateCharacterGold(int characterIndex, qulonglong amount, bool add) 
 {
+    if (characterIndex >= 0 && characterIndex < m_currentParty.members.size()) {
+        // Update the Struct
+        if (add) m_currentParty.members[characterIndex].Gold += amount;
+        else {
+            qulonglong current = m_currentParty.members[characterIndex].Gold;
+            m_currentParty.members[characterIndex].Gold = (amount > current) ? 0 : current - amount;
+        }
+
+        // Update legacy Map for UI compatibility
+        QVariantList party = m_gameStateData["Party"].toList();
+        if (characterIndex < party.size()) {
+            QVariantMap characterMap = party[characterIndex].toMap();
+            characterMap["CurrentCharacterGold"] = QVariant::fromValue((qulonglong)m_currentParty.members[characterIndex].Gold);
+            party[characterIndex] = characterMap;
+            m_gameStateData["Party"] = party;
+        }
+        
+        emit gameValueChanged("party_data", m_currentParty.toMap());
+        refreshUI();
+    }
+}
+
+/*
+void GameStateManager::updateCharacterGold(int characterIndex, qulonglong amount, bool add) 
+{
     QVariantList party = m_gameStateData["Party"].toList();
     if (characterIndex >= 0 && characterIndex < party.size()) {
         QVariantMap character = party[characterIndex].toMap();
@@ -522,7 +572,7 @@ void GameStateManager::updateCharacterGold(int characterIndex, qulonglong amount
         emit gameValueChanged("Party", m_gameStateData["Party"]);
     }
 }
-
+*/
 bool GameStateManager::loadCharacterFromFile(const QString& filePath) {
     if (filePath.endsWith(".lua")) {
         if (!m_L) return false;

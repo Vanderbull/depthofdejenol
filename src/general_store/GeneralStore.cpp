@@ -1,4 +1,3 @@
-
 #include "GeneralStore.h"
 #include <QVBoxLayout>
 #include <QHBoxLayout>
@@ -11,6 +10,38 @@
 #include <QMap>
 #include <QMessageBox> // Included for the feedback dialog
 
+void GeneralStore::refreshInventory()
+{
+    // Fetch latest inventory from GameStateManager
+    Character current = GameStateManager::instance()->getCurrentCharacter();
+    QStringList items = current.inventory;
+
+    // Prevent recursive signal loops while clearing/adding
+    uncurseItemComboBox->blockSignals(true);
+    combineItemAComboBox->blockSignals(true);
+    combineItemBComboBox->blockSignals(true);
+    identifySellItemComboBox->blockSignals(true);
+
+    // Update all dropdowns
+    QList<QComboBox*> dropdowns = { 
+        uncurseItemComboBox, 
+        combineItemAComboBox, 
+        combineItemBComboBox, 
+        identifySellItemComboBox 
+    };
+
+    for(QComboBox* cb : dropdowns) {
+        cb->clear();
+        cb->addItems(items);
+    }
+
+    // Restore signals
+    uncurseItemComboBox->blockSignals(false);
+    combineItemAComboBox->blockSignals(false);
+    combineItemBComboBox->blockSignals(false);
+    identifySellItemComboBox->blockSignals(false);
+}
+
 GeneralStore::GeneralStore(QWidget *parent) : QDialog(parent)
 {
     setWindowTitle("General Store");
@@ -21,6 +52,14 @@ GeneralStore::GeneralStore(QWidget *parent) : QDialog(parent)
     uncurseItemComboBox->clear();
     uncurseItemComboBox->addItems(current.inventory);
 
+    combineItemAComboBox->clear();
+    combineItemAComboBox->addItems(current.inventory);
+
+    combineItemBComboBox->clear();
+    combineItemBComboBox->addItems(current.inventory);
+
+    identifySellItemComboBox->clear();
+    identifySellItemComboBox->addItems(current.inventory);
 
     //populateBuyItemsList();
     // Connect signals and slots
@@ -55,15 +94,21 @@ GeneralStore::GeneralStore(QWidget *parent) : QDialog(parent)
 
 void GeneralStore::setupUi()
 {
+    // Initialize Identify/Sell UI element as ComboBox
+    identifySellItemComboBox = new QComboBox();
+
+    combineItemAComboBox = new QComboBox();
+    combineItemBComboBox = new QComboBox();
+
     uncurseItemComboBox = new QComboBox(); // Replace QLineEdit
     uncurseButton = new QPushButton("UNCURSE");
     // Initialize UI elements
-    uncurseItemLineEdit = new QLineEdit();
+    //uncurseItemLineEdit = new QLineEdit();
     uncurseButton = new QPushButton("UNCURSE");
-    combineItemLineEdit = new QLineEdit();
-    combineItemsLineEdit = new QLineEdit();
+    //combineItemLineEdit = new QLineEdit();
+    //combineItemsLineEdit = new QLineEdit();
     combineButton = new QPushButton("COMBINE");
-    identifySellItemLineEdit = new QLineEdit();
+    //identifySellItemLineEdit = new QLineEdit();
     itemValueLabel = new QLabel("Value: 0");
     infoButton = new QPushButton("INFO");
     sellButton = new QPushButton("SELL");
@@ -95,17 +140,32 @@ void GeneralStore::setupUi()
     QGroupBox *combineBox = new QGroupBox("Combine Items");
     QGridLayout *combineGridLayout = new QGridLayout();
     combineGridLayout->addWidget(new QLabel("Item A:"), 0, 0);
-    combineGridLayout->addWidget(combineItemLineEdit, 0, 1);
+    combineGridLayout->addWidget(combineItemAComboBox, 0, 1); // Use ComboBox
     combineGridLayout->addWidget(new QLabel("Item B:"), 1, 0);
-    combineGridLayout->addWidget(combineItemsLineEdit, 1, 1);
-    combineGridLayout->addWidget(combineButton, 0, 2, 2, 1); // Span 2 rows
+    combineGridLayout->addWidget(combineItemBComboBox, 1, 1); // Use ComboBox
+    combineGridLayout->addWidget(combineButton, 0, 2, 2, 1); 
     combineBox->setLayout(combineGridLayout);
+
+    //QGroupBox *combineBox = new QGroupBox("Combine Items");
+    //QGridLayout *combineGridLayout = new QGridLayout();
+    //combineGridLayout->addWidget(new QLabel("Item A:"), 0, 0);
+    //combineGridLayout->addWidget(combineItemLineEdit, 0, 1);
+    //combineGridLayout->addWidget(new QLabel("Item B:"), 1, 0);
+    //combineGridLayout->addWidget(combineItemsLineEdit, 1, 1);
+    //combineGridLayout->addWidget(combineButton, 0, 2, 2, 1); // Span 2 rows
+    //combineBox->setLayout(combineGridLayout);
     // Layout for "Identify, Realign & Sell Items"
     QGroupBox *idSellBox = new QGroupBox("Identify, Realign & Sell Items");
     QGridLayout *idSellGridLayout = new QGridLayout();
     idSellGridLayout->addWidget(new QLabel("Item Name/ID:"), 0, 0);
-    idSellGridLayout->addWidget(identifySellItemLineEdit, 0, 1, 1, 3); // Span 3 columns
-    idSellGridLayout->addWidget(itemValueLabel, 1, 0, 1, 2); // Span 2 columns
+    idSellGridLayout->addWidget(identifySellItemComboBox, 0, 1, 1, 3); // Now adding the ComboBox
+    idSellGridLayout->addWidget(itemValueLabel, 1, 0, 1, 2);
+
+    //QGroupBox *idSellBox = new QGroupBox("Identify, Realign & Sell Items");
+    //QGridLayout *idSellGridLayout = new QGridLayout();
+    //idSellGridLayout->addWidget(new QLabel("Item Name/ID:"), 0, 0);
+    //idSellGridLayout->addWidget(identifySellItemLineEdit, 0, 1, 1, 3); // Span 3 columns
+    //idSellGridLayout->addWidget(itemValueLabel, 1, 0, 1, 2); // Span 2 columns
     idSellGridLayout->addWidget(idCostLabel, 1, 2, 1, 2); // Span 2 columns
     idSellGridLayout->addWidget(infoButton, 2, 0);
     idSellGridLayout->addWidget(idButton, 2, 1);
@@ -174,6 +234,7 @@ void GeneralStore::populateBuyItemsList()
         item->setData(Qt::UserRole, itemMap); 
         buyItemsListWidget->addItem(item);
     }
+    refreshInventory();
 }
 // --- Feedback Helper ---
 void GeneralStore::showFeedbackDialog(const QString &title, const QString &message, QMessageBox::Icon icon)
@@ -258,6 +319,28 @@ void GeneralStore::uncurseItem()
 */
 void GeneralStore::combineItems()
 {
+    QString itemA = combineItemAComboBox->currentText();
+    QString itemB = combineItemBComboBox->currentText();
+
+    if (itemA.isEmpty() || itemB.isEmpty()) {
+        showFeedbackDialog("Combine Error", "Please select two items to attempt a combination.", QMessageBox::Warning);
+        return;
+    }
+
+    // Logic remains the same, just using dropdown strings
+    if ((itemA.toLower().contains("steel sword") && itemB.toLower().contains("crystal")) || 
+        (itemB.toLower().contains("steel sword") && itemA.toLower().contains("crystal"))) {
+        showFeedbackDialog("Combine Success", 
+                           QString("The combination created a magnificent Crystal Steel Blade!"),
+                           QMessageBox::Information);
+    } else {
+        showFeedbackDialog("Combine Failure", "These items did not combine.", QMessageBox::Warning);
+    }
+    refreshInventory();
+}
+/*
+void GeneralStore::combineItems()
+{
     QString itemA = combineItemLineEdit->text().trimmed();
     QString itemB = combineItemsLineEdit->text().trimmed();
     if (itemA.isEmpty() || itemB.isEmpty()) {
@@ -279,7 +362,97 @@ void GeneralStore::combineItems()
                            QMessageBox::Warning);
     }
 }
+*/
 
+void GeneralStore::identifySellItem() 
+{
+    // 1. Get current selection from the dropdown
+    QString itemName = identifySellItemComboBox->currentText();
+    
+    if (itemName.isEmpty()) {
+        showFeedbackDialog("Input Required", "Please select an item from your inventory.", QMessageBox::Warning);
+        return;
+    }
+
+    QPushButton *senderButton = qobject_cast<QPushButton*>(sender());
+    bool isIdentifyAction = (senderButton == idButton);
+    
+    GameStateManager* gsm = GameStateManager::instance();
+    int activeCharIndex = gsm->getGameValue("ActiveCharacterIndex").toInt();
+    
+    // Fetch the character and their inventory
+    Character current = gsm->getCurrentCharacter();
+    QStringList inventory = current.inventory;
+
+    // --- DEBUG: Before Action ---
+    qDebug() << "--- [DEBUG] Inventory Before Action ---";
+    qDebug() << "Character:" << current.name;
+    qDebug() << "Target Item:" << itemName;
+    qDebug() << "Current Items:" << inventory;
+    
+    // 2. Find the exact index
+    int invIndex = inventory.indexOf(itemName);
+
+    if (invIndex == -1) {
+        showFeedbackDialog("Error", "Item not found in inventory.", QMessageBox::Warning);
+        refreshInventory(); 
+        return;
+    }
+
+    // 3. Fetch price from Database
+    const QList<QVariantMap>& db = gsm->itemData();
+    qulonglong basePrice = 0;
+    for (const QVariantMap& item : db) {
+        if (item["name"].toString().compare(itemName, Qt::CaseInsensitive) == 0) {
+            basePrice = item["price"].toULongLong();
+            break;
+        }
+    }
+
+    if (isIdentifyAction) {
+        // --- IDENTIFY LOGIC ---
+        if (itemName.contains("(ID)")) {
+            showFeedbackDialog("Info", "Already identified.", QMessageBox::Information);
+            return;
+        }
+
+        qulonglong idCost = qMax(static_cast<qulonglong>(basePrice * 0.15), (qulonglong)10);
+        if (current.Gold < idCost) {
+            showFeedbackDialog("Identify Failed", "Insufficient gold.", QMessageBox::Critical);
+            return;
+        }
+
+        inventory[invIndex] = itemName + " (ID)";
+        gsm->updateCharacterGold(activeCharIndex, idCost, false);
+        gsm->setCharacterInventory(activeCharIndex, inventory); // SAVE UPDATE
+    } 
+    else {
+        // --- SELL LOGIC (REMOVAL) ---
+        bool alreadyIdentified = itemName.contains("(ID)");
+        qulonglong finalSellPrice = alreadyIdentified ? (basePrice / 2) : (basePrice / 4);
+        
+        // Remove the item from the local list
+        inventory.removeAt(invIndex); 
+        
+        // Push the updated list and gold back to the GameStateManager
+        gsm->updateCharacterGold(activeCharIndex, finalSellPrice, true);
+        gsm->setCharacterInventory(activeCharIndex, inventory); // SAVE UPDATE
+        
+        showFeedbackDialog("Sold", QString("Sold %1 for %2 gold.").arg(itemName).arg(finalSellPrice));
+    }
+
+    // --- DEBUG: After Action ---
+    // Fetch directly from manager to prove it saved
+    Character updatedChar = gsm->getCurrentCharacter();
+    qDebug() << "--- [DEBUG] Inventory After Action ---";
+    qDebug() << "Items:" << updatedChar.inventory;
+    qDebug() << "Gold:" << updatedChar.Gold;
+    qDebug() << "--------------------------------------";
+
+    // Update the UI dropdowns
+    refreshInventory();
+}
+/*
 void GeneralStore::identifySellItem() 
 {
     QString itemName = identifySellItemLineEdit->text().trimmed();
@@ -349,6 +522,7 @@ void GeneralStore::identifySellItem()
     }
     identifySellItemLineEdit->clear();
 }
+*/
 
 void GeneralStore::buyItem()
 {
@@ -363,6 +537,7 @@ void GeneralStore::buyItem()
     } else {
         showFeedbackDialog("Purchase Error", "Please select an item from the list to buy.", QMessageBox::Warning);
     }
+    refreshInventory();
 }
 
 void GeneralStore::showItemInfo()
@@ -371,7 +546,8 @@ void GeneralStore::showItemInfo()
     QString infoMessage;
     QString itemName;
     if (senderButton == infoButton) {
-        itemName = identifySellItemLineEdit->text().trimmed();
+        //itemName = identifySellItemLineEdit->text().trimmed();
+        itemName = identifySellItemComboBox->currentText();
         if (itemName.isEmpty()) {
             showFeedbackDialog("Info Request Error", "Please enter an item name/ID to view its details.", QMessageBox::Warning);
             return;
