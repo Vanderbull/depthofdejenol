@@ -256,33 +256,6 @@ GameStateManager::GameStateManager(QObject *parent)
     qDebug() << "GameStateManager initialized.";
     listGameData();
     
-    // 2. Test Save to the existing characters folder
-    // If you have a character in m_PC, save them:
-    if (!m_currentParty.members.isEmpty()) {
-        QString savePath = "data/characters/" + m_currentParty.members.first().name + ".lua";
-        saveCharacterToLua(m_currentParty.members.first(), savePath);
-    } else {
-        // Dummy test if no character exists yet
-        Character testChar;
-        testChar.name = "Bluebird_Test";
-        testChar.Gold = 500;
-        saveCharacterToLua(testChar, "data/characters/Bluebird_Test.lua");
-    }
-
-    // Test: Load the character we just saved
-    QString testFile = "data/characters/Empty Slot.lua";
-    
-    if (QFile::exists(testFile)) {
-        Character loadedChar = loadCharacterFromLua(testFile);
-        
-        // Add the loaded character to your active party list
-        m_currentParty.members.append(loadedChar);
-        //m_PC.append(loadedChar);
-        
-        qDebug() << "Verified: Loaded character" << m_currentParty.members.last().name 
-                 << "with" << m_currentParty.members.last().Gold << "gold.";
-    }
-
 }
 
 void GameStateManager::loadGameData(const QString& filePath) {
@@ -799,7 +772,6 @@ bool GameStateManager::saveCharacterToFile(int partyIndex)
     out << "Name: " << characterName << "\n";
     out << "Race: " << character["Race"].toString() << "\n"; // Updated
     out << "Age: " << character["Age"].toInt() << "\n";      // Updated
-    out << "Race: " << character["Race"].toString() << "\n";
     out << "DungeonX: " << getGameValue("DungeonX").toInt() << "\n";
     out << "DungeonY: " << getGameValue("DungeonY").toInt() << "\n";
     out << "DungeonLevel: " << getGameValue("DungeonLevel").toInt() << "\n";
@@ -809,7 +781,6 @@ bool GameStateManager::saveCharacterToFile(int partyIndex)
     out << "MaxHP: " << character["MaxHP"].toInt() << "\n";
     out << "CurrentCharacterGold: " << character["CurrentCharacterGold"].toULongLong() << "\n";
     out << "Experience: " << character["Experience"].toULongLong() << "\n";
-    out << "isAlive: " << (character["Dead"].toBool() ? 0 : 1) << "\n";
     out << "isAlive: " << (character["Dead"].toBool() ? 0 : 1) << "\n";
     out << "inCity: " << (getGameValue("inCity").toBool() ? 1 : 0) << "\n"; // Add this line
     
@@ -1335,7 +1306,7 @@ void GameStateManager::initializeParty() {
         //Character c;
         c.loadFromMap(character);
         //m_PC.append(c);
-        m_currentParty.members.append(c);
+        //m_currentParty.members.append(c);
     }
     //m_gameStateData["Party"] = party;
     m_gameStateData["Party"] = m_currentParty.toMap();
