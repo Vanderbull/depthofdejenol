@@ -10,7 +10,7 @@ Ordered by severity and impact. Each item includes location, what's wrong, and t
 
 ---
 
-## 2. Dead Characters Can Never Be Saved as Dead
+## 2. Dead Characters Can Never Be Saved as Dead ( FIXED )
 **File:** `GameStateManager.cpp:784`
 **Problem:** `saveCharacterToFile()` writes:
 ```cpp
