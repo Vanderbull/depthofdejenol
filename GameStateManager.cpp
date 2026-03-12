@@ -781,7 +781,7 @@ bool GameStateManager::saveCharacterToFile(int partyIndex)
     out << "MaxHP: " << character["MaxHP"].toInt() << "\n";
     out << "CurrentCharacterGold: " << character["CurrentCharacterGold"].toULongLong() << "\n";
     out << "Experience: " << character["Experience"].toULongLong() << "\n";
-    out << "isAlive: " << (character["Dead"].toBool() ? 0 : 1) << "\n";
+    out << "isAlive: " << (character["isAlive"].toBool() ? 1 : 0) << "\n";
     out << "inCity: " << (getGameValue("inCity").toBool() ? 1 : 0) << "\n"; // Add this line
     
     // Save Stats using the helper list
