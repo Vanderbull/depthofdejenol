@@ -24,7 +24,7 @@ out << "isAlive: " << (character["isAlive"].toBool() ? 1 : 0) << "\n";
 
 ---
 
-## 3. `hasLivingCharacters()` Rejects Living Characters with Status Effects
+## 3. `hasLivingCharacters()` Rejects Living Characters with Status Effects ( FIXED )
 **File:** `GameStateManager.cpp:1774`
 **Problem:** The check `character.status == 0` means any character who is Poisoned, Blinded, or On Fire is considered "not living". Worse, the `Alive` flag itself (bit 3, value 8) makes `status != 0`, so a character explicitly marked alive via the flag system also fails this check.
 **Fix:** Replace `character.status == 0` with `character.isAlive` (the bool field). This is the correct "living" check that matches `Character::loadFromMap`:
