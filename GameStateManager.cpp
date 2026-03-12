@@ -1302,15 +1302,15 @@ void GameStateManager::initializeParty() {
         m_currentParty.members.append(c);
 
         // 2. Notify the UI/QML layer using the new unified map
-        emit gameValueChanged("party_data", m_currentParty.toMap());
         //Character c;
-        c.loadFromMap(character);
+        //c.loadFromMap(character);
         //m_PC.append(c);
         //m_currentParty.members.append(c);
     }
     //m_gameStateData["Party"] = party;
     m_gameStateData["Party"] = m_currentParty.toMap();
     m_gameStateData["PartyHP"] = QVariantList({50, 40, 30});
+    emit gameValueChanged("party_data", m_currentParty.toMap());
 }
 
 void GameStateManager::loadCSVData(const QString& filePath, QList<QVariantMap>& targetList)
