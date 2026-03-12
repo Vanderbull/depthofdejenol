@@ -39,7 +39,7 @@ if (character.name != "Empty Slot" &&
 
 ---
 
-## 4. `initializeParty()` Dead Code and Emit Spam
+## 4. `initializeParty()` Dead Code and Emit Spam ( ONGOING )
 **File:** `GameStateManager.cpp:1274-1314`
 **Problem:** Inside the loop:
 - Line 1305: `emit gameValueChanged(...)` fires on every iteration (4 signals instead of 1).
