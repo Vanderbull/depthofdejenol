@@ -221,7 +221,7 @@ INCLUDEPATH += $$_PRO_FILE_PWD_/include
 
 ---
 
-## 20. Build Artifacts Committed to Git
+## 20. Build Artifacts Committed to Git ( FIXED )
 **Problem:** The repository contains generated/binary files: the `blacklands` executable, `.venv/`, `.cache/`, and `qrc_resources.cpp`. These bloat the repo and cause merge conflicts.
 **Fix:** Add to `.gitignore`:
 ```
