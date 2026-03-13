@@ -32,7 +32,7 @@ The foundation is solid. The project has:
 The current combat is a bare-minimum prototype. It only damages the character at party index 0, has no real turn structure, and doesn't use equipment stats.
 
 **Needed:**
-- **Turn-based combat with initiative** — Roll initiative for each party member and each enemy group. Cycle through turns in order. This is the beating heart of the genre.
+- **Turn-based combat with initiative** — Roll initiative for each party member and each enemy group. Cycle through turns in order. This is the beating heart of the genre. ( IMPLEMENTED )
 - **Party-wide combat** — All 4 party members should fight, take damage, and die independently. Front-row vs. back-row positioning would add tactical depth (warriors up front, mages in back).
 - **Equipment-driven damage** — Weapon `att`, `swings`, `damageMod`, and `levelScale` from MDATA3 are already defined but never used in combat. Hook them up. Defense (`def`) should reduce incoming damage.
 - **Spell combat integration** — `SpellCastingDialog` returns `SpellResult` with damage/healing, but this isn't wired into the combat loop. Spells should be a combat action alongside Attack and Defend.
