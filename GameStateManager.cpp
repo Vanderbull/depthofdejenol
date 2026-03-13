@@ -1816,3 +1816,12 @@ bool GameStateManager::isWholePartyDead() const {
     }
     return true;
 }
+
+QVariantMap GameStateManager::getItemStats(const QString& itemName) const {
+    for (const QVariantMap& item : m_itemData) {
+        if (item["name"].toString() == itemName) {
+            return item;
+        }
+    }
+    return QVariantMap(); // Return empty if not found
+}

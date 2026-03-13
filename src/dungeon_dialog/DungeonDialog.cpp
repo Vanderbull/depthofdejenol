@@ -161,6 +161,45 @@ void DungeonDialog::updatePartyMemberHealth(int memberIndex, int damage)
     GameStateManager* gsm = GameStateManager::instance();   
     Character& target = gsm->getPartyMember(memberIndex);
     
+    // 1. Calculate Defense Mitigation
+    // Example: Armor/Defense reduces flat damage; Dexterity provides a % reduction
+    int armorDef = 2; // This should eventually come from MDATA3 armor items
+    int dexMitigation = target.dexterity / 4; 
+    
+    int mitigatedDamage = damage - armorDef - dexMitigation;
+
+    // 2. Apply Defending Modifier
+    // Halve damage if that specific character is using the "Defend" action
+    int finalDamage = (m_isDefending && m_currentTurnIndex == memberIndex) 
+                      ? qMax(1, mitigatedDamage / 2) 
+                      : mitigatedDamage;
+
+    // Ensure damage never goes below 1 if the original hit was significant
+    finalDamage = qMax(1, finalDamage);
+
+    target.hp = qMax(0, target.hp - finalDamage);
+    logMessage(QString("%1 takes %2 damage (Mitigated: %3)!").arg(target.name).arg(finalDamage).arg(damage - finalDamage));
+
+    if (target.hp <= 0) {
+        target.isAlive = false;
+        logMessage(QString("<font color='red'>%1 has fallen!</font>").arg(target.name));
+    }
+
+    if (gsm->isWholePartyDead()) {
+        logMessage("The entire party has been defeated...");
+        this->close();
+        emit exitedDungeonToCity();
+    }
+    
+    gsm->refreshUI(); // Update health bars in QML
+}
+
+/*
+void DungeonDialog::updatePartyMemberHealth(int memberIndex, int damage)
+{
+    GameStateManager* gsm = GameStateManager::instance();   
+    Character& target = gsm->getPartyMember(memberIndex);
+    
     // Halve damage if that specific character is defending
     int finalDamage = (m_isDefending && m_currentTurnIndex == memberIndex) ? qMax(1, damage / 2) : damage;
 
@@ -181,6 +220,8 @@ void DungeonDialog::updatePartyMemberHealth(int memberIndex, int damage)
     
     gsm->refreshUI(); // Update health bars and status in QML
 }
+*/
+
 /*
 // --- Party Management Helper Function ---
 void DungeonDialog::updatePartyMemberHealth(int row, int damage)
@@ -2015,5 +2056,33 @@ void DungeonDialog::executeMonsterTurn() {
     }
 }
 */
+
+int DungeonDialog::calculateWeaponDamage(int memberIndex) {
+    GameStateManager* gsm = GameStateManager::instance();
+    Character& chr = gsm->getPartyMember(memberIndex);
+    
+    // Assume the first item in inventory is the weapon for now
+    QString weaponName = chr.inventory.isEmpty() ? "Hands" : chr.inventory.first();
+    QVariantMap itemData = gsm->getItemStats(weaponName);
+    
+    // Default values if item data is missing
+    int baseAtt     = itemData.value("att", 1).toInt();
+    int swings      = itemData.value("swings", 1).toInt();
+    int damageMod   = itemData.value("damageMod", 0).toInt();
+    float levelScale = itemData.value("levelScale", 0.0f).toFloat();
+
+    int totalDamage = 0;
+    for (int i = 0; i < swings; ++i) {
+        // Damage formula: (Base + Bonus) + (Level * Scaling)
+        int hit = (baseAtt + damageMod) + static_cast<int>(chr.level * levelScale);
+        
+        // Add a small random variance (e.g., +/- 10%)
+        int variance = QRandomGenerator::global()->bounded(qMax(1, hit / 5));
+        totalDamage += hit + (variance - (hit / 10));
+    }
+
+    return qMax(1, totalDamage);
+}
+
 
 DungeonDialog::~DungeonDialog(){}

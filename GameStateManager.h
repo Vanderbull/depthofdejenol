@@ -82,7 +82,11 @@ private:
     
     QString statusKey(GameConstants::EntityStatus effect) const;
 
+
 public:
+    QVariantMap getItemStats(const QString& itemName) const;
+
+
     QList<Character>& getPartyMembers() { return m_currentParty.members; }
 
     Character& getPartyMember(int index);

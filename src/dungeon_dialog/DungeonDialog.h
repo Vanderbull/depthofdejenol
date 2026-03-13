@@ -243,6 +243,7 @@ private:
     void drawAntimagic(int d, int xL, int xR, int yB, int nxL, int nxR, int nyB);
     void cleanupCombat();
     void startCombatInitiative();
+    int calculateWeaponDamage(int memberIndex);
 
 protected:
     void resizeEvent(QResizeEvent *event) override;
