@@ -83,6 +83,10 @@ private:
     QString statusKey(GameConstants::EntityStatus effect) const;
 
 public:
+    int getMonsterXpReward(const QString& monsterName);
+    void addExperienceToParty(int totalXp);
+    void addExperienceToCharacter(int index, int amount);
+
     Character getCurrentCharacter() const;
     bool hasLivingCharacters() const;
 

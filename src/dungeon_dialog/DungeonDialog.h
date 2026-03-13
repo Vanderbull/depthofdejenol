@@ -12,12 +12,22 @@
 #include <QTableWidget>
 #include <QRandomGenerator>
 #include <QHash>
+#include <algorithm> // for std::sort
 
 #include "src/inventory_dialog/inventorydialog.h"
 #include "src/partyinfo_dialog/partyinfodialog.h"
 #include "../event/EventManager.h"
 #include "../../GameStateManager.h"
 #include "MiniMapDialog.h"
+
+struct Combatant {
+    QString name;
+    int initiative;
+    bool isPlayer;
+    int memberIndex; // For party members
+};
+
+
 
 // Forward declarations
 class QGraphicsScene;
@@ -96,6 +106,16 @@ private slots:
     void togglePartyInfo();
     
 private:
+
+    QPushButton* m_fightButton;
+    QPushButton* m_spellButton;
+    // --- New Combat Members ---
+    QList<Combatant> m_combatQueue;
+    int m_currentTurnIndex = 0;
+
+    // --- New Combat Methods ---
+    void advanceTurn();
+
     void setupControls();
     void handleFalling(); // New method to handle falling through a pit
     QSet<QPair<int, int>> m_bodyPositions;
@@ -207,7 +227,7 @@ private:
     void keyPressEvent(QKeyEvent *event) override;
     QGraphicsScene* m_threeDScene;
     // ... other private members ...
-    QGraphicsView* m_graphicsView;   // Add this line
+    QGraphicsView* m_graphicsView;
     void update3DView();
     void drawWireframeWall(int depth, bool left, bool right, bool front);
     bool isWallAt(int x, int y);
@@ -220,6 +240,8 @@ private:
     void drawSpinner(int d, int xL, int xR, int yB, int nxL, int nxR, int nyB);
     void drawWater(int d, int xL, int xR, int yB, int nxL, int nxR, int nyB);
     void drawAntimagic(int d, int xL, int xR, int yB, int nxL, int nxR, int nyB);
+    void cleanupCombat();
+    void startCombatInitiative();
 
 protected:
     void resizeEvent(QResizeEvent *event) override;

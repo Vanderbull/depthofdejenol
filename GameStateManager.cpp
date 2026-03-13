@@ -1766,3 +1766,39 @@ Character GameStateManager::getCurrentCharacter() const {
 
     return Character(); // Return a blank character if party is empty
 }
+
+void GameStateManager::addExperienceToParty(int totalXp) {
+    if (m_currentParty.members.isEmpty()) return;
+
+    // Filter for living members only
+    QList<int> livingIndices;
+    for (int i = 0; i < m_currentParty.members.size(); ++i) {
+        if (m_currentParty.members[i].isAlive) {
+            livingIndices.append(i);
+        }
+    }
+
+    if (livingIndices.isEmpty()) return;
+
+    int xpPerMember = totalXp / livingIndices.size();
+    for (int index : livingIndices) {
+        addExperienceToCharacter(index, xpPerMember);
+    }
+}
+
+void GameStateManager::addExperienceToCharacter(int index, int amount) {
+    if (index < 0 || index >= m_currentParty.members.size()) return;
+
+    // Update the struct
+    m_currentParty.members[index].experience += amount;
+
+    // Simple Level Up Check (Example: Level * 1000)
+    int nextLevelThreshold = m_currentParty.members[index].level * 1000;
+    if (m_currentParty.members[index].experience >= nextLevelThreshold) {
+        m_currentParty.members[index].level++;
+        // You could trigger a signal here for the UI to show a "Level Up!" message
+    }
+
+    // Refresh UI to show new XP/Level
+    refreshUI();
+}

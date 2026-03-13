@@ -26,7 +26,6 @@
 #include <QGraphicsScene>
 #include <QGraphicsView>
 
-
 // Constants that depend on MAP_SIZE (which is now in the header)
 const int TILE_SIZE = 10;
 const int MAP_WIDTH_PIXELS = MAP_SIZE * TILE_SIZE; 
@@ -568,32 +567,9 @@ DungeonDialog::DungeonDialog(QWidget *parent)
     generateSpecialTiles(20, initialRng);
     drawMinimap();
 
-    // 4. Action Buttons
-    //QGridLayout *actionLayout = new QGridLayout();
-//    m_fightButton = new QPushButton("Fight (F)");
-//    m_spellButton = new QPushButton("Spell (S)");
-//    m_restButton = new QPushButton("Rest (R)");
-//    m_talkButton = new QPushButton("Talk (T)");
-//    m_searchButton = new QPushButton("Search (Z)");
-//    m_pickupButton = new QPushButton("Pickup (P)");
-//    m_dropButton = new QPushButton("Drop (D)");
-//    m_openButton = new QPushButton("Open (O)");
-//    m_mapButton = new QPushButton("Map (M)");
-//    m_chestButton = new QPushButton("Chest (C)"); 
-//    m_exitButton = new QPushButton("Exit");
-//    m_teleportButton = new QPushButton("Teleport (U)");
-//    actionLayout->addWidget(m_fightButton, 0, 0);
-//    actionLayout->addWidget(m_spellButton, 0, 1);
-//    actionLayout->addWidget(m_restButton, 0, 2);
-//    actionLayout->addWidget(m_talkButton, 1, 0);
-//    actionLayout->addWidget(m_searchButton, 1, 1);
-//    actionLayout->addWidget(m_pickupButton, 1, 2);
-//    actionLayout->addWidget(m_dropButton, 2, 0);
-//    actionLayout->addWidget(m_openButton, 2, 1);
-//    actionLayout->addWidget(m_mapButton, 2, 2);
-//    actionLayout->addWidget(m_chestButton, 3, 0);
-//    actionLayout->addWidget(m_teleportButton, 3, 1);
-//    actionLayout->addWidget(m_exitButton, 3, 2);
+    m_fightButton = createButton("Fight", SLOT(on_fightButton_clicked()));
+    m_spellButton = createButton("Spell", SLOT(on_spellButton_clicked()));
+
 
     rightPanelLayout->addLayout(actionLayout);
     // 5. Directional Buttons (Movement)
@@ -808,6 +784,45 @@ void DungeonDialog::on_teleportButton_clicked()
     emit teleporterUsed();
 }
 
+void DungeonDialog::on_fightButton_clicked() {
+    //if (m_isFighting) return;
+    if (!m_isFighting) {
+        // Start the initiative logic (your existing code to roll and sort)
+        startCombatInitiative(); 
+    } else {
+        // Combat is already active, so this click means "Standard Attack"
+        performPlayerAttack();
+    }
+
+    // 1. Identify participants
+    QList<Combatant> queue;
+    GameStateManager* gsm = GameStateManager::instance();
+    auto party = gsm->getPC();
+
+    // Roll for Party
+    for (int i = 0; i < party.size(); ++i) {
+        int roll = QRandomGenerator::global()->bounded(1, 21) + (party[i].dexterity / 4);
+        queue.append({party[i].name, roll, true, i});
+    }
+
+    // Roll for Enemy Group
+    int enemyRoll = QRandomGenerator::global()->bounded(1, 21); // Simple roll for the group
+    queue.append({m_activeMonsterName, enemyRoll, false, -1});
+
+    // 2. Sort by Initiative (Highest first)
+    std::sort(queue.begin(), queue.end(), [](const Combatant& a, const Combatant& b) {
+        return a.initiative > b.initiative;
+    });
+
+    // 3. Initialize Combat State
+    m_isFighting = true;
+    m_combatQueue = queue; // Assume m_combatQueue is a member QList
+    m_currentTurnIndex = 0;
+
+    logMessage("<b>Combat Starts!</b>");
+    processCombatTick(); // Start the first turn
+}
+/*
 void DungeonDialog::on_fightButton_clicked() 
 {
     // If it exists, kill it so we start fresh for this test
@@ -828,7 +843,87 @@ void DungeonDialog::on_fightButton_clicked()
     m_combatTimer->start(100); 
     logMessage("FORCING TIMER START...");
 }
+*/
 
+void DungeonDialog::processCombatTick() {
+    if (!m_isFighting || m_combatQueue.isEmpty()) return;
+
+    Combatant& current = m_combatQueue[m_currentTurnIndex];
+
+    if (current.isPlayer) {
+        logMessage(QString("<b>It is %1's turn!</b>").arg(current.name));
+        
+        // Enable buttons for user input
+        if (m_fightButton) m_fightButton->setEnabled(true);
+        if (m_spellButton) m_spellButton->setEnabled(true);
+    } else {
+        // Disable buttons while monster acts
+        if (m_fightButton) m_fightButton->setEnabled(false);
+        if (m_spellButton) m_spellButton->setEnabled(false);
+        
+        logMessage(QString("<font color='red'>%1 attacks!</font>").arg(current.name));
+        performMonsterAttack();
+        
+        // Move to the next person in the initiative queue
+        advanceTurn();
+    }
+}
+
+/*
+void DungeonDialog::processCombatTick() {
+    if (!m_isFighting || m_combatQueue.isEmpty()) return;
+
+    Combatant& current = m_combatQueue[m_currentTurnIndex];
+
+    if (current.isPlayer) {
+        logMessage(QString("<b>It is %1's turn!</b>").arg(current.name));
+        
+        // Enable buttons so the user can actually take an action
+        m_fightButton->setEnabled(true); 
+        m_spellButton->setEnabled(true);
+    } else {
+        // It's the monster's turn
+        m_fightButton->setEnabled(false);
+        m_spellButton->setEnabled(false);
+        
+        logMessage(QString("<font color='red'>%1 attacks!</font>").arg(current.name));
+        performMonsterAttack(); // Your existing damage logic
+        
+        // Monsters don't need to wait for clicks, so move to next turn
+        advanceTurn();
+    }
+}
+*/
+
+/*
+void DungeonDialog::processCombatTick() {
+    if (!m_isFighting || m_combatQueue.isEmpty()) return;
+
+    Combatant& current = m_combatQueue[m_currentTurnIndex];
+
+    if (current.isPlayer) {
+        logMessage(QString("It is %1's turn. Select an action!").arg(current.name));
+        // Wait for user input (Attack/Spell buttons)
+    } else {
+        logMessage(QString("%1 lunges at the party!").arg(current.name));
+        performMonsterAttack(); // Existing logic to deal damage
+        advanceTurn();
+    }
+}
+*/
+void DungeonDialog::advanceTurn() {
+    m_currentTurnIndex = (m_currentTurnIndex + 1) % m_combatQueue.size();
+    
+    // If we've looped back to the start, a new round begins
+    if (m_currentTurnIndex == 0) {
+        logMessage("<i>--- New Round ---</i>");
+    }
+    
+    processCombatTick();
+}
+
+
+/*
 void DungeonDialog::processCombatTick() 
 {
     if (!m_isFighting) return;
@@ -850,6 +945,7 @@ void DungeonDialog::processCombatTick()
         m_monsterAttackCooldown = 0;
     }
 }
+*/
 
 void DungeonDialog::performPlayerAttack() {
     int damage = QRandomGenerator::global()->bounded(5, 15);
@@ -866,6 +962,12 @@ void DungeonDialog::performPlayerAttack() {
         m_monsterPositions.remove(pos);
         renderWireframeView();
     }
+
+    // AFTER the attack is done, move the initiative forward
+    if (m_isFighting) {
+        advanceTurn();
+    }
+
 }
 
 void DungeonDialog::performMonsterAttack() {
@@ -1755,8 +1857,69 @@ void DungeonDialog::on_spellButton_clicked()
             on_teleportButton_clicked();
         }
     });
+
+    if (m_activeMonsterHP <= 0) {
+        logMessage(QString("<font color='green'>The %1 is destroyed!</font>").arg(m_activeMonsterName));
+
+        // Award XP
+        int reward = 200; // You can make this dynamic based on the monster name
+        GameStateManager::instance()->addExperienceToParty(reward);
+        logMessage(QString("The party receives %1 XP.").arg(reward));
+        
+        // Refresh the local XP label in the Dungeon UI
+        updateExperienceLabel();
+
+        // Standard combat cleanup
+        m_isFighting = false;
+        m_isDefending = false;
+        if (m_combatTimer) m_combatTimer->stop();
+        
+        QPair<int, int> pos = getCurrentPosition();
+        m_monsterPositions.remove(pos);
+        renderWireframeView();
+    }
     
     spellDialog->exec();
 }
+
+void DungeonDialog::cleanupCombat() {
+    m_isFighting = false;
+    m_combatQueue.clear();
+    m_currentTurnIndex = 0;
+    m_fightButton->setEnabled(true); // Re-enable for the next encounter
+    logMessage("Combat has ended.");
+}
+
+void DungeonDialog::startCombatInitiative() {
+    m_combatQueue.clear();
+    GameStateManager* gsm = GameStateManager::instance();
+    QList<Character> party = gsm->getPC(); 
+
+    for (int i = 0; i < party.size(); ++i) {
+        if (!party[i].isAlive) continue;
+        Combatant p;
+        p.name = party[i].name;
+        p.initiative = QRandomGenerator::global()->bounded(1, 21) + (party[i].dexterity / 4);
+        p.isPlayer = true;
+        p.memberIndex = i;
+        m_combatQueue.append(p);
+    }
+
+    Combatant m;
+    m.name = m_activeMonsterName;
+    m.initiative = QRandomGenerator::global()->bounded(1, 21);
+    m.isPlayer = false;
+    m.memberIndex = -1;
+    m_combatQueue.append(m);
+
+    std::sort(m_combatQueue.begin(), m_combatQueue.end(), [](const Combatant& a, const Combatant& b) {
+        return a.initiative > b.initiative;
+    });
+
+    m_isFighting = true;
+    m_currentTurnIndex = 0;
+    processCombatTick();
+}
+
 
 DungeonDialog::~DungeonDialog(){}
