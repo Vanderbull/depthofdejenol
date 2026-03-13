@@ -1802,3 +1802,17 @@ void GameStateManager::addExperienceToCharacter(int index, int amount) {
     // Refresh UI to show new XP/Level
     refreshUI();
 }
+Character& GameStateManager::getPartyMember(int index) {
+    // Safety check to prevent crashing if index is out of bounds
+    if (index >= 0 && index < m_currentParty.members.size()) {
+        return m_currentParty.members[index];
+    }
+    return m_currentParty.members[0]; 
+}
+
+bool GameStateManager::isWholePartyDead() const {
+    for (const auto& member : m_currentParty.members) {
+        if (member.isAlive) return false;
+    }
+    return true;
+}

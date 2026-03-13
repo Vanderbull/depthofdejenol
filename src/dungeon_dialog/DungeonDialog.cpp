@@ -155,6 +155,33 @@ void DungeonDialog::updateGoldLabel()
         m_goldLabel->setText(QString("You have a total of **%1 Gold**.").arg(goldString));
     }
 }
+
+void DungeonDialog::updatePartyMemberHealth(int memberIndex, int damage)
+{
+    GameStateManager* gsm = GameStateManager::instance();   
+    Character& target = gsm->getPartyMember(memberIndex);
+    
+    // Halve damage if that specific character is defending
+    int finalDamage = (m_isDefending && m_currentTurnIndex == memberIndex) ? qMax(1, damage / 2) : damage;
+
+    target.hp = qMax(0, target.hp - finalDamage);
+    logMessage(QString("%1 takes %2 damage!").arg(target.name).arg(finalDamage));
+
+    if (target.hp <= 0) {
+        target.isAlive = false;
+        logMessage(QString("<font color='red'>%1 has fallen!</font>").arg(target.name));
+    }
+
+    // Check for Total Party Wipe
+    if (gsm->isWholePartyDead()) {
+        logMessage("The entire party has been defeated...");
+        this->close();
+        emit exitedDungeonToCity();
+    }
+    
+    gsm->refreshUI(); // Update health bars and status in QML
+}
+/*
 // --- Party Management Helper Function ---
 void DungeonDialog::updatePartyMemberHealth(int row, int damage)
 {
@@ -179,6 +206,7 @@ void DungeonDialog::updatePartyMemberHealth(int row, int damage)
         }
     }
 }
+*/
 // --- Dungeon Management (Movement, Drawing, Encounters) ---
 void DungeonDialog::movePlayer(int dx, int dy, int dz=0)
 {
@@ -1921,5 +1949,71 @@ void DungeonDialog::startCombatInitiative() {
     processCombatTick();
 }
 
+
+// DungeonDialog.cpp
+void DungeonDialog::executeMonsterTurn() {
+    GameStateManager* gsm = GameStateManager::instance();
+    // Use the new getter to get the actual list of characters
+    QList<Character>& party = gsm->getPartyMembers(); 
+
+    if (gsm->isWholePartyDead()) return;
+
+    QList<int> frontRowIndices;
+    QList<int> backRowIndices;
+
+    // Filter living members into rows
+    for (int i = 0; i < party.size(); ++i) {
+        if (!party[i].isAlive) continue;
+        
+        // 0 is Front Row (Warriors), 1 is Back Row (Mages)
+        if (party[i].row == 0) frontRowIndices.append(i);
+        else backRowIndices.append(i);
+    }
+
+    int targetIndex = -1;
+    if (!frontRowIndices.isEmpty()) {
+        // Attack the front row first
+        targetIndex = frontRowIndices[QRandomGenerator::global()->bounded(frontRowIndices.size())];
+    } else if (!backRowIndices.isEmpty()) {
+        // Only attack back row if front row is empty/dead
+        targetIndex = backRowIndices[QRandomGenerator::global()->bounded(backRowIndices.size())];
+    }
+
+    if (targetIndex != -1) {
+        int damage = QRandomGenerator::global()->bounded(5, 15);
+        // Pass the specific member index to take damage
+        updatePartyMemberHealth(targetIndex, damage);
+    }
+}
+/*
+// DungeonDialog.cpp (Logic for monster turn)
+void DungeonDialog::executeMonsterTurn() {
+    GameStateManager* gsm = GameStateManager::instance();
+    QList<Character>& party = gsm->getPartyReference(); // Need access to the full party
+
+    // 1. Identify valid targets in the front row (row 0)
+    QList<int> frontRowIndices;
+    QList<int> backRowIndices;
+    for (int i = 0; i < party.size(); ++i) {
+        if (!party[i].isAlive) continue;
+        if (party[i].row == 0) frontRowIndices.append(i);
+        else backRowIndices.append(i);
+    }
+
+    int targetIndex = -1;
+    if (!frontRowIndices.isEmpty()) {
+        // Target someone in the front row
+        targetIndex = frontRowIndices[QRandomGenerator::global()->bounded(frontRowIndices.size())];
+    } else if (!backRowIndices.isEmpty()) {
+        // If front row is dead/empty, target the back row
+        targetIndex = backRowIndices[QRandomGenerator::global()->bounded(backRowIndices.size())];
+    }
+
+    if (targetIndex != -1) {
+        int damage = QRandomGenerator::global()->bounded(5, 15);
+        updatePartyMemberHealth(targetIndex, damage);
+    }
+}
+*/
 
 DungeonDialog::~DungeonDialog(){}

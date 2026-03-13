@@ -9,6 +9,8 @@
 struct Character {
 
     GameConstants::EntityStatuses status = GameConstants::Normal;
+    int row = 0; // 0 for Front, 1 for Back (Default to front)
+
     // --- Basic Info ---
     QString name;
     QString Race;
@@ -79,6 +81,7 @@ struct Character {
         map["DungeonY"]     = DungeonY;
         
         map["Inventory"]    = inventory;
+        map["row"]          = row;
         return map;
     }
 
@@ -112,8 +115,10 @@ struct Character {
         DungeonLevel = map.value("DungeonLevel", 0).toInt();
         DungeonX     = map.value("DungeonX", 0).toInt();
         DungeonY     = map.value("DungeonY", 0).toInt();
-        
+
+        row          = map.value("row", 0).toInt();        
         inventory    = map.value("Inventory").toStringList();
+
     }
 };
 

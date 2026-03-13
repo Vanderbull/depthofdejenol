@@ -83,6 +83,15 @@ private:
     QString statusKey(GameConstants::EntityStatus effect) const;
 
 public:
+    QList<Character>& getPartyMembers() { return m_currentParty.members; }
+
+    Character& getPartyMember(int index);
+    bool isWholePartyDead() const;
+    
+    // To support the targeting logic, you may also need:
+    Party& getParty() { return m_currentParty; }
+
+
     int getMonsterXpReward(const QString& monsterName);
     void addExperienceToParty(int totalXp);
     void addExperienceToCharacter(int index, int amount);
