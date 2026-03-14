@@ -1166,6 +1166,9 @@ void DungeonDialog::keyPressEvent(QKeyEvent *event)
         case Qt::Key_R:
             on_restButton_clicked();
             break;
+        case Qt::Key_Z:
+            attemptFlee();
+            break;
         case Qt::Key_S:
             on_spellButton_clicked();
             break;
@@ -2144,5 +2147,50 @@ int DungeonDialog::calculateWeaponDamage(int memberIndex) {
     return qMax(1, totalDamage);
 }
 
+void DungeonDialog::attemptFlee() {
+    GameStateManager* gsm = GameStateManager::instance();
+    auto& members = gsm->getParty().members;
+
+    // 1. Calculate Average Party Dexterity
+    int totalDex = 0;
+    int livingCount = 0;
+    for (const auto& member : members) {
+        if (member.isAlive) {
+            totalDex += member.dexterity;
+            livingCount++;
+        }
+    }
+    
+    if (livingCount == 0) return;
+    int avgDex = totalDex / livingCount;
+
+    // 2. Get Monster Speed
+    // (Assuming a baseline speed of 10 if monster data isn't currently targeted)
+    int monsterSpeed = 10; 
+
+    // 3. Roll for success
+    int partyRoll = avgDex + QRandomGenerator::global()->bounded(1, 20);
+    int monsterRoll = monsterSpeed + QRandomGenerator::global()->bounded(1, 20);
+
+    if (partyRoll >= monsterRoll) {
+        logMessage("<font color='#00FF00'>Success! The party flees the encounter.</font>");
+        // Return player to a safe state or move them back one tile
+        movePlayer(0, 0, 0); 
+    } else {
+        logMessage("<font color='#FF0000'>Failed to flee! The monster gets a free attack!</font>");
+        
+        // 4. Penalty: Free attack on a random living member
+        QList<int> livingIndices;
+        for (int i = 0; i < members.size(); ++i) {
+            if (members[i].isAlive) livingIndices.append(i);
+        }
+
+        if (!livingIndices.isEmpty()) {
+            int targetIdx = livingIndices[QRandomGenerator::global()->bounded(livingIndices.size())];
+            int damage = QRandomGenerator::global()->bounded(3, 10);
+            updatePartyMemberHealth(targetIdx, damage);
+        }
+    }
+}
 
 DungeonDialog::~DungeonDialog(){}

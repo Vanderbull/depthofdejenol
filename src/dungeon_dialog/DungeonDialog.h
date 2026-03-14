@@ -106,6 +106,7 @@ private slots:
     void togglePartyInfo();
     
 private:
+    void attemptFlee();
     void executeMonsterTurn();
 
     QPushButton* m_fightButton;
