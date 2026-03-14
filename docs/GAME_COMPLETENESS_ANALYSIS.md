@@ -36,7 +36,7 @@ The current combat is a bare-minimum prototype. It only damages the character at
 - **Party-wide combat** — All 4 party members should fight, take damage, and die independently. Front-row vs. back-row positioning would add tactical depth (warriors up front, mages in back). ( ONGOING, TESTING )
 - **Equipment-driven damage** — Weapon `att`, `swings`, `damageMod`, and `levelScale` from MDATA3 are already defined but never used in combat. Hook them up. Defense (`def`) should reduce incoming damage. ( IMPLEMENTED, TESTING)
 - **Spell combat integration** — `SpellCastingDialog` returns `SpellResult` with damage/healing, but this isn't wired into the combat loop. Spells should be a combat action alongside Attack and Defend. ( IMPLEMENTED BUT BUGGY )
-- **Flee/Run** — Allow the party to attempt to flee. Base success on party DEX vs. monster speed. Failed flee = free monster attack.
+- **Flee/Run** — Allow the party to attempt to flee. Base success on party DEX vs. monster speed. Failed flee = free monster attack. ( IMPLEMENTED BUT BUGGY )
 - **Critical hits and misses** — Small chance for double damage or complete whiff based on stats and level.
 - **Status effects in combat** — Poison dealing DoT per turn, Blind reducing hit chance, Confusion causing friendly fire. The status flags exist in `GameConstants` but aren't applied.
 - **Monster AI** — Monsters should choose between attacking, casting spells, or fleeing based on HP thresholds. Some monsters should target the weakest party member or the healer.
