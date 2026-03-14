@@ -1878,6 +1878,65 @@ void DungeonDialog::togglePartyInfo() {
     }
 }
 
+void DungeonDialog::on_spellButton_clicked() {
+    // Pass m_isFighting to the constructor so the dialog knows context
+    SpellCastingDialog* scd = new SpellCastingDialog(this, m_isFighting);
+    
+    // Use the correct signal: spellCast(QString, SpellResult)
+    connect(scd, &SpellCastingDialog::spellCast, this, [this](const QString& name, const SpellResult& result) {
+        if (!result.success) {
+            logMessage(QString("The spell %1 failed: %2").arg(name, result.message));
+        } else {
+            // 1. Handle Damage
+            if (result.damageDealt > 0) {
+                m_activeMonsterHP -= result.damageDealt;
+                logMessage(QString("The %1 spell hits the %2 for %3 damage!")
+                           .arg(name)
+                           .arg(m_activeMonsterName)
+                           .arg(result.damageDealt));
+
+                if (m_activeMonsterHP <= 0) {
+                    logMessage(QString("<font color='green'>The %1 is vaporized!</font>").arg(m_activeMonsterName));
+                    m_isFighting = false;
+                    if (m_combatTimer) m_combatTimer->stop();
+                    
+                    // Remove monster from map
+                    QPair<int, int> pos = getCurrentPosition();
+                    m_monsterPositions.remove(pos);
+                    renderWireframeView();
+                }
+            }
+
+            // 2. Handle Healing
+            if (result.healingDone > 0) {
+                int activeIdx = GameStateManager::instance()->getGameValue("ActiveCharacterIndex").toInt();
+                Character& chr = GameStateManager::instance()->getPartyMember(activeIdx);
+                
+                int oldHp = chr.hp;
+                chr.hp = qMin(chr.maxHp, chr.hp + result.healingDone);
+                
+                logMessage(QString("%1 is healed for %2 HP.").arg(chr.name).arg(chr.hp - oldHp));
+                GameStateManager::instance()->refreshUI();
+            }
+
+            // 3. Log the flavor message from the spell result
+            if (!result.message.isEmpty() && result.damageDealt == 0 && result.healingDone == 0) {
+                logMessage(result.message);
+            }
+        }
+
+        // 4. Advance the turn if combat is still active
+        // This ensures the monster gets to act after the player casts a spell
+        if (m_isFighting) {
+            advanceTurn();
+        }
+    });
+
+    scd->setAttribute(Qt::WA_DeleteOnClose);
+    scd->show();
+}
+
+/*
 void DungeonDialog::on_spellButton_clicked() 
 { 
     logMessage("You try to cast some sort of spell but fail."); 
@@ -1898,7 +1957,7 @@ void DungeonDialog::on_spellButton_clicked()
     
     // Connect spell effects to dungeon actions
     connect(spellDialog, &SpellCastingDialog::spellCast, this, 
-            [this](const QString& /*spellName*/, const SpellResult& result) {
+            [this](const QString& /*spellName*//*, const SpellResult& result) {
         
     logMessage(QString("<font color='cyan'>%1</font>").arg(result.message));
         
@@ -1950,6 +2009,7 @@ void DungeonDialog::on_spellButton_clicked()
     
     spellDialog->exec();
 }
+*/
 
 void DungeonDialog::cleanupCombat() {
     m_isFighting = false;
