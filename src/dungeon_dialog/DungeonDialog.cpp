@@ -1,3 +1,4 @@
+
 #include "src/character_dialog/CharacterDialog.h"
 #include "DungeonDialog.h"
 #include "DungeonHandlers.h"
@@ -1017,7 +1018,16 @@ void DungeonDialog::processCombatTick()
 */
 
 void DungeonDialog::performPlayerAttack() {
+
+    int roll = QRandomGenerator::global()->bounded(1, 21);
     int damage = QRandomGenerator::global()->bounded(5, 15);
+
+    if (roll == 1) { 
+        logMessage("Critical Miss!"); return; 
+    }
+    if (roll == 20) { 
+        damage *= 2; logMessage("Critical Hit!"); 
+    }
     m_activeMonsterHP -= damage;
     logMessage(QString("You hit the monster for %1 damage!").arg(damage));
 
@@ -1031,16 +1041,23 @@ void DungeonDialog::performPlayerAttack() {
         m_monsterPositions.remove(pos);
         renderWireframeView();
     }
-
     // AFTER the attack is done, move the initiative forward
     if (m_isFighting) {
         advanceTurn();
     }
-
 }
 
 void DungeonDialog::performMonsterAttack() {
+
+    int roll = QRandomGenerator::global()->bounded(1, 21);
     int damage = QRandomGenerator::global()->bounded(1, 10);
+
+    if (roll == 1) { 
+        logMessage("Critical Miss!"); return; 
+    }
+    if (roll == 20) { 
+        damage *= 2; logMessage("Critical Hit!"); 
+    }
     updatePartyMemberHealth(0, damage);
     logMessage(QString("<font color='red'>The monster hits you for %1 damage!</font>").arg(damage));
 }
