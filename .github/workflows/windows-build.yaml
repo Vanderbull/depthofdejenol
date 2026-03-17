@@ -1,0 +1,118 @@
+name: Qt 6 Multi-Platform Build & Release
+
+on:
+  push:
+    branches: [ "main", "develop" ]
+  pull_request:
+    branches: [ "main" ]
+  workflow_dispatch:
+  schedule:
+    - cron: '0 10 * * 5'
+
+jobs:
+  build:
+    name: Build on ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+            
+    runs-on: ${{ matrix.os }}
+          
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # --- LINUX SETUP ---
+      - name: Install Qt 6 (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential qmake6 qt6-base-dev qt6-multimedia-dev
+            
+      # --- WINDOWS SETUP ---
+      - name: Install Qt 6 (Windows)
+        if: runner.os == 'Windows'
+        uses: jurplel/install-qt-action@v3
+        with:
+          version: '6.5.0'
+          host: 'windows'
+          target: 'desktop'
+          arch: 'win64_msvc2019_64'
+          modules: 'qtmultimedia'
+
+      # --- CONFIGURE ---
+      - name: Configure project
+        # Uses qmake6 on Linux and the action-provided qmake on Windows
+        run: ${{ runner.os == 'Windows' && 'qmake' || 'qmake6' }}
+          
+      # --- COMPILE ---
+      - name: Compile project (Linux)
+        if: runner.os == 'Linux'
+        run: make
+
+      - name: Compile project (Windows)
+        if: runner.os == 'Windows'
+        run: nmake
+
+      # --- WINDOWS DEPLOYMENT ---
+      # Gathers the .exe and all required Qt DLLs into one folder
+      - name: Package Windows Binary
+        if: runner.os == 'Windows'
+        run: |
+          mkdir build_assets
+          copy *.exe build_assets\
+          windeployqt --dir build_assets build_assets\*.exe
+        
+      - name: Upload Windows Artifact
+        if: runner.os == 'Windows'
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-game-build
+          path: build_assets/
+
+  release:
+    needs: build
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Get current commit SHA as tag
+        id: tag
+        run: echo "RELEASE_TAG=v$(echo ${GITHUB_SHA} | cut -c1-7)" >> $GITHUB_OUTPUT
+
+      - name: Download Windows Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: windows-game-build
+          path: ./release-assets
+
+      - name: Zip Windows Release
+        run: zip -r windows-build.zip ./release-assets
+
+      - name: Create GitHub Release Draft
+        uses: actions/create-release@v1
+        id: create_release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ steps.tag.outputs.RELEASE_TAG }}
+          release_name: Release ${{ steps.tag.outputs.RELEASE_TAG }}
+          draft: true
+          prerelease: false
+          body: |
+            ## Automated Multi-Platform Build
+            This release includes the automated builds for commit ${{ github.sha }}.
+            
+      - name: Upload Windows Asset to Release
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./windows-build.zip
+          asset_name: windows-game-v${{ github.sha }}.zip
+          asset_content_type: application/zip
