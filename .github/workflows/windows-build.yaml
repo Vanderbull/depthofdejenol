@@ -42,6 +42,10 @@ jobs:
           modules: 'qtmultimedia'
 
       # --- CONFIGURE ---
+      - name: Set up MSVC Developer Command Prompt
+        if: runner.os == 'Windows'
+        uses: ilammy/msvc-dev-cmd@v1
+
       - name: Configure project
         # Uses qmake6 on Linux and the action-provided qmake on Windows
         run: ${{ runner.os == 'Windows' && 'qmake' || 'qmake6' }}
