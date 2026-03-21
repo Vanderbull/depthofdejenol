@@ -42,11 +42,19 @@ extern "C" {
 #include <QJsonArray>
 #include <QFile>
 
+// Forward declarations
+class PartyManager;
+
+
 class GameStateManager : public QObject
 {
     Q_OBJECT
 
 private:
+    // Use a pointer so the compiler doesn't need to know 
+    // the exact size of PartyManager yet.
+    PartyManager* m_partyManager;
+
     QTcpSocket* m_clientSocket;
     int m_tickCounter = 0;
 
@@ -70,70 +78,54 @@ private:
     void initializeParty();
 
     const GameConstants::RaceStat& getStatRef(const GameConstants::RaceStats& race, const QString& statName) const;
-    //QPixmap m_fontSpriteSheet;
 
     explicit GameStateManager(QObject *parent = nullptr);
     GameStateManager(const GameStateManager&) = delete;
     GameStateManager& operator=(const GameStateManager&) = delete;
 
-    DataRegistry m_registry; 
+    DataRegistry m_registry;
     QVariantMap findRaceMap(const QString& raceName) const;
     GameConstants::RaceStats createRaceFromVariant(const QVariant& data) const;
-    
     QString statusKey(GameConstants::EntityStatus effect) const;
 
-
 public:
+    QList<Character>& getPartyMembers();
+    Party& getParty();
+    const QList<Character>& getPC() const;
+    bool isActiveCharacterInCity() const;
+    void setCurrentMana(int value);
+    int getMaxMana() const;
+    int getCurrentMana() const;
     QVariantMap getItemStats(const QString& itemName) const;
-
-
-    QList<Character>& getPartyMembers() { return m_currentParty.members; }
-
     Character& getPartyMember(int index);
     bool isWholePartyDead() const;
-    
-    // To support the targeting logic, you may also need:
-    Party& getParty() { return m_currentParty; }
-
-
     int getMonsterXpReward(const QString& monsterName);
     void addExperienceToParty(int totalXp);
     void addExperienceToCharacter(int index, int amount);
-
     Character getCurrentCharacter() const;
     bool hasLivingCharacters() const;
-
     int getCurrentCharacterIndex() const { return m_currentCharacterIndex; }
     void setCurrentCharacterIndex(int index) { m_currentCharacterIndex = index; }
-
     bool savePartyToFile(const QString& filePath);
     bool loadPartyFromFile(const QString& filePath);
-
     void addCharacterToParty(const Character& character);
-
     bool loadLuaScript(const QString& filePath);
-    // Add to the public section of GameStateManager.h
     QString getLuaString(const QString& variableName);
-    
     void saveCharacterToLua(const Character& character, const QString& filePath);
     Character loadCharacterFromLua(const QString& filePath);
-
     static GameStateManager* instance();
     bool loadGameConfig(const QString& filePath);
     void refreshUI();
-
     // --- Race and Stat Definitions ---
     QVector<QString> getAvailableRaces() const;
     int getRaceMin(const QString& raceName, const QString& statName) const;
     int getRaceMax(const QString& raceName, const QString& statName) const;
-    
     int getRaceStart(const QString& raceName, const QString& statName) const {
         for (const auto& race : m_raceDefinitions) {
             if (race.raceName == raceName) return getStatRef(race, statName).start;
         }
         return 1;
     }
-
     bool isAlignmentAllowed(const QString& raceName, const QString& alignmentName) const {
         for (const auto& race : m_raceDefinitions) {
             if (race.raceName == raceName) {
@@ -144,7 +136,6 @@ public:
         }
         return false;
     }
-
     bool isGuildAllowed(const QString& raceName, const QString& guildName) const {
         for (const auto& race : m_raceDefinitions) {
             if (race.raceName == raceName) {
@@ -153,21 +144,16 @@ public:
         }
         return true;
     }
-
     void loadRaceDefinitions();
     const QVector<GameConstants::RaceStats>& getRaceDefinitions() const { return m_raceDefinitions; }
     GameConstants::RaceStats getStatsForRace(const QString& raceName) const;
-
     // --- Font and Rendering ---
     void loadFontSprite(const QString& path);
     void drawCustomText(QPainter* painter, const QString& text, const QPoint& position);
     void setProportionalFont(const QFont& font);
     void setFixedFont(const QFont& font);
-    //QFont getProportionalFont() const { return m_proportionalFont; }
-    //QFont getFixedFont() const { return m_fixedFont; }
     QFont getProportionalFont() const { return FontManager::instance()->proportionalFont(); }
     QFont getFixedFont() const { return FontManager::instance()->fixedFont(); }
-
     // --- Party and World Objects ---
     struct PlacedItem {
         int level; int x; int y; QString itemName;
@@ -177,14 +163,11 @@ public:
     }
     QList<PlacedItem> getPlacedItems() const { return m_placedItems; }
     QVector<GameConstants::RaceStats> m_raceDefinitions;
-
     // --- Character Management ---
-    const QList<Character>& getPC() const { return m_currentParty.members; }
     void setCharacterGold(int index, qulonglong newGold);
     void updateCharacterGold(int characterIndex, qulonglong amount, bool add = true);
     void updatePartyMemberHP(int index, int newHP);
     bool readyBodyForResurrection(const QString& characterName);
-    
     // --- Aging and Progression ---
     void incrementPartyAge(int years = 1);
     void processAgingConsequences();
@@ -192,50 +175,19 @@ public:
     bool isCharacterPastMaxAge(int index) const;
     static QMap<QString, int> getRaceAgeLimits();
     void addCharacterExperience(qulonglong amount);
-
     // --- City/Dungeon State ---
     void setInCity(bool inCity) { setGameValue("inCity", inCity); }
     bool isInCity() const { return m_gameStateData.value("inCity", false).toBool(); }
-
-    bool isActiveCharacterInCity() const {
-        // 1. Safety check: Is there even a party?
-        if (m_currentParty.members.isEmpty()) {
-            return true; // Default to city if no party exists
-        }
-
-        // 2. Get the index of the character the player is currently controlling
-        int idx = getCurrentCharacterIndex();
-
-        // 3. Bounds check to ensure the index is valid
-        if (idx >= 0 && idx < m_currentParty.members.size()) {
-            // In your system, DungeonLevel 0 usually represents the City/Overworld
-            return m_currentParty.members[idx].DungeonLevel == 0;
-        }
-
-        // 4. Fallback: check the party leader (index 0) if current index is invalid
-        return m_currentParty.members[0].DungeonLevel == 0;
-    }
-
-/*    
-    bool isActiveCharacterInCity() const {
-        if (m_PC.isEmpty()) return false;
-        return m_PC[0].DungeonLevel == 0;
-    }
-*/
     // --- Data Accessors (M-DATA) ---
-    void loadGameData(const QString& filePath); 
+    void loadGameData(const QString& filePath);
     void listGameData();
     const QList<QVariantMap>& gameData() const { return m_gameData; }
-    
-    void loadSpellData(const QString& filePath); 
+    void loadSpellData(const QString& filePath);
     const QList<QVariantMap>& spellData() const { return m_spellData; }
-    
     void loadItemData(const QString& filePath);
     const QList<QVariantMap>& itemData() const { return m_itemData; }
-    
     void loadMonsterData(const QString& filePath);
     const QList<QVariantMap>& monsterData() const { return m_monsterData; }
-    
     QVariantMap getGame(int index) const {
         return (index >= 0 && index < m_gameData.size()) ? m_gameData[index] : QVariantMap();
     }
@@ -248,7 +200,6 @@ public:
     QVariantMap getMonster(int index) const {
         return (index >= 0 && index < m_monsterData.size()) ? m_monsterData[index] : QVariantMap();
     }
-
     // --- Inventory and Stock ---
     void incrementStock(const QString& name);
     void decrementStock(const QString& name);
@@ -257,7 +208,6 @@ public:
     QStringList getBankInventory() const;
     void setCharacterInventory(int characterIndex, const QStringList& items);
     void addItemToCharacter(int characterIndex, const QString& itemName);
-
     // --- Persistence ---
     bool loadCharacterFromFile(const QString& characterName);
     bool saveCharacterToFile(int partyIndex);
@@ -265,29 +215,23 @@ public:
     bool repairSaveGame(const QString& characterName);
     void startAutosave(int intervalms = 10000);
     void stopAutosave();
-
     // --- Global Values System ---
     void setGameValue(const QString& key, const QVariant& value);
     QVariant getGameValue(const QString& key) const;
     void logGuildAction(const QString& actionDescription);
-    
     // --- Status Flags ---
     // For World Events: setGlobalStatus("WorldOnFire", true);
-    void setGlobalStatus(const QString& key, bool active) { 
-        setGameValue("status_" + key, active); 
+    void setGlobalStatus(const QString& key, bool active) {
+        setGameValue("status_" + key, active);
     }
-
-    bool hasGlobalStatus(const QString& key) const { 
-        return getGameValue("status_" + key).toBool(); 
+    bool hasGlobalStatus(const QString& key) const {
+        return getGameValue("status_" + key).toBool();
     }
-    
     void setCharacterStatus(int index, GameConstants::EntityStatus effect, bool active);
     bool hasCharacterStatus(int index, GameConstants::EntityStatus effect) const;
-    
     void setStatus(GameConstants::EntityStatus effect, bool active);
     bool hasStatus(GameConstants::EntityStatus effect) const;
     void clearAllStatuses();
-    
     void setCharacterPoisoned(bool isPoisoned);
     bool isCharacterPoisoned() const;
     void setCharacterBlinded(bool isBlinded);
@@ -296,57 +240,7 @@ public:
     bool isCharacterOnFire() const;
     void setIsAlive(int alive) { setGameValue("isAlive", alive); }
     int getIsAlive() const { return m_gameStateData.value("isAlive").toInt(); }
-
-    // --- Mana Management ---
-    // Inside GameStateManager.h
-    void setCurrentMana(int val) {
-        int idx = getCurrentCharacterIndex();
-        int cappedMana = qBound(0, val, getMaxMana());
-        
-        // Change m_PC[idx] to m_currentParty.members[idx]
-        if (idx >= 0 && idx < m_currentParty.members.size()) {
-            m_currentParty.members[idx].mana = cappedMana;
-        }
-    }
-
-    // Update your mana functions to use the new Party structure
-    int getMaxMana() const {
-        int idx = getCurrentCharacterIndex();
-        if (idx >= 0 && idx < m_currentParty.members.size()) {
-            return m_currentParty.members[idx].maxMana;
-        }
-        return 0;
-    }
-
-    int getCurrentMana() const {
-        int idx = getCurrentCharacterIndex();
-        if (idx >= 0 && idx < m_currentParty.members.size()) {
-            return m_currentParty.members[idx].mana;
-        }
-        return 0;
-    }
-/*
-    int getCurrentMana() const {
-        int idx = m_gameStateData.value("ActiveCharacterIndex", 0).toInt();
-        if (idx >= 0 && idx < m_PC.size()) return m_PC[idx].mana;
-        return m_gameStateData.value("CurrentMana", 0).toInt();
-    }
-
-    int getMaxMana() const {
-        int idx = m_gameStateData.value("ActiveCharacterIndex", 0).toInt();
-        if (idx >= 0 && idx < m_PC.size()) return m_PC[idx].maxMana;
-        return m_gameStateData.value("MaxMana", 0).toInt();
-    }
-
-    void setCurrentMana(int mana) {
-        int cappedMana = qMax(0, qMin(mana, getMaxMana()));
-        int idx = m_gameStateData.value("ActiveCharacterIndex", 0).toInt();
-        if (idx >= 0 && idx < m_PC.size()) m_PC[idx].mana = cappedMana;
-        else setGameValue("CurrentMana", cappedMana);
-    }
-*/
     void setMaxMana(int maxMana) { setGameValue("MaxMana", maxMana); }
-
     bool spendMana(int cost) {
         int current = getCurrentMana();
         if (current >= cost) {
@@ -355,11 +249,9 @@ public:
         }
         return false;
     }
-
     void restoreMana(int amount) {
         setCurrentMana(getCurrentMana() + amount);
     }
-
     // --- Diagnostics ---
     void performSanityCheck();
     void printAllGameState() const;
@@ -376,17 +268,9 @@ private slots:
 
 private:
     int m_currentCharacterIndex = 0;
-    //QFont m_proportionalFont;
-    //QFont m_fixedFont;
-
-    //QVariantList party; 
-    //QList<Character> m_PC;
-    Party m_currentParty; // This replaces QList<Character> m_PC and QVariantList party
-
     QList<PlacedItem> m_placedItems;
     QVariantMap m_gameStateData;
     QMap<QString, int> m_confinementStock;
-
     QList<QVariantMap> m_gameData;
     QList<QVariantMap> m_spellData;
     QList<QVariantMap> m_itemData;

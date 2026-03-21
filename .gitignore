@@ -65,3 +65,4 @@ compile_commands.json
 .cache/
 build/
 
+.aider*

@@ -119,8 +119,13 @@ SOURCES += src/spell_casting/SpellCastingDialog.cpp
 HEADERS += FontManager.h
 SOURCES += FontManager.cpp
 
-HEADERS += src/partymanager/PartyManager.h
-SOURCES += src/partymanager/PartyManager.cpp
+HEADERS += \
+    src/PartyManager.h \
+ 
+
+SOURCES += \
+    src/PartyManager.cpp \
+    # ... other sources ...
 #--------------------------------------------------
 # Post-Link Operations
 #--------------------------------------------------

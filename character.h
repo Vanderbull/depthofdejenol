@@ -6,6 +6,8 @@
 #include <QVariantMap>
 #include <QDateTime>
 
+#include "src/core/GameConstants.h"
+
 struct Character {
 
     GameConstants::EntityStatuses status = GameConstants::Normal;
