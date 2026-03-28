@@ -52,107 +52,20 @@ struct Character {
 
     // --- Serialization: TO MAP ---
     // Use this for saving to JSON or passing data to QML/UI
-    QVariantMap toMap() const {
-        QVariantMap map;
-        map["Name"]         = name;
-        map["Race"]         = Race;
-        map["Age"]          = Age;
-        map["Level"]        = level;
-        map["Experience"]   = experience;
-        map["HP"]           = hp;
-        map["MaxHP"]        = maxHp;
-        map["Gold"]         = Gold;
-        
-        map["Strength"]     = strength;
-        map["Intelligence"] = intelligence;
-        map["Wisdom"]       = wisdom;
-        map["Constitution"] = constitution;
-        map["Charisma"]     = charisma;
-        map["Dexterity"]    = dexterity;
-
-        map["Mana"]         = mana;
-        map["MaxMana"]      = maxMana;
-        
-        map["Poisoned"]     = poisoned;
-        map["Blinded"]      = blinded;
-        map["Diseased"]     = diseased;
-        map["isAlive"]      = isAlive;
-        
-        map["DungeonLevel"] = DungeonLevel;
-        map["DungeonX"]     = DungeonX;
-        map["DungeonY"]     = DungeonY;
-        
-        map["Inventory"]    = inventory;
-        map["row"]          = row;
-        return map;
-    }
+    QVariantMap toMap() const;
 
     // --- Serialization: FROM MAP ---
     // Use this when loading from a save file or registry
-    void loadFromMap(const QVariantMap &map) {
-        name         = map.value("Name").toString();
-        Race         = map.value("Race").toString();
-        Age          = map.value("Age", 18).toInt();
-        level        = map.value("Level", 1).toInt();
-        experience   = map.value("Experience", 0).toInt();
-        hp           = map.value("HP").toInt();
-        maxHp        = map.value("MaxHP").toInt();
-        Gold         = map.value("Gold").toInt();
-        
-        strength     = map.value("Strength").toInt();
-        intelligence = map.value("Intelligence").toInt();
-        wisdom       = map.value("Wisdom").toInt();
-        constitution = map.value("Constitution").toInt();
-        charisma     = map.value("Charisma").toInt();
-        dexterity    = map.value("Dexterity").toInt();
-
-        mana         = map.value("Mana", 0).toInt();
-        maxMana      = map.value("MaxMana", 0).toInt();
-        
-        poisoned     = map.value("Poisoned", false).toBool();
-        blinded      = map.value("Blinded", false).toBool();
-        diseased     = map.value("Diseased", false).toBool();
-        isAlive      = map.value("isAlive", true).toBool();
-        
-        DungeonLevel = map.value("DungeonLevel", 0).toInt();
-        DungeonX     = map.value("DungeonX", 0).toInt();
-        DungeonY     = map.value("DungeonY", 0).toInt();
-
-        row          = map.value("row", 0).toInt();        
-        inventory    = map.value("Inventory").toStringList();
-
-    }
+    void loadFromMap(const QVariantMap &map);
 };
 
 struct Party {
     QList<Character> members;
     int sharedGold = 0;
 
-    QVariantMap toMap() const {
-        QVariantMap map;
-        QVariantList charList;
+    QVariantMap toMap() const;
 
-        // Use a standard index-based loop to avoid iterator scope issues
-        for (int i = 0; i < members.size(); ++i) {
-            charList.append(members.at(i).toMap());
-        }
-        
-        map["Members"] = charList;
-        map["SharedGold"] = sharedGold;
-        return map;
-    }
-
-    void loadFromMap(const QVariantMap &map) {
-        sharedGold = map.value("SharedGold", 0).toInt();
-        QVariantList charList = map.value("Members").toList();
-        
-        members.clear();
-        for (int i = 0; i < charList.size(); ++i) {
-            Character c;
-            c.loadFromMap(charList.at(i).toMap());
-            members.append(c);
-        }
-    }
+    void loadFromMap(const QVariantMap &map);
 };
 
 #endif // CHARACTER_H

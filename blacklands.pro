@@ -121,6 +121,10 @@ SOURCES += FontManager.cpp
 
 HEADERS += src/partymanager/PartyManager.h
 SOURCES += src/partymanager/PartyManager.cpp
+
+HEADERS += character.h
+SOURCES += character.cpp
+
 #--------------------------------------------------
 # Post-Link Operations
 #--------------------------------------------------
