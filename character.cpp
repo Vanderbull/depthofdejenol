@@ -5,13 +5,13 @@
 QVariantMap Character::toMap() const {
     QVariantMap map;
     map["Name"]         = name;
-    map["Race"]         = Race;
-    map["Age"]          = Age;
+    map["Race"]         = race;
+    map["Age"]          = age;
     map["Level"]        = level;
     map["Experience"]   = experience;
     map["HP"]           = hp;
     map["MaxHP"]        = maxHp;
-    map["Gold"]         = Gold;
+    map["Gold"]         = gold;
     
     map["Strength"]     = strength;
     map["Intelligence"] = intelligence;
@@ -28,9 +28,9 @@ QVariantMap Character::toMap() const {
     map["Diseased"]     = diseased;
     map["isAlive"]      = isAlive;
     
-    map["DungeonLevel"] = DungeonLevel;
-    map["DungeonX"]     = DungeonX;
-    map["DungeonY"]     = DungeonY;
+    map["DungeonLevel"] = dungeonLevel;
+    map["DungeonX"]     = dungeonX;
+    map["DungeonY"]     = dungeonY;
     
     map["Inventory"]    = inventory;
     map["row"]          = row;
@@ -39,13 +39,13 @@ QVariantMap Character::toMap() const {
 
 void Character::loadFromMap(const QVariantMap &map) {
     name         = map.value("Name").toString();
-    Race         = map.value("Race").toString();
-    Age          = map.value("Age", 18).toInt();
+    race         = map.value("Race").toString();
+    age          = map.value("Age", 18).toInt();
     level        = map.value("Level", 1).toInt();
     experience   = map.value("Experience", 0).toInt();
     hp           = map.value("HP").toInt();
     maxHp        = map.value("MaxHP").toInt();
-    Gold         = map.value("Gold").toInt();
+    gold         = map.value("Gold").toInt();
     
     strength     = map.value("Strength").toInt();
     intelligence = map.value("Intelligence").toInt();
@@ -62,9 +62,9 @@ void Character::loadFromMap(const QVariantMap &map) {
     diseased     = map.value("Diseased", false).toBool();
     isAlive      = map.value("isAlive", true).toBool();
     
-    DungeonLevel = map.value("DungeonLevel", 0).toInt();
-    DungeonX     = map.value("DungeonX", 0).toInt();
-    DungeonY     = map.value("DungeonY", 0).toInt();
+    dungeonLevel = map.value("DungeonLevel", 0).toInt();
+    dungeonX     = map.value("DungeonX", 0).toInt();
+    dungeonY     = map.value("DungeonY", 0).toInt();
 
     row          = map.value("row", 0).toInt();        
     inventory    = map.value("Inventory").toStringList();

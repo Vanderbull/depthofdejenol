@@ -143,7 +143,7 @@ void MorgueDialog::onActionClicked()
 
     if (action == tr("Hire Rescuers")) {
         int cost = calculateRescueCost(currentInfo.dungeonLevel);
-        qulonglong currentGold = gsm->getPC().at(0).Gold;
+        qulonglong currentGold = gsm->getPC().at(0).gold;
 
         if (currentGold < (qulonglong)cost) {
             QMessageBox::warning(this, tr("Funds"), tr("Rescue requires %1 gold.").arg(cost));

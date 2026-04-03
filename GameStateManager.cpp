@@ -514,10 +514,10 @@ void GameStateManager::addItemToCharacter(int characterIndex, const QString& ite
 void GameStateManager::updateCharacterGold(int characterIndex, qulonglong amount, bool add) {
     auto& members = m_partyManager->currentParty().members;
     if (characterIndex >= 0 && characterIndex < members.size()) {
-        if (add) members[characterIndex].Gold += amount;
+        if (add) members[characterIndex].gold += amount;
         else {
-            qulonglong current = members[characterIndex].Gold;
-            members[characterIndex].Gold = (amount > current) ? 0 : current - amount;
+            qulonglong current = members[characterIndex].gold;
+            members[characterIndex].gold = (amount > current) ? 0 : current - amount;
         }
         refreshUI();
     }
@@ -629,7 +629,7 @@ bool GameStateManager::loadCharacterFromFile(const QString& filePath) {
     setCurrentCharacterIndex(0);
     
     // Sync the "Global" Age variable used by your older systems
-    setGameValue("CurrentCharacterAge", loadedChar.Age);
+    setGameValue("CurrentCharacterAge", loadedChar.age);
 
     // 5. THE "BRIDGE" TO THE UI
     // This is the most important line. It takes our C++ struct, turns it into
@@ -1006,9 +1006,9 @@ bool GameStateManager::isCharacterPastMaxAge(int index) const
     if (index < 0 || index >= m_partyManager->currentParty().members.size()) return false;
 
     const Character& c = m_partyManager->currentParty().members.at(index);
-    int maxAge = getMaxAgeForRace(c.Race); // Now resolves!
+    int maxAge = getMaxAgeForRace(c.race); // Now resolves!
     
-    return (c.Age >= maxAge); // Now resolves!
+    return (c.age >= maxAge); // Now resolves!
 }
 
 void GameStateManager::incrementPartyAge(int years)
@@ -1016,7 +1016,7 @@ void GameStateManager::incrementPartyAge(int years)
     // 1. Update the internal Character structs (m_PC)
     for (int i = 0; i < m_partyManager->currentParty().members.size(); ++i) {
         if (m_partyManager->currentParty().members[i].name != "Empty Slot") {
-            m_partyManager->currentParty().members[i].Age += years;
+            m_partyManager->currentParty().members[i].age += years;
         }
     }
 
@@ -1025,7 +1025,7 @@ void GameStateManager::incrementPartyAge(int years)
     for (int i = 0; i < partyList.size(); ++i) {
         QVariantMap characterMap = partyList[i].toMap();
         if (characterMap["Name"].toString() != "Empty Slot") {
-            characterMap["Age"] = m_partyManager->currentParty().members[i].Age;
+            characterMap["Age"] = m_partyManager->currentParty().members[i].age;
             partyList[i] = characterMap;
         }
     }
@@ -1036,7 +1036,7 @@ void GameStateManager::incrementPartyAge(int years)
 
     // 4. Update the "CurrentCharacterAge" global value if index 0 changed
     if (!m_partyManager->currentParty().members.isEmpty()) {
-        setGameValue("CurrentCharacterAge", m_partyManager->currentParty().members[0].Age);
+        setGameValue("CurrentCharacterAge", m_partyManager->currentParty().members[0].age);
     }
 
     qDebug() << "The party has aged by" << years << "year(s).";
@@ -1053,7 +1053,7 @@ void GameStateManager::processAgingConsequences() {
     for (int i = 0; i < m_partyManager->currentParty().members.size(); ++i) {
         Character &pc = m_partyManager->currentParty().members[i];
 
-        if (pc.Age > 70) {
+        if (pc.age > 70) {
             // QRandomGenerator::global()->bounded(100) returns a 0-99 value
             if (QRandomGenerator::global()->bounded(100) < 10) { 
                 pc.strength = qMax(3, pc.strength - 1);
@@ -1078,7 +1078,7 @@ void GameStateManager::processAgingConsequences()
             // Log the event
             QString deathMsg = QString("%1 has passed away peacefully of old age at %2.")
                                .arg(m_PC[i].name)
-                               .arg(m_PC[i].Age);
+                               .arg(m_PC[i].age);
             logGuildAction(deathMsg);
             qDebug() << deathMsg;
 
@@ -1545,9 +1545,9 @@ Character GameStateManager::loadCharacterFromLua(const QString& filePath) {
 
         // 3. Map Lua values back to C++ variables
         c.name = data["Name"].toString();
-        c.Race = data["Race"].toString();
+        c.race = data["Race"].toString();
         c.level = data["Level"].toInt();
-        c.Gold = data["Gold"].toInt();
+        c.gold = data["Gold"].toInt();
 
         // Handle nested Stats table
         if (data.contains("Stats")) {
@@ -1900,9 +1900,9 @@ bool GameStateManager::isActiveCharacterInCity() const {
 
     int idx = m_currentCharacterIndex;
     if (idx >= 0 && idx < members.size()) {
-        return members[idx].DungeonLevel == 0;
+        return members[idx].dungeonLevel == 0;
     }
-    return members[0].DungeonLevel == 0;
+    return members[0].dungeonLevel == 0;
 }
 void GameStateManager::setGameMode(GameConstants::GameMode newMode) {
     if (m_currentMode == newMode) return;

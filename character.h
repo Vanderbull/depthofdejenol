@@ -15,13 +15,13 @@ struct Character {
 
     // --- Basic Info ---
     QString name;
-    QString Race;
-    int Age = 18;
+    QString race;
+    int age = 18;
     int level = 1;
     int experience = 0;
     int hp = 10;
     int maxHp = 10;
-    int Gold = 0;
+    int gold = 0;
 
     // --- Stats ---
     int strength = 8;
@@ -42,9 +42,9 @@ struct Character {
     bool isAlive = true;
     
     // --- Location Data ---
-    int DungeonLevel = 0;
-    int DungeonX = 0;
-    int DungeonY = 0;
+    int dungeonLevel = 0;
+    int dungeonX = 0;
+    int dungeonY = 0;
 
     // --- Inventory ---
     //QStringList inventory;

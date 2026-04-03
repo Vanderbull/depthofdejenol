@@ -62,17 +62,17 @@ void GameMenu::paintEvent(QPaintEvent *event)
     GameStateManager::instance()->drawCustomText(&painter, "A B C D E F G H", QPoint(0, 0));
 }
 // Global function to launch Automap
-void launchAutomapDialog() 
+void launchAutomapDialog()
 {
-    AutomapDialog mapDialog(nullptr); 
-    mapDialog.show(); 
+    AutomapDialog mapDialog(nullptr);
+    mapDialog.show();
     qDebug() << "Automap dialog triggered";
 }
 
 GameMenu::GameMenu(QWidget *parent)
     : QWidget(parent)
     , m_settings("MyCompany", "MyApp")
-    , m_subfolderName(m_settings.value("Paths/SubfolderName", "data/characters").toString()) 
+    , m_subfolderName(m_settings.value("Paths/SubfolderName", "data/characters").toString())
 {
     GameStateManager::instance()->
 loadFontSprite("resources/images/font_spritesheet_transparent.png");
@@ -339,28 +339,22 @@ void GameMenu::startNewGame()
 
 void GameMenu::loadGame() {
     QString fileName = QFileDialog::getOpenFileName(this, tr("Open Character"), "data/characters", tr("Character Files (*.json *.lua)"));
-    
+
     if (fileName.isEmpty()) return;
 
     // 1. Tell the Manager to load the file into the new Party struct
     if (GameStateManager::instance()->loadCharacterFromFile(fileName)) {
-        
         // 2. Perform the "Living Character" check we just implemented
         if (GameStateManager::instance()->hasLivingCharacters()) {
-            
             // 3. Get the loaded character to update the "Global" state
             Character lead = GameStateManager::instance()->getCurrentCharacter();
-            
             // Sync the name and age to the global state (used by your Lua scripts)
             GameStateManager::instance()->setGameValue("CurrentCharacterName", lead.name);
-            GameStateManager::instance()->setGameValue("CurrentCharacterAge", lead.Age);
-            
+            GameStateManager::instance()->setGameValue("CurrentCharacterAge", lead.age);
             // 4. Force the UI to refresh with the new Party data
             GameStateManager::instance()->refreshUI();
-            
             // 5. Enable the "Play" and "Continue" buttons on your menu
-            toggleMenuState(true); 
-            
+            toggleMenuState(true);
             qDebug() << "SUCCESS: Character" << lead.name << "loaded and ready.";
         } else {
             QMessageBox::warning(this, tr("Load Error"), tr("The character in this file is deceased or invalid."));
@@ -371,7 +365,7 @@ void GameMenu::loadGame() {
     }
 }
 /*
-void GameMenu::loadGame() 
+void GameMenu::loadGame()
 {
     GameStateManager::instance()->startAutosave(10000);
 
