@@ -13,6 +13,28 @@
 #include <QDateTime>
 #include <QScrollBar>
 
+
+void TheCity::processLocation(GameConstants::CityLocation location) {
+    switch (location) {
+        case GameConstants::CityLocation::Tavern:
+            // Handle Tavern logic: recruit or rest
+            break;
+            
+        case GameConstants::CityLocation::Temple:
+            // Handle healing and resurrection
+            break;
+
+        case GameConstants::CityLocation::Guild:
+            // Access character bank and party management
+            break;
+
+        case GameConstants::CityLocation::Street:
+        default:
+            // Return to the main city hub
+            break;
+    }
+}
+
 TheCity::TheCity(QWidget *parent) :
     QDialog(parent)
 {

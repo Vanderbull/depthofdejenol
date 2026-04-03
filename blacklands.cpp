@@ -257,6 +257,35 @@ void GameMenu::onCharacterCreated(const QString &characterName)
 
 void GameMenu::onRunClicked() 
 {
+    AudioManager::instance()->stopAllAudio();
+
+    // 1. Check if our persistent handler exists; if not, build it once.
+    if (!m_cityHandler) {
+        m_cityHandler = new TheCity(this);
+        
+        // We still want the menu to reappear when the city "closes"
+        connect(m_cityHandler, &QDialog::finished, this, [this](int result){
+            Q_UNUSED(result);
+            GameStateManager::instance()->setGameMode(GameConstants::GameMode::Menu);
+            this->show();
+        });
+    }
+
+    // 2. Use our Enums to set the engine state
+    GameStateManager::instance()->setGameMode(GameConstants::GameMode::InCity);
+    
+    // 3. Tell the handler to prepare the specific 'Street' view
+    m_cityHandler->processLocation(GameConstants::CityLocation::Street);
+
+    // 4. Swap the visibility
+    this->hide(); 
+    m_cityHandler->show();
+    
+    qDebug() << "Switched to City View using persistent m_cityHandler";
+}
+/*
+void GameMenu::onRunClicked() 
+{
     // Example: Playing a sound effect or music in a different dialog
     AudioManager::instance()->stopAllAudio();
     // 1. Instantiate the City dialog
@@ -279,6 +308,8 @@ void GameMenu::onRunClicked()
     cityDialog->show();
     qDebug() << "Run Character clicked - GameMenu hidden, launching TheCity";
 }
+*/
+
 
 void GameMenu::onCharacterListClicked() 
 {

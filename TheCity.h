@@ -24,6 +24,8 @@ public:
     explicit TheCity(QWidget *parent = nullptr);
     ~TheCity();
 
+    void processLocation(GameConstants::CityLocation location);
+
 private slots:
     // Existing Action Slots
     void on_generalStoreButton_clicked();

@@ -1904,3 +1904,23 @@ bool GameStateManager::isActiveCharacterInCity() const {
     }
     return members[0].DungeonLevel == 0;
 }
+void GameStateManager::setGameMode(GameConstants::GameMode newMode) {
+    if (m_currentMode == newMode) return;
+
+    m_currentMode = newMode;
+    
+    // Architect's Note: When mode changes, we often need to swap UI pages
+    qDebug() << "Game Mode changed to:" << static_cast<int>(newMode);
+}
+
+void GameStateManager::enterLocation(GameConstants::CityLocation location) {
+    m_currentCityLocation = location;
+
+    // Use m_gameStateData to store the current location for persistence
+    m_gameStateData["currentLocation"] = static_cast<int>(location);
+    
+    // Architect's Tip: Use setGameValue if you want to notify the UI of the change
+    // setGameValue("currentLocation", static_cast<int>(location));
+
+    qDebug() << "Entered City Location:" << static_cast<int>(location);
+}

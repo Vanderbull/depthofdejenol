@@ -7,6 +7,25 @@
 #include <QString>
 
 namespace GameConstants {
+
+    enum class CityLocation {
+        None,
+        Street,
+        Tavern,
+        Temple,
+        Shop,
+        Guild,
+        Castle
+    };
+
+    enum class GameMode {
+        InCity,
+        Exploring,
+        Combat,
+        Menu,
+        GameOver
+    };
+
     enum EntityStatus {
         Normal    = 0,
         Poisoned  = 1 << 0,

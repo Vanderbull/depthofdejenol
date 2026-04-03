@@ -51,7 +51,9 @@ class GameStateManager : public QObject
     Q_OBJECT
 
 private:
-    // Use a pointer so the compiler doesn't need to know 
+    GameConstants::GameMode m_currentMode = GameConstants::GameMode::InCity;
+    GameConstants::CityLocation m_currentCityLocation = GameConstants::CityLocation::Street;
+    // Use a pointer so the compiler doesn't need to know
     // the exact size of PartyManager yet.
     PartyManager* m_partyManager;
 
@@ -89,6 +91,13 @@ private:
     QString statusKey(GameConstants::EntityStatus effect) const;
 
 public:
+    void setGameMode(GameConstants::GameMode newMode);
+    void enterLocation(GameConstants::CityLocation location);
+    
+    // Helper to get the current state for UI (if needed)
+    GameConstants::GameMode currentMode() const { return m_currentMode; }
+
+
     QList<Character>& getPartyMembers();
     Party& getParty();
     const QList<Character>& getPC() const;

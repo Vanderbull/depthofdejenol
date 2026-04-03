@@ -9,6 +9,8 @@
 
 #include "./src/event/EventManager.h" 
 
+class TheCity;
+
 class GameMenu : public QWidget {
     Q_OBJECT
 
@@ -41,6 +43,9 @@ private slots:
     void toggleMenuState(bool characterIsLoaded); 
 
 private:
+    // ARCHITECT EVOLUTION: Persistent reference to the city handler
+    TheCity *m_cityHandler = nullptr;
+
     QLabel *m_titleLabel = nullptr;
     QLabel *m_subTitleLabel = nullptr;
     QPushButton *m_newButton = nullptr;
@@ -55,7 +60,7 @@ private:
     // Member variables for state/config
     QSettings m_settings;
     QString m_subfolderName;
-    QPixmap m_backgroundPixmap;     
+    QPixmap m_backgroundPixmap;
 
 signals:
     void logMessageTriggered(const QString &message);
