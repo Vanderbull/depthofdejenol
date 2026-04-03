@@ -1,3 +1,4 @@
+
 #include "TheCity.h"
 #include "src/core/game_resources.h"
 #include "src/network_manager/NetworkManager.h"
@@ -16,20 +17,27 @@
 
 void TheCity::processLocation(GameConstants::CityLocation location) {
     switch (location) {
+        case GameConstants::CityLocation::GeneralStore:
+            titleLabel->setText("General Store - 'Supplies for the Brave'");
+            break;
+        case GameConstants::CityLocation::Bank:
+            titleLabel->setText("The Royal Bank - 'The gold is safe'");
+            break;
         case GameConstants::CityLocation::Tavern:
+            titleLabel->setText("Tavern - 'Have a beer'");
             // Handle Tavern logic: recruit or rest
             break;
-            
         case GameConstants::CityLocation::Temple:
+            titleLabel->setText("Temple - 'Pray you will win'");
             // Handle healing and resurrection
             break;
-
         case GameConstants::CityLocation::Guild:
+            titleLabel->setText("Guild - 'Where heros go'");
             // Access character bank and party management
             break;
-
         case GameConstants::CityLocation::Street:
         default:
+            titleLabel->setText("The City Square");
             // Return to the main city hub
             break;
     }
@@ -233,19 +241,32 @@ void TheCity::setupStyling()
 
 void TheCity::on_generalStoreButton_clicked() {
     NetworkManager::instance()->sendAction("enter_location", {{"location", "GeneralStore"}});
-    GeneralStore *store = new GeneralStore(this);
+    // 1. Update the Global State
+    GameStateManager::instance()->enterLocation(GameConstants::CityLocation::GeneralStore);
+    // 2. Trigger local processing (music, text updates, etc.)
+    processLocation(GameConstants::CityLocation::GeneralStore);
+    // 3. Open the Dialog
+    GeneralStore *store = new GeneralStore(nullptr);
     store->setAttribute(Qt::WA_DeleteOnClose);
-    store->show();
+
+    store->setWindowFlags(Qt::Dialog | Qt::WindowStaysOnTopHint);
+
+    // When the store closes, reset the title to "The City"
+    connect(store, &QDialog::finished, this, [this](){
+        this->processLocation(GameConstants::CityLocation::Street);
+    });
+
+    store->exec();
 }
 
 void TheCity::on_morgueButton_clicked() {
-    MorgueDialog *m = new MorgueDialog(this);
+    MorgueDialog *m = new MorgueDialog(nullptr);
     m->setAttribute(Qt::WA_DeleteOnClose);
     m->show();
 }
 
 void TheCity::on_guildsButton_clicked() {
-    GuildsDialog *g = new GuildsDialog(this);
+    GuildsDialog *g = new GuildsDialog(nullptr);
     g->setAttribute(Qt::WA_DeleteOnClose);
     g->show();
 }
@@ -259,21 +280,34 @@ void TheCity::on_dungeonButton_clicked() {
 }
 
 void TheCity::on_confinementButton_clicked() {
-    ConfinementAndHoldingDialog *c = new ConfinementAndHoldingDialog(this);
+    ConfinementAndHoldingDialog *c = new ConfinementAndHoldingDialog(nullptr);
     c->setAttribute(Qt::WA_DeleteOnClose);
     c->show();
 }
 
 void TheCity::on_seerButton_clicked() {
-    SeerDialog *s = new SeerDialog(this);
+    SeerDialog *s = new SeerDialog(nullptr);
     s->setAttribute(Qt::WA_DeleteOnClose);
     s->show();
 }
 
 void TheCity::on_bankButton_clicked() {
-    BankDialog *b = new BankDialog(this);
-    b->setAttribute(Qt::WA_DeleteOnClose);
-    b->show();
+    GameStateManager::instance()->enterLocation(GameConstants::CityLocation::Bank);
+    processLocation(GameConstants::CityLocation::Bank);
+
+    BankDialog *bank = new BankDialog(this);
+    bank->setAttribute(Qt::WA_DeleteOnClose);
+
+    // When the store closes, reset the title to "The City"
+    connect(bank, &QDialog::finished, this, [this](){
+        this->processLocation(GameConstants::CityLocation::Street);
+    });
+
+    bank->exec();
+
+    //BankDialog *b = new BankDialog(this);
+    //b->setAttribute(Qt::WA_DeleteOnClose);
+    //b->show();
 }
 
 void TheCity::on_exitButton_clicked() {

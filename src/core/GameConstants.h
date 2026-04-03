@@ -15,7 +15,8 @@ namespace GameConstants {
         Temple,
         Shop,
         Guild,
-        Castle
+        Bank,
+        GeneralStore
     };
 
     enum class GameMode {

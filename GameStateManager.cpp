@@ -1914,13 +1914,13 @@ void GameStateManager::setGameMode(GameConstants::GameMode newMode) {
 }
 
 void GameStateManager::enterLocation(GameConstants::CityLocation location) {
-    m_currentCityLocation = location;
+    if (m_currentCityLocation == location) return;
 
-    // Use m_gameStateData to store the current location for persistence
+    m_currentCityLocation = location;
     m_gameStateData["currentLocation"] = static_cast<int>(location);
     
-    // Architect's Tip: Use setGameValue if you want to notify the UI of the change
-    // setGameValue("currentLocation", static_cast<int>(location));
-
-    qDebug() << "Entered City Location:" << static_cast<int>(location);
+    // Emit a signal so the rest of the app knows the location changed
+    emit gameValueChanged("currentLocation", static_cast<int>(location));
+    
+    qDebug() << "Player entered:" << static_cast<int>(location);
 }
