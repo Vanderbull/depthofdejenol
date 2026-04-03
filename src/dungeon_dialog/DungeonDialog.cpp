@@ -182,7 +182,8 @@ void DungeonDialog::updatePartyMemberHealth(int memberIndex, int damage)
     logMessage(QString("%1 takes %2 damage (Mitigated: %3)!").arg(target.name).arg(finalDamage).arg(damage - finalDamage));
 
     if (target.hp <= 0) {
-        target.isAlive = false;
+        //target.isAlive = false;
+        target.addStatus(StatusFlag::Dead);
         logMessage(QString("<font color='red'>%1 has fallen!</font>").arg(target.name));
     }
 
@@ -2045,7 +2046,7 @@ void DungeonDialog::startCombatInitiative() {
     QList<Character> party = gsm->getPC(); 
 
     for (int i = 0; i < party.size(); ++i) {
-        if (!party[i].isAlive) continue;
+        if (!party[i].isAlive()) continue;
         Combatant p;
         p.name = party[i].name;
         p.initiative = QRandomGenerator::global()->bounded(1, 21) + (party[i].dexterity / 4);
@@ -2084,7 +2085,7 @@ void DungeonDialog::executeMonsterTurn() {
 
     // Filter living members into rows
     for (int i = 0; i < party.size(); ++i) {
-        if (!party[i].isAlive) continue;
+        if (!party[i].isAlive()) continue;
         
         // 0 is Front Row (Warriors), 1 is Back Row (Mages)
         if (party[i].row == 0) frontRowIndices.append(i);
@@ -2172,7 +2173,7 @@ void DungeonDialog::attemptFlee() {
     int totalDex = 0;
     int livingCount = 0;
     for (const auto& member : members) {
-        if (member.isAlive) {
+        if (member.isAlive()) {
             totalDex += member.dexterity;
             livingCount++;
         }
@@ -2199,7 +2200,7 @@ void DungeonDialog::attemptFlee() {
         // 4. Penalty: Free attack on a random living member
         QList<int> livingIndices;
         for (int i = 0; i < members.size(); ++i) {
-            if (members[i].isAlive) livingIndices.append(i);
+            if (members[i].isAlive()) livingIndices.append(i);
         }
 
         if (!livingIndices.isEmpty()) {

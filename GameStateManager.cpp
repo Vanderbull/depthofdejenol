@@ -1742,9 +1742,9 @@ bool GameStateManager::hasLivingCharacters() const {
         // - Name is not the default "Empty Slot"
         // - currentHP is greater than 0
         // - Status is 0 (assuming 0 = Healthy/Alive in your system)
-        if (character.name != "Empty Slot" && 
-            character.hp > 0 && 
-            character.isAlive) 
+        if (character.name != "Empty Slot" &&
+            character.hp > 0 &&
+            character.isAlive())
         {
             return true; // We found at least one living hero!
         }

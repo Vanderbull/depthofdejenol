@@ -23,10 +23,11 @@ QVariantMap Character::toMap() const {
     map["Mana"]         = mana;
     map["MaxMana"]      = maxMana;
     
-    map["Poisoned"]     = poisoned;
-    map["Blinded"]      = blinded;
-    map["Diseased"]     = diseased;
-    map["isAlive"]      = isAlive;
+    map["StatusFlags"] = statusFlags;
+//    map["Poisoned"]     = poisoned;
+//    map["Blinded"]      = blinded;
+//    map["Diseased"]     = diseased;
+//    map["isAlive"]      = isAlive;
     
     map["DungeonLevel"] = dungeonLevel;
     map["DungeonX"]     = dungeonX;
@@ -57,10 +58,11 @@ void Character::loadFromMap(const QVariantMap &map) {
     mana         = map.value("Mana", 0).toInt();
     maxMana      = map.value("MaxMana", 0).toInt();
     
-    poisoned     = map.value("Poisoned", false).toBool();
-    blinded      = map.value("Blinded", false).toBool();
-    diseased     = map.value("Diseased", false).toBool();
-    isAlive      = map.value("isAlive", true).toBool();
+    statusFlags  = map.value("StatusFlags", StatusFlag::None).toUInt();
+//    poisoned     = map.value("Poisoned", false).toBool();
+//    blinded      = map.value("Blinded", false).toBool();
+//    diseased     = map.value("Diseased", false).toBool();
+//    isAlive      = map.value("isAlive", true).toBool();
     
     dungeonLevel = map.value("DungeonLevel", 0).toInt();
     dungeonX     = map.value("DungeonX", 0).toInt();
@@ -68,6 +70,19 @@ void Character::loadFromMap(const QVariantMap &map) {
 
     row          = map.value("row", 0).toInt();        
     inventory    = map.value("Inventory").toStringList();
+}
+
+void Character::setDead() {
+    addStatus(StatusFlag::Dead);
+    hp = 0;
+    // When a character dies, we can reset their dungeon position 
+    // to "City" (0) so they appear in the Morgue/Temple list.
+    dungeonLevel = 0; 
+}
+
+void Character::resurrect() {
+    removeStatus(StatusFlag::Dead);
+    if (hp <= 0) hp = 1; // Ensure they have at least 1 HP
 }
 
 // --- Party Implementation ---

@@ -8,6 +8,15 @@
 
 #include "src/core/GameConstants.h"
 
+// --- Status Flags (Bitmask) ---
+enum StatusFlag {
+    None     = 0,
+    Poisoned = 1 << 0, // 1
+    Blinded  = 1 << 1, // 2
+    Diseased = 1 << 2, // 4
+    Dead     = 1 << 3  // 8
+};
+
 struct Character {
 
     GameConstants::EntityStatuses status = GameConstants::Normal;
@@ -30,17 +39,25 @@ struct Character {
     int constitution = 8;
     int charisma = 8;
     int dexterity = 8;
-    
+
     // --- Resource Pools ---
     int mana = 50;
     int maxMana = 50;
 
-    // --- Status Effects ---
-    bool poisoned = false;
-    bool blinded = false;
-    bool diseased = false;
-    bool isAlive = true;
-    
+    uint statusFlags = StatusFlag::None;
+
+    bool isAlive() const {
+        return !(statusFlags & StatusFlag::Dead);
+    }
+
+    // Helper methods for cleaner logic
+    bool hasStatus(StatusFlag flag) const { return statusFlags & flag; }
+    void addStatus(StatusFlag flag) { statusFlags |= flag; }
+    void removeStatus(StatusFlag flag) { statusFlags &= ~flag; }
+    void clearAllStatuses() { statusFlags = StatusFlag::None; }
+    void setDead();
+    void resurrect();
+
     // --- Location Data ---
     int dungeonLevel = 0;
     int dungeonX = 0;
