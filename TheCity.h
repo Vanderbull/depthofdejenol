@@ -27,6 +27,7 @@ public:
     void processLocation(GameConstants::CityLocation location);
 
 private slots:
+    void handleLocationClick();
     // Existing Action Slots
     void on_generalStoreButton_clicked();
     void on_morgueButton_clicked();

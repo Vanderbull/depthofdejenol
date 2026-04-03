@@ -143,6 +143,18 @@ void TheCity::setupUi()
     mainLayout->addLayout(chatInputLayout);
 
     // Basic Signal Connections
+    connect(generalStoreButton, &QToolButton::clicked, this, &TheCity::handleLocationClick);
+    connect(morgueButton,      &QToolButton::clicked, this, &TheCity::handleLocationClick);
+    connect(guildsButton,      &QToolButton::clicked, this, &TheCity::handleLocationClick);
+    connect(dungeonButton,     &QToolButton::clicked, this, &TheCity::handleLocationClick);
+    connect(confinementButton, &QToolButton::clicked, this, &TheCity::handleLocationClick);
+    connect(seerButton,        &QToolButton::clicked, this, &TheCity::handleLocationClick);
+    connect(bankButton,        &QToolButton::clicked, this, &TheCity::handleLocationClick);
+    connect(exitButton,        &QToolButton::clicked, this, &TheCity::handleLocationClick);
+
+    connect(sendButton,        &QPushButton::clicked, this, &TheCity::sendChatMessage);
+    connect(chatInput,         &QLineEdit::returnPressed, this, &TheCity::sendChatMessage);
+/*
     connect(generalStoreButton, &QToolButton::clicked, this, &TheCity::on_generalStoreButton_clicked);
     connect(morgueButton,      &QToolButton::clicked, this, &TheCity::on_morgueButton_clicked);
     connect(guildsButton,      &QToolButton::clicked, this, &TheCity::on_guildsButton_clicked);
@@ -153,6 +165,7 @@ void TheCity::setupUi()
     connect(exitButton,        &QToolButton::clicked, this, &TheCity::on_exitButton_clicked);
     connect(sendButton,        &QPushButton::clicked, this, &TheCity::sendChatMessage);
     connect(chatInput,         &QLineEdit::returnPressed, this, &TheCity::sendChatMessage);
+*/
 }
 
 void TheCity::setupMultiplayerConnections()
@@ -395,4 +408,35 @@ void TheCity::startOfflineMode() {
     chatDisplay->append("<i style='color:gray;'>Offline mode: Local heroes at the entrance are visible.</i>");
 }
 
+void TheCity::handleLocationClick() {
+    QObject* binder = sender(); // Identify which button was pressed
+    QDialog* subDialog = nullptr;
+
+    if (binder == generalStoreButton) {
+        processLocation(GameConstants::CityLocation::GeneralStore);
+        subDialog = new GeneralStore(this);
+    } 
+    else if (binder == bankButton) {
+        processLocation(GameConstants::CityLocation::Bank);
+        subDialog = new BankDialog(this);
+    }
+    else if (binder == seerButton) {
+        processLocation(GameConstants::CityLocation::Temple);
+        subDialog = new SeerDialog(this);
+    }
+    // Add Tavern, Temple, or Morgue here easily...
+
+    if (subDialog) {
+        subDialog->setAttribute(Qt::WA_DeleteOnClose);
+        
+        // Reset title when closing
+        connect(subDialog, &QDialog::finished, this, [this]() {
+            processLocation(GameConstants::CityLocation::Street);
+        });
+
+        subDialog->exec(); 
+    }
+}
+
 TheCity::~TheCity() {}
+
