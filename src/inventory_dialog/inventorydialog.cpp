@@ -11,7 +11,7 @@ InventoryDialog::InventoryDialog(QWidget *parent) : QDialog(parent)
     setFixedSize(600, 400);
     initializeItemData(); // Loads your itemInfoMap descriptions
     setupUi();
-    loadInventoryData(); // Pulls the real data from GameStateManager
+    loadInventoryData(); // Pulls the real data from gameStateManager
 }
 
 void InventoryDialog::setupUi() 
@@ -56,7 +56,7 @@ void InventoryDialog::setupUi()
 void InventoryDialog::loadInventoryData() 
 {
     // 1. Get the singleton instance
-    GameStateManager* gsm = GameStateManager::instance();    
+    gameStateManager* gsm = gameStateManager::instance();    
     // 2. Identify which character to look at
     int activeIdx = gsm->getGameValue("ActiveCharacterIndex").toInt();
     QVariantList party = gsm->getGameValue("Party").toList();
@@ -96,7 +96,7 @@ void InventoryDialog::onEquipButtonClicked()
         equippedList->addItem(selectedItem->text());
         delete selectedItem;
         qDebug() << "Item equipped locally.";
-        // Note: In a full implementation, you would also update GameStateManager here
+        // Note: In a full implementation, you would also update gameStateManager here
     }
 }
 
@@ -121,8 +121,8 @@ void InventoryDialog::onInfoButtonClicked()
     else if (currentIndex == 2) currentList = spellsList;
     if (currentList && currentList->currentItem()) {
         QString itemName = currentList->currentItem()->text();
-        GameStateManager* gsm = GameStateManager::instance();
-        // Retrieve the full item list from GameStateManager
+        gameStateManager* gsm = gameStateManager::instance();
+        // Retrieve the full item list from gameStateManager
         const QList<QVariantMap>& allItems = gsm->itemData();
         QVariantMap foundItem;
         bool itemFound = false;

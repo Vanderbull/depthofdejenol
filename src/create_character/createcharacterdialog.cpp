@@ -1,7 +1,7 @@
 
 #include "createcharacterdialog.h"
 #include "src/race_data/RaceData.h"
-#include "../../GameStateManager.h"
+#include "../../gameStateManager.h"
 #include <QScreen>
 #include <QGuiApplication>
 #include <QMessageBox>
@@ -29,7 +29,7 @@ void CreateCharacterDialog::updateAlignmentOptions(const RaceStats& race)
     QSignalBlocker blocker(this->alignmentBox);    
     this->alignmentBox->clear();
     const QStringList allAlignments = GameConstants::ALIGNMENT_NAMES;
-    //const QStringList allAlignments = GameStateManager::alignmentNames();
+    //const QStringList allAlignments = gameStateManager::alignmentNames();
     if (allAlignments.size() < 3) return; // Guard against uninitialized data
     // 1. Filter alignments using a mapping strategy
     QStringList allowed;
@@ -41,7 +41,7 @@ void CreateCharacterDialog::updateAlignmentOptions(const RaceStats& race)
     // 2. Determine the best default
     // We prefer the system default if available, otherwise fallback to the first allowed item
     const QString systemDefault = allAlignments.value(GameConstants::DEFAULT_ALIGNMENT_INDEX);
-    //const QString systemDefault = allAlignments.value(GameStateManager::defaultAlignmentIndex());
+    //const QString systemDefault = allAlignments.value(gameStateManager::defaultAlignmentIndex());
     int defaultIndex = this->alignmentBox->findText(systemDefault);
     this->alignmentBox->setCurrentIndex(defaultIndex != -1 ? defaultIndex : 0);
 }
@@ -83,7 +83,7 @@ void CreateCharacterDialog::updateRaceStats(int index)
     statMap["Constitution"] = selectedRace.constitution;
     statMap["Charisma"]     = selectedRace.charisma;
     statMap["Dexterity"]    = selectedRace.dexterity;
-    // Use GameStateManager to iterate through stat names
+    // Use gameStateManager to iterate through stat names
     for (const QString& statName : GameConstants::STAT_NAMES) {
         QSpinBox* spinBox = statSpinBoxes.value(statName);
         if (!spinBox) continue;
@@ -104,7 +104,7 @@ void CreateCharacterDialog::updateRaceStats(int index)
     }
     updateAlignmentOptions(selectedRace);
     updateGuildListStyle(selectedRace);
-    GameStateManager::instance()->setGameValue("CurrentCharacterStatPointsLeft", GameConstants::DEFAULT_STAT_POINTS);
+    gameStateManager::instance()->setGameValue("CurrentCharacterStatPointsLeft", GameConstants::DEFAULT_STAT_POINTS);
     this->statPointsLeftLabel->setText(QString("%1 Stat Points Left").arg(GameConstants::DEFAULT_STAT_POINTS));
 }
 
@@ -155,7 +155,7 @@ CreateCharacterDialog::CreateCharacterDialog(const QVector<RaceStats>& raceData,
     infoLayout->addWidget(new QLabel("Sex"), 4, 0);
     sexBox = new QComboBox();
     sexBox->addItems(GameConstants::SEX_OPTIONS);
-    //sexBox->addItems(GameStateManager::sexOptions());
+    //sexBox->addItems(gameStateManager::sexOptions());
     infoLayout->addWidget(sexBox, 5, 0, 1, 2);
     infoLayout->addWidget(new QLabel("Alignment"), 6, 0);
     alignmentBox = new QComboBox();
@@ -203,7 +203,7 @@ CreateCharacterDialog::CreateCharacterDialog(const QVector<RaceStats>& raceData,
 	connect(spinBox, QOverload<int>::of(&QSpinBox::valueChanged),
 	                  [currentValueLabel, this, spinBox](int newValue)
         {
-	    GameStateManager* gsm = GameStateManager::instance();
+	    gameStateManager* gsm = gameStateManager::instance();
 	    int currentPoints = gsm->getGameValue("CurrentCharacterStatPointsLeft").toInt();
 	    int oldValue = spinBox->property(PROPERTY_PREVIOUS_VALUE).toInt();
 	    int change = newValue - oldValue;
@@ -279,7 +279,7 @@ CreateCharacterDialog::CreateCharacterDialog(const QVector<RaceStats>& raceData,
 
 void CreateCharacterDialog::updateSpinBoxLimits() 
 {
-    int pointsLeft = GameStateManager::instance()->getGameValue("CurrentCharacterStatPointsLeft").toInt();    
+    int pointsLeft = gameStateManager::instance()->getGameValue("CurrentCharacterStatPointsLeft").toInt();    
     // Get the data for the currently selected race
     const RaceStats& selectedRace = raceData.at(raceBox->currentIndex());
     // Create a local mapping for easy lookup during the loop
@@ -318,14 +318,14 @@ void CreateCharacterDialog::onGuildStatsClicked()
 
 void CreateCharacterDialog::onSaveCharacterClicked() 
 {
-    //GameStateManager::instance()->syncActiveCharacterToParty();
-    GameStateManager::instance()->refreshUI();
+    //gameStateManager::instance()->syncActiveCharacterToParty();
+    gameStateManager::instance()->refreshUI();
     QString characterName = nameEdit->text().trimmed();
     if (characterName.isEmpty()) {
         QMessageBox::warning(this, "Save Error", "Please enter a **Character Name** before saving.");
         return;
     }
-    int remainingPoints = GameStateManager::instance()->getGameValue("CurrentCharacterStatPointsLeft").toInt();
+    int remainingPoints = gameStateManager::instance()->getGameValue("CurrentCharacterStatPointsLeft").toInt();
     if (remainingPoints > 0) {
         QMessageBox::warning(this, "Stat Points Remaining", QString("You must spend the remaining **%1** stat point(s).").arg(remainingPoints));
         return;
@@ -333,7 +333,7 @@ void CreateCharacterDialog::onSaveCharacterClicked()
     QListWidgetItem* selectedGuildItem = guildsListWidget->currentItem();
     QString selectedGuild = (selectedGuildItem && (selectedGuildItem->flags() & Qt::ItemIsEnabled)) ? selectedGuildItem->text() : "None";
     // Update Game State Manager 
-    GameStateManager* gsm = GameStateManager::instance();
+    gameStateManager* gsm = gameStateManager::instance();
     gsm->setGameValue("CurrentCharacterName", characterName);
     gsm->setGameValue("CurrentCharacterRace", raceBox->currentText());
     gsm->setGameValue("CurrentCharacterSex", sexBox->currentText());

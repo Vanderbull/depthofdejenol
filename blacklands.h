@@ -9,7 +9,7 @@
 
 #include "./src/event/EventManager.h" 
 
-class TheCity;
+class theCity;
 
 class GameMenu : public QWidget {
     Q_OBJECT
@@ -44,7 +44,7 @@ private slots:
 
 private:
     // ARCHITECT EVOLUTION: Persistent reference to the city handler
-    TheCity *m_cityHandler = nullptr;
+    theCity *m_cityHandler = nullptr;
 
     QLabel *m_titleLabel = nullptr;
     QLabel *m_subTitleLabel = nullptr;

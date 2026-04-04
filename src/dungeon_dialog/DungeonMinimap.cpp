@@ -1,5 +1,5 @@
 #include "DungeonDialog.h"
-#include "../../GameStateManager.h"
+#include "../../gameStateManager.h"
 #include <QGraphicsPixmapItem>
 #include <QGraphicsPolygonItem>
 #include <QPen>
@@ -77,7 +77,7 @@ void DungeonDialog::drawMinimap()
     QPixmap scaledRock = rockPixmap.scaled(TILE_SIZE, TILE_SIZE, 
                                            Qt::IgnoreAspectRatio, 
                                            Qt::SmoothTransformation);
-    GameStateManager* gsm = GameStateManager::instance();
+    gameStateManager* gsm = gameStateManager::instance();
     // Retrieve player position from GameState
     int currentX = gsm->getGameValue("DungeonX").toInt();
     int currentY = gsm->getGameValue("DungeonY").toInt();

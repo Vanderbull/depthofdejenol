@@ -12,8 +12,8 @@
 
 void GeneralStore::refreshInventory()
 {
-    // Fetch latest inventory from GameStateManager
-    Character current = GameStateManager::instance()->getCurrentCharacter();
+    // Fetch latest inventory from gameStateManager
+    Character current = gameStateManager::instance()->getCurrentCharacter();
     QStringList items = current.inventory;
 
     // Prevent recursive signal loops while clearing/adding
@@ -48,7 +48,7 @@ GeneralStore::GeneralStore(QWidget *parent) : QDialog(parent)
     setupUi();
     loadItemsFromCsv("src/general_store/items.csv");
     // NEW: Populate the Uncurse dropdown with the current character's items
-    Character current = GameStateManager::instance()->getCurrentCharacter();
+    Character current = gameStateManager::instance()->getCurrentCharacter();
     uncurseItemComboBox->clear();
     uncurseItemComboBox->addItems(current.inventory);
 
@@ -267,7 +267,7 @@ void GeneralStore::uncurseItem()
         showFeedbackDialog("Uncurse Error", "Please enter the name of the item you wish to uncurse.", QMessageBox::Warning);
         return;
     }
-    GameStateManager* gsm = GameStateManager::instance();
+    gameStateManager* gsm = gameStateManager::instance();
     int activeCharIndex = gsm->getGameValue("ActiveCharacterIndex").toInt();
     // Retrieve character inventory
     QVariantList party = gsm->getGameValue("Party").toList();
@@ -377,7 +377,7 @@ void GeneralStore::identifySellItem()
     QPushButton *senderButton = qobject_cast<QPushButton*>(sender());
     bool isIdentifyAction = (senderButton == idButton);
 
-    GameStateManager* gsm = GameStateManager::instance();
+    gameStateManager* gsm = gameStateManager::instance();
     int activeCharIndex = gsm->getGameValue("ActiveCharacterIndex").toInt();
 
     // Fetch the character and their inventory
@@ -434,7 +434,7 @@ void GeneralStore::identifySellItem()
         // Remove the item from the local list
         inventory.removeAt(invIndex);
         
-        // Push the updated list and gold back to the GameStateManager
+        // Push the updated list and gold back to the gameStateManager
         gsm->updateCharacterGold(activeCharIndex, finalSellPrice, true);
         gsm->setCharacterInventory(activeCharIndex, inventory); // SAVE UPDATE
         
@@ -463,7 +463,7 @@ void GeneralStore::identifySellItem()
     // Identify which button triggered the slot
     QPushButton *senderButton = qobject_cast<QPushButton*>(sender());
     bool isIdentifyAction = (senderButton == idButton);
-    GameStateManager* gsm = GameStateManager::instance();
+    gameStateManager* gsm = gameStateManager::instance();
     int activeCharIndex = gsm->getGameValue("ActiveCharacterIndex").toInt();
     // Retrieve character inventory
     QVariantList party = gsm->getGameValue("Party").toList();

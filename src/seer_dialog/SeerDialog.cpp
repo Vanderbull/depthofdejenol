@@ -151,7 +151,7 @@ void SeerDialog::on_monsterButton_clicked()
 
 void SeerDialog::on_itemButton_clicked()
 {
-    GameStateManager* gsm = GameStateManager::instance();
+    gameStateManager* gsm = gameStateManager::instance();
     QString searchTerm = searchLineEdit->text().trimmed();
     if (searchTerm.isEmpty()) {
         QMessageBox::warning(this, "Input Required", "Please enter the name of the item you seek.");
@@ -172,10 +172,10 @@ void SeerDialog::on_itemButton_clicked()
     // 3. MANDATORY DEDUCTION: The Seer takes the gold for the effort
     gsm->setGameValue("CurrentCharacterGold", QVariant::fromValue(currentGold - totalCost));
     // 4. Search for the item in the physical world (m_placedItems)
-    const QList<GameStateManager::PlacedItem> placedItems = gsm->getPlacedItems();
-    GameStateManager::PlacedItem foundItem;
+    const QList<gameStateManager::PlacedItem> placedItems = gsm->getPlacedItems();
+    gameStateManager::PlacedItem foundItem;
     bool itemExists = false;
-    for (const GameStateManager::PlacedItem& item : placedItems) {
+    for (const gameStateManager::PlacedItem& item : placedItems) {
         if (item.itemName.contains(searchTerm, Qt::CaseInsensitive)) {
             foundItem = item;
             itemExists = true;

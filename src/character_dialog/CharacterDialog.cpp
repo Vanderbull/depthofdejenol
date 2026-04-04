@@ -16,12 +16,12 @@
 #include <QLocale>
 
 // Shorthand for the singleton
-#define GSM GameStateManager::instance()
+#define GSM gameStateManager::instance()
 
 CharacterDialog::CharacterDialog(QWidget *parent)
     : QDialog(parent)
 {
-    // --- Set the dialog title to the character name from GameStateManager ---
+    // --- Set the dialog title to the character name from gameStateManager ---
     QString charName = GSM->getGameValue("CurrentCharacterName").toString();
     if (charName.isEmpty()) charName = "Unknown Traveler";
     setWindowTitle(charName);
@@ -37,8 +37,8 @@ CharacterDialog::CharacterDialog(QWidget *parent)
         "QTabBar::tab:selected { background: #C0C0C0; border-bottom-color: #C0C0C0; }"
     );
     setupUi();
-    // NEW: Connect the GameStateManager signal to the dialog's update slot
-    connect(GSM, &GameStateManager::gameValueChanged, 
+    // NEW: Connect the gameStateManager signal to the dialog's update slot
+    connect(GSM, &gameStateManager::gameValueChanged, 
             this, &CharacterDialog::updateGameStateValue);
 }
 // NEW: Implementation of the slot to update UI based on state changes

@@ -9,7 +9,7 @@
 #include <QFont>
 #include <QFontDialog>
 
-#include "GameStateManager.h"
+#include "gameStateManager.h"
 
 class QCheckBox;
 class QSlider;

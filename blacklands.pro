@@ -31,10 +31,10 @@ INCLUDEPATH += _PRO_FILE_PWD_/include
 # Source Files
 #--------------------------------------------------
 SOURCES += \
-    GameStateManager.cpp \
-    AudioManager.cpp \
+    gameStateManager.cpp \
+    audioManager.cpp \
     blacklands.cpp \
-    TheCity.cpp \
+    theCity.cpp \
     src/network_manager/NetworkManager.cpp \
     src/hall_of_records/hallofrecordsdialog.cpp \
     src/create_character/createcharacterdialog.cpp \
@@ -74,11 +74,11 @@ SOURCES += \
 #--------------------------------------------------
 HEADERS += \
     src/core/GameConstants.h \
-    GameStateManager.h \
-    AudioManager.h \
+    gameStateManager.h \
+    audioManager.h \
     blacklands.h \
-    TheCity.h \
-    StoryDialog.h \
+    theCity.h \
+    storyDialog.h \
     src/network_manager/NetworkManager.h \
     src/hall_of_records/hallofrecordsdialog.h \
     src/create_character/createcharacterdialog.h \
@@ -116,8 +116,8 @@ HEADERS += \
 HEADERS += src/spell_casting/SpellCastingDialog.h
 SOURCES += src/spell_casting/SpellCastingDialog.cpp
 
-HEADERS += FontManager.h
-SOURCES += FontManager.cpp
+HEADERS += fontManager.h
+SOURCES += fontManager.cpp
 
 HEADERS += src/partymanager/PartyManager.h
 SOURCES += src/partymanager/PartyManager.cpp
@@ -202,10 +202,10 @@ VERSION_INT = $$num_add($$COMMIT_COUNT, -1)
 lessThan(VERSION_INT, 0): VERSION_INT = 0
 
 # 3. Tell qmake to use the template
-QMAKE_SUBSTITUTES += Version.h.in
+QMAKE_SUBSTITUTES += version.h.in
 
 # 4. VERY IMPORTANT: Add literal quotes to the variables
-# This ensures they appear as "9629655" in Version.h instead of 9629655
+# This ensures they appear as "9629655" in version.h instead of 9629655
 VERSION_HASH = \"$$VERSION_HASH\"
 VERSION_DATE = \"$$VERSION_DATE\"
 VERSION_INT  = \"v$$VERSION_INT\"

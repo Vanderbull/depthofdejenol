@@ -2,7 +2,7 @@
 #include "src/character_dialog/CharacterDialog.h"
 #include "DungeonDialog.h"
 #include "DungeonHandlers.h"
-#include "../../GameStateManager.h"
+#include "../../gameStateManager.h"
 #include "../event/EventManager.h"
 #include "src/spell_casting/SpellCastingDialog.h"
 #include <QVBoxLayout>
@@ -70,8 +70,8 @@ void DungeonDialog::setupControls() {
 
 void DungeonDialog::populateRandomTreasures(int level)
 {
-    GameStateManager* gsm = GameStateManager::instance();
-    // MDATA3 is loaded into m_itemData in GameStateManager
+    gameStateManager* gsm = gameStateManager::instance();
+    // MDATA3 is loaded into m_itemData in gameStateManager
     const QList<QVariantMap>& allItems = gsm->itemData(); 
     if (allItems.isEmpty()) {
         qDebug() << "MDATA3 not loaded or empty.";
@@ -91,7 +91,7 @@ void DungeonDialog::populateRandomTreasures(int level)
             QString itemName = allItems.at(itemIdx).value("name").toString();
             // 4. Add to local level map (for rendering/interaction)
             m_treasurePositions.insert(pos, itemName);
-            // 5. Add to the Global Array in GameStateManager
+            // 5. Add to the Global Array in gameStateManager
             gsm->addPlacedItem(level, x, y, itemName);
             qDebug() << itemName;
             itemsPlaced++;
@@ -149,8 +149,8 @@ void DungeonDialog::logMessage(const QString& message)
 // --- Gold Management Helper Function ---
 void DungeonDialog::updateGoldLabel()
 {
-    // UPDATED: Retrieve gold from GameStateManager
-    quint64 currentGold = GameStateManager::instance()->getGameValue("PlayerGold").toULongLong();
+    // UPDATED: Retrieve gold from gameStateManager
+    quint64 currentGold = gameStateManager::instance()->getGameValue("PlayerGold").toULongLong();
     if (m_goldLabel) {
         QString goldString = QStringLiteral("%L1").arg(currentGold);
         m_goldLabel->setText(QString("You have a total of **%1 Gold**.").arg(goldString));
@@ -159,7 +159,7 @@ void DungeonDialog::updateGoldLabel()
 
 void DungeonDialog::updatePartyMemberHealth(int memberIndex, int damage)
 {
-    GameStateManager* gsm = GameStateManager::instance();   
+    gameStateManager* gsm = gameStateManager::instance();   
     Character& target = gsm->getPartyMember(memberIndex);
     
     // 1. Calculate Defense Mitigation
@@ -199,7 +199,7 @@ void DungeonDialog::updatePartyMemberHealth(int memberIndex, int damage)
 /*
 void DungeonDialog::updatePartyMemberHealth(int memberIndex, int damage)
 {
-    GameStateManager* gsm = GameStateManager::instance();   
+    gameStateManager* gsm = gameStateManager::instance();   
     Character& target = gsm->getPartyMember(memberIndex);
     
     // Halve damage if that specific character is defending
@@ -228,7 +228,7 @@ void DungeonDialog::updatePartyMemberHealth(int memberIndex, int damage)
 // --- Party Management Helper Function ---
 void DungeonDialog::updatePartyMemberHealth(int row, int damage)
 {
-    GameStateManager* gsm = GameStateManager::instance();   
+    gameStateManager* gsm = gameStateManager::instance();   
     
     // Check if player is defending to halve damage
     int finalDamage = damage;
@@ -254,7 +254,7 @@ void DungeonDialog::updatePartyMemberHealth(int row, int damage)
 void DungeonDialog::movePlayer(int dx, int dy, int dz=0)
 {
     Q_UNUSED(dz);
-    GameStateManager* gsm = GameStateManager::instance();
+    gameStateManager* gsm = gameStateManager::instance();
     int currentX = gsm->getGameValue("DungeonX").toInt();
     int currentY = gsm->getGameValue("DungeonY").toInt();
     int currentZ = gsm->getGameValue("DungeonLevel").toInt();
@@ -391,13 +391,13 @@ void DungeonDialog::generateRandomObstacles(int roomCount, QRandomGenerator& rng
         }
     }
     // Start player in the first room created
-    GameStateManager::instance()->setGameValue("DungeonX", rooms[0].x + 1);
-    GameStateManager::instance()->setGameValue("DungeonY", rooms[0].y + 1);
+    gameStateManager::instance()->setGameValue("DungeonX", rooms[0].x + 1);
+    gameStateManager::instance()->setGameValue("DungeonY", rooms[0].y + 1);
 }
 
 void DungeonDialog::generateStairs(QRandomGenerator& rng)
 {
-    GameStateManager* gsm = GameStateManager::instance();
+    gameStateManager* gsm = gameStateManager::instance();
     int currentX = gsm->getGameValue("DungeonX").toInt();
     int currentY = gsm->getGameValue("DungeonY").toInt();
     QPair<int, int> currentPos = {currentX, currentY};
@@ -430,7 +430,7 @@ void DungeonDialog::generateSpecialTiles(int tileCount, QRandomGenerator& rng)
     m_waterPositions.clear();
     m_teleporterPositions.clear();
     m_hiddenDoorPositions.clear();
-    GameStateManager* gsm = GameStateManager::instance();
+    gameStateManager* gsm = gameStateManager::instance();
 int currentLevel = gsm->getGameValue("DungeonLevel").toInt();
     QPair<int, int> playerPos = {gsm->getGameValue("DungeonX").toInt(), gsm->getGameValue("DungeonY").toInt()};
     // Helper A: Get a tile ONLY from a room (No corridors!)
@@ -533,9 +533,9 @@ DungeonDialog::DungeonDialog(QWidget *parent)
     : QDialog(parent),
       m_dungeonScene(new QGraphicsScene(this))
 {
-    GameStateManager* gsm = GameStateManager::instance();
-    if (!GameStateManager::instance()) {
-        qCritical() << "CRITICAL: GameStateManager is NULL!";
+    gameStateManager* gsm = gameStateManager::instance();
+    if (!gameStateManager::instance()) {
+        qCritical() << "CRITICAL: gameStateManager is NULL!";
         return; 
     }
     m_experienceLabel = new QLabel(this);
@@ -550,7 +550,7 @@ DungeonDialog::DungeonDialog(QWidget *parent)
     connect(m_standaloneMinimap, &MinimapDialog::requestMapUpdate, this, &DungeonDialog::drawMinimap);
     setWindowTitle("Dungeon: Depth of Dejenol");
     setMinimumSize(1000, 750);
-    // Load GameStateManager data
+    // Load gameStateManager data
 
     // Retrieve Constitution to calculate a simple placeholder for maximum HP
     // int con = gsm->getGameValue("CurrentCharacterConstitution").toInt();
@@ -719,9 +719,9 @@ DungeonDialog::DungeonDialog(QWidget *parent)
 
 void DungeonDialog::updateExperienceLabel()
 {
-    // Retrieve Experience from GameStateManager
+    // Retrieve Experience from gameStateManager
     // Assuming the key is "PlayerExperience"
-    quint64 currentXP = GameStateManager::instance()->getGameValue("PlayerExperience").toULongLong();
+    quint64 currentXP = gameStateManager::instance()->getGameValue("PlayerExperience").toULongLong();
     if (m_experienceLabel) {
         QString xpString = QStringLiteral("%L1").arg(currentXP);
         m_experienceLabel->setText(QString("Experience: **%1 XP**").arg(xpString));
@@ -734,7 +734,7 @@ void DungeonDialog::enterLevel(int level, bool movingUp)
     m_visitedTiles.clear();
     // Clear treasures specifically at the start of level generation
     m_treasurePositions.clear();
-    GameStateManager* gsm = GameStateManager::instance();
+    gameStateManager* gsm = gameStateManager::instance();
     // 1. Generate the map using Room-and-Corridor logic
     // Seed by level to ensure the layout is deterministic
     QRandomGenerator levelRng(level + 12345);
@@ -791,7 +791,7 @@ void DungeonDialog::on_pickupButton_clicked()
 
 void DungeonDialog::on_dropButton_clicked() 
 {
-    GameStateManager* gsm = GameStateManager::instance();
+    gameStateManager* gsm = gameStateManager::instance();
 
     int x = gsm->getGameValue("DungeonX").toInt();
     int y = gsm->getGameValue("DungeonY").toInt();
@@ -799,7 +799,7 @@ void DungeonDialog::on_dropButton_clicked()
     m_bodyPositions.insert(pos);
     
     // Check if the player is actually carrying a body
-    // Assuming "IsCarryingBody" is a flag in your GameStateManager
+    // Assuming "IsCarryingBody" is a flag in your gameStateManager
     if (gsm->getGameValue("IsCarryingBody").toBool()) {
         
         // Get current position
@@ -828,7 +828,7 @@ void DungeonDialog::on_dropButton_clicked()
 
 void DungeonDialog::on_teleportButton_clicked() 
 { 
-    GameStateManager* gsm = GameStateManager::instance();
+    gameStateManager* gsm = gameStateManager::instance();
     int newX, newY;
     QPair<int, int> newPos;
     // 1. Find a random valid location (not a wall)
@@ -867,7 +867,7 @@ void DungeonDialog::on_fightButton_clicked() {
 
     // 1. Identify participants
     QList<Combatant> queue;
-    GameStateManager* gsm = GameStateManager::instance();
+    gameStateManager* gsm = gameStateManager::instance();
     auto party = gsm->getPC();
 
     // Roll for Party
@@ -1066,7 +1066,7 @@ void DungeonDialog::performMonsterAttack() {
 // DungeonDialog.cpp
 QPair<int, int> DungeonDialog::getCurrentPosition()
 {
-    GameStateManager* gsm = GameStateManager::instance();
+    gameStateManager* gsm = gameStateManager::instance();
     return qMakePair(gsm->getGameValue("DungeonX").toInt(), 
                      gsm->getGameValue("DungeonY").toInt());
 }
@@ -1156,7 +1156,7 @@ void DungeonDialog::keyPressEvent(QKeyEvent *event)
             break;
         // --- Other Action Shortcuts ---
         case Qt::Key_T: {
-            GameStateManager* gsm = GameStateManager::instance();
+            gameStateManager* gsm = gameStateManager::instance();
             QPair<int, int> currentPos = { 
                 gsm->getGameValue("DungeonX").toInt(), 
                 gsm->getGameValue("DungeonY").toInt() 
@@ -1247,7 +1247,7 @@ void DungeonDialog::spawnMonsters(const QString& , int )
 
 void DungeonDialog::on_restButton_clicked() 
 {
-    GameStateManager* gsm = GameStateManager::instance();
+    gameStateManager* gsm = gameStateManager::instance();
     int constitution = gsm->getGameValue("CurrentCharacterConstitution").toInt();
     int healAmount = qMax(1, constitution / 2);    
     int currentHp = gsm->getGameValue("CurrentCharacterHP").toInt();
@@ -1359,7 +1359,7 @@ void DungeonDialog::rotate(int step)
 
 void DungeonDialog::transitionLevel(StairDirection direction)
 {
-    GameStateManager* gsm = GameStateManager::instance();
+    gameStateManager* gsm = gameStateManager::instance();
     // Retrieve current position once
     int currentZ = gsm->getGameValue("DungeonLevel").toInt();
     QPair<int, int> currentPos = { 
@@ -1400,7 +1400,7 @@ void DungeonDialog::handleSurfaceExit()
 
 void DungeonDialog::processTreasureOpening()
 {
-    GameStateManager* gsm = GameStateManager::instance();
+    gameStateManager* gsm = gameStateManager::instance();
     QPair<int, int> pos = {
         gsm->getGameValue("DungeonX").toInt(),
         gsm->getGameValue("DungeonY").toInt()
@@ -1429,7 +1429,7 @@ void DungeonDialog::update3DView() {
     m_threeDScene->setBackgroundBrush(Qt::black);
     QPen wirePen(Qt::green, 2); // Classic green phosphor look
 
-    GameStateManager* gsm = GameStateManager::instance();
+    gameStateManager* gsm = gameStateManager::instance();
     int px = gsm->getGameValue("DungeonX").toInt();
     int py = gsm->getGameValue("DungeonY").toInt();
     QString facing = m_compassLabel->text(); // e.g., "Facing North"
@@ -1513,7 +1513,7 @@ void DungeonDialog::renderWireframeView() {
     m_dungeonScene->clear();
     m_dungeonScene->setBackgroundBrush(Qt::black);
 
-    GameStateManager *gsm = GameStateManager::instance();
+    gameStateManager *gsm = gameStateManager::instance();
     int px = gsm->getGameValue("DungeonX").toInt();
     int py = gsm->getGameValue("DungeonY").toInt();
     QString facing = m_compassLabel->text();
@@ -1930,14 +1930,14 @@ void DungeonDialog::on_spellButton_clicked() {
 
             // 2. Handle Healing
             if (result.healingDone > 0) {
-                int activeIdx = GameStateManager::instance()->getGameValue("ActiveCharacterIndex").toInt();
-                Character& chr = GameStateManager::instance()->getPartyMember(activeIdx);
+                int activeIdx = gameStateManager::instance()->getGameValue("ActiveCharacterIndex").toInt();
+                Character& chr = gameStateManager::instance()->getPartyMember(activeIdx);
                 
                 int oldHp = chr.hp;
                 chr.hp = qMin(chr.maxHp, chr.hp + result.healingDone);
                 
                 logMessage(QString("%1 is healed for %2 HP.").arg(chr.name).arg(chr.hp - oldHp));
-                GameStateManager::instance()->refreshUI();
+                gameStateManager::instance()->refreshUI();
             }
 
             // 3. Log the flavor message from the spell result
@@ -1962,7 +1962,7 @@ void DungeonDialog::on_spellButton_clicked()
 { 
     logMessage("You try to cast some sort of spell but fail."); 
     // Check if in antimagic zone
-    GameStateManager* gsm = GameStateManager::instance();
+    gameStateManager* gsm = gameStateManager::instance();
     int x = gsm->getGameValue("DungeonX").toInt();
     int y = gsm->getGameValue("DungeonY").toInt();
     QPair<int, int> pos = {x, y};
@@ -2012,7 +2012,7 @@ void DungeonDialog::on_spellButton_clicked()
 
         // Award XP
         int reward = 200; // You can make this dynamic based on the monster name
-        GameStateManager::instance()->addExperienceToParty(reward);
+        gameStateManager::instance()->addExperienceToParty(reward);
         logMessage(QString("The party receives %1 XP.").arg(reward));
         
         // Refresh the local XP label in the Dungeon UI
@@ -2042,7 +2042,7 @@ void DungeonDialog::cleanupCombat() {
 
 void DungeonDialog::startCombatInitiative() {
     m_combatQueue.clear();
-    GameStateManager* gsm = GameStateManager::instance();
+    gameStateManager* gsm = gameStateManager::instance();
     QList<Character> party = gsm->getPC(); 
 
     for (int i = 0; i < party.size(); ++i) {
@@ -2074,7 +2074,7 @@ void DungeonDialog::startCombatInitiative() {
 
 // DungeonDialog.cpp
 void DungeonDialog::executeMonsterTurn() {
-    GameStateManager* gsm = GameStateManager::instance();
+    gameStateManager* gsm = gameStateManager::instance();
     // Use the new getter to get the actual list of characters
     QList<Character>& party = gsm->getPartyMembers(); 
 
@@ -2110,7 +2110,7 @@ void DungeonDialog::executeMonsterTurn() {
 /*
 // DungeonDialog.cpp (Logic for monster turn)
 void DungeonDialog::executeMonsterTurn() {
-    GameStateManager* gsm = GameStateManager::instance();
+    gameStateManager* gsm = gameStateManager::instance();
     QList<Character>& party = gsm->getPartyReference(); // Need access to the full party
 
     // 1. Identify valid targets in the front row (row 0)
@@ -2139,7 +2139,7 @@ void DungeonDialog::executeMonsterTurn() {
 */
 
 int DungeonDialog::calculateWeaponDamage(int memberIndex) {
-    GameStateManager* gsm = GameStateManager::instance();
+    gameStateManager* gsm = gameStateManager::instance();
     Character& chr = gsm->getPartyMember(memberIndex);
     
     // Assume the first item in inventory is the weapon for now
@@ -2166,7 +2166,7 @@ int DungeonDialog::calculateWeaponDamage(int memberIndex) {
 }
 
 void DungeonDialog::attemptFlee() {
-    GameStateManager* gsm = GameStateManager::instance();
+    gameStateManager* gsm = gameStateManager::instance();
     auto& members = gsm->getParty().members;
 
     // 1. Calculate Average Party Dexterity

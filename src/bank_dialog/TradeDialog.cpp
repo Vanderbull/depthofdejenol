@@ -15,7 +15,7 @@ TradeDialog::TradeDialog(QStandardItemModel *playerModel, QStandardItemModel *ba
     if (!playerItemModel || !bankItemModel) {
         return; 
     }
-    GameStateManager* gsm = GameStateManager::instance();
+    gameStateManager* gsm = gameStateManager::instance();
     // 1. Fetch Active Character Inventory
     int activeIdx = gsm->getGameValue("ActiveCharacterIndex").toInt();
     QVariantList party = gsm->getGameValue("Party").toList();
@@ -112,7 +112,7 @@ void TradeDialog::on_withdrawItemButton_clicked()
 
 void TradeDialog::on_closeButton_clicked()
 {
-    GameStateManager* gsm = GameStateManager::instance();
+    gameStateManager* gsm = gameStateManager::instance();
     // 1. Sync Player Inventory
     if (playerItemModel) {
         int activeIdx = gsm->getGameValue("ActiveCharacterIndex").toInt();

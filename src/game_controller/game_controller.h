@@ -1,7 +1,7 @@
 #include <QWidget>
 #include <QKeyEvent>
 #include <QDebug>
-#include "GameStateManager.h"
+#include "gameStateManager.h"
 
 class GameController : public QWidget
 {

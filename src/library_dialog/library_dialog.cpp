@@ -18,7 +18,7 @@ LibraryDialog::LibraryDialog(QWidget *parent) : QDialog(parent)
     loadKnowledge();
     setupUI();
     // Set default category to "Magic Books" and update the list
-    //GameStateManager::instance()->stopMusic();
+    //gameStateManager::instance()->stopMusic();
     // Access using Namespace::ConstantName
     QString category = GameConstants::CATEGORY_MAGIC;
     

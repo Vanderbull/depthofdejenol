@@ -1,6 +1,6 @@
 #include "src/core/game_resources.h"
 #include "LoadingScreen.h"
-#include "../../GameStateManager.h"
+#include "../../gameStateManager.h"
 #include <QPixmap>
 #include <QFont>
 #include <QColor>
@@ -17,7 +17,7 @@ LoadingScreen::LoadingScreen(QWidget *parent) :
     m_fontSpriteSheet.load("resources/images/font_spritesheet_transparent.png");
     // Load resources and update Game State Manager
     GameResources::loadAllResources();
-    GameStateManager::instance()->setGameValue("ResourcesLoaded", true);
+    gameStateManager::instance()->setGameValue("ResourcesLoaded", true);
     // --- Basic Window Setup ---
     setWindowTitle("Black land");
     setFixedSize(350, 480);
@@ -38,7 +38,7 @@ LoadingScreen::LoadingScreen(QWidget *parent) :
     // -------------------------------
     const QString versionString = "Dejenol Legacy: 0.0.0.0.001";
     m_versionLabel = new QLabel(versionString, this);
-    GameStateManager::instance()->setGameValue("GameVersion", versionString); 
+    gameStateManager::instance()->setGameValue("GameVersion", versionString); 
     m_copyrightLabel = new QLabel("© Copyright 1995, MakeItSo Software", this);
     m_imageLabel = new QLabel(this);
     m_loadingMessageLabel = new QLabel("Initializing system...", this);
@@ -92,7 +92,7 @@ void LoadingScreen::checkSettingsFile()
     QSettings settings("game_settings.ini", QSettings::IniFormat);
     bool configOK = settings.contains("Graphics/ResolutionWidth");
     m_loadingFiles << (configOK ? "Config OK." : "Config Missing.");
-    GameStateManager::instance()->setGameValue("ConfigIntegrityOK", configOK);
+    gameStateManager::instance()->setGameValue("ConfigIntegrityOK", configOK);
 }
 
 void LoadingScreen::updateLoadingMessage()
