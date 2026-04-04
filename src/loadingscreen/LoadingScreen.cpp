@@ -20,7 +20,8 @@ LoadingScreen::LoadingScreen(QWidget *parent) :
     gameStateManager::instance()->setGameValue("ResourcesLoaded", true);
     // --- Basic Window Setup ---
     setWindowTitle("Black land");
-    setFixedSize(350, 480);
+    setMinimumSize(800, 600);
+    resize(800, 600);
     // --- Widget Creation ---
     m_gameTitleLabel = new QLabel("BLACK LAND", this);
     // --- ANIMATION SYSTEM SETUP ---

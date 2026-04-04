@@ -62,6 +62,7 @@ void DungeonDialog::setupControls() {
     // Loop through and create them automatically
     for (auto it = buttonConfigs.begin(); it != buttonConfigs.end(); ++it) {
         QPushButton* btn = new QPushButton(it.key(), this);
+        btn->setFocusPolicy(Qt::NoFocus);
         connect(btn, SIGNAL(clicked()), this, it.value());
         m_controls.insert(it.key(), btn);
     }
@@ -540,6 +541,7 @@ DungeonDialog::DungeonDialog(QWidget *parent)
     }
     m_experienceLabel = new QLabel(this);
     m_standaloneMinimap = new MinimapDialog(this);
+    m_standaloneMinimap->setWindowFlags(Qt::Window | Qt::WindowStaysOnTopHint);
     QScreen *screen = QGuiApplication::primaryScreen();
     if (screen) {
         QRect screenGeometry = screen->availableGeometry();
@@ -549,7 +551,8 @@ DungeonDialog::DungeonDialog(QWidget *parent)
     }
     connect(m_standaloneMinimap, &MinimapDialog::requestMapUpdate, this, &DungeonDialog::drawMinimap);
     setWindowTitle("Dungeon: Depth of Dejenol");
-    setMinimumSize(1000, 750);
+    setMinimumSize(1000, 800);
+    resize(1000, 800);
     // Load gameStateManager data
 
     // Retrieve Constitution to calculate a simple placeholder for maximum HP
@@ -653,6 +656,14 @@ DungeonDialog::DungeonDialog(QWidget *parent)
     // Rotate
     m_rotateLeftButton = new QPushButton("Rotate L");
     m_rotateRightButton = new QPushButton("Rotate R");
+
+    m_upButton->setFocusPolicy(Qt::NoFocus);
+    m_downButton->setFocusPolicy(Qt::NoFocus);
+    m_leftButton->setFocusPolicy(Qt::NoFocus);
+    m_rightButton->setFocusPolicy(Qt::NoFocus);
+    m_rotateLeftButton->setFocusPolicy(Qt::NoFocus);
+    m_rotateRightButton->setFocusPolicy(Qt::NoFocus);
+
     moveLayout->addWidget(m_rotateLeftButton, 0, 0);
     moveLayout->addWidget(m_upButton, 0, 1);
     moveLayout->addWidget(m_rotateRightButton, 0, 2);
@@ -664,6 +675,8 @@ DungeonDialog::DungeonDialog(QWidget *parent)
     QHBoxLayout *stairsLayout = new QHBoxLayout();
     QPushButton *stairsUpButton = new QPushButton("Stairs Up");
     QPushButton *stairsDownButton = new QPushButton("Stairs Down");
+    stairsUpButton->setFocusPolicy(Qt::NoFocus);
+    stairsDownButton->setFocusPolicy(Qt::NoFocus);
     stairsLayout->addWidget(stairsUpButton);
     stairsLayout->addWidget(stairsDownButton);
     rightPanelLayout->addLayout(stairsLayout);
@@ -705,14 +718,10 @@ DungeonDialog::DungeonDialog(QWidget *parent)
     renderWireframeView();
     // ADD THIS LINE TO PREVENT THE CRASH:
     m_combatTimer = new QTimer(this);
-    // Add this to your Constructor for every button and widget
-    m_upButton->setFocusPolicy(Qt::NoFocus);
-    m_downButton->setFocusPolicy(Qt::NoFocus);
-    m_leftButton->setFocusPolicy(Qt::NoFocus);
-    m_rightButton->setFocusPolicy(Qt::NoFocus);
+
     m_messageLog->setFocusPolicy(Qt::NoFocus);
     m_graphicsView->setFocusPolicy(Qt::NoFocus);
-    // Do this for ALL buttons (Fight, Spell, Map, etc.)
+
     this->setFocusPolicy(Qt::StrongFocus);
     this->setFocus();
 }
@@ -778,12 +787,13 @@ void DungeonDialog::on_mapButton_clicked()
         m_standaloneMinimap->hide();
     } else {
         m_standaloneMinimap->show();
-        // Optional: Keep focus on the main window so the map is just an overlay
-        this->activateWindow(); 
-        drawMinimap(); 
+        // Keep focus on the main window so movement keys continue to work
+        this->activateWindow();
+        this->raise();
+        this->setFocus();
+        drawMinimap();
     }
-}
-
+    }
 void DungeonDialog::on_pickupButton_clicked() 
 {
     logMessage("You try to pickup something but is unable to.");
@@ -1126,8 +1136,9 @@ void DungeonDialog::keyPressEvent(QKeyEvent *event)
     // Add this to see if the event is even reaching the function
     qDebug() << "Key Pressed:" << event->key();
     switch (event->key()) {
-        // --- Movement (WASD) ---
+        // --- Movement (WASD & Arrows) ---
         case Qt::Key_Up:
+        case Qt::Key_W:
             qDebug() << "up";
             moveForward();
             event->accept();
@@ -1138,6 +1149,7 @@ void DungeonDialog::keyPressEvent(QKeyEvent *event)
             event->accept();
             break;
         case Qt::Key_Left:
+        case Qt::Key_A:
             qDebug() << "left";
             moveStepLeft();
             event->accept();

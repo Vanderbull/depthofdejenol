@@ -49,7 +49,8 @@ theCity::theCity(QWidget *parent) :
     //gameStateManager::instance()->playMusic("resources/waves/city.wav");
 
     setWindowTitle("The City - Online");
-    setFixedSize(800, 600); // Expanded for multiplayer UI
+    setMinimumSize(1000, 800); // Larger default and minimum size
+    resize(1000, 800);
     
     setupUi();
     loadButtonIcons();
@@ -208,7 +209,7 @@ void theCity::sendChatMessage() {
 
 void theCity::loadButtonIcons()
 {
-    const QSize iconSize(120, 90); 
+    const QSize iconSize(200, 150); 
     generalStoreButton->setIcon(QIcon(GameResources::getPixmap("general_store")));
     generalStoreButton->setIconSize(iconSize);
     generalStoreButton->setToolTip("General Store");
@@ -289,6 +290,9 @@ void theCity::on_dungeonButton_clicked() {
     d->setAttribute(Qt::WA_DeleteOnClose);    
     connect(d, &DungeonDialog::exitedDungeonToCity, this, &theCity::show);
     d->show();
+    d->raise();
+    d->activateWindow();
+    d->setFocus();
     this->hide();
 }
 

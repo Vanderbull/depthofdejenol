@@ -21,7 +21,8 @@ ConfinementAndHoldingDialog::ConfinementAndHoldingDialog(QWidget *parent)
     fixedFont.setPointSize(10); 
     setFont(fixedFont);
     setupUi();
-    resize(850, 650); 
+    setMinimumSize(850, 650);
+    resize(850, 650);
     // 1. Declare and initialize the gsm variable
     gameStateManager* gsm = gameStateManager::instance();
     // Check if a Ghost Hound is waiting to be added

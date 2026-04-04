@@ -11,7 +11,8 @@ GuildsDialog::GuildsDialog(QWidget *parent)
     : QDialog(parent)
 {
     setWindowTitle("Guilds");
-    setFixedSize(600, 450);
+    setMinimumSize(800, 600);
+    resize(800, 600);
     // --- Left Side Widgets ---
     welcomeLabel = new QLabel("<b><font color='blue' size='4'>Welcome to the Sorcerer's guild!</font></b>");
     welcomeLabel->setAlignment(Qt::AlignCenter);
