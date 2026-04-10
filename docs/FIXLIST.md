@@ -154,7 +154,7 @@ connect(dialog, &CreateCharacterDialog::characterCreated,
 
 ---
 
-## 13. Lua State `m_L` Never Closed
+## 13. Lua State `m_L` Never Closed ( FIXED )
 **File:** `GameStateManager.cpp:162` (constructor), no destructor
 **Problem:** `m_L = luaL_newstate()` allocates a Lua state that is never closed. `GameStateManager` has no destructor, so the state leaks. (The singleton pattern makes this less critical since it lives for the process lifetime, but it's still bad practice and will show up in leak checkers.)
 **Fix:** Add a destructor:
