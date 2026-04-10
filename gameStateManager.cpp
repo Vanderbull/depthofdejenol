@@ -1,3 +1,4 @@
+
 #include "gameStateManager.h"
 #include "src/partymanager/PartyManager.h"
 
@@ -1906,21 +1907,20 @@ bool gameStateManager::isActiveCharacterInCity() const {
 }
 void gameStateManager::setGameMode(GameConstants::GameMode newMode) {
     if (m_currentMode == newMode) return;
-
     m_currentMode = newMode;
-    
     // Architect's Note: When mode changes, we often need to swap UI pages
     qDebug() << "Game Mode changed to:" << static_cast<int>(newMode);
 }
 
 void gameStateManager::enterLocation(GameConstants::CityLocation location) {
     if (m_currentCityLocation == location) return;
-
     m_currentCityLocation = location;
     m_gameStateData["currentLocation"] = static_cast<int>(location);
-    
     // Emit a signal so the rest of the app knows the location changed
     emit gameValueChanged("currentLocation", static_cast<int>(location));
-    
     qDebug() << "Player entered:" << static_cast<int>(location);
+}
+
+gameStateManager::~gameStateManager() {
+    if (m_L) lua_close(m_L);
 }

@@ -91,6 +91,7 @@ private:
     QString statusKey(GameConstants::EntityStatus effect) const;
 
 public:
+    virtual ~gameStateManager();
     void setGameMode(GameConstants::GameMode newMode);
     void enterLocation(GameConstants::CityLocation location);
     
