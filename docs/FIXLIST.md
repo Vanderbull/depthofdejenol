@@ -167,7 +167,7 @@ And declare it in the header.
 
 ---
 
-## 14. ODR Violations in `GameConstants.h`
+## 14. ODR Violations in `GameConstants.h` ( FIXED )
 **File:** `src/core/GameConstants.h:37-39, 80-88, 97-99`
 **Problem:** `const QString` and `const QStringList` at namespace scope have internal linkage in C++, but each translation unit gets its own copy. This wastes memory and can cause subtle bugs with `QStringList` construction order. More importantly, `STAT_NAMES`, `ALIGNMENT_NAMES`, `GUILD_NAMES`, etc. are constructed in every `.cpp` that includes this header.
 **Fix:** Mark them `inline` (C++17) so there's a single definition:
