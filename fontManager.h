@@ -39,8 +39,8 @@ private:
     QFont m_proportionalFont;
     QFont m_fixedFont;
     
-    // The character map configuration
-    const QString m_layout = "ABCDEFGHIHIJKLMMNOPQRSTUUVWUWXYZ124578901"; 
+    // The character map configuration - FIXED: proper alphanumeric sequence
+    const QString m_layout = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"; 
 };
 
 #endif
