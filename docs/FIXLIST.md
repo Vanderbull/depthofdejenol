@@ -66,7 +66,7 @@ void GameStateManager::initializeParty() {
 
 ---
 
-## 5. Font Sprite Layout Mismatch Between Header and Implementation
+## 5. Font Sprite Layout Mismatch Between Header and Implementation (FIXED)
 **Files:** `FontManager.h:43`, `fontManager.cpp:55-59`
 **Problem:** The header defines:
 ```
