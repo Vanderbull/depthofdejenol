@@ -66,7 +66,7 @@ void GameStateManager::initializeParty() {
 
 ---
 
-## 5. Font Sprite Layout Mismatch Between Header and Implementation (FIXED)
+## 5. Font Sprite Layout Mismatch Between Header and Implementation ( FIXED )
 **Files:** `FontManager.h:43`, `fontManager.cpp:55-59`
 **Problem:** The header defines:
 ```
@@ -81,7 +81,7 @@ Adjust row boundaries in `drawSpriteText()` to match the real sprite grid.
 
 ---
 
-## 6. `__FILE__` Used for Runtime Resource Paths
+## 6. `__FILE__` Used for Runtime Resource Paths ( FIXED )
 **Files:** `blacklands.cpp:103`, `SeerDialog.cpp:26`
 **Problem:** Both use `QFileInfo(__FILE__).absolutePath()` to locate `.qss` stylesheets at runtime. `__FILE__` expands to the *build-time source path*, which won't exist on any other machine or after installation.
 **Fix:** Use `QCoreApplication::applicationDirPath()` or Qt's resource system (`qrc`) to locate runtime assets:
@@ -92,7 +92,7 @@ Or embed stylesheets in a `.qrc` resource file.
 
 ---
 
-## 7. "Ghost hounf" Typo
+## 7. "Ghost hounf" Typo ( FIXED )
 **File:** `ConfinementDialog.cpp:30, 265`
 **Problem:** `"Ghost hounf"` should be `"Ghost hound"`. This means the Ghost Hound creature never matches its stock entry correctly.
 **Fix:** Change both occurrences:
