@@ -146,8 +146,8 @@ private:
     };
     // Core State Members
     QGraphicsScene *m_dungeonScene;
-    QGraphicsScene *m_fullMapScene; 
-    QTimer *m_spawnTimer;           
+    QGraphicsScene *m_fullMapScene;
+    QTimer *m_spawnTimer;
     bool m_chestFound;
     MonsterAttitude m_currentMonsterAttitude;
     // UI Member Widgets
@@ -158,8 +158,8 @@ private:
     // Buttons
     QMap<QString, QPushButton*> m_controls;
     // A helper to make button creation cleaner
-    QPushButton* createButton(const QString& text, const char* slot);
-    
+    //QPushButton* createButton(const QString& text, const char* slot);
+    QPushButton* createButton(const QString& text, void (DungeonDialog::*slot)());
     QPushButton *m_upButton;
     QPushButton *m_downButton;
     QPushButton *m_leftButton;

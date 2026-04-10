@@ -6,7 +6,6 @@
 #include <QFile>
 #include <QCoreApplication>
 #include <QDir>
-#include <QTextStream>
 
 void loadStyleSheet(QWidget* widget, const QString& sheetName) 
 {

@@ -1,4 +1,3 @@
-
 #include "src/character_dialog/CharacterDialog.h"
 #include "DungeonDialog.h"
 #include "DungeonHandlers.h"
@@ -29,15 +28,26 @@
 
 // Constants that depend on MAP_SIZE (which is now in the header)
 const int TILE_SIZE = 10;
-const int MAP_WIDTH_PIXELS = MAP_SIZE * TILE_SIZE; 
-const int MAP_HEIGHT_PIXELS = MAP_SIZE * TILE_SIZE; 
+const int MAP_WIDTH_PIXELS = MAP_SIZE * TILE_SIZE;
+const int MAP_HEIGHT_PIXELS = MAP_SIZE * TILE_SIZE;
 const int MAP_MIN = 0;
 const int MAP_MAX = MAP_SIZE - 1;
 
+/*
 QPushButton* DungeonDialog::createButton(const QString& text, const char* slot) {
     QPushButton* button = new QPushButton(text, this);
     button->setFocusPolicy(Qt::NoFocus); // Keeps focus on the main window for movement
     connect(button, SIGNAL(clicked()), this, slot);
+    return button;
+}
+*/
+
+QPushButton* DungeonDialog::createButton(const QString& text, void (DungeonDialog::*slot)()) {
+    QPushButton* button = new QPushButton(text, this);
+    // Keeps focus on the main window for movement
+    button->setFocusPolicy(Qt::NoFocus);
+    // Modern Qt 6 syntax: Pointer-to-member-function
+    connect(button, &QPushButton::clicked, this, slot);
     return button;
 }
 
@@ -432,7 +442,7 @@ void DungeonDialog::generateSpecialTiles(int tileCount, QRandomGenerator& rng)
     m_teleporterPositions.clear();
     m_hiddenDoorPositions.clear();
     gameStateManager* gsm = gameStateManager::instance();
-int currentLevel = gsm->getGameValue("DungeonLevel").toInt();
+    int currentLevel = gsm->getGameValue("DungeonLevel").toInt();
     QPair<int, int> playerPos = {gsm->getGameValue("DungeonX").toInt(), gsm->getGameValue("DungeonY").toInt()};
     // Helper A: Get a tile ONLY from a room (No corridors!)
     auto getValidRoomTile = [&]() -> QPair<int, int> {
@@ -535,10 +545,7 @@ DungeonDialog::DungeonDialog(QWidget *parent)
       m_dungeonScene(new QGraphicsScene(this))
 {
     gameStateManager* gsm = gameStateManager::instance();
-    if (!gameStateManager::instance()) {
-        qCritical() << "CRITICAL: gameStateManager is NULL!";
-        return; 
-    }
+
     m_experienceLabel = new QLabel(this);
     m_standaloneMinimap = new MinimapDialog(this);
     m_standaloneMinimap->setWindowFlags(Qt::Window | Qt::WindowStaysOnTopHint);
@@ -641,8 +648,10 @@ DungeonDialog::DungeonDialog(QWidget *parent)
     generateSpecialTiles(20, initialRng);
     drawMinimap();
 
-    m_fightButton = createButton("Fight", SLOT(on_fightButton_clicked()));
-    m_spellButton = createButton("Spell", SLOT(on_spellButton_clicked()));
+    //m_fightButton = createButton("Fight", SLOT(on_fightButton_clicked()));
+    //m_spellButton = createButton("Spell", SLOT(on_spellButton_clicked()));
+    m_fightButton = createButton("Fight", &DungeonDialog::on_fightButton_clicked);
+    m_spellButton = createButton("Spell", &DungeonDialog::on_spellButton_clicked);
 
 
     rightPanelLayout->addLayout(actionLayout);
