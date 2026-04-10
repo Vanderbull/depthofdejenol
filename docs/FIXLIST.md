@@ -211,7 +211,7 @@ m_gameStateData["PartyHP"] = hpList;
 
 ---
 
-## 19. `INCLUDEPATH` Typo in `.pro`
+## 19. `INCLUDEPATH` Typo in `.pro` ( FIXED )
 **File:** `blacklands.pro:28`
 **Problem:** `INCLUDEPATH += _PRO_FILE_PWD_/include` is missing the `$$` prefix. It's adding the literal string `_PRO_FILE_PWD_/include` instead of the project directory.
 **Fix:**
