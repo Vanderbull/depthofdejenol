@@ -125,7 +125,7 @@ if (!GameStateManager::instance()) {
 
 ---
 
-## 10. Old String-Based SIGNAL/SLOT Macros
+## 10. Old String-Based SIGNAL/SLOT Macros ( ONGOING )
 **Files:** `blacklands.cpp:302-303`, `DungeonDialog.cpp:40, 65`
 **Problem:** Uses old Qt4-style `SIGNAL()` / `SLOT()` macros which bypass compile-time type checking. Typos in signal/slot names silently fail at runtime.
 **Fix:** Replace with modern pointer-to-member syntax:
