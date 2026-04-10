@@ -197,14 +197,14 @@ m_gameStateData["PartyHP"] = hpList;
 
 ---
 
-## 17. Header Guard Mismatch
+## 17. Header Guard Mismatch ( FIXED 9
 **File:** `blacklands.h:1, 64`
 **Problem:** Uses `#ifndef GAMEMENU_H` / `#define GAMEMENU_H` but the file is `blacklands.h`. This won't cause a bug today, but if you ever create a file that also uses `GAMEMENU_H`, you'll get silent include conflicts.
 **Fix:** Rename to `#ifndef BLACKLANDS_H` / `#define BLACKLANDS_H` / `#endif // BLACKLANDS_H`.
 
 ---
 
-## 18. Filename Case Mismatch
+## 18. Filename Case Mismatch ( FIXED )
 **Files:** `blacklands.pro:120` vs actual file `fontManager.cpp`
 **Problem:** The `.pro` file references `FontManager.cpp` (capital F) but the file on disk is `fontManager.cpp` (lowercase f). This works on case-insensitive systems but will break on standard Linux filesystems.
 **Fix:** Rename the file to `FontManager.cpp` to match the convention used by the header (`FontManager.h`), or update the `.pro` file to `fontManager.cpp`. Consistency with the header name is preferred.
