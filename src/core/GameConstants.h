@@ -7,7 +7,6 @@
 #include <QString>
 
 namespace GameConstants {
-
     enum class CityLocation {
         None,
         Street,
@@ -18,7 +17,6 @@ namespace GameConstants {
         Bank,
         GeneralStore
     };
-
     enum class GameMode {
         InCity,
         Exploring,
@@ -26,7 +24,6 @@ namespace GameConstants {
         Menu,
         GameOver
     };
-
     enum EntityStatus {
         Normal    = 0,
         Poisoned  = 1 << 0,
@@ -35,44 +32,33 @@ namespace GameConstants {
         Alive     = 1 << 3
     };
     Q_DECLARE_FLAGS(EntityStatuses, EntityStatus)
-    
-    /* Example
-    struct Monster {
-      QString name;
-      int hp;
-      EntityStatuses statuses; // Holds all active effects in one variable
-    };
-    */
-
     static const int MAX_PARTY_SIZE = 4;
     // Measurements based on the spritesheet proportions
-    static constexpr int SPRITE_WIDTH = 80;   
-    static constexpr int SPRITE_HEIGHT = 90;  
+    static constexpr int SPRITE_WIDTH = 80;
+    static constexpr int SPRITE_HEIGHT = 90;
     static constexpr int KERNING = 48; // Adjust this to tighten/loosen spacing
-    
     static constexpr int FONT_CHAR_WIDTH = 32;
     static constexpr int FONT_CHAR_HEIGHT = 42;
-    
     // --- Add these for the Registry ---
-    const QString CAT_RACES = "Races";
-    const QString CAT_GUILDS = "Guilds";
-    const QString CAT_MASTERS = "GuildMasters";
+    inline const QString CAT_RACES = "Races";
+    inline const QString CAT_GUILDS = "Guilds";
+    inline const QString CAT_MASTERS = "GuildMasters";
 
     // --- Race Stat Types ---
-    struct RaceStat 
+    struct RaceStat
     {
         int start;
         int min;
         int max;
     };
 
-    enum AlignmentStatus 
+    enum AlignmentStatus
     {
         AS_Allowed,
         AS_NotAllowed
     };
 
-    struct RaceStats 
+    struct RaceStats
     {
         QString raceName;
         int maxAge;
@@ -86,7 +72,7 @@ namespace GameConstants {
         AlignmentStatus good;
         AlignmentStatus neutral;
         AlignmentStatus evil;
-        QMap<QString, AlignmentStatus> guildEligibility; 
+        QMap<QString, AlignmentStatus> guildEligibility;
     };
 
     // Race & Age Limits
@@ -97,16 +83,14 @@ namespace GameConstants {
     const int DEFAULT_ALIGNMENT_INDEX = 1; // Neutral
     const int DEFAULT_STAT_POINTS = 5;      //
     // Character Options
-    const QStringList STAT_NAMES = {"Strength", "Intelligence", "Wisdom", "Constitution", "Charisma", "Dexterity"};
-    const QStringList ALIGNMENT_NAMES = {"Good", "Neutral", "Evil"};
-    const QStringList SEX_OPTIONS = {"Male", "Female"};
-    
+    inline const QStringList STAT_NAMES = {"Strength", "Intelligence", "Wisdom", "Constitution", "Charisma", "Dexterity"};
+    inline const QStringList ALIGNMENT_NAMES = {"Good", "Neutral", "Evil"};
+    inline const QStringList SEX_OPTIONS = {"Male", "Female"};
     // Guild Data
-    const QStringList GUILD_NAMES = {
-        "Nomad", "Paladin", "Warrior", "Villain", "Seeker", 
+    inline const QStringList GUILD_NAMES = {
+        "Nomad", "Paladin", "Warrior", "Villain", "Seeker",
         "Thief", "Scavenger", "Mage", "Sorcerer", "Wizard", "Healer", "Ninja"
     };
-
     inline QMap<QString, QString> getGuildMasters() {
         return {
             {"Nomad", "Goch"}, {"Paladin", "Tuadar"}, {"Warrior", "Spore"},
@@ -117,7 +101,6 @@ namespace GameConstants {
     const QString CATEGORY_MAGIC = "Magic Books";
     const QString CATEGORY_MONSTERS = "Creatures";
     const QString CATEGORY_ITEMS = "Items";
-
 }
 Q_DECLARE_OPERATORS_FOR_FLAGS(GameConstants::EntityStatuses)
 

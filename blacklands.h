@@ -1,5 +1,5 @@
-#ifndef GAMEMENU_H
-#define GAMEMENU_H
+#ifndef BLACKLANDS_H
+#define BLACKLANDS_H
 
 #include <QWidget>
 #include <QDialog>

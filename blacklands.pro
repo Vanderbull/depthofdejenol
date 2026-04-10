@@ -25,7 +25,7 @@ UI_DIR = $$BUILD_DIR/ui
 #--------------------------------------------------
 QMAKE_RESOURCE_FLAGS += --root /
 
-INCLUDEPATH += _PRO_FILE_PWD_/include
+INCLUDEPATH += $$_PRO_FILE_PWD_/include
 
 #--------------------------------------------------
 # Source Files
