@@ -197,7 +197,7 @@ m_gameStateData["PartyHP"] = hpList;
 
 ---
 
-## 17. Header Guard Mismatch ( FIXED 9
+## 17. Header Guard Mismatch ( FIXED )
 **File:** `blacklands.h:1, 64`
 **Problem:** Uses `#ifndef GAMEMENU_H` / `#define GAMEMENU_H` but the file is `blacklands.h`. This won't cause a bug today, but if you ever create a file that also uses `GAMEMENU_H`, you'll get silent include conflicts.
 **Fix:** Rename to `#ifndef BLACKLANDS_H` / `#define BLACKLANDS_H` / `#endif // BLACKLANDS_H`.
