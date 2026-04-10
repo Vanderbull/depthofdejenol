@@ -140,7 +140,7 @@ connect(dialog, &CreateCharacterDialog::characterCreated,
 
 ---
 
-## 11. Duplicate Includes
+## 11. Duplicate Includes ( FIXED )
 **File:** `SeerDialog.cpp:4-9`
 **Problem:** `QFile` is included on lines 4 and 6; `QTextStream` on lines 5 and 9.
 **Fix:** Remove lines 6 and 9.
