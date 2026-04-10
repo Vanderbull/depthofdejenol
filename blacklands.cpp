@@ -1,4 +1,3 @@
-
 #include "gameStateManager.h"
 #include "blacklands.h"
 #include "audioManager.h"
@@ -100,11 +99,12 @@ loadFontSprite("resources/images/font_spritesheet_transparent.png");
     setWindowTitle("The Depths of Dejenol: Black Lands");
     // 1. Get the directory of THIS .cpp file
     // __FILE__ is a built-in macro that gives the path to SeerDialog.cpp
-    QFileInfo fileInfo(__FILE__);
-    QString dir = fileInfo.absolutePath();
+    //QFileInfo fileInfo(__FILE__);
+    //QString dir = fileInfo.absolutePath();
+    QString qssPath = QCoreApplication::applicationDirPath() + "/MainMenu.qss";
 
     // 2. Build the path to the .qss file in the same folder
-    QString qssPath = dir + "/MainMenu.qss";
+    //QString qssPath = dir + "/MainMenu.qss";
     // 3. Load and apply the style
     QFile styleFile(qssPath);
     if (styleFile.open(QFile::ReadOnly | QFile::Text)) {

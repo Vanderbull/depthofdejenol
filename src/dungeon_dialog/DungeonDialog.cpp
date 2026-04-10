@@ -98,7 +98,7 @@ void DungeonDialog::populateRandomTreasures(int level)
             itemsPlaced++;
         }
     }
-    qDebug() << "Successfully placed 10 random items from MDATA3 on level" << level;
+    qDebug() << "Successfully placed" << itemsPlaced << "random items from MDATA3 on level" << level;
 }
 
 void DungeonDialog::revealAroundPlayer(int x, int y, int z=0)
