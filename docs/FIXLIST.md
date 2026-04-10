@@ -101,7 +101,7 @@ Or embed stylesheets in a `.qrc` resource file.
 
 ---
 
-## 8. Log Message Doesn't Match Actual Count
+## 8. Log Message Doesn't Match Actual Count ( FIXED )
 **File:** `DungeonDialog.cpp:82, 100`
 **Problem:** The loop runs while `itemsPlaced < 100` (places 100 items), but the debug log says `"Successfully placed 10 random items"`.
 **Fix:** Change line 100 to:
