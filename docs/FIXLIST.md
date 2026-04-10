@@ -111,7 +111,7 @@ qDebug() << "Successfully placed" << itemsPlaced << "random items from MDATA3 on
 
 ---
 
-## 9. Meaningless Null Check on Singleton
+## 9. Meaningless Null Check on Singleton ( FIXED )
 **File:** `DungeonDialog.cpp:467-469`
 **Problem:** `GameStateManager::instance()` returns a pointer to a `static` local — it can never be null. The null check is dead code that gives a false sense of safety.
 **Fix:** Remove lines 467-470:
