@@ -1,4 +1,3 @@
-
 #ifndef gameStateManager_H
 #define gameStateManager_H
 
@@ -92,6 +91,8 @@ private:
 
 public:
     virtual ~gameStateManager();
+    QList<QVariantMap> getMonsterData() const { return m_monsterData; }
+
     void setGameMode(GameConstants::GameMode newMode);
     void enterLocation(GameConstants::CityLocation location);
     
