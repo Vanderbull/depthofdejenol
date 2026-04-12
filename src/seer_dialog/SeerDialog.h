@@ -8,7 +8,7 @@
 #include <QLabel>
 #include <QLineEdit>
 
-#include "gameStateManager.h"
+#include "GameStateManager.h"
 
 class SeerDialog : public QDialog
 {

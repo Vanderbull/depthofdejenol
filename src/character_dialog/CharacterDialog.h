@@ -5,7 +5,7 @@
 #include <QString>
 #include <QVariant>
 #include <QLabel>
-#include "gameStateManager.h"
+#include "GameStateManager.h"
 
 class CharacterDialog : public QDialog {
     Q_OBJECT
@@ -16,7 +16,7 @@ public:
     ~CharacterDialog() override = default;
 
 private slots:
-    // Slot to receive state change notifications from gameStateManager
+    // Slot to receive state change notifications from GameStateManager
     void updateGameStateValue(const QString& key, const QVariant& value);
 
 private:

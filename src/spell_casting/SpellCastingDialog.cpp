@@ -1,5 +1,5 @@
 #include "SpellCastingDialog.h"
-#include "../../gameStateManager.h"
+#include "../../GameStateManager.h"
 
 #include <QVBoxLayout>
 #include <QHBoxLayout>
@@ -166,7 +166,7 @@ void SpellCastingDialog::populateSpellList(const QString& category)
     m_spellList->clear();
     
     QJsonArray spells = m_spellsData.value(category).toArray();
-    gameStateManager* gsm = gameStateManager::instance();
+    GameStateManager* gsm = GameStateManager::instance();
     
     // Get the current values from the variables you specified
     int currentMana = gsm->getCurrentMana(); // Pulls m_gameStateData["CurrentMana"]
@@ -220,7 +220,7 @@ void SpellCastingDialog::onSpellSelected(QListWidgetItem* item)
     m_selectedSpell = item->data(Qt::UserRole).toJsonObject();
     updateSpellDetails(m_selectedSpell);
     
-    gameStateManager* gsm = gameStateManager::instance();
+    GameStateManager* gsm = GameStateManager::instance();
     
     // CHANGE: Use "mana" consistently with your populateSpellList function
     int manaCost = m_selectedSpell.value("mana").toInt(); 
@@ -267,7 +267,7 @@ void SpellCastingDialog::updateSpellDetails(const QJsonObject& spell)
 
 void SpellCastingDialog::updateManaDisplay()
 {
-    gameStateManager* gsm = gameStateManager::instance();
+    GameStateManager* gsm = GameStateManager::instance();
     int current = gsm->getCurrentMana();
     int max = gsm->getMaxMana();
     
@@ -288,7 +288,7 @@ void SpellCastingDialog::onCastClicked()
         return;
     }
 
-    gameStateManager* gsm = gameStateManager::instance();
+    GameStateManager* gsm = GameStateManager::instance();
     
     // 2. Fetch mana cost using the correct JSON key "mana" 
     // (This matches your populateSpellList and updateSpellDetails functions)
@@ -365,7 +365,7 @@ SpellResult SpellCastingDialog::castDamageSpell(const QJsonObject& spell)
     QString spellName = spell.value("name").toString();
     QString damageStr = spell.value("damage").toString();
     
-    gameStateManager* gsm = gameStateManager::instance();
+    GameStateManager* gsm = GameStateManager::instance();
     int intelligence = gsm->getGameValue("CurrentCharacterIntelligence").toInt();
     
     int damage = calculateSpellDamage(damageStr, intelligence);
@@ -398,7 +398,7 @@ SpellResult SpellCastingDialog::castHealingSpell(const QJsonObject& spell)
     SpellResult result;
     QString spellName = spell.value("name").toString();
     
-    gameStateManager* gsm = gameStateManager::instance();
+    GameStateManager* gsm = GameStateManager::instance();
     int wisdom = gsm->getGameValue("CurrentCharacterWisdom").toInt();
     int currentHP = gsm->getGameValue("CurrentCharacterHP").toInt();
     int maxHP = gsm->getGameValue("MaxCharacterHP").toInt();
@@ -473,7 +473,7 @@ SpellResult SpellCastingDialog::castUtilitySpell(const QJsonObject& spell)
     SpellResult result;
     QString spellName = spell.value("name").toString();
     
-    gameStateManager* gsm = gameStateManager::instance();
+    GameStateManager* gsm = GameStateManager::instance();
     
     if (spellName == "Light") {
         result.success = true;

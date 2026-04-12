@@ -1,7 +1,7 @@
 #include "src/character_dialog/CharacterDialog.h"
 #include "DungeonDialog.h"
 #include "DungeonHandlers.h"
-#include "../../gameStateManager.h"
+#include "../../GameStateManager.h"
 #include "../event/EventManager.h"
 #include "src/spell_casting/SpellCastingDialog.h"
 #include <QVBoxLayout>
@@ -26,28 +26,18 @@
 #include <QGraphicsScene>
 #include <QGraphicsView>
 
+
 // Constants that depend on MAP_SIZE (which is now in the header)
 const int TILE_SIZE = 10;
-const int MAP_WIDTH_PIXELS = MAP_SIZE * TILE_SIZE;
-const int MAP_HEIGHT_PIXELS = MAP_SIZE * TILE_SIZE;
+const int MAP_WIDTH_PIXELS = MAP_SIZE * TILE_SIZE; 
+const int MAP_HEIGHT_PIXELS = MAP_SIZE * TILE_SIZE; 
 const int MAP_MIN = 0;
 const int MAP_MAX = MAP_SIZE - 1;
 
-/*
 QPushButton* DungeonDialog::createButton(const QString& text, const char* slot) {
     QPushButton* button = new QPushButton(text, this);
     button->setFocusPolicy(Qt::NoFocus); // Keeps focus on the main window for movement
     connect(button, SIGNAL(clicked()), this, slot);
-    return button;
-}
-*/
-
-QPushButton* DungeonDialog::createButton(const QString& text, void (DungeonDialog::*slot)()) {
-    QPushButton* button = new QPushButton(text, this);
-    // Keeps focus on the main window for movement
-    button->setFocusPolicy(Qt::NoFocus);
-    // Modern Qt 6 syntax: Pointer-to-member-function
-    connect(button, &QPushButton::clicked, this, slot);
     return button;
 }
 
@@ -72,7 +62,6 @@ void DungeonDialog::setupControls() {
     // Loop through and create them automatically
     for (auto it = buttonConfigs.begin(); it != buttonConfigs.end(); ++it) {
         QPushButton* btn = new QPushButton(it.key(), this);
-        btn->setFocusPolicy(Qt::NoFocus);
         connect(btn, SIGNAL(clicked()), this, it.value());
         m_controls.insert(it.key(), btn);
     }
@@ -81,8 +70,8 @@ void DungeonDialog::setupControls() {
 
 void DungeonDialog::populateRandomTreasures(int level)
 {
-    gameStateManager* gsm = gameStateManager::instance();
-    // MDATA3 is loaded into m_itemData in gameStateManager
+    GameStateManager* gsm = GameStateManager::instance();
+    // MDATA3 is loaded into m_itemData in GameStateManager
     const QList<QVariantMap>& allItems = gsm->itemData(); 
     if (allItems.isEmpty()) {
         qDebug() << "MDATA3 not loaded or empty.";
@@ -102,13 +91,13 @@ void DungeonDialog::populateRandomTreasures(int level)
             QString itemName = allItems.at(itemIdx).value("name").toString();
             // 4. Add to local level map (for rendering/interaction)
             m_treasurePositions.insert(pos, itemName);
-            // 5. Add to the Global Array in gameStateManager
+            // 5. Add to the Global Array in GameStateManager
             gsm->addPlacedItem(level, x, y, itemName);
             qDebug() << itemName;
             itemsPlaced++;
         }
     }
-    qDebug() << "Successfully placed" << itemsPlaced << "random items from MDATA3 on level" << level;
+    qDebug() << "Successfully placed 10 random items from MDATA3 on level" << level;
 }
 
 void DungeonDialog::revealAroundPlayer(int x, int y, int z=0)
@@ -160,86 +149,17 @@ void DungeonDialog::logMessage(const QString& message)
 // --- Gold Management Helper Function ---
 void DungeonDialog::updateGoldLabel()
 {
-    // UPDATED: Retrieve gold from gameStateManager
-    quint64 currentGold = gameStateManager::instance()->getGameValue("PlayerGold").toULongLong();
+    // UPDATED: Retrieve gold from GameStateManager
+    quint64 currentGold = GameStateManager::instance()->getGameValue("PlayerGold").toULongLong();
     if (m_goldLabel) {
         QString goldString = QStringLiteral("%L1").arg(currentGold);
         m_goldLabel->setText(QString("You have a total of **%1 Gold**.").arg(goldString));
     }
 }
-
-void DungeonDialog::updatePartyMemberHealth(int memberIndex, int damage)
-{
-    gameStateManager* gsm = gameStateManager::instance();   
-    Character& target = gsm->getPartyMember(memberIndex);
-    
-    // 1. Calculate Defense Mitigation
-    // Example: Armor/Defense reduces flat damage; Dexterity provides a % reduction
-    int armorDef = 2; // This should eventually come from MDATA3 armor items
-    int dexMitigation = target.dexterity / 4; 
-    
-    int mitigatedDamage = damage - armorDef - dexMitigation;
-
-    // 2. Apply Defending Modifier
-    // Halve damage if that specific character is using the "Defend" action
-    int finalDamage = (m_isDefending && m_currentTurnIndex == memberIndex) 
-                      ? qMax(1, mitigatedDamage / 2) 
-                      : mitigatedDamage;
-
-    // Ensure damage never goes below 1 if the original hit was significant
-    finalDamage = qMax(1, finalDamage);
-
-    target.hp = qMax(0, target.hp - finalDamage);
-    logMessage(QString("%1 takes %2 damage (Mitigated: %3)!").arg(target.name).arg(finalDamage).arg(damage - finalDamage));
-
-    if (target.hp <= 0) {
-        //target.isAlive = false;
-        target.addStatus(StatusFlag::Dead);
-        logMessage(QString("<font color='red'>%1 has fallen!</font>").arg(target.name));
-    }
-
-    if (gsm->isWholePartyDead()) {
-        logMessage("The entire party has been defeated...");
-        this->close();
-        emit exitedDungeonToCity();
-    }
-    
-    gsm->refreshUI(); // Update health bars in QML
-}
-
-/*
-void DungeonDialog::updatePartyMemberHealth(int memberIndex, int damage)
-{
-    gameStateManager* gsm = gameStateManager::instance();   
-    Character& target = gsm->getPartyMember(memberIndex);
-    
-    // Halve damage if that specific character is defending
-    int finalDamage = (m_isDefending && m_currentTurnIndex == memberIndex) ? qMax(1, damage / 2) : damage;
-
-    target.hp = qMax(0, target.hp - finalDamage);
-    logMessage(QString("%1 takes %2 damage!").arg(target.name).arg(finalDamage));
-
-    if (target.hp <= 0) {
-        target.isAlive = false;
-        logMessage(QString("<font color='red'>%1 has fallen!</font>").arg(target.name));
-    }
-
-    // Check for Total Party Wipe
-    if (gsm->isWholePartyDead()) {
-        logMessage("The entire party has been defeated...");
-        this->close();
-        emit exitedDungeonToCity();
-    }
-    
-    gsm->refreshUI(); // Update health bars and status in QML
-}
-*/
-
-/*
 // --- Party Management Helper Function ---
 void DungeonDialog::updatePartyMemberHealth(int row, int damage)
 {
-    gameStateManager* gsm = gameStateManager::instance();   
+    GameStateManager* gsm = GameStateManager::instance();   
     
     // Check if player is defending to halve damage
     int finalDamage = damage;
@@ -260,12 +180,11 @@ void DungeonDialog::updatePartyMemberHealth(int row, int damage)
         }
     }
 }
-*/
 // --- Dungeon Management (Movement, Drawing, Encounters) ---
 void DungeonDialog::movePlayer(int dx, int dy, int dz=0)
 {
     Q_UNUSED(dz);
-    gameStateManager* gsm = gameStateManager::instance();
+    GameStateManager* gsm = GameStateManager::instance();
     int currentX = gsm->getGameValue("DungeonX").toInt();
     int currentY = gsm->getGameValue("DungeonY").toInt();
     int currentZ = gsm->getGameValue("DungeonLevel").toInt();
@@ -402,13 +321,13 @@ void DungeonDialog::generateRandomObstacles(int roomCount, QRandomGenerator& rng
         }
     }
     // Start player in the first room created
-    gameStateManager::instance()->setGameValue("DungeonX", rooms[0].x + 1);
-    gameStateManager::instance()->setGameValue("DungeonY", rooms[0].y + 1);
+    GameStateManager::instance()->setGameValue("DungeonX", rooms[0].x + 1);
+    GameStateManager::instance()->setGameValue("DungeonY", rooms[0].y + 1);
 }
 
 void DungeonDialog::generateStairs(QRandomGenerator& rng)
 {
-    gameStateManager* gsm = gameStateManager::instance();
+    GameStateManager* gsm = GameStateManager::instance();
     int currentX = gsm->getGameValue("DungeonX").toInt();
     int currentY = gsm->getGameValue("DungeonY").toInt();
     QPair<int, int> currentPos = {currentX, currentY};
@@ -441,8 +360,8 @@ void DungeonDialog::generateSpecialTiles(int tileCount, QRandomGenerator& rng)
     m_waterPositions.clear();
     m_teleporterPositions.clear();
     m_hiddenDoorPositions.clear();
-    gameStateManager* gsm = gameStateManager::instance();
-    int currentLevel = gsm->getGameValue("DungeonLevel").toInt();
+    GameStateManager* gsm = GameStateManager::instance();
+int currentLevel = gsm->getGameValue("DungeonLevel").toInt();
     QPair<int, int> playerPos = {gsm->getGameValue("DungeonX").toInt(), gsm->getGameValue("DungeonY").toInt()};
     // Helper A: Get a tile ONLY from a room (No corridors!)
     auto getValidRoomTile = [&]() -> QPair<int, int> {
@@ -544,11 +463,13 @@ DungeonDialog::DungeonDialog(QWidget *parent)
     : QDialog(parent),
       m_dungeonScene(new QGraphicsScene(this))
 {
-    gameStateManager* gsm = gameStateManager::instance();
-
+    GameStateManager* gsm = GameStateManager::instance();
+    if (!GameStateManager::instance()) {
+        qCritical() << "CRITICAL: GameStateManager is NULL!";
+        return; 
+    }
     m_experienceLabel = new QLabel(this);
     m_standaloneMinimap = new MinimapDialog(this);
-    m_standaloneMinimap->setWindowFlags(Qt::Window | Qt::WindowStaysOnTopHint);
     QScreen *screen = QGuiApplication::primaryScreen();
     if (screen) {
         QRect screenGeometry = screen->availableGeometry();
@@ -558,9 +479,8 @@ DungeonDialog::DungeonDialog(QWidget *parent)
     }
     connect(m_standaloneMinimap, &MinimapDialog::requestMapUpdate, this, &DungeonDialog::drawMinimap);
     setWindowTitle("Dungeon: Depth of Dejenol");
-    setMinimumSize(1000, 800);
-    resize(1000, 800);
-    // Load gameStateManager data
+    setMinimumSize(1000, 750);
+    // Load GameStateManager data
 
     // Retrieve Constitution to calculate a simple placeholder for maximum HP
     // int con = gsm->getGameValue("CurrentCharacterConstitution").toInt();
@@ -570,7 +490,7 @@ DungeonDialog::DungeonDialog(QWidget *parent)
     int initialX = gsm->getGameValue("DungeonX").toInt();
     int initialY = gsm->getGameValue("DungeonY").toInt();
     //quint64 initialGold = gsm->getGameValue("PlayerGold").toULongLong();
-    gsm->setGameValue("PlayerGold", gsm->getPC().at(0).gold);
+    gsm->setGameValue("PlayerGold", gsm->getPC().at(0).Gold);
     //initialGold = gsm->getPC().at(0).gold;
     
     // Set defaults if state data is missing (e.g., first time entering)
@@ -648,11 +568,32 @@ DungeonDialog::DungeonDialog(QWidget *parent)
     generateSpecialTiles(20, initialRng);
     drawMinimap();
 
-    //m_fightButton = createButton("Fight", SLOT(on_fightButton_clicked()));
-    //m_spellButton = createButton("Spell", SLOT(on_spellButton_clicked()));
-    m_fightButton = createButton("Fight", &DungeonDialog::on_fightButton_clicked);
-    m_spellButton = createButton("Spell", &DungeonDialog::on_spellButton_clicked);
-
+    // 4. Action Buttons
+    //QGridLayout *actionLayout = new QGridLayout();
+//    m_fightButton = new QPushButton("Fight (F)");
+//    m_spellButton = new QPushButton("Spell (S)");
+//    m_restButton = new QPushButton("Rest (R)");
+//    m_talkButton = new QPushButton("Talk (T)");
+//    m_searchButton = new QPushButton("Search (Z)");
+//    m_pickupButton = new QPushButton("Pickup (P)");
+//    m_dropButton = new QPushButton("Drop (D)");
+//    m_openButton = new QPushButton("Open (O)");
+//    m_mapButton = new QPushButton("Map (M)");
+//    m_chestButton = new QPushButton("Chest (C)"); 
+//    m_exitButton = new QPushButton("Exit");
+//    m_teleportButton = new QPushButton("Teleport (U)");
+//    actionLayout->addWidget(m_fightButton, 0, 0);
+//    actionLayout->addWidget(m_spellButton, 0, 1);
+//    actionLayout->addWidget(m_restButton, 0, 2);
+//    actionLayout->addWidget(m_talkButton, 1, 0);
+//    actionLayout->addWidget(m_searchButton, 1, 1);
+//    actionLayout->addWidget(m_pickupButton, 1, 2);
+//    actionLayout->addWidget(m_dropButton, 2, 0);
+//    actionLayout->addWidget(m_openButton, 2, 1);
+//    actionLayout->addWidget(m_mapButton, 2, 2);
+//    actionLayout->addWidget(m_chestButton, 3, 0);
+//    actionLayout->addWidget(m_teleportButton, 3, 1);
+//    actionLayout->addWidget(m_exitButton, 3, 2);
 
     rightPanelLayout->addLayout(actionLayout);
     // 5. Directional Buttons (Movement)
@@ -665,14 +606,6 @@ DungeonDialog::DungeonDialog(QWidget *parent)
     // Rotate
     m_rotateLeftButton = new QPushButton("Rotate L");
     m_rotateRightButton = new QPushButton("Rotate R");
-
-    m_upButton->setFocusPolicy(Qt::NoFocus);
-    m_downButton->setFocusPolicy(Qt::NoFocus);
-    m_leftButton->setFocusPolicy(Qt::NoFocus);
-    m_rightButton->setFocusPolicy(Qt::NoFocus);
-    m_rotateLeftButton->setFocusPolicy(Qt::NoFocus);
-    m_rotateRightButton->setFocusPolicy(Qt::NoFocus);
-
     moveLayout->addWidget(m_rotateLeftButton, 0, 0);
     moveLayout->addWidget(m_upButton, 0, 1);
     moveLayout->addWidget(m_rotateRightButton, 0, 2);
@@ -684,8 +617,6 @@ DungeonDialog::DungeonDialog(QWidget *parent)
     QHBoxLayout *stairsLayout = new QHBoxLayout();
     QPushButton *stairsUpButton = new QPushButton("Stairs Up");
     QPushButton *stairsDownButton = new QPushButton("Stairs Down");
-    stairsUpButton->setFocusPolicy(Qt::NoFocus);
-    stairsDownButton->setFocusPolicy(Qt::NoFocus);
     stairsLayout->addWidget(stairsUpButton);
     stairsLayout->addWidget(stairsDownButton);
     rightPanelLayout->addLayout(stairsLayout);
@@ -727,19 +658,23 @@ DungeonDialog::DungeonDialog(QWidget *parent)
     renderWireframeView();
     // ADD THIS LINE TO PREVENT THE CRASH:
     m_combatTimer = new QTimer(this);
-
+    // Add this to your Constructor for every button and widget
+    m_upButton->setFocusPolicy(Qt::NoFocus);
+    m_downButton->setFocusPolicy(Qt::NoFocus);
+    m_leftButton->setFocusPolicy(Qt::NoFocus);
+    m_rightButton->setFocusPolicy(Qt::NoFocus);
     m_messageLog->setFocusPolicy(Qt::NoFocus);
     m_graphicsView->setFocusPolicy(Qt::NoFocus);
-
+    // Do this for ALL buttons (Fight, Spell, Map, etc.)
     this->setFocusPolicy(Qt::StrongFocus);
     this->setFocus();
 }
 
 void DungeonDialog::updateExperienceLabel()
 {
-    // Retrieve Experience from gameStateManager
+    // Retrieve Experience from GameStateManager
     // Assuming the key is "PlayerExperience"
-    quint64 currentXP = gameStateManager::instance()->getGameValue("PlayerExperience").toULongLong();
+    quint64 currentXP = GameStateManager::instance()->getGameValue("PlayerExperience").toULongLong();
     if (m_experienceLabel) {
         QString xpString = QStringLiteral("%L1").arg(currentXP);
         m_experienceLabel->setText(QString("Experience: **%1 XP**").arg(xpString));
@@ -752,7 +687,7 @@ void DungeonDialog::enterLevel(int level, bool movingUp)
     m_visitedTiles.clear();
     // Clear treasures specifically at the start of level generation
     m_treasurePositions.clear();
-    gameStateManager* gsm = gameStateManager::instance();
+    GameStateManager* gsm = GameStateManager::instance();
     // 1. Generate the map using Room-and-Corridor logic
     // Seed by level to ensure the layout is deterministic
     QRandomGenerator levelRng(level + 12345);
@@ -796,13 +731,12 @@ void DungeonDialog::on_mapButton_clicked()
         m_standaloneMinimap->hide();
     } else {
         m_standaloneMinimap->show();
-        // Keep focus on the main window so movement keys continue to work
-        this->activateWindow();
-        this->raise();
-        this->setFocus();
-        drawMinimap();
+        // Optional: Keep focus on the main window so the map is just an overlay
+        this->activateWindow(); 
+        drawMinimap(); 
     }
-    }
+}
+
 void DungeonDialog::on_pickupButton_clicked() 
 {
     logMessage("You try to pickup something but is unable to.");
@@ -810,7 +744,7 @@ void DungeonDialog::on_pickupButton_clicked()
 
 void DungeonDialog::on_dropButton_clicked() 
 {
-    gameStateManager* gsm = gameStateManager::instance();
+    GameStateManager* gsm = GameStateManager::instance();
 
     int x = gsm->getGameValue("DungeonX").toInt();
     int y = gsm->getGameValue("DungeonY").toInt();
@@ -818,7 +752,7 @@ void DungeonDialog::on_dropButton_clicked()
     m_bodyPositions.insert(pos);
     
     // Check if the player is actually carrying a body
-    // Assuming "IsCarryingBody" is a flag in your gameStateManager
+    // Assuming "IsCarryingBody" is a flag in your GameStateManager
     if (gsm->getGameValue("IsCarryingBody").toBool()) {
         
         // Get current position
@@ -847,7 +781,7 @@ void DungeonDialog::on_dropButton_clicked()
 
 void DungeonDialog::on_teleportButton_clicked() 
 { 
-    gameStateManager* gsm = gameStateManager::instance();
+    GameStateManager* gsm = GameStateManager::instance();
     int newX, newY;
     QPair<int, int> newPos;
     // 1. Find a random valid location (not a wall)
@@ -874,45 +808,6 @@ void DungeonDialog::on_teleportButton_clicked()
     emit teleporterUsed();
 }
 
-void DungeonDialog::on_fightButton_clicked() {
-    //if (m_isFighting) return;
-    if (!m_isFighting) {
-        // Start the initiative logic (your existing code to roll and sort)
-        startCombatInitiative(); 
-    } else {
-        // Combat is already active, so this click means "Standard Attack"
-        performPlayerAttack();
-    }
-
-    // 1. Identify participants
-    QList<Combatant> queue;
-    gameStateManager* gsm = gameStateManager::instance();
-    auto party = gsm->getPC();
-
-    // Roll for Party
-    for (int i = 0; i < party.size(); ++i) {
-        int roll = QRandomGenerator::global()->bounded(1, 21) + (party[i].dexterity / 4);
-        queue.append({party[i].name, roll, true, i});
-    }
-
-    // Roll for Enemy Group
-    int enemyRoll = QRandomGenerator::global()->bounded(1, 21); // Simple roll for the group
-    queue.append({m_activeMonsterName, enemyRoll, false, -1});
-
-    // 2. Sort by Initiative (Highest first)
-    std::sort(queue.begin(), queue.end(), [](const Combatant& a, const Combatant& b) {
-        return a.initiative > b.initiative;
-    });
-
-    // 3. Initialize Combat State
-    m_isFighting = true;
-    m_combatQueue = queue; // Assume m_combatQueue is a member QList
-    m_currentTurnIndex = 0;
-
-    logMessage("<b>Combat Starts!</b>");
-    processCombatTick(); // Start the first turn
-}
-/*
 void DungeonDialog::on_fightButton_clicked() 
 {
     // If it exists, kill it so we start fresh for this test
@@ -933,87 +828,7 @@ void DungeonDialog::on_fightButton_clicked()
     m_combatTimer->start(100); 
     logMessage("FORCING TIMER START...");
 }
-*/
 
-void DungeonDialog::processCombatTick() {
-    if (!m_isFighting || m_combatQueue.isEmpty()) return;
-
-    Combatant& current = m_combatQueue[m_currentTurnIndex];
-
-    if (current.isPlayer) {
-        logMessage(QString("<b>It is %1's turn!</b>").arg(current.name));
-        
-        // Enable buttons for user input
-        if (m_fightButton) m_fightButton->setEnabled(true);
-        if (m_spellButton) m_spellButton->setEnabled(true);
-    } else {
-        // Disable buttons while monster acts
-        if (m_fightButton) m_fightButton->setEnabled(false);
-        if (m_spellButton) m_spellButton->setEnabled(false);
-        
-        logMessage(QString("<font color='red'>%1 attacks!</font>").arg(current.name));
-        performMonsterAttack();
-        
-        // Move to the next person in the initiative queue
-        advanceTurn();
-    }
-}
-
-/*
-void DungeonDialog::processCombatTick() {
-    if (!m_isFighting || m_combatQueue.isEmpty()) return;
-
-    Combatant& current = m_combatQueue[m_currentTurnIndex];
-
-    if (current.isPlayer) {
-        logMessage(QString("<b>It is %1's turn!</b>").arg(current.name));
-        
-        // Enable buttons so the user can actually take an action
-        m_fightButton->setEnabled(true); 
-        m_spellButton->setEnabled(true);
-    } else {
-        // It's the monster's turn
-        m_fightButton->setEnabled(false);
-        m_spellButton->setEnabled(false);
-        
-        logMessage(QString("<font color='red'>%1 attacks!</font>").arg(current.name));
-        performMonsterAttack(); // Your existing damage logic
-        
-        // Monsters don't need to wait for clicks, so move to next turn
-        advanceTurn();
-    }
-}
-*/
-
-/*
-void DungeonDialog::processCombatTick() {
-    if (!m_isFighting || m_combatQueue.isEmpty()) return;
-
-    Combatant& current = m_combatQueue[m_currentTurnIndex];
-
-    if (current.isPlayer) {
-        logMessage(QString("It is %1's turn. Select an action!").arg(current.name));
-        // Wait for user input (Attack/Spell buttons)
-    } else {
-        logMessage(QString("%1 lunges at the party!").arg(current.name));
-        performMonsterAttack(); // Existing logic to deal damage
-        advanceTurn();
-    }
-}
-*/
-void DungeonDialog::advanceTurn() {
-    m_currentTurnIndex = (m_currentTurnIndex + 1) % m_combatQueue.size();
-    
-    // If we've looped back to the start, a new round begins
-    if (m_currentTurnIndex == 0) {
-        logMessage("<i>--- New Round ---</i>");
-    }
-    
-    processCombatTick();
-}
-
-
-/*
 void DungeonDialog::processCombatTick() 
 {
     if (!m_isFighting) return;
@@ -1035,19 +850,9 @@ void DungeonDialog::processCombatTick()
         m_monsterAttackCooldown = 0;
     }
 }
-*/
 
 void DungeonDialog::performPlayerAttack() {
-
-    int roll = QRandomGenerator::global()->bounded(1, 21);
     int damage = QRandomGenerator::global()->bounded(5, 15);
-
-    if (roll == 1) { 
-        logMessage("Critical Miss!"); return; 
-    }
-    if (roll == 20) { 
-        damage *= 2; logMessage("Critical Hit!"); 
-    }
     m_activeMonsterHP -= damage;
     logMessage(QString("You hit the monster for %1 damage!").arg(damage));
 
@@ -1061,23 +866,10 @@ void DungeonDialog::performPlayerAttack() {
         m_monsterPositions.remove(pos);
         renderWireframeView();
     }
-    // AFTER the attack is done, move the initiative forward
-    if (m_isFighting) {
-        advanceTurn();
-    }
 }
 
 void DungeonDialog::performMonsterAttack() {
-
-    int roll = QRandomGenerator::global()->bounded(1, 21);
     int damage = QRandomGenerator::global()->bounded(1, 10);
-
-    if (roll == 1) { 
-        logMessage("Critical Miss!"); return; 
-    }
-    if (roll == 20) { 
-        damage *= 2; logMessage("Critical Hit!"); 
-    }
     updatePartyMemberHealth(0, damage);
     logMessage(QString("<font color='red'>The monster hits you for %1 damage!</font>").arg(damage));
 }
@@ -1085,7 +877,7 @@ void DungeonDialog::performMonsterAttack() {
 // DungeonDialog.cpp
 QPair<int, int> DungeonDialog::getCurrentPosition()
 {
-    gameStateManager* gsm = gameStateManager::instance();
+    GameStateManager* gsm = GameStateManager::instance();
     return qMakePair(gsm->getGameValue("DungeonX").toInt(), 
                      gsm->getGameValue("DungeonY").toInt());
 }
@@ -1145,9 +937,8 @@ void DungeonDialog::keyPressEvent(QKeyEvent *event)
     // Add this to see if the event is even reaching the function
     qDebug() << "Key Pressed:" << event->key();
     switch (event->key()) {
-        // --- Movement (WASD & Arrows) ---
+        // --- Movement (WASD) ---
         case Qt::Key_Up:
-        case Qt::Key_W:
             qDebug() << "up";
             moveForward();
             event->accept();
@@ -1158,7 +949,6 @@ void DungeonDialog::keyPressEvent(QKeyEvent *event)
             event->accept();
             break;
         case Qt::Key_Left:
-        case Qt::Key_A:
             qDebug() << "left";
             moveStepLeft();
             event->accept();
@@ -1177,7 +967,7 @@ void DungeonDialog::keyPressEvent(QKeyEvent *event)
             break;
         // --- Other Action Shortcuts ---
         case Qt::Key_T: {
-            gameStateManager* gsm = gameStateManager::instance();
+            GameStateManager* gsm = GameStateManager::instance();
             QPair<int, int> currentPos = { 
                 gsm->getGameValue("DungeonX").toInt(), 
                 gsm->getGameValue("DungeonY").toInt() 
@@ -1204,9 +994,6 @@ void DungeonDialog::keyPressEvent(QKeyEvent *event)
             break;
         case Qt::Key_R:
             on_restButton_clicked();
-            break;
-        case Qt::Key_Z:
-            attemptFlee();
             break;
         case Qt::Key_S:
             on_spellButton_clicked();
@@ -1268,7 +1055,7 @@ void DungeonDialog::spawnMonsters(const QString& , int )
 
 void DungeonDialog::on_restButton_clicked() 
 {
-    gameStateManager* gsm = gameStateManager::instance();
+    GameStateManager* gsm = GameStateManager::instance();
     int constitution = gsm->getGameValue("CurrentCharacterConstitution").toInt();
     int healAmount = qMax(1, constitution / 2);    
     int currentHp = gsm->getGameValue("CurrentCharacterHP").toInt();
@@ -1380,7 +1167,7 @@ void DungeonDialog::rotate(int step)
 
 void DungeonDialog::transitionLevel(StairDirection direction)
 {
-    gameStateManager* gsm = gameStateManager::instance();
+    GameStateManager* gsm = GameStateManager::instance();
     // Retrieve current position once
     int currentZ = gsm->getGameValue("DungeonLevel").toInt();
     QPair<int, int> currentPos = { 
@@ -1421,7 +1208,7 @@ void DungeonDialog::handleSurfaceExit()
 
 void DungeonDialog::processTreasureOpening()
 {
-    gameStateManager* gsm = gameStateManager::instance();
+    GameStateManager* gsm = GameStateManager::instance();
     QPair<int, int> pos = {
         gsm->getGameValue("DungeonX").toInt(),
         gsm->getGameValue("DungeonY").toInt()
@@ -1450,7 +1237,7 @@ void DungeonDialog::update3DView() {
     m_threeDScene->setBackgroundBrush(Qt::black);
     QPen wirePen(Qt::green, 2); // Classic green phosphor look
 
-    gameStateManager* gsm = gameStateManager::instance();
+    GameStateManager* gsm = GameStateManager::instance();
     int px = gsm->getGameValue("DungeonX").toInt();
     int py = gsm->getGameValue("DungeonY").toInt();
     QString facing = m_compassLabel->text(); // e.g., "Facing North"
@@ -1534,7 +1321,7 @@ void DungeonDialog::renderWireframeView() {
     m_dungeonScene->clear();
     m_dungeonScene->setBackgroundBrush(Qt::black);
 
-    gameStateManager *gsm = gameStateManager::instance();
+    GameStateManager *gsm = GameStateManager::instance();
     int px = gsm->getGameValue("DungeonX").toInt();
     int py = gsm->getGameValue("DungeonY").toInt();
     QString facing = m_compassLabel->text();
@@ -1920,70 +1707,11 @@ void DungeonDialog::togglePartyInfo() {
     }
 }
 
-void DungeonDialog::on_spellButton_clicked() {
-    // Pass m_isFighting to the constructor so the dialog knows context
-    SpellCastingDialog* scd = new SpellCastingDialog(this, m_isFighting);
-    
-    // Use the correct signal: spellCast(QString, SpellResult)
-    connect(scd, &SpellCastingDialog::spellCast, this, [this](const QString& name, const SpellResult& result) {
-        if (!result.success) {
-            logMessage(QString("The spell %1 failed: %2").arg(name, result.message));
-        } else {
-            // 1. Handle Damage
-            if (result.damageDealt > 0) {
-                m_activeMonsterHP -= result.damageDealt;
-                logMessage(QString("The %1 spell hits the %2 for %3 damage!")
-                           .arg(name)
-                           .arg(m_activeMonsterName)
-                           .arg(result.damageDealt));
-
-                if (m_activeMonsterHP <= 0) {
-                    logMessage(QString("<font color='green'>The %1 is vaporized!</font>").arg(m_activeMonsterName));
-                    m_isFighting = false;
-                    if (m_combatTimer) m_combatTimer->stop();
-                    
-                    // Remove monster from map
-                    QPair<int, int> pos = getCurrentPosition();
-                    m_monsterPositions.remove(pos);
-                    renderWireframeView();
-                }
-            }
-
-            // 2. Handle Healing
-            if (result.healingDone > 0) {
-                int activeIdx = gameStateManager::instance()->getGameValue("ActiveCharacterIndex").toInt();
-                Character& chr = gameStateManager::instance()->getPartyMember(activeIdx);
-                
-                int oldHp = chr.hp;
-                chr.hp = qMin(chr.maxHp, chr.hp + result.healingDone);
-                
-                logMessage(QString("%1 is healed for %2 HP.").arg(chr.name).arg(chr.hp - oldHp));
-                gameStateManager::instance()->refreshUI();
-            }
-
-            // 3. Log the flavor message from the spell result
-            if (!result.message.isEmpty() && result.damageDealt == 0 && result.healingDone == 0) {
-                logMessage(result.message);
-            }
-        }
-
-        // 4. Advance the turn if combat is still active
-        // This ensures the monster gets to act after the player casts a spell
-        if (m_isFighting) {
-            advanceTurn();
-        }
-    });
-
-    scd->setAttribute(Qt::WA_DeleteOnClose);
-    scd->show();
-}
-
-/*
 void DungeonDialog::on_spellButton_clicked() 
 { 
     logMessage("You try to cast some sort of spell but fail."); 
     // Check if in antimagic zone
-    gameStateManager* gsm = gameStateManager::instance();
+    GameStateManager* gsm = GameStateManager::instance();
     int x = gsm->getGameValue("DungeonX").toInt();
     int y = gsm->getGameValue("DungeonY").toInt();
     QPair<int, int> pos = {x, y};
@@ -1999,7 +1727,7 @@ void DungeonDialog::on_spellButton_clicked()
     
     // Connect spell effects to dungeon actions
     connect(spellDialog, &SpellCastingDialog::spellCast, this, 
-            [this](const QString& /*spellName*//*, const SpellResult& result) {
+            [this](const QString& /*spellName*/, const SpellResult& result) {
         
     logMessage(QString("<font color='cyan'>%1</font>").arg(result.message));
         
@@ -2027,209 +1755,8 @@ void DungeonDialog::on_spellButton_clicked()
             on_teleportButton_clicked();
         }
     });
-
-    if (m_activeMonsterHP <= 0) {
-        logMessage(QString("<font color='green'>The %1 is destroyed!</font>").arg(m_activeMonsterName));
-
-        // Award XP
-        int reward = 200; // You can make this dynamic based on the monster name
-        gameStateManager::instance()->addExperienceToParty(reward);
-        logMessage(QString("The party receives %1 XP.").arg(reward));
-        
-        // Refresh the local XP label in the Dungeon UI
-        updateExperienceLabel();
-
-        // Standard combat cleanup
-        m_isFighting = false;
-        m_isDefending = false;
-        if (m_combatTimer) m_combatTimer->stop();
-        
-        QPair<int, int> pos = getCurrentPosition();
-        m_monsterPositions.remove(pos);
-        renderWireframeView();
-    }
     
     spellDialog->exec();
-}
-*/
-
-void DungeonDialog::cleanupCombat() {
-    m_isFighting = false;
-    m_combatQueue.clear();
-    m_currentTurnIndex = 0;
-    m_fightButton->setEnabled(true); // Re-enable for the next encounter
-    logMessage("Combat has ended.");
-}
-
-void DungeonDialog::startCombatInitiative() {
-    m_combatQueue.clear();
-    gameStateManager* gsm = gameStateManager::instance();
-    QList<Character> party = gsm->getPC(); 
-
-    for (int i = 0; i < party.size(); ++i) {
-        if (!party[i].isAlive()) continue;
-        Combatant p;
-        p.name = party[i].name;
-        p.initiative = QRandomGenerator::global()->bounded(1, 21) + (party[i].dexterity / 4);
-        p.isPlayer = true;
-        p.memberIndex = i;
-        m_combatQueue.append(p);
-    }
-
-    Combatant m;
-    m.name = m_activeMonsterName;
-    m.initiative = QRandomGenerator::global()->bounded(1, 21);
-    m.isPlayer = false;
-    m.memberIndex = -1;
-    m_combatQueue.append(m);
-
-    std::sort(m_combatQueue.begin(), m_combatQueue.end(), [](const Combatant& a, const Combatant& b) {
-        return a.initiative > b.initiative;
-    });
-
-    m_isFighting = true;
-    m_currentTurnIndex = 0;
-    processCombatTick();
-}
-
-
-// DungeonDialog.cpp
-void DungeonDialog::executeMonsterTurn() {
-    gameStateManager* gsm = gameStateManager::instance();
-    // Use the new getter to get the actual list of characters
-    QList<Character>& party = gsm->getPartyMembers(); 
-
-    if (gsm->isWholePartyDead()) return;
-
-    QList<int> frontRowIndices;
-    QList<int> backRowIndices;
-
-    // Filter living members into rows
-    for (int i = 0; i < party.size(); ++i) {
-        if (!party[i].isAlive()) continue;
-        
-        // 0 is Front Row (Warriors), 1 is Back Row (Mages)
-        if (party[i].row == 0) frontRowIndices.append(i);
-        else backRowIndices.append(i);
-    }
-
-    int targetIndex = -1;
-    if (!frontRowIndices.isEmpty()) {
-        // Attack the front row first
-        targetIndex = frontRowIndices[QRandomGenerator::global()->bounded(frontRowIndices.size())];
-    } else if (!backRowIndices.isEmpty()) {
-        // Only attack back row if front row is empty/dead
-        targetIndex = backRowIndices[QRandomGenerator::global()->bounded(backRowIndices.size())];
-    }
-
-    if (targetIndex != -1) {
-        int damage = QRandomGenerator::global()->bounded(5, 15);
-        // Pass the specific member index to take damage
-        updatePartyMemberHealth(targetIndex, damage);
-    }
-}
-/*
-// DungeonDialog.cpp (Logic for monster turn)
-void DungeonDialog::executeMonsterTurn() {
-    gameStateManager* gsm = gameStateManager::instance();
-    QList<Character>& party = gsm->getPartyReference(); // Need access to the full party
-
-    // 1. Identify valid targets in the front row (row 0)
-    QList<int> frontRowIndices;
-    QList<int> backRowIndices;
-    for (int i = 0; i < party.size(); ++i) {
-        if (!party[i].isAlive) continue;
-        if (party[i].row == 0) frontRowIndices.append(i);
-        else backRowIndices.append(i);
-    }
-
-    int targetIndex = -1;
-    if (!frontRowIndices.isEmpty()) {
-        // Target someone in the front row
-        targetIndex = frontRowIndices[QRandomGenerator::global()->bounded(frontRowIndices.size())];
-    } else if (!backRowIndices.isEmpty()) {
-        // If front row is dead/empty, target the back row
-        targetIndex = backRowIndices[QRandomGenerator::global()->bounded(backRowIndices.size())];
-    }
-
-    if (targetIndex != -1) {
-        int damage = QRandomGenerator::global()->bounded(5, 15);
-        updatePartyMemberHealth(targetIndex, damage);
-    }
-}
-*/
-
-int DungeonDialog::calculateWeaponDamage(int memberIndex) {
-    gameStateManager* gsm = gameStateManager::instance();
-    Character& chr = gsm->getPartyMember(memberIndex);
-    
-    // Assume the first item in inventory is the weapon for now
-    QString weaponName = chr.inventory.isEmpty() ? "Hands" : chr.inventory.first();
-    QVariantMap itemData = gsm->getItemStats(weaponName);
-    
-    // Default values if item data is missing
-    int baseAtt     = itemData.value("att", 1).toInt();
-    int swings      = itemData.value("swings", 1).toInt();
-    int damageMod   = itemData.value("damageMod", 0).toInt();
-    float levelScale = itemData.value("levelScale", 0.0f).toFloat();
-
-    int totalDamage = 0;
-    for (int i = 0; i < swings; ++i) {
-        // Damage formula: (Base + Bonus) + (Level * Scaling)
-        int hit = (baseAtt + damageMod) + static_cast<int>(chr.level * levelScale);
-        
-        // Add a small random variance (e.g., +/- 10%)
-        int variance = QRandomGenerator::global()->bounded(qMax(1, hit / 5));
-        totalDamage += hit + (variance - (hit / 10));
-    }
-
-    return qMax(1, totalDamage);
-}
-
-void DungeonDialog::attemptFlee() {
-    gameStateManager* gsm = gameStateManager::instance();
-    auto& members = gsm->getParty().members;
-
-    // 1. Calculate Average Party Dexterity
-    int totalDex = 0;
-    int livingCount = 0;
-    for (const auto& member : members) {
-        if (member.isAlive()) {
-            totalDex += member.dexterity;
-            livingCount++;
-        }
-    }
-    
-    if (livingCount == 0) return;
-    int avgDex = totalDex / livingCount;
-
-    // 2. Get Monster Speed
-    // (Assuming a baseline speed of 10 if monster data isn't currently targeted)
-    int monsterSpeed = 10; 
-
-    // 3. Roll for success
-    int partyRoll = avgDex + QRandomGenerator::global()->bounded(1, 20);
-    int monsterRoll = monsterSpeed + QRandomGenerator::global()->bounded(1, 20);
-
-    if (partyRoll >= monsterRoll) {
-        logMessage("<font color='#00FF00'>Success! The party flees the encounter.</font>");
-        // Return player to a safe state or move them back one tile
-        movePlayer(0, 0, 0); 
-    } else {
-        logMessage("<font color='#FF0000'>Failed to flee! The monster gets a free attack!</font>");
-        
-        // 4. Penalty: Free attack on a random living member
-        QList<int> livingIndices;
-        for (int i = 0; i < members.size(); ++i) {
-            if (members[i].isAlive()) livingIndices.append(i);
-        }
-
-        if (!livingIndices.isEmpty()) {
-            int targetIdx = livingIndices[QRandomGenerator::global()->bounded(livingIndices.size())];
-            int damage = QRandomGenerator::global()->bounded(3, 10);
-            updatePartyMemberHealth(targetIdx, damage);
-        }
-    }
 }
 
 DungeonDialog::~DungeonDialog(){}

@@ -12,7 +12,7 @@
 #include <QVector>
 #include <QString>
 #include "src/race_data/RaceData.h" 
-#include "gameStateManager.h"
+#include "GameStateManager.h"
 
 class CreateCharacterDialog : public QDialog
 {

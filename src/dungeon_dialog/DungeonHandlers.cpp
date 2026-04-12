@@ -1,6 +1,6 @@
 #include "DungeonHandlers.h"
 #include "DungeonDialog.h"
-#include "../../gameStateManager.h"
+#include "../../GameStateManager.h"
 
 void DungeonHandlers::handlePit(DungeonDialog* dialog, int x, int y)
 {
@@ -13,7 +13,7 @@ void DungeonHandlers::handlePit(DungeonDialog* dialog, int x, int y)
         // 25% chance to fall to the next level
         if (QRandomGenerator::global()->bounded(100) < 25) {
             dialog->logMessage("<font color='orange'>The floor crumbles away! You tumble to the level below...</font>");
-            int nextLevel = gameStateManager::instance()->getGameValue("DungeonLevel").toInt() + 1;
+            int nextLevel = GameStateManager::instance()->getGameValue("DungeonLevel").toInt() + 1;
             dialog->enterLevel(nextLevel);
         }
     }
@@ -24,7 +24,7 @@ void DungeonHandlers::handleWater(DungeonDialog* dialog, int x, int y)
     QPair<int, int> pos = {x, y};    
     // Check if the current position contains water using the dialog's member
     if (dialog->m_waterPositions.contains(pos)) {
-        gameStateManager* gsm = gameStateManager::instance();
+        GameStateManager* gsm = GameStateManager::instance();
         if (gsm->isCharacterOnFire()) {
             gsm->setCharacterOnFire(false);
             dialog->logMessage("The cool water extinguishes the flames! You are safe but soaking wet.");
@@ -64,7 +64,7 @@ void DungeonHandlers::handleChute(DungeonDialog* dialog, int x, int y)
         int fallDamage = QRandomGenerator::global()->bounded(5, 15);
         dialog->updatePartyMemberHealth(0, fallDamage); // Damage main character
         // 2. Determine New Level
-        gameStateManager* gsm = gameStateManager::instance();
+        GameStateManager* gsm = GameStateManager::instance();
         int nextLevel = gsm->getGameValue("DungeonLevel").toInt() + 1;
         // 3. Trigger Level Transition
         dialog->enterLevel(nextLevel);
@@ -75,7 +75,7 @@ void DungeonHandlers::handleExtinguisher(DungeonDialog* dialog, int x, int y)
 {
     QPair<int, int> pos = {x, y};
     if (dialog->m_extinguisherPositions.contains(pos)) {
-        gameStateManager* gsm = gameStateManager::instance();        
+        GameStateManager* gsm = GameStateManager::instance();        
         if (gsm->isCharacterOnFire()) {
             gsm->setCharacterOnFire(false);
             dialog->logMessage("Magic waters spray from the ceiling! The flames are extinguished.");

@@ -1,5 +1,5 @@
 #include "AboutDialog.h"
-#include "gameStateManager.h"
+#include "GameStateManager.h"
 #include "../update/UpdateDialog.h"
 #include <QVBoxLayout>
 #include <QHBoxLayout>
@@ -18,8 +18,8 @@ AboutDialog::AboutDialog(QWidget *parent) : QDialog(parent)
 
 QString AboutDialog::getGameVersionInfo()
 {
-    // Retrieve the string pushed to Lua in gameStateManager's constructor
-    if (auto* gsm = gameStateManager::instance()) {
+    // Retrieve the string pushed to Lua in GameStateManager's constructor
+    if (auto* gsm = GameStateManager::instance()) {
         QString version = gsm->getLuaString("GameVersion");
         if (!version.isEmpty()) {
             return version;
@@ -39,7 +39,7 @@ void AboutDialog::setupUi()
     auto *scrollContent = new QWidget();
     auto *scrollLayout = new QVBoxLayout(scrollContent);
 
-    auto* gsm = gameStateManager::instance();
+    auto* gsm = GameStateManager::instance();
     const QString version = getGameVersionInfo();
     
     // Fetch HTML body from Lua script "AboutText"

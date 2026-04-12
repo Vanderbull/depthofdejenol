@@ -2,7 +2,7 @@
 #define COMPASSWIDGET_H
 
 #include <QWidget>
-#include "gameStateManager.h"
+#include "GameStateManager.h"
 
 class CompassWidget : public QWidget
 {

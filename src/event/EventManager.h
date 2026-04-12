@@ -4,7 +4,7 @@
 #include <QVector>
 #include <QString>
 #include <QJsonObject>
-#include "gameStateManager.h"
+#include "GameStateManager.h"
 
 // Simple struct for event data
 struct GameEvent {

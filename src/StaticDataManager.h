@@ -1,4 +1,4 @@
-#include "dataRegistry.h"
+#include "DataRegistry.h"
 #include "GameConstants.h"
 
 class StaticDataManager {
@@ -6,7 +6,7 @@ public:
     static StaticDataManager& instance() { static StaticDataManager i; return i; }
 
     void loadAllData() {
-        // Moved from gameStateManager::loadGameData
+        // Moved from GameStateManager::loadGameData
         loadJson("tools/gamedataconverter/data/MDATA1.js"); 
         loadCsv("tools/monsterconverter/MDATA5.csv", GameConstants::CAT_MONSTERS);
         loadCsv("tools/itemconverter/data/MDATA3.csv", GameConstants::CAT_ITEMS);
@@ -18,7 +18,7 @@ public:
     QVariantMap getMonster(int id) const;
 
 private:
-    dataRegistry m_registry;
+    DataRegistry m_registry;
     QVector<GameConstants::RaceStats> m_raceDefinitions;
     
     void loadJson(const QString& path); // Logic from DataLoader.h

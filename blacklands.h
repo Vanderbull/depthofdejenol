@@ -1,5 +1,5 @@
-#ifndef BLACKLANDS_H
-#define BLACKLANDS_H
+#ifndef GAMEMENU_H
+#define GAMEMENU_H
 
 #include <QWidget>
 #include <QDialog>
@@ -8,8 +8,6 @@
 #include <QSettings>
 
 #include "./src/event/EventManager.h" 
-
-class theCity;
 
 class GameMenu : public QWidget {
     Q_OBJECT
@@ -43,9 +41,6 @@ private slots:
     void toggleMenuState(bool characterIsLoaded); 
 
 private:
-    // ARCHITECT EVOLUTION: Persistent reference to the city handler
-    theCity *m_cityHandler = nullptr;
-
     QLabel *m_titleLabel = nullptr;
     QLabel *m_subTitleLabel = nullptr;
     QPushButton *m_newButton = nullptr;
@@ -60,7 +55,7 @@ private:
     // Member variables for state/config
     QSettings m_settings;
     QString m_subfolderName;
-    QPixmap m_backgroundPixmap;
+    QPixmap m_backgroundPixmap;     
 
 signals:
     void logMessageTriggered(const QString &message);

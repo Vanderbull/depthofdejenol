@@ -1,4 +1,3 @@
-
 # Ignore any Makefile found in subdirectories relative to this .gitignore
 /Makefile
 **/Makefile
@@ -59,10 +58,3 @@ Makefile
 # lsp
 .cache/
 compile_commands.json
-
-# Build artifacts
-.venv/
-.cache/
-build/
-
-.aider*

@@ -9,7 +9,7 @@
 #include <QLabel>
 #include <QUrl>
 #include <QAction>
-#include "gameStateManager.h"
+#include "GameStateManager.h"
 
 class HelpLessonDialog : public QDialog
 {

@@ -1,5 +1,5 @@
 #include "partyinfodialog.h"
-#include "gameStateManager.h"
+#include "GameStateManager.h"
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QPushButton>
@@ -32,7 +32,7 @@ PartyInfoDialog::PartyInfoDialog(QWidget *parent)
     controlsLayout->addWidget(leaveBtn);
     mainLayout->addLayout(controlsLayout);
     refreshFromGameState();
-    connect(gameStateManager::instance(), &gameStateManager::gameValueChanged,
+    connect(GameStateManager::instance(), &GameStateManager::gameValueChanged,
             this, &PartyInfoDialog::onGameStateChanged);
 }
 
@@ -40,7 +40,7 @@ PartyInfoDialog::~PartyInfoDialog() {}
 
 void PartyInfoDialog::refreshFromGameState() 
 {
-    activeMemberIndex = gameStateManager::instance()->getGameValue("ActiveCharacterIndex").toInt();
+    activeMemberIndex = GameStateManager::instance()->getGameValue("ActiveCharacterIndex").toInt();
     updatePartyLabels();
 }
 
@@ -56,7 +56,7 @@ void PartyInfoDialog::onGameStateChanged(const QString& key, const QVariant& val
 void PartyInfoDialog::updatePartyLabels() 
 {
     partyMembers.clear();
-    QVariantList partyData = gameStateManager::instance()->getGameValue("Party").toList();    
+    QVariantList partyData = GameStateManager::instance()->getGameValue("Party").toList();    
     for (int i = 0; i < 4; ++i) {
         if (i < partyData.size()) {
             QVariantMap charMap = partyData[i].toMap();
@@ -98,7 +98,7 @@ void PartyInfoDialog::onSwitchToClicked()
     bool ok;
     QString item = QInputDialog::getItem(this, "Switch Active", "Select member:", partyMembers, activeMemberIndex, false, &ok);
     if (ok && !item.isEmpty()) {
-        gameStateManager::instance()->setGameValue("ActiveCharacterIndex", partyMembers.indexOf(item));
+        GameStateManager::instance()->setGameValue("ActiveCharacterIndex", partyMembers.indexOf(item));
     }
 }
 
@@ -111,10 +111,10 @@ void PartyInfoDialog::onLeaveClicked()
 {
     if (partyMembers.isEmpty()) return;
     if (QMessageBox::question(this, "Leave", "Remove " + partyMembers.at(activeMemberIndex) + "?") == QMessageBox::Yes) {
-        QVariantList partyData = gameStateManager::instance()->getGameValue("Party").toList();
+        QVariantList partyData = GameStateManager::instance()->getGameValue("Party").toList();
         partyData.removeAt(activeMemberIndex);
         QVariantMap empty; empty["Name"] = "Empty Slot";
         partyData.append(empty);
-        gameStateManager::instance()->setGameValue("Party", partyData);
+        GameStateManager::instance()->setGameValue("Party", partyData);
     }
 }

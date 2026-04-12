@@ -1,5 +1,5 @@
 #include "optionsdialog.h"
-#include "audioManager.h"
+#include "AudioManager.h"
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QGridLayout>
@@ -17,10 +17,10 @@
 void OptionsDialog::onNoMusicToggled(bool checked) 
 {
     if (checked) {
-        audioManager::instance()->stopAllAudio();
+        AudioManager::instance()->stopAllAudio();
         qDebug() << "Music muted. Sound FX slider remains at current level.";
     } else {
-        audioManager::instance()->playMusic("ressources/waves/main.wav");
+        AudioManager::instance()->playMusic("ressources/waves/main.wav");
         qDebug() << "Music restored";
     }
 }
@@ -106,7 +106,7 @@ OptionsDialog::OptionsDialog(QWidget *parent) : QDialog(parent) {
     // --- Connect Game Settings Checkboxes ---
     connect(noPartySoundCheckBox, &QCheckBox::toggled, this, [](bool checked) {
         qDebug() << "No Party Sound:" << checked;
-        // gameStateManager::instance()->setPartySound(!checked);
+        // GameStateManager::instance()->setPartySound(!checked);
     });
 
     connect(noMsgDingCheckBox, &QCheckBox::toggled, this, [](bool checked) {
@@ -146,7 +146,7 @@ OptionsDialog::OptionsDialog(QWidget *parent) : QDialog(parent) {
 
     connect(noSoundFxCheckBox, &QCheckBox::toggled, this, [](bool checked) {
         qDebug() << "No Sound FX:" << checked;
-        // gameStateManager::instance()->setSfxMuted(checked);
+        // GameStateManager::instance()->setSfxMuted(checked);
     });
     connect(restoreButton, &QPushButton::clicked, this, &OptionsDialog::onRestoreClicked);
 
@@ -209,10 +209,10 @@ void OptionsDialog::setupUi()
     audioLayout->addWidget(new QLabel("Music Vol."));
     musicVolSlider = new QSlider(Qt::Horizontal);
     musicVolSlider->setRange(0, 100);
-    musicVolSlider->setValue(static_cast<int>(audioManager::instance()->getMusicVolume() * 100.0f));
+    musicVolSlider->setValue(static_cast<int>(AudioManager::instance()->getMusicVolume() * 100.0f));
     connect(musicVolSlider, &QSlider::valueChanged, this, [](int value) {
         float vol = static_cast<float>(value) / 100.0f;
-        audioManager::instance()->setMusicVolume(vol);
+        AudioManager::instance()->setMusicVolume(vol);
     });
 
     noMusicCheckBox = new QCheckBox("No Music");
@@ -230,7 +230,7 @@ void OptionsDialog::setupUi()
 
     connect(sfxVolSlider, &QSlider::valueChanged, this, [](int value) {
         float vol = static_cast<float>(value) / 100.0f;
-        audioManager::instance()->setMusicVolume(vol);
+        AudioManager::instance()->setMusicVolume(vol);
     });
 
     noSoundFxCheckBox = new QCheckBox("No Sound FX");
@@ -338,7 +338,7 @@ void OptionsDialog::onSelectProportionalFont() {
         propFontButton->setText(font.family() + " (" + QString::number(font.pointSize()) + ")");
         
         // Push to Global Manager
-        gameStateManager::instance()->setProportionalFont(font);
+        GameStateManager::instance()->setProportionalFont(font);
         qDebug() << "Proportional font updated to:" << font.family();
     }
 }
@@ -353,7 +353,7 @@ void OptionsDialog::onSelectFixedFont() {
         fixedFontButton->setText(font.family() + " (" + QString::number(font.pointSize()) + ")");
         
         // Push to Global Manager
-        gameStateManager::instance()->setFixedFont(font);
+        GameStateManager::instance()->setFixedFont(font);
         qDebug() << "Fixed font updated to:" << font.family();
     }
 }

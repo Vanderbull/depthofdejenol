@@ -11,9 +11,13 @@
 #include <QLabel>
 #include <QPushButton>
 #include <QLineEdit>
-#include "gameStateManager.h"
+#include "GameStateManager.h"
+// Define Category Constants
+//const QString CATEGORY_MAGIC = "Magic Books";
+//const QString CATEGORY_MONSTERS = "Creatures";
+//const QString CATEGORY_ITEMS = "Items";
 
-class LibraryDialog : public QDialog
+class LibraryDialog : public QDialog 
 {
     Q_OBJECT
 public:
@@ -23,18 +27,24 @@ private slots:
     void onCloseClicked();
     void onCategoryChanged(const QString &categoryName);
     void onSearchTextChanged(const QString &searchText);
-    void onAddItemClicked();
+    // Missing slot declarations added here
+    void onAddItemClicked(); 
 private:
     void setupUI();
     void loadKnowledge();
     void updateList(const QString &category);
+    // Missing function declaration added here
     void updateCountLabel();
+private:
+    // QMap<CategoryName, QMap<ItemName, ItemDescription>>
     QMap<QString, QMap<QString, QString>> knowledgeBase;
+    // UI elements (Missing members added here)
     QListWidget *bookList;
     QTextEdit *descriptionText;
     QComboBox *categoryComboBox;
     QLabel *headerLabel;
-    QPushButton *addItemButton;
+    // Missing member variables added here
+    QPushButton *addItemButton; 
     QPushButton *closeButton;
     QLabel *countLabel;
     QLineEdit *searchField;

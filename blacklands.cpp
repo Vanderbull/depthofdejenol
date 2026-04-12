@@ -1,9 +1,10 @@
-#include "gameStateManager.h"
-#include "blacklands.h"
-#include "audioManager.h"
 
-#include "theCity.h"
-#include "storyDialog.h"
+#include "GameStateManager.h"
+#include "blacklands.h"
+#include "AudioManager.h"
+
+#include "TheCity.h"
+#include "StoryDialog.h"
 
 #include "src/characterlist_dialog/characterlistdialog.h"
 #include "src/hall_of_records/hallofrecordsdialog.h"
@@ -56,28 +57,28 @@ void GameMenu::paintEvent(QPaintEvent *event)
     // 3. Define the position where you want "Hello" to appear (e.g., x=100, y=100)
     QPoint textPosition(100, 100);
 
-    // 4. Use gameStateManager to draw the text using the loaded sprite font
-    gameStateManager::instance()->drawCustomText(&painter, "HELLO", textPosition);
-    gameStateManager::instance()->drawCustomText(&painter, "A B C D E F G H", QPoint(0, 0));
+    // 4. Use GameStateManager to draw the text using the loaded sprite font
+    GameStateManager::instance()->drawCustomText(&painter, "HELLO", textPosition);
+    GameStateManager::instance()->drawCustomText(&painter, "A B C D E F G H", QPoint(0, 0));
 }
 // Global function to launch Automap
-void launchAutomapDialog()
+void launchAutomapDialog() 
 {
-    AutomapDialog mapDialog(nullptr);
-    mapDialog.show();
+    AutomapDialog mapDialog(nullptr); 
+    mapDialog.show(); 
     qDebug() << "Automap dialog triggered";
 }
 
 GameMenu::GameMenu(QWidget *parent)
     : QWidget(parent)
     , m_settings("MyCompany", "MyApp")
-    , m_subfolderName(m_settings.value("Paths/SubfolderName", "data/characters").toString())
+    , m_subfolderName(m_settings.value("Paths/SubfolderName", "data/characters").toString()) 
 {
-    gameStateManager::instance()->
+    GameStateManager::instance()->
 loadFontSprite("resources/images/font_spritesheet_transparent.png");
 
-    //gameStateManager::instance()->playMusic("resources/waves/main.wav");
-    gameStateManager::instance()->incrementPartyAge(1);
+    //GameStateManager::instance()->playMusic("resources/waves/main.wav");
+    GameStateManager::instance()->incrementPartyAge(1);
 
     // 1. DONT USE GLOBAL STYLESHEETS (prevents black buttons)
     // 2. USE PALETTE FOR BACKGROUND (Wayland friendly)
@@ -88,7 +89,7 @@ loadFontSprite("resources/images/font_spritesheet_transparent.png");
     // This hint tells Wayland: "I want a title bar and an X button"
     this->setWindowFlags(Qt::Window | Qt::WindowTitleHint | Qt::WindowSystemMenuHint | 
                          Qt::WindowCloseButtonHint | Qt::WindowMinimizeButtonHint);
-    qDebug() << "Current Game Version:" << gameStateManager::instance()->getGameValue("GameVersion").toString();
+    qDebug() << "Current Game Version:" << GameStateManager::instance()->getGameValue("GameVersion").toString();
 
     EventManager::instance()->loadEvents("./data/events-json");
     connect(EventManager::instance(), &EventManager::eventTriggered,
@@ -99,12 +100,11 @@ loadFontSprite("resources/images/font_spritesheet_transparent.png");
     setWindowTitle("The Depths of Dejenol: Black Lands");
     // 1. Get the directory of THIS .cpp file
     // __FILE__ is a built-in macro that gives the path to SeerDialog.cpp
-    //QFileInfo fileInfo(__FILE__);
-    //QString dir = fileInfo.absolutePath();
-    QString qssPath = QCoreApplication::applicationDirPath() + "/MainMenu.qss";
+    QFileInfo fileInfo(__FILE__);
+    QString dir = fileInfo.absolutePath();
 
     // 2. Build the path to the .qss file in the same folder
-    //QString qssPath = dir + "/MainMenu.qss";
+    QString qssPath = dir + "/MainMenu.qss";
     // 3. Load and apply the style
     QFile styleFile(qssPath);
     if (styleFile.open(QFile::ReadOnly | QFile::Text)) {
@@ -130,10 +130,10 @@ loadFontSprite("resources/images/font_spritesheet_transparent.png");
         // Trigger a resize event immediately to apply the initial scaling
         resizeEvent(nullptr); 
         qDebug() << "Successfully loaded background image.";
-        gameStateManager::instance()->setGameValue("ResourcesLoaded", true); 
+        GameStateManager::instance()->setGameValue("ResourcesLoaded", true); 
     } else {
         qDebug() << "FATAL: Could not load background image from:" << imagePath;
-        gameStateManager::instance()->setGameValue("ResourcesLoaded", false);
+        GameStateManager::instance()->setGameValue("ResourcesLoaded", false);
     }
     // Get screen geometry to make the window scale with screen resolution
     QScreen *screen = QGuiApplication::primaryScreen();
@@ -189,8 +189,8 @@ loadFontSprite("resources/images/font_spritesheet_transparent.png");
 
     toggleMenuState(false); 
     
-    if (gameStateManager::instance()->areResourcesLoaded()) {
-        qDebug() << "Initial resource check passed via gameStateManager. Player Gold:" << gameStateManager::instance()->getGameValue("PlayerGold").toULongLong();
+    if (GameStateManager::instance()->areResourcesLoaded()) {
+        qDebug() << "Initial resource check passed via GameStateManager. Player Gold:" << GameStateManager::instance()->getGameValue("PlayerGold").toULongLong();
     }
 }
 
@@ -241,10 +241,10 @@ void GameMenu::toggleMenuState(bool characterIsLoaded)
 void GameMenu::onCharacterCreated(const QString &characterName) 
 {
     emit logMessageTriggered(QString("New character **%1** created successfully!").arg(characterName));
-    // --- UPDATED: Use gameStateManager to save the character data ---
+    // --- UPDATED: Use GameStateManager to save the character data ---
     // Assuming the newly created character is at Party Index 0
-    if (gameStateManager::instance()->saveCharacterToFile(0)) {
-        qDebug() << "Character" << characterName << "saved to disk via gameStateManager.";
+    if (GameStateManager::instance()->saveCharacterToFile(0)) {
+        qDebug() << "Character" << characterName << "saved to disk via GameStateManager.";
     } else {
         qWarning() << "Failed to save character" << characterName << "to disk.";
     }
@@ -252,64 +252,33 @@ void GameMenu::onCharacterCreated(const QString &characterName)
                              tr("Character **%1** created successfully. Ready to run.").arg(characterName));
     toggleMenuState(true);
 // Start the 10-second loop
-    gameStateManager::instance()->startAutosave(10000);
+    GameStateManager::instance()->startAutosave(10000);
 }
 
-void GameMenu::onRunClicked() 
-{
-    audioManager::instance()->stopAllAudio();
-
-    // 1. Check if our persistent handler exists; if not, build it once.
-    if (!m_cityHandler) {
-        m_cityHandler = new theCity(this);
-        
-        // We still want the menu to reappear when the city "closes"
-        connect(m_cityHandler, &QDialog::finished, this, [this](int result){
-            Q_UNUSED(result);
-            gameStateManager::instance()->setGameMode(GameConstants::GameMode::Menu);
-            this->show();
-        });
-    }
-
-    // 2. Use our Enums to set the engine state
-    gameStateManager::instance()->setGameMode(GameConstants::GameMode::InCity);
-    
-    // 3. Tell the handler to prepare the specific 'Street' view
-    m_cityHandler->processLocation(GameConstants::CityLocation::Street);
-
-    // 4. Swap the visibility
-    this->hide(); 
-    m_cityHandler->show();
-    
-    qDebug() << "Switched to City View using persistent m_cityHandler";
-}
-/*
 void GameMenu::onRunClicked() 
 {
     // Example: Playing a sound effect or music in a different dialog
-    audioManager::instance()->stopAllAudio();
+    AudioManager::instance()->stopAllAudio();
     // 1. Instantiate the City dialog
-    theCity *cityDialog = new theCity(this);  
+    TheCity *cityDialog = new TheCity(this);  
     cityDialog->setAttribute(Qt::WA_DeleteOnClose);    
     // 2. Hide the GameMenu while the player is in the city
     this->hide(); 
     // 3. Connect the finished signal to handle returning to the menu
-    // This lambda triggers when theCity is closed or the Exit button is clicked
+    // This lambda triggers when TheCity is closed or the Exit button is clicked
     connect(cityDialog, &QDialog::finished, this, [this](int result){
 	Q_UNUSED(result);
-        // Check the current state of "ResourcesLoaded" from the gameStateManager
+        // Check the current state of "ResourcesLoaded" from the GameStateManager
         // If the City's Exit button reset this flag, toggleMenuState will hide "Run Character"
-        bool isLoaded = gameStateManager::instance()->getGameValue("ResourcesLoaded").toBool();
+        bool isLoaded = GameStateManager::instance()->getGameValue("ResourcesLoaded").toBool();
         this->toggleMenuState(isLoaded); 
         // Show the GameMenu again
         this->show();
     });
     // 4. Launch the city dialog
     cityDialog->show();
-    qDebug() << "Run Character clicked - GameMenu hidden, launching theCity";
+    qDebug() << "Run Character clicked - GameMenu hidden, launching TheCity";
 }
-*/
-
 
 void GameMenu::onCharacterListClicked() 
 {
@@ -322,7 +291,7 @@ void GameMenu::onCharacterListClicked()
 void GameMenu::startNewGame() 
 {
     // Example: Playing a sound effect or music in a different dialog
-    audioManager::instance()->stopAllAudio();
+    AudioManager::instance()->stopAllAudio();
     // 1. Load data required by the new CreateCharacterDialog constructor.
     QVector<RaceStats> raceData = loadRaceData();
     QVector<QString> guildData = loadGuildData();    
@@ -339,22 +308,28 @@ void GameMenu::startNewGame()
 
 void GameMenu::loadGame() {
     QString fileName = QFileDialog::getOpenFileName(this, tr("Open Character"), "data/characters", tr("Character Files (*.json *.lua)"));
-
+    
     if (fileName.isEmpty()) return;
 
     // 1. Tell the Manager to load the file into the new Party struct
-    if (gameStateManager::instance()->loadCharacterFromFile(fileName)) {
+    if (GameStateManager::instance()->loadCharacterFromFile(fileName)) {
+        
         // 2. Perform the "Living Character" check we just implemented
-        if (gameStateManager::instance()->hasLivingCharacters()) {
+        if (GameStateManager::instance()->hasLivingCharacters()) {
+            
             // 3. Get the loaded character to update the "Global" state
-            Character lead = gameStateManager::instance()->getCurrentCharacter();
+            Character lead = GameStateManager::instance()->getCurrentCharacter();
+            
             // Sync the name and age to the global state (used by your Lua scripts)
-            gameStateManager::instance()->setGameValue("CurrentCharacterName", lead.name);
-            gameStateManager::instance()->setGameValue("CurrentCharacterAge", lead.age);
+            GameStateManager::instance()->setGameValue("CurrentCharacterName", lead.name);
+            GameStateManager::instance()->setGameValue("CurrentCharacterAge", lead.Age);
+            
             // 4. Force the UI to refresh with the new Party data
-            gameStateManager::instance()->refreshUI();
+            GameStateManager::instance()->refreshUI();
+            
             // 5. Enable the "Play" and "Continue" buttons on your menu
-            toggleMenuState(true);
+            toggleMenuState(true); 
+            
             qDebug() << "SUCCESS: Character" << lead.name << "loaded and ready.";
         } else {
             QMessageBox::warning(this, tr("Load Error"), tr("The character in this file is deceased or invalid."));
@@ -365,9 +340,9 @@ void GameMenu::loadGame() {
     }
 }
 /*
-void GameMenu::loadGame()
+void GameMenu::loadGame() 
 {
-    gameStateManager::instance()->startAutosave(10000);
+    GameStateManager::instance()->startAutosave(10000);
 
     QString basePath = QCoreApplication::applicationDirPath();
     QString fullPath = QDir::cleanPath(basePath + QDir::separator() + m_subfolderName);
@@ -387,8 +362,8 @@ void GameMenu::loadGame()
         QString charName = QFileInfo(fileName).baseName();
         
         // Temporarily load to check status
-        if (gameStateManager::instance()->loadCharacterFromFile(charName)) {
-            int isAlive = gameStateManager::instance()->getGameValue("isAlive").toInt();
+        if (GameStateManager::instance()->loadCharacterFromFile(charName)) {
+            int isAlive = GameStateManager::instance()->getGameValue("isAlive").toInt();
             if (isAlive != 0) {
                 aliveCharacters.append(fileName);
             }
@@ -421,8 +396,8 @@ void GameMenu::loadGame()
         QString characterName = QFileInfo(selectedFileName).baseName();
         
         // Final load (now guaranteed to be alive)
-        if (gameStateManager::instance()->loadCharacterFromFile(characterName)) {
-            gameStateManager::instance()->setGameValue("CurrentCharacterStatPointsLeft", 0);
+        if (GameStateManager::instance()->loadCharacterFromFile(characterName)) {
+            GameStateManager::instance()->setGameValue("CurrentCharacterStatPointsLeft", 0);
             emit logMessageTriggered(QString("Success: %1 is ready.").arg(characterName));
             QMessageBox::information(this, tr("Load Successful"), 
                                      tr("Character **%1** loaded successfully.").arg(characterName));
@@ -545,7 +520,7 @@ int main(int argc, char *argv[])
     loadingScreen.exec(); 
     qDebug() << "LoadingScreen dialog closed. Starting main application...";
     qDebug() << "Launching Starting Story...";
-    storyDialog story;
+    StoryDialog story;
     story.exec();
     GameMenu w;
     // 2. INSTANTIATE THE GAME CONTROLLER

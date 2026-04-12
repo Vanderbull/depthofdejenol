@@ -5,13 +5,13 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QJsonArray>
-#include "dataRegistry.h"
+#include "DataRegistry.h"
 #include "GameConstants.h"
 
 class DataLoader {
 public:
     // Loads JSON file and populates the registry
-    static bool loadToRegistry(const QString& filePath, dataRegistry& registry) {
+    static bool loadToRegistry(const QString& filePath, DataRegistry& registry) {
         QFile file(filePath);
         if (!file.open(QIODevice::ReadOnly)) return false;
 

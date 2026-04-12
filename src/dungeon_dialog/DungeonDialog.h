@@ -12,22 +12,12 @@
 #include <QTableWidget>
 #include <QRandomGenerator>
 #include <QHash>
-#include <algorithm> // for std::sort
 
 #include "src/inventory_dialog/inventorydialog.h"
 #include "src/partyinfo_dialog/partyinfodialog.h"
 #include "../event/EventManager.h"
-#include "../../gameStateManager.h"
+#include "../../GameStateManager.h"
 #include "MiniMapDialog.h"
-
-struct Combatant {
-    QString name;
-    int initiative;
-    bool isPlayer;
-    int memberIndex; // For party members
-};
-
-
 
 // Forward declarations
 class QGraphicsScene;
@@ -106,18 +96,6 @@ private slots:
     void togglePartyInfo();
     
 private:
-    void attemptFlee();
-    void executeMonsterTurn();
-
-    QPushButton* m_fightButton;
-    QPushButton* m_spellButton;
-    // --- New Combat Members ---
-    QList<Combatant> m_combatQueue;
-    int m_currentTurnIndex = 0;
-
-    // --- New Combat Methods ---
-    void advanceTurn();
-
     void setupControls();
     void handleFalling(); // New method to handle falling through a pit
     QSet<QPair<int, int>> m_bodyPositions;
@@ -146,8 +124,8 @@ private:
     };
     // Core State Members
     QGraphicsScene *m_dungeonScene;
-    QGraphicsScene *m_fullMapScene;
-    QTimer *m_spawnTimer;
+    QGraphicsScene *m_fullMapScene; 
+    QTimer *m_spawnTimer;           
     bool m_chestFound;
     MonsterAttitude m_currentMonsterAttitude;
     // UI Member Widgets
@@ -158,8 +136,8 @@ private:
     // Buttons
     QMap<QString, QPushButton*> m_controls;
     // A helper to make button creation cleaner
-    //QPushButton* createButton(const QString& text, const char* slot);
-    QPushButton* createButton(const QString& text, void (DungeonDialog::*slot)());
+    QPushButton* createButton(const QString& text, const char* slot);
+    
     QPushButton *m_upButton;
     QPushButton *m_downButton;
     QPushButton *m_leftButton;
@@ -229,7 +207,7 @@ private:
     void keyPressEvent(QKeyEvent *event) override;
     QGraphicsScene* m_threeDScene;
     // ... other private members ...
-    QGraphicsView* m_graphicsView;
+    QGraphicsView* m_graphicsView;   // Add this line
     void update3DView();
     void drawWireframeWall(int depth, bool left, bool right, bool front);
     bool isWallAt(int x, int y);
@@ -242,9 +220,6 @@ private:
     void drawSpinner(int d, int xL, int xR, int yB, int nxL, int nxR, int nyB);
     void drawWater(int d, int xL, int xR, int yB, int nxL, int nxR, int nyB);
     void drawAntimagic(int d, int xL, int xR, int yB, int nxL, int nxR, int nyB);
-    void cleanupCombat();
-    void startCombatInitiative();
-    int calculateWeaponDamage(int memberIndex);
 
 protected:
     void resizeEvent(QResizeEvent *event) override;

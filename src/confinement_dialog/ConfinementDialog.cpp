@@ -7,10 +7,10 @@
 #include <QFontDatabase>
 #include <QSpacerItem> 
 #include <QRegularExpressionMatch> // Needed for matching results in Qt 6
-// NOTE: gameStateManager.h is included, but the class is not defined here.
-// For the buyCompanion() implementation below, we assume gameStateManager 
+// NOTE: GameStateManager.h is included, but the class is not defined here.
+// For the buyCompanion() implementation below, we assume GameStateManager 
 // is a globally accessible class (e.g., a Singleton) with methods for handling gold.
-// e.g., gameStateManager::instance().removeCharacterGold(cost);
+// e.g., GameStateManager::instance().removeCharacterGold(cost);
 ConfinementAndHoldingDialog::ConfinementAndHoldingDialog(QWidget *parent)
     : QDialog(parent)
 {
@@ -21,14 +21,13 @@ ConfinementAndHoldingDialog::ConfinementAndHoldingDialog(QWidget *parent)
     fixedFont.setPointSize(10); 
     setFont(fixedFont);
     setupUi();
-    setMinimumSize(850, 650);
-    resize(850, 650);
+    resize(850, 650); 
     // 1. Declare and initialize the gsm variable
-    gameStateManager* gsm = gameStateManager::instance();
+    GameStateManager* gsm = GameStateManager::instance();
     // Check if a Ghost Hound is waiting to be added
     // Move pending dungeon exits into persistent stock
     if (gsm->getGameValue("GhostHoundPending").toBool()) {
-        gsm->incrementStock("Ghost hound");
+        gsm->incrementStock("Ghost hounf");
         gsm->setGameValue("GhostHoundPending", false);
     }
     // 2. Clear the widget and repopulate from the persistent Stock Map
@@ -197,7 +196,7 @@ void ConfinementAndHoldingDialog::buyCompanion()
     }
     // ... (Your gold check and purchase logic here) ...
     // 2. Use 'selectedCreature' in your success message and stock update
-    gameStateManager::instance()->decrementStock(selectedCreature);
+    GameStateManager::instance()->decrementStock(selectedCreature);
     qDebug() << "Successfully bought companion: " + selectedCreature;
     // 3. UI Cleanup
     delete buyCreatureListWidget->currentItem();
@@ -263,7 +262,7 @@ void ConfinementAndHoldingDialog::updateBuyFieldsFromList()
 void ConfinementAndHoldingDialog::addGhostHoundOnExit()
 {
     // Add the specific string requested to the buy list
-    buyCreatureListWidget->addItem("Ghost hound 75000     0  2  0");
+    buyCreatureListWidget->addItem("Ghost hounf 75000     0  2  0");
     // Optional: Log for debugging
     qDebug() << "Character exited dungeon: Ghost Hound added to Confinement stock.";
 }
