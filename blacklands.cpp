@@ -58,8 +58,8 @@ void GameMenu::paintEvent(QPaintEvent *event)
     QPoint textPosition(100, 100);
 
     // 4. Use GameStateManager to draw the text using the loaded sprite font
-    GameStateManager::instance()->drawCustomText(&painter, "HELLO", textPosition);
-    GameStateManager::instance()->drawCustomText(&painter, "A B C D E F G H", QPoint(0, 0));
+    //GameStateManager::instance()->drawCustomText(&painter, "HELLO", textPosition);
+    GameStateManager::instance()->drawCustomText(&painter, "ABCDEFGH", QPoint(0, 0));
 }
 // Global function to launch Automap
 void launchAutomapDialog() 

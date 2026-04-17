@@ -1,3 +1,4 @@
+
 #include "FontManager.h"
 #include <QApplication>
 #include <QWidget>
@@ -45,55 +46,44 @@ void FontManager::setFixedFont(const QFont& font)
     emit fontsChanged();
 }
 
+// 1080x480px 9 chars x 120px and 4 rows x 120
 void FontManager::drawSpriteText(QPainter* painter, const QString& text, const QPoint& position)
 {
-    if (m_spriteSheet.isNull() || !painter) {
-        return;
-    }
+    if (m_spriteSheet.isNull() || !painter) return;
 
-    // The character sequence exactly as it appears in the image
-    const QString layout = "ABCDEFGHI"   // Row 0
-                           "HIJKLMM"     // Row 1
-                           "NOPQRSTUUV"  // Row 2
-                           "UWXYZ"       // Row 3
-                           "124578901";  // Row 4
+    const QString layout = "ABCDEFGHI"
+                           "JKLMNOPQR"
+                           "STUVWXYZ1"
+                           "234567890";
+
+    const int charsPerRow = 9;
+    const int boxSize = 120;
+    const int m_kerning = 1;
 
     QString upperText = text.toUpper();
+    painter->setRenderHint(QPainter::SmoothPixmapTransform, false);
 
     for (int i = 0; i < upperText.length(); ++i) {
         QChar c = upperText[i];
         
-        if (c.isSpace()) {
-            continue; 
-        }
+        // Handle spacing: move the cursor even if it's a space
+        if (c.isSpace()) continue; 
 
         int index = layout.indexOf(c);
-        if (index == -1) {
-            continue; 
-        }
+        if (index == -1) continue;
 
-        int row = 0;
-        int col = 0;
+        int row = index / charsPerRow;
+        int col = index % charsPerRow;
 
-        // Map the character index to specific grid coordinates
-        if (index < 9) { 
-            row = 0; col = index; 
-        } else if (index < 16) { 
-            row = 1; col = (index - 9); 
-        } else if (index < 26) { 
-            row = 2; col = (index - 16); 
-        } else if (index < 31) { 
-            row = 3; col = (index - 26); 
-        } else { 
-            row = 4; col = (index - 31); 
-        }
-
-        // Source rectangle: Where the letter is in the PNG
-        QRect sourceRect(col * m_charWidth, row * m_charHeight, m_charWidth, m_charHeight);
+        // Source: The 120x120 slice from the sheet
+        QRect sourceRect(col * boxSize, row * boxSize, boxSize, boxSize);
         
-        // Target rectangle: Where to draw on the painter
-        // Uses the kerning value to control horizontal spacing
-        QRect targetRect(position.x() + (i * m_kerning), position.y(), m_charWidth, m_charHeight);
+        // FIX: Calculate X by multiplying index by (Box Width + Kerning)
+        // If m_kerning is 0, they will touch perfectly.
+        // If m_kerning is 10, there will be a 10px gap.
+        int xOffset = position.x() + (i * (boxSize + m_kerning));
+        
+        QRect targetRect(xOffset, position.y(), boxSize, boxSize);
 
         painter->drawPixmap(targetRect, m_spriteSheet, sourceRect);
     }
