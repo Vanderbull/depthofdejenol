@@ -1,26 +1,45 @@
+/* Main Dialog Background - Forced Deep Charcoal [cite: 4, 5] */
 QDialog {
-    background-color: #f0f0f0;
+    background-color: #1a1a1a;
+    border: 2px solid #3d3d3d; /* [cite: 6] */
 }
 
+/* Header Text - Remove any potential white background */
 QLabel#welcomeLabel {
-    color: blue;
+    background-color: transparent; /* Ensures no white box behind text */
+    color: #d4af37;               /* Gold accent [cite: 8] */
     font-size: 18pt;
     font-weight: bold;
+    padding: 10px;
 }
 
-QLabel#optionsLabel {
-    font-size: 14pt;
-    color: #333333;
-    font-weight: normal;
+/* Secondary Labels */
+QLabel {
+    background-color: transparent;
+    color: #cccccc;               /* [cite: 10] */
 }
 
-QPushButton {
-    background-color: #4A90E2;
-    color: white;
-    border-radius: 4px;
+/* Search Field - Fixes the white input box [cite: 12] */
+QLineEdit#searchField {
+    background-color: #222222;    /* [cite: 12] */
+    border: 1px solid #444444;    /* [cite: 12] */
+    color: white;                 /* [cite: 12] */
     padding: 5px;
+    font-family: "Consolas", "Monaco", monospace; /* [cite: 10] */
 }
 
+/* Buttons - Matches Navigation Style [cite: 7] */
+QPushButton {
+    background-color: #2a2a2a;    /* [cite: 7] */
+    border: 1px solid #555555;    /* [cite: 7] */
+    border-radius: 8px;           /* [cite: 7] */
+    color: #e0e0e0;               /* [cite: 7] */
+    font-weight: bold;            /* [cite: 7] */
+    padding: 10px;
+}
+
+/* Hover effect: Gold Border [cite: 8] */
 QPushButton:hover {
-    background-color: #357ABD;
+    background-color: #353535;    /* [cite: 8] */
+    border: 1px solid #d4af37;    /* [cite: 8] */
 }
