@@ -3,11 +3,12 @@
 
 #include <QWidget>
 #include <QDialog>
-#include <QLabel>
-#include <QPushButton>
 #include <QSettings>
 
-#include "./src/event/EventManager.h" 
+#include "./src/event/EventManager.h"
+
+class QLabel;
+class QPushButton;
 
 class GameMenu : public QWidget {
     Q_OBJECT
@@ -24,25 +25,30 @@ private slots:
     void startNewGame();
     void loadGame();
     void showRecords();
-    void showCredits(); 
+//    void showCredits();
     void quitGame();
-    void onInventoryClicked(); 
-    void onMarlithClicked(); 
+//    void onInventoryClicked();
+//    void onMarlithClicked();
     void onOptionsClicked();
     void onAboutClicked();
-    void onEditMonsterClicked(); 
-    void onEditSpellbookClicked(); 
+  //  void onEditMonsterClicked();
+  //  void onEditSpellbookClicked();
     void onCharacterListClicked();
     void onHelpClicked();
-    void onShowStatisticsClicked(); 
+  //  void onShowStatisticsClicked();
     void onRunClicked();
-    void onEventTriggered(const GameEvent& event);    
+    void onEventTriggered(const GameEvent& event);
     void onCharacterCreated(const QString &characterName);
-    void toggleMenuState(bool characterIsLoaded); 
+    void toggleMenuState(bool characterIsLoaded);
 
 private:
-    QLabel *m_titleLabel = nullptr;
-    QLabel *m_subTitleLabel = nullptr;
+    void setupUI();
+    void setupConnections();
+    void loadStyleSheet();
+    void loadBackgroundImage();
+
+    //QLabel *m_titleLabel = nullptr;
+    //QLabel *m_subTitleLabel = nullptr;
     QPushButton *m_newButton = nullptr;
     QPushButton *m_exitButton = nullptr;
     QPushButton *m_helpButton = nullptr;
@@ -55,7 +61,7 @@ private:
     // Member variables for state/config
     QSettings m_settings;
     QString m_subfolderName;
-    QPixmap m_backgroundPixmap;     
+    QPixmap m_backgroundPixmap;
 
 signals:
     void logMessageTriggered(const QString &message);
