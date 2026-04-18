@@ -1,55 +1,45 @@
-/* General Dialog background - giving it that retro gray metal look */
+/* Main Dialog Background */
 QDialog {
-    background-color: #C0C0C0; /* Light gray base */ [cite: 1]
-    border: 4px outset #E0E0E0; /* 3D effect border - light part */ [cite: 2]
-    border-right-color: #808080; /* Dark part of the 3D border */ [cite: 3]
-    border-bottom-color: #808080; [cite: 4]
+    background-color: #1a1a1a; /* Deep charcoal */
+    border: 2px solid #3d3d3d;
 }
 
-/* Title Label styling */
-QLabel#titleLabel {
-    background-color: #333333; /* Dark background for title bar */ [cite: 5]
-    color: #FFFAAA; /* Gold/Yellowish text for contrast */ [cite: 6]
-    font-family: 'Courier New', monospace; /* Use a monospaced font for retro feel */ [cite: 7]
-    font-weight: bold;
-    font-size: 20px;
-    padding: 8px;
-    border: 2px inset #444444; /* Give the title bar a slightly inset look */ [cite: 9]
-    qproperty-alignment: AlignCenter; [cite: 10]
-}
-
-/* General QToolButton styling for the main grid buttons (FIXED) */
+/* The Navigation Buttons */
 QToolButton {
-    /* Base style for a retro button */
-    background-color: #B0B0B0;
-    color: #111111; /* Dark text */ [cite: 11]
-    border: 2px outset #E0E0E0;
-    /* 3D effect border */ [cite: 12]
-    border-bottom-color: #606060; 
-    border-right-color: #606060; 
-    
-    padding: 5px;
-    font-family: 'Courier New', monospace;
-    font-size: 14px;
-    
-    /* FIX: Changed min-height and removed text-align: bottom to allow icon display on QToolButton */
-//    min-height: 140px; /* Reduced to allow tool button's native layout */
-//    min-width: 140px; 
-    /* text-align: bottom is not needed/conflicts with ToolButtonTextUnderIcon */
+    background-color: #2a2a2a;
+    border: 1px solid #555555;
+    border-radius: 8px;
+    color: #e0e0e0;
+    font-weight: bold;
+    padding: 10px;
 }
 
-/* Button hover effect - makes it look like it's pressed slightly */
+/* Hover effect: Glow and Lift */
 QToolButton:hover {
-    background-color: #C0C0C0; [cite: 15]
-    border: 2px outset #E0E0E0;
-    border-bottom-color: #606060;
-    border-right-color: #606060;
+    background-color: #353535;
+    border: 1px solid #d4af37; /* Gold border */
 }
 
-/* Button pressed effect - simulates being pushed in */
-QToolButton:pressed {
-    background-color: #A0A0A0; [cite: 16]
-    border: 2px inset #E0E0E0; /* Reverse the outset for the inset look */ [cite: 16]
-    border-top-color: #606060; 
-    border-left-color: #606060; [cite: 17]
+/* The Chat Area */
+QTextEdit#chatDisplay {
+    background-color: #0f0f0f;
+    border: 1px solid #333333;
+    color: #cccccc;
+    font-family: "Consolas", "Monaco", monospace;
+    font-size: 13px;
+}
+
+/* Player List Sidebar */
+QListWidget#playerList {
+    background-color: #151515;
+    border: 1px solid #333333;
+    color: #99ff99; /* Neon green for players */
+}
+
+/* Chat Input */
+QLineEdit {
+    background-color: #222222;
+    border: 1px solid #444444;
+    color: white;
+    padding: 5px;
 }

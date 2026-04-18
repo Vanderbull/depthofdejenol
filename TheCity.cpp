@@ -12,6 +12,8 @@
 #include <QDebug>
 #include <QDateTime>
 #include <QScrollBar>
+#include <QGraphicsDropShadowEffect>
+
 
 TheCity::TheCity(QWidget *parent) :
     QDialog(parent)
@@ -165,38 +167,63 @@ void TheCity::sendChatMessage() {
 
 void TheCity::loadButtonIcons()
 {
-    const QSize iconSize(120, 90); 
-    generalStoreButton->setIcon(QIcon(GameResources::getPixmap("general_store")));
-    generalStoreButton->setIconSize(iconSize);
-    generalStoreButton->setToolTip("General Store");
+    const QSize iconSize(120, 90);
+    
+    auto setupGameButton = [&](QToolButton* btn, QString iconName, QString tooltip) {
+        QIcon icon;
+        // Normal state
+        icon.addPixmap(GameResources::getPixmap(iconName), QIcon::Normal);
+        // "Selected/Pressed" state (you can reuse the same or a darkened version)
+        icon.addPixmap(GameResources::getPixmap(iconName), QIcon::Active);
+        
+        btn->setIcon(icon);
+        btn->setIconSize(iconSize);
+        btn->setToolTip(tooltip);
+        btn->setCursor(Qt::PointingHandCursor); // Makes it feel clickable
+    };
 
-    morgueButton->setIcon(QIcon(GameResources::getPixmap("morgue")));
-    morgueButton->setIconSize(iconSize);
-    morgueButton->setToolTip("Morgue");
+    setupGameButton(generalStoreButton, "general_store", "Trade your hard-earned gold");
+    setupGameButton(morgueButton, "morgue", "Check the fallen heroes");
+    setupGameButton(guildsButton, "guilds", "Do some guild stuff");
+    setupGameButton(dungeonButton, "dungeon", "Visit the dungeon below");
+    setupGameButton(confinementButton, "confinement", "Want some pets?");
+    setupGameButton(seerButton, "seer", "Let have a look into your future");
+    setupGameButton(bankButton, "bank", "Let us keep your gold safe");
+    setupGameButton(exitButton, "exit_icon", "Return to the main menu");
 
-    guildsButton->setIcon(QIcon(GameResources::getPixmap("guilds")));
-    guildsButton->setIconSize(iconSize);
-    guildsButton->setToolTip("Guilds");
 
-    dungeonButton->setIcon(QIcon(GameResources::getPixmap("dungeon")));
-    dungeonButton->setIconSize(iconSize);
-    dungeonButton->setToolTip("Dungeon");
+    //const QSize iconSize(120, 90); 
+    //generalStoreButton->setIcon(QIcon(GameResources::getPixmap("general_store")));
+    //generalStoreButton->setIconSize(iconSize);
+    //generalStoreButton->setToolTip("General Store");
 
-    confinementButton->setIcon(QIcon(GameResources::getPixmap("confinement")));
-    confinementButton->setIconSize(iconSize);
-    confinementButton->setToolTip("Confinement");
+    //morgueButton->setIcon(QIcon(GameResources::getPixmap("morgue")));
+    //morgueButton->setIconSize(iconSize);
+    //morgueButton->setToolTip("Morgue");
 
-    seerButton->setIcon(QIcon(GameResources::getPixmap("seer")));
-    seerButton->setIconSize(iconSize);
-    seerButton->setToolTip("Seer");
+    //guildsButton->setIcon(QIcon(GameResources::getPixmap("guilds")));
+    //guildsButton->setIconSize(iconSize);
+    //guildsButton->setToolTip("Guilds");
 
-    bankButton->setIcon(QIcon(GameResources::getPixmap("bank")));
-    bankButton->setIconSize(iconSize);
-    bankButton->setToolTip("Bank");
+    //dungeonButton->setIcon(QIcon(GameResources::getPixmap("dungeon")));
+    //dungeonButton->setIconSize(iconSize);
+    //dungeonButton->setToolTip("Dungeon");
 
-    exitButton->setIcon(QIcon(GameResources::getPixmap("exit_icon")));
-    exitButton->setIconSize(iconSize);
-    exitButton->setToolTip("Exit to main menu");
+    //confinementButton->setIcon(QIcon(GameResources::getPixmap("confinement")));
+    //confinementButton->setIconSize(iconSize);
+    //confinementButton->setToolTip("Confinement");
+
+    //seerButton->setIcon(QIcon(GameResources::getPixmap("seer")));
+    //seerButton->setIconSize(iconSize);
+    //seerButton->setToolTip("Seer");
+
+    //bankButton->setIcon(QIcon(GameResources::getPixmap("bank")));
+    //bankButton->setIconSize(iconSize);
+    //bankButton->setToolTip("Bank");
+
+    //exitButton->setIcon(QIcon(GameResources::getPixmap("exit_icon")));
+    //exitButton->setIconSize(iconSize);
+    //exitButton->setToolTip("Exit to main menu");
 }
 
 void TheCity::setupStyling()
@@ -207,6 +234,12 @@ void TheCity::setupStyling()
         styleFile.close();
     }
     titleLabel->setStyleSheet("font-size: 20px; color: #CCCCCC; background-color: #444444; padding: 5px; border: 1px solid #777777;");
+
+    QGraphicsDropShadowEffect *glow = new QGraphicsDropShadowEffect(this);
+    glow->setBlurRadius(15);
+    glow->setColor(QColor(255, 215, 0, 150)); // Gold glow
+    glow->setOffset(0);
+    titleLabel->setGraphicsEffect(glow);
 }
 
 void TheCity::on_generalStoreButton_clicked() {
