@@ -67,7 +67,8 @@ SOURCES += \
     src/dungeon_dialog/DungeonHandlers.cpp \
     src/event/EventManager.cpp \
     src/update/UpdateManager.cpp \
-    src/update/UpdateDialog.cpp
+    src/update/UpdateDialog.cpp \
+    character.cpp
 
 #--------------------------------------------------
 # Header Files
@@ -111,7 +112,8 @@ HEADERS += \
     src/event/EventManager.h \
     src/dungeon_dialog/MinimapDialog.h \
     src/update/UpdateManager.h \
-    src/update/UpdateDialog.h
+    src/update/UpdateDialog.h \
+    character.h
 
 HEADERS += src/spell_casting/SpellCastingDialog.h
 SOURCES += src/spell_casting/SpellCastingDialog.cpp

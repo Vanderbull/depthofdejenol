@@ -322,7 +322,7 @@ void GameMenu::loadGame() {
             
             // Sync the name and age to the global state (used by your Lua scripts)
             GameStateManager::instance()->setGameValue("CurrentCharacterName", lead.name);
-            GameStateManager::instance()->setGameValue("CurrentCharacterAge", lead.Age);
+            GameStateManager::instance()->setGameValue("CurrentCharacterAge", lead.age);
             
             // 4. Force the UI to refresh with the new Party data
             GameStateManager::instance()->refreshUI();

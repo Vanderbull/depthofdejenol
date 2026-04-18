@@ -1,11 +1,9 @@
 -- Blacklands Character Save
 SaveData = {
     Age = 16,
-    Blinded = false,
     Charisma = 0,
     Constitution = 0,
     Dexterity = 0,
-    Diseased = false,
     DungeonLevel = 0,
     DungeonX = 0,
     DungeonY = 0,
@@ -19,9 +17,9 @@ SaveData = {
     MaxHP = 0,
     MaxMana = 0,
     Name = "Empty Slot",
-    Poisoned = false,
     Race = "Human",
+    StatusFlags = 0,
     Strength = 0,
     Wisdom = 0,
-    isAlive = false,
+    row = 0,
 }

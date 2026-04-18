@@ -68,21 +68,48 @@ void Character::loadFromMap(const QVariantMap &map) {
     dungeonX     = map.value("DungeonX", 0).toInt();
     dungeonY     = map.value("DungeonY", 0).toInt();
 
-    row          = map.value("row", 0).toInt();        
+    row          = map.value("row", 0).toInt();
     inventory    = map.value("Inventory").toStringList();
 }
+
+void Character::addStatus(uint flag) { statusFlags |= flag; }
+void Character::removeStatus(uint flag) { statusFlags &= ~flag; }
 
 void Character::setDead() {
     addStatus(StatusFlag::Dead);
     hp = 0;
-    // When a character dies, we can reset their dungeon position 
-    // to "City" (0) so they appear in the Morgue/Temple list.
+    isAlive = false;
     dungeonLevel = 0; 
 }
 
 void Character::resurrect() {
     removeStatus(StatusFlag::Dead);
-    if (hp <= 0) hp = 1; // Ensure they have at least 1 HP
+    isAlive = true;
+    if (hp <= 0) hp = 1;
+}
+
+void Character::addExperience(int amount) {
+    if (amount <= 0 || !isAlive) return;
+
+    experience += amount;
+
+    // Basic level-up logic: Level * 1000 threshold
+    // Example: Level 1 needs 1000 XP to hit Level 2
+    int nextLevelThreshold = level * 1000;
+
+    while (experience >= nextLevelThreshold) {
+        experience -= nextLevelThreshold;
+        level++;
+        
+        // Boost stats on level up
+        maxHp += 5;
+        hp = maxHp; // Heal on level up
+        maxMana += 2;
+        mana = maxMana;
+        
+        // Recalculate next threshold for the new level
+        nextLevelThreshold = level * 1000;
+    }
 }
 
 // --- Party Implementation ---

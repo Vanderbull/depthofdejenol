@@ -265,7 +265,7 @@ GameStateManager::GameStateManager(QObject *parent)
         // Dummy test if no character exists yet
         Character testChar;
         testChar.name = "Bluebird_Test";
-        testChar.Gold = 500;
+        testChar.gold = 500;
         saveCharacterToLua(testChar, "data/characters/Bluebird_Test.lua");
     }
 
@@ -280,7 +280,7 @@ GameStateManager::GameStateManager(QObject *parent)
         //m_PC.append(loadedChar);
         
         qDebug() << "Verified: Loaded character" << m_currentParty.members.last().name 
-                 << "with" << m_currentParty.members.last().Gold << "gold.";
+                 << "with" << m_currentParty.members.last().gold << "gold.";
     }
 
 }
@@ -986,9 +986,9 @@ bool GameStateManager::isCharacterPastMaxAge(int index) const
     if (index < 0 || index >= m_currentParty.members.size()) return false;
 
     const Character& c = m_currentParty.members.at(index);
-    int maxAge = getMaxAgeForRace(c.Race); // Now resolves!
+    int maxAge = getMaxAgeForRace(c.race); // Now resolves!
     
-    return (c.Age >= maxAge); // Now resolves!
+    return (c.age >= maxAge); // Now resolves!
 }
 
 void GameStateManager::incrementPartyAge(int years)
@@ -996,7 +996,7 @@ void GameStateManager::incrementPartyAge(int years)
     // 1. Update the internal Character structs (m_PC)
     for (int i = 0; i < m_currentParty.members.size(); ++i) {
         if (m_currentParty.members[i].name != "Empty Slot") {
-            m_currentParty.members[i].Age += years;
+            m_currentParty.members[i].age += years;
         }
     }
 
@@ -1005,7 +1005,7 @@ void GameStateManager::incrementPartyAge(int years)
     for (int i = 0; i < partyList.size(); ++i) {
         QVariantMap characterMap = partyList[i].toMap();
         if (characterMap["Name"].toString() != "Empty Slot") {
-            characterMap["Age"] = m_currentParty.members[i].Age;
+            characterMap["Age"] = m_currentParty.members[i].age;
             partyList[i] = characterMap;
         }
     }
@@ -1016,7 +1016,7 @@ void GameStateManager::incrementPartyAge(int years)
 
     // 4. Update the "CurrentCharacterAge" global value if index 0 changed
     if (!m_currentParty.members.isEmpty()) {
-        setGameValue("CurrentCharacterAge", m_currentParty.members[0].Age);
+        setGameValue("CurrentCharacterAge", m_currentParty.members[0].age);
     }
 
     qDebug() << "The party has aged by" << years << "year(s).";
@@ -1033,7 +1033,7 @@ void GameStateManager::processAgingConsequences() {
     for (int i = 0; i < m_currentParty.members.size(); ++i) {
         Character &pc = m_currentParty.members[i];
 
-        if (pc.Age > 70) {
+        if (pc.age > 70) {
             // QRandomGenerator::global()->bounded(100) returns a 0-99 value
             if (QRandomGenerator::global()->bounded(100) < 10) { 
                 pc.strength = qMax(3, pc.strength - 1);
@@ -1525,9 +1525,9 @@ Character GameStateManager::loadCharacterFromLua(const QString& filePath) {
 
         // 3. Map Lua values back to C++ variables
         c.name = data["Name"].toString();
-        c.Race = data["Race"].toString();
+        c.race = data["Race"].toString();
         c.level = data["Level"].toInt();
-        c.Gold = data["Gold"].toInt();
+        c.gold = data["Gold"].toInt();
 
         // Handle nested Stats table
         if (data.contains("Stats")) {

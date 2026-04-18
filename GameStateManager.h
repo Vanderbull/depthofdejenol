@@ -192,11 +192,11 @@ public:
         // 3. Bounds check to ensure the index is valid
         if (idx >= 0 && idx < m_currentParty.members.size()) {
             // In your system, DungeonLevel 0 usually represents the City/Overworld
-            return m_currentParty.members[idx].DungeonLevel == 0;
+            return m_currentParty.members[idx].dungeonLevel == 0;
         }
 
         // 4. Fallback: check the party leader (index 0) if current index is invalid
-        return m_currentParty.members[0].DungeonLevel == 0;
+        return m_currentParty.members[0].dungeonLevel == 0;
     }
 
 /*    

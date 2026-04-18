@@ -490,7 +490,7 @@ DungeonDialog::DungeonDialog(QWidget *parent)
     int initialX = gsm->getGameValue("DungeonX").toInt();
     int initialY = gsm->getGameValue("DungeonY").toInt();
     //quint64 initialGold = gsm->getGameValue("PlayerGold").toULongLong();
-    gsm->setGameValue("PlayerGold", gsm->getPC().at(0).Gold);
+    gsm->setGameValue("PlayerGold", gsm->getPC().at(0).gold);
     //initialGold = gsm->getPC().at(0).gold;
     
     // Set defaults if state data is missing (e.g., first time entering)
