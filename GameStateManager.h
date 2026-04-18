@@ -76,13 +76,14 @@ private:
     GameStateManager(const GameStateManager&) = delete;
     GameStateManager& operator=(const GameStateManager&) = delete;
 
-    DataRegistry m_registry; 
+    DataRegistry m_registry;
     QVariantMap findRaceMap(const QString& raceName) const;
     GameConstants::RaceStats createRaceFromVariant(const QVariant& data) const;
     
     QString statusKey(GameConstants::EntityStatus effect) const;
 
 public:
+    void addItemToInventory(const QString& itemName);
     Character getCurrentCharacter() const;
     bool hasLivingCharacters() const;
 

@@ -1745,3 +1745,12 @@ Character GameStateManager::getCurrentCharacter() const {
 
     return Character(); // Return a blank character if party is empty
 }
+void GameStateManager::addItemToInventory(const QString& itemName) {
+    if (m_currentParty.members.isEmpty()) return;
+
+    // Add to the currently active character (usually index 0 in this simplified logic)
+    m_currentParty.members[m_currentCharacterIndex].inventory.append(itemName);
+    
+    // Refresh the UI so the new item appears in inventory screens
+    refreshUI();
+}

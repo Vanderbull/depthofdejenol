@@ -5,6 +5,7 @@
 #include <QDebug>
 #include <QMessageBox>
 
+/*
 InventoryDialog::InventoryDialog(QWidget *parent) : QDialog(parent) 
 {
     setWindowTitle("Inventory");
@@ -12,6 +13,23 @@ InventoryDialog::InventoryDialog(QWidget *parent) : QDialog(parent)
     initializeItemData(); // Loads your itemInfoMap descriptions
     setupUi();
     loadInventoryData(); // Pulls the real data from GameStateManager
+}
+*/
+InventoryDialog::InventoryDialog(QWidget *parent) : QDialog(parent) 
+{
+    setWindowTitle("Inventory");
+    setFixedSize(600, 400);
+    initializeItemData();
+    setupUi();
+    loadInventoryData(); // Initial load
+
+    // ADD THIS: Connect to the manager to refresh when items are added mid-session
+    connect(GameStateManager::instance(), &GameStateManager::gameValueChanged, 
+            this, [this](const QString& key, const QVariant& /*value*/){
+        if (key == "party_data") {
+            loadInventoryData();
+        }
+    });
 }
 
 void InventoryDialog::setupUi() 
@@ -53,6 +71,18 @@ void InventoryDialog::setupUi()
     connect(infoButton, &QPushButton::clicked, this, &InventoryDialog::onInfoButtonClicked);
 }
 
+void InventoryDialog::loadInventoryData() {
+    inventoryList->clear();
+    
+    // Get the active character from the manager
+    Character current = GameStateManager::instance()->getCurrentCharacter();
+    
+    // Populate the list widget
+    for (const QString& itemName : current.inventory) {
+        inventoryList->addItem(itemName);
+    }
+}
+/*
 void InventoryDialog::loadInventoryData() 
 {
     // 1. Get the singleton instance
@@ -76,6 +106,7 @@ void InventoryDialog::loadInventoryData()
         }
     }
 }
+*/
 
 void InventoryDialog::initializeItemData() 
 {

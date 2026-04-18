@@ -96,6 +96,7 @@ private slots:
     void togglePartyInfo();
     
 private:
+    void awardBattleLoot();
     void setupControls();
     void handleFalling(); // New method to handle falling through a pit
     QSet<QPair<int, int>> m_bodyPositions;

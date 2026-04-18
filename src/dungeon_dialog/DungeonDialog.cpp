@@ -1,3 +1,4 @@
+
 #include "src/character_dialog/CharacterDialog.h"
 #include "DungeonDialog.h"
 #include "DungeonHandlers.h"
@@ -865,6 +866,7 @@ void DungeonDialog::performPlayerAttack() {
         QPair<int, int> pos = getCurrentPosition();
         m_monsterPositions.remove(pos);
         renderWireframeView();
+        awardBattleLoot();
     }
 }
 
@@ -1757,6 +1759,24 @@ void DungeonDialog::on_spellButton_clicked()
     });
     
     spellDialog->exec();
+}
+
+void DungeonDialog::awardBattleLoot() {
+    GameStateManager* gsm = GameStateManager::instance();
+    // Retrieve the full item list loaded into GameStateManager
+    const QList<QVariantMap>& allItems = gsm->itemData();
+
+    if (allItems.isEmpty()) return;
+
+    // Select a random item from the database
+    int itemIdx = QRandomGenerator::global()->bounded(allItems.size());
+    QString itemName = allItems.at(itemIdx).value("name").toString();
+
+    // Store the item in the character's inventory
+    gsm->addItemToInventory(itemName);
+
+    // Show the item to the player in the message log
+    logMessage(QString("<font color='gold'>The monster dropped a %1!</font>").arg(itemName));
 }
 
 DungeonDialog::~DungeonDialog(){}
