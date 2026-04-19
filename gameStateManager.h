@@ -51,6 +51,8 @@ class gameStateManager : public QObject
     Q_OBJECT
 
 private:
+    QPixmap m_fontSpriteSheet;
+
     GameConstants::GameMode m_currentMode = GameConstants::GameMode::InCity;
     GameConstants::CityLocation m_currentCityLocation = GameConstants::CityLocation::Street;
     // Use a pointer so the compiler doesn't need to know
@@ -94,6 +96,8 @@ private:
     QString statusKey(GameConstants::EntityStatus effect) const;
 
 public:
+    QPixmap getFontSpriteSheet() const { return m_fontSpriteSheet; }
+
     void addItemToInventory(const QString& itemName);
     //Character getCurrentCharacter() const;
     //bool hasLivingCharacters() const;

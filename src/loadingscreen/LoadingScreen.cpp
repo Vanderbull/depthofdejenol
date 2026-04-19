@@ -14,7 +14,7 @@ LoadingScreen::LoadingScreen(QWidget *parent) :
     m_currentFileIndex(0)
 {
     // Load your uploaded sprite sheet
-    m_fontSpriteSheet.load("resources/images/font_spritesheet_transparent.png");
+    //m_fontSpriteSheet.load("resources/images/font_spritesheet_transparent.png");
     // Load resources and update Game State Manager
     GameResources::loadAllResources();
     gameStateManager::instance()->setGameValue("ResourcesLoaded", true);
@@ -124,6 +124,7 @@ void LoadingScreen::paintEvent(QPaintEvent *event)
     Q_UNUSED(event);
     QPainter painter(this);
 
+    QPixmap fontSheet = gameStateManager::instance()->getFontSpriteSheet();
     // Configuration based on your uploaded image
     const int charWidth = 32;  
     const int charHeight = 42; 

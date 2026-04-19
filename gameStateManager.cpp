@@ -157,6 +157,8 @@ QMap<QString, int> gameStateManager::getConfinementStock() const
 gameStateManager::gameStateManager(QObject *parent)
     : QObject(parent)
 {
+    m_fontSpriteSheet.load("resources/images/font_spritesheet_transparent.png");
+
     //loadAllGameResources();
     m_partyManager = new PartyManager(this); // 'this' sets GSM as the parent for memory management
     connect(m_partyManager, &PartyManager::partyUpdated, this, &gameStateManager::refreshUI);
