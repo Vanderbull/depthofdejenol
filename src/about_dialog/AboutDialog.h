@@ -3,8 +3,9 @@
 
 #include <QDialog>
 #include <memory>
+
 // Forward declarations
-class GameStateManager;
+class gameStateManager;
 
 class AboutDialog : public QDialog {
     Q_OBJECT

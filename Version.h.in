@@ -1,5 +1,5 @@
-#ifndef VERSION_H
-#define VERSION_H
+#ifndef version_H
+#define version_H
 
 namespace GameConstants {
     // These will now correctly expand to "value" because of the quotes in the .pro

@@ -39,7 +39,7 @@ public:
         }
     }
 
-    // High-level Actions (Encapsulates logic formerly in GameStateManager)
+    // High-level Actions (Encapsulates logic formerly in gameStateManager)
     void distributeExperience(int totalXp) {
         if (m_party.isEmpty()) return;
         int share = totalXp / m_party.size();

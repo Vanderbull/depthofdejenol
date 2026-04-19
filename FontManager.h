@@ -1,6 +1,6 @@
-// FontManager.h
-#ifndef FONTMANAGER_H
-#define FONTMANAGER_H
+// fontManager.h
+#ifndef fontManager_H
+#define fontManager_H
 
 #include <QObject>
 #include <QFont>
@@ -9,10 +9,10 @@
 #include <QPoint>
 #include <QMap>
 
-class FontManager : public QObject {
+class fontManager : public QObject {
     Q_OBJECT
 public:
-    static FontManager* instance();
+    static fontManager* instance();
 
     // Sprite Font Logic
     void loadSpriteSheet(const QString& path, int charWidth, int charHeight, int kerning);
@@ -29,7 +29,7 @@ signals:
     void fontsChanged();
 
 private:
-    FontManager() = default;
+    fontManager() = default;
     
     QPixmap m_spriteSheet;
     int m_charWidth = 0;

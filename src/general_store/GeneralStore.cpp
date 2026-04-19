@@ -17,7 +17,7 @@ GeneralStore::GeneralStore(QWidget *parent) : QDialog(parent)
     setupUi();
     loadItemsFromCsv("src/general_store/items.csv");
     // NEW: Populate the Uncurse dropdown with the current character's items
-    Character current = GameStateManager::instance()->getCurrentCharacter();
+    Character current = gameStateManager::instance()->getCurrentCharacter();
     uncurseItemComboBox->clear();
     uncurseItemComboBox->addItems(current.inventory);
 
@@ -206,7 +206,7 @@ void GeneralStore::uncurseItem()
         showFeedbackDialog("Uncurse Error", "Please enter the name of the item you wish to uncurse.", QMessageBox::Warning);
         return;
     }
-    GameStateManager* gsm = GameStateManager::instance();
+    gameStateManager* gsm = gameStateManager::instance();
     int activeCharIndex = gsm->getGameValue("ActiveCharacterIndex").toInt();
     // Retrieve character inventory
     QVariantList party = gsm->getGameValue("Party").toList();
@@ -290,7 +290,7 @@ void GeneralStore::identifySellItem()
     // Identify which button triggered the slot
     QPushButton *senderButton = qobject_cast<QPushButton*>(sender());
     bool isIdentifyAction = (senderButton == idButton);
-    GameStateManager* gsm = GameStateManager::instance();
+    gameStateManager* gsm = gameStateManager::instance();
     int activeCharIndex = gsm->getGameValue("ActiveCharacterIndex").toInt();
     // Retrieve character inventory
     QVariantList party = gsm->getGameValue("Party").toList();

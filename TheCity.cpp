@@ -1,4 +1,4 @@
-#include "TheCity.h"
+#include "theCity.h"
 #include "src/core/game_resources.h"
 #include "src/network_manager/NetworkManager.h"
 #include "src/partyinfo_dialog/partyinfodialog.h"
@@ -15,10 +15,10 @@
 #include <QGraphicsDropShadowEffect>
 
 
-TheCity::TheCity(QWidget *parent) :
+theCity::theCity(QWidget *parent) :
     QDialog(parent)
 {
-    //GameStateManager::instance()->playMusic("resources/waves/city.wav");
+    //gameStateManager::instance()->playMusic("resources/waves/city.wav");
 
     setWindowTitle("The City - Online");
     setFixedSize(800, 600); // Expanded for multiplayer UI
@@ -48,7 +48,7 @@ TheCity::TheCity(QWidget *parent) :
         // Register with server
         quint32 randomId = QRandomGenerator::global()->bounded(1000);
         NetworkManager::instance()->sendAction("enter_zone", {
-            {"zone", "TheCity"}, 
+            {"zone", "theCity"}, 
             {"username", "Hero_" + QString::number(randomId)}
         });
     });
@@ -58,7 +58,7 @@ TheCity::TheCity(QWidget *parent) :
     connectionTimer->start(3000); // Wait 3 seconds for server
 }
 
-void TheCity::setupUi()
+void theCity::setupUi()
 {
     QVBoxLayout *mainLayout = new QVBoxLayout(this);
     mainLayout->setContentsMargins(10, 10, 10, 10);
@@ -115,43 +115,43 @@ void TheCity::setupUi()
     mainLayout->addLayout(chatInputLayout);
 
     // Basic Signal Connections
-    connect(generalStoreButton, &QToolButton::clicked, this, &TheCity::on_generalStoreButton_clicked);
-    connect(morgueButton,      &QToolButton::clicked, this, &TheCity::on_morgueButton_clicked);
-    connect(guildsButton,      &QToolButton::clicked, this, &TheCity::on_guildsButton_clicked);
-    connect(dungeonButton,     &QToolButton::clicked, this, &TheCity::on_dungeonButton_clicked);
-    connect(confinementButton, &QToolButton::clicked, this, &TheCity::on_confinementButton_clicked);
-    connect(seerButton,        &QToolButton::clicked, this, &TheCity::on_seerButton_clicked);
-    connect(bankButton,        &QToolButton::clicked, this, &TheCity::on_bankButton_clicked);
-    connect(exitButton,        &QToolButton::clicked, this, &TheCity::on_exitButton_clicked);
-    connect(sendButton,        &QPushButton::clicked, this, &TheCity::sendChatMessage);
-    connect(chatInput,         &QLineEdit::returnPressed, this, &TheCity::sendChatMessage);
+    connect(generalStoreButton, &QToolButton::clicked, this, &theCity::on_generalStoreButton_clicked);
+    connect(morgueButton,      &QToolButton::clicked, this, &theCity::on_morgueButton_clicked);
+    connect(guildsButton,      &QToolButton::clicked, this, &theCity::on_guildsButton_clicked);
+    connect(dungeonButton,     &QToolButton::clicked, this, &theCity::on_dungeonButton_clicked);
+    connect(confinementButton, &QToolButton::clicked, this, &theCity::on_confinementButton_clicked);
+    connect(seerButton,        &QToolButton::clicked, this, &theCity::on_seerButton_clicked);
+    connect(bankButton,        &QToolButton::clicked, this, &theCity::on_bankButton_clicked);
+    connect(exitButton,        &QToolButton::clicked, this, &theCity::on_exitButton_clicked);
+    connect(sendButton,        &QPushButton::clicked, this, &theCity::sendChatMessage);
+    connect(chatInput,         &QLineEdit::returnPressed, this, &theCity::sendChatMessage);
 }
 
-void TheCity::setupMultiplayerConnections()
+void theCity::setupMultiplayerConnections()
 {
-    connect(NetworkManager::instance(), &NetworkManager::playerJoined, this, &TheCity::handlePlayerJoined);
-    connect(NetworkManager::instance(), &NetworkManager::playerLeft, this, &TheCity::handlePlayerLeft);
-    connect(NetworkManager::instance(), &NetworkManager::chatReceived, this, &TheCity::handleChatReceived);
+    connect(NetworkManager::instance(), &NetworkManager::playerJoined, this, &theCity::handlePlayerJoined);
+    connect(NetworkManager::instance(), &NetworkManager::playerLeft, this, &theCity::handlePlayerLeft);
+    connect(NetworkManager::instance(), &NetworkManager::chatReceived, this, &theCity::handleChatReceived);
 }
 
-void TheCity::handlePlayerJoined(QString name) {
+void theCity::handlePlayerJoined(QString name) {
     playerList->addItem(name);
     chatDisplay->append(QString("<i style='color:gray;'>%1 has arrived.</i>").arg(name));
 }
 
-void TheCity::handlePlayerLeft(QString name) {
+void theCity::handlePlayerLeft(QString name) {
     QList<QListWidgetItem*> items = playerList->findItems(name, Qt::MatchExactly);
     for(auto item : items) delete playerList->takeItem(playerList->row(item));
     chatDisplay->append(QString("<i style='color:gray;'>%1 has departed.</i>").arg(name));
 }
 
-void TheCity::handleChatReceived(QString from, QString message) {
+void theCity::handleChatReceived(QString from, QString message) {
     QString time = QDateTime::currentDateTime().toString("hh:mm");
     chatDisplay->append(QString("[%1] <b>%2:</b> %3").arg(time, from, message));
     chatDisplay->verticalScrollBar()->setValue(chatDisplay->verticalScrollBar()->maximum());
 }
 
-void TheCity::sendChatMessage() {
+void theCity::sendChatMessage() {
     if (isOfflineMode) {
         chatDisplay->append("<b>You (Offline):</b> " + chatInput->text());
         chatInput->clear();
@@ -165,7 +165,7 @@ void TheCity::sendChatMessage() {
     }
 }
 
-void TheCity::loadButtonIcons()
+void theCity::loadButtonIcons()
 {
     const QSize iconSize(120, 90);
     
@@ -226,9 +226,9 @@ void TheCity::loadButtonIcons()
     //exitButton->setToolTip("Exit to main menu");
 }
 
-void TheCity::setupStyling()
+void theCity::setupStyling()
 {
-    QFile styleFile("TheCity.qss");
+    QFile styleFile("theCity.qss");
     if (styleFile.open(QFile::ReadOnly | QFile::Text)) {
         this->setStyleSheet(QLatin1String(styleFile.readAll()));
         styleFile.close();
@@ -242,57 +242,57 @@ void TheCity::setupStyling()
     titleLabel->setGraphicsEffect(glow);
 }
 
-void TheCity::on_generalStoreButton_clicked() {
+void theCity::on_generalStoreButton_clicked() {
     NetworkManager::instance()->sendAction("enter_location", {{"location", "GeneralStore"}});
     GeneralStore *store = new GeneralStore(this);
     store->setAttribute(Qt::WA_DeleteOnClose);
     store->show();
 }
 
-void TheCity::on_morgueButton_clicked() {
+void theCity::on_morgueButton_clicked() {
     MorgueDialog *m = new MorgueDialog(this);
     m->setAttribute(Qt::WA_DeleteOnClose);
     m->show();
 }
 
-void TheCity::on_guildsButton_clicked() {
+void theCity::on_guildsButton_clicked() {
     GuildsDialog *g = new GuildsDialog(this);
     g->setAttribute(Qt::WA_DeleteOnClose);
     g->show();
 }
 
-void TheCity::on_dungeonButton_clicked() {
+void theCity::on_dungeonButton_clicked() {
     DungeonDialog *d = new DungeonDialog(nullptr); 
     d->setAttribute(Qt::WA_DeleteOnClose);    
-    connect(d, &DungeonDialog::exitedDungeonToCity, this, &TheCity::show);
+    connect(d, &DungeonDialog::exitedDungeonToCity, this, &theCity::show);
     d->show();
     this->hide();
 }
 
-void TheCity::on_confinementButton_clicked() {
+void theCity::on_confinementButton_clicked() {
     ConfinementAndHoldingDialog *c = new ConfinementAndHoldingDialog(this);
     c->setAttribute(Qt::WA_DeleteOnClose);
     c->show();
 }
 
-void TheCity::on_seerButton_clicked() {
+void theCity::on_seerButton_clicked() {
     SeerDialog *s = new SeerDialog(this);
     s->setAttribute(Qt::WA_DeleteOnClose);
     s->show();
 }
 
-void TheCity::on_bankButton_clicked() {
+void theCity::on_bankButton_clicked() {
     BankDialog *b = new BankDialog(this);
     b->setAttribute(Qt::WA_DeleteOnClose);
     b->show();
 }
 
-void TheCity::on_exitButton_clicked() {
-    NetworkManager::instance()->sendAction("leave_zone", {{"zone", "TheCity"}});
+void theCity::on_exitButton_clicked() {
+    NetworkManager::instance()->sendAction("leave_zone", {{"zone", "theCity"}});
     accept(); 
 }
 
-void TheCity::keyPressEvent(QKeyEvent *event) {
+void theCity::keyPressEvent(QKeyEvent *event) {
     if (event->key() == Qt::Key_I) {
         InventoryDialog *inv = new InventoryDialog(this);
         inv->setAttribute(Qt::WA_DeleteOnClose);
@@ -308,21 +308,21 @@ void TheCity::keyPressEvent(QKeyEvent *event) {
     }
 }
 
-void TheCity::startOfflineMode() {
+void theCity::startOfflineMode() {
     isOfflineMode = true;
     setWindowTitle("The City - Offline Mode");
     
     playerList->clear();
 
     // 1. ADD THE CURRENT ACTIVE PLAYER (IF IN CITY)
-    int curX = GameStateManager::instance()->getGameValue("DungeonX").toInt();
-    int curY = GameStateManager::instance()->getGameValue("DungeonY").toInt();
-    int curLvl = GameStateManager::instance()->getGameValue("DungeonLevel").toInt();
+    int curX = gameStateManager::instance()->getGameValue("DungeonX").toInt();
+    int curY = gameStateManager::instance()->getGameValue("DungeonY").toInt();
+    int curLvl = gameStateManager::instance()->getGameValue("DungeonLevel").toInt();
 
     // Check if current player is at entrance (1, 17, 12)
     if (curLvl == 1 && curX == 17 && curY == 12) {
         QListWidgetItem* selfItem = new QListWidgetItem(
-            GameStateManager::instance()->getGameValue("CurrentCharacterName").toString() + " (You)"
+            gameStateManager::instance()->getGameValue("CurrentCharacterName").toString() + " (You)"
         );
         selfItem->setForeground(Qt::blue);
         playerList->addItem(selfItem);
@@ -332,7 +332,7 @@ void TheCity::startOfflineMode() {
     QDir charDir("data/characters/");
     if (charDir.exists()) {
         QStringList saveFiles = charDir.entryList({"*.txt"}, QDir::Files);
-        QString currentHero = GameStateManager::instance()->getGameValue("CurrentCharacterName").toString();
+        QString currentHero = gameStateManager::instance()->getGameValue("CurrentCharacterName").toString();
 
         for (const QString& fileName : saveFiles) {
             QString charName = fileName.left(fileName.lastIndexOf('.'));
@@ -341,9 +341,9 @@ void TheCity::startOfflineMode() {
             if (charName == currentHero) continue;
             
         // If verification fails, try to repair it
-            if (!GameStateManager::instance()->verifySaveGame(charName)) {
+            if (!gameStateManager::instance()->verifySaveGame(charName)) {
                 qDebug() << "Attempting to repair broken savegame:" << charName;
-                if (!GameStateManager::instance()->repairSaveGame(charName)) {
+                if (!gameStateManager::instance()->repairSaveGame(charName)) {
                     continue; // Skip if repair also fails
                 }
             }
@@ -372,4 +372,4 @@ void TheCity::startOfflineMode() {
     chatDisplay->append("<i style='color:gray;'>Offline mode: Local heroes at the entrance are visible.</i>");
 }
 
-TheCity::~TheCity() {}
+theCity::~theCity() {}

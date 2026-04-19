@@ -24,6 +24,7 @@
 #include <QDir>
 #include <QMetaType>
 #include <QPainter>
+
 gameStateManager* gameStateManager::instance()
 {
     // Thread-safe initialization guaranteed by C++11
@@ -156,6 +157,7 @@ QMap<QString, int> gameStateManager::getConfinementStock() const
 gameStateManager::gameStateManager(QObject *parent)
     : QObject(parent)
 {
+    //loadAllGameResources();
     m_partyManager = new PartyManager(this); // 'this' sets GSM as the parent for memory management
     connect(m_partyManager, &PartyManager::partyUpdated, this, &gameStateManager::refreshUI);
 
@@ -1745,7 +1747,7 @@ bool gameStateManager::hasLivingCharacters() const {
         // - Status is 0 (assuming 0 = Healthy/Alive in your system)
         if (character.name != "Empty Slot" &&
             character.hp > 0 &&
-            character.isAlive())
+            character.isAlive)
         {
             return true; // We found at least one living hero!
         }
@@ -1919,6 +1921,19 @@ void gameStateManager::enterLocation(GameConstants::CityLocation location) {
     // Emit a signal so the rest of the app knows the location changed
     emit gameValueChanged("currentLocation", static_cast<int>(location));
     qDebug() << "Player entered:" << static_cast<int>(location);
+}
+
+void gameStateManager::addItemToInventory(const QString& itemName) {
+    if (m_currentParty.members.isEmpty()) return;
+
+    // 1. Add item to the current character's list
+    m_currentParty.members[m_currentCharacterIndex].inventory.append(itemName);
+    
+    // 2. Refresh UI/Signals so other windows know data changed
+    refreshUI(); 
+    
+    qDebug() << "Added" << itemName << "to inventory. New count:" 
+             << m_currentParty.members[m_currentCharacterIndex].inventory.size();
 }
 
 gameStateManager::~gameStateManager() {

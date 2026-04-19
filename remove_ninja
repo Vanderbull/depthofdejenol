@@ -1,0 +1,13 @@
+1. The "Nuke" (Clean the Build Directory)
+
+Since your .pro file defines a central directory for all build-related files, resetting is much easier for you than for most users. You just need to delete that directory:
+
+Bash
+
+rm -rf build/
+
+    This removes all the object files (OBJECTS_DIR).
+
+This removes the generated MOC, RCC, and UI files.
+
+This ensures no "ghost" Ninja files or old Makefiles remain to confuse the compiler.

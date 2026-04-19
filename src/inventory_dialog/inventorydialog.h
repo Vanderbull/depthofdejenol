@@ -5,7 +5,7 @@
 #include <QTabWidget>
 #include <QListWidget>
 #include <QPushButton>
-#include "GameStateManager.h"
+#include "gameStateManager.h"
 
 class InventoryDialog : public QDialog {
     Q_OBJECT

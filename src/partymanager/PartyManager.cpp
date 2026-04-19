@@ -22,7 +22,7 @@ Character& PartyManager::getMember(int index) {
 bool PartyManager::isWholePartyDead() const {
     if (m_party.members.isEmpty()) return true;
     for (const auto& member : m_party.members) {
-        if (member.isAlive()) return false;
+        if (member.isAlive) return false;
     }
     return true;
 }
@@ -30,7 +30,7 @@ bool PartyManager::isWholePartyDead() const {
 void PartyManager::addExperienceToParty(int totalXp) {
     QList<int> livingIndices;
     for (int i = 0; i < m_party.members.size(); ++i) {
-        if (m_party.members[i].isAlive()) livingIndices.append(i);
+        if (m_party.members[i].isAlive) livingIndices.append(i);
     }
     if (livingIndices.isEmpty()) return;
 

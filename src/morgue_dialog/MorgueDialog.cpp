@@ -1,5 +1,5 @@
 #include "MorgueDialog.h"
-#include "GameStateManager.h"
+#include "gameStateManager.h"
 #include <QtWidgets>
 #include <QSettings>
 #include <QDir>
@@ -125,7 +125,7 @@ void MorgueDialog::onActionClicked()
 {
     auto *btn = qobject_cast<QPushButton*>(sender());
     QString action = btn->text();
-    auto* gsm = GameStateManager::instance();
+    auto* gsm = gameStateManager::instance();
     // 1. Refresh data from files immediately on click
     QList<DeadCharacterInfo> deadChars = fetchDeadCharacterData();
     if (deadChars.isEmpty()) {
@@ -176,7 +176,7 @@ void MorgueDialog::onActionClicked()
             QMessageBox::warning(this, tr("Not Ready"), tr("You must 'Grab Body' for %1 first.").arg(selected));
             return;
         }
-        // Use GameStateManager live memory to check level
+        // Use gameStateManager live memory to check level
         if (!gsm->isActiveCharacterInCity()) {
             QMessageBox::critical(this, tr("Error"), tr("%1 is not in the city!").arg(selected));
             return;

@@ -1,5 +1,5 @@
-#ifndef DATAREGISTRY_H
-#define DATAREGISTRY_H
+#ifndef dataRegistry_H
+#define dataRegistry_H
 
 #include <QString>
 #include <QMap>
@@ -7,7 +7,7 @@
 #include <QVariant>
 #include <QDebug>
 
-class DataRegistry {
+class dataRegistry {
 public:
     // Adds a list of data under a specific category (e.g., "Races", "Items")
     void registerData(const QString& category, const QVariantList& dataList) {

@@ -7,10 +7,9 @@
 #include <QFontDatabase>
 #include <QSpacerItem> 
 #include <QRegularExpressionMatch> // Needed for matching results in Qt 6
-// NOTE: GameStateManager.h is included, but the class is not defined here.
-// For the buyCompanion() implementation below, we assume GameStateManager 
+// For the buyCompanion() implementation below, we assume gameStateManager 
 // is a globally accessible class (e.g., a Singleton) with methods for handling gold.
-// e.g., GameStateManager::instance().removeCharacterGold(cost);
+// e.g., gameStateManager::instance().removeCharacterGold(cost);
 ConfinementAndHoldingDialog::ConfinementAndHoldingDialog(QWidget *parent)
     : QDialog(parent)
 {
@@ -23,7 +22,7 @@ ConfinementAndHoldingDialog::ConfinementAndHoldingDialog(QWidget *parent)
     setupUi();
     resize(850, 650); 
     // 1. Declare and initialize the gsm variable
-    GameStateManager* gsm = GameStateManager::instance();
+    gameStateManager* gsm = gameStateManager::instance();
     // Check if a Ghost Hound is waiting to be added
     // Move pending dungeon exits into persistent stock
     if (gsm->getGameValue("GhostHoundPending").toBool()) {
@@ -196,7 +195,7 @@ void ConfinementAndHoldingDialog::buyCompanion()
     }
     // ... (Your gold check and purchase logic here) ...
     // 2. Use 'selectedCreature' in your success message and stock update
-    GameStateManager::instance()->decrementStock(selectedCreature);
+    gameStateManager::instance()->decrementStock(selectedCreature);
     qDebug() << "Successfully bought companion: " + selectedCreature;
     // 3. UI Cleanup
     delete buyCreatureListWidget->currentItem();

@@ -7,6 +7,8 @@
 #include <QString>
 
 namespace GameConstants {
+
+
     enum EntityStatus {
         Normal    = 0,
         Poisoned  = 1 << 0,
@@ -46,10 +48,33 @@ namespace GameConstants {
         int max;
     };
 
+    // Required for m_currentMode in gameStateManager
+    enum class GameMode {
+        InCity,
+        InDungeon,
+        Combat,
+        MainMenu
+    };
+
+    // Required for m_currentCityLocation in gameStateManager
+    enum class CityLocation {
+        Street,
+        Guild,
+        GeneralStore,
+        Temple,
+        Inn,
+        Bank,
+        Library,
+        Confinement,
+        Tavern,
+        None
+    };
+
     enum AlignmentStatus 
     {
         AS_Allowed,
-        AS_NotAllowed
+        AS_NotAllowed,
+        AS_Required
     };
 
     struct RaceStats 

@@ -6,7 +6,7 @@
 #include <QLabel>
 #include <QPushButton>
 #include <QKeyEvent>
-#include "GameStateManager.h"
+#include "gameStateManager.h"
 
 // Forward declarations for efficiency
 class QPaintEvent; 

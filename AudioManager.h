@@ -1,5 +1,5 @@
-#ifndef AUDIOMANAGER_H
-#define AUDIOMANAGER_H
+#ifndef audioManager_H
+#define audioManager_H
 
 #include <QObject>
 #include <QMediaPlayer>
@@ -7,11 +7,11 @@
 #include <QSoundEffect>
 #include <QMap>
 
-class AudioManager : public QObject {
+class audioManager : public QObject {
     Q_OBJECT
 
 public:
-    static AudioManager* instance();
+    static audioManager* instance();
 
     // Controls
     void playMusic(const QString& trackName);
@@ -22,8 +22,8 @@ public:
     void stopAllAudio();
 
 private:
-    explicit AudioManager(QObject* parent = nullptr);
-    static AudioManager* m_instance;
+    explicit audioManager(QObject* parent = nullptr);
+    static audioManager* m_instance;
 
     QMediaPlayer* m_musicPlayer;
     QAudioOutput* m_musicOutput;

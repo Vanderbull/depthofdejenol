@@ -1,5 +1,5 @@
 #include "hallofrecordsdialog.h"
-#include "GameStateManager.h"
+#include "gameStateManager.h"
 
 #include <QVBoxLayout>
 #include <QHBoxLayout>
@@ -40,7 +40,7 @@ HallOfRecordsDialog::HallOfRecordsDialog(QWidget *parent) : QDialog(parent)
     rightCol->setAlignment(Qt::AlignTop);
 
     // --- Data Processing ---
-    GameStateManager* gsm = GameStateManager::instance();
+    gameStateManager* gsm = gameStateManager::instance();
     const QVariantList guildLeadersList = gsm->getGameValue("GuildLeaders").toList();
     const int numRecords = guildLeadersList.size();
     const int leftColumnSize = (numRecords + 1) / 2;

@@ -1,8 +1,8 @@
 #include "blacklands.h"
-#include "GameStateManager.h"
-#include "AudioManager.h"
-#include "TheCity.h"
-#include "StoryDialog.h"
+#include "gameStateManager.h"
+#include "audioManager.h"
+#include "theCity.h"
+#include "storyDialog.h"
 
 // Dialog and UI Includes
 #include "src/characterlist_dialog/characterlistdialog.h"
@@ -34,8 +34,8 @@ GameMenu::GameMenu(QWidget *parent)
     , m_subfolderName(m_settings.value("Paths/SubfolderName", "data/characters").toString()) 
 {
     // 1. Core Engine Initialization
-    GameStateManager::instance()->loadFontSprite("resources/images/font_spritesheet_transparent.png");
-    GameStateManager::instance()->incrementPartyAge(1);
+    gameStateManager::instance()->loadFontSprite("resources/images/font_spritesheet_transparent.png");
+    gameStateManager::instance()->incrementPartyAge(1);
     EventManager::instance()->loadEvents("./data/events-json");
     
     // 2. Window Styling and Palette
@@ -129,7 +129,7 @@ void GameMenu::loadBackgroundImage() {
     QString imagePath = QDir::cleanPath(qApp->applicationDirPath() + "/introtitle.png");
     if (m_backgroundPixmap.load(imagePath)) {
         resizeEvent(nullptr); // Force initial scale
-        GameStateManager::instance()->setGameValue("ResourcesLoaded", true); 
+        gameStateManager::instance()->setGameValue("ResourcesLoaded", true); 
     } else {
         qDebug() << "FATAL: Could not load background image from:" << imagePath;
     }
@@ -139,7 +139,7 @@ void GameMenu::paintEvent(QPaintEvent *event) {
     QWidget::paintEvent(event);
     QPainter painter(this);
     // Draw branding or version text using custom sprite font
-    GameStateManager::instance()->drawCustomText(&painter, "ABCDEFGH", QPoint(0, 0));
+    gameStateManager::instance()->drawCustomText(&painter, "ABCDEFGH", QPoint(0, 0));
 }
 
 void GameMenu::resizeEvent(QResizeEvent *event) {
@@ -160,14 +160,14 @@ void GameMenu::toggleMenuState(bool characterIsLoaded) {
 }
 
 void GameMenu::onRunClicked() {
-    AudioManager::instance()->stopAllAudio();
-    TheCity *cityDialog = new TheCity(this);  
+    audioManager::instance()->stopAllAudio();
+    theCity *cityDialog = new theCity(this);  
     cityDialog->setAttribute(Qt::WA_DeleteOnClose);    
     hide(); 
     
-    // Handle return from TheCity
+    // Handle return from theCity
     connect(cityDialog, &QDialog::finished, this, [this](int){
-        bool isLoaded = GameStateManager::instance()->getGameValue("ResourcesLoaded").toBool();
+        bool isLoaded = gameStateManager::instance()->getGameValue("ResourcesLoaded").toBool();
         this->toggleMenuState(isLoaded); 
         this->show();
     });
@@ -180,8 +180,8 @@ void GameMenu::loadGame() {
                                                     tr("Character Files (*.json *.lua)"));
     if (fileName.isEmpty()) return;
 
-    if (GameStateManager::instance()->loadCharacterFromFile(fileName)) {
-        if (GameStateManager::instance()->hasLivingCharacters()) {
+    if (gameStateManager::instance()->loadCharacterFromFile(fileName)) {
+        if (gameStateManager::instance()->hasLivingCharacters()) {
             toggleMenuState(true); 
             emit logMessageTriggered("Character loaded successfully.");
         } else {
@@ -191,10 +191,10 @@ void GameMenu::loadGame() {
 }
 
 void GameMenu::onCharacterCreated(const QString &characterName) {
-    if (GameStateManager::instance()->saveCharacterToFile(0)) {
+    if (gameStateManager::instance()->saveCharacterToFile(0)) {
         emit logMessageTriggered(QString("Character %1 saved.").arg(characterName));
         toggleMenuState(true);
-        GameStateManager::instance()->startAutosave(10000); // 10s intervals
+        gameStateManager::instance()->startAutosave(10000); // 10s intervals
     }
 }
 
@@ -224,7 +224,7 @@ void GameMenu::onHelpClicked() {
 }
 
 void GameMenu::startNewGame() {
-    AudioManager::instance()->stopAllAudio();
+    audioManager::instance()->stopAllAudio();
     auto *dialog = new CreateCharacterDialog(loadRaceData(), loadGuildData(), this);
     connect(dialog, &CreateCharacterDialog::characterCreated, this, &GameMenu::onCharacterCreated);
     dialog->setAttribute(Qt::WA_DeleteOnClose);
@@ -248,7 +248,7 @@ int main(int argc, char *argv[]) {
     LoadingScreen loadingScreen; 
     loadingScreen.exec(); 
 
-    StoryDialog story;
+    storyDialog story;
     story.exec();
 
     GameMenu w;

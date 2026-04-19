@@ -16,7 +16,7 @@
 #include "src/inventory_dialog/inventorydialog.h"
 #include "src/partyinfo_dialog/partyinfodialog.h"
 #include "../event/EventManager.h"
-#include "../../GameStateManager.h"
+#include "../../gameStateManager.h"
 #include "MiniMapDialog.h"
 
 // Forward declarations

@@ -12,7 +12,7 @@
 #include <QJsonArray>
 
 // Forward declaration
-class GameStateManager;
+class gameStateManager;
 
 // Spell effect result structure
 struct SpellResult {

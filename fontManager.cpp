@@ -1,28 +1,28 @@
 
-#include "FontManager.h"
+#include "fontManager.h"
 #include <QApplication>
 #include <QWidget>
 #include <QDebug>
 
-FontManager* FontManager::instance()
+fontManager* fontManager::instance()
 {
-    static FontManager instance;
+    static fontManager instance;
     return &instance;
 }
 
-void FontManager::loadSpriteSheet(const QString& path, int charWidth, int charHeight, int kerning)
+void fontManager::loadSpriteSheet(const QString& path, int charWidth, int charHeight, int kerning)
 {
     if (!m_spriteSheet.load(path)) {
-        qWarning() << "FontManager: Failed to load sprite sheet from" << path;
+        qWarning() << "fontManager: Failed to load sprite sheet from" << path;
         return;
     }
     m_charWidth = charWidth;
     m_charHeight = charHeight;
     m_kerning = kerning;
-    qDebug() << "FontManager: Sprite sheet loaded successfully.";
+    qDebug() << "fontManager: Sprite sheet loaded successfully.";
 }
 
-void FontManager::setProportionalFont(const QFont& font)
+void fontManager::setProportionalFont(const QFont& font)
 {
     m_proportionalFont = font;
     
@@ -40,14 +40,14 @@ void FontManager::setProportionalFont(const QFont& font)
     emit fontsChanged();
 }
 
-void FontManager::setFixedFont(const QFont& font)
+void fontManager::setFixedFont(const QFont& font)
 {
     m_fixedFont = font;
     emit fontsChanged();
 }
 
 // 1080x480px 9 chars x 120px and 4 rows x 120
-void FontManager::drawSpriteText(QPainter* painter, const QString& text, const QPoint& position)
+void fontManager::drawSpriteText(QPainter* painter, const QString& text, const QPoint& position)
 {
     if (m_spriteSheet.isNull() || !painter) return;
 

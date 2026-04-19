@@ -1,5 +1,5 @@
-#ifndef THECITY_H
-#define THECITY_H
+#ifndef theCity_H
+#define theCity_H
 
 #include "src/inventory_dialog/inventorydialog.h"
 #include <QDialog>
@@ -16,13 +16,13 @@
 #include <QMediaPlayer>
 #include <QAudioOutput>
 
-class TheCity : public QDialog
+class theCity : public QDialog
 {
     Q_OBJECT
 
 public:
-    explicit TheCity(QWidget *parent = nullptr);
-    ~TheCity();
+    explicit theCity(QWidget *parent = nullptr);
+    ~theCity();
 
 private slots:
     // Existing Action Slots
@@ -75,4 +75,4 @@ protected:
     void keyPressEvent(QKeyEvent *event) override;
 };
 
-#endif // THECITY_H
+#endif // theCity_H

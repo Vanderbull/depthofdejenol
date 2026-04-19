@@ -52,10 +52,11 @@ OBJECTS_DIR   = build/obj/release/
 
 ####### Files
 
-SOURCES       = GameStateManager.cpp \
-		AudioManager.cpp \
+SOURCES       = gameStateManager.cpp \
+		src/partymanager/PartyManager.cpp \
+		audioManager.cpp \
 		blacklands.cpp \
-		TheCity.cpp \
+		theCity.cpp \
 		src/network_manager/NetworkManager.cpp \
 		src/hall_of_records/hallofrecordsdialog.cpp \
 		src/create_character/createcharacterdialog.cpp \
@@ -123,11 +124,12 @@ SOURCES       = GameStateManager.cpp \
 		3rdparty/lua/lstrlib.c \
 		3rdparty/lua/ltablib.c \
 		3rdparty/lua/lutf8lib.c \
-		3rdparty/lua/linit.c build/moc/moc_GameStateManager.cpp \
-		build/moc/moc_AudioManager.cpp \
+		3rdparty/lua/linit.c build/moc/moc_gameStateManager.cpp \
+		build/moc/moc_PartyManager.cpp \
+		build/moc/moc_audioManager.cpp \
 		build/moc/moc_blacklands.cpp \
-		build/moc/moc_TheCity.cpp \
-		build/moc/moc_StoryDialog.cpp \
+		build/moc/moc_theCity.cpp \
+		build/moc/moc_storyDialog.cpp \
 		build/moc/moc_NetworkManager.cpp \
 		build/moc/moc_hallofrecordsdialog.cpp \
 		build/moc/moc_createcharacterdialog.cpp \
@@ -159,11 +161,12 @@ SOURCES       = GameStateManager.cpp \
 		build/moc/moc_UpdateManager.cpp \
 		build/moc/moc_UpdateDialog.cpp \
 		build/moc/moc_SpellCastingDialog.cpp \
-		build/moc/moc_FontManager.cpp
-OBJECTS       = build/obj/release/GameStateManager.o \
-		build/obj/release/AudioManager.o \
+		build/moc/moc_fontManager.cpp
+OBJECTS       = build/obj/release/gameStateManager.o \
+		build/obj/release/PartyManager.o \
+		build/obj/release/audioManager.o \
 		build/obj/release/blacklands.o \
-		build/obj/release/TheCity.o \
+		build/obj/release/theCity.o \
 		build/obj/release/NetworkManager.o \
 		build/obj/release/hallofrecordsdialog.o \
 		build/obj/release/createcharacterdialog.o \
@@ -232,11 +235,12 @@ OBJECTS       = build/obj/release/GameStateManager.o \
 		build/obj/release/ltablib.o \
 		build/obj/release/lutf8lib.o \
 		build/obj/release/linit.o \
-		build/obj/release/moc_GameStateManager.o \
-		build/obj/release/moc_AudioManager.o \
+		build/obj/release/moc_gameStateManager.o \
+		build/obj/release/moc_PartyManager.o \
+		build/obj/release/moc_audioManager.o \
 		build/obj/release/moc_blacklands.o \
-		build/obj/release/moc_TheCity.o \
-		build/obj/release/moc_StoryDialog.o \
+		build/obj/release/moc_theCity.o \
+		build/obj/release/moc_storyDialog.o \
 		build/obj/release/moc_NetworkManager.o \
 		build/obj/release/moc_hallofrecordsdialog.o \
 		build/obj/release/moc_createcharacterdialog.o \
@@ -268,7 +272,7 @@ OBJECTS       = build/obj/release/GameStateManager.o \
 		build/obj/release/moc_UpdateManager.o \
 		build/obj/release/moc_UpdateDialog.o \
 		build/obj/release/moc_SpellCastingDialog.o \
-		build/obj/release/moc_FontManager.o
+		build/obj/release/moc_fontManager.o
 DIST          = .gitignore \
 		/usr/lib/x86_64-linux-gnu/qt6/mkspecs/features/spec_pre.prf \
 		/usr/lib/x86_64-linux-gnu/qt6/mkspecs/common/unix.conf \
@@ -342,12 +346,13 @@ DIST          = .gitignore \
 		/usr/lib/x86_64-linux-gnu/qt6/mkspecs/features/yacc.prf \
 		/usr/lib/x86_64-linux-gnu/qt6/mkspecs/features/lex.prf \
 		/usr/lib/x86_64-linux-gnu/qt6/mkspecs/features/silent.prf \
-		blacklands.pro src/core/GameConstants.h \
-		GameStateManager.h \
-		AudioManager.h \
+		blacklands.pro gameStateManager.h \
+		src/partymanager/PartyManager.h \
+		src/core/GameConstants.h \
+		audioManager.h \
 		blacklands.h \
-		TheCity.h \
-		StoryDialog.h \
+		theCity.h \
+		storyDialog.h \
 		src/network_manager/NetworkManager.h \
 		src/hall_of_records/hallofrecordsdialog.h \
 		src/create_character/createcharacterdialog.h \
@@ -383,10 +388,11 @@ DIST          = .gitignore \
 		src/update/UpdateDialog.h \
 		character.h \
 		src/spell_casting/SpellCastingDialog.h \
-		FontManager.h GameStateManager.cpp \
-		AudioManager.cpp \
+		fontManager.h gameStateManager.cpp \
+		src/partymanager/PartyManager.cpp \
+		audioManager.cpp \
 		blacklands.cpp \
-		TheCity.cpp \
+		theCity.cpp \
 		src/network_manager/NetworkManager.cpp \
 		src/hall_of_records/hallofrecordsdialog.cpp \
 		src/create_character/createcharacterdialog.cpp \
@@ -543,7 +549,7 @@ Makefile: blacklands.pro /usr/lib/x86_64-linux-gnu/qt6/mkspecs/linux-g++/qmake.c
 		/usr/lib/x86_64-linux-gnu/qt6/mkspecs/features/lex.prf \
 		/usr/lib/x86_64-linux-gnu/qt6/mkspecs/features/silent.prf \
 		blacklands.pro \
-		Version.h.in \
+		version.h.in \
 		/usr/lib/x86_64-linux-gnu/libQt6Widgets.prl \
 		/usr/lib/x86_64-linux-gnu/libQt6Multimedia.prl \
 		/usr/lib/x86_64-linux-gnu/libQt6Gui.prl \
@@ -623,7 +629,7 @@ Makefile: blacklands.pro /usr/lib/x86_64-linux-gnu/qt6/mkspecs/linux-g++/qmake.c
 /usr/lib/x86_64-linux-gnu/qt6/mkspecs/features/lex.prf:
 /usr/lib/x86_64-linux-gnu/qt6/mkspecs/features/silent.prf:
 blacklands.pro:
-Version.h.in:
+version.h.in:
 /usr/lib/x86_64-linux-gnu/libQt6Widgets.prl:
 /usr/lib/x86_64-linux-gnu/libQt6Multimedia.prl:
 /usr/lib/x86_64-linux-gnu/libQt6Gui.prl:
@@ -644,8 +650,8 @@ distdir: FORCE
 	@test -d $(DISTDIR) || mkdir -p $(DISTDIR)
 	$(COPY_FILE) --parents $(DIST) $(DISTDIR)/
 	$(COPY_FILE) --parents /usr/lib/x86_64-linux-gnu/qt6/mkspecs/features/data/dummy.cpp $(DISTDIR)/
-	$(COPY_FILE) --parents src/core/GameConstants.h GameStateManager.h AudioManager.h blacklands.h TheCity.h StoryDialog.h src/network_manager/NetworkManager.h src/hall_of_records/hallofrecordsdialog.h src/create_character/createcharacterdialog.h src/about_dialog/AboutDialog.h src/character_dialog/CharacterDialog.h src/message_window/MessageWindow.h src/sender_window/SenderWindow.h src/library_dialog/library_dialog.h src/automap/automap_dialog.h src/game_controller/game_controller.h src/characterlist_dialog/characterlistdialog.h src/helplesson/helplesson.h src/mordorstatistics/mordorstatistics.h src/loadingscreen/LoadingScreen.h src/guilds_dialog/GuildsDialog.h src/general_store/GeneralStore.h src/morgue_dialog/MorgueDialog.h src/seer_dialog/SeerDialog.h src/confinement_dialog/ConfinementDialog.h src/bank_dialog/BankDialog.h src/race_data/RaceData.h src/inventory_dialog/inventorydialog.h src/options_dialog/optionsdialog.h src/dungeon_dialog/DungeonDialog.h src/partyinfo_dialog/partyinfodialog.h src/dungeonmap/dungeonmap.h src/bank_dialog/TradeDialog.h src/core/game_resources.h src/dungeon_dialog/DungeonHandlers.h src/event/EventManager.h src/dungeon_dialog/MiniMapDialog.h src/update/UpdateManager.h src/update/UpdateDialog.h character.h src/spell_casting/SpellCastingDialog.h FontManager.h $(DISTDIR)/
-	$(COPY_FILE) --parents GameStateManager.cpp AudioManager.cpp blacklands.cpp TheCity.cpp src/network_manager/NetworkManager.cpp src/hall_of_records/hallofrecordsdialog.cpp src/create_character/createcharacterdialog.cpp src/about_dialog/AboutDialog.cpp src/character_dialog/CharacterDialog.cpp src/message_window/MessageWindow.cpp src/sender_window/SenderWindow.cpp src/library_dialog/library_dialog.cpp src/automap/automap_dialog.cpp src/game_controller/game_controller.cpp src/characterlist_dialog/characterlistdialog.cpp src/helplesson/helplesson.cpp src/mordorstatistics/mordorstatistics.cpp src/loadingscreen/LoadingScreen.cpp src/guilds_dialog/GuildsDialog.cpp src/general_store/GeneralStore.cpp src/morgue_dialog/MorgueDialog.cpp src/seer_dialog/SeerDialog.cpp src/confinement_dialog/ConfinementDialog.cpp src/bank_dialog/BankDialog.cpp src/race_data/RaceData.cpp src/inventory_dialog/inventorydialog.cpp src/options_dialog/optionsdialog.cpp src/dungeon_dialog/DungeonDialog.cpp src/partyinfo_dialog/partyinfodialog.cpp src/dungeonmap/dungeonmap.cpp src/bank_dialog/TradeDialog.cpp src/game_resources.cpp src/dungeon_dialog/DungeonMinimap.cpp src/dungeon_dialog/DungeonHandlers.cpp src/event/EventManager.cpp src/update/UpdateManager.cpp src/update/UpdateDialog.cpp character.cpp src/spell_casting/SpellCastingDialog.cpp fontManager.cpp 3rdparty/lua/lapi.c 3rdparty/lua/lcode.c 3rdparty/lua/lctype.c 3rdparty/lua/ldebug.c 3rdparty/lua/ldo.c 3rdparty/lua/ldump.c 3rdparty/lua/lfunc.c 3rdparty/lua/lgc.c 3rdparty/lua/llex.c 3rdparty/lua/lmem.c 3rdparty/lua/lobject.c 3rdparty/lua/lopcodes.c 3rdparty/lua/lparser.c 3rdparty/lua/lstate.c 3rdparty/lua/lstring.c 3rdparty/lua/ltable.c 3rdparty/lua/ltm.c 3rdparty/lua/lundump.c 3rdparty/lua/lvm.c 3rdparty/lua/lzio.c 3rdparty/lua/lauxlib.c 3rdparty/lua/lbaselib.c 3rdparty/lua/lcorolib.c 3rdparty/lua/ldblib.c 3rdparty/lua/liolib.c 3rdparty/lua/lmathlib.c 3rdparty/lua/loadlib.c 3rdparty/lua/loslib.c 3rdparty/lua/lstrlib.c 3rdparty/lua/ltablib.c 3rdparty/lua/lutf8lib.c 3rdparty/lua/linit.c $(DISTDIR)/
+	$(COPY_FILE) --parents gameStateManager.h src/partymanager/PartyManager.h src/core/GameConstants.h audioManager.h blacklands.h theCity.h storyDialog.h src/network_manager/NetworkManager.h src/hall_of_records/hallofrecordsdialog.h src/create_character/createcharacterdialog.h src/about_dialog/AboutDialog.h src/character_dialog/CharacterDialog.h src/message_window/MessageWindow.h src/sender_window/SenderWindow.h src/library_dialog/library_dialog.h src/automap/automap_dialog.h src/game_controller/game_controller.h src/characterlist_dialog/characterlistdialog.h src/helplesson/helplesson.h src/mordorstatistics/mordorstatistics.h src/loadingscreen/LoadingScreen.h src/guilds_dialog/GuildsDialog.h src/general_store/GeneralStore.h src/morgue_dialog/MorgueDialog.h src/seer_dialog/SeerDialog.h src/confinement_dialog/ConfinementDialog.h src/bank_dialog/BankDialog.h src/race_data/RaceData.h src/inventory_dialog/inventorydialog.h src/options_dialog/optionsdialog.h src/dungeon_dialog/DungeonDialog.h src/partyinfo_dialog/partyinfodialog.h src/dungeonmap/dungeonmap.h src/bank_dialog/TradeDialog.h src/core/game_resources.h src/dungeon_dialog/DungeonHandlers.h src/event/EventManager.h src/dungeon_dialog/MiniMapDialog.h src/update/UpdateManager.h src/update/UpdateDialog.h character.h src/spell_casting/SpellCastingDialog.h fontManager.h $(DISTDIR)/
+	$(COPY_FILE) --parents gameStateManager.cpp src/partymanager/PartyManager.cpp audioManager.cpp blacklands.cpp theCity.cpp src/network_manager/NetworkManager.cpp src/hall_of_records/hallofrecordsdialog.cpp src/create_character/createcharacterdialog.cpp src/about_dialog/AboutDialog.cpp src/character_dialog/CharacterDialog.cpp src/message_window/MessageWindow.cpp src/sender_window/SenderWindow.cpp src/library_dialog/library_dialog.cpp src/automap/automap_dialog.cpp src/game_controller/game_controller.cpp src/characterlist_dialog/characterlistdialog.cpp src/helplesson/helplesson.cpp src/mordorstatistics/mordorstatistics.cpp src/loadingscreen/LoadingScreen.cpp src/guilds_dialog/GuildsDialog.cpp src/general_store/GeneralStore.cpp src/morgue_dialog/MorgueDialog.cpp src/seer_dialog/SeerDialog.cpp src/confinement_dialog/ConfinementDialog.cpp src/bank_dialog/BankDialog.cpp src/race_data/RaceData.cpp src/inventory_dialog/inventorydialog.cpp src/options_dialog/optionsdialog.cpp src/dungeon_dialog/DungeonDialog.cpp src/partyinfo_dialog/partyinfodialog.cpp src/dungeonmap/dungeonmap.cpp src/bank_dialog/TradeDialog.cpp src/game_resources.cpp src/dungeon_dialog/DungeonMinimap.cpp src/dungeon_dialog/DungeonHandlers.cpp src/event/EventManager.cpp src/update/UpdateManager.cpp src/update/UpdateDialog.cpp character.cpp src/spell_casting/SpellCastingDialog.cpp fontManager.cpp 3rdparty/lua/lapi.c 3rdparty/lua/lcode.c 3rdparty/lua/lctype.c 3rdparty/lua/ldebug.c 3rdparty/lua/ldo.c 3rdparty/lua/ldump.c 3rdparty/lua/lfunc.c 3rdparty/lua/lgc.c 3rdparty/lua/llex.c 3rdparty/lua/lmem.c 3rdparty/lua/lobject.c 3rdparty/lua/lopcodes.c 3rdparty/lua/lparser.c 3rdparty/lua/lstate.c 3rdparty/lua/lstring.c 3rdparty/lua/ltable.c 3rdparty/lua/ltm.c 3rdparty/lua/lundump.c 3rdparty/lua/lvm.c 3rdparty/lua/lzio.c 3rdparty/lua/lauxlib.c 3rdparty/lua/lbaselib.c 3rdparty/lua/lcorolib.c 3rdparty/lua/ldblib.c 3rdparty/lua/liolib.c 3rdparty/lua/lmathlib.c 3rdparty/lua/loadlib.c 3rdparty/lua/loslib.c 3rdparty/lua/lstrlib.c 3rdparty/lua/ltablib.c 3rdparty/lua/lutf8lib.c 3rdparty/lua/linit.c $(DISTDIR)/
 
 
 clean: compiler_clean 
@@ -655,7 +661,7 @@ clean: compiler_clean
 
 distclean: clean 
 	-$(DEL_FILE) $(TARGET) 
-	-$(DEL_FILE) .qmake.stash /home/rickard/Documents/GitHub/depthofdejenol/Version.h
+	-$(DEL_FILE) .qmake.stash /home/rickard/Documents/GitHub/depthofdejenol/version.h
 	-$(DEL_FILE) Makefile
 
 
@@ -678,64 +684,71 @@ build/moc/moc_predefs.h: /usr/lib/x86_64-linux-gnu/qt6/mkspecs/features/data/dum
 	@echo generating build/moc/moc_predefs.h
 	@g++ -pipe -O2 -std=gnu++2a -Wall -Wextra -dM -E -o build/moc/moc_predefs.h /usr/lib/x86_64-linux-gnu/qt6/mkspecs/features/data/dummy.cpp
 
-compiler_moc_header_make_all: build/moc/moc_GameStateManager.cpp build/moc/moc_AudioManager.cpp build/moc/moc_blacklands.cpp build/moc/moc_TheCity.cpp build/moc/moc_StoryDialog.cpp build/moc/moc_NetworkManager.cpp build/moc/moc_hallofrecordsdialog.cpp build/moc/moc_createcharacterdialog.cpp build/moc/moc_AboutDialog.cpp build/moc/moc_CharacterDialog.cpp build/moc/moc_MessageWindow.cpp build/moc/moc_SenderWindow.cpp build/moc/moc_library_dialog.cpp build/moc/moc_automap_dialog.cpp build/moc/moc_game_controller.cpp build/moc/moc_characterlistdialog.cpp build/moc/moc_helplesson.cpp build/moc/moc_mordorstatistics.cpp build/moc/moc_LoadingScreen.cpp build/moc/moc_GuildsDialog.cpp build/moc/moc_GeneralStore.cpp build/moc/moc_MorgueDialog.cpp build/moc/moc_SeerDialog.cpp build/moc/moc_ConfinementDialog.cpp build/moc/moc_BankDialog.cpp build/moc/moc_inventorydialog.cpp build/moc/moc_optionsdialog.cpp build/moc/moc_DungeonDialog.cpp build/moc/moc_partyinfodialog.cpp build/moc/moc_dungeonmap.cpp build/moc/moc_TradeDialog.cpp build/moc/moc_EventManager.cpp build/moc/moc_MiniMapDialog.cpp build/moc/moc_UpdateManager.cpp build/moc/moc_UpdateDialog.cpp build/moc/moc_SpellCastingDialog.cpp build/moc/moc_FontManager.cpp
+compiler_moc_header_make_all: build/moc/moc_gameStateManager.cpp build/moc/moc_PartyManager.cpp build/moc/moc_audioManager.cpp build/moc/moc_blacklands.cpp build/moc/moc_theCity.cpp build/moc/moc_storyDialog.cpp build/moc/moc_NetworkManager.cpp build/moc/moc_hallofrecordsdialog.cpp build/moc/moc_createcharacterdialog.cpp build/moc/moc_AboutDialog.cpp build/moc/moc_CharacterDialog.cpp build/moc/moc_MessageWindow.cpp build/moc/moc_SenderWindow.cpp build/moc/moc_library_dialog.cpp build/moc/moc_automap_dialog.cpp build/moc/moc_game_controller.cpp build/moc/moc_characterlistdialog.cpp build/moc/moc_helplesson.cpp build/moc/moc_mordorstatistics.cpp build/moc/moc_LoadingScreen.cpp build/moc/moc_GuildsDialog.cpp build/moc/moc_GeneralStore.cpp build/moc/moc_MorgueDialog.cpp build/moc/moc_SeerDialog.cpp build/moc/moc_ConfinementDialog.cpp build/moc/moc_BankDialog.cpp build/moc/moc_inventorydialog.cpp build/moc/moc_optionsdialog.cpp build/moc/moc_DungeonDialog.cpp build/moc/moc_partyinfodialog.cpp build/moc/moc_dungeonmap.cpp build/moc/moc_TradeDialog.cpp build/moc/moc_EventManager.cpp build/moc/moc_MiniMapDialog.cpp build/moc/moc_UpdateManager.cpp build/moc/moc_UpdateDialog.cpp build/moc/moc_SpellCastingDialog.cpp build/moc/moc_fontManager.cpp
 compiler_moc_header_clean:
-	-$(DEL_FILE) build/moc/moc_GameStateManager.cpp build/moc/moc_AudioManager.cpp build/moc/moc_blacklands.cpp build/moc/moc_TheCity.cpp build/moc/moc_StoryDialog.cpp build/moc/moc_NetworkManager.cpp build/moc/moc_hallofrecordsdialog.cpp build/moc/moc_createcharacterdialog.cpp build/moc/moc_AboutDialog.cpp build/moc/moc_CharacterDialog.cpp build/moc/moc_MessageWindow.cpp build/moc/moc_SenderWindow.cpp build/moc/moc_library_dialog.cpp build/moc/moc_automap_dialog.cpp build/moc/moc_game_controller.cpp build/moc/moc_characterlistdialog.cpp build/moc/moc_helplesson.cpp build/moc/moc_mordorstatistics.cpp build/moc/moc_LoadingScreen.cpp build/moc/moc_GuildsDialog.cpp build/moc/moc_GeneralStore.cpp build/moc/moc_MorgueDialog.cpp build/moc/moc_SeerDialog.cpp build/moc/moc_ConfinementDialog.cpp build/moc/moc_BankDialog.cpp build/moc/moc_inventorydialog.cpp build/moc/moc_optionsdialog.cpp build/moc/moc_DungeonDialog.cpp build/moc/moc_partyinfodialog.cpp build/moc/moc_dungeonmap.cpp build/moc/moc_TradeDialog.cpp build/moc/moc_EventManager.cpp build/moc/moc_MiniMapDialog.cpp build/moc/moc_UpdateManager.cpp build/moc/moc_UpdateDialog.cpp build/moc/moc_SpellCastingDialog.cpp build/moc/moc_FontManager.cpp
-build/moc/moc_GameStateManager.cpp: GameStateManager.h \
+	-$(DEL_FILE) build/moc/moc_gameStateManager.cpp build/moc/moc_PartyManager.cpp build/moc/moc_audioManager.cpp build/moc/moc_blacklands.cpp build/moc/moc_theCity.cpp build/moc/moc_storyDialog.cpp build/moc/moc_NetworkManager.cpp build/moc/moc_hallofrecordsdialog.cpp build/moc/moc_createcharacterdialog.cpp build/moc/moc_AboutDialog.cpp build/moc/moc_CharacterDialog.cpp build/moc/moc_MessageWindow.cpp build/moc/moc_SenderWindow.cpp build/moc/moc_library_dialog.cpp build/moc/moc_automap_dialog.cpp build/moc/moc_game_controller.cpp build/moc/moc_characterlistdialog.cpp build/moc/moc_helplesson.cpp build/moc/moc_mordorstatistics.cpp build/moc/moc_LoadingScreen.cpp build/moc/moc_GuildsDialog.cpp build/moc/moc_GeneralStore.cpp build/moc/moc_MorgueDialog.cpp build/moc/moc_SeerDialog.cpp build/moc/moc_ConfinementDialog.cpp build/moc/moc_BankDialog.cpp build/moc/moc_inventorydialog.cpp build/moc/moc_optionsdialog.cpp build/moc/moc_DungeonDialog.cpp build/moc/moc_partyinfodialog.cpp build/moc/moc_dungeonmap.cpp build/moc/moc_TradeDialog.cpp build/moc/moc_EventManager.cpp build/moc/moc_MiniMapDialog.cpp build/moc/moc_UpdateManager.cpp build/moc/moc_UpdateDialog.cpp build/moc/moc_SpellCastingDialog.cpp build/moc/moc_fontManager.cpp
+build/moc/moc_gameStateManager.cpp: gameStateManager.h \
 		3rdparty/lua/lua.h \
 		3rdparty/lua/luaconf.h \
 		3rdparty/lua/lualib.h \
 		3rdparty/lua/lauxlib.h \
 		src/core/GameConstants.h \
-		DataRegistry.h \
-		AudioManager.h \
-		FontManager.h \
+		dataRegistry.h \
+		audioManager.h \
+		fontManager.h \
 		character.h \
 		build/moc/moc_predefs.h \
 		/usr/lib/qt6/libexec/moc
-	@echo moc GameStateManager.h && /usr/lib/qt6/libexec/moc $(DEFINES) --include /home/rickard/Documents/GitHub/depthofdejenol/build/moc/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt6/mkspecs/linux-g++ -I/home/rickard/Documents/GitHub/depthofdejenol -I/home/rickard/Documents/GitHub/depthofdejenol/_PRO_FILE_PWD_/include -I/home/rickard/Documents/GitHub/depthofdejenol/3rdparty/lua -I/usr/include/x86_64-linux-gnu/qt6 -I/usr/include/x86_64-linux-gnu/qt6/QtWidgets -I/usr/include/x86_64-linux-gnu/qt6/QtMultimedia -I/usr/include/x86_64-linux-gnu/qt6/QtGui -I/usr/include/x86_64-linux-gnu/qt6/QtNetwork -I/usr/include/x86_64-linux-gnu/qt6/QtCore -I/usr/include/c++/15 -I/usr/include/x86_64-linux-gnu/c++/15 -I/usr/include/c++/15/backward -I/usr/lib/gcc/x86_64-linux-gnu/15/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include GameStateManager.h -o build/moc/moc_GameStateManager.cpp
+	@echo moc gameStateManager.h && /usr/lib/qt6/libexec/moc $(DEFINES) --include /home/rickard/Documents/GitHub/depthofdejenol/build/moc/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt6/mkspecs/linux-g++ -I/home/rickard/Documents/GitHub/depthofdejenol -I/home/rickard/Documents/GitHub/depthofdejenol/_PRO_FILE_PWD_/include -I/home/rickard/Documents/GitHub/depthofdejenol/3rdparty/lua -I/usr/include/x86_64-linux-gnu/qt6 -I/usr/include/x86_64-linux-gnu/qt6/QtWidgets -I/usr/include/x86_64-linux-gnu/qt6/QtMultimedia -I/usr/include/x86_64-linux-gnu/qt6/QtGui -I/usr/include/x86_64-linux-gnu/qt6/QtNetwork -I/usr/include/x86_64-linux-gnu/qt6/QtCore -I/usr/include/c++/15 -I/usr/include/x86_64-linux-gnu/c++/15 -I/usr/include/c++/15/backward -I/usr/lib/gcc/x86_64-linux-gnu/15/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include gameStateManager.h -o build/moc/moc_gameStateManager.cpp
 
-build/moc/moc_AudioManager.cpp: AudioManager.h \
+build/moc/moc_PartyManager.cpp: src/partymanager/PartyManager.h \
+		character.h \
+		src/core/GameConstants.h \
 		build/moc/moc_predefs.h \
 		/usr/lib/qt6/libexec/moc
-	@echo moc AudioManager.h && /usr/lib/qt6/libexec/moc $(DEFINES) --include /home/rickard/Documents/GitHub/depthofdejenol/build/moc/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt6/mkspecs/linux-g++ -I/home/rickard/Documents/GitHub/depthofdejenol -I/home/rickard/Documents/GitHub/depthofdejenol/_PRO_FILE_PWD_/include -I/home/rickard/Documents/GitHub/depthofdejenol/3rdparty/lua -I/usr/include/x86_64-linux-gnu/qt6 -I/usr/include/x86_64-linux-gnu/qt6/QtWidgets -I/usr/include/x86_64-linux-gnu/qt6/QtMultimedia -I/usr/include/x86_64-linux-gnu/qt6/QtGui -I/usr/include/x86_64-linux-gnu/qt6/QtNetwork -I/usr/include/x86_64-linux-gnu/qt6/QtCore -I/usr/include/c++/15 -I/usr/include/x86_64-linux-gnu/c++/15 -I/usr/include/c++/15/backward -I/usr/lib/gcc/x86_64-linux-gnu/15/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include AudioManager.h -o build/moc/moc_AudioManager.cpp
+	@echo moc src/partymanager/PartyManager.h && /usr/lib/qt6/libexec/moc $(DEFINES) --include /home/rickard/Documents/GitHub/depthofdejenol/build/moc/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt6/mkspecs/linux-g++ -I/home/rickard/Documents/GitHub/depthofdejenol -I/home/rickard/Documents/GitHub/depthofdejenol/_PRO_FILE_PWD_/include -I/home/rickard/Documents/GitHub/depthofdejenol/3rdparty/lua -I/usr/include/x86_64-linux-gnu/qt6 -I/usr/include/x86_64-linux-gnu/qt6/QtWidgets -I/usr/include/x86_64-linux-gnu/qt6/QtMultimedia -I/usr/include/x86_64-linux-gnu/qt6/QtGui -I/usr/include/x86_64-linux-gnu/qt6/QtNetwork -I/usr/include/x86_64-linux-gnu/qt6/QtCore -I/usr/include/c++/15 -I/usr/include/x86_64-linux-gnu/c++/15 -I/usr/include/c++/15/backward -I/usr/lib/gcc/x86_64-linux-gnu/15/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include src/partymanager/PartyManager.h -o build/moc/moc_PartyManager.cpp
+
+build/moc/moc_audioManager.cpp: audioManager.h \
+		build/moc/moc_predefs.h \
+		/usr/lib/qt6/libexec/moc
+	@echo moc audioManager.h && /usr/lib/qt6/libexec/moc $(DEFINES) --include /home/rickard/Documents/GitHub/depthofdejenol/build/moc/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt6/mkspecs/linux-g++ -I/home/rickard/Documents/GitHub/depthofdejenol -I/home/rickard/Documents/GitHub/depthofdejenol/_PRO_FILE_PWD_/include -I/home/rickard/Documents/GitHub/depthofdejenol/3rdparty/lua -I/usr/include/x86_64-linux-gnu/qt6 -I/usr/include/x86_64-linux-gnu/qt6/QtWidgets -I/usr/include/x86_64-linux-gnu/qt6/QtMultimedia -I/usr/include/x86_64-linux-gnu/qt6/QtGui -I/usr/include/x86_64-linux-gnu/qt6/QtNetwork -I/usr/include/x86_64-linux-gnu/qt6/QtCore -I/usr/include/c++/15 -I/usr/include/x86_64-linux-gnu/c++/15 -I/usr/include/c++/15/backward -I/usr/lib/gcc/x86_64-linux-gnu/15/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include audioManager.h -o build/moc/moc_audioManager.cpp
 
 build/moc/moc_blacklands.cpp: blacklands.h \
 		src/event/EventManager.h \
-		GameStateManager.h \
+		gameStateManager.h \
 		3rdparty/lua/lua.h \
 		3rdparty/lua/luaconf.h \
 		3rdparty/lua/lualib.h \
 		3rdparty/lua/lauxlib.h \
 		src/core/GameConstants.h \
-		DataRegistry.h \
-		AudioManager.h \
-		FontManager.h \
+		dataRegistry.h \
+		audioManager.h \
+		fontManager.h \
 		character.h \
 		build/moc/moc_predefs.h \
 		/usr/lib/qt6/libexec/moc
 	@echo moc blacklands.h && /usr/lib/qt6/libexec/moc $(DEFINES) --include /home/rickard/Documents/GitHub/depthofdejenol/build/moc/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt6/mkspecs/linux-g++ -I/home/rickard/Documents/GitHub/depthofdejenol -I/home/rickard/Documents/GitHub/depthofdejenol/_PRO_FILE_PWD_/include -I/home/rickard/Documents/GitHub/depthofdejenol/3rdparty/lua -I/usr/include/x86_64-linux-gnu/qt6 -I/usr/include/x86_64-linux-gnu/qt6/QtWidgets -I/usr/include/x86_64-linux-gnu/qt6/QtMultimedia -I/usr/include/x86_64-linux-gnu/qt6/QtGui -I/usr/include/x86_64-linux-gnu/qt6/QtNetwork -I/usr/include/x86_64-linux-gnu/qt6/QtCore -I/usr/include/c++/15 -I/usr/include/x86_64-linux-gnu/c++/15 -I/usr/include/c++/15/backward -I/usr/lib/gcc/x86_64-linux-gnu/15/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include blacklands.h -o build/moc/moc_blacklands.cpp
 
-build/moc/moc_TheCity.cpp: TheCity.h \
+build/moc/moc_theCity.cpp: theCity.h \
 		src/inventory_dialog/inventorydialog.h \
-		GameStateManager.h \
+		gameStateManager.h \
 		3rdparty/lua/lua.h \
 		3rdparty/lua/luaconf.h \
 		3rdparty/lua/lualib.h \
 		3rdparty/lua/lauxlib.h \
 		src/core/GameConstants.h \
-		DataRegistry.h \
-		AudioManager.h \
-		FontManager.h \
+		dataRegistry.h \
+		audioManager.h \
+		fontManager.h \
 		character.h \
 		build/moc/moc_predefs.h \
 		/usr/lib/qt6/libexec/moc
-	@echo moc TheCity.h && /usr/lib/qt6/libexec/moc $(DEFINES) --include /home/rickard/Documents/GitHub/depthofdejenol/build/moc/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt6/mkspecs/linux-g++ -I/home/rickard/Documents/GitHub/depthofdejenol -I/home/rickard/Documents/GitHub/depthofdejenol/_PRO_FILE_PWD_/include -I/home/rickard/Documents/GitHub/depthofdejenol/3rdparty/lua -I/usr/include/x86_64-linux-gnu/qt6 -I/usr/include/x86_64-linux-gnu/qt6/QtWidgets -I/usr/include/x86_64-linux-gnu/qt6/QtMultimedia -I/usr/include/x86_64-linux-gnu/qt6/QtGui -I/usr/include/x86_64-linux-gnu/qt6/QtNetwork -I/usr/include/x86_64-linux-gnu/qt6/QtCore -I/usr/include/c++/15 -I/usr/include/x86_64-linux-gnu/c++/15 -I/usr/include/c++/15/backward -I/usr/lib/gcc/x86_64-linux-gnu/15/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include TheCity.h -o build/moc/moc_TheCity.cpp
+	@echo moc theCity.h && /usr/lib/qt6/libexec/moc $(DEFINES) --include /home/rickard/Documents/GitHub/depthofdejenol/build/moc/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt6/mkspecs/linux-g++ -I/home/rickard/Documents/GitHub/depthofdejenol -I/home/rickard/Documents/GitHub/depthofdejenol/_PRO_FILE_PWD_/include -I/home/rickard/Documents/GitHub/depthofdejenol/3rdparty/lua -I/usr/include/x86_64-linux-gnu/qt6 -I/usr/include/x86_64-linux-gnu/qt6/QtWidgets -I/usr/include/x86_64-linux-gnu/qt6/QtMultimedia -I/usr/include/x86_64-linux-gnu/qt6/QtGui -I/usr/include/x86_64-linux-gnu/qt6/QtNetwork -I/usr/include/x86_64-linux-gnu/qt6/QtCore -I/usr/include/c++/15 -I/usr/include/x86_64-linux-gnu/c++/15 -I/usr/include/c++/15/backward -I/usr/lib/gcc/x86_64-linux-gnu/15/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include theCity.h -o build/moc/moc_theCity.cpp
 
-build/moc/moc_StoryDialog.cpp: StoryDialog.h \
+build/moc/moc_storyDialog.cpp: storyDialog.h \
 		build/moc/moc_predefs.h \
 		/usr/lib/qt6/libexec/moc
-	@echo moc StoryDialog.h && /usr/lib/qt6/libexec/moc $(DEFINES) --include /home/rickard/Documents/GitHub/depthofdejenol/build/moc/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt6/mkspecs/linux-g++ -I/home/rickard/Documents/GitHub/depthofdejenol -I/home/rickard/Documents/GitHub/depthofdejenol/_PRO_FILE_PWD_/include -I/home/rickard/Documents/GitHub/depthofdejenol/3rdparty/lua -I/usr/include/x86_64-linux-gnu/qt6 -I/usr/include/x86_64-linux-gnu/qt6/QtWidgets -I/usr/include/x86_64-linux-gnu/qt6/QtMultimedia -I/usr/include/x86_64-linux-gnu/qt6/QtGui -I/usr/include/x86_64-linux-gnu/qt6/QtNetwork -I/usr/include/x86_64-linux-gnu/qt6/QtCore -I/usr/include/c++/15 -I/usr/include/x86_64-linux-gnu/c++/15 -I/usr/include/c++/15/backward -I/usr/lib/gcc/x86_64-linux-gnu/15/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include StoryDialog.h -o build/moc/moc_StoryDialog.cpp
+	@echo moc storyDialog.h && /usr/lib/qt6/libexec/moc $(DEFINES) --include /home/rickard/Documents/GitHub/depthofdejenol/build/moc/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt6/mkspecs/linux-g++ -I/home/rickard/Documents/GitHub/depthofdejenol -I/home/rickard/Documents/GitHub/depthofdejenol/_PRO_FILE_PWD_/include -I/home/rickard/Documents/GitHub/depthofdejenol/3rdparty/lua -I/usr/include/x86_64-linux-gnu/qt6 -I/usr/include/x86_64-linux-gnu/qt6/QtWidgets -I/usr/include/x86_64-linux-gnu/qt6/QtMultimedia -I/usr/include/x86_64-linux-gnu/qt6/QtGui -I/usr/include/x86_64-linux-gnu/qt6/QtNetwork -I/usr/include/x86_64-linux-gnu/qt6/QtCore -I/usr/include/c++/15 -I/usr/include/x86_64-linux-gnu/c++/15 -I/usr/include/c++/15/backward -I/usr/lib/gcc/x86_64-linux-gnu/15/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include storyDialog.h -o build/moc/moc_storyDialog.cpp
 
 build/moc/moc_NetworkManager.cpp: src/network_manager/NetworkManager.h \
 		build/moc/moc_predefs.h \
@@ -750,14 +763,14 @@ build/moc/moc_hallofrecordsdialog.cpp: src/hall_of_records/hallofrecordsdialog.h
 build/moc/moc_createcharacterdialog.cpp: src/create_character/createcharacterdialog.h \
 		src/race_data/RaceData.h \
 		src/core/GameConstants.h \
-		GameStateManager.h \
+		gameStateManager.h \
 		3rdparty/lua/lua.h \
 		3rdparty/lua/luaconf.h \
 		3rdparty/lua/lualib.h \
 		3rdparty/lua/lauxlib.h \
-		DataRegistry.h \
-		AudioManager.h \
-		FontManager.h \
+		dataRegistry.h \
+		audioManager.h \
+		fontManager.h \
 		character.h \
 		build/moc/moc_predefs.h \
 		/usr/lib/qt6/libexec/moc
@@ -769,15 +782,15 @@ build/moc/moc_AboutDialog.cpp: src/about_dialog/AboutDialog.h \
 	@echo moc src/about_dialog/AboutDialog.h && /usr/lib/qt6/libexec/moc $(DEFINES) --include /home/rickard/Documents/GitHub/depthofdejenol/build/moc/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt6/mkspecs/linux-g++ -I/home/rickard/Documents/GitHub/depthofdejenol -I/home/rickard/Documents/GitHub/depthofdejenol/_PRO_FILE_PWD_/include -I/home/rickard/Documents/GitHub/depthofdejenol/3rdparty/lua -I/usr/include/x86_64-linux-gnu/qt6 -I/usr/include/x86_64-linux-gnu/qt6/QtWidgets -I/usr/include/x86_64-linux-gnu/qt6/QtMultimedia -I/usr/include/x86_64-linux-gnu/qt6/QtGui -I/usr/include/x86_64-linux-gnu/qt6/QtNetwork -I/usr/include/x86_64-linux-gnu/qt6/QtCore -I/usr/include/c++/15 -I/usr/include/x86_64-linux-gnu/c++/15 -I/usr/include/c++/15/backward -I/usr/lib/gcc/x86_64-linux-gnu/15/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include src/about_dialog/AboutDialog.h -o build/moc/moc_AboutDialog.cpp
 
 build/moc/moc_CharacterDialog.cpp: src/character_dialog/CharacterDialog.h \
-		GameStateManager.h \
+		gameStateManager.h \
 		3rdparty/lua/lua.h \
 		3rdparty/lua/luaconf.h \
 		3rdparty/lua/lualib.h \
 		3rdparty/lua/lauxlib.h \
 		src/core/GameConstants.h \
-		DataRegistry.h \
-		AudioManager.h \
-		FontManager.h \
+		dataRegistry.h \
+		audioManager.h \
+		fontManager.h \
 		character.h \
 		build/moc/moc_predefs.h \
 		/usr/lib/qt6/libexec/moc
@@ -795,74 +808,74 @@ build/moc/moc_SenderWindow.cpp: src/sender_window/SenderWindow.h \
 
 build/moc/moc_library_dialog.cpp: src/library_dialog/library_dialog.h \
 		src/core/GameConstants.h \
-		GameStateManager.h \
+		gameStateManager.h \
 		3rdparty/lua/lua.h \
 		3rdparty/lua/luaconf.h \
 		3rdparty/lua/lualib.h \
 		3rdparty/lua/lauxlib.h \
-		DataRegistry.h \
-		AudioManager.h \
-		FontManager.h \
+		dataRegistry.h \
+		audioManager.h \
+		fontManager.h \
 		character.h \
 		build/moc/moc_predefs.h \
 		/usr/lib/qt6/libexec/moc
 	@echo moc src/library_dialog/library_dialog.h && /usr/lib/qt6/libexec/moc $(DEFINES) --include /home/rickard/Documents/GitHub/depthofdejenol/build/moc/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt6/mkspecs/linux-g++ -I/home/rickard/Documents/GitHub/depthofdejenol -I/home/rickard/Documents/GitHub/depthofdejenol/_PRO_FILE_PWD_/include -I/home/rickard/Documents/GitHub/depthofdejenol/3rdparty/lua -I/usr/include/x86_64-linux-gnu/qt6 -I/usr/include/x86_64-linux-gnu/qt6/QtWidgets -I/usr/include/x86_64-linux-gnu/qt6/QtMultimedia -I/usr/include/x86_64-linux-gnu/qt6/QtGui -I/usr/include/x86_64-linux-gnu/qt6/QtNetwork -I/usr/include/x86_64-linux-gnu/qt6/QtCore -I/usr/include/c++/15 -I/usr/include/x86_64-linux-gnu/c++/15 -I/usr/include/c++/15/backward -I/usr/lib/gcc/x86_64-linux-gnu/15/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include src/library_dialog/library_dialog.h -o build/moc/moc_library_dialog.cpp
 
 build/moc/moc_automap_dialog.cpp: src/automap/automap_dialog.h \
-		GameStateManager.h \
+		gameStateManager.h \
 		3rdparty/lua/lua.h \
 		3rdparty/lua/luaconf.h \
 		3rdparty/lua/lualib.h \
 		3rdparty/lua/lauxlib.h \
 		src/core/GameConstants.h \
-		DataRegistry.h \
-		AudioManager.h \
-		FontManager.h \
+		dataRegistry.h \
+		audioManager.h \
+		fontManager.h \
 		character.h \
 		build/moc/moc_predefs.h \
 		/usr/lib/qt6/libexec/moc
 	@echo moc src/automap/automap_dialog.h && /usr/lib/qt6/libexec/moc $(DEFINES) --include /home/rickard/Documents/GitHub/depthofdejenol/build/moc/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt6/mkspecs/linux-g++ -I/home/rickard/Documents/GitHub/depthofdejenol -I/home/rickard/Documents/GitHub/depthofdejenol/_PRO_FILE_PWD_/include -I/home/rickard/Documents/GitHub/depthofdejenol/3rdparty/lua -I/usr/include/x86_64-linux-gnu/qt6 -I/usr/include/x86_64-linux-gnu/qt6/QtWidgets -I/usr/include/x86_64-linux-gnu/qt6/QtMultimedia -I/usr/include/x86_64-linux-gnu/qt6/QtGui -I/usr/include/x86_64-linux-gnu/qt6/QtNetwork -I/usr/include/x86_64-linux-gnu/qt6/QtCore -I/usr/include/c++/15 -I/usr/include/x86_64-linux-gnu/c++/15 -I/usr/include/c++/15/backward -I/usr/lib/gcc/x86_64-linux-gnu/15/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include src/automap/automap_dialog.h -o build/moc/moc_automap_dialog.cpp
 
 build/moc/moc_game_controller.cpp: src/game_controller/game_controller.h \
-		GameStateManager.h \
+		gameStateManager.h \
 		3rdparty/lua/lua.h \
 		3rdparty/lua/luaconf.h \
 		3rdparty/lua/lualib.h \
 		3rdparty/lua/lauxlib.h \
 		src/core/GameConstants.h \
-		DataRegistry.h \
-		AudioManager.h \
-		FontManager.h \
+		dataRegistry.h \
+		audioManager.h \
+		fontManager.h \
 		character.h \
 		build/moc/moc_predefs.h \
 		/usr/lib/qt6/libexec/moc
 	@echo moc src/game_controller/game_controller.h && /usr/lib/qt6/libexec/moc $(DEFINES) --include /home/rickard/Documents/GitHub/depthofdejenol/build/moc/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt6/mkspecs/linux-g++ -I/home/rickard/Documents/GitHub/depthofdejenol -I/home/rickard/Documents/GitHub/depthofdejenol/_PRO_FILE_PWD_/include -I/home/rickard/Documents/GitHub/depthofdejenol/3rdparty/lua -I/usr/include/x86_64-linux-gnu/qt6 -I/usr/include/x86_64-linux-gnu/qt6/QtWidgets -I/usr/include/x86_64-linux-gnu/qt6/QtMultimedia -I/usr/include/x86_64-linux-gnu/qt6/QtGui -I/usr/include/x86_64-linux-gnu/qt6/QtNetwork -I/usr/include/x86_64-linux-gnu/qt6/QtCore -I/usr/include/c++/15 -I/usr/include/x86_64-linux-gnu/c++/15 -I/usr/include/c++/15/backward -I/usr/lib/gcc/x86_64-linux-gnu/15/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include src/game_controller/game_controller.h -o build/moc/moc_game_controller.cpp
 
 build/moc/moc_characterlistdialog.cpp: src/characterlist_dialog/characterlistdialog.h \
-		GameStateManager.h \
+		gameStateManager.h \
 		3rdparty/lua/lua.h \
 		3rdparty/lua/luaconf.h \
 		3rdparty/lua/lualib.h \
 		3rdparty/lua/lauxlib.h \
 		src/core/GameConstants.h \
-		DataRegistry.h \
-		AudioManager.h \
-		FontManager.h \
+		dataRegistry.h \
+		audioManager.h \
+		fontManager.h \
 		character.h \
 		build/moc/moc_predefs.h \
 		/usr/lib/qt6/libexec/moc
 	@echo moc src/characterlist_dialog/characterlistdialog.h && /usr/lib/qt6/libexec/moc $(DEFINES) --include /home/rickard/Documents/GitHub/depthofdejenol/build/moc/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt6/mkspecs/linux-g++ -I/home/rickard/Documents/GitHub/depthofdejenol -I/home/rickard/Documents/GitHub/depthofdejenol/_PRO_FILE_PWD_/include -I/home/rickard/Documents/GitHub/depthofdejenol/3rdparty/lua -I/usr/include/x86_64-linux-gnu/qt6 -I/usr/include/x86_64-linux-gnu/qt6/QtWidgets -I/usr/include/x86_64-linux-gnu/qt6/QtMultimedia -I/usr/include/x86_64-linux-gnu/qt6/QtGui -I/usr/include/x86_64-linux-gnu/qt6/QtNetwork -I/usr/include/x86_64-linux-gnu/qt6/QtCore -I/usr/include/c++/15 -I/usr/include/x86_64-linux-gnu/c++/15 -I/usr/include/c++/15/backward -I/usr/lib/gcc/x86_64-linux-gnu/15/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include src/characterlist_dialog/characterlistdialog.h -o build/moc/moc_characterlistdialog.cpp
 
 build/moc/moc_helplesson.cpp: src/helplesson/helplesson.h \
-		GameStateManager.h \
+		gameStateManager.h \
 		3rdparty/lua/lua.h \
 		3rdparty/lua/luaconf.h \
 		3rdparty/lua/lualib.h \
 		3rdparty/lua/lauxlib.h \
 		src/core/GameConstants.h \
-		DataRegistry.h \
-		AudioManager.h \
-		FontManager.h \
+		dataRegistry.h \
+		audioManager.h \
+		fontManager.h \
 		character.h \
 		build/moc/moc_predefs.h \
 		/usr/lib/qt6/libexec/moc
@@ -879,30 +892,30 @@ build/moc/moc_LoadingScreen.cpp: src/loadingscreen/LoadingScreen.h \
 	@echo moc src/loadingscreen/LoadingScreen.h && /usr/lib/qt6/libexec/moc $(DEFINES) --include /home/rickard/Documents/GitHub/depthofdejenol/build/moc/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt6/mkspecs/linux-g++ -I/home/rickard/Documents/GitHub/depthofdejenol -I/home/rickard/Documents/GitHub/depthofdejenol/_PRO_FILE_PWD_/include -I/home/rickard/Documents/GitHub/depthofdejenol/3rdparty/lua -I/usr/include/x86_64-linux-gnu/qt6 -I/usr/include/x86_64-linux-gnu/qt6/QtWidgets -I/usr/include/x86_64-linux-gnu/qt6/QtMultimedia -I/usr/include/x86_64-linux-gnu/qt6/QtGui -I/usr/include/x86_64-linux-gnu/qt6/QtNetwork -I/usr/include/x86_64-linux-gnu/qt6/QtCore -I/usr/include/c++/15 -I/usr/include/x86_64-linux-gnu/c++/15 -I/usr/include/c++/15/backward -I/usr/lib/gcc/x86_64-linux-gnu/15/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include src/loadingscreen/LoadingScreen.h -o build/moc/moc_LoadingScreen.cpp
 
 build/moc/moc_GuildsDialog.cpp: src/guilds_dialog/GuildsDialog.h \
-		GameStateManager.h \
+		gameStateManager.h \
 		3rdparty/lua/lua.h \
 		3rdparty/lua/luaconf.h \
 		3rdparty/lua/lualib.h \
 		3rdparty/lua/lauxlib.h \
 		src/core/GameConstants.h \
-		DataRegistry.h \
-		AudioManager.h \
-		FontManager.h \
+		dataRegistry.h \
+		audioManager.h \
+		fontManager.h \
 		character.h \
 		build/moc/moc_predefs.h \
 		/usr/lib/qt6/libexec/moc
 	@echo moc src/guilds_dialog/GuildsDialog.h && /usr/lib/qt6/libexec/moc $(DEFINES) --include /home/rickard/Documents/GitHub/depthofdejenol/build/moc/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt6/mkspecs/linux-g++ -I/home/rickard/Documents/GitHub/depthofdejenol -I/home/rickard/Documents/GitHub/depthofdejenol/_PRO_FILE_PWD_/include -I/home/rickard/Documents/GitHub/depthofdejenol/3rdparty/lua -I/usr/include/x86_64-linux-gnu/qt6 -I/usr/include/x86_64-linux-gnu/qt6/QtWidgets -I/usr/include/x86_64-linux-gnu/qt6/QtMultimedia -I/usr/include/x86_64-linux-gnu/qt6/QtGui -I/usr/include/x86_64-linux-gnu/qt6/QtNetwork -I/usr/include/x86_64-linux-gnu/qt6/QtCore -I/usr/include/c++/15 -I/usr/include/x86_64-linux-gnu/c++/15 -I/usr/include/c++/15/backward -I/usr/lib/gcc/x86_64-linux-gnu/15/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include src/guilds_dialog/GuildsDialog.h -o build/moc/moc_GuildsDialog.cpp
 
 build/moc/moc_GeneralStore.cpp: src/general_store/GeneralStore.h \
-		GameStateManager.h \
+		gameStateManager.h \
 		3rdparty/lua/lua.h \
 		3rdparty/lua/luaconf.h \
 		3rdparty/lua/lualib.h \
 		3rdparty/lua/lauxlib.h \
 		src/core/GameConstants.h \
-		DataRegistry.h \
-		AudioManager.h \
-		FontManager.h \
+		dataRegistry.h \
+		audioManager.h \
+		fontManager.h \
 		character.h \
 		build/moc/moc_predefs.h \
 		/usr/lib/qt6/libexec/moc
@@ -914,75 +927,75 @@ build/moc/moc_MorgueDialog.cpp: src/morgue_dialog/MorgueDialog.h \
 	@echo moc src/morgue_dialog/MorgueDialog.h && /usr/lib/qt6/libexec/moc $(DEFINES) --include /home/rickard/Documents/GitHub/depthofdejenol/build/moc/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt6/mkspecs/linux-g++ -I/home/rickard/Documents/GitHub/depthofdejenol -I/home/rickard/Documents/GitHub/depthofdejenol/_PRO_FILE_PWD_/include -I/home/rickard/Documents/GitHub/depthofdejenol/3rdparty/lua -I/usr/include/x86_64-linux-gnu/qt6 -I/usr/include/x86_64-linux-gnu/qt6/QtWidgets -I/usr/include/x86_64-linux-gnu/qt6/QtMultimedia -I/usr/include/x86_64-linux-gnu/qt6/QtGui -I/usr/include/x86_64-linux-gnu/qt6/QtNetwork -I/usr/include/x86_64-linux-gnu/qt6/QtCore -I/usr/include/c++/15 -I/usr/include/x86_64-linux-gnu/c++/15 -I/usr/include/c++/15/backward -I/usr/lib/gcc/x86_64-linux-gnu/15/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include src/morgue_dialog/MorgueDialog.h -o build/moc/moc_MorgueDialog.cpp
 
 build/moc/moc_SeerDialog.cpp: src/seer_dialog/SeerDialog.h \
-		GameStateManager.h \
+		gameStateManager.h \
 		3rdparty/lua/lua.h \
 		3rdparty/lua/luaconf.h \
 		3rdparty/lua/lualib.h \
 		3rdparty/lua/lauxlib.h \
 		src/core/GameConstants.h \
-		DataRegistry.h \
-		AudioManager.h \
-		FontManager.h \
+		dataRegistry.h \
+		audioManager.h \
+		fontManager.h \
 		character.h \
 		build/moc/moc_predefs.h \
 		/usr/lib/qt6/libexec/moc
 	@echo moc src/seer_dialog/SeerDialog.h && /usr/lib/qt6/libexec/moc $(DEFINES) --include /home/rickard/Documents/GitHub/depthofdejenol/build/moc/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt6/mkspecs/linux-g++ -I/home/rickard/Documents/GitHub/depthofdejenol -I/home/rickard/Documents/GitHub/depthofdejenol/_PRO_FILE_PWD_/include -I/home/rickard/Documents/GitHub/depthofdejenol/3rdparty/lua -I/usr/include/x86_64-linux-gnu/qt6 -I/usr/include/x86_64-linux-gnu/qt6/QtWidgets -I/usr/include/x86_64-linux-gnu/qt6/QtMultimedia -I/usr/include/x86_64-linux-gnu/qt6/QtGui -I/usr/include/x86_64-linux-gnu/qt6/QtNetwork -I/usr/include/x86_64-linux-gnu/qt6/QtCore -I/usr/include/c++/15 -I/usr/include/x86_64-linux-gnu/c++/15 -I/usr/include/c++/15/backward -I/usr/lib/gcc/x86_64-linux-gnu/15/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include src/seer_dialog/SeerDialog.h -o build/moc/moc_SeerDialog.cpp
 
 build/moc/moc_ConfinementDialog.cpp: src/confinement_dialog/ConfinementDialog.h \
-		GameStateManager.h \
+		gameStateManager.h \
 		3rdparty/lua/lua.h \
 		3rdparty/lua/luaconf.h \
 		3rdparty/lua/lualib.h \
 		3rdparty/lua/lauxlib.h \
 		src/core/GameConstants.h \
-		DataRegistry.h \
-		AudioManager.h \
-		FontManager.h \
+		dataRegistry.h \
+		audioManager.h \
+		fontManager.h \
 		character.h \
 		build/moc/moc_predefs.h \
 		/usr/lib/qt6/libexec/moc
 	@echo moc src/confinement_dialog/ConfinementDialog.h && /usr/lib/qt6/libexec/moc $(DEFINES) --include /home/rickard/Documents/GitHub/depthofdejenol/build/moc/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt6/mkspecs/linux-g++ -I/home/rickard/Documents/GitHub/depthofdejenol -I/home/rickard/Documents/GitHub/depthofdejenol/_PRO_FILE_PWD_/include -I/home/rickard/Documents/GitHub/depthofdejenol/3rdparty/lua -I/usr/include/x86_64-linux-gnu/qt6 -I/usr/include/x86_64-linux-gnu/qt6/QtWidgets -I/usr/include/x86_64-linux-gnu/qt6/QtMultimedia -I/usr/include/x86_64-linux-gnu/qt6/QtGui -I/usr/include/x86_64-linux-gnu/qt6/QtNetwork -I/usr/include/x86_64-linux-gnu/qt6/QtCore -I/usr/include/c++/15 -I/usr/include/x86_64-linux-gnu/c++/15 -I/usr/include/c++/15/backward -I/usr/lib/gcc/x86_64-linux-gnu/15/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include src/confinement_dialog/ConfinementDialog.h -o build/moc/moc_ConfinementDialog.cpp
 
 build/moc/moc_BankDialog.cpp: src/bank_dialog/BankDialog.h \
-		GameStateManager.h \
+		gameStateManager.h \
 		3rdparty/lua/lua.h \
 		3rdparty/lua/luaconf.h \
 		3rdparty/lua/lualib.h \
 		3rdparty/lua/lauxlib.h \
 		src/core/GameConstants.h \
-		DataRegistry.h \
-		AudioManager.h \
-		FontManager.h \
+		dataRegistry.h \
+		audioManager.h \
+		fontManager.h \
 		character.h \
 		build/moc/moc_predefs.h \
 		/usr/lib/qt6/libexec/moc
 	@echo moc src/bank_dialog/BankDialog.h && /usr/lib/qt6/libexec/moc $(DEFINES) --include /home/rickard/Documents/GitHub/depthofdejenol/build/moc/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt6/mkspecs/linux-g++ -I/home/rickard/Documents/GitHub/depthofdejenol -I/home/rickard/Documents/GitHub/depthofdejenol/_PRO_FILE_PWD_/include -I/home/rickard/Documents/GitHub/depthofdejenol/3rdparty/lua -I/usr/include/x86_64-linux-gnu/qt6 -I/usr/include/x86_64-linux-gnu/qt6/QtWidgets -I/usr/include/x86_64-linux-gnu/qt6/QtMultimedia -I/usr/include/x86_64-linux-gnu/qt6/QtGui -I/usr/include/x86_64-linux-gnu/qt6/QtNetwork -I/usr/include/x86_64-linux-gnu/qt6/QtCore -I/usr/include/c++/15 -I/usr/include/x86_64-linux-gnu/c++/15 -I/usr/include/c++/15/backward -I/usr/lib/gcc/x86_64-linux-gnu/15/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include src/bank_dialog/BankDialog.h -o build/moc/moc_BankDialog.cpp
 
 build/moc/moc_inventorydialog.cpp: src/inventory_dialog/inventorydialog.h \
-		GameStateManager.h \
+		gameStateManager.h \
 		3rdparty/lua/lua.h \
 		3rdparty/lua/luaconf.h \
 		3rdparty/lua/lualib.h \
 		3rdparty/lua/lauxlib.h \
 		src/core/GameConstants.h \
-		DataRegistry.h \
-		AudioManager.h \
-		FontManager.h \
+		dataRegistry.h \
+		audioManager.h \
+		fontManager.h \
 		character.h \
 		build/moc/moc_predefs.h \
 		/usr/lib/qt6/libexec/moc
 	@echo moc src/inventory_dialog/inventorydialog.h && /usr/lib/qt6/libexec/moc $(DEFINES) --include /home/rickard/Documents/GitHub/depthofdejenol/build/moc/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt6/mkspecs/linux-g++ -I/home/rickard/Documents/GitHub/depthofdejenol -I/home/rickard/Documents/GitHub/depthofdejenol/_PRO_FILE_PWD_/include -I/home/rickard/Documents/GitHub/depthofdejenol/3rdparty/lua -I/usr/include/x86_64-linux-gnu/qt6 -I/usr/include/x86_64-linux-gnu/qt6/QtWidgets -I/usr/include/x86_64-linux-gnu/qt6/QtMultimedia -I/usr/include/x86_64-linux-gnu/qt6/QtGui -I/usr/include/x86_64-linux-gnu/qt6/QtNetwork -I/usr/include/x86_64-linux-gnu/qt6/QtCore -I/usr/include/c++/15 -I/usr/include/x86_64-linux-gnu/c++/15 -I/usr/include/c++/15/backward -I/usr/lib/gcc/x86_64-linux-gnu/15/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include src/inventory_dialog/inventorydialog.h -o build/moc/moc_inventorydialog.cpp
 
 build/moc/moc_optionsdialog.cpp: src/options_dialog/optionsdialog.h \
-		GameStateManager.h \
+		gameStateManager.h \
 		3rdparty/lua/lua.h \
 		3rdparty/lua/luaconf.h \
 		3rdparty/lua/lualib.h \
 		3rdparty/lua/lauxlib.h \
 		src/core/GameConstants.h \
-		DataRegistry.h \
-		AudioManager.h \
-		FontManager.h \
+		dataRegistry.h \
+		audioManager.h \
+		fontManager.h \
 		character.h \
 		build/moc/moc_predefs.h \
 		/usr/lib/qt6/libexec/moc
@@ -990,15 +1003,15 @@ build/moc/moc_optionsdialog.cpp: src/options_dialog/optionsdialog.h \
 
 build/moc/moc_DungeonDialog.cpp: src/dungeon_dialog/DungeonDialog.h \
 		src/inventory_dialog/inventorydialog.h \
-		GameStateManager.h \
+		gameStateManager.h \
 		3rdparty/lua/lua.h \
 		3rdparty/lua/luaconf.h \
 		3rdparty/lua/lualib.h \
 		3rdparty/lua/lauxlib.h \
 		src/core/GameConstants.h \
-		DataRegistry.h \
-		AudioManager.h \
-		FontManager.h \
+		dataRegistry.h \
+		audioManager.h \
+		fontManager.h \
 		character.h \
 		src/partyinfo_dialog/partyinfodialog.h \
 		src/event/EventManager.h \
@@ -1018,30 +1031,30 @@ build/moc/moc_dungeonmap.cpp: src/dungeonmap/dungeonmap.h \
 	@echo moc src/dungeonmap/dungeonmap.h && /usr/lib/qt6/libexec/moc $(DEFINES) --include /home/rickard/Documents/GitHub/depthofdejenol/build/moc/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt6/mkspecs/linux-g++ -I/home/rickard/Documents/GitHub/depthofdejenol -I/home/rickard/Documents/GitHub/depthofdejenol/_PRO_FILE_PWD_/include -I/home/rickard/Documents/GitHub/depthofdejenol/3rdparty/lua -I/usr/include/x86_64-linux-gnu/qt6 -I/usr/include/x86_64-linux-gnu/qt6/QtWidgets -I/usr/include/x86_64-linux-gnu/qt6/QtMultimedia -I/usr/include/x86_64-linux-gnu/qt6/QtGui -I/usr/include/x86_64-linux-gnu/qt6/QtNetwork -I/usr/include/x86_64-linux-gnu/qt6/QtCore -I/usr/include/c++/15 -I/usr/include/x86_64-linux-gnu/c++/15 -I/usr/include/c++/15/backward -I/usr/lib/gcc/x86_64-linux-gnu/15/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include src/dungeonmap/dungeonmap.h -o build/moc/moc_dungeonmap.cpp
 
 build/moc/moc_TradeDialog.cpp: src/bank_dialog/TradeDialog.h \
-		GameStateManager.h \
+		gameStateManager.h \
 		3rdparty/lua/lua.h \
 		3rdparty/lua/luaconf.h \
 		3rdparty/lua/lualib.h \
 		3rdparty/lua/lauxlib.h \
 		src/core/GameConstants.h \
-		DataRegistry.h \
-		AudioManager.h \
-		FontManager.h \
+		dataRegistry.h \
+		audioManager.h \
+		fontManager.h \
 		character.h \
 		build/moc/moc_predefs.h \
 		/usr/lib/qt6/libexec/moc
 	@echo moc src/bank_dialog/TradeDialog.h && /usr/lib/qt6/libexec/moc $(DEFINES) --include /home/rickard/Documents/GitHub/depthofdejenol/build/moc/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt6/mkspecs/linux-g++ -I/home/rickard/Documents/GitHub/depthofdejenol -I/home/rickard/Documents/GitHub/depthofdejenol/_PRO_FILE_PWD_/include -I/home/rickard/Documents/GitHub/depthofdejenol/3rdparty/lua -I/usr/include/x86_64-linux-gnu/qt6 -I/usr/include/x86_64-linux-gnu/qt6/QtWidgets -I/usr/include/x86_64-linux-gnu/qt6/QtMultimedia -I/usr/include/x86_64-linux-gnu/qt6/QtGui -I/usr/include/x86_64-linux-gnu/qt6/QtNetwork -I/usr/include/x86_64-linux-gnu/qt6/QtCore -I/usr/include/c++/15 -I/usr/include/x86_64-linux-gnu/c++/15 -I/usr/include/c++/15/backward -I/usr/lib/gcc/x86_64-linux-gnu/15/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include src/bank_dialog/TradeDialog.h -o build/moc/moc_TradeDialog.cpp
 
 build/moc/moc_EventManager.cpp: src/event/EventManager.h \
-		GameStateManager.h \
+		gameStateManager.h \
 		3rdparty/lua/lua.h \
 		3rdparty/lua/luaconf.h \
 		3rdparty/lua/lualib.h \
 		3rdparty/lua/lauxlib.h \
 		src/core/GameConstants.h \
-		DataRegistry.h \
-		AudioManager.h \
-		FontManager.h \
+		dataRegistry.h \
+		audioManager.h \
+		fontManager.h \
 		character.h \
 		build/moc/moc_predefs.h \
 		/usr/lib/qt6/libexec/moc
@@ -1067,10 +1080,10 @@ build/moc/moc_SpellCastingDialog.cpp: src/spell_casting/SpellCastingDialog.h \
 		/usr/lib/qt6/libexec/moc
 	@echo moc src/spell_casting/SpellCastingDialog.h && /usr/lib/qt6/libexec/moc $(DEFINES) --include /home/rickard/Documents/GitHub/depthofdejenol/build/moc/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt6/mkspecs/linux-g++ -I/home/rickard/Documents/GitHub/depthofdejenol -I/home/rickard/Documents/GitHub/depthofdejenol/_PRO_FILE_PWD_/include -I/home/rickard/Documents/GitHub/depthofdejenol/3rdparty/lua -I/usr/include/x86_64-linux-gnu/qt6 -I/usr/include/x86_64-linux-gnu/qt6/QtWidgets -I/usr/include/x86_64-linux-gnu/qt6/QtMultimedia -I/usr/include/x86_64-linux-gnu/qt6/QtGui -I/usr/include/x86_64-linux-gnu/qt6/QtNetwork -I/usr/include/x86_64-linux-gnu/qt6/QtCore -I/usr/include/c++/15 -I/usr/include/x86_64-linux-gnu/c++/15 -I/usr/include/c++/15/backward -I/usr/lib/gcc/x86_64-linux-gnu/15/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include src/spell_casting/SpellCastingDialog.h -o build/moc/moc_SpellCastingDialog.cpp
 
-build/moc/moc_FontManager.cpp: FontManager.h \
+build/moc/moc_fontManager.cpp: fontManager.h \
 		build/moc/moc_predefs.h \
 		/usr/lib/qt6/libexec/moc
-	@echo moc FontManager.h && /usr/lib/qt6/libexec/moc $(DEFINES) --include /home/rickard/Documents/GitHub/depthofdejenol/build/moc/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt6/mkspecs/linux-g++ -I/home/rickard/Documents/GitHub/depthofdejenol -I/home/rickard/Documents/GitHub/depthofdejenol/_PRO_FILE_PWD_/include -I/home/rickard/Documents/GitHub/depthofdejenol/3rdparty/lua -I/usr/include/x86_64-linux-gnu/qt6 -I/usr/include/x86_64-linux-gnu/qt6/QtWidgets -I/usr/include/x86_64-linux-gnu/qt6/QtMultimedia -I/usr/include/x86_64-linux-gnu/qt6/QtGui -I/usr/include/x86_64-linux-gnu/qt6/QtNetwork -I/usr/include/x86_64-linux-gnu/qt6/QtCore -I/usr/include/c++/15 -I/usr/include/x86_64-linux-gnu/c++/15 -I/usr/include/c++/15/backward -I/usr/lib/gcc/x86_64-linux-gnu/15/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include FontManager.h -o build/moc/moc_FontManager.cpp
+	@echo moc fontManager.h && /usr/lib/qt6/libexec/moc $(DEFINES) --include /home/rickard/Documents/GitHub/depthofdejenol/build/moc/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt6/mkspecs/linux-g++ -I/home/rickard/Documents/GitHub/depthofdejenol -I/home/rickard/Documents/GitHub/depthofdejenol/_PRO_FILE_PWD_/include -I/home/rickard/Documents/GitHub/depthofdejenol/3rdparty/lua -I/usr/include/x86_64-linux-gnu/qt6 -I/usr/include/x86_64-linux-gnu/qt6/QtWidgets -I/usr/include/x86_64-linux-gnu/qt6/QtMultimedia -I/usr/include/x86_64-linux-gnu/qt6/QtGui -I/usr/include/x86_64-linux-gnu/qt6/QtNetwork -I/usr/include/x86_64-linux-gnu/qt6/QtCore -I/usr/include/c++/15 -I/usr/include/x86_64-linux-gnu/c++/15 -I/usr/include/c++/15/backward -I/usr/lib/gcc/x86_64-linux-gnu/15/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include fontManager.h -o build/moc/moc_fontManager.cpp
 
 compiler_moc_objc_header_make_all:
 compiler_moc_objc_header_clean:
@@ -1088,66 +1101,66 @@ compiler_clean: compiler_moc_predefs_clean compiler_moc_header_clean
 
 ####### Compile
 
-build/obj/release/GameStateManager.o: GameStateManager.cpp GameStateManager.h \
+build/obj/release/gameStateManager.o: gameStateManager.cpp gameStateManager.h \
 		3rdparty/lua/lua.h \
 		3rdparty/lua/luaconf.h \
 		3rdparty/lua/lualib.h \
 		3rdparty/lua/lauxlib.h \
 		src/core/GameConstants.h \
-		DataRegistry.h \
-		AudioManager.h \
-		FontManager.h \
+		dataRegistry.h \
+		audioManager.h \
+		fontManager.h \
 		character.h \
-		Version.h \
+		src/partymanager/PartyManager.h \
+		version.h \
 		src/race_data/RaceData.h
-	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/GameStateManager.o GameStateManager.cpp
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/gameStateManager.o gameStateManager.cpp
 
-build/obj/release/AudioManager.o: AudioManager.cpp AudioManager.h
-	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/AudioManager.o AudioManager.cpp
+build/obj/release/PartyManager.o: src/partymanager/PartyManager.cpp src/partymanager/PartyManager.h \
+		character.h \
+		src/core/GameConstants.h
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/PartyManager.o src/partymanager/PartyManager.cpp
 
-build/obj/release/blacklands.o: blacklands.cpp GameStateManager.h \
+build/obj/release/audioManager.o: audioManager.cpp audioManager.h
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/audioManager.o audioManager.cpp
+
+build/obj/release/blacklands.o: blacklands.cpp blacklands.h \
+		src/event/EventManager.h \
+		gameStateManager.h \
 		3rdparty/lua/lua.h \
 		3rdparty/lua/luaconf.h \
 		3rdparty/lua/lualib.h \
 		3rdparty/lua/lauxlib.h \
 		src/core/GameConstants.h \
-		DataRegistry.h \
-		AudioManager.h \
-		FontManager.h \
+		dataRegistry.h \
+		audioManager.h \
+		fontManager.h \
 		character.h \
-		blacklands.h \
-		src/event/EventManager.h \
-		TheCity.h \
+		theCity.h \
 		src/inventory_dialog/inventorydialog.h \
-		StoryDialog.h \
+		storyDialog.h \
 		src/characterlist_dialog/characterlistdialog.h \
 		src/hall_of_records/hallofrecordsdialog.h \
 		src/create_character/createcharacterdialog.h \
 		src/race_data/RaceData.h \
 		src/options_dialog/optionsdialog.h \
 		src/about_dialog/AboutDialog.h \
-		src/character_dialog/CharacterDialog.h \
 		src/message_window/MessageWindow.h \
-		src/sender_window/SenderWindow.h \
-		src/library_dialog/library_dialog.h \
-		src/automap/automap_dialog.h \
-		src/game_controller/game_controller.h \
 		src/helplesson/helplesson.h \
-		src/mordorstatistics/mordorstatistics.h \
 		src/loadingscreen/LoadingScreen.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/blacklands.o blacklands.cpp
 
-build/obj/release/TheCity.o: TheCity.cpp TheCity.h \
+build/obj/release/theCity.o: theCity.cpp theCity.h \
 		src/inventory_dialog/inventorydialog.h \
-		GameStateManager.h \
+		gameStateManager.h \
 		3rdparty/lua/lua.h \
 		3rdparty/lua/luaconf.h \
 		3rdparty/lua/lualib.h \
 		3rdparty/lua/lauxlib.h \
 		src/core/GameConstants.h \
-		DataRegistry.h \
-		AudioManager.h \
-		FontManager.h \
+		dataRegistry.h \
+		audioManager.h \
+		fontManager.h \
 		character.h \
 		src/core/game_resources.h \
 		src/network_manager/NetworkManager.h \
@@ -1161,62 +1174,62 @@ build/obj/release/TheCity.o: TheCity.cpp TheCity.h \
 		src/dungeon_dialog/DungeonDialog.h \
 		src/event/EventManager.h \
 		src/dungeon_dialog/MiniMapDialog.h
-	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/TheCity.o TheCity.cpp
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/theCity.o theCity.cpp
 
 build/obj/release/NetworkManager.o: src/network_manager/NetworkManager.cpp src/network_manager/NetworkManager.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/NetworkManager.o src/network_manager/NetworkManager.cpp
 
 build/obj/release/hallofrecordsdialog.o: src/hall_of_records/hallofrecordsdialog.cpp src/hall_of_records/hallofrecordsdialog.h \
-		GameStateManager.h \
+		gameStateManager.h \
 		3rdparty/lua/lua.h \
 		3rdparty/lua/luaconf.h \
 		3rdparty/lua/lualib.h \
 		3rdparty/lua/lauxlib.h \
 		src/core/GameConstants.h \
-		DataRegistry.h \
-		AudioManager.h \
-		FontManager.h \
+		dataRegistry.h \
+		audioManager.h \
+		fontManager.h \
 		character.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/hallofrecordsdialog.o src/hall_of_records/hallofrecordsdialog.cpp
 
 build/obj/release/createcharacterdialog.o: src/create_character/createcharacterdialog.cpp src/create_character/createcharacterdialog.h \
 		src/race_data/RaceData.h \
 		src/core/GameConstants.h \
-		GameStateManager.h \
+		gameStateManager.h \
 		3rdparty/lua/lua.h \
 		3rdparty/lua/luaconf.h \
 		3rdparty/lua/lualib.h \
 		3rdparty/lua/lauxlib.h \
-		DataRegistry.h \
-		AudioManager.h \
-		FontManager.h \
+		dataRegistry.h \
+		audioManager.h \
+		fontManager.h \
 		character.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/createcharacterdialog.o src/create_character/createcharacterdialog.cpp
 
 build/obj/release/AboutDialog.o: src/about_dialog/AboutDialog.cpp src/about_dialog/AboutDialog.h \
-		GameStateManager.h \
+		gameStateManager.h \
 		3rdparty/lua/lua.h \
 		3rdparty/lua/luaconf.h \
 		3rdparty/lua/lualib.h \
 		3rdparty/lua/lauxlib.h \
 		src/core/GameConstants.h \
-		DataRegistry.h \
-		AudioManager.h \
-		FontManager.h \
+		dataRegistry.h \
+		audioManager.h \
+		fontManager.h \
 		character.h \
 		src/update/UpdateDialog.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/AboutDialog.o src/about_dialog/AboutDialog.cpp
 
 build/obj/release/CharacterDialog.o: src/character_dialog/CharacterDialog.cpp src/character_dialog/CharacterDialog.h \
-		GameStateManager.h \
+		gameStateManager.h \
 		3rdparty/lua/lua.h \
 		3rdparty/lua/luaconf.h \
 		3rdparty/lua/lualib.h \
 		3rdparty/lua/lauxlib.h \
 		src/core/GameConstants.h \
-		DataRegistry.h \
-		AudioManager.h \
-		FontManager.h \
+		dataRegistry.h \
+		audioManager.h \
+		fontManager.h \
 		character.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/CharacterDialog.o src/character_dialog/CharacterDialog.cpp
 
@@ -1228,66 +1241,66 @@ build/obj/release/SenderWindow.o: src/sender_window/SenderWindow.cpp src/sender_
 
 build/obj/release/library_dialog.o: src/library_dialog/library_dialog.cpp src/library_dialog/library_dialog.h \
 		src/core/GameConstants.h \
-		GameStateManager.h \
+		gameStateManager.h \
 		3rdparty/lua/lua.h \
 		3rdparty/lua/luaconf.h \
 		3rdparty/lua/lualib.h \
 		3rdparty/lua/lauxlib.h \
-		DataRegistry.h \
-		AudioManager.h \
-		FontManager.h \
+		dataRegistry.h \
+		audioManager.h \
+		fontManager.h \
 		character.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/library_dialog.o src/library_dialog/library_dialog.cpp
 
 build/obj/release/automap_dialog.o: src/automap/automap_dialog.cpp src/automap/automap_dialog.h \
-		GameStateManager.h \
+		gameStateManager.h \
 		3rdparty/lua/lua.h \
 		3rdparty/lua/luaconf.h \
 		3rdparty/lua/lualib.h \
 		3rdparty/lua/lauxlib.h \
 		src/core/GameConstants.h \
-		DataRegistry.h \
-		AudioManager.h \
-		FontManager.h \
+		dataRegistry.h \
+		audioManager.h \
+		fontManager.h \
 		character.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/automap_dialog.o src/automap/automap_dialog.cpp
 
 build/obj/release/game_controller.o: src/game_controller/game_controller.cpp src/game_controller/game_controller.h \
-		GameStateManager.h \
+		gameStateManager.h \
 		3rdparty/lua/lua.h \
 		3rdparty/lua/luaconf.h \
 		3rdparty/lua/lualib.h \
 		3rdparty/lua/lauxlib.h \
 		src/core/GameConstants.h \
-		DataRegistry.h \
-		AudioManager.h \
-		FontManager.h \
+		dataRegistry.h \
+		audioManager.h \
+		fontManager.h \
 		character.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/game_controller.o src/game_controller/game_controller.cpp
 
 build/obj/release/characterlistdialog.o: src/characterlist_dialog/characterlistdialog.cpp src/characterlist_dialog/characterlistdialog.h \
-		GameStateManager.h \
+		gameStateManager.h \
 		3rdparty/lua/lua.h \
 		3rdparty/lua/luaconf.h \
 		3rdparty/lua/lualib.h \
 		3rdparty/lua/lauxlib.h \
 		src/core/GameConstants.h \
-		DataRegistry.h \
-		AudioManager.h \
-		FontManager.h \
+		dataRegistry.h \
+		audioManager.h \
+		fontManager.h \
 		character.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/characterlistdialog.o src/characterlist_dialog/characterlistdialog.cpp
 
 build/obj/release/helplesson.o: src/helplesson/helplesson.cpp src/helplesson/helplesson.h \
-		GameStateManager.h \
+		gameStateManager.h \
 		3rdparty/lua/lua.h \
 		3rdparty/lua/luaconf.h \
 		3rdparty/lua/lualib.h \
 		3rdparty/lua/lauxlib.h \
 		src/core/GameConstants.h \
-		DataRegistry.h \
-		AudioManager.h \
-		FontManager.h \
+		dataRegistry.h \
+		audioManager.h \
+		fontManager.h \
 		character.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/helplesson.o src/helplesson/helplesson.cpp
 
@@ -1296,94 +1309,94 @@ build/obj/release/mordorstatistics.o: src/mordorstatistics/mordorstatistics.cpp 
 
 build/obj/release/LoadingScreen.o: src/loadingscreen/LoadingScreen.cpp src/core/game_resources.h \
 		src/loadingscreen/LoadingScreen.h \
-		GameStateManager.h \
+		gameStateManager.h \
 		3rdparty/lua/lua.h \
 		3rdparty/lua/luaconf.h \
 		3rdparty/lua/lualib.h \
 		3rdparty/lua/lauxlib.h \
 		src/core/GameConstants.h \
-		DataRegistry.h \
-		AudioManager.h \
-		FontManager.h \
+		dataRegistry.h \
+		audioManager.h \
+		fontManager.h \
 		character.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/LoadingScreen.o src/loadingscreen/LoadingScreen.cpp
 
 build/obj/release/GuildsDialog.o: src/guilds_dialog/GuildsDialog.cpp src/guilds_dialog/GuildsDialog.h \
-		GameStateManager.h \
+		gameStateManager.h \
 		3rdparty/lua/lua.h \
 		3rdparty/lua/luaconf.h \
 		3rdparty/lua/lualib.h \
 		3rdparty/lua/lauxlib.h \
 		src/core/GameConstants.h \
-		DataRegistry.h \
-		AudioManager.h \
-		FontManager.h \
+		dataRegistry.h \
+		audioManager.h \
+		fontManager.h \
 		character.h \
 		src/library_dialog/library_dialog.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/GuildsDialog.o src/guilds_dialog/GuildsDialog.cpp
 
 build/obj/release/GeneralStore.o: src/general_store/GeneralStore.cpp src/general_store/GeneralStore.h \
-		GameStateManager.h \
+		gameStateManager.h \
 		3rdparty/lua/lua.h \
 		3rdparty/lua/luaconf.h \
 		3rdparty/lua/lualib.h \
 		3rdparty/lua/lauxlib.h \
 		src/core/GameConstants.h \
-		DataRegistry.h \
-		AudioManager.h \
-		FontManager.h \
+		dataRegistry.h \
+		audioManager.h \
+		fontManager.h \
 		character.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/GeneralStore.o src/general_store/GeneralStore.cpp
 
 build/obj/release/MorgueDialog.o: src/morgue_dialog/MorgueDialog.cpp src/morgue_dialog/MorgueDialog.h \
-		GameStateManager.h \
+		gameStateManager.h \
 		3rdparty/lua/lua.h \
 		3rdparty/lua/luaconf.h \
 		3rdparty/lua/lualib.h \
 		3rdparty/lua/lauxlib.h \
 		src/core/GameConstants.h \
-		DataRegistry.h \
-		AudioManager.h \
-		FontManager.h \
+		dataRegistry.h \
+		audioManager.h \
+		fontManager.h \
 		character.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/MorgueDialog.o src/morgue_dialog/MorgueDialog.cpp
 
 build/obj/release/SeerDialog.o: src/seer_dialog/SeerDialog.cpp src/seer_dialog/SeerDialog.h \
-		GameStateManager.h \
+		gameStateManager.h \
 		3rdparty/lua/lua.h \
 		3rdparty/lua/luaconf.h \
 		3rdparty/lua/lualib.h \
 		3rdparty/lua/lauxlib.h \
 		src/core/GameConstants.h \
-		DataRegistry.h \
-		AudioManager.h \
-		FontManager.h \
+		dataRegistry.h \
+		audioManager.h \
+		fontManager.h \
 		character.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/SeerDialog.o src/seer_dialog/SeerDialog.cpp
 
 build/obj/release/ConfinementDialog.o: src/confinement_dialog/ConfinementDialog.cpp src/confinement_dialog/ConfinementDialog.h \
-		GameStateManager.h \
+		gameStateManager.h \
 		3rdparty/lua/lua.h \
 		3rdparty/lua/luaconf.h \
 		3rdparty/lua/lualib.h \
 		3rdparty/lua/lauxlib.h \
 		src/core/GameConstants.h \
-		DataRegistry.h \
-		AudioManager.h \
-		FontManager.h \
+		dataRegistry.h \
+		audioManager.h \
+		fontManager.h \
 		character.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/ConfinementDialog.o src/confinement_dialog/ConfinementDialog.cpp
 
 build/obj/release/BankDialog.o: src/bank_dialog/BankDialog.cpp src/bank_dialog/BankDialog.h \
-		GameStateManager.h \
+		gameStateManager.h \
 		3rdparty/lua/lua.h \
 		3rdparty/lua/luaconf.h \
 		3rdparty/lua/lualib.h \
 		3rdparty/lua/lauxlib.h \
 		src/core/GameConstants.h \
-		DataRegistry.h \
-		AudioManager.h \
-		FontManager.h \
+		dataRegistry.h \
+		audioManager.h \
+		fontManager.h \
 		character.h \
 		src/bank_dialog/TradeDialog.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/BankDialog.o src/bank_dialog/BankDialog.cpp
@@ -1393,41 +1406,41 @@ build/obj/release/RaceData.o: src/race_data/RaceData.cpp src/race_data/RaceData.
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/RaceData.o src/race_data/RaceData.cpp
 
 build/obj/release/inventorydialog.o: src/inventory_dialog/inventorydialog.cpp src/inventory_dialog/inventorydialog.h \
-		GameStateManager.h \
+		gameStateManager.h \
 		3rdparty/lua/lua.h \
 		3rdparty/lua/luaconf.h \
 		3rdparty/lua/lualib.h \
 		3rdparty/lua/lauxlib.h \
 		src/core/GameConstants.h \
-		DataRegistry.h \
-		AudioManager.h \
-		FontManager.h \
+		dataRegistry.h \
+		audioManager.h \
+		fontManager.h \
 		character.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/inventorydialog.o src/inventory_dialog/inventorydialog.cpp
 
 build/obj/release/optionsdialog.o: src/options_dialog/optionsdialog.cpp src/options_dialog/optionsdialog.h \
-		GameStateManager.h \
+		gameStateManager.h \
 		3rdparty/lua/lua.h \
 		3rdparty/lua/luaconf.h \
 		3rdparty/lua/lualib.h \
 		3rdparty/lua/lauxlib.h \
 		src/core/GameConstants.h \
-		DataRegistry.h \
-		AudioManager.h \
-		FontManager.h \
+		dataRegistry.h \
+		audioManager.h \
+		fontManager.h \
 		character.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/optionsdialog.o src/options_dialog/optionsdialog.cpp
 
 build/obj/release/DungeonDialog.o: src/dungeon_dialog/DungeonDialog.cpp src/character_dialog/CharacterDialog.h \
-		GameStateManager.h \
+		gameStateManager.h \
 		3rdparty/lua/lua.h \
 		3rdparty/lua/luaconf.h \
 		3rdparty/lua/lualib.h \
 		3rdparty/lua/lauxlib.h \
 		src/core/GameConstants.h \
-		DataRegistry.h \
-		AudioManager.h \
-		FontManager.h \
+		dataRegistry.h \
+		audioManager.h \
+		fontManager.h \
 		character.h \
 		src/dungeon_dialog/DungeonDialog.h \
 		src/inventory_dialog/inventorydialog.h \
@@ -1439,15 +1452,15 @@ build/obj/release/DungeonDialog.o: src/dungeon_dialog/DungeonDialog.cpp src/char
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/DungeonDialog.o src/dungeon_dialog/DungeonDialog.cpp
 
 build/obj/release/partyinfodialog.o: src/partyinfo_dialog/partyinfodialog.cpp src/partyinfo_dialog/partyinfodialog.h \
-		GameStateManager.h \
+		gameStateManager.h \
 		3rdparty/lua/lua.h \
 		3rdparty/lua/luaconf.h \
 		3rdparty/lua/lualib.h \
 		3rdparty/lua/lauxlib.h \
 		src/core/GameConstants.h \
-		DataRegistry.h \
-		AudioManager.h \
-		FontManager.h \
+		dataRegistry.h \
+		audioManager.h \
+		fontManager.h \
 		character.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/partyinfodialog.o src/partyinfo_dialog/partyinfodialog.cpp
 
@@ -1455,15 +1468,15 @@ build/obj/release/dungeonmap.o: src/dungeonmap/dungeonmap.cpp src/dungeonmap/dun
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/dungeonmap.o src/dungeonmap/dungeonmap.cpp
 
 build/obj/release/TradeDialog.o: src/bank_dialog/TradeDialog.cpp src/bank_dialog/TradeDialog.h \
-		GameStateManager.h \
+		gameStateManager.h \
 		3rdparty/lua/lua.h \
 		3rdparty/lua/luaconf.h \
 		3rdparty/lua/lualib.h \
 		3rdparty/lua/lauxlib.h \
 		src/core/GameConstants.h \
-		DataRegistry.h \
-		AudioManager.h \
-		FontManager.h \
+		dataRegistry.h \
+		audioManager.h \
+		fontManager.h \
 		character.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/TradeDialog.o src/bank_dialog/TradeDialog.cpp
 
@@ -1472,15 +1485,15 @@ build/obj/release/game_resources.o: src/game_resources.cpp src/core/game_resourc
 
 build/obj/release/DungeonMinimap.o: src/dungeon_dialog/DungeonMinimap.cpp src/dungeon_dialog/DungeonDialog.h \
 		src/inventory_dialog/inventorydialog.h \
-		GameStateManager.h \
+		gameStateManager.h \
 		3rdparty/lua/lua.h \
 		3rdparty/lua/luaconf.h \
 		3rdparty/lua/lualib.h \
 		3rdparty/lua/lauxlib.h \
 		src/core/GameConstants.h \
-		DataRegistry.h \
-		AudioManager.h \
-		FontManager.h \
+		dataRegistry.h \
+		audioManager.h \
+		fontManager.h \
 		character.h \
 		src/partyinfo_dialog/partyinfodialog.h \
 		src/event/EventManager.h \
@@ -1490,15 +1503,15 @@ build/obj/release/DungeonMinimap.o: src/dungeon_dialog/DungeonMinimap.cpp src/du
 build/obj/release/DungeonHandlers.o: src/dungeon_dialog/DungeonHandlers.cpp src/dungeon_dialog/DungeonHandlers.h \
 		src/dungeon_dialog/DungeonDialog.h \
 		src/inventory_dialog/inventorydialog.h \
-		GameStateManager.h \
+		gameStateManager.h \
 		3rdparty/lua/lua.h \
 		3rdparty/lua/luaconf.h \
 		3rdparty/lua/lualib.h \
 		3rdparty/lua/lauxlib.h \
 		src/core/GameConstants.h \
-		DataRegistry.h \
-		AudioManager.h \
-		FontManager.h \
+		dataRegistry.h \
+		audioManager.h \
+		fontManager.h \
 		character.h \
 		src/partyinfo_dialog/partyinfodialog.h \
 		src/event/EventManager.h \
@@ -1506,15 +1519,15 @@ build/obj/release/DungeonHandlers.o: src/dungeon_dialog/DungeonHandlers.cpp src/
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/DungeonHandlers.o src/dungeon_dialog/DungeonHandlers.cpp
 
 build/obj/release/EventManager.o: src/event/EventManager.cpp src/event/EventManager.h \
-		GameStateManager.h \
+		gameStateManager.h \
 		3rdparty/lua/lua.h \
 		3rdparty/lua/luaconf.h \
 		3rdparty/lua/lualib.h \
 		3rdparty/lua/lauxlib.h \
 		src/core/GameConstants.h \
-		DataRegistry.h \
-		AudioManager.h \
-		FontManager.h \
+		dataRegistry.h \
+		audioManager.h \
+		fontManager.h \
 		character.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/EventManager.o src/event/EventManager.cpp
 
@@ -1525,23 +1538,24 @@ build/obj/release/UpdateDialog.o: src/update/UpdateDialog.cpp src/update/UpdateD
 		src/update/UpdateManager.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/UpdateDialog.o src/update/UpdateDialog.cpp
 
-build/obj/release/character.o: character.cpp character.h
+build/obj/release/character.o: character.cpp character.h \
+		src/core/GameConstants.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/character.o character.cpp
 
 build/obj/release/SpellCastingDialog.o: src/spell_casting/SpellCastingDialog.cpp src/spell_casting/SpellCastingDialog.h \
-		GameStateManager.h \
+		gameStateManager.h \
 		3rdparty/lua/lua.h \
 		3rdparty/lua/luaconf.h \
 		3rdparty/lua/lualib.h \
 		3rdparty/lua/lauxlib.h \
 		src/core/GameConstants.h \
-		DataRegistry.h \
-		AudioManager.h \
-		FontManager.h \
+		dataRegistry.h \
+		audioManager.h \
+		fontManager.h \
 		character.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/SpellCastingDialog.o src/spell_casting/SpellCastingDialog.cpp
 
-build/obj/release/fontManager.o: fontManager.cpp FontManager.h
+build/obj/release/fontManager.o: fontManager.cpp fontManager.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/fontManager.o fontManager.cpp
 
 build/obj/release/lapi.o: 3rdparty/lua/lapi.c 3rdparty/lua/lprefix.h \
@@ -1979,20 +1993,23 @@ build/obj/release/linit.o: 3rdparty/lua/linit.c 3rdparty/lua/lprefix.h \
 		3rdparty/lua/llimits.h
 	$(CC) -c $(CFLAGS) $(INCPATH) -o build/obj/release/linit.o 3rdparty/lua/linit.c
 
-build/obj/release/moc_GameStateManager.o: build/moc/moc_GameStateManager.cpp 
-	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/moc_GameStateManager.o build/moc/moc_GameStateManager.cpp
+build/obj/release/moc_gameStateManager.o: build/moc/moc_gameStateManager.cpp 
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/moc_gameStateManager.o build/moc/moc_gameStateManager.cpp
 
-build/obj/release/moc_AudioManager.o: build/moc/moc_AudioManager.cpp 
-	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/moc_AudioManager.o build/moc/moc_AudioManager.cpp
+build/obj/release/moc_PartyManager.o: build/moc/moc_PartyManager.cpp 
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/moc_PartyManager.o build/moc/moc_PartyManager.cpp
+
+build/obj/release/moc_audioManager.o: build/moc/moc_audioManager.cpp 
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/moc_audioManager.o build/moc/moc_audioManager.cpp
 
 build/obj/release/moc_blacklands.o: build/moc/moc_blacklands.cpp 
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/moc_blacklands.o build/moc/moc_blacklands.cpp
 
-build/obj/release/moc_TheCity.o: build/moc/moc_TheCity.cpp 
-	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/moc_TheCity.o build/moc/moc_TheCity.cpp
+build/obj/release/moc_theCity.o: build/moc/moc_theCity.cpp 
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/moc_theCity.o build/moc/moc_theCity.cpp
 
-build/obj/release/moc_StoryDialog.o: build/moc/moc_StoryDialog.cpp 
-	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/moc_StoryDialog.o build/moc/moc_StoryDialog.cpp
+build/obj/release/moc_storyDialog.o: build/moc/moc_storyDialog.cpp 
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/moc_storyDialog.o build/moc/moc_storyDialog.cpp
 
 build/obj/release/moc_NetworkManager.o: build/moc/moc_NetworkManager.cpp 
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/moc_NetworkManager.o build/moc/moc_NetworkManager.cpp
@@ -2087,8 +2104,8 @@ build/obj/release/moc_UpdateDialog.o: build/moc/moc_UpdateDialog.cpp
 build/obj/release/moc_SpellCastingDialog.o: build/moc/moc_SpellCastingDialog.cpp 
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/moc_SpellCastingDialog.o build/moc/moc_SpellCastingDialog.cpp
 
-build/obj/release/moc_FontManager.o: build/moc/moc_FontManager.cpp 
-	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/moc_FontManager.o build/moc/moc_FontManager.cpp
+build/obj/release/moc_fontManager.o: build/moc/moc_fontManager.cpp 
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/moc_fontManager.o build/moc/moc_fontManager.cpp
 
 ####### Install
 

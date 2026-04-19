@@ -8,7 +8,7 @@
 #include <QListView>
 #include <QStandardItemModel>
 
-#include "GameStateManager.h"
+#include "gameStateManager.h"
 
 class BankDialog : public QDialog
 {
@@ -20,7 +20,7 @@ public:
     // Destructor
     ~BankDialog();
     // Accessors/Mutators for external gold management are removed, 
-    // as they now go through GameStateManager.
+    // as they now go through gameStateManager.
     // Accessor for the bank's item model (needed by the new TradeDialog)
     QStandardItemModel* getItemModel() { return itemModel; }
 signals:
@@ -67,10 +67,10 @@ private:
     void setupUi();
     void createConnections();
     void updateAccountStatus(long long playerGold, long long bankGold, int freeSlots);     
-    // Helper to read and convert gold from GameStateManager
+    // Helper to read and convert gold from gameStateManager
     long long getPlayerGold();
     long long getBankedGold();
-    // NEW Helper to read freeSlots from GameStateManager
+    // NEW Helper to read freeSlots from gameStateManager
     int getFreeSlots();
 };
 

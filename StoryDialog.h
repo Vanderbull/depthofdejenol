@@ -1,5 +1,5 @@
-#ifndef STORYDIALOG_H
-#define STORYDIALOG_H
+#ifndef storyDialog_H
+#define storyDialog_H
 
 #include <QDialog>
 #include <QLabel>
@@ -13,10 +13,10 @@
 #include <QPixmap>
 #include <QDebug>
 
-class StoryDialog : public QDialog {
+class storyDialog : public QDialog {
     Q_OBJECT
 public:
-    explicit StoryDialog(QWidget *parent = nullptr) : QDialog(parent) 
+    explicit storyDialog(QWidget *parent = nullptr) : QDialog(parent) 
     {
         setWindowFlags(Qt::FramelessWindowHint);    
         QVBoxLayout *layout = new QVBoxLayout(this);
@@ -125,7 +125,7 @@ private:
         m_group->addAnimation(pause);
         m_group->addAnimation(fadeOut);
         disconnect(m_group, &QSequentialAnimationGroup::finished, nullptr, nullptr);
-        connect(m_group, &QSequentialAnimationGroup::finished, this, &StoryDialog::showNextPart);
+        connect(m_group, &QSequentialAnimationGroup::finished, this, &storyDialog::showNextPart);
         m_group->start();
     }
 };

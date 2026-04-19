@@ -6,7 +6,7 @@
 #include <QListWidgetItem> // Needed for QListWidgetItem
 #include <QVariantList> // Needed for reading the log
 #include <QRandomGenerator> // Needed for random number generation
-// Assuming GameStateManager is a singleton with an instance() method and a getGameValue() method.
+// Assuming gameStateManager is a singleton with an instance() method and a getGameValue() method.
 GuildsDialog::GuildsDialog(QWidget *parent)
     : QDialog(parent)
 {
@@ -48,7 +48,7 @@ GuildsDialog::GuildsDialog(QWidget *parent)
     guildsLabel = new QLabel("<b><font color='red'>Guilds</font></b>");
     guildsListWidget = new QListWidget();
     QStringList guilds = GameConstants::GUILD_NAMES;
-    //QStringList guilds = GameStateManager::guildNames();
+    //QStringList guilds = gameStateManager::guildNames();
     for (const QString& guild : guilds) {
         guildsListWidget->addItem(guild);
     }
@@ -96,11 +96,11 @@ void GuildsDialog::setupConnections()
     connect(guildsListWidget, &QListWidget::itemSelectionChanged, this, &GuildsDialog::on_guildsListWidget_itemSelectionChanged);
 }
 /**
- * @brief Retrieves the current character's guild from GameStateManager, marks it with a '*' and selects it.
+ * @brief Retrieves the current character's guild from gameStateManager, marks it with a '*' and selects it.
  */
 void GuildsDialog::setInitialGuildSelection()
 {
-    QString currentGuildName = GameStateManager::instance()->getGameValue("CurrentCharacterGuild").toString();   
+    QString currentGuildName = gameStateManager::instance()->getGameValue("CurrentCharacterGuild").toString();   
     // Only proceed if a guild name is stored
     if (currentGuildName.isEmpty()) {
         return; 
@@ -127,7 +127,7 @@ void GuildsDialog::setInitialGuildSelection()
 void GuildsDialog::on_makeLevelButton_clicked()
 {
     // 1. Get Game State Manager instance
-    GameStateManager* gsm = GameStateManager::instance();
+    gameStateManager* gsm = gameStateManager::instance();
     // 2. Retrieve current level
     int currentLevel = gsm->getGameValue("CurrentCharacterLevel").toInt();
     // 3. (Placeholder for XP Check) Check if the player has enough XP to level up.
@@ -154,7 +154,7 @@ void GuildsDialog::on_makeLevelButton_clicked()
 void GuildsDialog::on_reAcquaintButton_clicked()
 {
     QListWidgetItem *selectedItem = guildsListWidget->currentItem();
-    GameStateManager* gsm = GameStateManager::instance();
+    gameStateManager* gsm = gameStateManager::instance();
     // 1. Check if a guild is selected
     if (!selectedItem) {
         gsm->logGuildAction("Attempted to re-acquaint, but no guild was selected.");
@@ -191,7 +191,7 @@ void GuildsDialog::on_visitLibraryButton_clicked()
 void GuildsDialog::on_expInfoButton_clicked()
 {
     // 1. Get Game State Manager instance
-    GameStateManager* gsm = GameStateManager::instance();
+    gameStateManager* gsm = gameStateManager::instance();
     // 2. Retrieve the current character experience (stored as qulonglong)
     qulonglong currentExp = gsm->getGameValue("CurrentCharacterExperience").value<qulonglong>();
     // 3. Retrieve the current level for display context
@@ -205,7 +205,7 @@ void GuildsDialog::on_expInfoButton_clicked()
 void GuildsDialog::on_readGuildLogButton_clicked()
 {
     // 1. Get the log list from the Game State Manager
-    QVariantList logList = GameStateManager::instance()->getGameValue("GuildActionLog").toList();
+    QVariantList logList = gameStateManager::instance()->getGameValue("GuildActionLog").toList();
     QString logContent;
     if (logList.isEmpty()) {
         logContent = "The Guild Log is currently empty.";
@@ -231,7 +231,7 @@ void GuildsDialog::on_readGuildLogButton_clicked()
 
 void GuildsDialog::on_visitButton_clicked()
 {
-    GameStateManager* gsm = GameStateManager::instance();
+    gameStateManager* gsm = gameStateManager::instance();
     QListWidgetItem *selectedItem = guildsListWidget->currentItem();
 
     if (!selectedItem) {
@@ -307,12 +307,12 @@ void GuildsDialog::on_guildsListWidget_itemSelectionChanged()
     }
     // 1. Update the Welcome Label
     welcomeLabel->setText(QString("<b><font color='blue' size='4'>Welcome to the %1's guild!</font></b>").arg(guildName));
-    // 2. Fetch the Master from GameStateManager
+    // 2. Fetch the Master from gameStateManager
     QMap<QString, QString> masters = GameConstants::getGuildMasters();
-    //QMap<QString, QString> masters = GameStateManager::guildMasters();
+    //QMap<QString, QString> masters = gameStateManager::guildMasters();
     QString masterName = masters.value(guildName, "Unknown Master");
-    // 3. Update Stats Required from GameStateManager (MDATA1)
-    const QList<QVariantMap>& allGuilds = GameStateManager::instance()->gameData();
+    // 3. Update Stats Required from gameStateManager (MDATA1)
+    const QList<QVariantMap>& allGuilds = gameStateManager::instance()->gameData();
     QVariantMap selectedGuildData;
     // Search for the guild entry matching the selected name
     for (const QVariantMap& guild : allGuilds) {

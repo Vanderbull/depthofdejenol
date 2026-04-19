@@ -9,6 +9,7 @@ extern "C" {
 
 // Project Includes
 #include "src/core/GameConstants.h"
+#include "src/core/game_resources.h"
 #include "dataRegistry.h"
 #include "audioManager.h"
 #include "fontManager.h"
@@ -55,6 +56,9 @@ private:
     // Use a pointer so the compiler doesn't need to know
     // the exact size of PartyManager yet.
     PartyManager* m_partyManager;
+    //int m_currentCharacterIndex = 0; 
+    Party m_currentParty;
+
 
     QTcpSocket* m_clientSocket;
     int m_tickCounter = 0;
@@ -90,15 +94,16 @@ private:
     QString statusKey(GameConstants::EntityStatus effect) const;
 
 public:
+    void addItemToInventory(const QString& itemName);
+    //Character getCurrentCharacter() const;
+    //bool hasLivingCharacters() const;
     virtual ~gameStateManager();
     QList<QVariantMap> getMonsterData() const { return m_monsterData; }
 
     void setGameMode(GameConstants::GameMode newMode);
     void enterLocation(GameConstants::CityLocation location);
-    
     // Helper to get the current state for UI (if needed)
     GameConstants::GameMode currentMode() const { return m_currentMode; }
-
 
     QList<Character>& getPartyMembers();
     Party& getParty();
