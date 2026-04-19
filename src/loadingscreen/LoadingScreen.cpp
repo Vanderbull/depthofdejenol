@@ -13,17 +13,8 @@ LoadingScreen::LoadingScreen(QWidget *parent) :
     QDialog(parent),
     m_currentFileIndex(0)
 {
-    // Load your uploaded sprite sheet
-    //m_fontSpriteSheet.load("resources/images/font_spritesheet_transparent.png");
-    // Load resources and update Game State Manager
-    GameResources::loadAllResources();
+    gameStateManager::instance()->initializeResources();
     gameStateManager::instance()->setGameValue("ResourcesLoaded", true);
-    // --- Basic Window Setup ---
-
-    
-    // Retrieve the pixmap from manager for the paintEvent
-    //m_fontSpriteSheet = gameStateManager::instance()->getFontSpriteSheet();
-
     setWindowTitle("Black land");
     setFixedSize(350, 480);
     // --- Widget Creation ---
@@ -41,10 +32,10 @@ LoadingScreen::LoadingScreen(QWidget *parent) :
     // 3. Start the animation immediately
     m_titleFadeAnimation->start(QAbstractAnimation::DeleteWhenStopped); 
     // -------------------------------
-    const QString versionString = "Dejenol Legacy: 0.0.0.0.001";
+    const QString versionString = "Version 0.0";
     m_versionLabel = new QLabel(versionString, this);
     gameStateManager::instance()->setGameValue("GameVersion", versionString); 
-    m_copyrightLabel = new QLabel("© Copyright 1995, MakeItSo Software", this);
+    m_copyrightLabel = new QLabel("© Copyright 2026, Vanderbull gaming", this);
     m_imageLabel = new QLabel(this);
     m_loadingMessageLabel = new QLabel("Initializing system...", this);
     // Styling (unchanged)
@@ -82,7 +73,7 @@ LoadingScreen::LoadingScreen(QWidget *parent) :
     for (const QString &itemName : fileList) {
         m_loadingFiles << "Loading: " + itemName;
     }
-    checkSettingsFile();
+    //checkSettingsFile();
     // Timer Setup
     m_messageTimer = new QTimer(this);
     connect(m_messageTimer, &QTimer::timeout, this, &LoadingScreen::updateLoadingMessage);
@@ -91,7 +82,7 @@ LoadingScreen::LoadingScreen(QWidget *parent) :
     connect(m_closeTimer, &QTimer::timeout, this, &LoadingScreen::closeDialogAutomatically);
     m_closeTimer->start(100);
 }
-
+/*
 void LoadingScreen::checkSettingsFile()
 {
     QSettings settings("game_settings.ini", QSettings::IniFormat);
@@ -99,7 +90,7 @@ void LoadingScreen::checkSettingsFile()
     m_loadingFiles << (configOK ? "Config OK." : "Config Missing.");
     gameStateManager::instance()->setGameValue("ConfigIntegrityOK", configOK);
 }
-
+*/
 void LoadingScreen::updateLoadingMessage()
 {
     if (m_closeTimer->remainingTime() < 500) { 
@@ -125,39 +116,5 @@ void LoadingScreen::paintEvent(QPaintEvent *event)
     QPainter painter(this);
 
     QPixmap fontSheet = gameStateManager::instance()->getFontSpriteSheet();
-    // Configuration based on your uploaded image
-    const int charWidth = 32;  
-    const int charHeight = 42; 
-    const int charsPerRow = 9; // A-I is 9 chars
-
-    QString textToDraw = "ABC 123";
-    textToDraw = textToDraw.toUpper(); // The sheet only has Uppercase
-
-    int drawX = 20; // Starting X position on the dialog
-    int drawY = 400; // Starting Y position (near the bottom)
-
-    for (QChar c : textToDraw) {
-        int index = -1;
-        
-        // Map Char to index in your specific sprite sheet
-        if (c >= 'A' && c <= 'I') index = c.unicode() - 'A';
-        else if (c >= 'J' && c <= 'M') index = 9 + (c.unicode() - 'J'); // Row 2 starts at J
-        else if (c >= 'N' && c <= 'V') index = 13 + (c.unicode() - 'N'); // Row 3 starts at N
-        else if (c >= 'W' && c <= 'Z') index = 22 + (c.unicode() - 'W'); // Row 4 starts at W
-        else if (c >= '1' && c <= '9') index = 26 + (c.unicode() - '1'); // Row 5 starts at 1
-        else if (c == '0') index = 35; // 0 is after 9
-
-        if (index != -1) {
-            // Calculate source coordinates in the sprite sheet
-            int sx = (index % charsPerRow) * charWidth;
-            int sy = (index / charsPerRow) * charHeight;
-
-            // Draw the specific letter
-            painter.drawPixmap(drawX, drawY, m_fontSpriteSheet, sx, sy, charWidth, charHeight);
-        }
-
-        drawX += charWidth - 5; // Move right for next char (with slight kerning)
-        if (c == ' ') drawX += 15; // Space handling
-    }
 }
 LoadingScreen::~LoadingScreen() {}

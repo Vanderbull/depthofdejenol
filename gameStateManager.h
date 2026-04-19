@@ -15,6 +15,7 @@ extern "C" {
 #include "fontManager.h"
 #include "character.h"
 
+#include <QSettings>
 #include <QTcpSocket>
 // Qt Core
 #include <QObject>
@@ -96,6 +97,8 @@ private:
     QString statusKey(GameConstants::EntityStatus effect) const;
 
 public:
+    void checkSettingsFile();
+    void initializeResources();
     QPixmap getFontSpriteSheet() const { return m_fontSpriteSheet; }
 
     void addItemToInventory(const QString& itemName);

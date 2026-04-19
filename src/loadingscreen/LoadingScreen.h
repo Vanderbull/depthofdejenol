@@ -18,7 +18,6 @@ public:
 private slots:
     void closeDialogAutomatically(); 
     void updateLoadingMessage(); 
-    void checkSettingsFile(); 
 private:
     QLabel *m_gameTitleLabel;
     QLabel *m_versionLabel;

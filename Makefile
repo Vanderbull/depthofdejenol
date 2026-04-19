@@ -693,6 +693,7 @@ build/moc/moc_gameStateManager.cpp: gameStateManager.h \
 		3rdparty/lua/lualib.h \
 		3rdparty/lua/lauxlib.h \
 		src/core/GameConstants.h \
+		src/core/game_resources.h \
 		dataRegistry.h \
 		audioManager.h \
 		fontManager.h \
@@ -721,6 +722,7 @@ build/moc/moc_blacklands.cpp: blacklands.h \
 		3rdparty/lua/lualib.h \
 		3rdparty/lua/lauxlib.h \
 		src/core/GameConstants.h \
+		src/core/game_resources.h \
 		dataRegistry.h \
 		audioManager.h \
 		fontManager.h \
@@ -737,6 +739,7 @@ build/moc/moc_theCity.cpp: theCity.h \
 		3rdparty/lua/lualib.h \
 		3rdparty/lua/lauxlib.h \
 		src/core/GameConstants.h \
+		src/core/game_resources.h \
 		dataRegistry.h \
 		audioManager.h \
 		fontManager.h \
@@ -768,6 +771,7 @@ build/moc/moc_createcharacterdialog.cpp: src/create_character/createcharacterdia
 		3rdparty/lua/luaconf.h \
 		3rdparty/lua/lualib.h \
 		3rdparty/lua/lauxlib.h \
+		src/core/game_resources.h \
 		dataRegistry.h \
 		audioManager.h \
 		fontManager.h \
@@ -788,6 +792,7 @@ build/moc/moc_CharacterDialog.cpp: src/character_dialog/CharacterDialog.h \
 		3rdparty/lua/lualib.h \
 		3rdparty/lua/lauxlib.h \
 		src/core/GameConstants.h \
+		src/core/game_resources.h \
 		dataRegistry.h \
 		audioManager.h \
 		fontManager.h \
@@ -813,6 +818,7 @@ build/moc/moc_library_dialog.cpp: src/library_dialog/library_dialog.h \
 		3rdparty/lua/luaconf.h \
 		3rdparty/lua/lualib.h \
 		3rdparty/lua/lauxlib.h \
+		src/core/game_resources.h \
 		dataRegistry.h \
 		audioManager.h \
 		fontManager.h \
@@ -828,6 +834,7 @@ build/moc/moc_automap_dialog.cpp: src/automap/automap_dialog.h \
 		3rdparty/lua/lualib.h \
 		3rdparty/lua/lauxlib.h \
 		src/core/GameConstants.h \
+		src/core/game_resources.h \
 		dataRegistry.h \
 		audioManager.h \
 		fontManager.h \
@@ -843,6 +850,7 @@ build/moc/moc_game_controller.cpp: src/game_controller/game_controller.h \
 		3rdparty/lua/lualib.h \
 		3rdparty/lua/lauxlib.h \
 		src/core/GameConstants.h \
+		src/core/game_resources.h \
 		dataRegistry.h \
 		audioManager.h \
 		fontManager.h \
@@ -858,6 +866,7 @@ build/moc/moc_characterlistdialog.cpp: src/characterlist_dialog/characterlistdia
 		3rdparty/lua/lualib.h \
 		3rdparty/lua/lauxlib.h \
 		src/core/GameConstants.h \
+		src/core/game_resources.h \
 		dataRegistry.h \
 		audioManager.h \
 		fontManager.h \
@@ -873,6 +882,7 @@ build/moc/moc_helplesson.cpp: src/helplesson/helplesson.h \
 		3rdparty/lua/lualib.h \
 		3rdparty/lua/lauxlib.h \
 		src/core/GameConstants.h \
+		src/core/game_resources.h \
 		dataRegistry.h \
 		audioManager.h \
 		fontManager.h \
@@ -898,6 +908,7 @@ build/moc/moc_GuildsDialog.cpp: src/guilds_dialog/GuildsDialog.h \
 		3rdparty/lua/lualib.h \
 		3rdparty/lua/lauxlib.h \
 		src/core/GameConstants.h \
+		src/core/game_resources.h \
 		dataRegistry.h \
 		audioManager.h \
 		fontManager.h \
@@ -913,6 +924,7 @@ build/moc/moc_GeneralStore.cpp: src/general_store/GeneralStore.h \
 		3rdparty/lua/lualib.h \
 		3rdparty/lua/lauxlib.h \
 		src/core/GameConstants.h \
+		src/core/game_resources.h \
 		dataRegistry.h \
 		audioManager.h \
 		fontManager.h \
@@ -933,6 +945,7 @@ build/moc/moc_SeerDialog.cpp: src/seer_dialog/SeerDialog.h \
 		3rdparty/lua/lualib.h \
 		3rdparty/lua/lauxlib.h \
 		src/core/GameConstants.h \
+		src/core/game_resources.h \
 		dataRegistry.h \
 		audioManager.h \
 		fontManager.h \
@@ -948,6 +961,7 @@ build/moc/moc_ConfinementDialog.cpp: src/confinement_dialog/ConfinementDialog.h 
 		3rdparty/lua/lualib.h \
 		3rdparty/lua/lauxlib.h \
 		src/core/GameConstants.h \
+		src/core/game_resources.h \
 		dataRegistry.h \
 		audioManager.h \
 		fontManager.h \
@@ -963,6 +977,7 @@ build/moc/moc_BankDialog.cpp: src/bank_dialog/BankDialog.h \
 		3rdparty/lua/lualib.h \
 		3rdparty/lua/lauxlib.h \
 		src/core/GameConstants.h \
+		src/core/game_resources.h \
 		dataRegistry.h \
 		audioManager.h \
 		fontManager.h \
@@ -978,6 +993,7 @@ build/moc/moc_inventorydialog.cpp: src/inventory_dialog/inventorydialog.h \
 		3rdparty/lua/lualib.h \
 		3rdparty/lua/lauxlib.h \
 		src/core/GameConstants.h \
+		src/core/game_resources.h \
 		dataRegistry.h \
 		audioManager.h \
 		fontManager.h \
@@ -993,6 +1009,7 @@ build/moc/moc_optionsdialog.cpp: src/options_dialog/optionsdialog.h \
 		3rdparty/lua/lualib.h \
 		3rdparty/lua/lauxlib.h \
 		src/core/GameConstants.h \
+		src/core/game_resources.h \
 		dataRegistry.h \
 		audioManager.h \
 		fontManager.h \
@@ -1009,6 +1026,7 @@ build/moc/moc_DungeonDialog.cpp: src/dungeon_dialog/DungeonDialog.h \
 		3rdparty/lua/lualib.h \
 		3rdparty/lua/lauxlib.h \
 		src/core/GameConstants.h \
+		src/core/game_resources.h \
 		dataRegistry.h \
 		audioManager.h \
 		fontManager.h \
@@ -1037,6 +1055,7 @@ build/moc/moc_TradeDialog.cpp: src/bank_dialog/TradeDialog.h \
 		3rdparty/lua/lualib.h \
 		3rdparty/lua/lauxlib.h \
 		src/core/GameConstants.h \
+		src/core/game_resources.h \
 		dataRegistry.h \
 		audioManager.h \
 		fontManager.h \
@@ -1052,6 +1071,7 @@ build/moc/moc_EventManager.cpp: src/event/EventManager.h \
 		3rdparty/lua/lualib.h \
 		3rdparty/lua/lauxlib.h \
 		src/core/GameConstants.h \
+		src/core/game_resources.h \
 		dataRegistry.h \
 		audioManager.h \
 		fontManager.h \
@@ -1107,6 +1127,7 @@ build/obj/release/gameStateManager.o: gameStateManager.cpp gameStateManager.h \
 		3rdparty/lua/lualib.h \
 		3rdparty/lua/lauxlib.h \
 		src/core/GameConstants.h \
+		src/core/game_resources.h \
 		dataRegistry.h \
 		audioManager.h \
 		fontManager.h \
@@ -1132,6 +1153,7 @@ build/obj/release/blacklands.o: blacklands.cpp blacklands.h \
 		3rdparty/lua/lualib.h \
 		3rdparty/lua/lauxlib.h \
 		src/core/GameConstants.h \
+		src/core/game_resources.h \
 		dataRegistry.h \
 		audioManager.h \
 		fontManager.h \
@@ -1158,11 +1180,11 @@ build/obj/release/theCity.o: theCity.cpp theCity.h \
 		3rdparty/lua/lualib.h \
 		3rdparty/lua/lauxlib.h \
 		src/core/GameConstants.h \
+		src/core/game_resources.h \
 		dataRegistry.h \
 		audioManager.h \
 		fontManager.h \
 		character.h \
-		src/core/game_resources.h \
 		src/network_manager/NetworkManager.h \
 		src/partyinfo_dialog/partyinfodialog.h \
 		src/general_store/GeneralStore.h \
@@ -1186,6 +1208,7 @@ build/obj/release/hallofrecordsdialog.o: src/hall_of_records/hallofrecordsdialog
 		3rdparty/lua/lualib.h \
 		3rdparty/lua/lauxlib.h \
 		src/core/GameConstants.h \
+		src/core/game_resources.h \
 		dataRegistry.h \
 		audioManager.h \
 		fontManager.h \
@@ -1200,6 +1223,7 @@ build/obj/release/createcharacterdialog.o: src/create_character/createcharacterd
 		3rdparty/lua/luaconf.h \
 		3rdparty/lua/lualib.h \
 		3rdparty/lua/lauxlib.h \
+		src/core/game_resources.h \
 		dataRegistry.h \
 		audioManager.h \
 		fontManager.h \
@@ -1213,6 +1237,7 @@ build/obj/release/AboutDialog.o: src/about_dialog/AboutDialog.cpp src/about_dial
 		3rdparty/lua/lualib.h \
 		3rdparty/lua/lauxlib.h \
 		src/core/GameConstants.h \
+		src/core/game_resources.h \
 		dataRegistry.h \
 		audioManager.h \
 		fontManager.h \
@@ -1227,6 +1252,7 @@ build/obj/release/CharacterDialog.o: src/character_dialog/CharacterDialog.cpp sr
 		3rdparty/lua/lualib.h \
 		3rdparty/lua/lauxlib.h \
 		src/core/GameConstants.h \
+		src/core/game_resources.h \
 		dataRegistry.h \
 		audioManager.h \
 		fontManager.h \
@@ -1246,6 +1272,7 @@ build/obj/release/library_dialog.o: src/library_dialog/library_dialog.cpp src/li
 		3rdparty/lua/luaconf.h \
 		3rdparty/lua/lualib.h \
 		3rdparty/lua/lauxlib.h \
+		src/core/game_resources.h \
 		dataRegistry.h \
 		audioManager.h \
 		fontManager.h \
@@ -1259,6 +1286,7 @@ build/obj/release/automap_dialog.o: src/automap/automap_dialog.cpp src/automap/a
 		3rdparty/lua/lualib.h \
 		3rdparty/lua/lauxlib.h \
 		src/core/GameConstants.h \
+		src/core/game_resources.h \
 		dataRegistry.h \
 		audioManager.h \
 		fontManager.h \
@@ -1272,6 +1300,7 @@ build/obj/release/game_controller.o: src/game_controller/game_controller.cpp src
 		3rdparty/lua/lualib.h \
 		3rdparty/lua/lauxlib.h \
 		src/core/GameConstants.h \
+		src/core/game_resources.h \
 		dataRegistry.h \
 		audioManager.h \
 		fontManager.h \
@@ -1285,6 +1314,7 @@ build/obj/release/characterlistdialog.o: src/characterlist_dialog/characterlistd
 		3rdparty/lua/lualib.h \
 		3rdparty/lua/lauxlib.h \
 		src/core/GameConstants.h \
+		src/core/game_resources.h \
 		dataRegistry.h \
 		audioManager.h \
 		fontManager.h \
@@ -1298,6 +1328,7 @@ build/obj/release/helplesson.o: src/helplesson/helplesson.cpp src/helplesson/hel
 		3rdparty/lua/lualib.h \
 		3rdparty/lua/lauxlib.h \
 		src/core/GameConstants.h \
+		src/core/game_resources.h \
 		dataRegistry.h \
 		audioManager.h \
 		fontManager.h \
@@ -1328,6 +1359,7 @@ build/obj/release/GuildsDialog.o: src/guilds_dialog/GuildsDialog.cpp src/guilds_
 		3rdparty/lua/lualib.h \
 		3rdparty/lua/lauxlib.h \
 		src/core/GameConstants.h \
+		src/core/game_resources.h \
 		dataRegistry.h \
 		audioManager.h \
 		fontManager.h \
@@ -1342,6 +1374,7 @@ build/obj/release/GeneralStore.o: src/general_store/GeneralStore.cpp src/general
 		3rdparty/lua/lualib.h \
 		3rdparty/lua/lauxlib.h \
 		src/core/GameConstants.h \
+		src/core/game_resources.h \
 		dataRegistry.h \
 		audioManager.h \
 		fontManager.h \
@@ -1355,6 +1388,7 @@ build/obj/release/MorgueDialog.o: src/morgue_dialog/MorgueDialog.cpp src/morgue_
 		3rdparty/lua/lualib.h \
 		3rdparty/lua/lauxlib.h \
 		src/core/GameConstants.h \
+		src/core/game_resources.h \
 		dataRegistry.h \
 		audioManager.h \
 		fontManager.h \
@@ -1368,6 +1402,7 @@ build/obj/release/SeerDialog.o: src/seer_dialog/SeerDialog.cpp src/seer_dialog/S
 		3rdparty/lua/lualib.h \
 		3rdparty/lua/lauxlib.h \
 		src/core/GameConstants.h \
+		src/core/game_resources.h \
 		dataRegistry.h \
 		audioManager.h \
 		fontManager.h \
@@ -1381,6 +1416,7 @@ build/obj/release/ConfinementDialog.o: src/confinement_dialog/ConfinementDialog.
 		3rdparty/lua/lualib.h \
 		3rdparty/lua/lauxlib.h \
 		src/core/GameConstants.h \
+		src/core/game_resources.h \
 		dataRegistry.h \
 		audioManager.h \
 		fontManager.h \
@@ -1394,6 +1430,7 @@ build/obj/release/BankDialog.o: src/bank_dialog/BankDialog.cpp src/bank_dialog/B
 		3rdparty/lua/lualib.h \
 		3rdparty/lua/lauxlib.h \
 		src/core/GameConstants.h \
+		src/core/game_resources.h \
 		dataRegistry.h \
 		audioManager.h \
 		fontManager.h \
@@ -1412,6 +1449,7 @@ build/obj/release/inventorydialog.o: src/inventory_dialog/inventorydialog.cpp sr
 		3rdparty/lua/lualib.h \
 		3rdparty/lua/lauxlib.h \
 		src/core/GameConstants.h \
+		src/core/game_resources.h \
 		dataRegistry.h \
 		audioManager.h \
 		fontManager.h \
@@ -1425,6 +1463,7 @@ build/obj/release/optionsdialog.o: src/options_dialog/optionsdialog.cpp src/opti
 		3rdparty/lua/lualib.h \
 		3rdparty/lua/lauxlib.h \
 		src/core/GameConstants.h \
+		src/core/game_resources.h \
 		dataRegistry.h \
 		audioManager.h \
 		fontManager.h \
@@ -1438,6 +1477,7 @@ build/obj/release/DungeonDialog.o: src/dungeon_dialog/DungeonDialog.cpp src/char
 		3rdparty/lua/lualib.h \
 		3rdparty/lua/lauxlib.h \
 		src/core/GameConstants.h \
+		src/core/game_resources.h \
 		dataRegistry.h \
 		audioManager.h \
 		fontManager.h \
@@ -1458,6 +1498,7 @@ build/obj/release/partyinfodialog.o: src/partyinfo_dialog/partyinfodialog.cpp sr
 		3rdparty/lua/lualib.h \
 		3rdparty/lua/lauxlib.h \
 		src/core/GameConstants.h \
+		src/core/game_resources.h \
 		dataRegistry.h \
 		audioManager.h \
 		fontManager.h \
@@ -1474,6 +1515,7 @@ build/obj/release/TradeDialog.o: src/bank_dialog/TradeDialog.cpp src/bank_dialog
 		3rdparty/lua/lualib.h \
 		3rdparty/lua/lauxlib.h \
 		src/core/GameConstants.h \
+		src/core/game_resources.h \
 		dataRegistry.h \
 		audioManager.h \
 		fontManager.h \
@@ -1491,6 +1533,7 @@ build/obj/release/DungeonMinimap.o: src/dungeon_dialog/DungeonMinimap.cpp src/du
 		3rdparty/lua/lualib.h \
 		3rdparty/lua/lauxlib.h \
 		src/core/GameConstants.h \
+		src/core/game_resources.h \
 		dataRegistry.h \
 		audioManager.h \
 		fontManager.h \
@@ -1509,6 +1552,7 @@ build/obj/release/DungeonHandlers.o: src/dungeon_dialog/DungeonHandlers.cpp src/
 		3rdparty/lua/lualib.h \
 		3rdparty/lua/lauxlib.h \
 		src/core/GameConstants.h \
+		src/core/game_resources.h \
 		dataRegistry.h \
 		audioManager.h \
 		fontManager.h \
@@ -1525,6 +1569,7 @@ build/obj/release/EventManager.o: src/event/EventManager.cpp src/event/EventMana
 		3rdparty/lua/lualib.h \
 		3rdparty/lua/lauxlib.h \
 		src/core/GameConstants.h \
+		src/core/game_resources.h \
 		dataRegistry.h \
 		audioManager.h \
 		fontManager.h \
@@ -1549,6 +1594,7 @@ build/obj/release/SpellCastingDialog.o: src/spell_casting/SpellCastingDialog.cpp
 		3rdparty/lua/lualib.h \
 		3rdparty/lua/lauxlib.h \
 		src/core/GameConstants.h \
+		src/core/game_resources.h \
 		dataRegistry.h \
 		audioManager.h \
 		fontManager.h \

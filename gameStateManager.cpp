@@ -1,4 +1,3 @@
-
 #include "gameStateManager.h"
 #include "src/partymanager/PartyManager.h"
 
@@ -24,6 +23,21 @@
 #include <QDir>
 #include <QMetaType>
 #include <QPainter>
+
+void gameStateManager::initializeResources() {
+    checkSettingsFile();
+
+    // 1. Call the existing static resource loader
+    GameResources::loadAllResources();
+    
+    // 2. Load the shared font sprite sheet (the "small thing" from the previous step)
+    m_fontSpriteSheet.load("resources/images/font_spritesheet_transparent.png");
+
+    // 3. Mark resources as loaded in the state map
+    setGameValue("ResourcesLoaded", true);
+    
+    qDebug() << "Game resources and Font SpriteSheet initialized by gameStateManager.";
+}
 
 gameStateManager* gameStateManager::instance()
 {
@@ -157,6 +171,7 @@ QMap<QString, int> gameStateManager::getConfinementStock() const
 gameStateManager::gameStateManager(QObject *parent)
     : QObject(parent)
 {
+    initializeResources();
     m_fontSpriteSheet.load("resources/images/font_spritesheet_transparent.png");
 
     //loadAllGameResources();
@@ -260,7 +275,6 @@ gameStateManager::gameStateManager(QObject *parent)
     qDebug() << "Loaded" << m_raceDefinitions.size() << "race definitions.";
     qDebug() << "gameStateManager initialized.";
     listGameData();
-    
 }
 
 void gameStateManager::loadGameData(const QString& filePath) {
@@ -1936,6 +1950,13 @@ void gameStateManager::addItemToInventory(const QString& itemName) {
     
     qDebug() << "Added" << itemName << "to inventory. New count:" 
              << m_currentParty.members[m_currentCharacterIndex].inventory.size();
+}
+
+// Move from LoadingScreen to gameStateManager
+void gameStateManager::checkSettingsFile() {
+    QSettings settings("game_settings.ini", QSettings::IniFormat);
+    bool configOK = settings.contains("Graphics/ResolutionWidth");
+    setGameValue("ConfigIntegrityOK", configOK);
 }
 
 gameStateManager::~gameStateManager() {
