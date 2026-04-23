@@ -67,7 +67,9 @@ bool gameStateManager::loadGameConfig(const QString& filePath) {
             m_registry.registerData(it.key(), QVariantList() << val);
         }
     }
-    return true;
+
+    return loadFullGameState("autosave");
+    //return true;
 }
 
 void gameStateManager::refreshUI() {
@@ -275,6 +277,7 @@ gameStateManager::gameStateManager(QObject *parent)
     qDebug() << "Loaded" << m_raceDefinitions.size() << "race definitions.";
     qDebug() << "gameStateManager initialized.";
     listGameData();
+    m_autosaveTimer->start(30000);
 }
 
 void gameStateManager::loadGameData(const QString& filePath) {
@@ -872,7 +875,7 @@ bool gameStateManager::verifySaveGame(const QString& characterName) {
         if (line.startsWith("Name: ")) {
             if (line.mid(6) == cleanName) hasName = true;
         }
-
+    
         // Verify that location data exists (required for the city check)
         if (line.startsWith("DungeonX:") || 
             line.startsWith("DungeonY:") || 
@@ -973,6 +976,9 @@ void gameStateManager::stopAutosave() {
 }
 
 void gameStateManager::handleAutosave() {
+    qDebug() << "Triggering periodic autosave...";
+    saveFullGameState("autosave");
+
     // Check if a character is actually loaded before saving
     QString currentHero = getGameValue("CurrentCharacterName").toString();
     if (currentHero.isEmpty() || currentHero == "Empty Slot") {
@@ -1957,6 +1963,80 @@ void gameStateManager::checkSettingsFile() {
     QSettings settings("game_settings.ini", QSettings::IniFormat);
     bool configOK = settings.contains("Graphics/ResolutionWidth");
     setGameValue("ConfigIntegrityOK", configOK);
+}
+
+bool gameStateManager::saveFullGameState(const QString& saveName) {
+    // 1. Ensure the directory exists
+    QDir dir;
+    if (!dir.exists("data/saves/")) {
+        dir.mkpath("data/saves/");
+    }
+
+    // 2. Prepare the data (Sync live objects to the map)
+    packStateForSaving();
+
+    // 3. Create the file
+    QString filePath = QString("data/saves/%1.json").arg(saveName);
+    QFile file(filePath);
+    
+    if (!file.open(QIODevice::WriteOnly)) {
+        qWarning() << "Failed to create save file:" << filePath;
+        return false;
+    }
+
+    // 4. Convert the QVariantMap to JSON and write
+    QJsonDocument doc = QJsonDocument::fromVariant(m_gameStateData);
+    file.write(doc.toJson());
+    file.close();
+
+    qDebug() << "Full game state saved to:" << filePath;
+    return true;
+}
+
+bool gameStateManager::loadFullGameState(const QString& saveName) {
+    QFile file("data/saves/" + saveName + ".json");
+    if (!file.open(QIODevice::ReadOnly)) return false;
+
+    QJsonDocument doc = QJsonDocument::fromJson(file.readAll());
+    m_gameStateData = doc.toVariant().toMap();
+
+    // Reconstruct the C++ Party object from the saved map
+    if (m_gameStateData.contains("Party")) {
+        m_partyManager->loadPartyFromMap(m_gameStateData["Party"].toMap());
+    }
+
+    unpackStateAfterLoading();
+    refreshUI();
+    return true;
+}
+
+// Merges all live objects (Party, current location, etc.) into the master map
+void gameStateManager::packStateForSaving() {
+    // 1. Convert the live Party object into a QVariantMap
+    // This uses your existing Party::toMap() from character.cpp
+    m_gameStateData["Party"] = m_currentParty.toMap();
+
+    // 2. Sync other live variables that might have changed
+    m_gameStateData["currentMode"] = static_cast<int>(m_currentMode);
+    m_gameStateData["currentLocation"] = static_cast<int>(m_currentCityLocation);
+    m_gameStateData["confinementStock"] = QVariant::fromValue(m_confinementStock);
+    m_gameStateData["bank"] = getBankInventory();
+    m_gameStateData["lastSaved"] = QDateTime::currentDateTime().toString();
+}
+
+// Distributes data from the master map back into live objects after a load
+void gameStateManager::unpackStateAfterLoading() {
+    // 1. Restore the Party
+    if (m_gameStateData.contains("Party")) {
+        m_currentParty.loadFromMap(m_gameStateData["Party"].toMap());
+    }
+
+    // 2. Restore Global States
+    m_currentMode = static_cast<GameConstants::GameMode>(m_gameStateData.value("currentMode", 0).toInt());
+    m_currentCityLocation = static_cast<GameConstants::CityLocation>(m_gameStateData.value("currentLocation", 0).toInt());
+
+    // 3. Trigger UI updates so the game reflects the new state
+    refreshUI();
 }
 
 gameStateManager::~gameStateManager() {

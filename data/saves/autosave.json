@@ -1,0 +1,152 @@
+{
+    "ActiveCharacterIndex": 0,
+    "BankInventory": [
+    ],
+    "BankedGold": 0,
+    "CharacterBlinded": false,
+    "CharacterDiseased": false,
+    "CharacterPoisoned": false,
+    "ConfigIntegrityOK": true,
+    "CurrentCharacterAge": 16,
+    "CurrentCharacterAlignment": "Neutral",
+    "CurrentCharacterCharisma": 0,
+    "CurrentCharacterConstitution": 0,
+    "CurrentCharacterDexterity": 0,
+    "CurrentCharacterExperience": 0,
+    "CurrentCharacterGold": 1500,
+    "CurrentCharacterGuild": "",
+    "CurrentCharacterHP": 50,
+    "CurrentCharacterIntelligence": 0,
+    "CurrentCharacterLevel": 1,
+    "CurrentCharacterName": "",
+    "CurrentCharacterRace": "",
+    "CurrentCharacterSex": "Male",
+    "CurrentCharacterStatPointsLeft": 5,
+    "CurrentCharacterStrength": 0,
+    "CurrentCharacterWisdom": 0,
+    "CurrentMana": 50,
+    "DungeonLevel": 1,
+    "DungeonX": 17,
+    "DungeonY": 12,
+    "GameVersion": "Version 0.0",
+    "GhostHoundPending": false,
+    "GuildActionLog": [
+    ],
+    "GuildLeaders": [
+        {
+            "Achievement": "Strongest",
+            "Date": "4/15/2001",
+            "Name": "Goch",
+            "RecordUnit": "Strength",
+            "RecordValue": 25
+        },
+        {
+            "Achievement": "Smartest",
+            "Date": "5/9/2001",
+            "Name": "Tuadar",
+            "RecordUnit": "Intelligence",
+            "RecordValue": 25
+        },
+        {
+            "Achievement": "Wisest",
+            "Date": "11/24/2000",
+            "Name": "Tuadar",
+            "RecordUnit": "Wisdom",
+            "RecordValue": 25
+        },
+        {
+            "Achievement": "Healthiest",
+            "Date": "5/17/2002",
+            "Name": "Spore",
+            "RecordUnit": "Constitution",
+            "RecordValue": 22
+        },
+        {
+            "Achievement": "Most Attractive",
+            "Date": "4/17/2001",
+            "Name": "Tuadar",
+            "RecordUnit": "Charisma",
+            "RecordValue": 23
+        },
+        {
+            "Achievement": "Quickest",
+            "Date": "5/17/2002",
+            "Name": "Healer",
+            "RecordUnit": "Dexterity",
+            "RecordValue": 27
+        },
+        {
+            "Achievement": "Deadliest Creature Defeated",
+            "Date": "5/17/2002",
+            "Name": "Healer",
+            "RecordUnit": "Creature",
+            "RecordValue": "Giant Leech"
+        },
+        {
+            "Achievement": "Most Experienced Explorer",
+            "Date": "5/17/2002",
+            "Name": "Crashland",
+            "RecordUnit": "Total Experience",
+            "RecordValue": 1322451
+        },
+        {
+            "Achievement": "Wealthiest Explorer",
+            "Date": "5/14/2001",
+            "Name": "Tuadar",
+            "RecordUnit": "Gold in the Bank",
+            "RecordValue": 1022531528
+        },
+        {
+            "Achievement": "Master of Fighting",
+            "Date": "Original RecordHolder",
+            "Name": "Morgul",
+            "RecordUnit": "Fighting Skill",
+            "RecordValue": 17
+        },
+        {
+            "Achievement": "Master of Magic",
+            "Date": "5/16/2002",
+            "Name": "Spore",
+            "RecordUnit": "Spell Knowledge & Power",
+            "RecordValue": 17
+        },
+        {
+            "Achievement": "Master of Thieving",
+            "Date": "5/17/2002",
+            "Name": "Healer",
+            "RecordUnit": "Thieving Skill",
+            "RecordValue": 22
+        }
+    ],
+    "MaxCharacterHP": 50,
+    "MaxDwarfAge": 275,
+    "MaxElfAge": 400,
+    "MaxGiantAge": 225,
+    "MaxGnomeAge": 300,
+    "MaxHumanAge": 100,
+    "MaxMana": 50,
+    "MaxMorlochAge": 175,
+    "MaxOgreAge": 265,
+    "MaxOsiriAge": 325,
+    "MaxTrollAge": 285,
+    "Party": {
+        "Members": [
+        ],
+        "SharedGold": 0
+    },
+    "PartyHP": [
+        50,
+        40,
+        30
+    ],
+    "PlayerScore": 0,
+    "ResourcesLoaded": true,
+    "bank": [
+    ],
+    "confinementStock": null,
+    "currentLocation": 0,
+    "currentMode": 0,
+    "inCity": false,
+    "isAlive": 1,
+    "lastSaved": "Thu Apr 23 06:40:41 2026"
+}

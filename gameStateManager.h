@@ -52,6 +52,8 @@ class gameStateManager : public QObject
     Q_OBJECT
 
 private:
+    void packStateForSaving();   // Pulls live data (Party, Location) into m_gameStateData
+    void unpackStateAfterLoading(); // Pushes m_gameStateData values back into live objects
     QPixmap m_fontSpriteSheet;
 
     GameConstants::GameMode m_currentMode = GameConstants::GameMode::InCity;
@@ -97,6 +99,8 @@ private:
     QString statusKey(GameConstants::EntityStatus effect) const;
 
 public:
+    bool saveFullGameState(const QString& saveName);
+    bool loadFullGameState(const QString& saveName);
     void checkSettingsFile();
     void initializeResources();
     QPixmap getFontSpriteSheet() const { return m_fontSpriteSheet; }
