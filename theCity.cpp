@@ -10,6 +10,7 @@
 #include "src/confinement_dialog/ConfinementDialog.h"
 #include "src/bank_dialog/BankDialog.h"
 #include "src/dungeon_dialog/DungeonDialog.h"
+#include "src/core/savegameUtils.h"
 #include <QDebug>
 #include <QDateTime>
 #include <QScrollBar>
@@ -381,9 +382,9 @@ void theCity::startOfflineMode() {
             if (charName == currentHero) continue;
             
         // If verification fails, try to repair it
-            if (!gameStateManager::instance()->verifySaveGame(charName)) {
+            if (!SavegameUtils::verifySaveGame(charName)) {
                 qDebug() << "Attempting to repair broken savegame:" << charName;
-                if (!gameStateManager::instance()->repairSaveGame(charName)) {
+                if (!SavegameUtils::repairSaveGame(charName)) {
                     continue; // Skip if repair also fails
                 }
             }

@@ -238,8 +238,8 @@ public:
     // --- Persistence ---
     bool loadCharacterFromFile(const QString& characterName);
     bool saveCharacterToFile(int partyIndex);
-    bool verifySaveGame(const QString& characterName);
-    bool repairSaveGame(const QString& characterName);
+    //bool verifySaveGame(const QString& characterName);
+    //bool repairSaveGame(const QString& characterName);
     void startAutosave(int intervalms = 10000);
     void stopAutosave();
     // --- Global Values System ---

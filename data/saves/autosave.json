@@ -2,6 +2,7 @@
     "ActiveCharacterIndex": 0,
     "BankInventory": [
     ],
+    "BankSlotsFree": 24,
     "BankedGold": 0,
     "CharacterBlinded": false,
     "CharacterDiseased": false,
@@ -26,7 +27,7 @@
     "CurrentCharacterWisdom": 0,
     "CurrentMana": 50,
     "DungeonLevel": 1,
-    "DungeonX": 19,
+    "DungeonX": 24,
     "DungeonY": 9,
     "GameVersion": "Version 0.0",
     "GhostHoundPending": false,
@@ -149,5 +150,5 @@
     "currentMode": 0,
     "inCity": false,
     "isAlive": 1,
-    "lastSaved": "Sat May 16 22:15:11 2026"
+    "lastSaved": "Sat May 16 23:31:11 2026"
 }

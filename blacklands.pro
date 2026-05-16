@@ -32,6 +32,7 @@ INCLUDEPATH += _PRO_FILE_PWD_/include
 # Source Files
 #--------------------------------------------------
 SOURCES += \
+    src/core/savegameUtils.cpp \
     gameStateManager.cpp \
     src/partymanager/PartyManager.cpp \
     audioManager.cpp \
@@ -76,6 +77,7 @@ SOURCES += \
 # Header Files
 #--------------------------------------------------
 HEADERS += \
+    src/core/savegameUtils.h \
     gameStateManager.h \
     src/partymanager/PartyManager.h \
     src/core/GameConstants.h \
