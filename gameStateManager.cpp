@@ -896,6 +896,120 @@ bool gameStateManager::verifySaveGame(const QString& characterName) {
 
 bool gameStateManager::repairSaveGame(const QString& characterName) {
     QString cleanName = characterName;
+    if (cleanName.endsWith(".txt")) {
+        cleanName.chop(4);
+    }
+    
+    QString path = QString("data/characters/%1.txt").arg(cleanName);
+    QFile file(path);
+    if (!file.exists()) {
+        return false;
+    }
+
+    // 1. Read existing data using safe extraction (keeping structural line order)
+    QList<QPair<QString, QString>> dataList;
+    QSet<QString> uniqueKeys;
+
+    if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        QTextStream in(&file);
+        while (!in.atEnd()) {
+            QString line = in.readLine().trimmed();
+            if (line.isEmpty()) continue;
+
+            int colonIndex = line.indexOf(':');
+            if (colonIndex != -1) {
+                QString key = line.left(colonIndex).trimmed();
+                QString value = line.mid(colonIndex + 1).trimmed();
+                
+                if (!uniqueKeys.contains(key)) {
+                    dataList.append(qMakePair(key, value));
+                    uniqueKeys.insert(key);
+                }
+            }
+        }
+        file.close();
+    }
+
+    // Convert to a temporary map for quick inspection and updates
+    QMap<QString, QString> dataMap;
+    for (const auto& pair : dataList) {
+        dataMap[pair.first] = pair.second;
+    }
+
+    bool modified = false;
+
+    // 2. Identify, fix, or inject missing critical records safely
+    if (!dataMap.contains("CHARACTER_FILE_VERSION")) {
+        dataList.prepend(qMakePair(QString("CHARACTER_FILE_VERSION"), QString("1.0")));
+        dataMap["CHARACTER_FILE_VERSION"] = "1.0";
+        modified = true;
+    }
+    if (!dataMap.contains("Race")) {
+        dataList.append(qMakePair(QString("Race"), QString("Human")));
+        dataMap["Race"] = "Human";
+        modified = true;
+    }
+    if (!dataMap.contains("Age")) {
+        dataList.append(qMakePair(QString("Age"), QString("16")));
+        dataMap["Age"] = "16";
+        modified = true;
+    }
+    if (!dataMap.contains("DungeonX")) {
+        dataList.append(qMakePair(QString("DungeonX"), QString("17")));
+        dataMap["DungeonX"] = "17";
+        modified = true;
+    }
+    if (!dataMap.contains("DungeonY")) {
+        dataList.append(qMakePair(QString("DungeonY"), QString("12")));
+        dataMap["DungeonY"] = "12";
+        modified = true;
+    }
+    if (!dataMap.contains("DungeonLevel")) {
+        dataList.append(qMakePair(QString("DungeonLevel"), QString("1")));
+        dataMap["DungeonLevel"] = "1";
+        modified = true;
+    }
+    if (dataMap.value("Name") != cleanName) {
+        // If Name exists but is wrong, update it in place inside the list
+        bool nameUpdated = false;
+        for (auto& pair : dataList) {
+            if (pair.first == "Name") {
+                pair.second = cleanName;
+                nameUpdated = true;
+                break;
+            }
+        }
+        if (!nameUpdated) {
+            dataList.append(qMakePair(QString("Name"), cleanName));
+        }
+        dataMap["Name"] = cleanName;
+        modified = true;
+    }
+
+    // 3. Rewrite the file while fully preserving the structured order
+    if (modified) {
+        if (file.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Truncate)) {
+            QTextStream out(&file);
+            
+            // First ensure the file version header always remains right at the top
+            out << "CHARACTER_FILE_VERSION: " << dataMap["CHARACTER_FILE_VERSION"] << "\n";
+            
+            // Write out the rest of the lines sequentially
+            for (const auto& pair : dataList) {
+                if (pair.first == "CHARACTER_FILE_VERSION") continue; // Already written
+                out << pair.first << ": " << pair.second << "\n";
+            }
+            file.close();
+            qDebug() << "Successfully repaired savegame for:" << cleanName;
+            return true;
+        }
+    }
+
+    return false;
+}
+/*
+bool gameStateManager::repairSaveGame(const QString& characterName) {
+    QString cleanName = characterName;
     if (cleanName.endsWith(".txt")) cleanName.chop(4);
     
     QString path = QString("data/characters/%1.txt").arg(cleanName);
@@ -964,6 +1078,7 @@ bool gameStateManager::repairSaveGame(const QString& characterName) {
 
     return false;
 }
+*/
 void gameStateManager::startAutosave(int intervalms) {
     if (m_autosaveTimer) {
         m_autosaveTimer->start(intervalms);
