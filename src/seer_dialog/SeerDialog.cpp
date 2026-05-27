@@ -18,6 +18,28 @@ void loadStyleSheet(QWidget* widget, const QString& sheetName)
     }
 }
 
+// In SeerDialog.cpp, update the implementation:
+bool SeerDialog::checkAndDeductSeerCost(const QString& serviceName)
+{
+    static constexpr qulonglong SEER_COST = 50; // Cost for Seer services
+
+    // Get the current character's gold using the method you specified
+    gameStateManager* gsm = gameStateManager::instance();
+    qulonglong currentGold = gsm->getGameValue("CurrentCharacterGold").value<qulonglong>();
+
+    if (currentGold >= SEER_COST) {
+        // Deduct the cost by setting the new gold value
+        gsm->setGameValue("CurrentCharacterGold", currentGold - SEER_COST);
+        return true;
+    } else {
+        QMessageBox::warning(this, "Seer",
+            QString("You don't have enough gold to ask about %1! You need %2 gold.")
+                .arg(serviceName)
+                .arg(SEER_COST));
+        return false;
+    }
+}
+
 SeerDialog::SeerDialog(QWidget *parent)
     : QDialog(parent)
 {
@@ -73,6 +95,9 @@ SeerDialog::SeerDialog(QWidget *parent)
 
 void SeerDialog::on_characterButton_clicked()
 {
+    if (!checkAndDeductSeerCost("monsters")) {
+        return;
+    }
     // 1. Access the character save directory
     QDir charDir("data/characters/");
     QStringList files = charDir.entryList(QStringList() << "*.txt", QDir::Files);
@@ -133,6 +158,9 @@ void SeerDialog::on_characterButton_clicked()
 
 void SeerDialog::on_monsterButton_clicked()
 {
+    if (!checkAndDeductSeerCost("monsters")) {
+        return;
+    }
     // Implementation from the previous step (40% chance)
     int randomChance = QRandomGenerator::global()->bounded(100);
     int successThreshold = 40; // 40% chance of success
@@ -151,6 +179,10 @@ void SeerDialog::on_monsterButton_clicked()
 
 void SeerDialog::on_itemButton_clicked()
 {
+    if (!checkAndDeductSeerCost("items")) {
+        return;
+    }
+
     gameStateManager* gsm = gameStateManager::instance();
     QString searchTerm = searchLineEdit->text().trimmed();
     if (searchTerm.isEmpty()) {
@@ -213,7 +245,6 @@ void SeerDialog::on_itemButton_clicked()
 
 void SeerDialog::on_exitButton_clicked()
 {
-    QMessageBox::information(this, "Exit", "Exiting the Seer!");
     accept();
 }
 

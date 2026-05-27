@@ -30,6 +30,7 @@ private:
     QPushButton *exitButton;
     QVBoxLayout *mainLayout;
     QHBoxLayout *buttonLayout;
+    bool checkAndDeductSeerCost(const QString& serviceName);
 };
 
 #endif // SEERDIALOG_H
