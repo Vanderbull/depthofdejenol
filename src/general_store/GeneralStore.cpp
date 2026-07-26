@@ -5,7 +5,6 @@ GeneralStore::GeneralStore(QWidget *parent)
 {
     setWindowTitle("General Store");
     resize(850, 580);
-
     setupUi();
     setupStyling();
     loadItemsFromCsv("src/general_store/items.csv");
@@ -19,41 +18,41 @@ void GeneralStore::setupUi()
     QVBoxLayout *mainLayout = new QVBoxLayout(this);
     mainLayout->setSpacing(10);
     mainLayout->setContentsMargins(12, 12, 12, 12);
-
     // --- Top Bar: Character Status & Gold ---
     QHBoxLayout *topHeaderLayout = new QHBoxLayout();
     m_charInfoLabel = new QLabel("Character: -", this);
     m_charInfoLabel->setStyleSheet("font-weight: bold; font-size: 14px;");
 
     m_goldLabel = new QLabel("Gold: 0 GP", this);
-    m_goldLabel->setStyleSheet("font-weight: bold; font-size: 14px; color: #FFD700;");
+    m_goldLabel->setStyleSheet("font-weight: bold; font-size: 14px; color: #000000;");
 
     topHeaderLayout->addWidget(m_charInfoLabel);
     topHeaderLayout->addStretch();
     topHeaderLayout->addWidget(m_goldLabel);
     mainLayout->addLayout(topHeaderLayout);
-
     // --- Main Content Area: Shop (Left) vs Player Inventory (Right) ---
     QHBoxLayout *contentLayout = new QHBoxLayout();
-
     // Shop Section
     QVBoxLayout *shopLayout = new QVBoxLayout();
-    QLabel *shopTitle = new QLabel("<b>Store Wares</b>", this);
-    m_shopTable = new QTableWidget(0, 3, this);
-    m_shopTable->setHorizontalHeaderLabels({"Item", "Type", "Price"});
-    m_shopTable->horizontalHeader()->setSectionResizeMode(0, QHeaderView::Stretch);
+    QLabel *shopTitle = new QLabel("<b>Store Items</b>", this);
+    m_shopTable = new QTableWidget(0, 4, this);
+    m_shopTable->setHorizontalHeaderLabels({"Item", "Type", "Price", "Stats / Effect"});
+    m_shopTable->horizontalHeader()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
+    m_shopTable->horizontalHeader()->setSectionResizeMode(1, QHeaderView::ResizeToContents);
+    m_shopTable->horizontalHeader()->setSectionResizeMode(2, QHeaderView::ResizeToContents);
+    m_shopTable->horizontalHeader()->setSectionResizeMode(3, QHeaderView::Stretch);
+
     m_shopTable->setSelectionBehavior(QAbstractItemView::SelectRows);
     m_shopTable->setSelectionMode(QAbstractItemView::SingleSelection);
     m_shopTable->setEditTriggers(QAbstractItemView::NoEditTriggers);
 
     shopLayout->addWidget(shopTitle);
     shopLayout->addWidget(m_shopTable);
-
     // Player Inventory Section
     QVBoxLayout *inventoryLayout = new QVBoxLayout();
     QLabel *inventoryTitle = new QLabel("<b>Your Inventory</b>", this);
     m_playerInventoryList = new QListWidget(this);
-//    m_playerInventoryList->setSelectionMode(QAbstractItemView::SingleSelection);
+    //    m_playerInventoryList->setSelectionMode(QAbstractItemView::SingleSelection);
     m_playerInventoryList->setSelectionMode(QAbstractItemView::ExtendedSelection);
 
     inventoryLayout->addWidget(inventoryTitle);
@@ -62,14 +61,12 @@ void GeneralStore::setupUi()
     contentLayout->addLayout(shopLayout, 3);
     contentLayout->addLayout(inventoryLayout, 2);
     mainLayout->addLayout(contentLayout, 3);
-
     // --- Item Details / Inspection Box ---
     m_itemDetailsText = new QTextEdit(this);
     m_itemDetailsText->setReadOnly(true);
     m_itemDetailsText->setMaximumHeight(80);
     m_itemDetailsText->setPlaceholderText("Select an item from store or inventory to inspect its properties...");
     mainLayout->addWidget(m_itemDetailsText);
-
     // --- Action Button Row ---
     QHBoxLayout *buttonLayout = new QHBoxLayout();
 
@@ -122,7 +119,94 @@ void GeneralStore::updateCharacterHeader()
                                  .arg(current.level));
     m_goldLabel->setText(QString("Gold: %1 GP").arg(current.gold));
 }
+void GeneralStore::loadItemsFromCsv(const QString& filePath)
+{
+    m_availableShopItems.clear();
 
+    // 1. Try loading from global game state manager first
+    QList<QVariantMap> globalItems = gameStateManager::instance()->itemData();
+    if (!globalItems.isEmpty()) {
+        m_availableShopItems = globalItems;
+        return;
+    }
+
+    // 2. Read from CSV file directly
+    QFile file(filePath);
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        qWarning() << "Failed to open CSV file:" << filePath << "- Loading fallback items.";
+        
+        m_availableShopItems = {
+            {{"name", "Healing Potion"}, {"type", "Consumable"}, {"cost", 25}, {"desc", "Restores 20 HP."}, {"stats", "+20 HP"}},
+            {{"name", "Iron Longsword"}, {"type", "Weapon"},     {"cost", 150}, {"desc", "Standard issue blade."}, {"stats", "+5 Atk"}},
+            {{"name", "Leather Armor"},  {"type", "Armor"},      {"cost", 100}, {"desc", "Light protection."},     {"stats", "+2 AC"}},
+            {{"name", "Rations"},        {"type", "Food"},       {"cost", 5},   {"desc", "Sustained food supply."}, {"stats", "None"}}
+        };
+        return;
+    }
+
+    QTextStream in(&file);
+
+    auto parseCsvLine = [](const QString& line) -> QStringList {
+        QStringList fields;
+        QString currentField;
+        bool inQuotes = false;
+
+        for (int i = 0; i < line.length(); ++i) {
+            QChar ch = line.at(i);
+            if (ch == '"') {
+                inQuotes = !inQuotes;
+            } else if (ch == ',' && !inQuotes) {
+                fields.append(currentField.trimmed());
+                currentField.clear();
+            } else {
+                currentField.append(ch);
+            }
+        }
+        fields.append(currentField.trimmed());
+        return fields;
+    };
+
+    if (in.atEnd()) return;
+    QString headerLine = in.readLine();
+    QStringList headers = parseCsvLine(headerLine);
+
+    while (!in.atEnd()) {
+        QString line = in.readLine().trimmed();
+        if (line.isEmpty()) continue;
+
+        QStringList values = parseCsvLine(line);
+        QVariantMap itemMap;
+
+        for (int i = 0; i < headers.size() && i < values.size(); ++i) {
+            // Convert headers to lowercase to avoid case-sensitivity bugs ("Cost" vs "cost")
+            QString key = headers[i].trimmed().toLower();
+            QString val = values[i].trimmed();
+
+            // Handle price / cost column variations
+            if (key == "cost" || key == "price" || key == "gp" || key.contains("cost") || key.contains("price")) {
+                // Strip non-digit characters (e.g. "150 GP" or "$150" -> "150")
+                QString digitsOnly = val;
+                digitsOnly.remove(QRegularExpression("[^0-9]"));
+
+                bool ok;
+                int costVal = digitsOnly.toInt(&ok);
+                
+                // Store under both "cost" and "price" to ensure compatibility
+                itemMap["cost"] = ok ? costVal : 0;
+                itemMap["price"] = ok ? costVal : 0;
+            } else {
+                itemMap[key] = val;
+            }
+        }
+
+        if (!itemMap.isEmpty()) {
+            m_availableShopItems.append(itemMap);
+        }
+    }
+
+    file.close();
+}
+/*
 void GeneralStore::loadItemsFromCsv(const QString& filePath)
 {
     // Load item catalogue via gameStateManager standard item registry or local fallback
@@ -139,7 +223,76 @@ void GeneralStore::loadItemsFromCsv(const QString& filePath)
         };
     }
 }
+*/
+void GeneralStore::populateShopItems()
+{
+    m_shopTable->setRowCount(0);
 
+    // Standard header keys to filter out from the stats display
+    static const QSet<QString> nonStatKeys = {
+        "name", "type", "cost", "price", "gp", "desc"
+    };
+
+    for (int i = 0; i < m_availableShopItems.size(); ++i) {
+        const QVariantMap& item = m_availableShopItems[i];
+        m_shopTable->insertRow(i);
+
+        QString name = item.value("name").toString();
+        QString type = item.value("type").toString();
+        
+        // Flexible price lookup
+        int cost = 0;
+        if (item.contains("cost")) {
+            cost = item.value("cost").toInt();
+        } else if (item.contains("price")) {
+            cost = item.value("price").toInt();
+        } else if (item.contains("gp")) {
+            cost = item.value("gp").toInt();
+        }
+
+        // Dynamically collect all additional stats from the CSV
+        QStringList statsList;
+        for (auto it = item.constBegin(); it != item.constEnd(); ++it) {
+            QString key = it.key();
+
+            if (nonStatKeys.contains(key)) continue;
+
+            QString val = it.value().toString().trimmed();
+            if (val.isEmpty()) continue;
+
+            // Capitalize key name for UI formatting (e.g., "atk" -> "Atk")
+            QString formattedKey = key;
+            if (!formattedKey.isEmpty()) {
+                formattedKey[0] = formattedKey[0].toUpper();
+            }
+
+            statsList.append(QString("%1: %2").arg(formattedKey, val));
+        }
+
+        // Build summary string: show collected stats, or fall back to description if no extra stats exist
+        QString statsDisplayStr = statsList.join(" | ");
+        if (statsDisplayStr.isEmpty() && item.contains("desc")) {
+            statsDisplayStr = item.value("desc").toString();
+        }
+
+        // Create table items
+        QTableWidgetItem *nameItem  = new QTableWidgetItem(name);
+        QTableWidgetItem *typeItem  = new QTableWidgetItem(type);
+        QTableWidgetItem *costItem  = new QTableWidgetItem(QString("%1 GP").arg(cost));
+        QTableWidgetItem *statsItem = new QTableWidgetItem(statsDisplayStr);
+
+        costItem->setTextAlignment(Qt::AlignRight | Qt::AlignVCenter);
+
+        // Store entire QVariantMap in UserRole on the primary item
+        nameItem->setData(Qt::UserRole, item);
+
+        m_shopTable->setItem(i, 0, nameItem);
+        m_shopTable->setItem(i, 1, typeItem);
+        m_shopTable->setItem(i, 2, costItem);
+        m_shopTable->setItem(i, 3, statsItem);
+    }
+}
+/*
 void GeneralStore::populateShopItems()
 {
     m_shopTable->setRowCount(0);
@@ -156,7 +309,44 @@ void GeneralStore::populateShopItems()
         m_shopTable->setItem(i, 2, costItem);
     }
 }
+*/
+/*
+void GeneralStore::populateShopItems()
+{
+    m_shopTable->setRowCount(0);
 
+    for (int i = 0; i < m_availableShopItems.size(); ++i) {
+        const QVariantMap& item = m_availableShopItems[i];
+        m_shopTable->insertRow(i);
+
+        QString name = item.value("name").toString();
+        QString type = item.value("type").toString();
+        int cost = item.value("cost").toInt();
+
+        // Check for 'stats' key, falling back to 'desc' if 'stats' is empty
+        QString statsStr = item.value("stats").toString();
+        if (statsStr.isEmpty()) {
+            statsStr = item.value("desc").toString();
+        }
+
+        QTableWidgetItem *nameItem = new QTableWidgetItem(name);
+        QTableWidgetItem *typeItem = new QTableWidgetItem(type);
+        QTableWidgetItem *costItem = new QTableWidgetItem(QString("%1 GP").arg(cost));
+        QTableWidgetItem *statsItem = new QTableWidgetItem(statsStr);
+
+        // Right-align the cost column
+        costItem->setTextAlignment(Qt::AlignRight | Qt::AlignVCenter);
+
+        // Store full item metadata into UserRole for easy retrieval on selection
+        nameItem->setData(Qt::UserRole, item);
+
+        m_shopTable->setItem(i, 0, nameItem);
+        m_shopTable->setItem(i, 1, typeItem);
+        m_shopTable->setItem(i, 2, costItem);
+        m_shopTable->setItem(i, 3, statsItem);
+    }
+}
+*/
 void GeneralStore::populatePlayerInventory()
 {
     m_playerInventoryList->clear();
@@ -165,7 +355,64 @@ void GeneralStore::populatePlayerInventory()
         m_playerInventoryList->addItem(itemName);
     }
 }
+void GeneralStore::onShopSelectionChanged()
+{
+    int row = m_shopTable->currentRow();
+    if (row < 0 || row >= m_shopTable->rowCount()) return;
 
+    m_playerInventoryList->clearSelection();
+
+    // Retrieve the item map stored in Qt::UserRole from column 0
+    QTableWidgetItem *nameItemWidget = m_shopTable->item(row, 0);
+    if (!nameItemWidget) return;
+
+    QVariantMap item = nameItemWidget->data(Qt::UserRole).toMap();
+    if (item.isEmpty()) return;
+
+    // Standard headers to exclude from dynamic stat listing
+    static const QSet<QString> headerKeys = {
+        "name", "type", "cost", "price", "gp"
+    };
+
+    QString name = item.value("name").toString();
+    QString type = item.value("type").toString();
+    int cost = item.contains("cost") ? item.value("cost").toInt() : item.value("price").toInt();
+
+    // Build html string for description and stats
+    QString html = QString("<b>%1</b> (%2) — <b>Price: %3 GP</b><br>").arg(name, type).arg(cost);
+
+    // Add description first if present
+    if (item.contains("desc") && !item["desc"].toString().isEmpty()) {
+        html += QString("<i>%1</i><br>").arg(item["desc"].toString());
+    }
+
+    // Collect all remaining stats from the CSV
+    QStringList extraStats;
+    for (auto it = item.constBegin(); it != item.constEnd(); ++it) {
+        QString key = it.key();
+
+        // Skip standard header fields and desc (handled above)
+        if (headerKeys.contains(key) || key == "desc") continue;
+
+        QString valueStr = it.value().toString().trimmed();
+        if (valueStr.isEmpty()) continue;
+
+        // Capitalize the stat key for clean display (e.g. "atk" -> "Atk")
+        QString capitalizedKey = key;
+        if (!capitalizedKey.isEmpty()) {
+            capitalizedKey[0] = capitalizedKey[0].toUpper();
+        }
+
+        extraStats.append(QString("<b>%1:</b> %2").arg(capitalizedKey, valueStr));
+    }
+
+    if (!extraStats.isEmpty()) {
+        html += "<br><b>Stats:</b> " + extraStats.join(" | ");
+    }
+
+    m_itemDetailsText->setText(html);
+}
+/*
 void GeneralStore::onShopSelectionChanged()
 {
     int row = m_shopTable->currentRow();
@@ -180,6 +427,7 @@ void GeneralStore::onShopSelectionChanged()
                                    .arg(item["cost"].toInt())
                                    .arg(item["desc"].toString()));
 }
+*/
 
 void GeneralStore::onPlayerInventorySelectionChanged()
 {
@@ -213,9 +461,8 @@ void GeneralStore::buySelectedItem()
         QMessageBox::warning(this, "Insufficient Gold", "You do not have enough gold to purchase this item.");
         return;
     }
-
     int activeIdx = gameStateManager::instance()->getCurrentCharacterIndex();
-    gameStateManager::instance()->updateCharacterGold(activeIdx, cost, false /* subtract */);
+    gameStateManager::instance()->updateCharacterGold(activeIdx, cost, false);
     gameStateManager::instance()->addItemToCharacter(activeIdx, itemName);
 
     updateCharacterHeader();
@@ -239,7 +486,7 @@ void GeneralStore::sellSelectedItem()
         int sellValue = gameStateManager::instance()->getItemStats(itemName).value("cost", 10).toInt() / 2;
         if (sellValue <= 0) sellValue = 5;
 
-        gameStateManager::instance()->updateCharacterGold(activeIdx, sellValue, true /* add */);
+        gameStateManager::instance()->updateCharacterGold(activeIdx, sellValue, true);
 
         updateCharacterHeader();
         populatePlayerInventory();
@@ -255,18 +502,15 @@ void GeneralStore::identifySelectedItem()
         QMessageBox::information(this, "Identify Item", "Please select an item from your inventory to identify.");
         return;
     }
-
     QString rawItemName = selectedItem->text();
     int activeIdx = gameStateManager::instance()->getCurrentCharacterIndex();
     Character current = gameStateManager::instance()->getCurrentCharacter();
-
     // 2. Check if the item is already identified
     // (Assuming unidentified items follow a naming convention or meta-property)
     if (!rawItemName.startsWith("Unidentified") && !rawItemName.contains("?")) {
         QMessageBox::information(this, "Identify Item", "This item has already been identified!");
         return;
     }
-
     // 3. Gold Verification (e.g., standard fee of 50 GP)
     const int identifyFee = 50;
     if (current.gold < static_cast<qulonglong>(identifyFee)) {
@@ -276,18 +520,15 @@ void GeneralStore::identifySelectedItem()
                              .arg(current.gold));
         return;
     }
-
     // 4. Resolve the true item identity
     // Lookup full stats/true name via gameStateManager or internal registry
     QVariantMap itemStats = gameStateManager::instance()->getItemStats(rawItemName);
     QString identifiedName = itemStats.value("trueName").toString();
-
     // Fallback resolution logic if trueName key isn't present in metadata
     if (identifiedName.isEmpty()) {
         identifiedName = rawItemName;
         identifiedName.remove("Unidentified ").remove("?");
     }
-
     // 5. Deduct Gold and Update Inventory List in Game State
     gameStateManager::instance()->updateCharacterGold(activeIdx, identifyFee, false /* subtract */);
 
@@ -296,17 +537,14 @@ void GeneralStore::identifySelectedItem()
         current.inventory[itemIdx] = identifiedName;
         gameStateManager::instance()->setCharacterInventory(activeIdx, current.inventory);
     }
-
     // 6. Refresh UI Views & Show Outcome
     updateCharacterHeader();
     populatePlayerInventory();
-
     // Reselect the newly named item in the list
     QList<QListWidgetItem*> found = m_playerInventoryList->findItems(identifiedName, Qt::MatchExactly);
     if (!found.isEmpty()) {
         m_playerInventoryList->setCurrentItem(found.first());
     }
-
     // Update inspection pane and notify player
     m_itemDetailsText->setText(QString("<b>Identified: %1</b><br>%2")
                                    .arg(identifiedName)
@@ -323,11 +561,9 @@ void GeneralStore::uncurseSelectedItem()
         QMessageBox::information(this, "Uncurse Item", "Please select an item from your inventory to uncurse.");
         return;
     }
-
     QString rawItemName = selectedItem->text();
     int activeIdx = gameStateManager::instance()->getCurrentCharacterIndex();
     Character current = gameStateManager::instance()->getCurrentCharacter();
-
     // 2. Query item metadata to check for cursed status
     QVariantMap itemStats = gameStateManager::instance()->getItemStats(rawItemName);
     bool isCursed = itemStats.value("isCursed", false).toBool() || rawItemName.contains("Cursed", Qt::CaseInsensitive);
@@ -336,7 +572,6 @@ void GeneralStore::uncurseSelectedItem()
         QMessageBox::information(this, "Uncurse Item", "This item does not appear to be cursed!");
         return;
     }
-
     // 3. Gold Verification ( standard uncurse fee of 100 GP)
     const int uncurseFee = 100;
     if (current.gold < static_cast<qulonglong>(uncurseFee)) {
@@ -346,7 +581,6 @@ void GeneralStore::uncurseSelectedItem()
                              .arg(current.gold));
         return;
     }
-
     // 4. Resolve uncursed item name
     // Check if itemStats defines a clean name, otherwise strip "Cursed " prefix
     QString uncursedName = itemStats.value("uncursedName").toString();
@@ -354,7 +588,6 @@ void GeneralStore::uncurseSelectedItem()
         uncursedName = rawItemName;
         uncursedName.remove("Cursed ", Qt::CaseInsensitive).remove("(Cursed)", Qt::CaseInsensitive).trimmed();
     }
-
     // 5. Deduct Gold and Update Inventory in Game State
     gameStateManager::instance()->updateCharacterGold(activeIdx, uncurseFee, false /* subtract */);
 
@@ -363,17 +596,14 @@ void GeneralStore::uncurseSelectedItem()
         current.inventory[itemIdx] = uncursedName;
         gameStateManager::instance()->setCharacterInventory(activeIdx, current.inventory);
     }
-
     // 6. Refresh UI Views & Show Outcome
     updateCharacterHeader();
     populatePlayerInventory();
-
     // Reselect the cleansed item in the inventory list
     QList<QListWidgetItem*> found = m_playerInventoryList->findItems(uncursedName, Qt::MatchExactly);
     if (!found.isEmpty()) {
         m_playerInventoryList->setCurrentItem(found.first());
     }
-
     // Update details pane and notify player
     m_itemDetailsText->setText(QString("<b>Cleansed: %1</b><br>The dark aura surrounding this item has dissipated.")
                                    .arg(uncursedName));
@@ -386,25 +616,21 @@ void GeneralStore::combineSelectedItems()
 {
     // 1. Get all currently selected items from player inventory
     QList<QListWidgetItem*> selectedItems = m_playerInventoryList->selectedItems();
-
     // If fewer than 2 items are selected, inform the player
     if (selectedItems.size() < 2) {
-        QMessageBox::information(this, "Combine Items", 
+        QMessageBox::information(this, "Combine Items",
             "Please select at least two items from your inventory to combine (hold Ctrl or Shift to select multiple).");
         return;
     }
-
     // 2. Extract item names
     QString item1Name = selectedItems[0]->text();
     QString item2Name = selectedItems[1]->text();
 
     int activeIdx = gameStateManager::instance()->getCurrentCharacterIndex();
     Character current = gameStateManager::instance()->getCurrentCharacter();
-
     // 3. Query recipe / combination result via gameStateManager
     // Checks for recipes (e.g. "Herb" + "Water" -> "Healing Potion")
     QString combinedResult = gameStateManager::instance()->getCraftingRecipeResult(item1Name, item2Name);
-
     // Fallback/Sample recipe check if no manager endpoint exists yet
     if (combinedResult.isEmpty()) {
         if ((item1Name.contains("Herb", Qt::CaseInsensitive) && item2Name.contains("Flask", Qt::CaseInsensitive)) ||
@@ -414,39 +640,33 @@ void GeneralStore::combineSelectedItems()
             combinedResult = "Iron Bar";
         }
     }
-
     // 4. Handle invalid combinations
     if (combinedResult.isEmpty()) {
-        QMessageBox::warning(this, "Combination Failed", 
+        QMessageBox::warning(this, "Combination Failed",
             QString("Combining '%1' and '%2' yields no usable result.").arg(item1Name, item2Name));
         return;
     }
-
     // 5. Remove ingredients from inventory
     int idx1 = current.inventory.indexOf(item1Name);
     if (idx1 >= 0) current.inventory.removeAt(idx1);
 
     int idx2 = current.inventory.indexOf(item2Name);
     if (idx2 >= 0) current.inventory.removeAt(idx2);
-
     // 6. Add new crafted item
     current.inventory.append(combinedResult);
     gameStateManager::instance()->setCharacterInventory(activeIdx, current.inventory);
-
     // 7. Refresh UI Views & Show Outcome
     populatePlayerInventory();
-
     // Highlight the new item in inventory
     QList<QListWidgetItem*> found = m_playerInventoryList->findItems(combinedResult, Qt::MatchExactly);
     if (!found.isEmpty()) {
         m_playerInventoryList->setCurrentItem(found.first());
     }
-
     // Update inspection panel and alert player
     m_itemDetailsText->setText(QString("<b>Crafted: %1</b><br>Successfully combined %2 and %3.")
                                    .arg(combinedResult, item1Name, item2Name));
 
-    QMessageBox::information(this, "Crafting Success", 
+    QMessageBox::information(this, "Crafting Success",
         QString("You combined %1 and %2 to create:\n\n✨ %3!")
         .arg(item1Name, item2Name, combinedResult));
 }
