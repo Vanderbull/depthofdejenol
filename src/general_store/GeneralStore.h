@@ -1,12 +1,17 @@
-#pragma once
+#ifndef GENERALSTORE_H
+#define GENERALSTORE_H
 
 #include <QDialog>
-#include <QLineEdit>
-#include <QComboBox>
-#include <QPushButton>
+#include <QTableWidget>
 #include <QListWidget>
+#include <QPushButton>
 #include <QLabel>
-#include <QMessageBox> // Added for dialog feedback
+#include <QComboBox>
+#include <QTextEdit>
+#include <QVBoxLayout>
+#include <QHBoxLayout>
+#include <QHeaderView>
+#include <QMessageBox>
 
 #include "gameStateManager.h"
 
@@ -16,43 +21,41 @@ class GeneralStore : public QDialog
 
 public:
     explicit GeneralStore(QWidget *parent = nullptr);
-    virtual ~GeneralStore(); // Made destructor explicitly virtual to resolve linker error
-private slots:
-    // Slots for item interaction
-    void uncurseItem();
-    void combineItems();
-    void identifySellItem();
-    void buyItem();
-    void showItemInfo();
-    void searchItems(const QString &searchText);
-    void exitStore();
-private:
-    // UI Elements for "Uncurse Items"
-    QLineEdit *uncurseItemLineEdit;
-    QComboBox *uncurseItemComboBox;
-    QPushButton *uncurseButton;
-    // UI Elements for "Combine Items"
-    QLineEdit *combineItemLineEdit;
-    QLineEdit *combineItemsLineEdit; // Assuming multiple items to combine
-    QPushButton *combineButton;
-    // UI Elements for "Identify, Realign & Sell Items"
-    QLineEdit *identifySellItemLineEdit;
-    QLabel *itemValueLabel;
-    QPushButton *infoButton;
-    QPushButton *sellButton;
-    QPushButton *idButton;
-    QLabel *idCostLabel; // To display ID cost
-    // UI Elements for "Buy Items"
-    QListWidget *buyItemsListWidget;
-    QLineEdit *searchItemsLineEdit;
-    QLineEdit *buyItemLineEdit; // For selected item details or quantity
-    QLabel *buyItemCostLabel;
-    QPushButton *buyButton;
-    QPushButton *buyInfoButton; // "INFO" button next to BUY
-    QPushButton *exitButton;
-    void setupUi();
-    void populateBuyItemsList(); // Function to add example items
-    void showFeedbackDialog(const QString &title, const QString &message, QMessageBox::Icon icon = QMessageBox::Information);
-    void loadItemsFromCsv(const QString &fileName);
+    ~GeneralStore() override = default;
 
+private slots:
+    void onShopSelectionChanged();
+    void onPlayerInventorySelectionChanged();
+    void buySelectedItem();
+    void sellSelectedItem();
+    void identifySelectedItem();
+    void uncurseSelectedItem();
+    void combineSelectedItems();
+
+private:
+    void setupUi();
+    void setupStyling();
+    void populateShopItems();
+    void populatePlayerInventory();
+    void updateCharacterHeader();
+    void loadItemsFromCsv(const QString& filePath);
+
+    // Dynamic UI Elements
+    QLabel *m_charInfoLabel = nullptr;
+    QLabel *m_goldLabel = nullptr;
+
+    QTableWidget *m_shopTable = nullptr;
+    QListWidget *m_playerInventoryList = nullptr;
+
+    QTextEdit *m_itemDetailsText = nullptr;
+
+    QPushButton *m_buyButton = nullptr;
+    QPushButton *m_sellButton = nullptr;
+    QPushButton *m_identifyButton = nullptr;
+    QPushButton *m_uncurseButton = nullptr;
+    QPushButton *m_combineButton = nullptr;
+
+    QList<QVariantMap> m_availableShopItems;
 };
+
+#endif // GENERALSTORE_H

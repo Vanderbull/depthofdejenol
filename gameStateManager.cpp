@@ -1992,6 +1992,19 @@ void gameStateManager::unpackStateAfterLoading() {
     refreshUI();
 }
 
+QString gameStateManager::getCraftingRecipeResult(const QString& item1, const QString& item2)
+{
+    auto matches = [&](const QString& a, const QString& b) {
+        return (item1.contains(a, Qt::CaseInsensitive) && item2.contains(b, Qt::CaseInsensitive)) ||
+               (item1.contains(b, Qt::CaseInsensitive) && item2.contains(a, Qt::CaseInsensitive));
+    };
+
+    if (matches("Herb", "Flask"))        return "Healing Potion";
+    if (matches("Iron Ore", "Iron Ore")) return "Iron Bar";
+
+    return QString();
+}
+
 gameStateManager::~gameStateManager() {
     if (m_L) lua_close(m_L);
 }

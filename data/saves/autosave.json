@@ -2,7 +2,6 @@
     "ActiveCharacterIndex": 0,
     "BankInventory": [
     ],
-    "BankSlotsFree": 24,
     "BankedGold": 0,
     "CharacterBlinded": false,
     "CharacterDiseased": false,
@@ -27,8 +26,8 @@
     "CurrentCharacterWisdom": 0,
     "CurrentMana": 50,
     "DungeonLevel": 1,
-    "DungeonX": 24,
-    "DungeonY": 9,
+    "DungeonX": 17,
+    "DungeonY": 12,
     "GameVersion": "Version 0.0",
     "GhostHoundPending": false,
     "GuildActionLog": [
@@ -140,7 +139,6 @@
         40,
         30
     ],
-    "PlayerGold": 0,
     "PlayerScore": 0,
     "ResourcesLoaded": true,
     "bank": [
@@ -150,5 +148,5 @@
     "currentMode": 0,
     "inCity": false,
     "isAlive": 1,
-    "lastSaved": "Sat May 16 23:31:11 2026"
+    "lastSaved": "Sun Jul 26 06:00:07 2026"
 }

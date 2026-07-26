@@ -283,6 +283,7 @@ public:
     void performSanityCheck();
     void printAllGameState() const;
     bool areResourcesLoaded() const;
+    QString getCraftingRecipeResult(const QString& item1, const QString& item2);
 
 signals:
     void gameValueChanged(const QString& key, const QVariant& value);
