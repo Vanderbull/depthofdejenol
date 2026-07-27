@@ -99,6 +99,11 @@ private:
     QString statusKey(GameConstants::EntityStatus effect) const;
 
 public:
+
+    // Getter for the GameStates list
+    QVariantList getGameStates() const {
+        return m_gameStateData.value("GameStates").toList();
+    }
     // --- Global Gold Accessors ---
     // Get gold for the active character or a specific party member
     int getGold(int characterIndex = -1) const;
@@ -243,8 +248,8 @@ public:
     void incrementStock(const QString& name);
     void decrementStock(const QString& name);
     QMap<QString, int> getConfinementStock() const;
-    void setBankInventory(const QStringList& items);
-    QStringList getBankInventory() const;
+//    void setBankInventory(const QStringList& items);
+//    QStringList getBankInventory() const;
     void setCharacterInventory(int characterIndex, const QStringList& items);
     void addItemToCharacter(int characterIndex, const QString& itemName);
     // --- Persistence ---

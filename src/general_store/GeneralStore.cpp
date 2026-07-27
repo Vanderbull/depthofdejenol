@@ -152,6 +152,65 @@ void GeneralStore::updateCharacterHeader()
     // Check party gold or single character gold dynamically
     int sharedGold = gameStateManager::instance()->getPartyGold();
 
+QVariantList gameStateList = gameStateManager::instance()->getGameStates();
+for (int i = 0; i < gameStateList.size(); ++i) {
+    QVariantMap record = gameStateList.at(i).toMap();
+    
+    qDebug() << "--- Record #" << i << "---";
+
+    for (auto it = record.constBegin(); it != record.constEnd(); ++it) {
+        QString key = it.key();
+        QVariant val = it.value();
+
+        // Check if value is a nested list (e.g., PartyHP)
+        if (val.userType() == QMetaType::QVariantList) {
+            qDebug() << key << "(List):";
+            QVariantList subList = val.toList();
+            for (int j = 0; j < subList.size(); ++j) {
+                qDebug() << "  [" << j << "]:" << subList.at(j);
+            }
+        } 
+        // Check if value is a nested map (e.g., Party)
+        else if (val.userType() == QMetaType::QVariantMap) {
+            qDebug() << key << "(Map):";
+            QVariantMap subMap = val.toMap();
+            for (auto subIt = subMap.constBegin(); subIt != subMap.constEnd(); ++subIt) {
+                qDebug() << "  " << subIt.key() << ":" << subIt.value();
+            }
+        } 
+        // Standard scalar values
+        else {
+            qDebug() << key << ":" << val;
+        }
+    }
+}
+
+if (!gameStateList.isEmpty()) {
+    QVariantMap record = gameStateList.first().toMap();
+
+    // Step 1: Get the "Party" Map
+    QVariantMap partyMap = record.value("Party").toMap();
+
+    // Step 2: Get the "Members" List from the Party Map
+    QVariantList membersList = partyMap.value("Members").toList();
+
+    // Step 3: Access a specific member (e.g., index 0) and get their Map
+    if (!membersList.isEmpty()) {
+        QVariantMap memberMap = membersList.at(0).toMap();
+
+        // Step 4: Call the specific key ("Age")
+        int age = memberMap.value("Age").toInt();
+
+        qDebug() << "Member 0 Age:" << age;
+    }
+}
+
+int age = gameStateManager::instance()->getGameStates().first().toMap()
+            .value("Party").toMap()
+            .value("Members").toList().at(0).toMap()
+            .value("Age").toInt();
+
+qDebug() << "Age is:" << age;
 
     m_charInfoLabel->setText(QString("Hero: %1 (%2 Lvl %3)")
                                  .arg(current.name.isEmpty() ? "Hero" : current.name)

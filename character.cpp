@@ -4,35 +4,27 @@
 
 QVariantMap Character::toMap() const {
     QVariantMap map;
+    map["Age"]          = age;
+    map["Alignment"]    = "Neutral";
     map["Name"]         = name;
     map["Race"]         = race;
-    map["Age"]          = age;
     map["Level"]        = level;
     map["Experience"]   = experience;
     map["HP"]           = hp;
     map["MaxHP"]        = maxHp;
     map["Gold"]         = gold;
-    
     map["Strength"]     = strength;
     map["Intelligence"] = intelligence;
     map["Wisdom"]       = wisdom;
     map["Constitution"] = constitution;
     map["Charisma"]     = charisma;
     map["Dexterity"]    = dexterity;
-
     map["Mana"]         = mana;
     map["MaxMana"]      = maxMana;
-    
     map["StatusFlags"] = statusFlags;
-//    map["Poisoned"]     = poisoned;
-//    map["Blinded"]      = blinded;
-//    map["Diseased"]     = diseased;
-//    map["isAlive"]      = isAlive;
-    
     map["DungeonLevel"] = dungeonLevel;
     map["DungeonX"]     = dungeonX;
     map["DungeonY"]     = dungeonY;
-    
     map["Inventory"]    = inventory;
     map["row"]          = row;
     return map;
@@ -121,9 +113,9 @@ QVariantMap Party::toMap() const {
     for (int i = 0; i < members.size(); ++i) {
         charList.append(members.at(i).toMap());
     }
-    
     map["Members"] = charList;
     map["SharedGold"] = sharedGold;
+    map["PLUTTEN"] = "PLUTTEN";
     return map;
 }
 
@@ -131,7 +123,7 @@ void Party::loadFromMap(const QVariantMap &map) {
     sharedGold = map.value("SharedGold", 0).toInt();
     QVariantList charList = map.value("Members").toList();
     
-    members.clear();
+    //members.clear();
     for (int i = 0; i < charList.size(); ++i) {
         Character c;
         c.loadFromMap(charList.at(i).toMap());

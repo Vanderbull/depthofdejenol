@@ -470,17 +470,18 @@ void gameStateManager::performSanityCheck()
         qWarning() << "FAIL: 'hits' column is not a valid integer.";
     }
 }
-
+/*
 void gameStateManager::setBankInventory(const QStringList& items) 
 {
     setGameValue("BankInventory", items);
 }
-
+*/
+/*
 QStringList gameStateManager::getBankInventory() const 
 {
     return m_gameStateData.value("BankInventory").toStringList();
 }
-
+*/
 void gameStateManager::setCharacterInventory(int characterIndex, const QStringList& items) {
     auto& members = m_partyManager->currentParty().members;
     if (characterIndex >= 0 && characterIndex < members.size()) {
@@ -1028,9 +1029,9 @@ void gameStateManager::incrementPartyAge(int years)
     emit gameValueChanged("Party", partyList);
 
     // 4. Update the "CurrentCharacterAge" global value if index 0 changed
-    if (!m_partyManager->currentParty().members.isEmpty()) {
-        setGameValue("CurrentCharacterAge", m_partyManager->currentParty().members[0].age);
-    }
+//    if (!m_partyManager->currentParty().members.isEmpty()) {
+//        setGameValue("CurrentCharacterAge", m_partyManager->currentParty().members[0].age);
+//    }
 
     qDebug() << "The party has aged by" << years << "year(s).";
     
@@ -1183,67 +1184,142 @@ void gameStateManager::initializeGuildLeaders()
     m_gameStateData["GuildLeaders"] = guildLeadersList;
 }
 
-void gameStateManager::initializeRaceAges() 
+void gameStateManager::initializeRaceAges()
 {
+    QVariantList MaxRaceAgesList;
+
+    // Helper lambda to package the data into a QVariantMap
+    auto addRaceAge = [&](QString raceName, QVariant val) {
+        QVariantMap record;
+        record["Race"] = raceName;
+        record["Age"] = val;
+        MaxRaceAgesList.append(record);
+    };
+
+    addRaceAge("Human",100);
+    addRaceAge("Elf",400);
+    addRaceAge("Giant",225);
+    addRaceAge("Gnome",300);
+    addRaceAge("Dwarf",275);
+    addRaceAge("Ogre",265);
+    addRaceAge("Morloch",175);
+    addRaceAge("Osiri",325);
+    addRaceAge("Troll",285);
+
+    m_gameStateData["MaxRaceAge"] = MaxRaceAgesList;
+
     // Max ages for each race
-    m_gameStateData["MaxHumanAge"] = 100;
-    m_gameStateData["MaxElfAge"] = 400;
-    m_gameStateData["MaxGiantAge"] = 225;
-    m_gameStateData["MaxGnomeAge"] = 300;
-    m_gameStateData["MaxDwarfAge"] = 275;
-    m_gameStateData["MaxOgreAge"] = 265;
-    m_gameStateData["MaxMorlochAge"] = 175;
-    m_gameStateData["MaxOsiriAge"] = 325;
-    m_gameStateData["MaxTrollAge"] = 285;
+    //m_gameStateData["MaxHumanAge"] = 100;
+    //m_gameStateData["MaxElfAge"] = 400;
+    //m_gameStateData["MaxGiantAge"] = 225;
+    //m_gameStateData["MaxGnomeAge"] = 300;
+    //m_gameStateData["MaxDwarfAge"] = 275;
+    //m_gameStateData["MaxOgreAge"] = 265;
+    //m_gameStateData["MaxMorlochAge"] = 175;
+    //m_gameStateData["MaxOsiriAge"] = 325;
+    //m_gameStateData["MaxTrollAge"] = 285;
 }
 
 void gameStateManager::initializeGameState()
 {
+    QVariantList GameStateList;
+
+    // Helper lambda to package the data into a QVariantMap
+    auto addGameStateString = [&](QVariant resourcesLoaded, QVariant inCity) {
+        QVariantMap record;
+        record["ResourcesLoaded"] = resourcesLoaded;
+        record["inCity"] = inCity;
+        record["ActiveCharacterIndex"] = 0;
+        record["CurrentCharacterSex"] = GameConstants::SEX_OPTIONS.at(0);
+        record["CurrentCharacterStatPointsLeft"] = GameConstants::DEFAULT_STAT_POINTS;
+        record["CurrentCharacterHP"] = 50;
+	record["CurrentCharacterLevel"] = 1;
+	record["CurrentCharacterAge"] = 16;
+	record["CurrentCharacterExperience"] = QVariant::fromValue((qulonglong)0);
+	record["CurrentCharacterGold"] = QVariant::fromValue((qulonglong)1500);
+	record["CurrentMana"] = 50;
+	record["MaxMana"] = 50;
+	// --- Empty Character Identity ---
+	record["CurrentCharacterName"] = "";
+	record["CurrentCharacterRace"] = "";
+	record["CurrentCharacterGuild"] = "";
+	// --- Base Stats ---
+	record["CurrentCharacterStrength"] = 0;
+	record["CurrentCharacterIntelligence"] = 0;
+	record["CurrentCharacterWisdom"] = 0;
+	record["CurrentCharacterConstitution"] = 0;
+	record["CurrentCharacterCharisma"] = 0;
+	record["CurrentCharacterDexterity"] = 0;
+	// --- World & Progression ---
+	record["PlayerScore"] = 0;
+	record["DungeonLevel"] = 1;
+	record["DungeonX"] = 17;
+	record["DungeonY"] = 12;
+	record["BankedGold"] = QVariant::fromValue((qulonglong)0);
+	record["BankInventory"] = QStringList();
+	record["GhostHoundPending"] = false;
+	record["GuildActionLog"] = QVariantList();
+        // --- Global Status States ---
+        record["CharacterPoisoned"] = false;
+        record["CharacterBlinded"] = false;
+        record["CharacterDiseased"] = false;
+        record["isAlive"] = 1;
+        record["GameVersion"] = "Version 0.0";
+	record["Party"] = m_partyManager->getPartyAsMap();
+	record["PartyHP"] = QVariant(QVariantList({50, 40, 30}));
+
+        GameStateList.append(record);
+    };
+
+    addGameStateString(false,false);
+
+    m_gameStateData["GameStates"] = GameStateList;
+
     // --- Initial UI/Location State ---
-    m_gameStateData["ResourcesLoaded"] = false;
-    m_gameStateData["inCity"] = false;
-    m_gameStateData["ActiveCharacterIndex"] = 0;
+//    m_gameStateData["ResourcesLoaded"] = false;
+//    m_gameStateData["inCity"] = false;
+    //m_gameStateData["ActiveCharacterIndex"] = 0;
     // --- Current Character Defaults ---
-    m_gameStateData["CurrentCharacterSex"] = GameConstants::SEX_OPTIONS.at(0);
-    m_gameStateData["CurrentCharacterAlignment"] = GameConstants::ALIGNMENT_NAMES.at(GameConstants::DEFAULT_ALIGNMENT_INDEX);
-    m_gameStateData["CurrentCharacterStatPointsLeft"] = GameConstants::DEFAULT_STAT_POINTS;
-    m_gameStateData["CurrentCharacterHP"] = 50;
-    m_gameStateData["MaxCharacterHP"] = 50;
-    m_gameStateData["CurrentCharacterLevel"] = 1;
-    m_gameStateData["CurrentCharacterAge"] = 16;
-    m_gameStateData["CurrentCharacterExperience"] = QVariant::fromValue((qulonglong)0);
-    m_gameStateData["CurrentCharacterGold"] = QVariant::fromValue((qulonglong)1500);
-    m_gameStateData["CurrentMana"] = 50;
-    m_gameStateData["MaxMana"] = 50;
+//    m_gameStateData["CurrentCharacterSex"] = GameConstants::SEX_OPTIONS.at(0);
+    //m_gameStateData["CurrentCharacterAlignment"] = GameConstants::ALIGNMENT_NAMES.at(GameConstants::DEFAULT_ALIGNMENT_INDEX);
+//    m_gameStateData["CurrentCharacterStatPointsLeft"] = GameConstants::DEFAULT_STAT_POINTS;
+//    m_gameStateData["CurrentCharacterHP"] = 50;
+//    m_gameStateData["MaxCharacterHP"] = 50;
+//    m_gameStateData["CurrentCharacterLevel"] = 1;
+    //m_gameStateData["CurrentCharacterAge"] = 16;
+//    m_gameStateData["CurrentCharacterExperience"] = QVariant::fromValue((qulonglong)0);
+//    m_gameStateData["CurrentCharacterGold"] = QVariant::fromValue((qulonglong)1500);
+//    m_gameStateData["CurrentMana"] = 50;
+//    m_gameStateData["MaxMana"] = 50;
 
     // --- Empty Character Identity ---
-    m_gameStateData["CurrentCharacterName"] = "";
-    m_gameStateData["CurrentCharacterRace"] = "";
-    m_gameStateData["CurrentCharacterGuild"] = "";
+//    m_gameStateData["CurrentCharacterName"] = "";
+//    m_gameStateData["CurrentCharacterRace"] = "";
+//    m_gameStateData["CurrentCharacterGuild"] = "";
 
     // --- Base Stats ---
-    m_gameStateData["CurrentCharacterStrength"] = 0;
-    m_gameStateData["CurrentCharacterIntelligence"] = 0;
-    m_gameStateData["CurrentCharacterWisdom"] = 0;
-    m_gameStateData["CurrentCharacterConstitution"] = 0;
-    m_gameStateData["CurrentCharacterCharisma"] = 0;
-    m_gameStateData["CurrentCharacterDexterity"] = 0;
+//    m_gameStateData["CurrentCharacterStrength"] = 0;
+//    m_gameStateData["CurrentCharacterIntelligence"] = 0;
+//    m_gameStateData["CurrentCharacterWisdom"] = 0;
+//    m_gameStateData["CurrentCharacterConstitution"] = 0;
+//    m_gameStateData["CurrentCharacterCharisma"] = 0;
+//    m_gameStateData["CurrentCharacterDexterity"] = 0;
 
     // --- World & Progression ---
-    m_gameStateData["PlayerScore"] = 0;
-    m_gameStateData["DungeonLevel"] = 1;
-    m_gameStateData["DungeonX"] = 17;
-    m_gameStateData["DungeonY"] = 12;
-    m_gameStateData["BankedGold"] = QVariant::fromValue((qulonglong)0);
-    m_gameStateData["BankInventory"] = QStringList();
-    m_gameStateData["GhostHoundPending"] = false;
-    m_gameStateData["GuildActionLog"] = QVariantList();
+//    m_gameStateData["PlayerScore"] = 0;
+//    m_gameStateData["DungeonLevel"] = 1;
+//    m_gameStateData["DungeonX"] = 17;
+//    m_gameStateData["DungeonY"] = 12;
+//    m_gameStateData["BankedGold"] = QVariant::fromValue((qulonglong)0);
+//    m_gameStateData["BankInventory"] = QStringList();
+//    m_gameStateData["GhostHoundPending"] = false;
+//    m_gameStateData["GuildActionLog"] = QVariantList();
 
     // --- Global Status States ---
-    m_gameStateData["CharacterPoisoned"] = false;
-    m_gameStateData["CharacterBlinded"] = false;
-    m_gameStateData["CharacterDiseased"] = false;
-    m_gameStateData["isAlive"] = 1;
+//    m_gameStateData["CharacterPoisoned"] = false;
+//    m_gameStateData["CharacterBlinded"] = false;
+//    m_gameStateData["CharacterDiseased"] = false;
+//    m_gameStateData["isAlive"] = 1;
 }
 
 void gameStateManager::initializeConfinementStock() {
@@ -1755,7 +1831,7 @@ Character gameStateManager::getCurrentCharacter() const {
         }
         return members[0];
     }
-    return Character(); 
+    return Character();
 }
 /*
 void gameStateManager::addExperienceToParty(int totalXp) {
@@ -1982,13 +2058,14 @@ bool gameStateManager::loadFullGameState(const QString& saveName) {
 void gameStateManager::packStateForSaving() {
     // 1. Convert the live Party object into a QVariantMap
     // This uses your existing Party::toMap() from character.cpp
+    //m_gameStateData["CurrentCharacter"] = getCurrentCharacter().toMap();
     m_gameStateData["Party"] = m_currentParty.toMap();
 
     // 2. Sync other live variables that might have changed
     m_gameStateData["currentMode"] = static_cast<int>(m_currentMode);
     m_gameStateData["currentLocation"] = static_cast<int>(m_currentCityLocation);
     m_gameStateData["confinementStock"] = QVariant::fromValue(m_confinementStock);
-    m_gameStateData["bank"] = getBankInventory();
+    //m_gameStateData["bank"] = getBankInventory();
     m_gameStateData["lastSaved"] = QDateTime::currentDateTime().toString();
 }
 

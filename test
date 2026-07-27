@@ -1,0 +1,184 @@
+long long BankDialog::getPlayerGold()
+{
+    // 1. Get the party list and the active index from GSM
+    QVariantList party = gameStateManager::instance()->getGameValue("Party").toList();
+    int activeIndex = gameStateManager::instance()->getGameValue("ActiveCharacterIndex").toInt();
+    // 2. Validate index and extract gold from that specific character
+    if (activeIndex >= 0 && activeIndex < party.size()) {
+        QVariantMap character = party[activeIndex].toMap();
+        return character["Gold"].toULongLong();
+    }
+    // Fallback to the legacy key if party data is missing
+    return gameStateManager::instance()->getGameValue("CurrentCharacterGold").toULongLong();
+}
+
+--------------------------------
+    // Reward player 100 gold
+    gameStateManager::instance()->addGold(1000);
+
+    // Take 50 gold from member slot 1
+    gameStateManager::instance()->addGold(-50, 1);
+
+    // Spend shared party gold for purchases
+    if (gameStateManager::instance()->spendPartyGold(250)) {
+        // Purchase successful
+    }
+
+    gameStateManager::instance()->getCurrentCharacter();
+    int sharedGold = gameStateManager::instance()->getPartyGold();
+-------------------------------------------
+1. Make sure you can load a whole party even if its just one character.
+what would be a good interface for this?
+that you always load a savegame as a party
+could loading individual character savegames be good from a party savegame file
+and would some sort of party editor be nice?
+think the easiest way will be to convert the current savegame files to a party savegame file
+change the mainmenu load button interface
+
+2. Make a new function that loads a party savegame instead.
+
+gameStateManager::instance()->loadCharacterFromFile(fileName)
+
+    bool saveFullGameState(const QString& saveName);
+    bool loadFullGameState(const QString& saveName);
+
+
+1. Make sure you can switch active party member at any time.
+
+-------------------------------------
+SAVEGAME INFO
+-------------------------------------
+void gameStateManager::saveCharacterToLua(const Character& c, const QString& filePath)
+
+./gameStateManager.cpp:678:        saveCharacterToLua(loadedChar, luaPath);
+./gameStateManager.cpp:764:                saveCharacterToLua(newChar, luaPath);
+./gameStateManager.cpp:1524:void gameStateManager::saveCharacterToLua(const Character& c, const QString& filePath) {
+
+
+void gameStateManager::saveCharacterToLua(const Character& c, const QString& filePath) {
+    // Use the existing toMap() helper from your character.h
+    QVariantMap data = c.toMap();
+    
+    QFile file(filePath);
+    if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
+        qWarning() << "Could not open save file:" << filePath;
+        return;
+    }
+
+    QTextStream out(&file);
+    out << "-- Blacklands Character Save\n";
+    out << "SaveData = {\n";
+
+    // Iterate through the map and write keys/values automatically
+    QMapIterator<QString, QVariant> i(data);
+    while (i.hasNext()) {
+        i.next();
+        QString key = i.key();
+        QVariant val = i.value();
+
+        if (val.typeId() == QMetaType::QString) {
+            out << "    " << key << " = \"" << val.toString() << "\",\n";
+        } else if (val.typeId() == QMetaType::Bool) {
+            out << "    " << key << " = " << (val.toBool() ? "true" : "false") << ",\n";
+        } else if (val.typeId() == QMetaType::QStringList) {
+            out << "    " << key << " = { ";
+            QStringList list = val.toStringList();
+            for(const QString& s : list) out << "\"" << s << "\", ";
+            out << "},\n";
+        } else {
+            // Numbers (int, float)
+            out << "    " << key << " = " << val.toString() << ",\n";
+        }
+    }
+
+    out << "}\n";
+    file.c
+-------------------------------------
+    QList<PlacedItem> m_placedItems;
+    QVariantMap m_gameStateData;
+    QMap<QString, int> m_confinementStock;
+    QList<QVariantMap> m_gameData;
+    QList<QVariantMap> m_spellData;
+    QList<QVariantMap> m_itemData;
+    QList<QVariantMap> m_characterData;
+    QList<QVariantMap> m_monsterData;
+    QList<QVariantMap> m_generalstoreData;
+    QList<QVariantMap> m_guildmastersData;
+    QList<QVariantMap> m_automapData;
+    QList<QVariantMap> m_guildlogsData;
+    QList<QVariantMap> m_dungeonstuffData;
+    QList<QVariantMap> m_dungeonlayoutData;
+    QList<QVariantMap> m_existingpartiesData;
+    QList<QVariantMap> m_libraryentriesData;
+    QList<QVariantMap> m_hallofrecordsData;
+    QList<QVariantMap> m_confinementcreaturesData;
+
+--------------------------------------
+return m_gameStateData.value("isAlive").toInt();
+m_gameStateData.value("ActiveCharacterIndex", 0).toInt();
+gameStateManager::instance()->getGameValue("ActiveCharacterIndex").toInt();
+
+----------------------------------------
+void GeneralStore::updateCharacterHeader()
+{
+    Character current = gameStateManager::instance()->getCurrentCharacter();
+    // Check party gold or single character gold dynamically
+    int sharedGold = gameStateManager::instance()->getPartyGold();
+
+QVariantList gameStateList = gameStateManager::instance()->getGameStates();
+QVariantMap record = gameStateList.first().toMap();
+QVariantList partyHP    = record.value("PartyHP").toList();
+
+    m_charInfoLabel->setText(QString("Hero: %1 (%2 Lvl %3)")
+                                 .arg(current.name.isEmpty() ? "Hero" : current.name)
+                                 .arg(current.race)
+                                 .arg(current.level));
+    // Show character individual gold and shared party gold
+    m_goldLabel->setText(QString("Gold: %1 GP (Party: %2 GP %3)")
+                             .arg(current.gold)
+                             .arg(sharedGold)
+                             .arg(partyHP[0].toInt()));
+}
+
+
+----------------------------------------------
+
+./gameStateManager.cpp:670:    setGameValue("CurrentCharacterAge", loadedChar.age);
+./gameStateManager.cpp:1030:    // 4. Update the "CurrentCharacterAge" global value if index 0 changed
+./gameStateManager.cpp:1032:        setGameValue("CurrentCharacterAge", m_partyManager->currentParty().members[0].age);
+./gameStateManager.cpp:1236:	record["CurrentCharacterAge"] = 16;
+./gameStateManager.cpp:1288:    m_gameStateData["CurrentCharacterAge"] = 16;
+
+----------------------------------------------
+developer@slowmo:~/Documents/GitHub/depthofdejenol$ grep -rn "ActiveCharacterIndex" .
+./gameStateManager.cpp:1231:        record["ActiveCharacterIndex"] = 0;
+./gameStateManager.cpp:1280:    //m_gameStateData["ActiveCharacterIndex"] = 0;
+grep: ./build/obj/release/DungeonDialog.o: binary file matches
+grep: ./build/obj/release/BankDialog.o: binary file matches
+grep: ./build/obj/release/gameStateManager.o: binary file matches
+grep: ./build/obj/release/TradeDialog.o: binary file matches
+grep: ./build/obj/release/partyinfodialog.o: binary file matches
+./build/bin/data/saves/autosave.json:2:    "ActiveCharacterIndex": 0,
+./build/bin/data/saves/autosave.json:58:            "ActiveCharacterIndex": 0,
+grep: ./build/bin/blacklands: binary file matches
+./data/saves/autosave.json:2:    "ActiveCharacterIndex": 0,
+./data/saves/autosave.json:31:            "ActiveCharacterIndex": 0,
+grep: ./blacklands: binary file matches
+./trash/GameStateManager.cpp:1192:    m_gameStateData["ActiveCharacterIndex"] = 0;
+./trash/GameStateManager.h:314:        int idx = m_gameStateData.value("ActiveCharacterIndex", 0).toInt();
+./trash/GameStateManager.h:320:        int idx = m_gameStateData.value("ActiveCharacterIndex", 0).toInt();
+./trash/GameStateManager.h:327:        int idx = m_gameStateData.value("ActiveCharacterIndex", 0).toInt();
+./test:5:    int activeIndex = gameStateManager::instance()->getGameValue("ActiveCharacterIndex").toInt();
+./test:118:m_gameStateData.value("ActiveCharacterIndex", 0).toInt();
+./test:119:gameStateManager::instance()->getGameValue("ActiveCharacterIndex").toInt();
+./src/dungeon_dialog/DungeonDialog.cpp:1235:        int activeIdx = gsm->getGameValue("ActiveCharacterIndex").toInt(); //
+./src/inventory_dialog/inventorydialog.cpp:91:    int activeIdx = gsm->getGameValue("ActiveCharacterIndex").toInt();
+./src/bank_dialog/BankDialog.cpp:14:    int activeIndex = gameStateManager::instance()->getGameValue("ActiveCharacterIndex").toInt();
+./src/bank_dialog/BankDialog.cpp:164:    int activeIndex = gameStateManager::instance()->getGameValue("ActiveCharacterIndex").toInt();
+./src/bank_dialog/BankDialog.cpp:189:    int activeIndex = gameStateManager::instance()->getGameValue("ActiveCharacterIndex").toInt();
+./src/bank_dialog/TradeDialog.cpp:20:    int activeIdx = gsm->getGameValue("ActiveCharacterIndex").toInt();
+./src/bank_dialog/TradeDialog.cpp:118:        int activeIdx = gsm->getGameValue("ActiveCharacterIndex").toInt();
+./src/partyinfo_dialog/partyinfodialog.cpp:43:    activeMemberIndex = gameStateManager::instance()->getGameValue("ActiveCharacterIndex").toInt();
+./src/partyinfo_dialog/partyinfodialog.cpp:51:    if (key == "Party" || key == "ActiveCharacterIndex") {
+./src/partyinfo_dialog/partyinfodialog.cpp:101:        gameStateManager::instance()->setGameValue("ActiveCharacterIndex", partyMembers.indexOf(item));
+

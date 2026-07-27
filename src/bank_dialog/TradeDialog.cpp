@@ -31,10 +31,12 @@ TradeDialog::TradeDialog(QStandardItemModel *playerModel, QStandardItemModel *ba
     }
     // 2. Fetch Bank Inventory
     bankItemModel->clear();
+/*
     QStringList bankItems = gsm->getBankInventory();
     for (const QString& item : bankItems) {
         bankItemModel->appendRow(new QStandardItem(item));
     }
+*/
     setupUi(); 
     createConnections();
 }
@@ -134,7 +136,7 @@ void TradeDialog::on_closeButton_clicked()
                 updatedBankItems << item->text();
             }
         }
-        gsm->setBankInventory(updatedBankItems);
+        //gsm->setBankInventory(updatedBankItems);
     }
     accept();
 }

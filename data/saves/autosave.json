@@ -1,37 +1,161 @@
 {
-    "ActiveCharacterIndex": 0,
-    "BankInventory": [
-    ],
-    "BankedGold": 0,
-    "CharacterBlinded": false,
-    "CharacterDiseased": false,
-    "CharacterPoisoned": false,
     "ConfigIntegrityOK": true,
-    "CurrentCharacterAge": 16,
-    "CurrentCharacterAlignment": "Neutral",
-    "CurrentCharacterCharisma": 0,
-    "CurrentCharacterConstitution": 0,
-    "CurrentCharacterDexterity": 0,
-    "CurrentCharacterExperience": 0,
-    "CurrentCharacterGold": 1500,
-    "CurrentCharacterGuild": "",
-    "CurrentCharacterHP": 50,
-    "CurrentCharacterIntelligence": 0,
-    "CurrentCharacterLevel": 1,
-    "CurrentCharacterName": "",
-    "CurrentCharacterRace": "",
-    "CurrentCharacterSex": "Male",
-    "CurrentCharacterStatPointsLeft": 5,
-    "CurrentCharacterStrength": 0,
-    "CurrentCharacterWisdom": 0,
-    "CurrentMana": 50,
-    "DungeonLevel": 2,
-    "DungeonX": 9,
-    "DungeonY": 10,
-    "GameVersion": "Version 0.0",
-    "GhostHoundPending": false,
-    "GuildActionLog": [
+    "GameStates": [
+        {
+            "ActiveCharacterIndex": 0,
+            "BankInventory": [
+            ],
+            "BankedGold": 0,
+            "CharacterBlinded": false,
+            "CharacterDiseased": false,
+            "CharacterPoisoned": false,
+            "CurrentCharacterAge": 16,
+            "CurrentCharacterCharisma": 0,
+            "CurrentCharacterConstitution": 0,
+            "CurrentCharacterDexterity": 0,
+            "CurrentCharacterExperience": 0,
+            "CurrentCharacterGold": 1500,
+            "CurrentCharacterGuild": "",
+            "CurrentCharacterHP": 50,
+            "CurrentCharacterIntelligence": 0,
+            "CurrentCharacterLevel": 1,
+            "CurrentCharacterName": "",
+            "CurrentCharacterRace": "",
+            "CurrentCharacterSex": "Male",
+            "CurrentCharacterStatPointsLeft": 5,
+            "CurrentCharacterStrength": 0,
+            "CurrentCharacterWisdom": 0,
+            "CurrentMana": 50,
+            "DungeonLevel": 1,
+            "DungeonX": 17,
+            "DungeonY": 12,
+            "GameVersion": "Version 0.0",
+            "GhostHoundPending": false,
+            "GuildActionLog": [
+            ],
+            "MaxMana": 50,
+            "Party": {
+                "Members": [
+                    {
+                        "Age": 16,
+                        "Alignment": "Neutral",
+                        "Charisma": 0,
+                        "Constitution": 0,
+                        "Dexterity": 0,
+                        "DungeonLevel": 0,
+                        "DungeonX": 0,
+                        "DungeonY": 0,
+                        "Experience": 0,
+                        "Gold": 0,
+                        "HP": 0,
+                        "Intelligence": 0,
+                        "Inventory": [
+                        ],
+                        "Level": 0,
+                        "Mana": 0,
+                        "MaxHP": 0,
+                        "MaxMana": 0,
+                        "Name": "Empty Slot",
+                        "Race": "Human",
+                        "StatusFlags": 0,
+                        "Strength": 0,
+                        "Wisdom": 0,
+                        "row": 0
+                    },
+                    {
+                        "Age": 16,
+                        "Alignment": "Neutral",
+                        "Charisma": 0,
+                        "Constitution": 0,
+                        "Dexterity": 0,
+                        "DungeonLevel": 0,
+                        "DungeonX": 0,
+                        "DungeonY": 0,
+                        "Experience": 0,
+                        "Gold": 0,
+                        "HP": 0,
+                        "Intelligence": 0,
+                        "Inventory": [
+                        ],
+                        "Level": 0,
+                        "Mana": 0,
+                        "MaxHP": 0,
+                        "MaxMana": 0,
+                        "Name": "Empty Slot",
+                        "Race": "Human",
+                        "StatusFlags": 0,
+                        "Strength": 0,
+                        "Wisdom": 0,
+                        "row": 0
+                    },
+                    {
+                        "Age": 16,
+                        "Alignment": "Neutral",
+                        "Charisma": 0,
+                        "Constitution": 0,
+                        "Dexterity": 0,
+                        "DungeonLevel": 0,
+                        "DungeonX": 0,
+                        "DungeonY": 0,
+                        "Experience": 0,
+                        "Gold": 0,
+                        "HP": 0,
+                        "Intelligence": 0,
+                        "Inventory": [
+                        ],
+                        "Level": 0,
+                        "Mana": 0,
+                        "MaxHP": 0,
+                        "MaxMana": 0,
+                        "Name": "Empty Slot",
+                        "Race": "Human",
+                        "StatusFlags": 0,
+                        "Strength": 0,
+                        "Wisdom": 0,
+                        "row": 0
+                    },
+                    {
+                        "Age": 16,
+                        "Alignment": "Neutral",
+                        "Charisma": 0,
+                        "Constitution": 0,
+                        "Dexterity": 0,
+                        "DungeonLevel": 0,
+                        "DungeonX": 0,
+                        "DungeonY": 0,
+                        "Experience": 0,
+                        "Gold": 0,
+                        "HP": 0,
+                        "Intelligence": 0,
+                        "Inventory": [
+                        ],
+                        "Level": 0,
+                        "Mana": 0,
+                        "MaxHP": 0,
+                        "MaxMana": 0,
+                        "Name": "Empty Slot",
+                        "Race": "Human",
+                        "StatusFlags": 0,
+                        "Strength": 0,
+                        "Wisdom": 0,
+                        "row": 0
+                    }
+                ],
+                "PLUTTEN": "PLUTTEN",
+                "SharedGold": 0
+            },
+            "PartyHP": [
+                50,
+                40,
+                30
+            ],
+            "PlayerScore": 0,
+            "ResourcesLoaded": false,
+            "inCity": false,
+            "isAlive": 1
+        }
     ],
+    "GameVersion": "Version 0.0",
     "GuildLeaders": [
         {
             "Achievement": "Strongest",
@@ -118,20 +242,48 @@
             "RecordValue": 22
         }
     ],
-    "MaxCharacterHP": 50,
-    "MaxDwarfAge": 275,
-    "MaxElfAge": 400,
-    "MaxGiantAge": 225,
-    "MaxGnomeAge": 300,
-    "MaxHumanAge": 100,
-    "MaxMana": 50,
-    "MaxMorlochAge": 175,
-    "MaxOgreAge": 265,
-    "MaxOsiriAge": 325,
-    "MaxTrollAge": 285,
+    "MaxRaceAge": [
+        {
+            "Age": 100,
+            "Race": "Human"
+        },
+        {
+            "Age": 400,
+            "Race": "Elf"
+        },
+        {
+            "Age": 225,
+            "Race": "Giant"
+        },
+        {
+            "Age": 300,
+            "Race": "Gnome"
+        },
+        {
+            "Age": 275,
+            "Race": "Dwarf"
+        },
+        {
+            "Age": 265,
+            "Race": "Ogre"
+        },
+        {
+            "Age": 175,
+            "Race": "Morloch"
+        },
+        {
+            "Age": 325,
+            "Race": "Osiri"
+        },
+        {
+            "Age": 285,
+            "Race": "Troll"
+        }
+    ],
     "Party": {
         "Members": [
         ],
+        "PLUTTEN": "PLUTTEN",
         "SharedGold": 0
     },
     "PartyHP": [
@@ -139,15 +291,9 @@
         40,
         30
     ],
-    "PlayerGold": 0,
-    "PlayerScore": 0,
     "ResourcesLoaded": true,
-    "bank": [
-    ],
     "confinementStock": null,
     "currentLocation": 0,
     "currentMode": 0,
-    "inCity": false,
-    "isAlive": 1,
-    "lastSaved": "Mon Jul 27 03:42:03 2026"
+    "lastSaved": "Mon Jul 27 12:38:05 2026"
 }
