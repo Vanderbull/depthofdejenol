@@ -57,6 +57,8 @@ void DungeonDialog::setupControls() {
         {"Chest",   SLOT(on_chestButton_clicked())},
         {"Teleport",SLOT(on_teleportButton_clicked())},
         {"Exit",    SLOT(on_exitButton_clicked())},
+        {"Stairs Up",    SLOT(on_stairsUpButton_clicked())},
+        {"Stairs Down",    SLOT(on_stairsDownButton_clicked())},
     };
 
 
@@ -513,7 +515,7 @@ DungeonDialog::DungeonDialog(QWidget *parent)
 
     QGridLayout *actionLayout = new QGridLayout();
         
-    QStringList actions = {"Fight", "Spell", "Rest", "Talk", "Search", "Pickup", "Drop", "Open", "Map", "Chest", "Teleport", "Exit"};
+    QStringList actions = {"Fight", "Spell", "Rest", "Talk", "Search", "Pickup", "Drop", "Open", "Map", "Chest", "Teleport", "Exit", "Stairs Up", "Stairs Down"};
     int row = 0, col = 0;
     for (const QString& name : actions) {
         if (m_controls.contains(name)) {
@@ -615,20 +617,20 @@ DungeonDialog::DungeonDialog(QWidget *parent)
     moveLayout->addWidget(m_rightButton, 1, 2);
     rightPanelLayout->addWidget(moveBox);
     // 6. Stairs Buttons
-    QHBoxLayout *stairsLayout = new QHBoxLayout();
-    QPushButton *stairsUpButton = new QPushButton("Stairs Up");
-    QPushButton *stairsDownButton = new QPushButton("Stairs Down");
-    stairsLayout->addWidget(stairsUpButton);
-    stairsLayout->addWidget(stairsDownButton);
-    rightPanelLayout->addLayout(stairsLayout);
+    //QHBoxLayout *stairsLayout = new QHBoxLayout();
+    //QPushButton *stairsUpButton = new QPushButton("Stairs Up");
+    //QPushButton *stairsDownButton = new QPushButton("Stairs Down");
+    //stairsLayout->addWidget(stairsUpButton);
+    //stairsLayout->addWidget(stairsDownButton);
+    //rightPanelLayout->addLayout(stairsLayout);
     rootLayout->addLayout(rightPanelLayout); 
     // Initial log messages
     enterLevel(initialLevel); // Use initialLevel retrieved from GameState
     // Connections (Movements)
     connect(m_upButton, &QPushButton::clicked, this, &DungeonDialog::moveForward);
     connect(m_downButton, &QPushButton::clicked, this, &DungeonDialog::moveBackward);
-    connect(m_leftButton, &QPushButton::clicked, this, &DungeonDialog::moveStepLeft);  // Updated
-    connect(m_rightButton, &QPushButton::clicked, this, &DungeonDialog::moveStepRight); // Updated
+    connect(m_leftButton, &QPushButton::clicked, this, &DungeonDialog::moveStepLeft);
+    connect(m_rightButton, &QPushButton::clicked, this, &DungeonDialog::moveStepRight);
     connect(m_rotateLeftButton, &QPushButton::clicked, this, &DungeonDialog::on_rotateLeftButton_clicked);
     connect(m_rotateRightButton, &QPushButton::clicked, this, &DungeonDialog::on_rotateRightButton_clicked);
     // Connections (Actions)
@@ -1074,7 +1076,18 @@ void DungeonDialog::on_stairsDownButton_clicked()
 
 void DungeonDialog::on_stairsUpButton_clicked()
 {
-    transitionLevel(StairDirection::Up);
+    gameStateManager* gsm = gameStateManager::instance();
+    QPair<int, int> currentPos = { 
+        gsm->getGameValue("DungeonX").toInt(), 
+        gsm->getGameValue("DungeonY").toInt() 
+    };
+
+    if (currentPos == m_stairsUpPosition) {
+        logMessage("Taking shortcut: Climbing up...");
+        transitionLevel(StairDirection::Up);
+    }
+
+    //transitionLevel(StairDirection::Up);
 }
 
 void DungeonDialog::on_openButton_clicked()
@@ -1096,12 +1109,14 @@ void DungeonDialog::updateDungeonView(const QImage& dungeonImage)
 
 void DungeonDialog::on_exitButton_clicked()
 {
+/*
     QMessageBox::StandardButton reply = QMessageBox::question(
         this, "Exit", "Exit to the City?", QMessageBox::Yes | QMessageBox::No
     );
     if (reply == QMessageBox::Yes) {
         handleSurfaceExit(); // Reuse the logic above
     }
+*/
 }
 
 void DungeonDialog::on_rotateLeftButton_clicked()
