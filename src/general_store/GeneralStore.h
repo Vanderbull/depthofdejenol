@@ -24,6 +24,7 @@ public:
     ~GeneralStore() override = default;
 
 private slots:
+    void updateFrame();
     void onShopSelectionChanged();
     void onPlayerInventorySelectionChanged();
     void buySelectedItem();
@@ -56,6 +57,7 @@ private:
     QPushButton *m_combineButton = nullptr;
 
     QList<QVariantMap> m_availableShopItems;
+    QTimer *m_frameTimer = nullptr;
 };
 
 #endif // GENERALSTORE_H

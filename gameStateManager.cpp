@@ -219,6 +219,21 @@ gameStateManager::gameStateManager(QObject *parent)
         return 0; 
     });
 
+    // Register C++ functions to Lua
+    lua_register(m_L, "GetGold", [](lua_State* L) -> int {
+        int gold = gameStateManager::instance()->getGold();
+        lua_pushinteger(L, gold);
+        return 1;
+    });
+
+    lua_register(m_L, "AddGold", [](lua_State* L) -> int {
+        if (lua_isnumber(L, 1)) {
+            int amount = lua_tointeger(L, 1);
+            gameStateManager::instance()->addGold(amount);
+        }
+        return 0;
+    });
+
     // 2. Setup the Timer
     m_luaTimer = new QTimer(this);
     connect(m_luaTimer, &QTimer::timeout, this, &gameStateManager::onLuaTimerTick);
@@ -2003,6 +2018,61 @@ QString gameStateManager::getCraftingRecipeResult(const QString& item1, const QS
     if (matches("Iron Ore", "Iron Ore")) return "Iron Bar";
 
     return QString();
+}
+
+// --- Global Gold Implementation ---
+
+int gameStateManager::getGold(int characterIndex) const {
+    const auto& members = m_partyManager->currentParty().members;
+    if (members.isEmpty()) return 0;
+
+    int idx = (characterIndex < 0) ? m_currentCharacterIndex : characterIndex;
+    if (idx >= 0 && idx < members.size()) {
+        return members[idx].gold;
+    }
+    return 0;
+}
+
+void gameStateManager::setGold(int amount, int characterIndex) {
+    auto& members = m_partyManager->currentParty().members;
+    if (members.isEmpty()) return;
+
+    int idx = (characterIndex < 0) ? m_currentCharacterIndex : characterIndex;
+    if (idx >= 0 && idx < members.size()) {
+        members[idx].gold = qMax(0, amount);
+        refreshUI();
+    }
+}
+
+void gameStateManager::addGold(int amount, int characterIndex) {
+    auto& members = m_partyManager->currentParty().members;
+    if (members.isEmpty()) return;
+
+    int idx = (characterIndex < 0) ? m_currentCharacterIndex : characterIndex;
+    if (idx >= 0 && idx < members.size()) {
+        members[idx].gold = qMax(0, members[idx].gold + amount);
+        refreshUI();
+    }
+}
+
+int gameStateManager::getPartyGold() const {
+    return m_partyManager->currentParty().sharedGold;
+}
+
+void gameStateManager::addPartyGold(int amount) {
+    m_partyManager->currentParty().sharedGold = qMax(0, m_partyManager->currentParty().sharedGold + amount);
+    refreshUI();
+}
+
+bool gameStateManager::spendPartyGold(int amount) {
+    if (amount <= 0) return true;
+    int current = m_partyManager->currentParty().sharedGold;
+    if (current >= amount) {
+        m_partyManager->currentParty().sharedGold -= amount;
+        refreshUI();
+        return true;
+    }
+    return false; // Not enough gold
 }
 
 gameStateManager::~gameStateManager() {

@@ -1,4 +1,5 @@
 #include "GeneralStore.h"
+#include <QDebug>
 
 GeneralStore::GeneralStore(QWidget *parent)
     : QDialog(parent)
@@ -11,6 +12,24 @@ GeneralStore::GeneralStore(QWidget *parent)
     populateShopItems();
     populatePlayerInventory();
     updateCharacterHeader();
+
+    // Reward player 100 gold
+    gameStateManager::instance()->addGold(1000);
+
+    // Take 50 gold from member slot 1
+    gameStateManager::instance()->addGold(-50, 1);
+
+    // Spend shared party gold for purchases
+    if (gameStateManager::instance()->spendPartyGold(250)) {
+        // Purchase successful
+    }
+
+    gameStateManager::instance()->getCurrentCharacter();
+
+    // --- Frame Timer Setup (~60 FPS update cycle) ---
+    m_frameTimer = new QTimer(this);
+    connect(m_frameTimer, &QTimer::timeout, this, &GeneralStore::updateFrame);
+    m_frameTimer->start(16); // ~60 FPS (1000ms / 60 ≈ 16.6ms)
 }
 
 void GeneralStore::setupUi()
@@ -95,6 +114,8 @@ void GeneralStore::setupUi()
     connect(m_identifyButton, &QPushButton::clicked, this, &GeneralStore::identifySelectedItem);
     connect(m_uncurseButton, &QPushButton::clicked, this, &GeneralStore::uncurseSelectedItem);
     connect(m_combineButton, &QPushButton::clicked, this, &GeneralStore::combineSelectedItems);
+
+    gameStateManager::instance()->getCurrentCharacter();
 }
 
 void GeneralStore::setupStyling()
@@ -110,14 +131,36 @@ void GeneralStore::setupStyling()
     );
 }
 
+void GeneralStore::updateFrame()
+{
+    // 1. Update the UI text elements with the latest game state values
+    updateCharacterHeader();
+
+    // Debug log to trace frame-by-frame updates
+    Character current = gameStateManager::instance()->getCurrentCharacter();
+    int sharedGold = gameStateManager::instance()->getPartyGold();
+
+//    qDebug() << "[GeneralStore::updateFrame] Frame tick | Active Char:" 
+//             << (current.name.isEmpty() ? "Hero" : current.name)
+//             << "| Gold:" << current.gold 
+//             << "| Party Gold:" << sharedGold;
+}
+
 void GeneralStore::updateCharacterHeader()
 {
     Character current = gameStateManager::instance()->getCurrentCharacter();
+    // Check party gold or single character gold dynamically
+    int sharedGold = gameStateManager::instance()->getPartyGold();
+
+
     m_charInfoLabel->setText(QString("Hero: %1 (%2 Lvl %3)")
                                  .arg(current.name.isEmpty() ? "Hero" : current.name)
                                  .arg(current.race)
                                  .arg(current.level));
-    m_goldLabel->setText(QString("Gold: %1 GP").arg(current.gold));
+    // Show character individual gold and shared party gold
+    m_goldLabel->setText(QString("Gold: %1 GP (Party: %2 GP)")
+                             .arg(current.gold)
+                             .arg(sharedGold));
 }
 void GeneralStore::loadItemsFromCsv(const QString& filePath)
 {
@@ -453,13 +496,25 @@ void GeneralStore::buySelectedItem()
     if (row < 0 || row >= m_availableShopItems.size()) return;
 
     const QVariantMap& item = m_availableShopItems[row];
-    int cost = item["cost"].toInt();
+    int cost = 0;
+    if (item.contains("cost")) {
+        cost = item.value("cost").toInt();
+    } else if (item.contains("price")) {
+        cost = item.value("price").toInt();
+    } else if (item.contains("gp")) {
+        cost = item.value("gp").toInt();
+    }
+
     QString itemName = item["name"].toString();
 
     Character current = gameStateManager::instance()->getCurrentCharacter();
     if (current.gold < static_cast<qulonglong>(cost)) {
         QMessageBox::warning(this, "Insufficient Gold", "You do not have enough gold to purchase this item.");
         return;
+    }
+    else
+    {
+        QMessageBox::warning(this, "sufficient Gold", QString("gold...\n\nIt is a %1!").arg(cost) );
     }
     int activeIdx = gameStateManager::instance()->getCurrentCharacterIndex();
     gameStateManager::instance()->updateCharacterGold(activeIdx, cost, false);

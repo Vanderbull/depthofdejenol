@@ -99,6 +99,18 @@ private:
     QString statusKey(GameConstants::EntityStatus effect) const;
 
 public:
+    // --- Global Gold Accessors ---
+    // Get gold for the active character or a specific party member
+    int getGold(int characterIndex = -1) const;
+    // Set exact gold for the active character or a specific party member
+    void setGold(int amount, int characterIndex = -1);
+    // Add/remove gold for a specific character (supports negative numbers)
+    void addGold(int amount, int characterIndex = -1);
+    // Party Shared Gold Accessors
+    int getPartyGold() const;
+    void addPartyGold(int amount);
+    bool spendPartyGold(int amount);
+
     bool saveFullGameState(const QString& saveName);
     bool loadFullGameState(const QString& saveName);
     void checkSettingsFile();
