@@ -21,7 +21,7 @@ public:
 
 private slots:
     // Bind/Acquire
-    void bindCompanion();    
+    void bindCompanion();
     // Identify/Sell/Realign
     void identifyCompanion();
     void identifyCompanionGNE(); // Calculate GNE value

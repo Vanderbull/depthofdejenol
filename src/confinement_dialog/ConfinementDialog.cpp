@@ -3,11 +3,11 @@
 #include <QHBoxLayout>
 #include <QGroupBox>
 #include <QMessageBox>
-#include <QDebug> 
+#include <QDebug>
 #include <QFontDatabase>
-#include <QSpacerItem> 
+#include <QSpacerItem>
 #include <QRegularExpressionMatch> // Needed for matching results in Qt 6
-// For the buyCompanion() implementation below, we assume gameStateManager 
+// For the buyCompanion() implementation below, we assume gameStateManager
 // is a globally accessible class (e.g., a Singleton) with methods for handling gold.
 // e.g., gameStateManager::instance().removeCharacterGold(cost);
 ConfinementAndHoldingDialog::ConfinementAndHoldingDialog(QWidget *parent)
@@ -17,27 +17,27 @@ ConfinementAndHoldingDialog::ConfinementAndHoldingDialog(QWidget *parent)
     // Set the Monospace Font for retro/aligned look
     QFont fixedFont;
     fixedFont = QFontDatabase::systemFont(QFontDatabase::FixedFont);
-    fixedFont.setPointSize(10); 
+    fixedFont.setPointSize(10);
     setFont(fixedFont);
     setupUi();
-    resize(850, 650); 
+    resize(850, 650);
     // 1. Declare and initialize the gsm variable
     gameStateManager* gsm = gameStateManager::instance();
     // Check if a Ghost Hound is waiting to be added
     // Move pending dungeon exits into persistent stock
     if (gsm->getGameValue("GhostHoundPending").toBool()) {
-        gsm->incrementStock("Ghost hounf");
+        gsm->incrementStock("Ghost hound");
         gsm->setGameValue("GhostHoundPending", false);
     }
     // 2. Clear the widget and repopulate from the persistent Stock Map
-    buyCreatureListWidget->clear();   
+    buyCreatureListWidget->clear();
     QMap<QString, int> currentStock = gsm->getConfinementStock();
     for (auto it = currentStock.begin(); it != currentStock.end(); ++it) {
         QString creatureName = it.key();
         //int count = it.value();
         buyCreatureListWidget->addItem(creatureName);
     }
-    // --- Connect signals and slots ---    
+    // --- Connect signals and slots ---
     // Left Column Connections
     connect(bindButton, &QPushButton::clicked, this, &ConfinementAndHoldingDialog::bindCompanion);
     connect(identifyInfoButton, &QPushButton::clicked, this, &ConfinementAndHoldingDialog::identifyCompanion); 
@@ -52,14 +52,14 @@ ConfinementAndHoldingDialog::ConfinementAndHoldingDialog(QWidget *parent)
     // CONNECTED: Handle list selection to populate buy fields
     connect(buyCreatureListWidget, &QListWidget::itemSelectionChanged, this, &ConfinementAndHoldingDialog::updateBuyFieldsFromList);
     // Exit
-    connect(exitButton, &QPushButton::clicked, this, &QDialog::accept); 
+    connect(exitButton, &QPushButton::clicked, this, &QDialog::accept);
 }
 
 void ConfinementAndHoldingDialog::setupUi()
 {
     // Main Layout
     QHBoxLayout *mainLayout = new QHBoxLayout(this);
-    mainLayout->setSpacing(20); 
+    mainLayout->setSpacing(20);
     // --- Left Column Layout (Bind, Identify/Sell) ---
     QVBoxLayout *leftColLayout = new QVBoxLayout();
     // Group Box: Bind Companions
@@ -82,11 +82,11 @@ void ConfinementAndHoldingDialog::setupUi()
     identifyLayout->addWidget(identifyCompLineEdit);
     identifyLayout->addWidget(new QLabel("Value"));
     identifyValueLineEdit = new QLineEdit();
-    identifyValueLineEdit->setReadOnly(true); 
+    identifyValueLineEdit->setReadOnly(true);
     identifyLayout->addWidget(identifyValueLineEdit);
     // --- Identiy Buttons Layout ---
     QHBoxLayout *identifyButtonsLayout = new QHBoxLayout();
-    identifyGneButton = new QPushButton("GNE"); 
+    identifyGneButton = new QPushButton("GNE");
     identifyInfoButton = new QPushButton("Info");
     identifySellButton = new QPushButton("Sell");
     identifyIdButton = new QPushButton("ID");
@@ -95,7 +95,7 @@ void ConfinementAndHoldingDialog::setupUi()
     identifyInfoButton->setFixedWidth(buttonWidth);
     identifySellButton->setFixedWidth(buttonWidth);
     identifyIdButton->setFixedWidth(buttonWidth);
-    identifyButtonsLayout->addStretch(); 
+    identifyButtonsLayout->addStretch();
     identifyButtonsLayout->addWidget(identifyGneButton);
     identifyButtonsLayout->addWidget(identifyInfoButton);
     identifyButtonsLayout->addWidget(identifySellButton);
@@ -106,15 +106,15 @@ void ConfinementAndHoldingDialog::setupUi()
     identifyIdCostLineEdit = new QLineEdit();
     identifyLayout->addWidget(identifyIdCostLineEdit);
     leftColLayout->addWidget(identifyGroup);
-    leftColLayout->addStretch(); 
+    leftColLayout->addStretch();
     // --- Right Column Layout (Buy Companions) ---
     QVBoxLayout *rightColLayout = new QVBoxLayout();
     QGroupBox *buyGroup = new QGroupBox("Buy Companions");
     QVBoxLayout *buyLayout = new QVBoxLayout(buyGroup);
-    // "G N E" header alignment 
+    // "G N E" header alignment
     QHBoxLayout *gneHeaderLayout = new QHBoxLayout();
     QSpacerItem *spacer = new QSpacerItem(300, 1, QSizePolicy::Fixed, QSizePolicy::Minimum); 
-    gneHeaderLayout->addItem(spacer); 
+    gneHeaderLayout->addItem(spacer);
     gneLabel = new QLabel("G N E");
     QFont boldFont = gneLabel->font();
     boldFont.setBold(true);
@@ -123,20 +123,23 @@ void ConfinementAndHoldingDialog::setupUi()
     buyLayout->addLayout(gneHeaderLayout);
     // --- List Widget Setup ---
     buyCreatureListWidget = new QListWidget();
-    buyCreatureListWidget->setFont(font()); 
+    buyCreatureListWidget->setFont(font());
     buyLayout->addWidget(buyCreatureListWidget);
     buyLayout->addWidget(new QLabel("Companion"));
     buyCompanionLineEdit = new QLineEdit();
+    buyCompanionLineEdit->setReadOnly(true);
     buyLayout->addWidget(buyCompanionLineEdit);
     buyLayout->addWidget(new QLabel("Cost"));
     buyCostLineEdit = new QLineEdit();
-    buyCostLineEdit->setReadOnly(true); 
+    buyCostLineEdit->setReadOnly(true);
     buyLayout->addWidget(buyCostLineEdit);
     // --- Buy Buttons Layout ---
     QHBoxLayout *buyButtonsLayout = new QHBoxLayout();
     buyButton = new QPushButton("BUY");
+    buyButton->setEnabled(false);
     buyInfoButton = new QPushButton("INFO");
-    buyButtonsLayout->addStretch(); 
+    buyInfoButton->setEnabled(false);
+    buyButtonsLayout->addStretch();
     buyButtonsLayout->addWidget(buyButton);
     buyButtonsLayout->addWidget(buyInfoButton);
     buyLayout->addLayout(buyButtonsLayout);
@@ -144,13 +147,13 @@ void ConfinementAndHoldingDialog::setupUi()
     searchLineEdit = new QLineEdit();
     buyLayout->addWidget(searchLineEdit);
     rightColLayout->addWidget(buyGroup);
-    rightColLayout->addStretch(); 
+    rightColLayout->addStretch();
     // --- Add Exit Button to the bottom right ---
     exitButton = new QPushButton("Exit");
     QHBoxLayout *exitButtonLayout = new QHBoxLayout();
     exitButtonLayout->addStretch();
     exitButtonLayout->addWidget(exitButton);
-    rightColLayout->addLayout(exitButtonLayout); 
+    rightColLayout->addLayout(exitButtonLayout);
     // Add columns to main layout
     mainLayout->addLayout(leftColLayout);
     mainLayout->addLayout(rightColLayout);
@@ -167,7 +170,7 @@ void ConfinementAndHoldingDialog::identifyCompanion()
     QMessageBox::information(this, "Identify Companion", "Identifying companion: " + identifyCompLineEdit->text());
     qDebug() << "Identify Companion: " << identifyCompLineEdit->text();
     // Placeholder: populate identifyValueLineEdit with the identified value
-    identifyValueLineEdit->setText("Identified Value: 100g 50e 20n"); 
+    identifyValueLineEdit->setText("Identified Value: 100g 50e 20n");
 }
 
 void ConfinementAndHoldingDialog::identifyCompanionGNE()
@@ -213,7 +216,7 @@ void ConfinementAndHoldingDialog::searchCompanion()
 {
     QString searchText = searchLineEdit->text().trimmed();
     qDebug() << "Searching for: " << searchText;
-    
+
     for (int i = 0; i < buyCreatureListWidget->count(); ++i) {
         QListWidgetItem *item = buyCreatureListWidget->item(i);
         bool matches = item->text().contains(searchText, Qt::CaseInsensitive);
@@ -227,6 +230,8 @@ void ConfinementAndHoldingDialog::updateBuyFieldsFromList()
     if (selectedItems.isEmpty()) {
         buyCompanionLineEdit->clear();
         buyCostLineEdit->clear();
+        buyButton->setEnabled(false);
+        buyInfoButton->setEnabled(false);
         return;
     }
     QListWidgetItem *selectedItem = selectedItems.first();
@@ -256,6 +261,8 @@ void ConfinementAndHoldingDialog::updateBuyFieldsFromList()
     buyCompanionLineEdit->setText(companionName);
     buyCostLineEdit->setText(companionCost);
     qDebug() << "Selected: " << companionName << ", Cost: " << companionCost;
+    buyButton->setEnabled(true);
+    buyInfoButton->setEnabled(true);
 }
 
 void ConfinementAndHoldingDialog::addGhostHoundOnExit()
