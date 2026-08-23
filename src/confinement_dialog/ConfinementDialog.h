@@ -7,7 +7,7 @@
 #include <QListWidget>
 #include <QLabel>
 #include <QSpinBox>
-#include <QRegularExpression> // For Qt 6 regex parsing
+#include <QRegularExpression>
 
 #include "gameStateManager.h"
 
@@ -17,48 +17,56 @@ class ConfinementAndHoldingDialog : public QDialog
 
 public:
     explicit ConfinementAndHoldingDialog(QWidget *parent = nullptr);
-    ~ConfinementAndHoldingDialog();
+    ~ConfinementAndHoldingDialog() = default;
 
 private slots:
-    // Bind/Acquire
+    // Action Slots
     void bindCompanion();
-    // Identify/Sell/Realign
     void identifyCompanion();
-    void identifyCompanionGNE(); // Calculate GNE value
+    void identifyCompanionGNE();
     void sellCompanion();
-    void realignCompanionID();   // Realign ID
-    // Buy
+    void realignCompanionID();
     void buyCompanion();
     void showCompanionInfo();
     void searchCompanion();
-    // Handles selection change in the creature list
     void updateBuyFieldsFromList();
-    // Slot to be triggered when exiting the dungeon
     void addGhostHoundOnExit();
+
 private:
+    // Initialization Helpers
     void setupUi();
-    // Bind Companions
-    QLineEdit *bindCompLineEdit;
-    QLineEdit *bindCostLineEdit;
-    QPushButton *bindButton;
-    // Identify, Realign & Sell Companions
-    QLineEdit *identifyCompLineEdit;
-    QLineEdit *identifyValueLineEdit; // Value output (Read-only)
-    QPushButton *identifyGneButton; 
-    QPushButton *identifyInfoButton;
-    QPushButton *identifySellButton;
-    QPushButton *identifyIdButton;
-    QLineEdit *identifyIdCostLineEdit;
-    // Buy Companions
-    QListWidget *buyCreatureListWidget;
-    QLineEdit *buyCompanionLineEdit; 
-    QLineEdit *buyCostLineEdit; // Cost output (Read-only)
-    QPushButton *buyButton;
-    QPushButton *buyInfoButton;
-    QLineEdit *searchLineEdit;
-    QPushButton *exitButton;
-    // Labels for "G N E" in "Buy Companions" section
-    QLabel *gneLabel;
+    void applyThemeAndWindowSettings();
+    void initializeGameState();
+    void populateStockList();
+    void connectSignalsAndSlots();
+
+    // UI Builders
+    QWidget* createLeftColumn();
+    QWidget* createRightColumn();
+
+    // UI Controls - Bind Section
+    QLineEdit *bindCompLineEdit = nullptr;
+    QLineEdit *bindCostLineEdit = nullptr;
+    QPushButton *bindButton = nullptr;
+
+    // UI Controls - Identify/Sell Section
+    QLineEdit *identifyCompLineEdit = nullptr;
+    QLineEdit *identifyValueLineEdit = nullptr;
+    QLineEdit *identifyIdCostLineEdit = nullptr;
+    QPushButton *identifyGneButton = nullptr;
+    QPushButton *identifyInfoButton = nullptr;
+    QPushButton *identifySellButton = nullptr;
+    QPushButton *identifyIdButton = nullptr;
+
+    // UI Controls - Buy Section
+    QListWidget *buyCreatureListWidget = nullptr;
+    QLineEdit *buyCompanionLineEdit = nullptr;
+    QLineEdit *buyCostLineEdit = nullptr;
+    QLineEdit *searchLineEdit = nullptr;
+    QPushButton *buyButton = nullptr;
+    QPushButton *buyInfoButton = nullptr;
+    QPushButton *exitButton = nullptr;
+    QLabel *gneLabel = nullptr;
 };
 
 #endif // CONFINEMENTANDHOLDINGDIALOG_H
