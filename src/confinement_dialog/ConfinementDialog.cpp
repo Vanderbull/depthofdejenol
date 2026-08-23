@@ -268,7 +268,7 @@ void ConfinementAndHoldingDialog::updateBuyFieldsFromList()
 void ConfinementAndHoldingDialog::addGhostHoundOnExit()
 {
     // Add the specific string requested to the buy list
-    buyCreatureListWidget->addItem("Ghost hounf 75000     0  2  0");
+    buyCreatureListWidget->addItem("Ghost hound 75000     0  2  0");
     // Optional: Log for debugging
     qDebug() << "Character exited dungeon: Ghost Hound added to Confinement stock.";
 }
