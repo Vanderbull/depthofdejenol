@@ -3,8 +3,8 @@
 #include <QObject>
 #include <QList>
 #include <QSharedPointer>
-#include "CompanionModel.h"
-
+//#include "CompanionModel.h"
+#include "Companion.h"
 class CompanionRegistry : public QObject {
     Q_OBJECT
 public:

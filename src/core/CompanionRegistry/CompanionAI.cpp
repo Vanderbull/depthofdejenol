@@ -11,7 +11,7 @@ void CompanionAI::setStance(TacticalStance stance) {
 }
 
 TacticalStance CompanionAI::stance() const {
-    m_stance;
+    return m_stance;
 }
 
 void CompanionAI::evaluateTurn(const GridState &boardState) {
