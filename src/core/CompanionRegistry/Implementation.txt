@@ -1,0 +1,6 @@
+Implementation Instructions
+Initialize the Registry: Instantiate CompanionRegistry globally or as part of your core session manager.
+
+Bind the UI: Connect any companion UI window directly to a Companion instance's inventoryModel() using standard Qt views (QListView or QTableView), keeping inventory logic cleanly partitioned away from the main player stash.
+
+Drive Turns: During your grid combat turn loop, iterate through active companions, fetch or instantiate their corresponding CompanionAI controller, and call evaluateTurn(gridState). Hook up the requestedMove signal to your game board validator to update positions.
