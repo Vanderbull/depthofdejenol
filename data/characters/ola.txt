@@ -4,7 +4,7 @@ Alignment: Neutral
 Charisma: 5
 Constitution: 6
 Dexterity: 6
-DungeonLevel: 1
+DungeonLevel: 0
 DungeonX: 17
 DungeonY: 12
 Guild: Scavenger
@@ -13,4 +13,5 @@ Race: Human
 Sex: Male
 Strength: 9
 Wisdom: 4
-isAlive: 0
+isAlive: 1
+    inCity = true,

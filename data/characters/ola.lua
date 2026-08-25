@@ -6,7 +6,7 @@ SaveData = {
     Constitution = 6,
     Dexterity = 6,
     Diseased = false,
-    DungeonLevel = 1,
+    DungeonLevel = 0,
     DungeonX = 17,
     DungeonY = 12,
     Experience = 0,
@@ -23,5 +23,6 @@ SaveData = {
     Race = "Human",
     Strength = 9,
     Wisdom = 4,
-    isAlive = false,
+    isAlive = true,
 }
+    inCity = true,

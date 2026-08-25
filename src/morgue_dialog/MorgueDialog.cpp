@@ -46,7 +46,7 @@ void MorgueDialog::setupUi()
 QList<DeadCharacterInfo> MorgueDialog::fetchDeadCharacterData() const
 {
     QDir dir("data/characters");
-    QStringList allFiles = dir.entryList({"*.txt"}, QDir::Files);
+    QStringList allFiles = dir.entryList({"*.txt", "*.lua"}, QDir::Files);
     QList<DeadCharacterInfo> deadList;
 
     for (const QString &fileName : allFiles) {
@@ -57,9 +57,21 @@ QList<DeadCharacterInfo> MorgueDialog::fetchDeadCharacterData() const
             bool isDead = false;
             while (!in.atEnd()) {
                 QString line = in.readLine().trimmed();
-                if (line.startsWith("isAlive: 0")) isDead = true;
-                else if (line.startsWith("inCity: 1")) info.inCity = true;
-                else if (line.startsWith("DungeonLevel:")) info.dungeonLevel = line.split(":")[1].trimmed().toInt();
+                if (line.contains("isAlive") && (line.contains("0") || line.contains("false"))) {
+                    isDead = true;
+                }
+                if (line.contains("inCity") && (line.contains("1") || line.contains("true"))) {
+                    info.inCity = true;
+                }
+                if (line.contains("DungeonLevel")) {
+                    int colonIdx = line.indexOf(':');
+                    if (colonIdx == -1) colonIdx = line.indexOf('=');
+                    if (colonIdx != -1) {
+                        QString valStr = line.mid(colonIdx + 1).trimmed();
+                        valStr.remove(',');
+                        info.dungeonLevel = valStr.toInt();
+                    }
+                }
             }
             if (isDead) deadList.append(info);
             file.close();
@@ -76,15 +88,46 @@ bool MorgueDialog::moveBodyToCityInFile(const QString &fileName)
 
     QStringList lines;
     QTextStream in(&file);
+    bool foundInCity = false;
+    bool foundIsAlive = false;
+    bool foundDungeonLevel = false;
+
     while (!in.atEnd()) {
         QString line = in.readLine();
-        if (line.startsWith("inCity:")) line = "inCity: 1";
-        else if (line.startsWith("DungeonLevel:")) line = "DungeonLevel: 0";
-        else if (line.startsWith("DungeonX:")) line = "DungeonX: 17";
-        else if (line.startsWith("DungeonY:")) line = "DungeonY: 12";
+        if (line.contains("inCity")) {
+            foundInCity = true;
+            if (line.contains('='))
+                line = "    inCity = true,";
+            else
+                line = "inCity: 1";
+        }
+        else if (line.contains("isAlive")) {
+            foundIsAlive = true;
+            if (line.contains('='))
+                line = "    isAlive = true,";
+            else
+                line = "isAlive: 1";
+        }
+        else if (line.contains("DungeonLevel")) {
+            foundDungeonLevel = true;
+            if (line.contains('='))
+                line = "    DungeonLevel = 0,";
+            else
+                line = "DungeonLevel: 0";
+        }
+        else if (line.contains("DungeonX")) {
+            if (line.contains('=')) line = "    DungeonX = 17,";
+        }
+        else if (line.contains("DungeonY")) {
+            if (line.contains('=')) line = "    DungeonY = 12,";
+        }
         lines.append(line);
     }
     file.close();
+
+    if (!foundInCity) lines.append("    inCity = true,");
+    if (!foundIsAlive) lines.append("    isAlive = true,");
+    if (!foundDungeonLevel) lines.append("    DungeonLevel = 0,");
 
     if (!file.open(QIODevice::WriteOnly | QIODevice::Truncate | QIODevice::Text)) return false;
     QTextStream out(&file);
@@ -95,26 +138,7 @@ bool MorgueDialog::moveBodyToCityInFile(const QString &fileName)
 
 bool MorgueDialog::updateCharacterFile(const QString &fileName, bool resurrect)
 {
-    QString filePath = "data/characters/" + fileName;
-    QFile file(filePath);
-    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) return false;
-
-    QStringList lines;
-    QTextStream in(&file);
-    while (!in.atEnd()) {
-        QString line = in.readLine();
-        if (resurrect && line.startsWith("isAlive:")) line = "isAlive: 1";
-        if (line.startsWith("inCity:")) line = "inCity: 1";
-        if (line.startsWith("DungeonLevel:")) line = "DungeonLevel: 0";
-        lines.append(line);
-    }
-    file.close();
-
-    if (!file.open(QIODevice::WriteOnly | QIODevice::Truncate | QIODevice::Text)) return false;
-    QTextStream out(&file);
-    for (const QString &l : lines) out << l << "\n";
-    file.close();
-    return true;
+    return moveBodyToCityInFile(fileName);
 }
 
 int MorgueDialog::calculateRescueCost(int level) const { 
@@ -126,7 +150,7 @@ void MorgueDialog::onActionClicked()
     auto *btn = qobject_cast<QPushButton*>(sender());
     QString action = btn->text();
     auto* gsm = gameStateManager::instance();
-    // 1. Refresh data from files immediately on click
+    
     QList<DeadCharacterInfo> deadChars = fetchDeadCharacterData();
     if (deadChars.isEmpty()) {
         QMessageBox::information(this, tr("Morgue"), tr("No dead heroes found."));
@@ -143,6 +167,11 @@ void MorgueDialog::onActionClicked()
 
     if (action == tr("Hire Rescuers")) {
         int cost = calculateRescueCost(currentInfo.dungeonLevel);
+        
+        if (!currentInfo.inCity) {
+            cost += 500;
+        }
+
         qulonglong currentGold = gsm->getPC().at(0).gold;
 
         if (currentGold < (qulonglong)cost) {
@@ -157,33 +186,33 @@ void MorgueDialog::onActionClicked()
         }
     }
     else if (action == tr("Grab Body")) {
-        // Validation using refreshed file data
-        if (!currentInfo.inCity && currentInfo.dungeonLevel != 0) {
-            QMessageBox::critical(this, tr("Error"), tr("The body of %1 is still in the dungeon!").arg(selected));
+        if (!moveBodyToCityInFile(selected)) {
+            QMessageBox::critical(this, tr("Error"), tr("Failed to update character save file."));
             return;
         }
+
         QString nameOnly = selected;
         if (nameOnly.endsWith(".txt")) nameOnly.chop(4);
+        if (nameOnly.endsWith(".lua")) nameOnly.chop(4);
 
         if (gsm->loadCharacterFromFile(nameOnly)) {
-            QMessageBox::information(this, tr("Ready"), tr("%1 has been placed on the altar.").arg(nameOnly));
+            QMessageBox::information(this, tr("Success"), tr("%1 has been brought to the city, revived, and placed on the altar.").arg(nameOnly));
         }
     }
     else if (action == tr("Raise Character")) {
-        // Compare active character name to selection
         QString activeName = gsm->getPC().at(0).name;
-        if (activeName + ".txt" != selected) {
+        if (activeName + ".txt" != selected && activeName + ".lua" != selected) {
             QMessageBox::warning(this, tr("Not Ready"), tr("You must 'Grab Body' for %1 first.").arg(selected));
             return;
         }
-        // Use gameStateManager live memory to check level
         if (!gsm->isActiveCharacterInCity()) {
             QMessageBox::critical(this, tr("Error"), tr("%1 is not in the city!").arg(selected));
             return;
         }
         if (updateCharacterFile(selected, true)) {
             QString nameOnly = selected;
-            nameOnly.remove(".txt");
+            if (nameOnly.endsWith(".txt")) nameOnly.chop(4);
+            if (nameOnly.endsWith(".lua")) nameOnly.chop(4);
             gsm->loadCharacterFromFile(nameOnly);
             QMessageBox::information(this, tr("Success"), tr("%1 has returned to life!").arg(nameOnly));
         }
