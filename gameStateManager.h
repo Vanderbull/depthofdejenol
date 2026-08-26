@@ -232,6 +232,9 @@ public:
     const QList<QVariantMap>& itemData() const { return m_itemData; }
     void loadMonsterData(const QString& filePath);
     const QList<QVariantMap>& monsterData() const { return m_monsterData; }
+    void loadGeneralStoreData(const QString& filePath);
+    const QList<QVariantMap>& generalStoreData() const { return m_generalstoreData; }
+
     QVariantMap getGame(int index) const {
         return (index >= 0 && index < m_gameData.size()) ? m_gameData[index] : QVariantMap();
     }

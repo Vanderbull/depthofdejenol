@@ -1,0 +1,9 @@
+ItemID,ItemName,Category,Price,Weight,Rarity
+101,Broadsword of Might,Weapon,150,8.5,Uncommon
+102,Leather Armor,Armor,75,12.0,Common
+103,Health Elixir,Consumable,25,0.5,Common
+104,Magic Scroll,Scroll,200,0.1,Rare
+105,Iron Shield,Armor,90,10.0,Common
+106,Ring of Agility,Accessory,300,0.2,Rare
+107,Steel Helmet,Armor,110,5.0,Uncommon
+108,Mana Potion,Consumable,30,0.5,Common

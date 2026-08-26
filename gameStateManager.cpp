@@ -284,6 +284,7 @@ gameStateManager::gameStateManager(QObject *parent)
     loadMonsterData("tools/monsterconverter/data/MDATA5.csv");
     performSanityCheck();
     loadItemData("tools/itemconverter/data/MDATA3.csv");
+    loadGeneralStoreData("tools/generalstoreconverter/data/MDATA_Store.csv");
     // Max ages for each race
     initializeRaceAges();
     // Initialize Guild Leaders (Hall of Records)
@@ -2150,6 +2151,11 @@ bool gameStateManager::spendPartyGold(int amount) {
         return true;
     }
     return false; // Not enough gold
+}
+
+void gameStateManager::loadGeneralStoreData(const QString& filePath) {
+    loadCSVData(filePath, m_generalstoreData);
+    qDebug() << "Loaded" << m_generalstoreData.size() << "general store entries from" << filePath;
 }
 
 gameStateManager::~gameStateManager() {

@@ -12,20 +12,15 @@ GeneralStore::GeneralStore(QWidget *parent)
     populateShopItems();
     populatePlayerInventory();
     updateCharacterHeader();
-
     // Reward player 100 gold
     gameStateManager::instance()->addGold(1000);
-
     // Take 50 gold from member slot 1
     gameStateManager::instance()->addGold(-50, 1);
-
     // Spend shared party gold for purchases
     if (gameStateManager::instance()->spendPartyGold(250)) {
         // Purchase successful
     }
-
     gameStateManager::instance()->getCurrentCharacter();
-
     // --- Frame Timer Setup (~60 FPS update cycle) ---
     m_frameTimer = new QTimer(this);
     connect(m_frameTimer, &QTimer::timeout, this, &GeneralStore::updateFrame);
@@ -138,7 +133,8 @@ void GeneralStore::updateFrame()
 
     // Debug log to trace frame-by-frame updates
     Character current = gameStateManager::instance()->getCurrentCharacter();
-    int sharedGold = gameStateManager::instance()->getPartyGold();
+    Q_UNUSED(current);
+//    int sharedGold = gameStateManager::instance()->getPartyGold();
 
 //    qDebug() << "[GeneralStore::updateFrame] Frame tick | Active Char:" 
 //             << (current.name.isEmpty() ? "Hero" : current.name)
@@ -152,65 +148,59 @@ void GeneralStore::updateCharacterHeader()
     // Check party gold or single character gold dynamically
     int sharedGold = gameStateManager::instance()->getPartyGold();
 
-QVariantList gameStateList = gameStateManager::instance()->getGameStates();
-for (int i = 0; i < gameStateList.size(); ++i) {
-    QVariantMap record = gameStateList.at(i).toMap();
-    
-    qDebug() << "--- Record #" << i << "---";
+    QVariantList gameStateList = gameStateManager::instance()->getGameStates();
+    for (int i = 0; i < gameStateList.size(); ++i) {
+        QVariantMap record = gameStateList.at(i).toMap();
+        qDebug() << "--- Record #" << i << "---";
 
-    for (auto it = record.constBegin(); it != record.constEnd(); ++it) {
-        QString key = it.key();
-        QVariant val = it.value();
+        for (auto it = record.constBegin(); it != record.constEnd(); ++it) {
+            QString key = it.key();
+            QVariant val = it.value();
 
-        // Check if value is a nested list (e.g., PartyHP)
-        if (val.userType() == QMetaType::QVariantList) {
-            qDebug() << key << "(List):";
-            QVariantList subList = val.toList();
-            for (int j = 0; j < subList.size(); ++j) {
-                qDebug() << "  [" << j << "]:" << subList.at(j);
+            // Check if value is a nested list (e.g., PartyHP)
+            if (val.userType() == QMetaType::QVariantList) {
+                qDebug() << key << "(List):";
+                QVariantList subList = val.toList();
+                for (int j = 0; j < subList.size(); ++j) {
+                    qDebug() << "  [" << j << "]:" << subList.at(j);
+                }
             }
-        } 
-        // Check if value is a nested map (e.g., Party)
-        else if (val.userType() == QMetaType::QVariantMap) {
-            qDebug() << key << "(Map):";
-            QVariantMap subMap = val.toMap();
-            for (auto subIt = subMap.constBegin(); subIt != subMap.constEnd(); ++subIt) {
-                qDebug() << "  " << subIt.key() << ":" << subIt.value();
+            // Check if value is a nested map (e.g., Party)
+            else if (val.userType() == QMetaType::QVariantMap) {
+                qDebug() << key << "(Map):";
+                QVariantMap subMap = val.toMap();
+                for (auto subIt = subMap.constBegin(); subIt != subMap.constEnd(); ++subIt) {
+                    qDebug() << "  " << subIt.key() << ":" << subIt.value();
+                }
             }
-        } 
-        // Standard scalar values
-        else {
-            qDebug() << key << ":" << val;
+            // Standard scalar values
+            else {
+                qDebug() << key << ":" << val;
+            }
         }
     }
-}
 
-if (!gameStateList.isEmpty()) {
-    QVariantMap record = gameStateList.first().toMap();
-
-    // Step 1: Get the "Party" Map
-    QVariantMap partyMap = record.value("Party").toMap();
-
-    // Step 2: Get the "Members" List from the Party Map
-    QVariantList membersList = partyMap.value("Members").toList();
-
-    // Step 3: Access a specific member (e.g., index 0) and get their Map
-    if (!membersList.isEmpty()) {
-        QVariantMap memberMap = membersList.at(0).toMap();
-
-        // Step 4: Call the specific key ("Age")
-        int age = memberMap.value("Age").toInt();
-
-        qDebug() << "Member 0 Age:" << age;
+    if (!gameStateList.isEmpty()) {
+        QVariantMap record = gameStateList.first().toMap();
+        // Step 1: Get the "Party" Map
+        QVariantMap partyMap = record.value("Party").toMap();
+        // Step 2: Get the "Members" List from the Party Map
+        QVariantList membersList = partyMap.value("Members").toList();
+        // Step 3: Access a specific member (e.g., index 0) and get their Map
+        if (!membersList.isEmpty()) {
+            QVariantMap memberMap = membersList.at(0).toMap();
+            // Step 4: Call the specific key ("Age")
+            int age = memberMap.value("Age").toInt();
+            qDebug() << "Member 0 Age:" << age;
+        }
     }
-}
 
-int age = gameStateManager::instance()->getGameStates().first().toMap()
+    int age = gameStateManager::instance()->getGameStates().first().toMap()
             .value("Party").toMap()
             .value("Members").toList().at(0).toMap()
             .value("Age").toInt();
 
-qDebug() << "Age is:" << age;
+    qDebug() << "Age is:" << age;
 
     m_charInfoLabel->setText(QString("Hero: %1 (%2 Lvl %3)")
                                  .arg(current.name.isEmpty() ? "Hero" : current.name)
@@ -218,25 +208,23 @@ qDebug() << "Age is:" << age;
                                  .arg(current.level));
     // Show character individual gold and shared party gold
     m_goldLabel->setText(QString("Gold: %1 GP (Party: %2 GP)")
-                             .arg(current.gold)
+                             .arg(gameStateManager::instance()->getPartyGold())
                              .arg(sharedGold));
 }
 void GeneralStore::loadItemsFromCsv(const QString& filePath)
 {
     m_availableShopItems.clear();
-
     // 1. Try loading from global game state manager first
     QList<QVariantMap> globalItems = gameStateManager::instance()->itemData();
     if (!globalItems.isEmpty()) {
         m_availableShopItems = globalItems;
         return;
     }
-
     // 2. Read from CSV file directly
     QFile file(filePath);
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
         qWarning() << "Failed to open CSV file:" << filePath << "- Loading fallback items.";
-        
+
         m_availableShopItems = {
             {{"name", "Healing Potion"}, {"type", "Consumable"}, {"cost", 25}, {"desc", "Restores 20 HP."}, {"stats", "+20 HP"}},
             {{"name", "Iron Longsword"}, {"type", "Weapon"},     {"cost", 150}, {"desc", "Standard issue blade."}, {"stats", "+5 Atk"}},
@@ -292,7 +280,6 @@ void GeneralStore::loadItemsFromCsv(const QString& filePath)
 
                 bool ok;
                 int costVal = digitsOnly.toInt(&ok);
-                
                 // Store under both "cost" and "price" to ensure compatibility
                 itemMap["cost"] = ok ? costVal : 0;
                 itemMap["price"] = ok ? costVal : 0;
@@ -308,28 +295,10 @@ void GeneralStore::loadItemsFromCsv(const QString& filePath)
 
     file.close();
 }
-/*
-void GeneralStore::loadItemsFromCsv(const QString& filePath)
-{
-    // Load item catalogue via gameStateManager standard item registry or local fallback
-    QList<QVariantMap> globalItems = gameStateManager::instance()->itemData();
-    if (!globalItems.isEmpty()) {
-        m_availableShopItems = globalItems;
-    } else {
-        // Fallback default stock items if CSV is missing or loading dynamically
-        m_availableShopItems = {
-            {{"name", "Healing Potion"}, {"type", "Consumable"}, {"cost", 25}, {"desc", "Restores 20 HP."}},
-            {{"name", "Iron Longsword"}, {"type", "Weapon"},     {"cost", 150}, {"desc", "Atk +5. Standard issue blade."}},
-            {{"name", "Leather Armor"},  {"type", "Armor"},      {"cost", 100}, {"desc", "AC +2. Light protection."}},
-            {{"name", "Rations"},        {"type", "Food"},       {"cost", 5},   {"desc", "Sustained food supply for dungeon travel."}}
-        };
-    }
-}
-*/
+
 void GeneralStore::populateShopItems()
 {
     m_shopTable->setRowCount(0);
-
     // Standard header keys to filter out from the stats display
     static const QSet<QString> nonStatKeys = {
         "name", "type", "cost", "price", "gp", "desc"
@@ -341,7 +310,6 @@ void GeneralStore::populateShopItems()
 
         QString name = item.value("name").toString();
         QString type = item.value("type").toString();
-        
         // Flexible price lookup
         int cost = 0;
         if (item.contains("cost")) {
@@ -351,7 +319,6 @@ void GeneralStore::populateShopItems()
         } else if (item.contains("gp")) {
             cost = item.value("gp").toInt();
         }
-
         // Dynamically collect all additional stats from the CSV
         QStringList statsList;
         for (auto it = item.constBegin(); it != item.constEnd(); ++it) {
@@ -361,7 +328,6 @@ void GeneralStore::populateShopItems()
 
             QString val = it.value().toString().trimmed();
             if (val.isEmpty()) continue;
-
             // Capitalize key name for UI formatting (e.g., "atk" -> "Atk")
             QString formattedKey = key;
             if (!formattedKey.isEmpty()) {
@@ -370,13 +336,11 @@ void GeneralStore::populateShopItems()
 
             statsList.append(QString("%1: %2").arg(formattedKey, val));
         }
-
         // Build summary string: show collected stats, or fall back to description if no extra stats exist
         QString statsDisplayStr = statsList.join(" | ");
         if (statsDisplayStr.isEmpty() && item.contains("desc")) {
             statsDisplayStr = item.value("desc").toString();
         }
-
         // Create table items
         QTableWidgetItem *nameItem  = new QTableWidgetItem(name);
         QTableWidgetItem *typeItem  = new QTableWidgetItem(type);
@@ -384,7 +348,6 @@ void GeneralStore::populateShopItems()
         QTableWidgetItem *statsItem = new QTableWidgetItem(statsDisplayStr);
 
         costItem->setTextAlignment(Qt::AlignRight | Qt::AlignVCenter);
-
         // Store entire QVariantMap in UserRole on the primary item
         nameItem->setData(Qt::UserRole, item);
 
@@ -394,61 +357,7 @@ void GeneralStore::populateShopItems()
         m_shopTable->setItem(i, 3, statsItem);
     }
 }
-/*
-void GeneralStore::populateShopItems()
-{
-    m_shopTable->setRowCount(0);
-    for (int i = 0; i < m_availableShopItems.size(); ++i) {
-        const QVariantMap& item = m_availableShopItems[i];
-        m_shopTable->insertRow(i);
 
-        QTableWidgetItem *nameItem = new QTableWidgetItem(item["name"].toString());
-        QTableWidgetItem *typeItem = new QTableWidgetItem(item["type"].toString());
-        QTableWidgetItem *costItem = new QTableWidgetItem(QString("%1 GP").arg(item["cost"].toInt()));
-
-        m_shopTable->setItem(i, 0, nameItem);
-        m_shopTable->setItem(i, 1, typeItem);
-        m_shopTable->setItem(i, 2, costItem);
-    }
-}
-*/
-/*
-void GeneralStore::populateShopItems()
-{
-    m_shopTable->setRowCount(0);
-
-    for (int i = 0; i < m_availableShopItems.size(); ++i) {
-        const QVariantMap& item = m_availableShopItems[i];
-        m_shopTable->insertRow(i);
-
-        QString name = item.value("name").toString();
-        QString type = item.value("type").toString();
-        int cost = item.value("cost").toInt();
-
-        // Check for 'stats' key, falling back to 'desc' if 'stats' is empty
-        QString statsStr = item.value("stats").toString();
-        if (statsStr.isEmpty()) {
-            statsStr = item.value("desc").toString();
-        }
-
-        QTableWidgetItem *nameItem = new QTableWidgetItem(name);
-        QTableWidgetItem *typeItem = new QTableWidgetItem(type);
-        QTableWidgetItem *costItem = new QTableWidgetItem(QString("%1 GP").arg(cost));
-        QTableWidgetItem *statsItem = new QTableWidgetItem(statsStr);
-
-        // Right-align the cost column
-        costItem->setTextAlignment(Qt::AlignRight | Qt::AlignVCenter);
-
-        // Store full item metadata into UserRole for easy retrieval on selection
-        nameItem->setData(Qt::UserRole, item);
-
-        m_shopTable->setItem(i, 0, nameItem);
-        m_shopTable->setItem(i, 1, typeItem);
-        m_shopTable->setItem(i, 2, costItem);
-        m_shopTable->setItem(i, 3, statsItem);
-    }
-}
-*/
 void GeneralStore::populatePlayerInventory()
 {
     m_playerInventoryList->clear();
@@ -457,20 +366,19 @@ void GeneralStore::populatePlayerInventory()
         m_playerInventoryList->addItem(itemName);
     }
 }
+
 void GeneralStore::onShopSelectionChanged()
 {
     int row = m_shopTable->currentRow();
     if (row < 0 || row >= m_shopTable->rowCount()) return;
 
     m_playerInventoryList->clearSelection();
-
     // Retrieve the item map stored in Qt::UserRole from column 0
     QTableWidgetItem *nameItemWidget = m_shopTable->item(row, 0);
     if (!nameItemWidget) return;
 
     QVariantMap item = nameItemWidget->data(Qt::UserRole).toMap();
     if (item.isEmpty()) return;
-
     // Standard headers to exclude from dynamic stat listing
     static const QSet<QString> headerKeys = {
         "name", "type", "cost", "price", "gp"
@@ -479,26 +387,21 @@ void GeneralStore::onShopSelectionChanged()
     QString name = item.value("name").toString();
     QString type = item.value("type").toString();
     int cost = item.contains("cost") ? item.value("cost").toInt() : item.value("price").toInt();
-
     // Build html string for description and stats
     QString html = QString("<b>%1</b> (%2) — <b>Price: %3 GP</b><br>").arg(name, type).arg(cost);
-
     // Add description first if present
     if (item.contains("desc") && !item["desc"].toString().isEmpty()) {
         html += QString("<i>%1</i><br>").arg(item["desc"].toString());
     }
-
     // Collect all remaining stats from the CSV
     QStringList extraStats;
     for (auto it = item.constBegin(); it != item.constEnd(); ++it) {
         QString key = it.key();
-
         // Skip standard header fields and desc (handled above)
         if (headerKeys.contains(key) || key == "desc") continue;
 
         QString valueStr = it.value().toString().trimmed();
         if (valueStr.isEmpty()) continue;
-
         // Capitalize the stat key for clean display (e.g. "atk" -> "Atk")
         QString capitalizedKey = key;
         if (!capitalizedKey.isEmpty()) {
@@ -514,22 +417,6 @@ void GeneralStore::onShopSelectionChanged()
 
     m_itemDetailsText->setText(html);
 }
-/*
-void GeneralStore::onShopSelectionChanged()
-{
-    int row = m_shopTable->currentRow();
-    if (row < 0 || row >= m_availableShopItems.size()) return;
-
-    m_playerInventoryList->clearSelection();
-    const QVariantMap& item = m_availableShopItems[row];
-
-    m_itemDetailsText->setText(QString("<b>%1</b> (%2)<br>Price: %3 GP<br>%4")
-                                   .arg(item["name"].toString())
-                                   .arg(item["type"].toString())
-                                   .arg(item["cost"].toInt())
-                                   .arg(item["desc"].toString()));
-}
-*/
 
 void GeneralStore::onPlayerInventorySelectionChanged()
 {
@@ -555,7 +442,7 @@ void GeneralStore::buySelectedItem()
     if (row < 0 || row >= m_availableShopItems.size()) return;
 
     const QVariantMap& item = m_availableShopItems[row];
-    int cost = 0;
+    qulonglong cost = 0;
     if (item.contains("cost")) {
         cost = item.value("cost").toInt();
     } else if (item.contains("price")) {
@@ -566,6 +453,17 @@ void GeneralStore::buySelectedItem()
 
     QString itemName = item["name"].toString();
 
+    if (gameStateManager::instance()->getPartyGold() < static_cast<qulonglong>(cost)) {
+        // Handle insufficient gold
+        QMessageBox::warning(this, "Insufficient Gold", "You do not have enough gold to purchase this item.");
+        return;
+    }
+    else
+    {
+        gameStateManager::instance()->setGold(gameStateManager::instance()->getPartyGold() - cost);
+        QMessageBox::warning(this, "sufficient Gold", QString("gold...\n\nIt is a %1!").arg(cost) );
+    }
+/*
     Character current = gameStateManager::instance()->getCurrentCharacter();
     if (current.gold < static_cast<qulonglong>(cost)) {
         QMessageBox::warning(this, "Insufficient Gold", "You do not have enough gold to purchase this item.");
@@ -575,6 +473,7 @@ void GeneralStore::buySelectedItem()
     {
         QMessageBox::warning(this, "sufficient Gold", QString("gold...\n\nIt is a %1!").arg(cost) );
     }
+*/
     int activeIdx = gameStateManager::instance()->getCurrentCharacterIndex();
     gameStateManager::instance()->updateCharacterGold(activeIdx, cost, false);
     gameStateManager::instance()->addItemToCharacter(activeIdx, itemName);
@@ -626,7 +525,21 @@ void GeneralStore::identifySelectedItem()
         return;
     }
     // 3. Gold Verification (e.g., standard fee of 50 GP)
-    const int identifyFee = 50;
+    const qulonglong identifyFee = 50;
+
+    if (gameStateManager::instance()->getPartyGold() < static_cast<qulonglong>(identifyFee)) {
+        // Handle insufficient gold
+        QMessageBox::warning(this, "Insufficient Gold", 
+                             QString("You need %1 GP to identify an item. You only have %2 GP.")
+                             .arg(identifyFee)
+                             .arg(gameStateManager::instance()->getPartyGold()));
+        return;
+    }
+
+    // Directly update gold:
+    gameStateManager::instance()->setGold(gameStateManager::instance()->getPartyGold() - identifyFee);
+
+/*
     if (current.gold < static_cast<qulonglong>(identifyFee)) {
         QMessageBox::warning(this, "Insufficient Gold", 
                              QString("You need %1 GP to identify an item. You only have %2 GP.")
@@ -634,6 +547,7 @@ void GeneralStore::identifySelectedItem()
                              .arg(current.gold));
         return;
     }
+*/
     // 4. Resolve the true item identity
     // Lookup full stats/true name via gameStateManager or internal registry
     QVariantMap itemStats = gameStateManager::instance()->getItemStats(rawItemName);
@@ -687,7 +601,20 @@ void GeneralStore::uncurseSelectedItem()
         return;
     }
     // 3. Gold Verification ( standard uncurse fee of 100 GP)
-    const int uncurseFee = 100;
+    const qulonglong uncurseFee = 100;
+
+    if (gameStateManager::instance()->getPartyGold() < static_cast<qulonglong>(uncurseFee)) {
+        // Handle insufficient gold
+        QMessageBox::warning(this, "Insufficient Gold", 
+                             QString("The uncurse ritual costs %1 GP. You only have %2 GP.")
+                             .arg(uncurseFee)
+                             .arg(gameStateManager::instance()->getPartyGold()));
+        return;
+    }
+
+    // Directly update gold:
+    gameStateManager::instance()->setGold(gameStateManager::instance()->getPartyGold() - uncurseFee);
+/*
     if (current.gold < static_cast<qulonglong>(uncurseFee)) {
         QMessageBox::warning(this, "Insufficient Gold", 
                              QString("The uncurse ritual costs %1 GP. You only have %2 GP.")
@@ -695,12 +622,15 @@ void GeneralStore::uncurseSelectedItem()
                              .arg(current.gold));
         return;
     }
+*/
     // 4. Resolve uncursed item name
     // Check if itemStats defines a clean name, otherwise strip "Cursed " prefix
     QString uncursedName = itemStats.value("uncursedName").toString();
     if (uncursedName.isEmpty()) {
         uncursedName = rawItemName;
-        uncursedName.remove("Cursed ", Qt::CaseInsensitive).remove("(Cursed)", Qt::CaseInsensitive).trimmed();
+        uncursedName.remove("Cursed ", Qt::CaseInsensitive);
+        uncursedName.remove("(Cursed)", Qt::CaseInsensitive);
+        uncursedName = uncursedName.trimmed();
     }
     // 5. Deduct Gold and Update Inventory in Game State
     gameStateManager::instance()->updateCharacterGold(activeIdx, uncurseFee, false /* subtract */);
