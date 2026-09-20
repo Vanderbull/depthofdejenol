@@ -136,7 +136,7 @@ bool MorgueDialog::moveBodyToCityInFile(const QString &fileName)
     return true;
 }
 
-bool MorgueDialog::updateCharacterFile(const QString &fileName, bool resurrect)
+bool MorgueDialog::updateCharacterFile(const QString &fileName)
 {
     return moveBodyToCityInFile(fileName);
 }
@@ -209,7 +209,7 @@ void MorgueDialog::onActionClicked()
             QMessageBox::critical(this, tr("Error"), tr("%1 is not in the city!").arg(selected));
             return;
         }
-        if (updateCharacterFile(selected, true)) {
+        if (updateCharacterFile(selected)) {
             QString nameOnly = selected;
             if (nameOnly.endsWith(".txt")) nameOnly.chop(4);
             if (nameOnly.endsWith(".lua")) nameOnly.chop(4);
