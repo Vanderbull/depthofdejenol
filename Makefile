@@ -1705,7 +1705,8 @@ build/obj/release/EventManager.o: src/event/EventManager.cpp src/event/EventMana
 		character.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/EventManager.o src/event/EventManager.cpp
 
-build/obj/release/UpdateManager.o: src/update/UpdateManager.cpp src/update/UpdateManager.h
+build/obj/release/UpdateManager.o: src/update/UpdateManager.cpp src/update/UpdateManager.h \
+		version.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/UpdateManager.o src/update/UpdateManager.cpp
 
 build/obj/release/UpdateDialog.o: src/update/UpdateDialog.cpp src/update/UpdateDialog.h \

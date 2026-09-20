@@ -1,4 +1,5 @@
 #include "UpdateManager.h"
+#include "version.h"
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
 #include <QTemporaryDir>
@@ -10,6 +11,30 @@
 #include <QJsonArray>
 #include <QDir>
 #include <QDebug>
+
+// Helper: parse a version string like "v626" or "626" into a numeric value.
+// Returns -1 if parsing fails.
+static int parseVersionNumber(const QString &version) {
+    QString v = version.trimmed();
+    if (v.isEmpty()) return -1;
+    // Strip leading "v" or "V" prefix if present
+    if (v.startsWith(QLatin1Char('v')) || v.startsWith(QLatin1Char('V')))
+        v.remove(0, 1);
+    bool ok;
+    int num = v.toInt(&ok);
+    return ok ? num : -1;
+}
+
+// Helper: compare two version strings. Returns true if remote > local.
+static bool isRemoteNewer(const QString &localVersion, const QString &remoteVersion) {
+    int localNum = parseVersionNumber(localVersion);
+    int remoteNum = parseVersionNumber(remoteVersion);
+    if (localNum < 0 || remoteNum < 0) {
+        qWarning() << "UpdateManager: couldn't parse version strings — local:" << localVersion << "remote:" << remoteVersion;
+        return false; // Conservative: don't claim update available on parse failure
+    }
+    return remoteNum > localNum;
+}
 
 // The private implementation class definition
 class UpdateManagerPrivate {
@@ -92,6 +117,7 @@ void UpdateManager::onManifestReplyFinished()
     }
 
     QJsonObject root = doc.object();
+    QString localVersion = QString::fromLatin1(GameConstants::FULL_VERSION);
     if (root.contains(QStringLiteral("tag_name"))) {
         // GitHub Logic
         QString remoteVersion = root.value(QStringLiteral("tag_name")).toString();
@@ -112,6 +138,11 @@ void UpdateManager::onManifestReplyFinished()
             }
         }
 
+        if (!isRemoteNewer(localVersion, remoteVersion)) {
+            emit noUpdateAvailable();
+            return;
+        }
+
         if (!checksumUrl.isEmpty()) {
             QNetworkRequest creq{QUrl(checksumUrl)};
             creq.setHeader(QNetworkRequest::UserAgentHeader, QStringLiteral("DepthOfDejenol-Updater/1.0"));
@@ -129,6 +160,12 @@ void UpdateManager::onManifestReplyFinished()
         QString notes = root.value(QStringLiteral("notes")).toString();
         QString patchUrlStr = root.value(QStringLiteral("patchUrl")).toString();
         QByteArray shaBytes = QByteArray::fromHex(root.value(QStringLiteral("sha256")).toString().toUtf8());
+        
+        if (!isRemoteNewer(localVersion, remoteVersion)) {
+            emit noUpdateAvailable();
+            return;
+        }
+        
         emit updateAvailable(remoteVersion, notes, QUrl(patchUrlStr), shaBytes);
     }
 }
