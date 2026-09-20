@@ -453,7 +453,7 @@ void GeneralStore::buySelectedItem()
 
     QString itemName = item["name"].toString();
 
-    if (gameStateManager::instance()->getPartyGold() < static_cast<qulonglong>(cost)) {
+    if (gameStateManager::instance()->getPartyGold() < static_cast<int>(cost)) {
         // Handle insufficient gold
         QMessageBox::warning(this, "Insufficient Gold", "You do not have enough gold to purchase this item.");
         return;
@@ -527,7 +527,7 @@ void GeneralStore::identifySelectedItem()
     // 3. Gold Verification (e.g., standard fee of 50 GP)
     const qulonglong identifyFee = 50;
 
-    if (gameStateManager::instance()->getPartyGold() < static_cast<qulonglong>(identifyFee)) {
+    if (gameStateManager::instance()->getPartyGold() < static_cast<int>(identifyFee)) {
         // Handle insufficient gold
         QMessageBox::warning(this, "Insufficient Gold", 
                              QString("You need %1 GP to identify an item. You only have %2 GP.")
@@ -603,7 +603,7 @@ void GeneralStore::uncurseSelectedItem()
     // 3. Gold Verification ( standard uncurse fee of 100 GP)
     const qulonglong uncurseFee = 100;
 
-    if (gameStateManager::instance()->getPartyGold() < static_cast<qulonglong>(uncurseFee)) {
+    if (gameStateManager::instance()->getPartyGold() < static_cast<int>(uncurseFee)) {
         // Handle insufficient gold
         QMessageBox::warning(this, "Insufficient Gold", 
                              QString("The uncurse ritual costs %1 GP. You only have %2 GP.")
