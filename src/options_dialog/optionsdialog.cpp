@@ -20,7 +20,7 @@ void OptionsDialog::onNoMusicToggled(bool checked)
         audioManager::instance()->stopAllAudio();
         qDebug() << "Music muted. Sound FX slider remains at current level.";
     } else {
-        audioManager::instance()->playMusic("ressources/waves/main.wav");
+        audioManager::instance()->playMusic("resources/waves/main.wav");
         qDebug() << "Music restored";
     }
 }

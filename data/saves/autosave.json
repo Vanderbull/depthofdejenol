@@ -1,8 +1,10 @@
 {
+    "BankSlotsFree": 24,
     "ConfigIntegrityOK": true,
-    "DungeonLevel": 1,
-    "DungeonX": 24,
-    "DungeonY": 9,
+    "CurrentCharacterHP": 0,
+    "DungeonLevel": 2,
+    "DungeonX": 9,
+    "DungeonY": 10,
     "GameStates": [
         {
             "ActiveCharacterIndex": 0,
@@ -294,10 +296,11 @@
         40,
         30
     ],
-    "PlayerGold": 1500,
+    "PlayerGold": 1000,
     "ResourcesLoaded": true,
     "confinementStock": null,
     "currentLocation": 0,
     "currentMode": 0,
-    "lastSaved": "Sun Sep 20 14:04:21 2026"
+    "isAlive": 0,
+    "lastSaved": "Mon Sep 28 06:01:26 2026"
 }

@@ -36,9 +36,9 @@ public:
      */
     static void loadAllResources() {
         if (s_resources.isEmpty()) {
-            _loadResources();
+            loadResources();
         } else {
-            qDebug() << "Game resources already loaded. Skipping loadAllResources() call.";
+            qDebug() << "Game resources already loaded (skip).";
         }
     }
 
@@ -55,34 +55,13 @@ private:
         // A common setup places the assets folder next to the executable.
         const QString RESOURCE_PATH = "resources/images/";
 
-        QDir dir(RESOURCE_PATH);
-
-        // Check if the directory is valid before proceeding
-        if (!dir.exists()) {
-            qWarning() << "CRITICAL: Resource directory not found:" << QDir::currentPath() + "/" + RESOURCE_PATH;
-            return;
-        }
-
-        // --- 2. Set up filters for common image files ---
-        QStringList nameFilters;
-        nameFilters << "*.png" << "*.jpg" << "*.jpeg" << "*.gif" << "*.bmp";
-
-        QFileInfoList fileList = dir.entryInfoList(nameFilters, QDir::Files | QDir::Readable);
-
-        // --- 3. Iterate and load each file ---
-        foreach (const QFileInfo &fileInfo, fileList) {
-            QString filePath = fileInfo.absoluteFilePath();
-            // Use the filename WITHOUT the extension as the lookup key
-            QString key = fileInfo.baseName();
-
-            QPixmap pixmap(filePath);
-
-            if (!pixmap.isNull()) {
-                s_resources.insert(key, pixmap);
-            } else {
-                qWarning() << "Failed to load image:" << filePath;
-            }
-        }
+        // Files are loaded explicitly below — no directory scanning needed
+        // QDir dir(RESOURCE_PATH);
+        // if (!dir.exists()) { ... }
+        // QStringList nameFilters;
+        // nameFilters << "*.png" << "*.jpg" << "*.jpeg" << "*.gif" << "*.bmp";
+        // QFileInfoList fileList = dir.entryInfoList(nameFilters, QDir::Files | QDir::Readable);
+        // foreach (const QFileInfo &fileInfo, fileList) { ... }
 
         // --- 4. Final check and reporting ---
         if (s_resources.isEmpty()) {

@@ -263,7 +263,7 @@ gameStateManager::gameStateManager(QObject *parent)
     fontManager::instance()->setFixedFont(QFont("Courier New", 9));
 
     // If you want to load the sprite sheet at startup:
-    fontManager::instance()->loadSpriteSheet("path/to/font.png", 
+    fontManager::instance()->loadSpriteSheet("resources/images/font_spritesheet_transparent.png", 
                                              GameConstants::SPRITE_WIDTH, 
                                              GameConstants::SPRITE_HEIGHT, 
                                              GameConstants::KERNING);
