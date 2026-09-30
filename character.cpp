@@ -122,8 +122,7 @@ QVariantMap Party::toMap() const {
 void Party::loadFromMap(const QVariantMap &map) {
     sharedGold = map.value("SharedGold", 0).toInt();
     QVariantList charList = map.value("Members").toList();
-    
-    //members.clear();
+
     for (int i = 0; i < charList.size(); ++i) {
         Character c;
         c.loadFromMap(charList.at(i).toMap());

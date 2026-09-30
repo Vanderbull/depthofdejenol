@@ -76,7 +76,7 @@ bool gameStateManager::loadGameConfig(const QString& filePath) {
 void gameStateManager::refreshUI() {
     // Access members via the manager
     auto& members = m_partyManager->currentParty().members;
-    
+
     if (members.isEmpty()) {
         qDebug() << "refreshUI called: Party is currently empty.";
         return;
@@ -85,6 +85,13 @@ void gameStateManager::refreshUI() {
     // Use the manager to get the map representation
     QVariantMap partyData = m_partyManager->getPartyAsMap();
     m_gameStateData["Party"] = partyData;
+
+    // --- Gold sync: keep CurrentCharacterGold/PlayerGold in sync with party gold
+    // for backward compatibility with UI elements that still bind to these keys.
+    // All new transactions go through Party::sharedGold exclusively.
+    int partyGold = m_partyManager->currentParty().sharedGold;
+    m_gameStateData["CurrentCharacterGold"] = QVariant::fromValue(static_cast<qulonglong>(partyGold));
+    m_gameStateData["PlayerGold"]        = QVariant::fromValue(static_cast<quint64>(partyGold));
 
     emit gameValueChanged("party_data", partyData);
     qDebug() << "UI Refreshed with" << members.size() << "characters.";
@@ -552,15 +559,17 @@ void gameStateManager::addItemToCharacter(int characterIndex, const QString& ite
 */
 
 void gameStateManager::updateCharacterGold(int characterIndex, qulonglong amount, bool add) {
-    auto& members = m_partyManager->currentParty().members;
-    if (characterIndex >= 0 && characterIndex < members.size()) {
-        if (add) members[characterIndex].gold += amount;
-        else {
-            qulonglong current = members[characterIndex].gold;
-            members[characterIndex].gold = (amount > current) ? 0 : current - amount;
-        }
-        refreshUI();
+    Q_UNUSED(characterIndex);
+    // Redirect to party gold — per-character gold is deprecated.
+    if (add) {
+        m_partyManager->currentParty().sharedGold = qMax(0,
+            m_partyManager->currentParty().sharedGold + static_cast<int>(amount));
+    } else {
+        int current = m_partyManager->currentParty().sharedGold;
+        m_partyManager->currentParty().sharedGold = (amount > static_cast<qulonglong>(current))
+            ? 0 : current - static_cast<int>(amount);
     }
+    refreshUI();
 }
 
 /*
@@ -818,7 +827,7 @@ bool gameStateManager::saveCharacterToFile(int partyIndex)
     out << "Level: " << character["Level"].toInt() << "\n";
     out << "HP: " << character["HP"].toInt() << "\n";
     out << "MaxHP: " << character["MaxHP"].toInt() << "\n";
-    out << "CurrentCharacterGold: " << character["CurrentCharacterGold"].toULongLong() << "\n";
+    out << "CurrentCharacterGold: " << static_cast<qulonglong>(m_partyManager->currentParty().sharedGold) << "\n";
     out << "Experience: " << character["Experience"].toULongLong() << "\n";
     out << "isAlive: " << (character["isAlive"].toBool() ? 1 : 0) << "\n";
     out << "inCity: " << (getGameValue("inCity").toBool() ? 1 : 0) << "\n"; // Add this line
@@ -2101,36 +2110,23 @@ QString gameStateManager::getCraftingRecipeResult(const QString& item1, const QS
 // --- Global Gold Implementation ---
 
 int gameStateManager::getGold(int characterIndex) const {
-    const auto& members = m_partyManager->currentParty().members;
-    if (members.isEmpty()) return 0;
-
-    int idx = (characterIndex < 0) ? m_currentCharacterIndex : characterIndex;
-    if (idx >= 0 && idx < members.size()) {
-        return members[idx].gold;
-    }
-    return 0;
+    Q_UNUSED(characterIndex);
+    // Redirect to party gold — per-character gold is deprecated.
+    return m_partyManager->currentParty().sharedGold;
 }
 
 void gameStateManager::setGold(int amount, int characterIndex) {
-    auto& members = m_partyManager->currentParty().members;
-    if (members.isEmpty()) return;
-
-    int idx = (characterIndex < 0) ? m_currentCharacterIndex : characterIndex;
-    if (idx >= 0 && idx < members.size()) {
-        members[idx].gold = qMax(0, amount);
-        refreshUI();
-    }
+    Q_UNUSED(characterIndex);
+    // Redirect to party gold — per-character gold is deprecated.
+    m_partyManager->currentParty().sharedGold = qMax(0, amount);
+    refreshUI();
 }
 
 void gameStateManager::addGold(int amount, int characterIndex) {
-    auto& members = m_partyManager->currentParty().members;
-    if (members.isEmpty()) return;
-
-    int idx = (characterIndex < 0) ? m_currentCharacterIndex : characterIndex;
-    if (idx >= 0 && idx < members.size()) {
-        members[idx].gold = qMax(0, members[idx].gold + amount);
-        refreshUI();
-    }
+    Q_UNUSED(characterIndex);
+    // Redirect to party gold — per-character gold is deprecated.
+    m_partyManager->currentParty().sharedGold = qMax(0, m_partyManager->currentParty().sharedGold + amount);
+    refreshUI();
 }
 
 int gameStateManager::getPartyGold() const {

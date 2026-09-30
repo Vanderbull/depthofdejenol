@@ -392,3 +392,159 @@ Each module is an independent qmake project:
 ## Version
 
 Version information is in `version.h` / `Version.h`.
+
+---
+
+# Appendix A: M4* Field Code Reference
+
+The game's binary data files use **M4* field slot codes** — numeric identifiers assigned to each field in the original data schema. The same M4 code can appear in different record types (Character, HeldItem, GuildStatus, Companion, T4E6B) with different types and meanings. The game's data loader (`RecordReader` + `DataLoader`) knows the record type and interprets each slot accordingly.
+
+These codes are visible in `data/MTypes.h` (the primary type definitions) and in `tools/characterconverter/characterconverter.cpp` (the MDR→CSV converter that reads these fields with debug labels).
+
+## M4* Codes in Character Record (player character, 292-byte record, MDATA4.MDR)
+
+| M4 Code | Type | Offset | Field | Notes |
+|---------|------|--------|-------|-------|
+| M4EBF | int16 | 32-33 | Alignment | 0=Good, 1=Neutral, 2=Evil |
+| M4E97 | float | 48-51 | Attack (Atk) | Float value, used for monster/character attack stat |
+| M4EA1 | float | 52-55 | Defense (Def) | Float value, used for monster/character defense stat |
+| M4EAC | int16 | 1662-1663 | Current HP | Current hit points |
+| M4EB4 | int16 | 1664-1665 | Max HP | Maximum hit points |
+| M4F2D | int64 | 1654-1661 | Gold on Hand | Currency value (÷10000 for display per `RecordReader::getIntCurrency()`) |
+
+## M4* Codes in HeldItem Record (inventory slot, 18 bytes)
+
+| M4 Code | Type | Field | Notes |
+|---------|------|-------|-------|
+| M4E97 | int16 | Item ID | Item definition ID from MDATA3 |
+| M4EA1 | int16 | Item Alignment | Item's alignment requirement/restriction |
+| M4ED4 | int16 | Charges | Remaining charges for wands/staffs |
+| M4EBF | int16 | (unlabeled) | Possibly item level, curse flag, or secondary status |
+| M4EEE | int16 | (unlabeled) | Possibly identified-by flag or secondary status |
+| M5467 | int16 | Equipped | 0/1 whether item is equipped |
+| M56DB | int16 | (unlabeled) | Unknown |
+| M577E | int16 | (unlabeled) | Unknown |
+| M572A | int16 | (unlabeled) | Unknown |
+
+HeldItem is 9×int16 = 18 bytes. 41 inventory slots + 41 bank slots = 738 bytes total in Character record.
+
+## M4* Codes in GuildStatus Record (guild membership, 24 bytes)
+
+| M4 Code | Type | Offset | Field | Notes |
+|---------|------|--------|-------|-------|
+| M4E82 | int16 | 0 | Guild Level | Current level in this guild |
+| M579B | int64 | 2 | Guild Experience | Currency-format XP (÷10000 for display) |
+| M55CB | int16 | 10 | Quest | Current quest ID |
+| M57A9 | int16 | 12 | Quested ID | ID of the quest target |
+| M57B2 | int16 | 14 | Quest Completed | 0/1 flag |
+| M4E97 | float | 16 | Guild Attack Boost | Guild-specific attack modifier (float) |
+| M4EA1 | float | 20 | Guild Defense Boost | Guild-specific defense modifier (float) |
+
+16 guild slots × 24 bytes = 384 bytes. The M4E97/M4EA1 in GuildStatus are float boosts (not the same type as in Character, where they're the base attack/defense).
+
+## M4* Codes in Companion Record (companion creature, 33 bytes)
+
+| M4 Code | Type | Offset | Converter Label | Meaning |
+|---------|------|--------|-----------------|---------|
+| M4ED4 | int16 | 15 | monsterID | Which monster definition this companion is |
+| M57D4 | int16 | 17 | companionSlot | Slot number where companion is placed |
+| M4EAC | int16 | 19 | currentHP_c | Companion current hit points |
+| M4EB4 | int16 | 21 | maxHP_c | Companion max hit points |
+| M4EBF | int16 | 23 | alignment_c | Companion moral alignment |
+| M4E97 | int16 | 25 | atk_c | Companion attack (int16, not float) |
+| M4EA1 | int16 | 27 | def_c | Companion defense (int16, not float) |
+| M57E1 | int16 | 29 | bindLevel | Level at which companion was bound |
+| M4EEE | int16 | 31 | idLevel_c | ID level of companion |
+
+Name (M548B, 15-byte QString) + 9×int16 = 15 + 18 = 33 bytes. 5 companion slots × 33 bytes = 165 bytes.
+
+Note: M4E97 and M4EA1 in Companion are **int16** attack/defense values, not float like in Character. Same slot code, different type per record type.
+
+## M4* Codes in T4E6B Record (3×int16 trailer)
+
+| M4 Code | Type | Field |
+|---------|------|-------|
+| M4E78 | int16 | (unlabeled) |
+| M4E7D | int16 | (unlabeled) |
+| M4E82 | int16 | (unlabeled) |
+
+T4E6B appears at the end of the Character struct (field M59E7). 3×int16 = 6 bytes. Likely end-of-character status flags or window position data. The converter does not read this record type separately — it's parsed as part of the full Character read.
+
+## Cross-Struct M4* Code Reuse
+
+The M4* codes are **slot identifiers, not field names**. The same slot in different record types holds related but different data:
+
+| M4 Code | Character | HeldItem | GuildStatus | Companion |
+|---------|-----------|----------|-------------|------------|
+| M4E82 | — | — | Guild Level (int16) | — |
+| M4E97 | Attack (float) | Item ID (int16) | Guild Atk Boost (float) | Atk_c (int16) |
+| M4EA1 | Defense (float) | Item Alignment (int16) | Guild Def Boost (float) | Def_c (int16) |
+| M4EBF | Alignment (int16) | (unlabeled, int16) | — | Alignment_c (int16) |
+| M4ED4 | — | Charges (int16) | — | MonsterID (int16) |
+| M4EAC | Current HP (int16) | — | — | CurHP_c (int16) |
+| M4EB4 | Max HP (int16) | — | — | MaxHP_c (int16) |
+| M4F2D | Gold on Hand (int64) | — | — | — |
+
+## Fields with No M4* Label (have M5* or other prefixes)
+
+Fields without M4* codes use other prefixes (M5*, M58*, M59*, etc.). These are listed for completeness from the Character struct:
+
+| Field | Type | Likely Meaning |
+|-------|------|----------------|
+| M5821 | int16 | Race ID |
+| M5829 | int16 | Sex |
+| M5577 | float | Days Old (age in days) |
+| M5830 | int16 | Current SP (spell points) |
+| M5470 | int16 | Level (duplicated? or different context) |
+| M583F | int16 | Current X (world position) |
+| M5845 | int16 | Current Y (world position) |
+| M586D[36] | int16[36] | Equipped item IDs (36 slots) |
+| M56F7 | int16 | Current HP (duplicated at 1662?) |
+| M587C | float | Unknown (float) |
+| M588A | float | Unknown (float) |
+| M5899 | int16 | Unknown |
+| M58A6 | int16 | Unknown |
+| M579B | int64 | Gold in Bank (currency) |
+| M58AF | int64 | Unknown currency |
+| M56AF | int16 | Unknown |
+| M58BB | int16 | Unknown |
+| M5700 | int16 | Unknown |
+| M58DC | int16 | Unknown |
+| M58E9 | int16 | Unknown |
+| M58F9 | QString | Unknown string (rez character name?) |
+| M5906[9] | int64[9] | Kills, Deaths, Comp Kills, Quests, Play Time, Creation Date + 3 padding |
+| M5914[6] | int16[6] | Character Options flags |
+| M56B9[8] | int16[8] | Status Effects |
+| M591F | int32 | Temp Buffs |
+| M592F[12] | int16[12] | Temp Resistances |
+| M5483 | int16 | Unknown |
+| M5943 | int16 | Unknown |
+| M594C | QString | Unknown string (password?) |
+| M5958[21] | T57EF[21] | Saved Window States (21 entries × 18 bytes) |
+| M5962 | int16 | Record Line Number |
+| M5970 | int32 | XP Needed to Pin |
+| M5977 | int32 | Abilities Mask from Items |
+| M5985[12] | int16[12] | Resists from Items |
+| M5997[2] | int16[2] | Items in Each Hand |
+| M59A1 | int16 | Atk/Def Placeholder |
+| M59B0[11] | int16[11] | Buffer Slots |
+| M59BB | int16 | Unknown |
+| M59CB | int16 | Unknown |
+| M59D9 | int16 | Unknown |
+| M59E7 | T4E6B | 3×int16 trailer |
+| M59F4[3] | int16[3] | Unknown (location awareness?) |
+
+## Source Files
+
+- `data/MTypes.h` — Primary type definitions (all structs, all fields with M* codes and inline comments)
+- `data/RecordReader.h` — Binary record reading framework (QDataStream-based, LittleEndian)
+- `data/MLoader.cpp` — High-level loaders (`loadSpells`, `loadItems`, `loadMonsters`, etc.) — some are stubs
+- `tools/characterconverter/characterconverter.cpp` — MDR→CSV/JSON/JS converter with offset-by-offset debug output labeling each field
+- `build/bin/data/MTypes.h` — Copy of MTypes.h in build directory
+
+## Notes
+
+- The `characterconverter.cpp` reads the **monster** character record from `MDATA4.MDR` (2900-byte records, 401 entries). The field labels in its debug output describe the monster interpretation. Player character records may differ slightly.
+- `RecordReader.h` has `getIntCurrency()` that divides int64 by 10000 (line 115-118), indicating currency fields are stored in a fixed-point format (svereigns? ×10000).
+- The `DataLoader.h/cpp` files referenced in `data/data_loader.pro` and `data/main.cpp` are not present as source files — the loader is implemented inline in `MLoader.cpp` with some stubs.
+- Field name comments in MTypes.h (e.g., `//alignment`, `//ID`, `//charges`) come from reverse-engineering and may not be definitive for all fields.

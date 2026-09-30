@@ -149,14 +149,12 @@ void DungeonDialog::logMessage(const QString& message)
     }
 }
 
-// --- Gold Management Helper Function ---
 void DungeonDialog::updateGoldLabel()
 {
-    // UPDATED: Retrieve gold from gameStateManager
-    quint64 currentGold = gameStateManager::instance()->getGameValue("PlayerGold").toULongLong();
+    // Party gold is the single source of truth for on-hand gold.
+    int partyGold = gameStateManager::instance()->getPartyGold();
     if (m_goldLabel) {
-        QString goldString = QStringLiteral("%L1").arg(currentGold);
-        m_goldLabel->setText(QString("You have a total of **%1 Gold**.").arg(goldString));
+        m_goldLabel->setText(QString("You have a total of **%1 Gold**.").arg(partyGold));
     }
 }
 // --- Party Management Helper Function ---
@@ -492,21 +490,17 @@ DungeonDialog::DungeonDialog(QWidget *parent)
     int initialLevel = gsm->getGameValue("DungeonLevel").toInt();
     int initialX = gsm->getGameValue("DungeonX").toInt();
     int initialY = gsm->getGameValue("DungeonY").toInt();
-    //quint64 initialGold = gsm->getGameValue("PlayerGold").toULongLong();
-    gsm->setGameValue("PlayerGold", gsm->getPC().at(0).gold);
-    //initialGold = gsm->getPC().at(0).gold;
-    
     // Set defaults if state data is missing (e.g., first time entering)
     if (initialLevel == 0) {
         initialLevel = 1;
         initialX = MAP_SIZE / 2;
         initialY = MAP_SIZE / 2;
-        quint64 initialGold = 1500;
+        // Initialize party gold to 1500 for a new game
+        gameStateManager::instance()->addPartyGold(1500);
         // Save initial defaults to GameState
         gsm->setGameValue("DungeonLevel", initialLevel);
         gsm->setGameValue("DungeonX", initialX);
         gsm->setGameValue("DungeonY", initialY);
-        gsm->setGameValue("PlayerGold", initialGold);
     }
     // -----------------------------------------------------------------
     // --- Main Layout Setup ---
@@ -1237,8 +1231,7 @@ void DungeonDialog::processTreasureOpening()
         if (treasure.contains("Gold")) {
             // Existing Gold logic...
             quint64 foundGold = QRandomGenerator::global()->bounded(500, 5000);
-            quint64 currentGold = gsm->getGameValue("PlayerGold").toULongLong();
-            gsm->setGameValue("PlayerGold", currentGold + foundGold);
+            gsm->addPartyGold(static_cast<int>(foundGold));
             logMessage(QString("You gain %L1 Gold.").arg(foundGold));
         } else {
             // Add item to character inventory

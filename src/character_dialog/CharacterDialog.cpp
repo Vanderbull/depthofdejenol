@@ -37,19 +37,16 @@ CharacterDialog::CharacterDialog(QWidget *parent)
         "QTabBar::tab:selected { background: #C0C0C0; border-bottom-color: #C0C0C0; }"
     );
     setupUi();
-    // NEW: Connect the gameStateManager signal to the dialog's update slot
-    connect(GSM, &gameStateManager::gameValueChanged, 
-            this, &CharacterDialog::updateGameStateValue);
 }
-// NEW: Implementation of the slot to update UI based on state changes
+
 void CharacterDialog::updateGameStateValue(const QString& key, const QVariant& value)
 {
-    // Check if the key that changed is the gold key
-    if (key == "CurrentCharacterGold" && m_goldValueLabel) 
+    // Gold: party gold is the single source of truth.
+    // CurrentCharacterGold / PlayerGold keys are synced by refreshUI().
+    if ((key == "CurrentCharacterGold" || key == "PlayerGold" || key == "party_data") && m_goldValueLabel)
     {
-        // Update the label's text with the new gold value, formatted with locale
-        QString newGoldStr = QLocale().toString(value.toULongLong());
-        m_goldValueLabel->setText(newGoldStr);
+        int partyGold = gameStateManager::instance()->getPartyGold();
+        m_goldValueLabel->setText(QLocale().toString(partyGold));
     }
 }
 
@@ -104,7 +101,7 @@ void CharacterDialog::setupUi()
     goldLayout->addStretch();
     // Create and store the gold label pointer in the member variable
     m_goldValueLabel = new QLabel(QLocale().toString(
-                                    GSM->getGameValue("CurrentCharacterGold").toULongLong()
+                                    gameStateManager::instance()->getPartyGold()
                                   ));
     goldLayout->addWidget(m_goldValueLabel);
     statsLayout->addLayout(goldLayout);

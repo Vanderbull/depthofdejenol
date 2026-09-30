@@ -442,7 +442,7 @@ void GeneralStore::buySelectedItem()
     if (row < 0 || row >= m_availableShopItems.size()) return;
 
     const QVariantMap& item = m_availableShopItems[row];
-    qulonglong cost = 0;
+    int cost = 0;
     if (item.contains("cost")) {
         cost = item.value("cost").toInt();
     } else if (item.contains("price")) {
@@ -453,29 +453,15 @@ void GeneralStore::buySelectedItem()
 
     QString itemName = item["name"].toString();
 
-    if (gameStateManager::instance()->getPartyGold() < static_cast<int>(cost)) {
-        // Handle insufficient gold
-        QMessageBox::warning(this, "Insufficient Gold", "You do not have enough gold to purchase this item.");
+    // All purchases use party gold exclusively
+    if (!gameStateManager::instance()->spendPartyGold(cost)) {
+        QMessageBox::warning(this, "Insufficient Gold",
+            QString("You do not have enough gold to purchase this item. Cost: %1 GP, Party gold: %2 GP.")
+                .arg(cost).arg(gameStateManager::instance()->getPartyGold()));
         return;
     }
-    else
-    {
-        gameStateManager::instance()->setGold(gameStateManager::instance()->getPartyGold() - cost);
-        QMessageBox::warning(this, "sufficient Gold", QString("gold...\n\nIt is a %1!").arg(cost) );
-    }
-/*
-    Character current = gameStateManager::instance()->getCurrentCharacter();
-    if (current.gold < static_cast<qulonglong>(cost)) {
-        QMessageBox::warning(this, "Insufficient Gold", "You do not have enough gold to purchase this item.");
-        return;
-    }
-    else
-    {
-        QMessageBox::warning(this, "sufficient Gold", QString("gold...\n\nIt is a %1!").arg(cost) );
-    }
-*/
+
     int activeIdx = gameStateManager::instance()->getCurrentCharacterIndex();
-    gameStateManager::instance()->updateCharacterGold(activeIdx, cost, false);
     gameStateManager::instance()->addItemToCharacter(activeIdx, itemName);
 
     updateCharacterHeader();
@@ -536,29 +522,16 @@ void GeneralStore::identifySelectedItem()
         return;
     }
 
-    // Directly update gold:
-    gameStateManager::instance()->setGold(gameStateManager::instance()->getPartyGold() - identifyFee);
+    // Deduct from party gold (single source of truth)
+    gameStateManager::instance()->spendPartyGold(static_cast<int>(identifyFee));
 
-/*
-    if (current.gold < static_cast<qulonglong>(identifyFee)) {
-        QMessageBox::warning(this, "Insufficient Gold", 
-                             QString("You need %1 GP to identify an item. You only have %2 GP.")
-                             .arg(identifyFee)
-                             .arg(current.gold));
-        return;
-    }
-*/
     // 4. Resolve the true item identity
-    // Lookup full stats/true name via gameStateManager or internal registry
     QVariantMap itemStats = gameStateManager::instance()->getItemStats(rawItemName);
     QString identifiedName = itemStats.value("trueName").toString();
-    // Fallback resolution logic if trueName key isn't present in metadata
     if (identifiedName.isEmpty()) {
         identifiedName = rawItemName;
         identifiedName.remove("Unidentified ").remove("?");
     }
-    // 5. Deduct Gold and Update Inventory List in Game State
-    gameStateManager::instance()->updateCharacterGold(activeIdx, identifyFee, false /* subtract */);
 
     int itemIdx = current.inventory.indexOf(rawItemName);
     if (itemIdx >= 0) {
@@ -612,17 +585,9 @@ void GeneralStore::uncurseSelectedItem()
         return;
     }
 
-    // Directly update gold:
-    gameStateManager::instance()->setGold(gameStateManager::instance()->getPartyGold() - uncurseFee);
-/*
-    if (current.gold < static_cast<qulonglong>(uncurseFee)) {
-        QMessageBox::warning(this, "Insufficient Gold", 
-                             QString("The uncurse ritual costs %1 GP. You only have %2 GP.")
-                             .arg(uncurseFee)
-                             .arg(current.gold));
-        return;
-    }
-*/
+    // Deduct uncurse fee from party gold (single source of truth)
+    gameStateManager::instance()->spendPartyGold(static_cast<int>(uncurseFee));
+
     // 4. Resolve uncursed item name
     // Check if itemStats defines a clean name, otherwise strip "Cursed " prefix
     QString uncursedName = itemStats.value("uncursedName").toString();
@@ -632,9 +597,7 @@ void GeneralStore::uncurseSelectedItem()
         uncursedName.remove("(Cursed)", Qt::CaseInsensitive);
         uncursedName = uncursedName.trimmed();
     }
-    // 5. Deduct Gold and Update Inventory in Game State
-    gameStateManager::instance()->updateCharacterGold(activeIdx, uncurseFee, false /* subtract */);
-
+    // 5. Update Inventory in Game State
     int itemIdx = current.inventory.indexOf(rawItemName);
     if (itemIdx >= 0) {
         current.inventory[itemIdx] = uncursedName;

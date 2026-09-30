@@ -101,9 +101,8 @@ private:
 public:
 
     // Getter for the GameStates list
-    QVariantList getGameStates() const {
-        return m_gameStateData.value("GameStates").toList();
-    }
+    QVariantList getGameStates() const { return m_gameStateData.value("GameStates").toList(); }
+
     // --- Global Gold Accessors ---
     // Get gold for the active character or a specific party member
     int getGold(int characterIndex = -1) const;
@@ -111,6 +110,7 @@ public:
     void setGold(int amount, int characterIndex = -1);
     // Add/remove gold for a specific character (supports negative numbers)
     void addGold(int amount, int characterIndex = -1);
+
     // Party Shared Gold Accessors
     int getPartyGold() const;
     void addPartyGold(int amount);

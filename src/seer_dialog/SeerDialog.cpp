@@ -23,13 +23,11 @@ bool SeerDialog::checkAndDeductSeerCost(const QString& serviceName)
 {
     static constexpr qulonglong SEER_COST = 50; // Cost for Seer services
 
-    // Get the current character's gold using the method you specified
     gameStateManager* gsm = gameStateManager::instance();
-    qulonglong currentGold = gsm->getGameValue("CurrentCharacterGold").value<qulonglong>();
+    int partyGold = gsm->getPartyGold();
 
-    if (currentGold >= SEER_COST) {
-        // Deduct the cost by setting the new gold value
-        gsm->setGameValue("CurrentCharacterGold", currentGold - SEER_COST);
+    if (partyGold >= SEER_COST) {
+        gsm->spendPartyGold(SEER_COST);
         return true;
     } else {
         QMessageBox::warning(this, "Seer",
@@ -193,16 +191,16 @@ void SeerDialog::on_itemButton_clicked()
     int playerDepth = gsm->getGameValue("DungeonLevel").toInt();
     if (playerDepth < 1) playerDepth = 1;
     qulonglong totalCost = 500 + (static_cast<qulonglong>(playerDepth) * 150);
-    qulonglong currentGold = gsm->getGameValue("CurrentCharacterGold").value<qulonglong>();
+    int partyGold = gsm->getPartyGold();
     // 2. Gold Validation
-    if (currentGold < totalCost) {
+    if (partyGold < static_cast<int>(totalCost)) {
         QMessageBox::warning(this, "Insufficient Gold", 
             QString("The Seer demands %1 gold to attempt a vision. You only have %2.")
-            .arg(totalCost).arg(currentGold));
+            .arg(totalCost).arg(partyGold));
         return;
     }
     // 3. MANDATORY DEDUCTION: The Seer takes the gold for the effort
-    gsm->setGameValue("CurrentCharacterGold", QVariant::fromValue(currentGold - totalCost));
+    gsm->spendPartyGold(static_cast<int>(totalCost));
     // 4. Search for the item in the physical world (m_placedItems)
     const QList<gameStateManager::PlacedItem> placedItems = gsm->getPlacedItems();
     gameStateManager::PlacedItem foundItem;
