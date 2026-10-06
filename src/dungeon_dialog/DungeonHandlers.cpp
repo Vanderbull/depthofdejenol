@@ -1,6 +1,7 @@
 #include "DungeonHandlers.h"
 #include "DungeonDialog.h"
 #include "../../gameStateManager.h"
+#include "src/core/SoundEffects.h"
 
 void DungeonHandlers::handlePit(DungeonDialog* dialog, int x, int y)
 {
@@ -50,6 +51,7 @@ void DungeonHandlers::handleTrap(DungeonDialog* dialog, int x, int y)
         int damage = QRandomGenerator::global()->bounded(1, 10);
         dialog->updatePartyMemberHealth(0, damage);
         dialog->logMessage(QString("You step on a **%1** trap and take %2 damage!").arg(trapType).arg(damage));
+        SoundEffects::instance()->play(SoundEffects::Type::Trap);
         dialog->m_trapPositions.remove(pos);
         dialog->drawMinimap();
     }
@@ -100,5 +102,6 @@ void DungeonHandlers::handleTreasure(DungeonDialog* dialog, int x, int y)
     QPair<int, int> pos = {x, y};
     if (dialog->m_treasurePositions.contains(pos)) {
         dialog->logMessage("There is a treasure chest here! Use the Open button to see what's inside.");
+        SoundEffects::instance()->play(SoundEffects::Type::Gold);
     }
 }

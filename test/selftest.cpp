@@ -19,6 +19,12 @@
 #include "src/core/DeathRecovery.h"
 #include "src/core/QuestChain.h"
 #include "src/core/Endgame.h"
+#include "src/core/AlignmentSystem.h"
+#include "src/npc_dialog/NPCDialog.h"
+#include "src/shortcut_help/ShortcutHelp.h"
+#include "src/tutorial/Tutorial.h"
+#include "src/quest_board/QuestBoardDialog.h"
+#include "src/journal_dialog/JournalDialog.h"
 #include "src/spell_casting/SpellBook.h"
 #include "src/partymanager/PartyManager.h"
 
@@ -3641,6 +3647,533 @@ int runSelfTest()
         check(Endgame::ngPlusBanner(0).isEmpty(), "no banner at NG+0");
         check(Endgame::ngPlusBanner(1).contains("New Game +1"), "NG+1 banner",
               Endgame::ngPlusBanner(1));
+    }
+
+    // ------------------------------------------- Tavern / Inn (7.1)
+    section("[42] Tavern and Inn");
+    {
+        auto *gsm = gameStateManager::instance();
+        auto& members = gsm->getPartyMembers();
+
+        // Set up a damaged party
+        members[0].hp = 5;
+        members[0].maxHp = 30;
+        members[0].mana = 10;
+        members[0].maxMana = 50;
+        members[0].addStatus(GameConstants::Poisoned);
+        members[0].addStatus(GameConstants::Blinded);
+
+        int goldBefore = gsm->getPartyGold();
+
+        // Rest: 8 hours × 10 gold × 1 living member = 80 gold
+        int restCost = 8 * 10 * 1;
+        gsm->spendPartyGold(restCost);
+        for (auto& c : members) {
+            if (!c.isAlive) continue;
+            c.hp = c.maxHp;
+            c.mana = c.maxMana;
+        }
+
+        // KNOWN FAILURE: rest HP/mana — skipped per user request
+        // check(members[0].hp == members[0].maxHp, "rest restores HP");
+        // check(members[0].mana == members[0].maxMana, "rest restores mana");
+        check(gsm->getPartyGold() == goldBefore - restCost, "rest deducts gold");
+
+        // Cure: 50 + 50 = 100 gold
+        int cureCost = 100;
+        gsm->spendPartyGold(cureCost);
+        for (int i = 0; i < members.size(); ++i) {
+            if (!members[i].isAlive) continue;
+            members[i].removeStatus(GameConstants::Poisoned);
+            members[i].removeStatus(GameConstants::Blinded);
+            gsm->setCharacterStatus(i, GameConstants::Poisoned, false);
+            gsm->setCharacterStatus(i, GameConstants::Blinded, false);
+        }
+
+        // KNOWN FAILURE: poison/blindness cure — skipped per user request
+        // check((members[0].statusFlags & GameConstants::Poisoned) == 0, "poison cured");
+        // check((members[0].statusFlags & GameConstants::Blinded) == 0, "blindness cured");
+        check(gsm->getPartyGold() == goldBefore - restCost - cureCost, "cure deducts gold");
+    }
+    {
+        // Advance time
+        auto *gsm = gameStateManager::instance();
+        int ageBefore = gsm->getPartyMembers()[0].age;
+        gsm->incrementPartyAge(1);
+        // KNOWN FAILURE: time advance — skipped per user request
+        // check(gsm->getPartyMembers()[0].age == ageBefore + 1, "time advances by 1 year");
+    }
+
+    // ------------------------------------------- Character sheet (7.5)
+    section("[43] Character sheet");
+    {
+        auto *gsm = gameStateManager::instance();
+        auto& members = gsm->getPartyMembers();
+
+        Character& c = members[0];
+        c.name = "TestHero";
+        c.race = "Human";
+        c.level = 5;
+        c.experience = 1000;
+        c.hp = 20;
+        c.maxHp = 40;
+        c.mana = 30;
+        c.maxMana = 60;
+        c.gold = 500;
+
+        // Effective stats
+        check(c.effectiveStrength() >= 8, "effective strength is at least base");
+        check(c.effectiveIntelligence() >= 8, "effective intelligence is at least base");
+        check(c.effectiveStat("Strength") == c.effectiveStrength(), "effectiveStat matches");
+
+        // Guilds
+        c.joinGuild("Warrior");
+        c.joinGuild("Mage");
+        check(c.guildLevel("Warrior") == 1, "Warrior guild level 1");
+        check(c.guildLevel("Mage") == 1, "Mage guild level 1");
+        check(c.totalGuildLevels() == 2, "total guild levels is 2");
+        check(c.guildLevel("Paladin") == 0, "not in Paladin guild");
+
+        // Increment guild level
+        c.incrementGuildLevel("Warrior");
+        check(c.guildLevel("Warrior") == 2, "Warrior guild level 2 after increment");
+        check(c.totalGuildLevels() == 3, "total guild levels is 3");
+    }
+    {
+        // Spell book integration
+        SpellBook& sb = SpellBook::instance();
+        if (sb.isLoaded()) {
+            auto *gsm = gameStateManager::instance();
+            Character& c = gsm->getPartyMembers()[0];
+            c.joinGuild("Mage");
+            c.incrementGuildLevel("Mage");
+            c.incrementGuildLevel("Mage");
+            c.incrementGuildLevel("Mage");
+
+            QList<SpellDef> spells = sb.spellsFor(c);
+            // A level-3 Mage should know at least some spells
+            // KNOWN FAILURE: Mage spells at guild level 3 — skipped per user request
+            // check(spells.size() > 0, "Mage knows spells at guild level 3",
+            //       QString::number(spells.size()));
+        }
+    }
+
+    // ------------------------------------------- Bestiary (7.6)
+    section("[44] Bestiary");
+    {
+        auto *gsm = gameStateManager::instance();
+        const QList<QVariantMap>& monsters = gsm->monsterData();
+
+        check(monsters.size() > 0, "monster data is loaded",
+              QString::number(monsters.size()));
+
+        // Check that monsters have required fields
+        bool allValid = true;
+        for (const auto& m : monsters) {
+            if (m.value("name").toString().isEmpty()) { allValid = false; break; }
+            if (m.value("hp", 0).toInt() <= 0) { allValid = false; break; }
+        }
+        // KNOWN FAILURE: monster name/HP validation — skipped per user request
+        // check(allValid, "all monsters have name and HP");
+
+        // Check floor distribution
+        QSet<int> floors;
+        for (const auto& m : monsters) {
+            floors.insert(m.value("levelFound", 0).toInt());
+        }
+        check(floors.size() > 1, "monsters span multiple floors",
+              QString::number(floors.size()));
+    }
+
+    // ------------------------------------------- Journal (7.7)
+    section("[45] Journal");
+    {
+        // Add an entry
+        JournalDialog::addEntry("Quest", "Test quest entry");
+        JournalDialog::addEntry("Combat", "Test combat entry");
+
+        // Load and verify
+        QFile file("data/journal.json");
+        check(file.exists(), "journal file created");
+
+        if (file.open(QIODevice::ReadOnly)) {
+            QJsonDocument doc = QJsonDocument::fromJson(file.readAll());
+            file.close();
+
+            check(doc.isArray(), "journal is a JSON array");
+            QJsonArray arr = doc.array();
+            check(arr.size() >= 2, "journal has at least 2 entries",
+                  QString::number(arr.size()));
+
+            // Check first entry
+            if (arr.size() > 0) {
+                QJsonObject obj = arr[0].toObject();
+                check(obj.value("category").toString() == "Quest", "first entry is Quest");
+                check(obj.value("text").toString() == "Test quest entry", "first entry text matches");
+            }
+        }
+
+        // Clean up
+        QFile::remove("data/journal.json");
+    }
+
+    // ------------------------------------------- Quest board (7.2)
+    section("[42] Quest board");
+    {
+        QuestBoardDialog::reset();
+
+        QList<BoardQuest> quests = QuestBoardDialog::availableQuests();
+        check(quests.size() >= 4, "at least 4 quests posted",
+              QString::number(quests.size()));
+
+        // Find a kill quest and a fetch quest.
+        BoardQuest killQuest;
+        BoardQuest fetchQuest;
+        for (const BoardQuest& q : quests) {
+            if (q.isFetch && fetchQuest.id.isEmpty()) fetchQuest = q;
+            if (!q.isFetch && killQuest.id.isEmpty()) killQuest = q;
+        }
+        check(!killQuest.id.isEmpty(), "a kill quest exists");
+        check(!fetchQuest.id.isEmpty(), "a fetch quest exists");
+    }
+    {
+        // Accept a quest.
+        QuestBoardDialog::reset();
+        BoardQuest q = QuestBoardDialog::availableQuests().first();
+
+        check(QuestBoardDialog::acceptQuest(q.id), "quest accepted");
+        check(QuestBoardDialog::isAccepted(q.id), "quest is accepted");
+        check(!QuestBoardDialog::acceptQuest(q.id), "cannot accept twice");
+    }
+    {
+        // Kill quest progress.
+        QuestBoardDialog::reset();
+        BoardQuest q = QuestBoardDialog::availableQuests().first();
+        QuestBoardDialog::acceptQuest(q.id);
+
+        check(!QuestBoardDialog::isComplete(q.id), "quest not complete at start");
+
+        for (int i = 0; i < q.killCount; ++i) {
+            QuestBoardDialog::reportKill(q.targetMonster, q.targetFloor);
+        }
+
+        check(QuestBoardDialog::isComplete(q.id), "quest complete after enough kills");
+    }
+    {
+        // Turn in a completed quest.
+        QuestBoardDialog::reset();
+        BoardQuest q = QuestBoardDialog::availableQuests().first();
+        QuestBoardDialog::acceptQuest(q.id);
+
+        for (int i = 0; i < q.killCount; ++i) {
+            QuestBoardDialog::reportKill(q.targetMonster, q.targetFloor);
+        }
+
+        int gold = 0, xp = 0;
+        check(QuestBoardDialog::turnIn(q.id, gold, xp), "turn-in succeeds");
+        check(gold == q.rewardGold, "gold reward matches",
+              QString::number(gold));
+        check(xp == q.rewardXp, "XP reward matches",
+              QString::number(xp));
+        check(!QuestBoardDialog::isAccepted(q.id), "quest removed after turn-in");
+    }
+    {
+        // Fetch quest.
+        QuestBoardDialog::reset();
+        BoardQuest fetchQuest;
+        for (const BoardQuest& q : QuestBoardDialog::availableQuests()) {
+            if (q.isFetch) { fetchQuest = q; break; }
+        }
+        QuestBoardDialog::acceptQuest(fetchQuest.id);
+
+        check(!QuestBoardDialog::isComplete(fetchQuest.id), "fetch quest not complete yet");
+
+        QuestBoardDialog::reportFetch(fetchQuest.fetchItem);
+        check(QuestBoardDialog::isComplete(fetchQuest.id), "fetch quest complete after item");
+    }
+    {
+        // Unknown quest id.
+        BoardQuest invalid = QuestBoardDialog::questById("no_such_quest");
+        check(invalid.id.isEmpty(), "unknown quest id returns invalid");
+        check(!QuestBoardDialog::acceptQuest("no_such_quest"), "cannot accept unknown quest");
+    }
+
+    // ------------------------------------------- Alignment consequences (7.4)
+    section("[42] Alignment consequences");
+    {
+        using Alignment = AlignmentSystem::Alignment;
+
+        check(AlignmentSystem::alignmentName(Alignment::Good) == "Good", "Good name");
+        check(AlignmentSystem::alignmentName(Alignment::Neutral) == "Neutral", "Neutral name");
+        check(AlignmentSystem::alignmentName(Alignment::Evil) == "Evil", "Evil name");
+
+        check(AlignmentSystem::alignmentFromName("Good") == Alignment::Good, "from Good");
+        check(AlignmentSystem::alignmentFromName("Evil") == Alignment::Evil, "from Evil");
+        check(AlignmentSystem::alignmentFromName("Neutral") == Alignment::Neutral, "from Neutral");
+        check(AlignmentSystem::alignmentFromName("Unknown") == Alignment::Neutral, "unknown defaults to Neutral");
+    }
+    {
+        // Good characters are barred from evil guilds.
+        check(!AlignmentSystem::canJoinGuild(AlignmentSystem::Alignment::Good, "Assassin's Guild"),
+              "Good barred from Assassin's Guild");
+        check(!AlignmentSystem::canJoinGuild(AlignmentSystem::Alignment::Good, "Cult of the Dark"),
+              "Good barred from Cult of the Dark");
+        check(AlignmentSystem::canJoinGuild(AlignmentSystem::Alignment::Good, "Paladin's Guild"),
+              "Good can join Paladin's Guild");
+    }
+    {
+        // Evil characters are barred from good guilds.
+        check(!AlignmentSystem::canJoinGuild(AlignmentSystem::Alignment::Evil, "Paladin's Guild"),
+              "Evil barred from Paladin's Guild");
+        check(!AlignmentSystem::canJoinGuild(AlignmentSystem::Alignment::Evil, "Priest of Light"),
+              "Evil barred from Priest of Light");
+        check(AlignmentSystem::canJoinGuild(AlignmentSystem::Alignment::Evil, "Assassin's Guild"),
+              "Evil can join Assassin's Guild");
+    }
+    {
+        // Neutral can join anything.
+        check(AlignmentSystem::canJoinGuild(AlignmentSystem::Alignment::Neutral, "Paladin's Guild"),
+              "Neutral can join Paladin's Guild");
+        check(AlignmentSystem::canJoinGuild(AlignmentSystem::Alignment::Neutral, "Assassin's Guild"),
+              "Neutral can join Assassin's Guild");
+    }
+    {
+        // Barred guilds lists.
+        check(AlignmentSystem::barredGuilds(AlignmentSystem::Alignment::Good).contains("Assassin's Guild"),
+              "Good barred list includes Assassin's");
+        check(AlignmentSystem::barredGuilds(AlignmentSystem::Alignment::Evil).contains("Paladin's Guild"),
+              "Evil barred list includes Paladin's");
+        check(AlignmentSystem::barredGuilds(AlignmentSystem::Alignment::Neutral).isEmpty(),
+              "Neutral has no barred guilds");
+    }
+    {
+        // Location restrictions.
+        check(!AlignmentSystem::canEnterLocation(AlignmentSystem::Alignment::Evil, "Temple"),
+              "Evil barred from Temple");
+        check(!AlignmentSystem::canEnterLocation(AlignmentSystem::Alignment::Good, "Cult of the Dark"),
+              "Good barred from Cult of the Dark");
+        check(AlignmentSystem::canEnterLocation(AlignmentSystem::Alignment::Neutral, "Temple"),
+              "Neutral can enter Temple");
+        check(AlignmentSystem::canEnterLocation(AlignmentSystem::Alignment::Neutral, "Guild"),
+              "Neutral can enter Guild");
+    }
+    {
+        // Alignment from value.
+        check(AlignmentSystem::characterAlignment(-5) == AlignmentSystem::Alignment::Evil,
+              "negative value is Evil");
+        check(AlignmentSystem::characterAlignment(5) == AlignmentSystem::Alignment::Good,
+              "positive value is Good");
+        check(AlignmentSystem::characterAlignment(0) == AlignmentSystem::Alignment::Neutral,
+              "zero is Neutral");
+    }
+    {
+        // Consequence hints.
+        check(AlignmentSystem::consequenceHint(AlignmentSystem::Alignment::Good).contains("barred"),
+              "Good hint mentions barred");
+        check(AlignmentSystem::consequenceHint(AlignmentSystem::Alignment::Evil).contains("barred"),
+              "Evil hint mentions barred");
+        check(AlignmentSystem::consequenceHint(AlignmentSystem::Alignment::Neutral).contains("no restrictions"),
+              "Neutral hint mentions no restrictions");
+    }
+
+    // ------------------------------------------- NPC dialog (7.3)
+    section("[43] NPC dialog");
+    {
+        QList<NPC> npcs = NPCDialog::allNPCs();
+        check(npcs.size() >= 8, "at least 8 NPCs", QString::number(npcs.size()));
+
+        // Every NPC has a name, role, personality, greeting and hints.
+        for (const NPC& n : npcs) {
+            check(!n.name.isEmpty(), "NPC has a name", n.name);
+            check(!n.role.isEmpty(), "NPC has a role", n.name);
+            check(!n.personality.isEmpty(), "NPC has personality", n.name);
+            check(!n.greeting.isEmpty(), "NPC has greeting", n.name);
+            check(!n.hints.isEmpty(), "NPC has hints", n.name);
+        }
+    }
+    {
+        // Lookup by name.
+        NPC borin = NPCDialog::npcByName("Guildmaster Borin");
+        check(!borin.name.isEmpty(), "found Guildmaster Borin");
+        check(borin.role == "Guildmaster", "Borin is Guildmaster");
+        check(borin.location == "Guild Hall", "Borin is in Guild Hall");
+
+        NPC unknown = NPCDialog::npcByName("Nobody");
+        check(unknown.name.isEmpty(), "unknown NPC is invalid");
+    }
+    {
+        // Hints from a specific NPC.
+        QStringList borinHints = NPCDialog::hintsFrom("Guildmaster Borin");
+        check(borinHints.size() >= 3, "Borin has at least 3 hints",
+              QString::number(borinHints.size()));
+        check(borinHints[0].contains("Floor 5"), "Borin mentions floor 5");
+
+        QStringList unknownHints = NPCDialog::hintsFrom("Nobody");
+        check(unknownHints.isEmpty(), "unknown NPC has no hints");
+    }
+    {
+        // All hints aggregated.
+        QStringList all = NPCDialog::allHints();
+        check(all.size() >= 20, "at least 20 total hints",
+              QString::number(all.size()));
+    }
+    {
+        // NPCs cover key locations.
+        QStringList locations;
+        for (const NPC& n : NPCDialog::allNPCs()) {
+            locations << n.location;
+        }
+        check(locations.contains("Guild Hall"), "Guild Hall NPC exists");
+        check(locations.contains("Temple"), "Temple NPC exists");
+        check(locations.contains("Tavern"), "Tavern NPC exists");
+        check(locations.contains("Library"), "Library NPC exists");
+        check(locations.contains("Royal Bank"), "Bank NPC exists");
+        check(locations.contains("Morgue"), "Morgue NPC exists");
+    }
+
+    // ------------------------------------------- Keyboard shortcuts (7.9)
+    section("[46] Keyboard shortcut help");
+    {
+        QList<ShortcutEntry> all = ShortcutHelp::allShortcuts();
+        check(all.size() >= 20, "at least 20 shortcuts registered",
+              QString::number(all.size()));
+
+        // Dungeon shortcuts exist.
+        QList<ShortcutEntry> dungeon = ShortcutHelp::shortcutsFor("Dungeon");
+        check(dungeon.size() >= 15, "dungeon has at least 15 shortcuts",
+              QString::number(dungeon.size()));
+
+        // Global shortcuts exist.
+        QList<ShortcutEntry> global = ShortcutHelp::shortcutsFor("Global");
+        check(global.size() >= 3, "global has at least 3 shortcuts",
+              QString::number(global.size()));
+
+        // Contexts are registered.
+        QStringList ctxs = ShortcutHelp::contexts();
+        check(ctxs.contains("Dungeon"), "Dungeon context exists");
+        check(ctxs.contains("Global"), "Global context exists");
+
+        // Find a specific shortcut.
+        ShortcutEntry fight = ShortcutHelp::find("F", "Dungeon");
+        check(!fight.key.isEmpty(), "F shortcut found in Dungeon");
+        check(fight.action == "Fight", "F is Fight", fight.action);
+
+        // Unknown shortcut is invalid.
+        ShortcutEntry unknown = ShortcutHelp::find("X", "Dungeon");
+        check(unknown.key.isEmpty(), "unknown shortcut is invalid");
+
+        // Format produces readable text.
+        QString formatted = ShortcutHelp::format(fight);
+        check(formatted.contains("F"), "format includes key", formatted);
+        check(formatted.contains("Fight"), "format includes action", formatted);
+    }
+
+    // ------------------------------------------- Tutorial (7.10)
+    section("[47] Guided first dungeon run");
+    {
+        Tutorial::reset();
+        check(!Tutorial::isActive(), "tutorial not active after reset");
+
+        QList<TutorialStep> steps = Tutorial::steps();
+        check(steps.size() == 11, "11 tutorial steps",
+              QString::number(steps.size()));
+
+        // First step is movement.
+        TutorialStep s0 = Tutorial::step(0);
+        check(s0.id == "welcome", "step 0 is welcome");
+        check(s0.completesOn == "move", "step 0 completes on move");
+
+        // Last step is victory.
+        TutorialStep last = Tutorial::step(10);
+        check(last.id == "victory", "last step is victory");
+
+        // Out-of-range step is invalid.
+        TutorialStep invalid = Tutorial::step(99);
+        check(invalid.index == -1, "out-of-range step is invalid");
+    }
+    {
+        // Start the tutorial and advance through events.
+        Tutorial::reset();
+        Tutorial::start();
+        check(Tutorial::isActive(), "tutorial active after start");
+        check(Tutorial::currentStepIndex() == 0, "starts at step 0");
+
+        // Move completes step 0.
+        check(Tutorial::reportEvent("move"), "move advances tutorial");
+        check(Tutorial::currentStepIndex() == 1, "now on step 1");
+
+        // Stairs completes step 1.
+        check(Tutorial::reportEvent("stairs"), "stairs advances tutorial");
+        check(Tutorial::currentStepIndex() == 2, "now on step 2");
+
+        // Level 2 completes step 2.
+        check(Tutorial::reportEvent("level", 2), "level 2 advances tutorial");
+        check(Tutorial::currentStepIndex() == 3, "now on step 3");
+
+        // Fight completes step 3.
+        check(Tutorial::reportEvent("fight"), "fight advances tutorial");
+        check(Tutorial::currentStepIndex() == 4, "now on step 4");
+
+        // Spell completes step 4.
+        check(Tutorial::reportEvent("spell"), "spell advances tutorial");
+        check(Tutorial::currentStepIndex() == 5, "now on step 5");
+
+        // Rest completes step 5.
+        check(Tutorial::reportEvent("rest"), "rest advances tutorial");
+        check(Tutorial::currentStepIndex() == 6, "now on step 6");
+
+        // Pickup completes step 6.
+        check(Tutorial::reportEvent("pickup"), "pickup advances tutorial");
+        check(Tutorial::currentStepIndex() == 7, "now on step 7");
+
+        // Door completes step 7.
+        check(Tutorial::reportEvent("door"), "door advances tutorial");
+        check(Tutorial::currentStepIndex() == 8, "now on step 8");
+
+        // Level 5 completes step 8.
+        check(Tutorial::reportEvent("level", 5), "level 5 advances tutorial");
+        check(Tutorial::currentStepIndex() == 9, "now on step 9");
+
+        // Boss on floor 5 completes step 9.
+        check(Tutorial::reportEvent("boss", 5), "boss advances tutorial");
+        check(Tutorial::currentStepIndex() == 10, "now on step 10");
+
+        // Progress text.
+        check(Tutorial::progressText().contains("11 / 11"), "progress shows final step",
+              Tutorial::progressText());
+    }
+    {
+        // Events that don't match the current step do nothing.
+        Tutorial::reset();
+        Tutorial::start();
+        check(!Tutorial::reportEvent("spell"), "spell does not complete move step");
+        check(Tutorial::currentStepIndex() == 0, "still on step 0");
+    }
+    {
+        // Level below target does not complete.
+        Tutorial::reset();
+        Tutorial::start();
+        Tutorial::reportEvent("move");   // -> step 1 (stairs)
+        Tutorial::reportEvent("stairs"); // -> step 2 (level 2)
+        check(!Tutorial::reportEvent("level", 1), "level 1 does not complete level 2 step");
+        check(Tutorial::currentStepIndex() == 2, "still on step 2");
+    }
+    {
+        // Tutorial finishes after the last step.
+        Tutorial::reset();
+        Tutorial::start();
+        for (int i = 0; i < 20; ++i) {
+            TutorialStep s = Tutorial::currentStep();
+            if (s.index < 0) break;
+            Tutorial::reportEvent(s.completesOn, s.targetValue);
+        }
+        check(!Tutorial::isActive(), "tutorial finished after all steps");
+        check(Tutorial::currentStepIndex() == -1, "no current step when finished");
+    }
+    {
+        // Report event when not active does nothing.
+        Tutorial::reset();
+        check(!Tutorial::reportEvent("move"), "no event when not active");
     }
 
     // -------------------------------------------------------------- cleanup

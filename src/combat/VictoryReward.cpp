@@ -1,5 +1,6 @@
 #include "VictoryReward.h"
 #include "src/items/ItemDatabase.h"
+#include "src/core/SoundEffects.h"
 #include <QRandomGenerator>
 
 int VictoryReward::calculateXp(const QString& monsterName,

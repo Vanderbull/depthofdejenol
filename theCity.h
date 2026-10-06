@@ -36,6 +36,13 @@ private slots:
     void on_confinementButton_clicked();
     void on_seerButton_clicked();
     void on_bankButton_clicked();
+    void on_tavernButton_clicked();
+    void on_libraryButton_clicked();
+    void on_questBoardButton_clicked();
+    void on_characterSheetButton_clicked();
+    void on_bestiaryButton_clicked();
+    void on_journalButton_clicked();
+    void on_npcButton_clicked();
     void on_exitButton_clicked();
 
     // Multiplayer Slots
@@ -56,6 +63,13 @@ private:
     QToolButton *confinementButton;
     QToolButton *seerButton;
     QToolButton *bankButton;
+    QToolButton *tavernButton;
+    QToolButton *libraryButton;
+    QToolButton *questBoardButton;
+    QToolButton *characterSheetButton;
+    QToolButton *bestiaryButton;
+    QToolButton *journalButton;
+    QToolButton *npcButton;
     QToolButton *exitButton;
 
     // UI Elements - Multiplayer

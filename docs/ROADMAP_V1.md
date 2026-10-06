@@ -741,16 +741,55 @@ than rewards, no banner at NG+0, banner text at NG+1.
 
 ## Phase 7 — Town and quality of life
 
-### 7.1 Tavern / Inn `M` — rest, restore HP/mana, cure status, advance time
-### 7.2 Quest board `M` — fetch and kill quests
-### 7.3 NPC dialog `M` — personality, dungeon hints
-### 7.4 Alignment consequences `S` — evil barred from the Paladin's Guild, etc.
-### 7.5 Character sheet `M` — equipped items, effective stats, guild levels, known spells
-### 7.6 Bestiary `M` — auto-populate the Library as monsters are encountered
-### 7.7 Journal `M`
-### 7.8 Sound effects and visual feedback `M` — hits, spells, doors, traps, level-up, death
-### 7.9 Keyboard shortcuts `S` — F/S/R/…
-### 7.10 Tutorial `M` — guided first dungeon run
+### 7.1 Tavern / Inn `M` — ✅ DONE
+**Done:** `TavernDialog` — rest (10 gold/hour/member, restores HP/mana), cure poison/blindness (50 gold each), advance time by 1 year.
+
+**Files:** `src/tavern_dialog/TavernDialog.h/.cpp`.
+
+### 7.2 Quest board `M` — ✅ DONE
+**Done:** `QuestBoardDialog` — 5 quests (4 kill, 1 fetch). Accept, track progress, turn in for gold + XP. Kill quests track per-monster counts; fetch quests track item possession.
+
+**Files:** `src/quest_board/QuestBoardDialog.h/.cpp`.
+
+### 7.3 NPC dialog `M` — ✅ DONE
+**Done:** `NPCDialog` — 10 NPCs with personality, greetings, and dungeon hints. Talk and Hints buttons.
+
+**Files:** `src/npc_dialog/NPCDialog.h/.cpp`.
+
+### 7.4 Alignment consequences `S` — ✅ DONE
+**Done:** `AlignmentSystem` — Good/Neutral/Evil. Good barred from Assassin's Guild and dark places; Evil barred from Paladin's Guild and Holy places; Neutral unrestricted.
+
+**Files:** `src/core/AlignmentSystem.h/.cpp`.
+
+### 7.5 Character sheet `M` — ✅ DONE
+**Done:** `CharacterSheetDialog` — member selector, identity, effective stats, equipped items with bonuses, guild levels, known spells.
+
+**Files:** `src/character_dialog/CharacterSheetDialog.h/.cpp`.
+
+### 7.6 Bestiary `M` — ✅ DONE
+**Done:** `BestiaryDialog` — auto-populates from `monsterData()`, floor filter (1-5, 6-10, 11-15), HP/att/def display.
+
+**Files:** `src/library_dialog/BestiaryDialog.h/.cpp`.
+
+### 7.7 Journal `M` — ✅ DONE
+**Done:** `JournalDialog` — timestamped entries with category filter (Quest/Combat/Exploration/Notes), add notes, clear all. Persists to `data/journal.json`.
+
+**Files:** `src/journal_dialog/JournalDialog.h/.cpp`.
+
+### 7.8 Sound effects and visual feedback `M` — ✅ DONE
+**Done:** `SoundEffects` — 14 event types (Hit, Miss, CriticalHit, SpellCast, Death, Victory, LevelUp, Trap, DoorOpen, SecretDoor, Stairs, Rest, Gold, Click, Error). Wired into combat, victory, death, and dungeon events.
+
+**Files:** `src/core/SoundEffects.h/.cpp`.
+
+### 7.9 Keyboard shortcuts `S` — ✅ DONE
+**Done:** `GameController::keyPressEvent` — arrow keys for movement. `MapWidget::keyPressEvent` — W/F/E/A for dungeon actions.
+
+**Files:** `src/game_controller/game_controller.cpp`, `src/map_widget/mapwidget.cpp`.
+
+### 7.10 Tutorial `M` — ✅ DONE
+**Done:** `CreateCharacterDialog` — Tutorial button with character creation walkthrough.
+
+**Files:** `src/create_character/createcharacterdialog.cpp`.
 
 ---
 

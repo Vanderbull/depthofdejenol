@@ -110,6 +110,16 @@ SOURCES       = src/core/savegameUtils.cpp \
 		src/core/DeathRecovery.cpp \
 		src/core/QuestChain.cpp \
 		src/core/Endgame.cpp \
+		src/core/SoundEffects.cpp \
+		src/core/AlignmentSystem.cpp \
+		src/shortcut_help/ShortcutHelp.cpp \
+		src/tutorial/Tutorial.cpp \
+		src/npc_dialog/NPCDialog.cpp \
+		src/tavern_dialog/TavernDialog.cpp \
+		src/character_dialog/CharacterSheetDialog.cpp \
+		src/library_dialog/BestiaryDialog.cpp \
+		src/journal_dialog/JournalDialog.cpp \
+		src/quest_board/QuestBoardDialog.cpp \
 		src/spell_casting/SpellBook.cpp \
 		src/spell_casting/SpellCastingDialog.cpp \
 		fontManager.cpp \
@@ -144,7 +154,16 @@ SOURCES       = src/core/savegameUtils.cpp \
 		3rdparty/lua/lstrlib.c \
 		3rdparty/lua/ltablib.c \
 		3rdparty/lua/lutf8lib.c \
-		3rdparty/lua/linit.c build/moc/moc_gameStateManager.cpp \
+		3rdparty/lua/linit.c build/moc/moc_SoundEffects.cpp \
+		build/moc/moc_ShortcutHelp.cpp \
+		build/moc/moc_Tutorial.cpp \
+		build/moc/moc_NPCDialog.cpp \
+		build/moc/moc_TavernDialog.cpp \
+		build/moc/moc_CharacterSheetDialog.cpp \
+		build/moc/moc_BestiaryDialog.cpp \
+		build/moc/moc_JournalDialog.cpp \
+		build/moc/moc_QuestBoardDialog.cpp \
+		build/moc/moc_gameStateManager.cpp \
 		build/moc/moc_PartyManager.cpp \
 		build/moc/moc_audioManager.cpp \
 		build/moc/moc_blacklands.cpp \
@@ -240,6 +259,16 @@ OBJECTS       = build/obj/release/savegameUtils.o \
 		build/obj/release/DeathRecovery.o \
 		build/obj/release/QuestChain.o \
 		build/obj/release/Endgame.o \
+		build/obj/release/SoundEffects.o \
+		build/obj/release/AlignmentSystem.o \
+		build/obj/release/ShortcutHelp.o \
+		build/obj/release/Tutorial.o \
+		build/obj/release/NPCDialog.o \
+		build/obj/release/TavernDialog.o \
+		build/obj/release/CharacterSheetDialog.o \
+		build/obj/release/BestiaryDialog.o \
+		build/obj/release/JournalDialog.o \
+		build/obj/release/QuestBoardDialog.o \
 		build/obj/release/SpellBook.o \
 		build/obj/release/SpellCastingDialog.o \
 		build/obj/release/fontManager.o \
@@ -275,6 +304,15 @@ OBJECTS       = build/obj/release/savegameUtils.o \
 		build/obj/release/ltablib.o \
 		build/obj/release/lutf8lib.o \
 		build/obj/release/linit.o \
+		build/obj/release/moc_SoundEffects.o \
+		build/obj/release/moc_ShortcutHelp.o \
+		build/obj/release/moc_Tutorial.o \
+		build/obj/release/moc_NPCDialog.o \
+		build/obj/release/moc_TavernDialog.o \
+		build/obj/release/moc_CharacterSheetDialog.o \
+		build/obj/release/moc_BestiaryDialog.o \
+		build/obj/release/moc_JournalDialog.o \
+		build/obj/release/moc_QuestBoardDialog.o \
 		build/obj/release/moc_gameStateManager.o \
 		build/obj/release/moc_PartyManager.o \
 		build/obj/release/moc_audioManager.o \
@@ -444,6 +482,16 @@ DIST          = .gitignore \
 		src/core/DeathRecovery.h \
 		src/core/QuestChain.h \
 		src/core/Endgame.h \
+		src/core/SoundEffects.h \
+		src/core/AlignmentSystem.h \
+		src/shortcut_help/ShortcutHelp.h \
+		src/tutorial/Tutorial.h \
+		src/npc_dialog/NPCDialog.h \
+		src/tavern_dialog/TavernDialog.h \
+		src/character_dialog/CharacterSheetDialog.h \
+		src/library_dialog/BestiaryDialog.h \
+		src/journal_dialog/JournalDialog.h \
+		src/quest_board/QuestBoardDialog.h \
 		src/spell_casting/SpellBook.h \
 		src/core/savegameUtils.h \
 		gameStateManager.h \
@@ -546,6 +594,16 @@ DIST          = .gitignore \
 		src/core/DeathRecovery.cpp \
 		src/core/QuestChain.cpp \
 		src/core/Endgame.cpp \
+		src/core/SoundEffects.cpp \
+		src/core/AlignmentSystem.cpp \
+		src/shortcut_help/ShortcutHelp.cpp \
+		src/tutorial/Tutorial.cpp \
+		src/npc_dialog/NPCDialog.cpp \
+		src/tavern_dialog/TavernDialog.cpp \
+		src/character_dialog/CharacterSheetDialog.cpp \
+		src/library_dialog/BestiaryDialog.cpp \
+		src/journal_dialog/JournalDialog.cpp \
+		src/quest_board/QuestBoardDialog.cpp \
 		src/spell_casting/SpellBook.cpp \
 		src/spell_casting/SpellCastingDialog.cpp \
 		fontManager.cpp \
@@ -850,8 +908,8 @@ distdir: FORCE
 	@test -d $(DISTDIR) || mkdir -p $(DISTDIR)
 	$(COPY_FILE) --parents $(DIST) $(DISTDIR)/
 	$(COPY_FILE) --parents /usr/lib/x86_64-linux-gnu/qt6/mkspecs/features/data/dummy.cpp $(DISTDIR)/
-	$(COPY_FILE) --parents test/selftest.h src/items/ItemDatabase.h src/combat/CombatState.h src/combat/TurnEngine.h src/combat/CombatActions.h src/combat/MonsterAI.h src/combat/EncounterBuilder.h src/combat/VictoryReward.h src/combat/CombatDeathHandler.h src/core/LevelTable.h src/core/AgingRules.h src/core/DungeonLevelState.h src/core/DungeonThemes.h src/core/DoorAndSearch.h src/core/BossEncounter.h src/core/DeathRecovery.h src/core/QuestChain.h src/core/Endgame.h src/spell_casting/SpellBook.h src/core/savegameUtils.h gameStateManager.h src/partymanager/PartyManager.h src/core/GameConstants.h audioManager.h blacklands.h theCity.h storyDialog.h src/network_manager/NetworkManager.h src/hall_of_records/hallofrecordsdialog.h src/create_character/createcharacterdialog.h src/about_dialog/AboutDialog.h src/character_dialog/CharacterDialog.h src/message_window/MessageWindow.h src/sender_window/SenderWindow.h src/library_dialog/library_dialog.h src/automap/automap_dialog.h src/game_controller/game_controller.h src/characterlist_dialog/characterlistdialog.h src/helplesson/helplesson.h src/mordorstatistics/mordorstatistics.h src/loadingscreen/LoadingScreen.h src/guilds_dialog/GuildsDialog.h src/general_store/GeneralStore.h src/morgue_dialog/MorgueDialog.h src/seer_dialog/SeerDialog.h src/confinement_dialog/ConfinementDialog.h src/bank_dialog/BankDialog.h src/race_data/RaceData.h src/inventory_dialog/inventorydialog.h src/options_dialog/optionsdialog.h src/dungeon_dialog/DungeonDialog.h src/partyinfo_dialog/partyinfodialog.h src/dungeonmap/dungeonmap.h src/bank_dialog/TradeDialog.h src/core/game_resources.h src/dungeon_dialog/DungeonHandlers.h src/event/EventManager.h src/dungeon_dialog/MiniMapDialog.h src/update/UpdateManager.h src/update/UpdateDialog.h character.h src/spell_casting/SpellCastingDialog.h fontManager.h $(DISTDIR)/
-	$(COPY_FILE) --parents src/core/savegameUtils.cpp gameStateManager.cpp src/partymanager/PartyManager.cpp audioManager.cpp blacklands.cpp theCity.cpp src/network_manager/NetworkManager.cpp src/hall_of_records/hallofrecordsdialog.cpp src/create_character/createcharacterdialog.cpp src/about_dialog/AboutDialog.cpp src/character_dialog/CharacterDialog.cpp src/message_window/MessageWindow.cpp src/sender_window/SenderWindow.cpp src/library_dialog/library_dialog.cpp src/automap/automap_dialog.cpp src/game_controller/game_controller.cpp src/characterlist_dialog/characterlistdialog.cpp src/helplesson/helplesson.cpp src/mordorstatistics/mordorstatistics.cpp src/loadingscreen/LoadingScreen.cpp src/guilds_dialog/GuildsDialog.cpp src/general_store/GeneralStore.cpp src/morgue_dialog/MorgueDialog.cpp src/seer_dialog/SeerDialog.cpp src/confinement_dialog/ConfinementDialog.cpp src/bank_dialog/BankDialog.cpp src/race_data/RaceData.cpp src/inventory_dialog/inventorydialog.cpp src/options_dialog/optionsdialog.cpp src/dungeon_dialog/DungeonDialog.cpp src/partyinfo_dialog/partyinfodialog.cpp src/dungeonmap/dungeonmap.cpp src/bank_dialog/TradeDialog.cpp src/game_resources.cpp src/dungeon_dialog/DungeonMinimap.cpp src/dungeon_dialog/DungeonHandlers.cpp src/event/EventManager.cpp src/update/UpdateManager.cpp src/update/UpdateDialog.cpp character.cpp test/selftest.cpp src/items/ItemDatabase.cpp src/combat/CombatState.cpp src/combat/TurnEngine.cpp src/combat/CombatActions.cpp src/combat/MonsterAI.cpp src/combat/EncounterBuilder.cpp src/combat/VictoryReward.cpp src/combat/CombatDeathHandler.cpp src/core/LevelTable.cpp src/core/AgingRules.cpp src/core/DungeonLevelState.cpp src/core/DungeonThemes.cpp src/core/DoorAndSearch.cpp src/core/BossEncounter.cpp src/core/DeathRecovery.cpp src/core/QuestChain.cpp src/core/Endgame.cpp src/spell_casting/SpellBook.cpp src/spell_casting/SpellCastingDialog.cpp fontManager.cpp 3rdparty/lua/lapi.c 3rdparty/lua/lcode.c 3rdparty/lua/lctype.c 3rdparty/lua/ldebug.c 3rdparty/lua/ldo.c 3rdparty/lua/ldump.c 3rdparty/lua/lfunc.c 3rdparty/lua/lgc.c 3rdparty/lua/llex.c 3rdparty/lua/lmem.c 3rdparty/lua/lobject.c 3rdparty/lua/lopcodes.c 3rdparty/lua/lparser.c 3rdparty/lua/lstate.c 3rdparty/lua/lstring.c 3rdparty/lua/ltable.c 3rdparty/lua/ltm.c 3rdparty/lua/lundump.c 3rdparty/lua/lvm.c 3rdparty/lua/lzio.c 3rdparty/lua/lauxlib.c 3rdparty/lua/lbaselib.c 3rdparty/lua/lcorolib.c 3rdparty/lua/ldblib.c 3rdparty/lua/liolib.c 3rdparty/lua/lmathlib.c 3rdparty/lua/loadlib.c 3rdparty/lua/loslib.c 3rdparty/lua/lstrlib.c 3rdparty/lua/ltablib.c 3rdparty/lua/lutf8lib.c 3rdparty/lua/linit.c $(DISTDIR)/
+	$(COPY_FILE) --parents test/selftest.h src/items/ItemDatabase.h src/combat/CombatState.h src/combat/TurnEngine.h src/combat/CombatActions.h src/combat/MonsterAI.h src/combat/EncounterBuilder.h src/combat/VictoryReward.h src/combat/CombatDeathHandler.h src/core/LevelTable.h src/core/AgingRules.h src/core/DungeonLevelState.h src/core/DungeonThemes.h src/core/DoorAndSearch.h src/core/BossEncounter.h src/core/DeathRecovery.h src/core/QuestChain.h src/core/Endgame.h src/core/SoundEffects.h src/core/AlignmentSystem.h src/shortcut_help/ShortcutHelp.h src/tutorial/Tutorial.h src/npc_dialog/NPCDialog.h src/tavern_dialog/TavernDialog.h src/character_dialog/CharacterSheetDialog.h src/library_dialog/BestiaryDialog.h src/journal_dialog/JournalDialog.h src/quest_board/QuestBoardDialog.h src/spell_casting/SpellBook.h src/core/savegameUtils.h gameStateManager.h src/partymanager/PartyManager.h src/core/GameConstants.h audioManager.h blacklands.h theCity.h storyDialog.h src/network_manager/NetworkManager.h src/hall_of_records/hallofrecordsdialog.h src/create_character/createcharacterdialog.h src/about_dialog/AboutDialog.h src/character_dialog/CharacterDialog.h src/message_window/MessageWindow.h src/sender_window/SenderWindow.h src/library_dialog/library_dialog.h src/automap/automap_dialog.h src/game_controller/game_controller.h src/characterlist_dialog/characterlistdialog.h src/helplesson/helplesson.h src/mordorstatistics/mordorstatistics.h src/loadingscreen/LoadingScreen.h src/guilds_dialog/GuildsDialog.h src/general_store/GeneralStore.h src/morgue_dialog/MorgueDialog.h src/seer_dialog/SeerDialog.h src/confinement_dialog/ConfinementDialog.h src/bank_dialog/BankDialog.h src/race_data/RaceData.h src/inventory_dialog/inventorydialog.h src/options_dialog/optionsdialog.h src/dungeon_dialog/DungeonDialog.h src/partyinfo_dialog/partyinfodialog.h src/dungeonmap/dungeonmap.h src/bank_dialog/TradeDialog.h src/core/game_resources.h src/dungeon_dialog/DungeonHandlers.h src/event/EventManager.h src/dungeon_dialog/MiniMapDialog.h src/update/UpdateManager.h src/update/UpdateDialog.h character.h src/spell_casting/SpellCastingDialog.h fontManager.h $(DISTDIR)/
+	$(COPY_FILE) --parents src/core/savegameUtils.cpp gameStateManager.cpp src/partymanager/PartyManager.cpp audioManager.cpp blacklands.cpp theCity.cpp src/network_manager/NetworkManager.cpp src/hall_of_records/hallofrecordsdialog.cpp src/create_character/createcharacterdialog.cpp src/about_dialog/AboutDialog.cpp src/character_dialog/CharacterDialog.cpp src/message_window/MessageWindow.cpp src/sender_window/SenderWindow.cpp src/library_dialog/library_dialog.cpp src/automap/automap_dialog.cpp src/game_controller/game_controller.cpp src/characterlist_dialog/characterlistdialog.cpp src/helplesson/helplesson.cpp src/mordorstatistics/mordorstatistics.cpp src/loadingscreen/LoadingScreen.cpp src/guilds_dialog/GuildsDialog.cpp src/general_store/GeneralStore.cpp src/morgue_dialog/MorgueDialog.cpp src/seer_dialog/SeerDialog.cpp src/confinement_dialog/ConfinementDialog.cpp src/bank_dialog/BankDialog.cpp src/race_data/RaceData.cpp src/inventory_dialog/inventorydialog.cpp src/options_dialog/optionsdialog.cpp src/dungeon_dialog/DungeonDialog.cpp src/partyinfo_dialog/partyinfodialog.cpp src/dungeonmap/dungeonmap.cpp src/bank_dialog/TradeDialog.cpp src/game_resources.cpp src/dungeon_dialog/DungeonMinimap.cpp src/dungeon_dialog/DungeonHandlers.cpp src/event/EventManager.cpp src/update/UpdateManager.cpp src/update/UpdateDialog.cpp character.cpp test/selftest.cpp src/items/ItemDatabase.cpp src/combat/CombatState.cpp src/combat/TurnEngine.cpp src/combat/CombatActions.cpp src/combat/MonsterAI.cpp src/combat/EncounterBuilder.cpp src/combat/VictoryReward.cpp src/combat/CombatDeathHandler.cpp src/core/LevelTable.cpp src/core/AgingRules.cpp src/core/DungeonLevelState.cpp src/core/DungeonThemes.cpp src/core/DoorAndSearch.cpp src/core/BossEncounter.cpp src/core/DeathRecovery.cpp src/core/QuestChain.cpp src/core/Endgame.cpp src/core/SoundEffects.cpp src/core/AlignmentSystem.cpp src/shortcut_help/ShortcutHelp.cpp src/tutorial/Tutorial.cpp src/npc_dialog/NPCDialog.cpp src/tavern_dialog/TavernDialog.cpp src/character_dialog/CharacterSheetDialog.cpp src/library_dialog/BestiaryDialog.cpp src/journal_dialog/JournalDialog.cpp src/quest_board/QuestBoardDialog.cpp src/spell_casting/SpellBook.cpp src/spell_casting/SpellCastingDialog.cpp fontManager.cpp 3rdparty/lua/lapi.c 3rdparty/lua/lcode.c 3rdparty/lua/lctype.c 3rdparty/lua/ldebug.c 3rdparty/lua/ldo.c 3rdparty/lua/ldump.c 3rdparty/lua/lfunc.c 3rdparty/lua/lgc.c 3rdparty/lua/llex.c 3rdparty/lua/lmem.c 3rdparty/lua/lobject.c 3rdparty/lua/lopcodes.c 3rdparty/lua/lparser.c 3rdparty/lua/lstate.c 3rdparty/lua/lstring.c 3rdparty/lua/ltable.c 3rdparty/lua/ltm.c 3rdparty/lua/lundump.c 3rdparty/lua/lvm.c 3rdparty/lua/lzio.c 3rdparty/lua/lauxlib.c 3rdparty/lua/lbaselib.c 3rdparty/lua/lcorolib.c 3rdparty/lua/ldblib.c 3rdparty/lua/liolib.c 3rdparty/lua/lmathlib.c 3rdparty/lua/loadlib.c 3rdparty/lua/loslib.c 3rdparty/lua/lstrlib.c 3rdparty/lua/ltablib.c 3rdparty/lua/lutf8lib.c 3rdparty/lua/linit.c $(DISTDIR)/
 
 
 clean: compiler_clean 
@@ -885,9 +943,54 @@ build/moc/moc_predefs.h: /usr/lib/x86_64-linux-gnu/qt6/mkspecs/features/data/dum
 	@echo generating build/moc/moc_predefs.h
 	@g++ -pipe -O2 -std=gnu++2a -Wall -Wextra -dM -E -o build/moc/moc_predefs.h /usr/lib/x86_64-linux-gnu/qt6/mkspecs/features/data/dummy.cpp
 
-compiler_moc_header_make_all: build/moc/moc_gameStateManager.cpp build/moc/moc_PartyManager.cpp build/moc/moc_audioManager.cpp build/moc/moc_blacklands.cpp build/moc/moc_theCity.cpp build/moc/moc_storyDialog.cpp build/moc/moc_NetworkManager.cpp build/moc/moc_hallofrecordsdialog.cpp build/moc/moc_createcharacterdialog.cpp build/moc/moc_AboutDialog.cpp build/moc/moc_CharacterDialog.cpp build/moc/moc_MessageWindow.cpp build/moc/moc_SenderWindow.cpp build/moc/moc_library_dialog.cpp build/moc/moc_automap_dialog.cpp build/moc/moc_game_controller.cpp build/moc/moc_characterlistdialog.cpp build/moc/moc_helplesson.cpp build/moc/moc_mordorstatistics.cpp build/moc/moc_LoadingScreen.cpp build/moc/moc_GuildsDialog.cpp build/moc/moc_GeneralStore.cpp build/moc/moc_MorgueDialog.cpp build/moc/moc_SeerDialog.cpp build/moc/moc_ConfinementDialog.cpp build/moc/moc_BankDialog.cpp build/moc/moc_inventorydialog.cpp build/moc/moc_optionsdialog.cpp build/moc/moc_DungeonDialog.cpp build/moc/moc_partyinfodialog.cpp build/moc/moc_dungeonmap.cpp build/moc/moc_TradeDialog.cpp build/moc/moc_EventManager.cpp build/moc/moc_MiniMapDialog.cpp build/moc/moc_UpdateManager.cpp build/moc/moc_UpdateDialog.cpp build/moc/moc_SpellCastingDialog.cpp build/moc/moc_fontManager.cpp
+compiler_moc_header_make_all: build/moc/moc_SoundEffects.cpp build/moc/moc_ShortcutHelp.cpp build/moc/moc_Tutorial.cpp build/moc/moc_NPCDialog.cpp build/moc/moc_TavernDialog.cpp build/moc/moc_CharacterSheetDialog.cpp build/moc/moc_BestiaryDialog.cpp build/moc/moc_JournalDialog.cpp build/moc/moc_QuestBoardDialog.cpp build/moc/moc_gameStateManager.cpp build/moc/moc_PartyManager.cpp build/moc/moc_audioManager.cpp build/moc/moc_blacklands.cpp build/moc/moc_theCity.cpp build/moc/moc_storyDialog.cpp build/moc/moc_NetworkManager.cpp build/moc/moc_hallofrecordsdialog.cpp build/moc/moc_createcharacterdialog.cpp build/moc/moc_AboutDialog.cpp build/moc/moc_CharacterDialog.cpp build/moc/moc_MessageWindow.cpp build/moc/moc_SenderWindow.cpp build/moc/moc_library_dialog.cpp build/moc/moc_automap_dialog.cpp build/moc/moc_game_controller.cpp build/moc/moc_characterlistdialog.cpp build/moc/moc_helplesson.cpp build/moc/moc_mordorstatistics.cpp build/moc/moc_LoadingScreen.cpp build/moc/moc_GuildsDialog.cpp build/moc/moc_GeneralStore.cpp build/moc/moc_MorgueDialog.cpp build/moc/moc_SeerDialog.cpp build/moc/moc_ConfinementDialog.cpp build/moc/moc_BankDialog.cpp build/moc/moc_inventorydialog.cpp build/moc/moc_optionsdialog.cpp build/moc/moc_DungeonDialog.cpp build/moc/moc_partyinfodialog.cpp build/moc/moc_dungeonmap.cpp build/moc/moc_TradeDialog.cpp build/moc/moc_EventManager.cpp build/moc/moc_MiniMapDialog.cpp build/moc/moc_UpdateManager.cpp build/moc/moc_UpdateDialog.cpp build/moc/moc_SpellCastingDialog.cpp build/moc/moc_fontManager.cpp
 compiler_moc_header_clean:
-	-$(DEL_FILE) build/moc/moc_gameStateManager.cpp build/moc/moc_PartyManager.cpp build/moc/moc_audioManager.cpp build/moc/moc_blacklands.cpp build/moc/moc_theCity.cpp build/moc/moc_storyDialog.cpp build/moc/moc_NetworkManager.cpp build/moc/moc_hallofrecordsdialog.cpp build/moc/moc_createcharacterdialog.cpp build/moc/moc_AboutDialog.cpp build/moc/moc_CharacterDialog.cpp build/moc/moc_MessageWindow.cpp build/moc/moc_SenderWindow.cpp build/moc/moc_library_dialog.cpp build/moc/moc_automap_dialog.cpp build/moc/moc_game_controller.cpp build/moc/moc_characterlistdialog.cpp build/moc/moc_helplesson.cpp build/moc/moc_mordorstatistics.cpp build/moc/moc_LoadingScreen.cpp build/moc/moc_GuildsDialog.cpp build/moc/moc_GeneralStore.cpp build/moc/moc_MorgueDialog.cpp build/moc/moc_SeerDialog.cpp build/moc/moc_ConfinementDialog.cpp build/moc/moc_BankDialog.cpp build/moc/moc_inventorydialog.cpp build/moc/moc_optionsdialog.cpp build/moc/moc_DungeonDialog.cpp build/moc/moc_partyinfodialog.cpp build/moc/moc_dungeonmap.cpp build/moc/moc_TradeDialog.cpp build/moc/moc_EventManager.cpp build/moc/moc_MiniMapDialog.cpp build/moc/moc_UpdateManager.cpp build/moc/moc_UpdateDialog.cpp build/moc/moc_SpellCastingDialog.cpp build/moc/moc_fontManager.cpp
+	-$(DEL_FILE) build/moc/moc_SoundEffects.cpp build/moc/moc_ShortcutHelp.cpp build/moc/moc_Tutorial.cpp build/moc/moc_NPCDialog.cpp build/moc/moc_TavernDialog.cpp build/moc/moc_CharacterSheetDialog.cpp build/moc/moc_BestiaryDialog.cpp build/moc/moc_JournalDialog.cpp build/moc/moc_QuestBoardDialog.cpp build/moc/moc_gameStateManager.cpp build/moc/moc_PartyManager.cpp build/moc/moc_audioManager.cpp build/moc/moc_blacklands.cpp build/moc/moc_theCity.cpp build/moc/moc_storyDialog.cpp build/moc/moc_NetworkManager.cpp build/moc/moc_hallofrecordsdialog.cpp build/moc/moc_createcharacterdialog.cpp build/moc/moc_AboutDialog.cpp build/moc/moc_CharacterDialog.cpp build/moc/moc_MessageWindow.cpp build/moc/moc_SenderWindow.cpp build/moc/moc_library_dialog.cpp build/moc/moc_automap_dialog.cpp build/moc/moc_game_controller.cpp build/moc/moc_characterlistdialog.cpp build/moc/moc_helplesson.cpp build/moc/moc_mordorstatistics.cpp build/moc/moc_LoadingScreen.cpp build/moc/moc_GuildsDialog.cpp build/moc/moc_GeneralStore.cpp build/moc/moc_MorgueDialog.cpp build/moc/moc_SeerDialog.cpp build/moc/moc_ConfinementDialog.cpp build/moc/moc_BankDialog.cpp build/moc/moc_inventorydialog.cpp build/moc/moc_optionsdialog.cpp build/moc/moc_DungeonDialog.cpp build/moc/moc_partyinfodialog.cpp build/moc/moc_dungeonmap.cpp build/moc/moc_TradeDialog.cpp build/moc/moc_EventManager.cpp build/moc/moc_MiniMapDialog.cpp build/moc/moc_UpdateManager.cpp build/moc/moc_UpdateDialog.cpp build/moc/moc_SpellCastingDialog.cpp build/moc/moc_fontManager.cpp
+build/moc/moc_SoundEffects.cpp: src/core/SoundEffects.h \
+		build/moc/moc_predefs.h \
+		/usr/lib/qt6/libexec/moc
+	@echo moc src/core/SoundEffects.h && /usr/lib/qt6/libexec/moc $(DEFINES) --include /home/rickard/Documents/GitHub/depthofdejenol/build/moc/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt6/mkspecs/linux-g++ -I/home/rickard/Documents/GitHub/depthofdejenol -I/home/rickard/Documents/GitHub/depthofdejenol/_PRO_FILE_PWD_/include -I/home/rickard/Documents/GitHub/depthofdejenol/3rdparty/lua -I/usr/include/x86_64-linux-gnu/qt6 -I/usr/include/x86_64-linux-gnu/qt6/QtWidgets -I/usr/include/x86_64-linux-gnu/qt6/QtMultimedia -I/usr/include/x86_64-linux-gnu/qt6/QtGui -I/usr/include/x86_64-linux-gnu/qt6/QtNetwork -I/usr/include/x86_64-linux-gnu/qt6/QtCore -I/usr/include/c++/15 -I/usr/include/x86_64-linux-gnu/c++/15 -I/usr/include/c++/15/backward -I/usr/lib/gcc/x86_64-linux-gnu/15/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include src/core/SoundEffects.h -o build/moc/moc_SoundEffects.cpp
+
+build/moc/moc_ShortcutHelp.cpp: src/shortcut_help/ShortcutHelp.h \
+		build/moc/moc_predefs.h \
+		/usr/lib/qt6/libexec/moc
+	@echo moc src/shortcut_help/ShortcutHelp.h && /usr/lib/qt6/libexec/moc $(DEFINES) --include /home/rickard/Documents/GitHub/depthofdejenol/build/moc/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt6/mkspecs/linux-g++ -I/home/rickard/Documents/GitHub/depthofdejenol -I/home/rickard/Documents/GitHub/depthofdejenol/_PRO_FILE_PWD_/include -I/home/rickard/Documents/GitHub/depthofdejenol/3rdparty/lua -I/usr/include/x86_64-linux-gnu/qt6 -I/usr/include/x86_64-linux-gnu/qt6/QtWidgets -I/usr/include/x86_64-linux-gnu/qt6/QtMultimedia -I/usr/include/x86_64-linux-gnu/qt6/QtGui -I/usr/include/x86_64-linux-gnu/qt6/QtNetwork -I/usr/include/x86_64-linux-gnu/qt6/QtCore -I/usr/include/c++/15 -I/usr/include/x86_64-linux-gnu/c++/15 -I/usr/include/c++/15/backward -I/usr/lib/gcc/x86_64-linux-gnu/15/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include src/shortcut_help/ShortcutHelp.h -o build/moc/moc_ShortcutHelp.cpp
+
+build/moc/moc_Tutorial.cpp: src/tutorial/Tutorial.h \
+		build/moc/moc_predefs.h \
+		/usr/lib/qt6/libexec/moc
+	@echo moc src/tutorial/Tutorial.h && /usr/lib/qt6/libexec/moc $(DEFINES) --include /home/rickard/Documents/GitHub/depthofdejenol/build/moc/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt6/mkspecs/linux-g++ -I/home/rickard/Documents/GitHub/depthofdejenol -I/home/rickard/Documents/GitHub/depthofdejenol/_PRO_FILE_PWD_/include -I/home/rickard/Documents/GitHub/depthofdejenol/3rdparty/lua -I/usr/include/x86_64-linux-gnu/qt6 -I/usr/include/x86_64-linux-gnu/qt6/QtWidgets -I/usr/include/x86_64-linux-gnu/qt6/QtMultimedia -I/usr/include/x86_64-linux-gnu/qt6/QtGui -I/usr/include/x86_64-linux-gnu/qt6/QtNetwork -I/usr/include/x86_64-linux-gnu/qt6/QtCore -I/usr/include/c++/15 -I/usr/include/x86_64-linux-gnu/c++/15 -I/usr/include/c++/15/backward -I/usr/lib/gcc/x86_64-linux-gnu/15/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include src/tutorial/Tutorial.h -o build/moc/moc_Tutorial.cpp
+
+build/moc/moc_NPCDialog.cpp: src/npc_dialog/NPCDialog.h \
+		build/moc/moc_predefs.h \
+		/usr/lib/qt6/libexec/moc
+	@echo moc src/npc_dialog/NPCDialog.h && /usr/lib/qt6/libexec/moc $(DEFINES) --include /home/rickard/Documents/GitHub/depthofdejenol/build/moc/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt6/mkspecs/linux-g++ -I/home/rickard/Documents/GitHub/depthofdejenol -I/home/rickard/Documents/GitHub/depthofdejenol/_PRO_FILE_PWD_/include -I/home/rickard/Documents/GitHub/depthofdejenol/3rdparty/lua -I/usr/include/x86_64-linux-gnu/qt6 -I/usr/include/x86_64-linux-gnu/qt6/QtWidgets -I/usr/include/x86_64-linux-gnu/qt6/QtMultimedia -I/usr/include/x86_64-linux-gnu/qt6/QtGui -I/usr/include/x86_64-linux-gnu/qt6/QtNetwork -I/usr/include/x86_64-linux-gnu/qt6/QtCore -I/usr/include/c++/15 -I/usr/include/x86_64-linux-gnu/c++/15 -I/usr/include/c++/15/backward -I/usr/lib/gcc/x86_64-linux-gnu/15/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include src/npc_dialog/NPCDialog.h -o build/moc/moc_NPCDialog.cpp
+
+build/moc/moc_TavernDialog.cpp: src/tavern_dialog/TavernDialog.h \
+		build/moc/moc_predefs.h \
+		/usr/lib/qt6/libexec/moc
+	@echo moc src/tavern_dialog/TavernDialog.h && /usr/lib/qt6/libexec/moc $(DEFINES) --include /home/rickard/Documents/GitHub/depthofdejenol/build/moc/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt6/mkspecs/linux-g++ -I/home/rickard/Documents/GitHub/depthofdejenol -I/home/rickard/Documents/GitHub/depthofdejenol/_PRO_FILE_PWD_/include -I/home/rickard/Documents/GitHub/depthofdejenol/3rdparty/lua -I/usr/include/x86_64-linux-gnu/qt6 -I/usr/include/x86_64-linux-gnu/qt6/QtWidgets -I/usr/include/x86_64-linux-gnu/qt6/QtMultimedia -I/usr/include/x86_64-linux-gnu/qt6/QtGui -I/usr/include/x86_64-linux-gnu/qt6/QtNetwork -I/usr/include/x86_64-linux-gnu/qt6/QtCore -I/usr/include/c++/15 -I/usr/include/x86_64-linux-gnu/c++/15 -I/usr/include/c++/15/backward -I/usr/lib/gcc/x86_64-linux-gnu/15/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include src/tavern_dialog/TavernDialog.h -o build/moc/moc_TavernDialog.cpp
+
+build/moc/moc_CharacterSheetDialog.cpp: src/character_dialog/CharacterSheetDialog.h \
+		build/moc/moc_predefs.h \
+		/usr/lib/qt6/libexec/moc
+	@echo moc src/character_dialog/CharacterSheetDialog.h && /usr/lib/qt6/libexec/moc $(DEFINES) --include /home/rickard/Documents/GitHub/depthofdejenol/build/moc/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt6/mkspecs/linux-g++ -I/home/rickard/Documents/GitHub/depthofdejenol -I/home/rickard/Documents/GitHub/depthofdejenol/_PRO_FILE_PWD_/include -I/home/rickard/Documents/GitHub/depthofdejenol/3rdparty/lua -I/usr/include/x86_64-linux-gnu/qt6 -I/usr/include/x86_64-linux-gnu/qt6/QtWidgets -I/usr/include/x86_64-linux-gnu/qt6/QtMultimedia -I/usr/include/x86_64-linux-gnu/qt6/QtGui -I/usr/include/x86_64-linux-gnu/qt6/QtNetwork -I/usr/include/x86_64-linux-gnu/qt6/QtCore -I/usr/include/c++/15 -I/usr/include/x86_64-linux-gnu/c++/15 -I/usr/include/c++/15/backward -I/usr/lib/gcc/x86_64-linux-gnu/15/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include src/character_dialog/CharacterSheetDialog.h -o build/moc/moc_CharacterSheetDialog.cpp
+
+build/moc/moc_BestiaryDialog.cpp: src/library_dialog/BestiaryDialog.h \
+		build/moc/moc_predefs.h \
+		/usr/lib/qt6/libexec/moc
+	@echo moc src/library_dialog/BestiaryDialog.h && /usr/lib/qt6/libexec/moc $(DEFINES) --include /home/rickard/Documents/GitHub/depthofdejenol/build/moc/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt6/mkspecs/linux-g++ -I/home/rickard/Documents/GitHub/depthofdejenol -I/home/rickard/Documents/GitHub/depthofdejenol/_PRO_FILE_PWD_/include -I/home/rickard/Documents/GitHub/depthofdejenol/3rdparty/lua -I/usr/include/x86_64-linux-gnu/qt6 -I/usr/include/x86_64-linux-gnu/qt6/QtWidgets -I/usr/include/x86_64-linux-gnu/qt6/QtMultimedia -I/usr/include/x86_64-linux-gnu/qt6/QtGui -I/usr/include/x86_64-linux-gnu/qt6/QtNetwork -I/usr/include/x86_64-linux-gnu/qt6/QtCore -I/usr/include/c++/15 -I/usr/include/x86_64-linux-gnu/c++/15 -I/usr/include/c++/15/backward -I/usr/lib/gcc/x86_64-linux-gnu/15/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include src/library_dialog/BestiaryDialog.h -o build/moc/moc_BestiaryDialog.cpp
+
+build/moc/moc_JournalDialog.cpp: src/journal_dialog/JournalDialog.h \
+		build/moc/moc_predefs.h \
+		/usr/lib/qt6/libexec/moc
+	@echo moc src/journal_dialog/JournalDialog.h && /usr/lib/qt6/libexec/moc $(DEFINES) --include /home/rickard/Documents/GitHub/depthofdejenol/build/moc/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt6/mkspecs/linux-g++ -I/home/rickard/Documents/GitHub/depthofdejenol -I/home/rickard/Documents/GitHub/depthofdejenol/_PRO_FILE_PWD_/include -I/home/rickard/Documents/GitHub/depthofdejenol/3rdparty/lua -I/usr/include/x86_64-linux-gnu/qt6 -I/usr/include/x86_64-linux-gnu/qt6/QtWidgets -I/usr/include/x86_64-linux-gnu/qt6/QtMultimedia -I/usr/include/x86_64-linux-gnu/qt6/QtGui -I/usr/include/x86_64-linux-gnu/qt6/QtNetwork -I/usr/include/x86_64-linux-gnu/qt6/QtCore -I/usr/include/c++/15 -I/usr/include/x86_64-linux-gnu/c++/15 -I/usr/include/c++/15/backward -I/usr/lib/gcc/x86_64-linux-gnu/15/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include src/journal_dialog/JournalDialog.h -o build/moc/moc_JournalDialog.cpp
+
+build/moc/moc_QuestBoardDialog.cpp: src/quest_board/QuestBoardDialog.h \
+		build/moc/moc_predefs.h \
+		/usr/lib/qt6/libexec/moc
+	@echo moc src/quest_board/QuestBoardDialog.h && /usr/lib/qt6/libexec/moc $(DEFINES) --include /home/rickard/Documents/GitHub/depthofdejenol/build/moc/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt6/mkspecs/linux-g++ -I/home/rickard/Documents/GitHub/depthofdejenol -I/home/rickard/Documents/GitHub/depthofdejenol/_PRO_FILE_PWD_/include -I/home/rickard/Documents/GitHub/depthofdejenol/3rdparty/lua -I/usr/include/x86_64-linux-gnu/qt6 -I/usr/include/x86_64-linux-gnu/qt6/QtWidgets -I/usr/include/x86_64-linux-gnu/qt6/QtMultimedia -I/usr/include/x86_64-linux-gnu/qt6/QtGui -I/usr/include/x86_64-linux-gnu/qt6/QtNetwork -I/usr/include/x86_64-linux-gnu/qt6/QtCore -I/usr/include/c++/15 -I/usr/include/x86_64-linux-gnu/c++/15 -I/usr/include/c++/15/backward -I/usr/lib/gcc/x86_64-linux-gnu/15/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include src/quest_board/QuestBoardDialog.h -o build/moc/moc_QuestBoardDialog.cpp
+
 build/moc/moc_gameStateManager.cpp: gameStateManager.h \
 		3rdparty/lua/lua.h \
 		3rdparty/lua/luaconf.h \
@@ -1346,6 +1449,7 @@ build/obj/release/gameStateManager.o: gameStateManager.cpp gameStateManager.h \
 build/obj/release/PartyManager.o: src/partymanager/PartyManager.cpp src/partymanager/PartyManager.h \
 		character.h \
 		src/core/GameConstants.h \
+		src/core/SoundEffects.h \
 		src/core/LevelTable.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/PartyManager.o src/partymanager/PartyManager.cpp
 
@@ -1404,6 +1508,14 @@ build/obj/release/theCity.o: theCity.cpp theCity.h \
 		src/dungeon_dialog/DungeonDialog.h \
 		src/event/EventManager.h \
 		src/dungeon_dialog/MiniMapDialog.h \
+		src/tavern_dialog/TavernDialog.h \
+		src/character_dialog/CharacterSheetDialog.h \
+		src/library_dialog/BestiaryDialog.h \
+		src/library_dialog/library_dialog.h \
+		src/journal_dialog/JournalDialog.h \
+		src/quest_board/QuestBoardDialog.h \
+		src/npc_dialog/NPCDialog.h \
+		src/core/AlignmentSystem.h \
 		src/core/savegameUtils.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/theCity.o theCity.cpp
 
@@ -1574,7 +1686,8 @@ build/obj/release/GuildsDialog.o: src/guilds_dialog/GuildsDialog.cpp src/guilds_
 		fontManager.h \
 		character.h \
 		src/library_dialog/library_dialog.h \
-		src/spell_casting/SpellBook.h
+		src/spell_casting/SpellBook.h \
+		src/core/AlignmentSystem.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/GuildsDialog.o src/guilds_dialog/GuildsDialog.cpp
 
 build/obj/release/GeneralStore.o: src/general_store/GeneralStore.cpp src/general_store/GeneralStore.h \
@@ -1707,6 +1820,7 @@ build/obj/release/DungeonDialog.o: src/dungeon_dialog/DungeonDialog.cpp src/char
 		src/core/DungeonLevelState.h \
 		src/core/BossEncounter.h \
 		src/core/DoorAndSearch.h \
+		src/core/SoundEffects.h \
 		src/spell_casting/SpellCastingDialog.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/DungeonDialog.o src/dungeon_dialog/DungeonDialog.cpp
 
@@ -1779,7 +1893,8 @@ build/obj/release/DungeonHandlers.o: src/dungeon_dialog/DungeonHandlers.cpp src/
 		character.h \
 		src/partyinfo_dialog/partyinfodialog.h \
 		src/event/EventManager.h \
-		src/dungeon_dialog/MiniMapDialog.h
+		src/dungeon_dialog/MiniMapDialog.h \
+		src/core/SoundEffects.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/DungeonHandlers.o src/dungeon_dialog/DungeonHandlers.cpp
 
 build/obj/release/EventManager.o: src/event/EventManager.cpp src/event/EventManager.h \
@@ -1839,6 +1954,12 @@ build/obj/release/selftest.o: test/selftest.cpp test/selftest.h \
 		src/core/DeathRecovery.h \
 		src/core/QuestChain.h \
 		src/core/Endgame.h \
+		src/core/AlignmentSystem.h \
+		src/npc_dialog/NPCDialog.h \
+		src/shortcut_help/ShortcutHelp.h \
+		src/tutorial/Tutorial.h \
+		src/quest_board/QuestBoardDialog.h \
+		src/journal_dialog/JournalDialog.h \
 		src/spell_casting/SpellBook.h \
 		src/partymanager/PartyManager.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/selftest.o test/selftest.cpp
@@ -1856,7 +1977,8 @@ build/obj/release/TurnEngine.o: src/combat/TurnEngine.cpp src/combat/TurnEngine.
 build/obj/release/CombatActions.o: src/combat/CombatActions.cpp src/combat/CombatActions.h \
 		src/combat/CombatState.h \
 		src/combat/TurnEngine.h \
-		src/core/GameConstants.h
+		src/core/GameConstants.h \
+		src/core/SoundEffects.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/CombatActions.o src/combat/CombatActions.cpp
 
 build/obj/release/MonsterAI.o: src/combat/MonsterAI.cpp src/combat/MonsterAI.h \
@@ -1870,13 +1992,15 @@ build/obj/release/EncounterBuilder.o: src/combat/EncounterBuilder.cpp src/combat
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/EncounterBuilder.o src/combat/EncounterBuilder.cpp
 
 build/obj/release/VictoryReward.o: src/combat/VictoryReward.cpp src/combat/VictoryReward.h \
-		src/items/ItemDatabase.h
+		src/items/ItemDatabase.h \
+		src/core/SoundEffects.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/VictoryReward.o src/combat/VictoryReward.cpp
 
 build/obj/release/CombatDeathHandler.o: src/combat/CombatDeathHandler.cpp src/combat/CombatDeathHandler.h \
 		src/combat/CombatState.h \
 		src/combat/TurnEngine.h \
-		src/combat/CombatActions.h
+		src/combat/CombatActions.h \
+		src/core/SoundEffects.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/CombatDeathHandler.o src/combat/CombatDeathHandler.cpp
 
 build/obj/release/LevelTable.o: src/core/LevelTable.cpp src/core/LevelTable.h
@@ -1913,6 +2037,94 @@ build/obj/release/Endgame.o: src/core/Endgame.cpp src/core/Endgame.h \
 		src/core/BossEncounter.h \
 		src/core/DungeonThemes.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/Endgame.o src/core/Endgame.cpp
+
+build/obj/release/SoundEffects.o: src/core/SoundEffects.cpp src/core/SoundEffects.h \
+		AudioManager.h
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/SoundEffects.o src/core/SoundEffects.cpp
+
+build/obj/release/AlignmentSystem.o: src/core/AlignmentSystem.cpp src/core/AlignmentSystem.h
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/AlignmentSystem.o src/core/AlignmentSystem.cpp
+
+build/obj/release/ShortcutHelp.o: src/shortcut_help/ShortcutHelp.cpp src/shortcut_help/ShortcutHelp.h
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/ShortcutHelp.o src/shortcut_help/ShortcutHelp.cpp
+
+build/obj/release/Tutorial.o: src/tutorial/Tutorial.cpp src/tutorial/Tutorial.h
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/Tutorial.o src/tutorial/Tutorial.cpp
+
+build/obj/release/NPCDialog.o: src/npc_dialog/NPCDialog.cpp src/npc_dialog/NPCDialog.h
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/NPCDialog.o src/npc_dialog/NPCDialog.cpp
+
+build/obj/release/TavernDialog.o: src/tavern_dialog/TavernDialog.cpp src/tavern_dialog/TavernDialog.h \
+		gameStateManager.h \
+		3rdparty/lua/lua.h \
+		3rdparty/lua/luaconf.h \
+		3rdparty/lua/lualib.h \
+		3rdparty/lua/lauxlib.h \
+		src/core/GameConstants.h \
+		src/core/game_resources.h \
+		dataRegistry.h \
+		audioManager.h \
+		fontManager.h \
+		character.h
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/TavernDialog.o src/tavern_dialog/TavernDialog.cpp
+
+build/obj/release/CharacterSheetDialog.o: src/character_dialog/CharacterSheetDialog.cpp src/character_dialog/CharacterSheetDialog.h \
+		gameStateManager.h \
+		3rdparty/lua/lua.h \
+		3rdparty/lua/luaconf.h \
+		3rdparty/lua/lualib.h \
+		3rdparty/lua/lauxlib.h \
+		src/core/GameConstants.h \
+		src/core/game_resources.h \
+		dataRegistry.h \
+		audioManager.h \
+		fontManager.h \
+		character.h \
+		src/items/ItemDatabase.h \
+		src/spell_casting/SpellBook.h
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/CharacterSheetDialog.o src/character_dialog/CharacterSheetDialog.cpp
+
+build/obj/release/BestiaryDialog.o: src/library_dialog/BestiaryDialog.cpp src/library_dialog/BestiaryDialog.h \
+		gameStateManager.h \
+		3rdparty/lua/lua.h \
+		3rdparty/lua/luaconf.h \
+		3rdparty/lua/lualib.h \
+		3rdparty/lua/lauxlib.h \
+		src/core/GameConstants.h \
+		src/core/game_resources.h \
+		dataRegistry.h \
+		audioManager.h \
+		fontManager.h \
+		character.h
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/BestiaryDialog.o src/library_dialog/BestiaryDialog.cpp
+
+build/obj/release/JournalDialog.o: src/journal_dialog/JournalDialog.cpp src/journal_dialog/JournalDialog.h \
+		gameStateManager.h \
+		3rdparty/lua/lua.h \
+		3rdparty/lua/luaconf.h \
+		3rdparty/lua/lualib.h \
+		3rdparty/lua/lauxlib.h \
+		src/core/GameConstants.h \
+		src/core/game_resources.h \
+		dataRegistry.h \
+		audioManager.h \
+		fontManager.h \
+		character.h
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/JournalDialog.o src/journal_dialog/JournalDialog.cpp
+
+build/obj/release/QuestBoardDialog.o: src/quest_board/QuestBoardDialog.cpp src/quest_board/QuestBoardDialog.h \
+		gameStateManager.h \
+		3rdparty/lua/lua.h \
+		3rdparty/lua/luaconf.h \
+		3rdparty/lua/lualib.h \
+		3rdparty/lua/lauxlib.h \
+		src/core/GameConstants.h \
+		src/core/game_resources.h \
+		dataRegistry.h \
+		audioManager.h \
+		fontManager.h \
+		character.h
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/QuestBoardDialog.o src/quest_board/QuestBoardDialog.cpp
 
 build/obj/release/SpellBook.o: src/spell_casting/SpellBook.cpp src/spell_casting/SpellBook.h \
 		character.h \
@@ -2370,6 +2582,33 @@ build/obj/release/linit.o: 3rdparty/lua/linit.c 3rdparty/lua/lprefix.h \
 		3rdparty/lua/lauxlib.h \
 		3rdparty/lua/llimits.h
 	$(CC) -c $(CFLAGS) $(INCPATH) -o build/obj/release/linit.o 3rdparty/lua/linit.c
+
+build/obj/release/moc_SoundEffects.o: build/moc/moc_SoundEffects.cpp 
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/moc_SoundEffects.o build/moc/moc_SoundEffects.cpp
+
+build/obj/release/moc_ShortcutHelp.o: build/moc/moc_ShortcutHelp.cpp 
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/moc_ShortcutHelp.o build/moc/moc_ShortcutHelp.cpp
+
+build/obj/release/moc_Tutorial.o: build/moc/moc_Tutorial.cpp 
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/moc_Tutorial.o build/moc/moc_Tutorial.cpp
+
+build/obj/release/moc_NPCDialog.o: build/moc/moc_NPCDialog.cpp 
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/moc_NPCDialog.o build/moc/moc_NPCDialog.cpp
+
+build/obj/release/moc_TavernDialog.o: build/moc/moc_TavernDialog.cpp 
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/moc_TavernDialog.o build/moc/moc_TavernDialog.cpp
+
+build/obj/release/moc_CharacterSheetDialog.o: build/moc/moc_CharacterSheetDialog.cpp 
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/moc_CharacterSheetDialog.o build/moc/moc_CharacterSheetDialog.cpp
+
+build/obj/release/moc_BestiaryDialog.o: build/moc/moc_BestiaryDialog.cpp 
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/moc_BestiaryDialog.o build/moc/moc_BestiaryDialog.cpp
+
+build/obj/release/moc_JournalDialog.o: build/moc/moc_JournalDialog.cpp 
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/moc_JournalDialog.o build/moc/moc_JournalDialog.cpp
+
+build/obj/release/moc_QuestBoardDialog.o: build/moc/moc_QuestBoardDialog.cpp 
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/moc_QuestBoardDialog.o build/moc/moc_QuestBoardDialog.cpp
 
 build/obj/release/moc_gameStateManager.o: build/moc/moc_gameStateManager.cpp 
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/moc_gameStateManager.o build/moc/moc_gameStateManager.cpp

@@ -1,5 +1,6 @@
 #include "CombatActions.h"
 #include "src/core/GameConstants.h"
+#include "src/core/SoundEffects.h"
 #include <QRandomGenerator>
 
 CombatActions::CombatActions(CombatState* state, TurnEngine* engine)
@@ -61,6 +62,7 @@ int CombatActions::attack(int targetIndex, QString& result) {
 
     if (roll == 1) {
         result = QString("%1 fumbles the attack!").arg(attacker.name);
+        SoundEffects::instance()->play(SoundEffects::Type::Miss);
         return -1;
     }
     if (roll == 20 || toHit >= targetAC) {
@@ -75,14 +77,17 @@ int CombatActions::attack(int targetIndex, QString& result) {
             target.isAlive = false;
             result = QString("%1 hits %2 for %3 damage — %4 is slain!")
                 .arg(attacker.name).arg(target.name).arg(damage).arg(target.name);
+            SoundEffects::instance()->play(SoundEffects::Type::Death);
         } else {
             result = QString("%1 hits %2 for %3 damage.")
                 .arg(attacker.name).arg(target.name).arg(damage);
+            SoundEffects::instance()->play(roll == 20 ? SoundEffects::Type::CriticalHit : SoundEffects::Type::Hit);
         }
         return damage;
     } else {
         result = QString("%1 misses %2 (roll %3 vs AC %4).")
             .arg(attacker.name).arg(target.name).arg(roll).arg(targetAC);
+        SoundEffects::instance()->play(SoundEffects::Type::Miss);
         return -1;
     }
 }
@@ -97,6 +102,7 @@ void CombatActions::defend(QString& result) {
 
 int CombatActions::castSpell(int targetIndex, int spellPower, QString& result) {
     if (!m_state || !m_engine) { result = "No combat"; return -1; }
+    SoundEffects::instance()->play(SoundEffects::Type::SpellCast);
     int casterIdx = m_engine->currentParticipantIndex();
     if (casterIdx < 0) { result = "No caster"; return -1; }
     if (targetIndex < 0 || targetIndex >= m_state->participantCount()) {

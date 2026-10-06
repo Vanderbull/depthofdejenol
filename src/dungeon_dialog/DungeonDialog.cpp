@@ -8,6 +8,7 @@
 #include "src/core/DungeonLevelState.h"
 #include "src/core/BossEncounter.h"
 #include "src/core/DoorAndSearch.h"
+#include "src/core/SoundEffects.h"
 #include "../event/EventManager.h"
 #include "src/spell_casting/SpellCastingDialog.h"
 #include <QVBoxLayout>
@@ -978,6 +979,7 @@ void DungeonDialog::on_searchButton_clicked()
         for (const QPair<int, int>& pos : found) {
             logMessage(QString("Your search reveals a hidden door at %1, %2!")
                        .arg(pos.first).arg(pos.second));
+            SoundEffects::instance()->play(SoundEffects::Type::SecretDoor);
             // Add to visited tiles so it stays on the map.
             m_visitedTiles.insert(pos);
         }
@@ -1135,6 +1137,7 @@ void DungeonDialog::on_restButton_clicked()
     int newHp = qMin(maxHp, currentHp + healAmount);
     gsm->setGameValue("CurrentCharacterHP", newHp);
     logMessage(QString("You rest and recover %1 HP.").arg(newHp - currentHp));
+    SoundEffects::instance()->play(SoundEffects::Type::Rest);
 }
 
 void DungeonDialog::on_stairsDownButton_clicked()
@@ -1271,6 +1274,7 @@ void DungeonDialog::transitionLevel(StairDirection direction)
         if (newLevel >= 1) {
             logMessage(QString("You take the **stairs up** to Level %1.").arg(newLevel));
             enterLevel(newLevel, true);
+            SoundEffects::instance()->play(SoundEffects::Type::Stairs);
         } else {
             handleSurfaceExit();
         }
@@ -1290,6 +1294,7 @@ void DungeonDialog::transitionLevel(StairDirection direction)
 
         logMessage(QString("You take the **stairs down** to Level %1.").arg(newLevel));
         enterLevel(newLevel, false);
+        SoundEffects::instance()->play(SoundEffects::Type::Stairs);
     }
 }
 

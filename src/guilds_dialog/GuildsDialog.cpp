@@ -1,6 +1,7 @@
 #include "GuildsDialog.h"
 #include "src/library_dialog/library_dialog.h" // Include the LibraryDialog header
 #include "src/spell_casting/SpellBook.h"
+#include "src/core/AlignmentSystem.h"
 #include <QApplication>
 #include <QDebug>
 #include <QListWidget> // Needed for QListWidgetItem
@@ -143,6 +144,19 @@ void GuildsDialog::on_makeLevelButton_clicked()
     // The active character is index 0.
     Character& c = gsm->getPartyMember(0);
 
+    // Alignment gate: evil barred from good guilds, good barred from evil guilds.
+    QString alignmentName = gsm->getGameValue("CurrentCharacterAlignment").toString();
+    auto alignment = AlignmentSystem::alignmentFromName(alignmentName);
+    if (!AlignmentSystem::canJoinGuild(alignment, guildName)) {
+        QStringList barred = AlignmentSystem::barredGuilds(alignment);
+        gsm->logGuildAction(QString("Denied entry to %1: alignment %2 is barred.")
+            .arg(guildName).arg(alignmentName));
+        QMessageBox::warning(this, "Barred by Alignment",
+            QString("Your %1 alignment bars you from the %2.\n\nBarred guilds: %3")
+                .arg(alignmentName, guildName, barred.join(", ")));
+        return;
+    }
+
     // A character must be a member to level. Joining is free and starts at 1.
     if (c.guildLevel(guildName) <= 0) {
         c.joinGuild(guildName);
@@ -277,6 +291,19 @@ void GuildsDialog::on_visitButton_clicked()
     }
     QString guildName = selectedItem->text();
     if (guildName.startsWith("* ")) guildName.remove(0, 2);
+
+    // Alignment gate: evil barred from good guilds, good barred from evil guilds.
+    QString alignmentName = gsm->getGameValue("CurrentCharacterAlignment").toString();
+    auto alignment = AlignmentSystem::alignmentFromName(alignmentName);
+    if (!AlignmentSystem::canJoinGuild(alignment, guildName)) {
+        QStringList barred = AlignmentSystem::barredGuilds(alignment);
+        gsm->logGuildAction(QString("Denied entry to %1: alignment %2 is barred.")
+            .arg(guildName).arg(alignmentName));
+        QMessageBox::warning(this, "Barred by Alignment",
+            QString("Your %1 alignment bars you from the %2.\n\nBarred guilds: %3")
+                .arg(alignmentName, guildName, barred.join(", ")));
+        return;
+    }
 
     // 1. Fetch Selected Guild Requirements from gameData
     QVariantMap selectedGuildData;

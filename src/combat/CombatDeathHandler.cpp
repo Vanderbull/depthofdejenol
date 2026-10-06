@@ -1,4 +1,5 @@
 #include "CombatDeathHandler.h"
+#include "src/core/SoundEffects.h"
 
 CombatDeathHandler::CombatDeathHandler(CombatState* state, TurnEngine* engine, CombatActions* actions)
     : m_state(state), m_engine(engine), m_actions(actions) {}
@@ -38,6 +39,7 @@ QStringList CombatDeathHandler::processDeaths() {
         if (p.isPlayer && !p.isAlive && !p.hasActed) {
             // This player just died (hasActed is false because they died before acting)
             messages.append(QString("%1 has fallen!").arg(p.name));
+            SoundEffects::instance()->play(SoundEffects::Type::Death);
         }
     }
 

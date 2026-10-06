@@ -1,4 +1,5 @@
 #include "PartyManager.h"
+#include "src/core/SoundEffects.h"
 #include "src/core/LevelTable.h"
 #include <QRandomGenerator>
 
@@ -61,6 +62,7 @@ void PartyManager::addExperienceToCharacter(int index, int amount) {
 }
 
 void PartyManager::applyLevelUpGains(Character& c) {
+    SoundEffects::instance()->play(SoundEffects::Type::LevelUp);
     // HP gain: 2-6 per level
     int hpGain = 2 + QRandomGenerator::global()->bounded(5);
     c.maxHp += hpGain;
