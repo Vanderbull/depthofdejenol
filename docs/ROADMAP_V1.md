@@ -795,11 +795,40 @@ than rewards, no banner at NG+0, banner text at NG+1.
 
 ## Phase 8 — Balance and release
 
-### 8.1 Monster difficulty curve `M` — floor 1 beatable at level 1; floor 15 needs a real party
-### 8.2 Spell differentiation `M` — fire AoE, cold slow, lightning chain, mind crowd control
-### 8.3 Item progression curve `M` — Bronze → Iron → Steel → Adamantite → Mithril
-### 8.4 Gold sinks `M` — resurrection, identification, uncursing, guild leveling
-### 8.5 Packaging `M` — installer, version bump, release notes, tag `v1.0.0`
+### 8.1 Monster difficulty curve `M` — ✅ DONE
+**Done:** `MonsterBalance` — recommended level per floor (1→1, 15→15), stat multiplier +10%/floor, scaled HP/attack/defense/XP/gold, party readiness check, difficulty labels (Easy→Deadly), 15-floor table.
+
+**Files:** `src/core/MonsterBalance.h/.cpp`.
+
+**Verify:** `make check` section [52] — 22 checks: recommended levels, stat multipliers, scaled stats, party readiness, difficulty labels, floor table.
+
+### 8.2 Spell differentiation `M` — ✅ DONE
+**Done:** `SpellMechanics` — Fire AoE (targets scale with level, +10% dmg/extra target), Cold slow (20–40% for 1–3 turns), Lightning chain (5 targets, 20% falloff), Mind crowd control (stun 1–2 turns, 25%+ confuse chance). `isAoe()`, `isCrowdControl()`, `mechanicDescription()`, `spellsInSchool()`.
+
+**Files:** `src/spell_casting/SpellMechanics.h/.cpp`.
+
+**Verify:** `make check` section [53] — 19 checks: school mapping, fire AoE, cold slow, lightning chain, mind CC, mechanic descriptions, spells-in-school filtering.
+
+### 8.3 Item progression curve `M` — ✅ DONE
+**Done:** `ItemProgression` — 5 tiers (Bronze→Iron→Steel→Adamantite→Mithril), tier per floor (1→Bronze, 15→Mithril), stat multiplier 1.0–4.0, cost multiplier 1.0–16.0, availability check, items-of-tier filtering.
+
+**Files:** `src/items/ItemProgression.h/.cpp`.
+
+**Verify:** `make check` section [54] — 22 checks: tier names, floor mapping, min/max floors, stat/cost multipliers, availability, items-of-tier.
+
+### 8.4 Gold sinks `M` — ✅ DONE
+**Done:** `GoldSinks` — resurrection (level×500, +500 dungeon), rescue (depth²×250), identification (50), uncurse (100), guild leveling (500×level), rest (10/hour), cure poison/blindness (50 each). `allSinks()` returns 7 categories with costs and descriptions.
+
+**Files:** `src/core/GoldSinks.h/.cpp`.
+
+**Verify:** `make check` section [55] — 17 checks: all sink costs, all-sinks list, sink descriptions.
+
+### 8.5 Packaging `M` — ✅ DONE
+**Done:** `ReleaseInfo` — version 1.0.0, release date, 8 release notes (one per phase), 5 changes, system requirements, installer name, banner, version history (8 versions). `isRelease()` checks `QT_NO_DEBUG`.
+
+**Files:** `src/core/ReleaseInfo.h/.cpp`.
+
+**Verify:** `make check` section [56] — 12 checks: version, release notes, changes, version history.
 
 ---
 

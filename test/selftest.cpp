@@ -19,6 +19,11 @@
 #include "src/core/DeathRecovery.h"
 #include "src/core/QuestChain.h"
 #include "src/core/Endgame.h"
+#include "src/core/MonsterBalance.h"
+#include "src/spell_casting/SpellMechanics.h"
+#include "src/items/ItemProgression.h"
+#include "src/core/GoldSinks.h"
+#include "src/core/ReleaseInfo.h"
 #include "src/core/AlignmentSystem.h"
 #include "src/npc_dialog/NPCDialog.h"
 #include "src/shortcut_help/ShortcutHelp.h"
@@ -3702,6 +3707,7 @@ int runSelfTest()
         gsm->incrementPartyAge(1);
         // KNOWN FAILURE: time advance — skipped per user request
         // check(gsm->getPartyMembers()[0].age == ageBefore + 1, "time advances by 1 year");
+        Q_UNUSED(ageBefore);
     }
 
     // ------------------------------------------- Character sheet (7.5)
@@ -3775,6 +3781,7 @@ int runSelfTest()
         }
         // KNOWN FAILURE: monster name/HP validation — skipped per user request
         // check(allValid, "all monsters have name and HP");
+        Q_UNUSED(allValid);
 
         // Check floor distribution
         QSet<int> floors;
@@ -4174,6 +4181,251 @@ int runSelfTest()
         // Report event when not active does nothing.
         Tutorial::reset();
         check(!Tutorial::reportEvent("move"), "no event when not active");
+    }
+
+    // ------------------------------------------- Monster difficulty curve (8.1)
+    section("[52] Monster difficulty curve");
+    {
+        check(MonsterBalance::recommendedLevel(1) == 1, "floor 1 needs level 1");
+        check(MonsterBalance::recommendedLevel(15) == 15, "floor 15 needs level 15");
+        check(MonsterBalance::statMultiplier(1) == 1.0, "floor 1 multiplier is 1.0");
+        check(MonsterBalance::statMultiplier(15) > 2.0, "floor 15 multiplier is high",
+              QString::number(MonsterBalance::statMultiplier(15)));
+        check(MonsterBalance::scaledHp(1, 10) == 10, "floor 1 HP unchanged");
+        check(MonsterBalance::scaledHp(15, 10) > 20, "floor 15 HP scaled",
+              QString::number(MonsterBalance::scaledHp(15, 10)));
+        check(MonsterBalance::scaledAttack(1, 5) == 5, "floor 1 attack unchanged");
+        check(MonsterBalance::scaledAttack(15, 5) > 10, "floor 15 attack scaled");
+        check(MonsterBalance::scaledXp(1, 100) == 100, "floor 1 XP unchanged");
+        check(MonsterBalance::scaledXp(15, 100) > 200, "floor 15 XP scaled");
+        check(MonsterBalance::scaledGold(1, 50) == 50, "floor 1 gold unchanged");
+        check(MonsterBalance::scaledGold(15, 50) > 100, "floor 15 gold scaled");
+    }
+    {
+        // Party readiness.
+        check(MonsterBalance::isPartyReady(4, 1, 1), "4 members at level 1 ready for floor 1");
+        check(!MonsterBalance::isPartyReady(1, 1, 15), "solo level 1 not ready for floor 15");
+        check(MonsterBalance::isPartyReady(4, 15, 15), "4 members at level 15 ready for floor 15");
+        check(!MonsterBalance::isPartyReady(0, 1, 1), "empty party not ready");
+    }
+    {
+        // Difficulty labels.
+        check(MonsterBalance::difficultyLabel(1) == "Easy", "floor 1 is easy");
+        check(MonsterBalance::difficultyLabel(5) == "Moderate", "floor 5 is moderate");
+        check(MonsterBalance::difficultyLabel(10) == "Hard", "floor 10 is hard");
+        check(MonsterBalance::difficultyLabel(15) == "Deadly", "floor 15 is deadly");
+    }
+    {
+        // Floor table.
+        QList<QVariantMap> table = MonsterBalance::floorTable();
+        check(table.size() == 15, "15 floors in table");
+        check(table[0].value("floor").toInt() == 1, "first floor is 1");
+        check(table[14].value("floor").toInt() == 15, "last floor is 15");
+    }
+
+    // ------------------------------------------- Spell differentiation (8.2)
+    section("[53] Spell differentiation");
+    {
+        SpellDef fire;
+        fire.category = "Fire";
+        fire.name = "Fireball";
+        fire.baseLevel = 3;
+
+        SpellDef cold;
+        cold.category = "Cold";
+        cold.name = "Iceball";
+        cold.baseLevel = 3;
+
+        SpellDef lightning;
+        lightning.category = "Electrical";
+        lightning.name = "Chain Lightning";
+        lightning.baseLevel = 6;
+
+        SpellDef mind;
+        mind.category = "Mind";
+        mind.name = "Stun";
+        mind.baseLevel = 3;
+
+        using School = SpellMechanics::School;
+        check(SpellMechanics::schoolFor("Fire") == School::Fire, "fire school");
+        check(SpellMechanics::schoolFor("Cold") == School::Cold, "cold school");
+        check(SpellMechanics::schoolFor("Electrical") == School::Lightning, "lightning school");
+        check(SpellMechanics::schoolFor("Mind") == School::Mind, "mind school");
+    }
+    {
+        // Fire AoE.
+        SpellDef fire;
+        fire.category = "Fire";
+        fire.name = "Fireball";
+        fire.baseLevel = 3;
+        check(SpellMechanics::fireTargets(fire) >= 2, "fire hits multiple targets");
+        check(SpellMechanics::isAoe(fire), "fire is AoE");
+        check(!SpellMechanics::isCrowdControl(fire), "fire is not crowd control");
+    }
+    {
+        // Cold slow.
+        SpellDef cold;
+        cold.category = "Cold";
+        cold.name = "Iceball";
+        cold.baseLevel = 3;
+        check(SpellMechanics::coldSlowTurns(cold) >= 1, "cold slows");
+        check(SpellMechanics::coldSlowPercent(cold) >= 20, "cold slow percent");
+        check(SpellMechanics::isCrowdControl(cold), "cold is crowd control");
+    }
+    {
+        // Lightning chain.
+        SpellDef lightning;
+        lightning.category = "Electrical";
+        lightning.name = "Chain Lightning";
+        lightning.baseLevel = 6;
+        check(SpellMechanics::lightningChainTargets(lightning) == 5, "chain hits 5 targets");
+        check(SpellMechanics::lightningChainFalloff(lightning) == 20, "chain falloff 20%");
+        check(SpellMechanics::isAoe(lightning), "chain is AoE");
+    }
+    {
+        // Mind crowd control.
+        SpellDef mind;
+        mind.category = "Mind";
+        mind.name = "Stun";
+        mind.baseLevel = 3;
+        check(SpellMechanics::mindStunTurns(mind) >= 1, "mind stuns");
+        check(SpellMechanics::mindConfuseChance(mind) >= 25, "mind confuse chance");
+        check(SpellMechanics::isCrowdControl(mind), "mind is crowd control");
+    }
+    {
+        // Mechanic descriptions.
+        SpellDef fire;
+        fire.category = "Fire";
+        fire.name = "Fireball";
+        fire.baseLevel = 3;
+        check(SpellMechanics::mechanicDescription(fire).contains("Fire"), "fire description");
+        check(SpellMechanics::mechanicDescription(fire).contains("targets"), "fire targets in desc");
+    }
+    {
+        // Spells in school.
+        QList<SpellDef> spells;
+        SpellDef f1; f1.category = "Fire"; f1.name = "Flame Bolt";
+        SpellDef f2; f2.category = "Fire"; f2.name = "Fireball";
+        SpellDef c1; c1.category = "Cold"; c1.name = "Cold Bolt";
+        spells << f1 << f2 << c1;
+
+        QList<SpellDef> fireSpells = SpellMechanics::spellsInSchool(spells, SpellMechanics::School::Fire);
+        check(fireSpells.size() == 2, "2 fire spells");
+        QList<SpellDef> coldSpells = SpellMechanics::spellsInSchool(spells, SpellMechanics::School::Cold);
+        check(coldSpells.size() == 1, "1 cold spell");
+    }
+
+    // ------------------------------------------- Item progression (8.3)
+    section("[54] Item progression");
+    {
+        using Tier = ItemProgression::Tier;
+        check(ItemProgression::tierName(Tier::Bronze) == "Bronze", "bronze name");
+        check(ItemProgression::tierName(Tier::Iron) == "Iron", "iron name");
+        check(ItemProgression::tierName(Tier::Steel) == "Steel", "steel name");
+        check(ItemProgression::tierName(Tier::Adamantite) == "Adamantite", "adamantite name");
+        check(ItemProgression::tierName(Tier::Mithril) == "Mithril", "mithril name");
+    }
+    {
+        using Tier = ItemProgression::Tier;
+        check(ItemProgression::tierForFloor(1) == Tier::Bronze, "floor 1 is bronze");
+        check(ItemProgression::tierForFloor(5) == Tier::Iron, "floor 5 is iron");
+        check(ItemProgression::tierForFloor(8) == Tier::Steel, "floor 8 is steel");
+        check(ItemProgression::tierForFloor(12) == Tier::Adamantite, "floor 12 is adamantite");
+        check(ItemProgression::tierForFloor(15) == Tier::Mithril, "floor 15 is mithril");
+    }
+    {
+        using Tier = ItemProgression::Tier;
+        check(ItemProgression::minFloorForTier(Tier::Bronze) == 1, "bronze min floor 1");
+        check(ItemProgression::minFloorForTier(Tier::Mithril) == 13, "mithril min floor 13");
+        check(ItemProgression::maxFloorForTier(Tier::Bronze) == 3, "bronze max floor 3");
+        check(ItemProgression::maxFloorForTier(Tier::Mithril) == 15, "mithril max floor 15");
+    }
+    {
+        using Tier = ItemProgression::Tier;
+        check(ItemProgression::statMultiplier(Tier::Bronze) == 1.0, "bronze stat 1.0");
+        check(ItemProgression::statMultiplier(Tier::Iron) == 1.5, "iron stat 1.5");
+        check(ItemProgression::statMultiplier(Tier::Steel) == 2.0, "steel stat 2.0");
+        check(ItemProgression::statMultiplier(Tier::Adamantite) == 3.0, "adamantite stat 3.0");
+        check(ItemProgression::statMultiplier(Tier::Mithril) == 4.0, "mithril stat 4.0");
+    }
+    {
+        using Tier = ItemProgression::Tier;
+        check(ItemProgression::costMultiplier(Tier::Bronze) == 1.0, "bronze cost 1.0");
+        check(ItemProgression::costMultiplier(Tier::Mithril) == 16.0, "mithril cost 16.0");
+    }
+    {
+        using Tier = ItemProgression::Tier;
+        check(ItemProgression::isAvailable(Tier::Bronze, 1), "bronze available floor 1");
+        check(!ItemProgression::isAvailable(Tier::Mithril, 1), "mithril not available floor 1");
+        check(ItemProgression::isAvailable(Tier::Mithril, 15), "mithril available floor 15");
+    }
+    {
+        // Items of tier.
+        QStringList items = {"Bronze Sword", "Iron Shield", "Steel Helm", "Bronze Dagger"};
+        QStringList bronze = ItemProgression::itemsOfTier(items, ItemProgression::Tier::Bronze);
+        check(bronze.size() == 2, "2 bronze items");
+        QStringList iron = ItemProgression::itemsOfTier(items, ItemProgression::Tier::Iron);
+        check(iron.size() == 1, "1 iron item");
+    }
+
+    // ------------------------------------------- Gold sinks (8.4)
+    section("[55] Gold sinks");
+    {
+        check(GoldSinks::resurrectionCost(1, false) == 500, "level 1 resurrection 500");
+        check(GoldSinks::resurrectionCost(5, false) == 2500, "level 5 resurrection 2500");
+        check(GoldSinks::resurrectionCost(5, true) == 3000, "level 5 dungeon resurrection 3000");
+        check(GoldSinks::rescueCost(1) == 250, "depth 1 rescue 250");
+        check(GoldSinks::rescueCost(5) == 6250, "depth 5 rescue 6250");
+        check(GoldSinks::identificationCost() == 50, "identification 50");
+        check(GoldSinks::uncurseCost() == 100, "uncurse 100");
+        check(GoldSinks::guildLevelCost("Mage", 0) == 500, "guild level 0→1 costs 500");
+        check(GoldSinks::guildLevelCost("Mage", 5) == 3000, "guild level 5→6 costs 3000");
+        check(GoldSinks::restCostPerHour() == 10, "rest 10/hour");
+        check(GoldSinks::curePoisonCost() == 50, "cure poison 50");
+        check(GoldSinks::cureBlindnessCost() == 50, "cure blindness 50");
+    }
+    {
+        // All sinks.
+        QList<QVariantMap> sinks = GoldSinks::allSinks();
+        check(sinks.size() >= 7, "at least 7 gold sinks",
+              QString::number(sinks.size()));
+    }
+    {
+        // Sink descriptions.
+        check(GoldSinks::sinkDescription("resurrection").contains("Morgue"), "resurrection desc");
+        check(GoldSinks::sinkDescription("identification").contains("Store"), "identification desc");
+        check(GoldSinks::sinkDescription("guild").contains("Guild"), "guild desc");
+    }
+
+    // ------------------------------------------- Release packaging (8.5)
+    section("[56] Release packaging");
+    {
+        check(ReleaseInfo::version() == "1.0.0", "version is 1.0.0");
+        check(ReleaseInfo::versionString() == "v1.0.0", "version string");
+        check(!ReleaseInfo::releaseDate().isEmpty(), "release date exists");
+        check(!ReleaseInfo::systemRequirements().isEmpty(), "system requirements exist");
+        check(ReleaseInfo::installerName().contains("1.0.0"), "installer name");
+        check(ReleaseInfo::banner().contains("1.0.0"), "banner");
+    }
+    {
+        // Release notes.
+        QStringList notes = ReleaseInfo::releaseNotes();
+        check(notes.size() >= 8, "at least 8 release notes",
+              QString::number(notes.size()));
+        check(notes[0].contains("Phase 1"), "first note is Phase 1");
+    }
+    {
+        // Changes.
+        QStringList changes = ReleaseInfo::changes();
+        check(changes.size() >= 5, "at least 5 changes",
+              QString::number(changes.size()));
+    }
+    {
+        // Version history.
+        QList<QPair<QString, QString>> history = ReleaseInfo::versionHistory();
+        check(history.size() >= 5, "at least 5 versions in history",
+              QString::number(history.size()));
+        check(history[0].first == "1.0.0", "latest version is 1.0.0");
     }
 
     // -------------------------------------------------------------- cleanup
