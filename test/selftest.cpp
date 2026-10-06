@@ -12,6 +12,10 @@
 #include "src/combat/CombatDeathHandler.h"
 #include "src/core/LevelTable.h"
 #include "src/core/AgingRules.h"
+#include "src/core/DungeonLevelState.h"
+#include "src/core/DungeonThemes.h"
+#include "src/core/DoorAndSearch.h"
+#include "src/core/BossEncounter.h"
 #include "src/spell_casting/SpellBook.h"
 #include "src/partymanager/PartyManager.h"
 
@@ -2854,6 +2858,353 @@ int runSelfTest()
 
         AgingRules::applyYearOfAging(c);
         check(c.isAlive, "Elf survives");
+    }
+
+    // ------------------------------------------- Persistent level state (4.1)
+    section("[29] Persistent dungeon level state");
+    {
+        DungeonLevelRegistry& reg = DungeonLevelRegistry::instance();
+        reg.clear();
+
+        check(!reg.hasLevel(2), "floor 2 not generated yet");
+        check(reg.count() == 0, "registry empty");
+
+        // Generate and store floor 2.
+        LevelSnapshot snap;
+        snap.level = 2;
+        snap.generated = true;
+        snap.monsterPositions.insert(qMakePair(3, 4), "Orc");
+        snap.monsterPositions.insert(qMakePair(5, 6), "Goblin");
+        snap.treasurePositions.insert(qMakePair(7, 8), "Chest");
+        snap.stairsUp = qMakePair(1, 1);
+        snap.stairsDown = qMakePair(28, 28);
+        snap.visitedTiles.insert(qMakePair(1, 1));
+        reg.store(snap);
+
+        check(reg.hasLevel(2), "floor 2 now generated");
+        check(reg.count() == 1, "registry holds one floor");
+
+        const LevelSnapshot* stored = reg.level(2);
+        check(stored != nullptr, "floor 2 retrievable");
+        check(stored->monsterPositions.size() == 2, "2 monsters stored");
+        check(stored->stairsDown == qMakePair(28, 28), "stairs down stored");
+    }
+    {
+        // Clear a monster, leave, come back: it stays cleared.
+        DungeonLevelRegistry& reg = DungeonLevelRegistry::instance();
+        reg.clear();
+
+        LevelSnapshot snap;
+        snap.level = 3;
+        snap.generated = true;
+        snap.monsterPositions.insert(qMakePair(3, 4), "Orc");
+        snap.monsterPositions.insert(qMakePair(5, 6), "Goblin");
+        reg.store(snap);
+
+        // Kill one.
+        reg.levelForEdit(3).monsterPositions.remove(qMakePair(3, 4));
+        check(reg.level(3)->monsterPositions.size() == 1, "one monster remains");
+
+        // Simulate leaving (nothing clears the registry) and returning.
+        check(reg.hasLevel(3), "floor 3 still known after leaving");
+        check(reg.level(3)->monsterPositions.size() == 1, "cleared monster stays cleared");
+    }
+    {
+        // Full round-trip through serialization.
+        DungeonLevelRegistry& reg = DungeonLevelRegistry::instance();
+        reg.clear();
+
+        LevelSnapshot snap;
+        snap.level = 4;
+        snap.generated = true;
+        snap.monsterPositions.insert(qMakePair(2, 2), "Orc");
+        snap.treasurePositions.insert(qMakePair(9, 9), "Chest");
+        snap.openedChests.insert(qMakePair(9, 9));
+        snap.visitedTiles.insert(qMakePair(1, 1));
+        snap.visitedTiles.insert(qMakePair(1, 2));
+        snap.stairsUp = qMakePair(3, 3);
+        snap.stairsDown = qMakePair(20, 20);
+        snap.bossDefeated = false;
+        reg.store(snap);
+
+        QVariantMap serialized = reg.toMap();
+        DungeonLevelRegistry& reg2 = DungeonLevelRegistry::instance();
+        reg2.clear();
+        reg2.loadFromMap(serialized);
+
+        check(reg2.hasLevel(4), "floor 4 restored");
+        check(reg2.level(4)->monsterPositions.size() == 1, "monster restored");
+        check(reg2.level(4)->openedChests.contains(qMakePair(9, 9)), "opened chest restored");
+        check(reg2.level(4)->visitedTiles.size() == 2, "visited tiles restored");
+        check(reg2.level(4)->stairsDown == qMakePair(20, 20), "stairs restored");
+    }
+
+    // ------------------------------------------- Monster respawn (4.6)
+    section("[30] Monster respawn");
+    {
+        DungeonLevelRegistry& reg = DungeonLevelRegistry::instance();
+        reg.clear();
+
+        LevelSnapshot snap;
+        snap.level = 1;
+        snap.generated = true;
+        snap.stairsUp = qMakePair(1, 1);
+        snap.stairsDown = qMakePair(28, 28);
+        reg.store(snap);
+
+        // Floor starts empty (everything cleared); original population was 10.
+        QRandomGenerator rng(12345);
+        int respawned = reg.respawnMonsters(1, 0.3, 10, rng);
+
+        check(respawned > 0, "some monsters respawned",
+              QString::number(respawned));
+        check(respawned == 3, "30% of 10 = 3 respawned",
+              QString::number(respawned));
+        check(reg.level(1)->monsterPositions.size() == 3, "3 monsters now on the floor");
+    }
+    {
+        // Respawn does not overfill: a full floor stays full.
+        DungeonLevelRegistry& reg = DungeonLevelRegistry::instance();
+        reg.clear();
+
+        LevelSnapshot snap;
+        snap.level = 2;
+        snap.generated = true;
+        for (int i = 0; i < 10; i++) {
+            snap.monsterPositions.insert(qMakePair(i, 0), "Orc");
+        }
+        reg.store(snap);
+
+        QRandomGenerator rng(999);
+        int respawned = reg.respawnMonsters(2, 0.5, 10, rng);
+        check(respawned == 0, "full floor respawns nothing");
+        check(reg.level(2)->monsterPositions.size() == 10, "still 10 monsters");
+    }
+    {
+        // Respawn on an unknown floor is a no-op.
+        DungeonLevelRegistry& reg = DungeonLevelRegistry::instance();
+        reg.clear();
+        QRandomGenerator rng(7);
+        check(reg.respawnMonsters(9, 0.5, 10, rng) == 0,
+              "respawn on ungenerated floor does nothing");
+    }
+
+    // ------------------------------------------- Themed floors (4.2)
+    section("[31] Fifteen themed floors");
+    {
+        check(DungeonThemes::MAX_DEPTH == 15, "max depth is 15");
+
+        FloorTheme f1 = DungeonThemes::forLevel(1);
+        check(f1.name == "Abandoned Mines", "floor 1 is the Abandoned Mines", f1.name);
+        check(f1.monsterLevelBonus == 0, "floor 1 has no level bonus");
+
+        FloorTheme f8 = DungeonThemes::forLevel(8);
+        check(f8.name == "Bone Halls", "floor 8 is the Bone Halls", f8.name);
+        check(f8.monsterLevelBonus == 7, "floor 8 has +7 level bonus",
+              QString::number(f8.monsterLevelBonus));
+
+        FloorTheme f15 = DungeonThemes::forLevel(15);
+        check(f15.name == "The Devil's Threshold", "floor 15 name", f15.name);
+
+        // Difficulty rises with depth.
+        check(DungeonThemes::forLevel(1).monsterCount < DungeonThemes::forLevel(15).monsterCount,
+              "deeper floors have more monsters");
+        check(DungeonThemes::forLevel(1).treasureCount < DungeonThemes::forLevel(15).treasureCount,
+              "deeper floors have more treasure");
+        check(DungeonThemes::forLevel(1).trapCount < DungeonThemes::forLevel(15).trapCount,
+              "deeper floors have more traps");
+
+        // All 15 floors are distinct.
+        QList<FloorTheme> themes = DungeonThemes::all();
+        check(themes.size() == 15, "15 themes defined",
+              QString::number(themes.size()));
+        QSet<QString> names;
+        for (const FloorTheme& t : themes) names.insert(t.name);
+        check(names.size() == 15, "all 15 names unique",
+              QString::number(names.size()));
+
+        // Out-of-range clamps instead of crashing.
+        check(DungeonThemes::forLevel(0).name == "Abandoned Mines", "level 0 clamps to floor 1");
+        check(DungeonThemes::forLevel(99).name == "The Devil's Threshold", "level 99 clamps to floor 15");
+    }
+
+    // ------------------------------------------- Boss encounters (4.3)
+    section("[32] Boss encounters");
+    {
+        check(DungeonThemes::isBossFloor(5), "floor 5 is a boss floor");
+        check(DungeonThemes::isBossFloor(10), "floor 10 is a boss floor");
+        check(DungeonThemes::isBossFloor(15), "floor 15 is a boss floor");
+        check(!DungeonThemes::isBossFloor(4), "floor 4 is not a boss floor");
+        check(!DungeonThemes::isBossFloor(11), "floor 11 is not a boss floor");
+
+        check(BossEncounter::bossName(5) == "Grotto Warden", "floor 5 boss name",
+              BossEncounter::bossName(5));
+        check(BossEncounter::bossName(10) == "The Bone Tyrant", "floor 10 boss name");
+        check(BossEncounter::bossName(15) == "The Prince of Devils", "floor 15 boss name");
+    }
+    {
+        // Boss floors block descent until the boss dies.
+        check(!BossEncounter::canDescend(5, false), "floor 5 blocks descent before boss dies");
+        check(BossEncounter::canDescend(5, true), "floor 5 opens after boss dies");
+
+        check(!BossEncounter::canDescend(15, false), "floor 15 blocks descent");
+        check(BossEncounter::canDescend(15, true), "floor 15 opens");
+
+        // Non-boss floors are always open.
+        check(BossEncounter::canDescend(4, false), "floor 4 never blocks");
+        check(BossEncounter::canDescend(6, false), "floor 6 never blocks");
+
+        // Blocked message names the boss.
+        QString msg = BossEncounter::blockedMessage(5);
+        check(msg.contains("Grotto Warden"), "blocked message names the boss", msg);
+        check(BossEncounter::blockedMessage(4).isEmpty(), "no message on a normal floor");
+    }
+    {
+        // Boss stats scale with depth.
+        QVariantMap b5 = BossEncounter::buildBoss(5);
+        QVariantMap b15 = BossEncounter::buildBoss(15);
+
+        check(b5["name"].toString() == "Grotto Warden", "floor 5 boss built");
+        check(b5["isPlayer"].toBool() == false, "boss is not a player");
+        check(b5["hp"].toInt() > 0, "boss has HP");
+        check(b15["hp"].toInt() > b5["hp"].toInt(), "floor 15 boss has more HP",
+              QString("%1 vs %2").arg(b15["hp"].toInt()).arg(b5["hp"].toInt()));
+        check(b15["att"].toInt() > b5["att"].toInt(), "floor 15 boss hits harder");
+        check(b15["swings"].toInt() >= b5["swings"].toInt(), "floor 15 boss swings at least as often");
+
+        check(BossEncounter::bossXp(15) > BossEncounter::bossXp(5), "floor 15 boss worth more XP");
+    }
+
+    // ------------------------------------------- Locked doors and keys (4.4)
+    section("[33] Locked doors and keys");
+    {
+        // An unlocked door opens freely.
+        DoorState door;
+        door.position = qMakePair(5, 5);
+        door.locked = false;
+        QSet<QString> noKeys;
+
+        QString reason;
+        check(DoorAndSearch::canOpen(door, noKeys), "unlocked door can open");
+        check(DoorAndSearch::tryOpen(door, noKeys, reason), "unlocked door opens", reason);
+    }
+    {
+        // A locked door refuses without the key, opens with it.
+        DoorState door;
+        door.position = qMakePair(6, 6);
+        door.keyName = "Brass Key";
+        door.locked = true;
+
+        QSet<QString> noKeys;
+        QString reason;
+        check(!DoorAndSearch::canOpen(door, noKeys), "locked door blocks without key");
+        check(!DoorAndSearch::tryOpen(door, noKeys, reason), "tryOpen fails without key", reason);
+        check(reason.contains("Brass Key"), "message names the key", reason);
+        check(door.locked, "door still locked after failed attempt");
+
+        QSet<QString> keys;
+        keys.insert("Brass Key");
+        check(DoorAndSearch::canOpen(door, keys), "locked door opens with key");
+        check(DoorAndSearch::tryOpen(door, keys, reason), "tryOpen succeeds with key", reason);
+        check(!door.locked, "door unlocked after success");
+    }
+    {
+        // The wrong key does not help.
+        DoorState door;
+        door.keyName = "Brass Key";
+        door.locked = true;
+        QSet<QString> keys;
+        keys.insert("Iron Key");
+
+        QString reason;
+        check(!DoorAndSearch::tryOpen(door, keys, reason), "wrong key does not open");
+        check(door.locked, "door still locked");
+    }
+    {
+        // A secret door cannot be opened by walking into it.
+        DoorState door;
+        door.secret = true;
+        door.difficulty = 10;
+        QSet<QString> keys;
+        QString reason;
+        check(!DoorAndSearch::tryOpen(door, keys, reason), "secret door resists direct opening");
+    }
+
+    // ------------------------------------------- Secret door discovery (4.5)
+    section("[34] Secret door discovery");
+    {
+        check(DoorAndSearch::secretDoorDifficulty(1) == 10, "floor 1 secret DC = 10");
+        check(DoorAndSearch::secretDoorDifficulty(5) == 14, "floor 5 secret DC = 14");
+        check(DoorAndSearch::secretDoorDifficulty(15) == 24, "floor 15 secret DC = 24");
+    }
+    {
+        // High WIS/INT finds secret doors more often than low.
+        QMap<QPair<int, int>, DoorState> doors;
+        DoorState d;
+        d.position = qMakePair(5, 5);
+        d.secret = true;
+        d.difficulty = 13;  // floor 4
+        doors.insert(qMakePair(5, 5), d);
+
+        int highFinds = 0;
+        int lowFinds = 0;
+
+        QRandomGenerator rngHigh(4242);
+        QRandomGenerator rngLow(4242);
+
+        for (int i = 0; i < 400; i++) {
+            QList<QPair<int, int>> found;
+            // WIS 20, INT 20 -> +10 combined
+            if (DoorAndSearch::searchForSecretDoors(doors, 5, 5, 20, 20, found, rngHigh) > 0) {
+                highFinds++;
+            }
+            found.clear();
+            // WIS 6, INT 6 -> -4 combined
+            if (DoorAndSearch::searchForSecretDoors(doors, 5, 5, 6, 6, found, rngLow) > 0) {
+                lowFinds++;
+            }
+        }
+
+        check(highFinds > lowFinds, "high WIS/INT finds more secret doors",
+              QString("high=%1 low=%2").arg(highFinds).arg(lowFinds));
+    }
+    {
+        // A secret door outside the 3x3 search area is never found.
+        QMap<QPair<int, int>, DoorState> doors;
+        DoorState d;
+        d.position = qMakePair(20, 20);
+        d.secret = true;
+        d.difficulty = 1;  // trivially easy
+        doors.insert(qMakePair(20, 20), d);
+
+        QRandomGenerator rng(1);
+        int totalFinds = 0;
+        for (int i = 0; i < 100; i++) {
+            QList<QPair<int, int>> found;
+            totalFinds += DoorAndSearch::searchForSecretDoors(doors, 5, 5, 30, 30, found, rng);
+        }
+        check(totalFinds == 0, "distant secret door never found",
+              QString::number(totalFinds));
+    }
+    {
+        // An easy secret door adjacent to the searcher is found reliably.
+        QMap<QPair<int, int>, DoorState> doors;
+        DoorState d;
+        d.position = qMakePair(6, 5);  // adjacent
+        d.secret = true;
+        d.difficulty = 10;
+        doors.insert(qMakePair(6, 5), d);
+
+        QRandomGenerator rng(99);
+        int finds = 0;
+        for (int i = 0; i < 200; i++) {
+            QList<QPair<int, int>> found;
+            if (DoorAndSearch::searchForSecretDoors(doors, 5, 5, 20, 20, found, rng) > 0) {
+                finds++;
+            }
+        }
+        check(finds > 150, "adjacent easy door found most of the time",
+              QString::number(finds));
     }
 
     // -------------------------------------------------------------- cleanup

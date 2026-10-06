@@ -111,6 +111,14 @@ HEADERS += src/core/LevelTable.h
 SOURCES += src/core/LevelTable.cpp
 HEADERS += src/core/AgingRules.h
 SOURCES += src/core/AgingRules.cpp
+HEADERS += src/core/DungeonLevelState.h
+SOURCES += src/core/DungeonLevelState.cpp
+HEADERS += src/core/DungeonThemes.h
+SOURCES += src/core/DungeonThemes.cpp
+HEADERS += src/core/DoorAndSearch.h
+SOURCES += src/core/DoorAndSearch.cpp
+HEADERS += src/core/BossEncounter.h
+SOURCES += src/core/BossEncounter.cpp
 HEADERS += src/spell_casting/SpellBook.h
 SOURCES += src/spell_casting/SpellBook.cpp
 

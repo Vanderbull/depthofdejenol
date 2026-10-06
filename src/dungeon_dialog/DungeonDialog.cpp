@@ -4,6 +4,10 @@
 #include "DungeonHandlers.h"
 #include "../../gameStateManager.h"
 #include "src/items/ItemDatabase.h"
+#include "src/core/DungeonThemes.h"
+#include "src/core/DungeonLevelState.h"
+#include "src/core/BossEncounter.h"
+#include "src/core/DoorAndSearch.h"
 #include "../event/EventManager.h"
 #include "src/spell_casting/SpellCastingDialog.h"
 #include <QVBoxLayout>
@@ -686,30 +690,89 @@ void DungeonDialog::enterLevel(int level, bool movingUp)
     // Clear treasures specifically at the start of level generation
     m_treasurePositions.clear();
     gameStateManager* gsm = gameStateManager::instance();
+
+    // Theme drives the floor's population and difficulty.
+    FloorTheme theme = DungeonThemes::forLevel(level);
+    DungeonLevelRegistry& registry = DungeonLevelRegistry::instance();
+
+    // Restoring a floor the party has already visited: keep it as they left it.
+    if (registry.hasLevel(level)) {
+        const LevelSnapshot* snap = registry.level(level);
+        m_monsterPositions = snap->monsterPositions;
+        m_treasurePositions = snap->treasurePositions;
+        m_visitedTiles = snap->visitedTiles;
+        m_stairsUpPosition = snap->stairsUp;
+        m_stairsDownPosition = snap->stairsDown;
+        m_roomFloorTiles.clear();
+
+        // Some of the cleared monsters have moved back in.
+        QRandomGenerator respawnRng(static_cast<quint32>(level * 7919 + 13));
+        registry.respawnMonsters(level, 0.3, theme.monsterCount, respawnRng);
+        m_monsterPositions = registry.level(level)->monsterPositions;
+
+        QPair<int, int> landing = movingUp ? m_stairsDownPosition : m_stairsUpPosition;
+        gsm->setGameValue("DungeonLevel", level);
+        gsm->setGameValue("DungeonX", landing.first);
+        gsm->setGameValue("DungeonY", landing.second);
+        revealAroundPlayer(landing.first, landing.second);
+        m_visitedTiles.insert(landing);
+        updateLocation(QString("Dungeon Level %1 — %2, (%3, %4)")
+                       .arg(level).arg(theme.name).arg(landing.first).arg(landing.second));
+        drawMinimap();
+        logMessage(QString("You return to **%1** (Level %2).").arg(theme.name).arg(level));
+        return;
+    }
+
     // 1. Generate the map using Room-and-Corridor logic
     // Seed by level to ensure the layout is deterministic
     QRandomGenerator levelRng(level + 12345);
-    populateRandomTreasures(level);
-    // We pass a 'Room Count' instead of 'Obstacle Count'. 
-    // 7 rooms at level 1, increasing slightly as you go deeper.
-    generateRandomObstacles(40, levelRng); 
+    populateRandomTreasures(theme.treasureCount);
+    // We pass a 'Room Count' instead of 'Obstacle Count'.
+    generateRandomObstacles(40, levelRng);
     // 2. Place Stairs and Special Tiles
     // These must be called AFTER generateRandomObstacles so they know where the floor is.
     generateStairs(levelRng);
-    // Scale the number of special tiles (monsters/traps) with the level
-    generateSpecialTiles(20, levelRng);
-    // 3. Determine Landing Position
+    // Scale the number of special tiles with the theme.
+    generateSpecialTiles(theme.monsterCount + theme.trapCount, levelRng);
+
+    // 3. Boss floors get their guardian placed on a room tile.
+    if (theme.isBossFloor && !theme.bossName.isEmpty()) {
+        QList<QPair<int, int>> roomTiles = m_roomFloorTiles.values();
+        if (!roomTiles.isEmpty()) {
+            QPair<int, int> bossPos = roomTiles.at(levelRng.bounded(roomTiles.size()));
+            if (bossPos != m_stairsUpPosition && bossPos != m_stairsDownPosition) {
+                m_monsterPositions.insert(bossPos, theme.bossName);
+                logMessage(QString("<font color='red'>A dreadful presence stirs: %1!</font>")
+                           .arg(theme.bossName));
+            }
+        }
+    }
+
+    // 4. Determine Landing Position
     // Arrive at the Down stairs if moving Up, or Up stairs if moving Down
     QPair<int, int> landingPos = movingUp ? m_stairsDownPosition : m_stairsUpPosition;
-    // 4. Update Game State and UI
+
+    // 5. Persist this floor so it survives leaving and returning.
+    LevelSnapshot snap;
+    snap.level = level;
+    snap.generated = true;
+    snap.monsterPositions = m_monsterPositions;
+    snap.treasurePositions = m_treasurePositions;
+    snap.visitedTiles = m_visitedTiles;
+    snap.stairsUp = m_stairsUpPosition;
+    snap.stairsDown = m_stairsDownPosition;
+    registry.store(snap);
+
+    // 6. Update Game State and UI
     gsm->setGameValue("DungeonLevel", level);
     gsm->setGameValue("DungeonX", landingPos.first);
     gsm->setGameValue("DungeonY", landingPos.second);
     revealAroundPlayer(landingPos.first, landingPos.second);
     m_visitedTiles.insert(landingPos);
-    updateLocation(QString("Dungeon Level %1, (%2, %3)").arg(level).arg(landingPos.first).arg(landingPos.second));
+    updateLocation(QString("Dungeon Level %1 — %2, (%3, %4)")
+                   .arg(level).arg(theme.name).arg(landingPos.first).arg(landingPos.second));
     drawMinimap();
-    logMessage(QString("You have entered **Dungeon Level %1**.").arg(level));
+    logMessage(QString("You have entered **%1** (Dungeon Level %2).").arg(theme.name).arg(level));
 }
 
 void DungeonDialog::on_attackCompanionButton_clicked() 
@@ -888,26 +951,36 @@ void DungeonDialog::on_takeButton_clicked()
 
 void DungeonDialog::on_searchButton_clicked() 
 {
+    gameStateManager* gsm = gameStateManager::instance();
     QPair<int, int> currentPos = getCurrentPosition();
-    bool found = false;
+    int floorLevel = gsm->getGameValue("DungeonLevel").toInt();
+    if (floorLevel < 1) floorLevel = 1;
 
-    // Search in a 1-tile radius around the player (3x3 area)
-    for (int dx = -1; dx <= 1; ++dx) {
-        for (int dy = -1; dy <= 1; ++dy) {
-            QPair<int, int> checkPos = {currentPos.first + dx, currentPos.second + dy};
-            
-            if (m_hiddenDoorPositions.contains(checkPos)) {
-                logMessage(QString("Your search reveals a hidden door at %1, %2!")
-                           .arg(checkPos.first).arg(checkPos.second));
-                
-                // Add to visited tiles so it stays on the map
-                m_visitedTiles.insert(checkPos);
-                found = true;
-            }
-        }
+    int wisdom = gsm->getGameValue("CurrentCharacterWisdom").toInt();
+    int intelligence = gsm->getGameValue("CurrentCharacterIntelligence").toInt();
+
+    // Hidden doors on this floor, as searchable DoorStates.
+    QMap<QPair<int, int>, DoorState> doors;
+    for (const QPair<int, int>& pos : m_hiddenDoorPositions) {
+        DoorState d;
+        d.position = pos;
+        d.secret = true;
+        d.difficulty = DoorAndSearch::secretDoorDifficulty(floorLevel);
+        doors.insert(pos, d);
     }
 
-    if (found) {
+    QList<QPair<int, int>> found;
+    QRandomGenerator rng(QRandomGenerator::global()->generate());
+    int count = DoorAndSearch::searchForSecretDoors(doors, currentPos.first, currentPos.second,
+                                                    wisdom, intelligence, found, rng);
+
+    if (count > 0) {
+        for (const QPair<int, int>& pos : found) {
+            logMessage(QString("Your search reveals a hidden door at %1, %2!")
+                       .arg(pos.first).arg(pos.second));
+            // Add to visited tiles so it stays on the map.
+            m_visitedTiles.insert(pos);
+        }
         drawMinimap(); // Redraw map to show the discovered door
     } else {
         logMessage("You search the area but find nothing hidden.");
@@ -1203,6 +1276,18 @@ void DungeonDialog::transitionLevel(StairDirection direction)
         }
     } else {
         int newLevel = currentZ + 1;
+
+        // Boss floors: the guardian must fall before the stairs will work.
+        if (BossEncounter::hasBoss(currentZ)) {
+            const LevelSnapshot* snap = DungeonLevelRegistry::instance().level(currentZ);
+            bool bossDefeated = snap ? snap->bossDefeated : false;
+            if (!BossEncounter::canDescend(currentZ, bossDefeated)) {
+                logMessage(QString("<font color='red'>%1</font>")
+                           .arg(BossEncounter::blockedMessage(currentZ)));
+                return;
+            }
+        }
+
         logMessage(QString("You take the **stairs down** to Level %1.").arg(newLevel));
         enterLevel(newLevel, false);
     }

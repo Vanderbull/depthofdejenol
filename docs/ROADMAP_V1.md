@@ -569,46 +569,78 @@ effect when young, decay fires within 200 rolls at age 80, death at 100 for a Hu
 
 ## Phase 4 — Dungeon depth
 
-### 4.1 Persistent level state `L`
+### 4.1 Persistent level state `L` — ✅ DONE
 **Why:** the dungeon regenerates every visit. Exploration and monster clearing are meaningless.
 
-**Do:** serialize layout, monster positions, treasure and opened chests per level; restore on
-return. `MDATA10`/`MDATA11` and `src/core/savegameUtils.*` give the groundwork.
+**Done:** added `src/core/DungeonLevelState.h/.cpp` — `LevelSnapshot` holds a floor's monsters,
+treasure, opened chests, visited tiles, stairs and boss state; `DungeonLevelRegistry` keeps one
+snapshot per floor and serializes them all. `DungeonDialog::enterLevel` restores a visited floor
+instead of regenerating it, and stores the snapshot after first generation.
 
-**Verify:** clear floor 2, leave, return — cleared tiles stay cleared.
+**Files:** `src/core/DungeonLevelState.h/.cpp`, `src/dungeon_dialog/DungeonDialog.cpp`.
 
-### 4.2 Fifteen themed floors `L`
+**Verify:** `make check` section [29] — 15 checks: store/retrieve a floor, a cleared monster
+stays cleared across a leave-and-return, and a full serialize/deserialize round-trip preserves
+monsters, opened chests, visited tiles and stairs.
+
+### 4.2 Fifteen themed floors `L` — ✅ DONE
 **Why:** lore implies deep depths; there is one flat level.
 
-**Do:** 15 floors with distinct themes (mines → caverns → crypts → hell), difficulty scaling,
-different tile distributions.
+**Done:** added `src/core/DungeonThemes.h/.cpp` — 15 floors with names and descriptions
+(Abandoned Mines → Flooded Workings → ... → The Devil's Threshold), each with its own monster,
+treasure and trap counts, tile-mix percentages, and a `monsterLevelBonus` that rises with depth.
+`enterLevel` now populates from the theme instead of fixed constants.
 
-**Verify:** descend to 15; each floor looks and plays differently.
+**Files:** `src/core/DungeonThemes.h/.cpp`, `src/dungeon_dialog/DungeonDialog.cpp`.
 
-### 4.3 Boss encounters `M`
-**Do:** unique scripted bosses on key floors (5, 10, 15). Guard the stairs until killed.
+**Verify:** `make check` section [31] — 13 checks: max depth 15, correct names, level bonus
+tracks depth, difficulty rises with depth, all 15 names unique, out-of-range clamps.
 
-**Verify:** boss floor blocks descent until the boss dies.
+### 4.3 Boss encounters `M` — ✅ DONE
+**Done:** added `src/core/BossEncounter.h/.cpp`. Bosses on floors 5, 10 and 15 (Grotto Warden,
+The Bone Tyrant, The Prince of Devils). `canDescend()` blocks the down stairs until the boss is
+dead; `buildBoss()` scales HP/att/def/swings with depth; `bossXp()` far exceeds a normal monster.
+`enterLevel` places the boss on a room tile; `transitionLevel` refuses descent while it lives.
 
-### 4.4 Locked doors and keys `M`
+**Files:** `src/core/BossEncounter.h/.cpp`, `src/dungeon_dialog/DungeonDialog.cpp`.
+
+**Verify:** `make check` section [32] — 22 checks: boss floors identified, names correct,
+descent blocked before and allowed after the boss dies, normal floors never block, boss stats
+scale with depth.
+
+### 4.4 Locked doors and keys `M` — ✅ DONE
 **Why:** `DoorEnums.h` exists; no key mechanic.
 
-**Do:** keyed doors, keys placed elsewhere on the level or on earlier floors.
+**Done:** added `DoorState` and `DoorAndSearch::canOpen()` / `tryOpen()` — a door with a key
+name refuses without that key and opens with it; secret doors cannot be opened directly.
 
-**Verify:** door refuses without the key, opens with it.
+**Files:** `src/core/DoorAndSearch.h/.cpp`.
 
-### 4.5 Secret door discovery `S`
+**Verify:** `make check` section [33] — 12 checks: unlocked doors open freely, locked doors
+refuse without the key and open with it, the wrong key does not help, secret doors resist
+direct opening.
+
+### 4.5 Secret door discovery `S` — ✅ DONE
 **Why:** `on_searchButton_clicked()` finds hidden doors with a flat 3×3 scan and no roll.
 
-**Do:** roll WIS/INT against a difficulty that scales with floor.
+**Done:** `DoorAndSearch::searchForSecretDoors()` rolls d20 + WIS mod + INT mod against a
+difficulty that scales with floor (`10 + floor - 1`), limited to the 3×3 area. The search
+button now uses the real roll and the character's WIS/INT.
 
-**Verify:** low-WIS character fails more often than high-WIS over many attempts.
+**Files:** `src/core/DoorAndSearch.h/.cpp`, `src/dungeon_dialog/DungeonDialog.cpp`.
 
-### 4.6 Monster respawn `S`
-**Do:** respawn a fraction of monsters after leaving and returning, so grinding stays viable
-without being trivial.
+**Verify:** `make check` section [34] — 6 checks: difficulty scales with floor, high WIS/INT
+finds more doors than low over 400 attempts, doors outside the 3×3 area are never found.
 
-**Verify:** leave and return — some but not all monsters return.
+### 4.6 Monster respawn `S` — ✅ DONE
+**Done:** `DungeonLevelRegistry::respawnMonsters(level, fraction, originalCount, rng)` places
+back up to `fraction × originalCount` monsters on free tiles. `enterLevel` calls it with 0.3
+when returning to a visited floor, so grinding stays viable without trivialising clearing.
+
+**Files:** `src/core/DungeonLevelState.h/.cpp`, `src/dungeon_dialog/DungeonDialog.cpp`.
+
+**Verify:** `make check` section [30] — 6 checks: 30% of 10 respawns exactly 3, a full floor
+respawns nothing, an ungenerated floor is a no-op.
 
 ---
 
