@@ -1,5 +1,6 @@
 #include "GuildsDialog.h"
 #include "src/library_dialog/library_dialog.h" // Include the LibraryDialog header
+#include "src/spell_casting/SpellBook.h"
 #include <QApplication>
 #include <QDebug>
 #include <QListWidget> // Needed for QListWidgetItem
@@ -126,29 +127,65 @@ void GuildsDialog::setInitialGuildSelection()
 // --- Implementation of Slots ---
 void GuildsDialog::on_makeLevelButton_clicked()
 {
-    // 1. Get Game State Manager instance
     gameStateManager* gsm = gameStateManager::instance();
-    // 2. Retrieve current level
-    int currentLevel = gsm->getGameValue("CurrentCharacterLevel").toInt();
-    // 3. (Placeholder for XP Check) Check if the player has enough XP to level up.
-    bool hasEnoughXP = true; // Replace with actual XP check logic
-    if (hasEnoughXP) {
-        // 4. Increment the level
-        int newLevel = currentLevel + 1;
-        // 5. Update the game state
-        gsm->setGameValue("CurrentCharacterLevel", newLevel);
-        // 6. Log the successful action
-        gsm->logGuildAction(QString("Leveled up to Level %1.").arg(newLevel));
-        // 7. Provide feedback to the user
-        QMessageBox::information(this, "Level Up!", 
-            QString("Congratulations! You have advanced to Level %1!").arg(newLevel));
-    } else {
-        // 8. Log the failed action
-        gsm->logGuildAction("Attempted to level up, but failed (not enough resources).");
-        // 9. If they don't have enough resources
-        QMessageBox::warning(this, "Cannot Level Up", 
-            "You do not have enough experience or gold to advance to the next level.");
+
+    // Which guild is the player leveling in?
+    QListWidgetItem *selectedItem = guildsListWidget->currentItem();
+    if (!selectedItem) {
+        gsm->logGuildAction("Attempted to make a level, but no guild was selected.");
+        QMessageBox::warning(this, "Selection Required",
+            "Please select a guild from the list first.");
+        return;
     }
+    QString guildName = selectedItem->text();
+    if (guildName.startsWith("* ")) guildName.remove(0, 2);
+
+    // The active character is index 0.
+    Character& c = gsm->getPartyMember(0);
+
+    // A character must be a member to level. Joining is free and starts at 1.
+    if (c.guildLevel(guildName) <= 0) {
+        c.joinGuild(guildName);
+        gsm->logGuildAction(QString("Joined the %1 at level 1.").arg(guildName));
+        QMessageBox::information(this, "Welcome!",
+            QString("You have joined the %1. You begin at guild level 1.").arg(guildName));
+        return;
+    }
+
+    // Leveling costs gold. The cost scales with the guild level.
+    int currentLevel = c.guildLevel(guildName);
+    int cost = 50 * currentLevel;
+    int partyGold = gsm->getPartyGold();
+
+    if (partyGold < cost) {
+        gsm->logGuildAction(QString("Attempted to make a guild level in the %1, but lacked gold.")
+                            .arg(guildName));
+        QMessageBox::warning(this, "Cannot Level Up",
+            QString("You need %1 gold to advance in the %2 (you have %3).")
+                .arg(cost).arg(guildName).arg(partyGold));
+        return;
+    }
+
+    gsm->spendPartyGold(cost);
+    int newLevel = c.incrementGuildLevel(guildName);
+
+    gsm->logGuildAction(QString("Advanced to level %1 in the %2 (cost %3 gold).")
+                        .arg(newLevel).arg(guildName).arg(cost));
+
+    // Announce any spells this guild level grants.
+    QString spellNote;
+    SpellBook& sb = SpellBook::instance();
+    if (!sb.isLoaded()) sb.load("data/spells.json");
+    QList<SpellDef> learned = sb.newlyLearned(c, guildName, newLevel);
+    if (!learned.isEmpty()) {
+        QStringList names;
+        for (const SpellDef& s : learned) names.append(s.name);
+        spellNote = QString("\n\nNew spells: %1").arg(names.join(", "));
+    }
+
+    QMessageBox::information(this, "Level Up!",
+        QString("Congratulations! You have advanced to level %1 in the %2.%3")
+            .arg(newLevel).arg(guildName).arg(spellNote));
 }
 
 void GuildsDialog::on_reAcquaintButton_clicked()
