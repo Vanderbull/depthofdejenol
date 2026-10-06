@@ -3,6 +3,7 @@
 
 #include <QString>
 #include <QStringList>
+#include <QList>
 #include <QVariantMap>
 #include <QDateTime>
 #include <cstdint>
@@ -21,6 +22,8 @@ struct HeldItem {
     int16_t M577E;
     int16_t M4EEE;
     int16_t M572A;
+    bool identified = true;  // false = unidentified (shows as "Unknown X")
+    QString name;            // cached display name (resolved from ItemDatabase)
 };
 
 struct GuildStatus {
@@ -100,7 +103,9 @@ struct Character {
     int row = 0;
 
     // --- Inventory ---
-    QStringList inventory = {"Hands"};
+    QList<HeldItem> inventory;
+    QList<HeldItem> bankInventory;
+    QList<HeldItem> equipped;  // 12 slots, index = ItemSlot::Slot
 
     // ===== MTypes.h binary fields (full record) =====
 
@@ -183,6 +188,24 @@ struct Character {
     void resurrect();
     void addStatus(uint flag);
     void removeStatus(uint flag);
+
+    // --- Equip / Unequip ---
+    // Returns true on success. On failure, `reason` explains why.
+    bool equipItem(int inventoryIndex, QString& reason);
+    bool unequipItem(int slotIndex, QString& reason);
+
+    // --- Effective stats (base + equipped modifiers) ---
+    int effectiveStrength() const;
+    int effectiveIntelligence() const;
+    int effectiveWisdom() const;
+    int effectiveConstitution() const;
+    int effectiveCharisma() const;
+    int effectiveDexterity() const;
+    int effectiveStat(const QString& statName) const;
+
+    // --- Consumables ---
+    // Use a consumable item. Returns true on success.
+    bool useConsumable(int inventoryIndex, QString& effectDescription);
 };
 
 // --- Party ---

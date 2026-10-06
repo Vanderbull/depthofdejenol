@@ -14,6 +14,7 @@
 #include "src/helplesson/helplesson.h"
 #include "src/loadingscreen/LoadingScreen.h"
 #include "src/race_data/RaceData.h"
+#include "test/selftest.h"
 
 // Qt Includes
 #include <QVBoxLayout>
@@ -243,6 +244,13 @@ int main(int argc, char *argv[]) {
     // Force X11 for Wayland compatibility
     qputenv("QT_QPA_PLATFORM", "xcb");
     QApplication a(argc, argv);
+
+    // Headless verification suite (`make check`). Runs without any GUI so it
+    // can gate every change; see test/selftest.cpp.
+    if (a.arguments().contains("--selftest")) {
+        qputenv("QT_QPA_PLATFORM", "offscreen");
+        return runSelfTest();
+    }
 
     // Initial sequence
     LoadingScreen loadingScreen; 

@@ -2,7 +2,16 @@
     "BankSlotsFree": 24,
     "BankedGold": 0,
     "ConfigIntegrityOK": true,
-    "CurrentCharacterGold": 455,
+    "CurrentCharacterCharisma": 5,
+    "CurrentCharacterConstitution": 6,
+    "CurrentCharacterDexterity": 6,
+    "CurrentCharacterGold": 1500,
+    "CurrentCharacterIntelligence": 9,
+    "CurrentCharacterStrength": 4,
+    "CurrentCharacterWisdom": 4,
+    "DungeonLevel": 1,
+    "DungeonX": 24,
+    "DungeonY": 9,
     "GameStates": [
         {
             "ActiveCharacterIndex": 0,
@@ -42,12 +51,16 @@
                     {
                         "Age": 16,
                         "Alignment": "Neutral",
+                        "BankInventory": [
+                        ],
                         "Charisma": 0,
                         "Constitution": 0,
                         "Dexterity": 0,
                         "DungeonLevel": 0,
                         "DungeonX": 0,
                         "DungeonY": 0,
+                        "Equipped": [
+                        ],
                         "Experience": 0,
                         "Gold": 0,
                         "HP": 0,
@@ -63,17 +76,22 @@
                         "StatusFlags": 0,
                         "Strength": 0,
                         "Wisdom": 0,
+                        "isAlive": false,
                         "row": 0
                     },
                     {
                         "Age": 16,
                         "Alignment": "Neutral",
+                        "BankInventory": [
+                        ],
                         "Charisma": 0,
                         "Constitution": 0,
                         "Dexterity": 0,
                         "DungeonLevel": 0,
                         "DungeonX": 0,
                         "DungeonY": 0,
+                        "Equipped": [
+                        ],
                         "Experience": 0,
                         "Gold": 0,
                         "HP": 0,
@@ -89,17 +107,22 @@
                         "StatusFlags": 0,
                         "Strength": 0,
                         "Wisdom": 0,
+                        "isAlive": false,
                         "row": 0
                     },
                     {
                         "Age": 16,
                         "Alignment": "Neutral",
+                        "BankInventory": [
+                        ],
                         "Charisma": 0,
                         "Constitution": 0,
                         "Dexterity": 0,
                         "DungeonLevel": 0,
                         "DungeonX": 0,
                         "DungeonY": 0,
+                        "Equipped": [
+                        ],
                         "Experience": 0,
                         "Gold": 0,
                         "HP": 0,
@@ -115,17 +138,22 @@
                         "StatusFlags": 0,
                         "Strength": 0,
                         "Wisdom": 0,
+                        "isAlive": false,
                         "row": 0
                     },
                     {
                         "Age": 16,
                         "Alignment": "Neutral",
+                        "BankInventory": [
+                        ],
                         "Charisma": 0,
                         "Constitution": 0,
                         "Dexterity": 0,
                         "DungeonLevel": 0,
                         "DungeonX": 0,
                         "DungeonY": 0,
+                        "Equipped": [
+                        ],
                         "Experience": 0,
                         "Gold": 0,
                         "HP": 0,
@@ -141,6 +169,7 @@
                         "StatusFlags": 0,
                         "Strength": 0,
                         "Wisdom": 0,
+                        "isAlive": false,
                         "row": 0
                     }
                 ],
@@ -285,19 +314,57 @@
     ],
     "Party": {
         "Members": [
+            {
+                "Age": 18,
+                "Alignment": "Neutral",
+                "BankInventory": [
+                ],
+                "Charisma": 5,
+                "Constitution": 6,
+                "Dexterity": 6,
+                "DungeonLevel": 1,
+                "DungeonX": 17,
+                "DungeonY": 12,
+                "Equipped": [
+                ],
+                "Experience": 0,
+                "Gold": 0,
+                "HP": 50,
+                "Intelligence": 9,
+                "Inventory": [
+                    {
+                        "charges": 0,
+                        "equipped": 0,
+                        "id": 0,
+                        "identified": true,
+                        "name": "Rations"
+                    }
+                ],
+                "Level": 1,
+                "Mana": 0,
+                "MaxHP": 50,
+                "MaxMana": 0,
+                "Name": "benke stolt",
+                "Race": "Human",
+                "StatusFlags": 0,
+                "Strength": 4,
+                "Wisdom": 4,
+                "isAlive": true,
+                "row": 0
+            }
         ],
         "PLUTTEN": "PLUTTEN",
-        "SharedGold": 0
+        "SharedGold": 1500
     },
     "PartyHP": [
         50,
         40,
         30
     ],
-    "PlayerGold": 455,
+    "PlayerGold": 1500,
     "ResourcesLoaded": true,
     "confinementStock": null,
     "currentLocation": 0,
     "currentMode": 0,
-    "lastSaved": "Wed Sep 30 04:10:01 2026"
+    "lastSaved": "Mon Oct 5 19:46:49 2026"
 }

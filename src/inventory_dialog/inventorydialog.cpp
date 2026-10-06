@@ -1,30 +1,20 @@
 #include "inventorydialog.h"
+#include "src/items/ItemDatabase.h"
 #include <QHBoxLayout>
 #include <QVBoxLayout>
 #include <QLabel>
 #include <QDebug>
 #include <QMessageBox>
 
-/*
-InventoryDialog::InventoryDialog(QWidget *parent) : QDialog(parent) 
+InventoryDialog::InventoryDialog(QWidget *parent) : QDialog(parent)
 {
     setWindowTitle("Inventory");
-    setFixedSize(600, 400);
-    initializeItemData(); // Loads your itemInfoMap descriptions
-    setupUi();
-    loadInventoryData(); // Pulls the real data from gameStateManager
-}
-*/
-InventoryDialog::InventoryDialog(QWidget *parent) : QDialog(parent) 
-{
-    setWindowTitle("Inventory");
-    setFixedSize(600, 400);
+    setFixedSize(700, 500);
     initializeItemData();
     setupUi();
-    loadInventoryData(); // Initial load
+    loadInventoryData();
 
-    // ADD THIS: Connect to the manager to refresh when items are added mid-session
-    connect(gameStateManager::instance(), &gameStateManager::gameValueChanged, 
+    connect(gameStateManager::instance(), &gameStateManager::gameValueChanged,
             this, [this](const QString& key, const QVariant& /*value*/){
         if (key == "party_data") {
             loadInventoryData();
@@ -32,11 +22,12 @@ InventoryDialog::InventoryDialog(QWidget *parent) : QDialog(parent)
     });
 }
 
-void InventoryDialog::setupUi() 
+void InventoryDialog::setupUi()
 {
     QHBoxLayout *mainLayout = new QHBoxLayout(this);
     tabWidget = new QTabWidget(this);
     mainLayout->addWidget(tabWidget);
+
     // Create Tabs
     QWidget *inventoryTab = new QWidget();
     QWidget *equippedTab = new QWidget();
@@ -44,94 +35,154 @@ void InventoryDialog::setupUi()
     tabWidget->addTab(inventoryTab, "Inventory");
     tabWidget->addTab(equippedTab, "Equipped");
     tabWidget->addTab(spellsTab, "Spells");
+
     // Layouts for Lists
     QHBoxLayout *inventoryLayout = new QHBoxLayout(inventoryTab);
     inventoryList = new QListWidget();
     inventoryLayout->addWidget(inventoryList);
+
     QHBoxLayout *equippedLayout = new QHBoxLayout(equippedTab);
     equippedList = new QListWidget();
     equippedLayout->addWidget(equippedList);
+
     QHBoxLayout *spellsLayout = new QHBoxLayout(spellsTab);
     spellsList = new QListWidget();
     spellsLayout->addWidget(spellsList);
+
     // Sidebar Buttons
     QVBoxLayout *buttonsLayout = new QVBoxLayout();
     equipButton = new QPushButton("Equip");
+    unequipButton = new QPushButton("Unequip");
     useButton = new QPushButton("Use");
     dropButton = new QPushButton("Drop");
     infoButton = new QPushButton("Info");
     buttonsLayout->addWidget(equipButton);
+    buttonsLayout->addWidget(unequipButton);
     buttonsLayout->addWidget(useButton);
     buttonsLayout->addWidget(dropButton);
     buttonsLayout->addWidget(infoButton);
+
+    // Effective stats panel
+    effectiveStatsLabel = new QLabel(this);
+    effectiveStatsLabel->setFrameStyle(QFrame::StyledPanel | QFrame::Sunken);
+    effectiveStatsLabel->setMinimumHeight(100);
+    buttonsLayout->addSpacing(10);
+    buttonsLayout->addWidget(new QLabel("<b>Effective Stats</b>", this));
+    buttonsLayout->addWidget(effectiveStatsLabel);
+
+    buttonsLayout->addStretch();
     mainLayout->addLayout(buttonsLayout);
+
     // Connect logic
     connect(equipButton, &QPushButton::clicked, this, &InventoryDialog::onEquipButtonClicked);
+    connect(unequipButton, &QPushButton::clicked, this, &InventoryDialog::onUnequipButtonClicked);
+    connect(useButton, &QPushButton::clicked, this, &InventoryDialog::onUseButtonClicked);
     connect(dropButton, &QPushButton::clicked, this, &InventoryDialog::onDropButtonClicked);
     connect(infoButton, &QPushButton::clicked, this, &InventoryDialog::onInfoButtonClicked);
 }
 
 void InventoryDialog::loadInventoryData() {
     inventoryList->clear();
-    
-    // Get the active character from the manager
-    Character current = gameStateManager::instance()->getCurrentCharacter();
-    
-    // Populate the list widget
-    for (const QString& itemName : current.inventory) {
-        inventoryList->addItem(itemName);
-    }
-}
-/*
-void InventoryDialog::loadInventoryData() 
-{
-    // 1. Get the singleton instance
-    gameStateManager* gsm = gameStateManager::instance();    
-    // 2. Identify which character to look at
-    int activeIdx = gsm->getGameValue("ActiveCharacterIndex").toInt();
-    QVariantList party = gsm->getGameValue("Party").toList();
-    if (activeIdx >= 0 && activeIdx < party.size()) {
-        QVariantMap character = party[activeIdx].toMap();
-        // 3. Clear and Populate the Inventory List
-        inventoryList->clear();
-        QVariantList inventory = character["Inventory"].toList(); 
-        for (const QVariant& item : inventory) {
-            inventoryList->addItem(item.toString());
-        }
-        // 4. Repeat for Equipped and Spells
-        equippedList->clear();
-        QVariantList equipped = character["Equipped"].toList();
-        for (const QVariant& item : equipped) {
-            equippedList->addItem(item.toString());
-        }
-    }
-}
-*/
+    equippedList->clear();
 
-void InventoryDialog::initializeItemData() 
+    Character current = gameStateManager::instance()->getCurrentCharacter();
+
+    for (const HeldItem& item : current.inventory) {
+        QString display = item.identified ? item.name : "Unknown " + item.name;
+        inventoryList->addItem(display);
+    }
+
+    for (const HeldItem& item : current.equipped) {
+        equippedList->addItem(item.name);
+    }
+
+    updateEffectiveStatsPanel();
+}
+
+void InventoryDialog::updateEffectiveStatsPanel() {
+    Character c = gameStateManager::instance()->getCurrentCharacter();
+    QString text = QString(
+        "STR: %1 (base %2)\n"
+        "INT: %3 (base %4)\n"
+        "WIS: %5 (base %6)\n"
+        "CON: %7 (base %8)\n"
+        "CHA: %9 (base %10)\n"
+        "DEX: %11 (base %12)"
+    ).arg(c.effectiveStrength()).arg(c.strength)
+     .arg(c.effectiveIntelligence()).arg(c.intelligence)
+     .arg(c.effectiveWisdom()).arg(c.wisdom)
+     .arg(c.effectiveConstitution()).arg(c.constitution)
+     .arg(c.effectiveCharisma()).arg(c.charisma)
+     .arg(c.effectiveDexterity()).arg(c.dexterity);
+    effectiveStatsLabel->setText(text);
+}
+
+QString InventoryDialog::itemTooltip(const QString& itemName) const
+{
+    const ItemDef* def = ItemDatabase::instance().byName(itemName);
+    if (!def) return itemName;
+
+    QString tip = QString("<b>%1</b><br>").arg(def->name);
+    tip += QString("Type: %1<br>").arg(def->typeName());
+    tip += QString("Slot: %1<br>").arg(ItemSlot::name(def->slot()));
+    tip += QString("ATT: %1  DEF: %2<br>").arg(def->att).arg(def->def);
+    tip += QString("Price: %1 GP<br>").arg(def->price);
+
+    if (def->strMod != 0) tip += QString("STR %+1<br>").arg(def->strMod);
+    if (def->intMod != 0) tip += QString("INT %+1<br>").arg(def->intMod);
+    if (def->wisMod != 0) tip += QString("WIS %+1<br>").arg(def->wisMod);
+    if (def->conMod != 0) tip += QString("CON %+1<br>").arg(def->conMod);
+    if (def->chaMod != 0) tip += QString("CHA %+1<br>").arg(def->chaMod);
+    if (def->dexMod != 0) tip += QString("DEX %+1<br>").arg(def->dexMod);
+
+    if (def->strReq > 0) tip += QString("Requires STR %1<br>").arg(def->strReq);
+    if (def->intReq > 0) tip += QString("Requires INT %1<br>").arg(def->intReq);
+    if (def->wisReq > 0) tip += QString("Requires WIS %1<br>").arg(def->wisReq);
+    if (def->conReq > 0) tip += QString("Requires CON %1<br>").arg(def->conReq);
+    if (def->chaReq > 0) tip += QString("Requires CHA %1<br>").arg(def->chaReq);
+    if (def->dexReq > 0) tip += QString("Requires DEX %1<br>").arg(def->dexReq);
+
+    if (def->cursed) tip += "<b><font color='red'>CURSED</font></b><br>";
+    if (def->nHands == 2) tip += "Two-handed<br>";
+
+    return tip;
+}
+
+void InventoryDialog::initializeItemData()
 {
     itemInfoMap["Short Sword"] = "A standard short sword.\nStats: 5 Damage";
     itemInfoMap["Leather Armor"] = "Light leather armor.\nStats: 10 Defense";
-    // Add other treasure items here to provide descriptions
 }
 
-void InventoryDialog::onEquipButtonClicked() 
+void InventoryDialog::onEquipButtonClicked()
 {
-    if (inventoryList->currentItem()) {
-        QListWidgetItem *selectedItem = inventoryList->currentItem();        
-        // Example logic: Don't equip consumables
-        if (selectedItem->text().contains("Potion") || selectedItem->text().contains("Gold")) {
-            return;
-        }
-        // Add to equipped list and remove from inventory
-        equippedList->addItem(selectedItem->text());
-        delete selectedItem;
-        qDebug() << "Item equipped locally.";
-        // Note: In a full implementation, you would also update gameStateManager here
+    if (!inventoryList->currentItem()) return;
+
+    int activeIdx = gameStateManager::instance()->getCurrentCharacterIndex();
+    int invRow = inventoryList->currentRow();
+    QString reason;
+    if (gameStateManager::instance()->equipItem(activeIdx, invRow, reason)) {
+        loadInventoryData();
+    } else {
+        QMessageBox::warning(this, "Cannot Equip", reason);
     }
 }
 
-void InventoryDialog::onDropButtonClicked() 
+void InventoryDialog::onUnequipButtonClicked()
+{
+    if (!equippedList->currentItem()) return;
+
+    int activeIdx = gameStateManager::instance()->getCurrentCharacterIndex();
+    int slotRow = equippedList->currentRow();
+    QString reason;
+    if (gameStateManager::instance()->unequipItem(activeIdx, slotRow, reason)) {
+        loadInventoryData();
+    } else {
+        QMessageBox::warning(this, "Cannot Unequip", reason);
+    }
+}
+
+void InventoryDialog::onDropButtonClicked()
 {
     int currentIndex = tabWidget->currentIndex();
     QListWidget* currentList = nullptr;
@@ -143,23 +194,20 @@ void InventoryDialog::onDropButtonClicked()
     }
 }
 
-void InventoryDialog::onInfoButtonClicked() 
+void InventoryDialog::onInfoButtonClicked()
 {
     QListWidget* currentList = nullptr;
-    int currentIndex = tabWidget->currentIndex();    
+    int currentIndex = tabWidget->currentIndex();
     if (currentIndex == 0) currentList = inventoryList;
     else if (currentIndex == 1) currentList = equippedList;
     else if (currentIndex == 2) currentList = spellsList;
     if (currentList && currentList->currentItem()) {
         QString itemName = currentList->currentItem()->text();
         gameStateManager* gsm = gameStateManager::instance();
-        // Retrieve the full item list from gameStateManager
         const QList<QVariantMap>& allItems = gsm->itemData();
         QVariantMap foundItem;
         bool itemFound = false;
-        // Search for the item by name in the database
         for (const QVariantMap& item : allItems) {
-            // Adjust "name" key if your CSV header uses a different case (e.g., "Name")
             if (item.value("name").toString() == itemName) {
                 foundItem = item;
                 itemFound = true;
@@ -171,17 +219,29 @@ void InventoryDialog::onInfoButtonClicked()
             QMapIterator<QString, QVariant> i(foundItem);
             while (i.hasNext()) {
                 i.next();
-                // Skip the internal DataType or empty values to keep it clean
                 if (i.key() == "DataType" || i.value().toString().isEmpty()) continue;
-                
                 details += QString("%1: %2\n").arg(i.key()).arg(i.value().toString());
             }
             QMessageBox::information(this, itemName, details);
         } else {
-            // Fallback to the local map if not found in the CSV database
             QString fallbackInfo = itemInfoMap.value(itemName, "No detailed stats found in database.");
             QMessageBox::information(this, itemName, fallbackInfo);
         }
+    }
+}
+
+void InventoryDialog::onUseButtonClicked()
+{
+    if (!inventoryList->currentItem()) return;
+
+    int activeIdx = gameStateManager::instance()->getCurrentCharacterIndex();
+    int invRow = inventoryList->currentRow();
+    QString effect;
+    if (gameStateManager::instance()->useConsumable(activeIdx, invRow, effect)) {
+        QMessageBox::information(this, "Use Item", effect);
+        loadInventoryData();
+    } else {
+        QMessageBox::warning(this, "Cannot Use", effect);
     }
 }
 

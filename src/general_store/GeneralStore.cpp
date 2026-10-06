@@ -1,5 +1,25 @@
 #include "GeneralStore.h"
+#include "src/items/ItemDatabase.h"
 #include <QDebug>
+
+// Find the index of an item by name in a QList<HeldItem>, or -1.
+static int findItemByName(const QList<HeldItem>& items, const QString& name) {
+    for (int i = 0; i < items.size(); ++i) {
+        if (items[i].name == name) return i;
+    }
+    return -1;
+}
+
+// Create a HeldItem from an item name, resolving the ID from the database.
+static HeldItem makeHeldItem(const QString& name, bool identified = true) {
+    HeldItem item;
+    item.name = name;
+    item.identified = identified;
+    if (const ItemDef* def = ItemDatabase::instance().byName(name)) {
+        item.M4E97 = static_cast<int16_t>(def->id);
+    }
+    return item;
+}
 
 GeneralStore::GeneralStore(QWidget *parent)
     : QDialog(parent)
@@ -12,15 +32,6 @@ GeneralStore::GeneralStore(QWidget *parent)
     populateShopItems();
     populatePlayerInventory();
     updateCharacterHeader();
-    // Reward player 100 gold
-    gameStateManager::instance()->addGold(1000);
-    // Take 50 gold from member slot 1
-    gameStateManager::instance()->addGold(-50, 1);
-    // Spend shared party gold for purchases
-    if (gameStateManager::instance()->spendPartyGold(250)) {
-        // Purchase successful
-    }
-    gameStateManager::instance()->getCurrentCharacter();
     // --- Frame Timer Setup (~60 FPS update cycle) ---
     m_frameTimer = new QTimer(this);
     connect(m_frameTimer, &QTimer::timeout, this, &GeneralStore::updateFrame);
@@ -206,10 +217,12 @@ void GeneralStore::updateCharacterHeader()
                                  .arg(current.name.isEmpty() ? "Hero" : current.name)
                                  .arg(current.race)
                                  .arg(current.level));
-    // Show character individual gold and shared party gold
-    m_goldLabel->setText(QString("Gold: %1 GP (Party: %2 GP)")
+    // Show character individual gold, shared party gold, and bank gold
+    long long bankGold = gameStateManager::instance()->getGameValue("BankedGold").toLongLong();
+    m_goldLabel->setText(QString("Gold: %1 GP (Party: %2 GP, Bank: %3 GP)")
                              .arg(gameStateManager::instance()->getPartyGold())
-                             .arg(sharedGold));
+                             .arg(sharedGold)
+                             .arg(bankGold));
 }
 void GeneralStore::loadItemsFromCsv(const QString& filePath)
 {
@@ -309,7 +322,15 @@ void GeneralStore::populateShopItems()
         m_shopTable->insertRow(i);
 
         QString name = item.value("name").toString();
-        QString type = item.value("type").toString();
+        // MDATA3 stores `type` as a number; show the readable name instead.
+        QString type = item.value("typeName").toString();
+        if (type.isEmpty()) {
+            if (const ItemDef* def = ItemDatabase::instance().byName(name)) {
+                type = def->typeName();
+            } else {
+                type = item.value("type").toString();
+            }
+        }
         // Flexible price lookup
         int cost = 0;
         if (item.contains("cost")) {
@@ -362,8 +383,8 @@ void GeneralStore::populatePlayerInventory()
 {
     m_playerInventoryList->clear();
     Character current = gameStateManager::instance()->getCurrentCharacter();
-    for (const QString& itemName : current.inventory) {
-        m_playerInventoryList->addItem(itemName);
+    for (const HeldItem& item : current.inventory) {
+        m_playerInventoryList->addItem(item.name);
     }
 }
 
@@ -385,7 +406,14 @@ void GeneralStore::onShopSelectionChanged()
     };
 
     QString name = item.value("name").toString();
-    QString type = item.value("type").toString();
+    QString type = item.value("typeName").toString();
+    if (type.isEmpty()) {
+        if (const ItemDef* def = ItemDatabase::instance().byName(name)) {
+            type = def->typeName();
+        } else {
+            type = item.value("type").toString();
+        }
+    }
     int cost = item.contains("cost") ? item.value("cost").toInt() : item.value("price").toInt();
     // Build html string for description and stats
     QString html = QString("<b>%1</b> (%2) — <b>Price: %3 GP</b><br>").arg(name, type).arg(cost);
@@ -430,7 +458,7 @@ void GeneralStore::onPlayerInventorySelectionChanged()
     if (!stats.isEmpty()) {
         m_itemDetailsText->setText(QString("<b>%1</b><br>Estimated Value: %2 GP")
                                        .arg(itemName)
-                                       .arg(stats.value("cost", 10).toInt() / 2));
+                                       .arg(stats.value("price", 10).toLongLong() / 2));
     } else {
         m_itemDetailsText->setText(QString("<b>%1</b><br>Standard inventory item.").arg(itemName));
     }
@@ -462,7 +490,7 @@ void GeneralStore::buySelectedItem()
     }
 
     int activeIdx = gameStateManager::instance()->getCurrentCharacterIndex();
-    gameStateManager::instance()->addItemToCharacter(activeIdx, itemName);
+    gameStateManager::instance()->addItemToCharacter(activeIdx, makeHeldItem(itemName));
 
     updateCharacterHeader();
     populatePlayerInventory();
@@ -477,12 +505,12 @@ void GeneralStore::sellSelectedItem()
     int activeIdx = gameStateManager::instance()->getCurrentCharacterIndex();
     Character current = gameStateManager::instance()->getCurrentCharacter();
 
-    int itemIdx = current.inventory.indexOf(itemName);
+    int itemIdx = findItemByName(current.inventory, itemName);
     if (itemIdx >= 0) {
         current.inventory.removeAt(itemIdx);
         gameStateManager::instance()->setCharacterInventory(activeIdx, current.inventory);
 
-        int sellValue = gameStateManager::instance()->getItemStats(itemName).value("cost", 10).toInt() / 2;
+        int sellValue = gameStateManager::instance()->getItemStats(itemName).value("price", 10).toLongLong() / 2;
         if (sellValue <= 0) sellValue = 5;
 
         gameStateManager::instance()->updateCharacterGold(activeIdx, sellValue, true);
@@ -533,9 +561,10 @@ void GeneralStore::identifySelectedItem()
         identifiedName.remove("Unidentified ").remove("?");
     }
 
-    int itemIdx = current.inventory.indexOf(rawItemName);
+    int itemIdx = findItemByName(current.inventory, rawItemName);
     if (itemIdx >= 0) {
-        current.inventory[itemIdx] = identifiedName;
+        current.inventory[itemIdx].name = identifiedName;
+        current.inventory[itemIdx].identified = true;
         gameStateManager::instance()->setCharacterInventory(activeIdx, current.inventory);
     }
     // 6. Refresh UI Views & Show Outcome
@@ -567,7 +596,7 @@ void GeneralStore::uncurseSelectedItem()
     Character current = gameStateManager::instance()->getCurrentCharacter();
     // 2. Query item metadata to check for cursed status
     QVariantMap itemStats = gameStateManager::instance()->getItemStats(rawItemName);
-    bool isCursed = itemStats.value("isCursed", false).toBool() || rawItemName.contains("Cursed", Qt::CaseInsensitive);
+    bool isCursed = itemStats.value("cursed", false).toBool() || rawItemName.contains("Cursed", Qt::CaseInsensitive);
 
     if (!isCursed) {
         QMessageBox::information(this, "Uncurse Item", "This item does not appear to be cursed!");
@@ -598,9 +627,9 @@ void GeneralStore::uncurseSelectedItem()
         uncursedName = uncursedName.trimmed();
     }
     // 5. Update Inventory in Game State
-    int itemIdx = current.inventory.indexOf(rawItemName);
+    int itemIdx = findItemByName(current.inventory, rawItemName);
     if (itemIdx >= 0) {
-        current.inventory[itemIdx] = uncursedName;
+        current.inventory[itemIdx].name = uncursedName;
         gameStateManager::instance()->setCharacterInventory(activeIdx, current.inventory);
     }
     // 6. Refresh UI Views & Show Outcome
@@ -654,13 +683,13 @@ void GeneralStore::combineSelectedItems()
         return;
     }
     // 5. Remove ingredients from inventory
-    int idx1 = current.inventory.indexOf(item1Name);
+    int idx1 = findItemByName(current.inventory, item1Name);
     if (idx1 >= 0) current.inventory.removeAt(idx1);
 
-    int idx2 = current.inventory.indexOf(item2Name);
+    int idx2 = findItemByName(current.inventory, item2Name);
     if (idx2 >= 0) current.inventory.removeAt(idx2);
     // 6. Add new crafted item
-    current.inventory.append(combinedResult);
+    current.inventory.append(makeHeldItem(combinedResult));
     gameStateManager::instance()->setCharacterInventory(activeIdx, current.inventory);
     // 7. Refresh UI Views & Show Outcome
     populatePlayerInventory();

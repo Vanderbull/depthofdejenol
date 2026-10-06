@@ -1,4 +1,5 @@
 #include "TradeDialog.h"
+#include "src/items/ItemDatabase.h"
 #include <QGridLayout>
 #include <QHBoxLayout>
 #include <QVBoxLayout>
@@ -118,22 +119,32 @@ void TradeDialog::on_closeButton_clicked()
     // 1. Sync Player Inventory
     if (playerItemModel) {
         int activeIdx = gsm->getGameValue("ActiveCharacterIndex").toInt();
-        QStringList updatedPlayerItems;
+        QList<HeldItem> updatedPlayerItems;
         for(int i = 0; i < playerItemModel->rowCount(); ++i) {
             QStandardItem* item = playerItemModel->item(i);
             if (item) {
-                updatedPlayerItems << item->text();
+                HeldItem hi;
+                hi.name = item->text();
+                if (const ItemDef* def = ItemDatabase::instance().byName(hi.name)) {
+                    hi.M4E97 = static_cast<int16_t>(def->id);
+                }
+                updatedPlayerItems << hi;
             }
         }
         gsm->setCharacterInventory(activeIdx, updatedPlayerItems);
     }
     // 2. Sync Bank Inventory
     if (bankItemModel) {
-        QStringList updatedBankItems;
+        QList<HeldItem> updatedBankItems;
         for(int i = 0; i < bankItemModel->rowCount(); ++i) {
             QStandardItem* item = bankItemModel->item(i);
             if (item) {
-                updatedBankItems << item->text();
+                HeldItem hi;
+                hi.name = item->text();
+                if (const ItemDef* def = ItemDatabase::instance().byName(hi.name)) {
+                    hi.M4E97 = static_cast<int16_t>(def->id);
+                }
+                updatedBankItems << hi;
             }
         }
         //gsm->setBankInventory(updatedBankItems);

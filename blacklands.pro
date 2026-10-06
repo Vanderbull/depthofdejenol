@@ -74,6 +74,41 @@ SOURCES += \
     character.cpp
 
 #--------------------------------------------------
+# Self-test harness
+#--------------------------------------------------
+# The headless verification suite lives in test/selftest.cpp and is linked
+# into the real binary. It is only reachable via the `blacklands --selftest`
+# flag, so the shipped executable is unchanged.
+HEADERS += test/selftest.h
+SOURCES += test/selftest.cpp
+
+#--------------------------------------------------
+# Item database
+#--------------------------------------------------
+# Typed, indexed view of MDATA3. Loaded once; consumers look items up by id or
+# name instead of scanning QVariantMaps.
+HEADERS += src/items/ItemDatabase.h
+SOURCES += src/items/ItemDatabase.cpp
+
+#--------------------------------------------------
+# Combat engine
+#--------------------------------------------------
+HEADERS += src/combat/CombatState.h
+SOURCES += src/combat/CombatState.cpp
+HEADERS += src/combat/TurnEngine.h
+SOURCES += src/combat/TurnEngine.cpp
+HEADERS += src/combat/CombatActions.h
+SOURCES += src/combat/CombatActions.cpp
+HEADERS += src/combat/MonsterAI.h
+SOURCES += src/combat/MonsterAI.cpp
+HEADERS += src/combat/EncounterBuilder.h
+SOURCES += src/combat/EncounterBuilder.cpp
+HEADERS += src/combat/VictoryReward.h
+SOURCES += src/combat/VictoryReward.cpp
+HEADERS += src/combat/CombatDeathHandler.h
+SOURCES += src/combat/CombatDeathHandler.cpp
+
+#--------------------------------------------------
 # Header Files
 #--------------------------------------------------
 HEADERS += \
@@ -209,3 +244,14 @@ QMAKE_SUBSTITUTES += version.h.in
 VERSION_HASH = \"$$VERSION_HASH\"
 VERSION_DATE = \"$$VERSION_DATE\"
 VERSION_INT  = \"v$$VERSION_INT\"
+
+#--------------------------------------------------
+# Verification
+#--------------------------------------------------
+# Declaring `check` here overrides the default generated target (qmake only
+# adds `check: first` when the project has not defined it), so `make check`
+# builds and then runs the headless self-test suite.
+QMAKE_EXTRA_TARGETS += check
+check.target = check
+check.depends = first
+check.commands = ./$${TARGET} --selftest

@@ -17,6 +17,10 @@
 
 
 void theCity::processLocation(GameConstants::CityLocation location) {
+    // Refresh gold values whenever entering a location so the UI always shows
+    // the latest party gold and bank gold (updated by other dialogs).
+    gameStateManager::instance()->refreshUI();
+
     switch (location) {
         case GameConstants::CityLocation::GeneralStore:
             titleLabel->setText("General Store - 'Supplies for the Brave'");

@@ -1,6 +1,7 @@
 #include "gameStateManager.h"
 #include "src/partymanager/PartyManager.h"
 #include "src/core/savegameUtils.h"
+#include "src/items/ItemDatabase.h"
 
 #include "version.h"
 //#include "fontManager.h"
@@ -92,6 +93,24 @@ void gameStateManager::refreshUI() {
     int partyGold = m_partyManager->currentParty().sharedGold;
     m_gameStateData["CurrentCharacterGold"] = QVariant::fromValue(static_cast<qulonglong>(partyGold));
     m_gameStateData["PlayerGold"]        = QVariant::fromValue(static_cast<quint64>(partyGold));
+    // --- Bank gold sync: ensure BankedGold key exists, and emit change signals
+    if (!m_gameStateData.contains("BankedGold")) {
+        m_gameStateData["BankedGold"] = QVariant::fromValue(static_cast<qulonglong>(0));
+    }
+    emit gameValueChanged("BankedGold", m_gameStateData["BankedGold"]);
+    emit gameValueChanged("CurrentCharacterGold", m_gameStateData["CurrentCharacterGold"]);
+    emit gameValueChanged("PlayerGold", m_gameStateData["PlayerGold"]);
+
+    // --- Effective stats sync: CurrentCharacter* keys for the character sheet ---
+    if (!members.isEmpty()) {
+        const Character& c = members[0];
+        m_gameStateData["CurrentCharacterStrength"]     = c.effectiveStrength();
+        m_gameStateData["CurrentCharacterIntelligence"] = c.effectiveIntelligence();
+        m_gameStateData["CurrentCharacterWisdom"]       = c.effectiveWisdom();
+        m_gameStateData["CurrentCharacterConstitution"] = c.effectiveConstitution();
+        m_gameStateData["CurrentCharacterCharisma"]     = c.effectiveCharisma();
+        m_gameStateData["CurrentCharacterDexterity"]    = c.effectiveDexterity();
+    }
 
     emit gameValueChanged("party_data", partyData);
     qDebug() << "UI Refreshed with" << members.size() << "characters.";
@@ -353,7 +372,12 @@ void gameStateManager::loadSpellData(const QString& filePath) {
 }
 
 void gameStateManager::loadItemData(const QString& filePath) {
+    // Keep the legacy QVariantMap list for UI code that still scans it...
     loadCSVData(filePath, m_itemData);
+
+    // ...and build the typed, indexed database alongside it. Everything new
+    // should look items up through ItemDatabase.
+    ItemDatabase::instance().loadFromCsv(filePath);
 }
 
 void gameStateManager::addCharacterExperience(qulonglong amount)
@@ -478,19 +502,27 @@ void gameStateManager::performSanityCheck()
         qWarning() << "FAIL: 'hits' column is not a valid integer.";
     }
 }
-/*
-void gameStateManager::setBankInventory(const QStringList& items) 
+
+void gameStateManager::setBankInventory(const QList<HeldItem>& items) 
 {
-    setGameValue("BankInventory", items);
+    auto& members = m_partyManager->currentParty().members;
+    if (m_currentCharacterIndex >= 0 && m_currentCharacterIndex < members.size()) {
+        members[m_currentCharacterIndex].bankInventory = items;
+        refreshUI();
+    }
 }
-*/
-/*
-QStringList gameStateManager::getBankInventory() const 
+
+
+QList<HeldItem> gameStateManager::getBankInventory() const 
 {
-    return m_gameStateData.value("BankInventory").toStringList();
+    auto& members = m_partyManager->currentParty().members;
+    if (m_currentCharacterIndex >= 0 && m_currentCharacterIndex < members.size()) {
+        return members[m_currentCharacterIndex].bankInventory;
+    }
+    return {};
 }
-*/
-void gameStateManager::setCharacterInventory(int characterIndex, const QStringList& items) {
+
+void gameStateManager::setCharacterInventory(int characterIndex, const QList<HeldItem>& items) {
     auto& members = m_partyManager->currentParty().members;
     if (characterIndex >= 0 && characterIndex < members.size()) {
         members[characterIndex].inventory = items;
@@ -534,10 +566,10 @@ void gameStateManager::setCharacterInventory(int characterIndex, const QStringLi
 }
 */
 
-void gameStateManager::addItemToCharacter(int index, const QString& itemName) {
+void gameStateManager::addItemToCharacter(int index, const HeldItem& item) {
     auto& members = m_partyManager->currentParty().members;
     if (index >= 0 && index < members.size()) {
-        members[index].inventory.append(itemName);
+        members[index].inventory.append(item);
         refreshUI();
     }
 }
@@ -620,7 +652,12 @@ bool gameStateManager::loadCharacterFromFile(const QString& filePath) {
         // This will now map "HP" -> hp, "Name" -> name, etc.
         newChar.loadFromMap(characterMap);
         if (newChar.inventory.isEmpty()) {
-                newChar.inventory.append("Rations");
+                HeldItem rations;
+                rations.name = "Rations";
+                if (const ItemDef* def = ItemDatabase::instance().byName("Rations")) {
+                    rations.M4E97 = static_cast<int16_t>(def->id);
+                }
+                newChar.inventory.append(rations);
         }
         // Force status to normal if loading from a fresh save
         newChar.status = GameConstants::Normal;
@@ -1636,9 +1673,17 @@ Character gameStateManager::loadCharacterFromLua(const QString& filePath) {
             c.dexterity = stats["Dex"].toInt();
         }
 
-        // Handle Inventory list
+        // Handle Inventory list — convert old name-based saves to HeldItem.
         if (data.contains("Inventory")) {
-            c.inventory = data["Inventory"].toStringList();
+            QStringList names = data["Inventory"].toStringList();
+            for (const QString& name : names) {
+                HeldItem item;
+                item.name = name;
+                if (const ItemDef* def = ItemDatabase::instance().byName(name)) {
+                    item.M4E97 = static_cast<int16_t>(def->id);
+                }
+                c.inventory.append(item);
+            }
         }
 
         qDebug() << "SUCCESS: Character" << c.name << "loaded from Lua.";
@@ -1914,6 +1959,13 @@ bool gameStateManager::isWholePartyDead() const {
 */
 
 QVariantMap gameStateManager::getItemStats(const QString& itemName) const {
+    // Prefer the typed database: one indexed lookup instead of a linear scan.
+    if (const ItemDef* def = ItemDatabase::instance().byName(itemName)) {
+        return ItemDatabase::toVariantMap(*def);
+    }
+
+    // Fall back to the raw CSV rows (covers anything loaded before the
+    // database, e.g. shop-only items).
     for (const QVariantMap& item : m_itemData) {
         if (item["name"].toString() == itemName) {
             return item;
@@ -1999,17 +2051,109 @@ void gameStateManager::enterLocation(GameConstants::CityLocation location) {
     qDebug() << "Player entered:" << static_cast<int>(location);
 }
 
-void gameStateManager::addItemToInventory(const QString& itemName) {
-    if (m_currentParty.members.isEmpty()) return;
+void gameStateManager::addItemToInventory(const HeldItem& item) {
+    auto& members = m_partyManager->currentParty().members;
+    if (members.isEmpty()) return;
+
+    // Guard the index: m_currentCharacterIndex is not guaranteed to be in range
+    // (e.g. after loading a smaller party), and indexing past the end is UB.
+    const int idx = (m_currentCharacterIndex >= 0 && m_currentCharacterIndex < members.size())
+                    ? m_currentCharacterIndex
+                    : 0;
 
     // 1. Add item to the current character's list
-    m_currentParty.members[m_currentCharacterIndex].inventory.append(itemName);
-    
+    members[idx].inventory.append(item);
+
     // 2. Refresh UI/Signals so other windows know data changed
-    refreshUI(); 
-    
-    qDebug() << "Added" << itemName << "to inventory. New count:" 
-             << m_currentParty.members[m_currentCharacterIndex].inventory.size();
+    refreshUI();
+
+    qDebug() << "Added" << item.name << "to inventory. New count:"
+             << members[idx].inventory.size();
+}
+
+bool gameStateManager::equipItem(int characterIndex, int inventoryIndex, QString& reason) {
+    auto& members = m_partyManager->currentParty().members;
+    if (characterIndex < 0 || characterIndex >= members.size()) {
+        reason = "Invalid character index.";
+        return false;
+    }
+    bool ok = members[characterIndex].equipItem(inventoryIndex, reason);
+    if (ok) refreshUI();
+    return ok;
+}
+
+bool gameStateManager::unequipItem(int characterIndex, int slotIndex, QString& reason) {
+    auto& members = m_partyManager->currentParty().members;
+    if (characterIndex < 0 || characterIndex >= members.size()) {
+        reason = "Invalid character index.";
+        return false;
+    }
+    bool ok = members[characterIndex].unequipItem(slotIndex, reason);
+    if (ok) refreshUI();
+    return ok;
+}
+
+bool gameStateManager::useConsumable(int characterIndex, int inventoryIndex, QString& effectDescription) {
+    auto& members = m_partyManager->currentParty().members;
+    if (characterIndex < 0 || characterIndex >= members.size()) {
+        effectDescription = "Invalid character index.";
+        return false;
+    }
+    bool ok = members[characterIndex].useConsumable(inventoryIndex, effectDescription);
+    if (ok) refreshUI();
+    return ok;
+}
+
+bool gameStateManager::identifyItem(int characterIndex, int inventoryIndex, QString& result) {
+    auto& members = m_partyManager->currentParty().members;
+    if (characterIndex < 0 || characterIndex >= members.size()) {
+        result = "Invalid character index.";
+        return false;
+    }
+    auto& inv = members[characterIndex].inventory;
+    if (inventoryIndex < 0 || inventoryIndex >= inv.size()) {
+        result = "Invalid inventory index.";
+        return false;
+    }
+    if (inv[inventoryIndex].identified) {
+        result = "Item is already identified.";
+        return false;
+    }
+    inv[inventoryIndex].identified = true;
+    result = QString("Identified: %1").arg(inv[inventoryIndex].name);
+    refreshUI();
+    return true;
+}
+
+bool gameStateManager::uncurseItem(int characterIndex, int inventoryIndex, QString& result) {
+    auto& members = m_partyManager->currentParty().members;
+    if (characterIndex < 0 || characterIndex >= members.size()) {
+        result = "Invalid character index.";
+        return false;
+    }
+    auto& inv = members[characterIndex].inventory;
+    if (inventoryIndex < 0 || inventoryIndex >= inv.size()) {
+        result = "Invalid inventory index.";
+        return false;
+    }
+    const ItemDef* def = ItemDatabase::instance().byName(inv[inventoryIndex].name);
+    if (!def || !def->cursed) {
+        result = "Item is not cursed.";
+        return false;
+    }
+    // Uncurse: clear the cursed flag by renaming (strip "Cursed " prefix).
+    QString cleanName = inv[inventoryIndex].name;
+    cleanName.remove("Cursed ", Qt::CaseInsensitive);
+    cleanName.remove("(Cursed)", Qt::CaseInsensitive);
+    cleanName = cleanName.trimmed();
+    inv[inventoryIndex].name = cleanName;
+    // Update ID from the clean name.
+    if (const ItemDef* cleanDef = ItemDatabase::instance().byName(cleanName)) {
+        inv[inventoryIndex].M4E97 = static_cast<int16_t>(cleanDef->id);
+    }
+    result = QString("Uncursed: %1").arg(cleanName);
+    refreshUI();
+    return true;
 }
 
 // Move from LoadingScreen to gameStateManager
@@ -2054,22 +2198,18 @@ bool gameStateManager::loadFullGameState(const QString& saveName) {
     QJsonDocument doc = QJsonDocument::fromJson(file.readAll());
     m_gameStateData = doc.toVariant().toMap();
 
-    // Reconstruct the C++ Party object from the saved map
-    if (m_gameStateData.contains("Party")) {
-        m_partyManager->loadPartyFromMap(m_gameStateData["Party"].toMap());
-    }
-
+    // unpackStateAfterLoading() restores the Party from m_gameStateData; doing
+    // it here as well would load the party twice.
     unpackStateAfterLoading();
-    refreshUI();
     return true;
 }
 
 // Merges all live objects (Party, current location, etc.) into the master map
 void gameStateManager::packStateForSaving() {
     // 1. Convert the live Party object into a QVariantMap
-    // This uses your existing Party::toMap() from character.cpp
-    //m_gameStateData["CurrentCharacter"] = getCurrentCharacter().toMap();
-    m_gameStateData["Party"] = m_currentParty.toMap();
+    // Use the PartyManager's party (the live runtime source of truth) so that
+    // gold and other runtime changes are captured on save.
+    m_gameStateData["Party"] = m_partyManager->currentParty().toMap();
 
     // 2. Sync other live variables that might have changed
     m_gameStateData["currentMode"] = static_cast<int>(m_currentMode);
@@ -2081,9 +2221,12 @@ void gameStateManager::packStateForSaving() {
 
 // Distributes data from the master map back into live objects after a load
 void gameStateManager::unpackStateAfterLoading() {
-    // 1. Restore the Party
+    // 1. Restore the Party into the single runtime source of truth.
+    //    Everything else (getCurrentCharacter, getPartyGold, getPC, ...) reads
+    //    through PartyManager, so this is the only copy that needs updating.
     if (m_gameStateData.contains("Party")) {
-        m_currentParty.loadFromMap(m_gameStateData["Party"].toMap());
+        QVariantMap partyMap = m_gameStateData["Party"].toMap();
+        m_partyManager->loadPartyFromMap(partyMap);
     }
 
     // 2. Restore Global States

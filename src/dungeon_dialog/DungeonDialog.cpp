@@ -3,6 +3,7 @@
 #include "DungeonDialog.h"
 #include "DungeonHandlers.h"
 #include "../../gameStateManager.h"
+#include "src/items/ItemDatabase.h"
 #include "../event/EventManager.h"
 #include "src/spell_casting/SpellCastingDialog.h"
 #include <QVBoxLayout>
@@ -1235,7 +1236,13 @@ void DungeonDialog::processTreasureOpening()
             logMessage(QString("You gain %L1 Gold.").arg(foundGold));
         } else {
             // Add item to character inventory
-            gsm->addItemToCharacter(activeIdx, treasure);
+            HeldItem lootItem;
+            lootItem.name = treasure;
+            lootItem.identified = false;  // dungeon loot starts unidentified
+            if (const ItemDef* def = ItemDatabase::instance().byName(treasure)) {
+                lootItem.M4E97 = static_cast<int16_t>(def->id);
+            }
+            gsm->addItemToCharacter(activeIdx, lootItem);
             logMessage(QString("You found a %1 and added it to your inventory!").arg(treasure));
         }
         m_treasurePositions.remove(pos);
@@ -1781,7 +1788,13 @@ void DungeonDialog::awardBattleLoot() {
     QString itemName = allItems.at(itemIdx).value("name").toString();
 
     // Store the item in the character's inventory
-    gsm->addItemToInventory(itemName);
+    HeldItem lootItem;
+    lootItem.name = itemName;
+    lootItem.identified = false;  // dungeon loot starts unidentified
+    if (const ItemDef* def = ItemDatabase::instance().byName(itemName)) {
+        lootItem.M4E97 = static_cast<int16_t>(def->id);
+    }
+    gsm->addItemToInventory(lootItem);
 
     // Show the item to the player in the message log
     logMessage(QString("<font color='gold'>The monster dropped a %1!</font>").arg(itemName));

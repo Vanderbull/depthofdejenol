@@ -1,6 +1,70 @@
 #include "character.h"
+#include "src/items/ItemDatabase.h"
 
 // --- Character Implementation ---
+
+// Serialize a HeldItem to a QVariantMap.
+static QVariantMap heldItemToMap(const HeldItem& item) {
+    QVariantMap m;
+    m["id"]         = item.M4E97;
+    m["name"]       = item.name;
+    m["charges"]    = item.M4ED4;
+    m["equipped"]   = item.M5467;
+    m["identified"] = item.identified;
+    return m;
+}
+
+// Deserialize a HeldItem from a QVariantMap.
+static HeldItem heldItemFromMap(const QVariantMap& m) {
+    HeldItem item;
+    item.M4E97      = static_cast<int16_t>(m.value("id", 0).toInt());
+    item.name       = m.value("name").toString();
+    item.M4ED4      = static_cast<int16_t>(m.value("charges", 0).toInt());
+    item.M5467      = static_cast<int16_t>(m.value("equipped", 0).toInt());
+    item.identified = m.value("identified", true).toBool();
+    return item;
+}
+
+// Convert a QStringList of item names (old save format) to QList<HeldItem>.
+static QList<HeldItem> inventoryFromNames(const QStringList& names) {
+    QList<HeldItem> result;
+    for (const QString& name : names) {
+        HeldItem item;
+        item.name = name;
+        if (const ItemDef* def = ItemDatabase::instance().byName(name)) {
+            item.M4E97 = static_cast<int16_t>(def->id);
+        }
+        result.append(item);
+    }
+    return result;
+}
+
+// Load inventory from a QVariant that may be:
+//   - QStringList (old save format: list of item names)
+//   - QVariantList of strings (same, but stored as QVariantList)
+//   - QVariantList of maps (new save format: serialized HeldItem maps)
+static QList<HeldItem> loadInventoryFromVariant(const QVariant& var) {
+    if (var.typeId() == QMetaType::QStringList) {
+        return inventoryFromNames(var.toStringList());
+    }
+    if (var.typeId() == QMetaType::QVariantList) {
+        QVariantList list = var.toList();
+        if (list.isEmpty()) return {};
+        // Check the first element: if it's a string, treat as old format.
+        if (list.first().typeId() == QMetaType::QString) {
+            QStringList names;
+            for (const QVariant& v : list) names << v.toString();
+            return inventoryFromNames(names);
+        }
+        // New format: list of maps.
+        QList<HeldItem> result;
+        for (const QVariant& v : list) {
+            result.append(heldItemFromMap(v.toMap()));
+        }
+        return result;
+    }
+    return {};
+}
 
 QVariantMap Character::toMap() const {
     QVariantMap map;
@@ -22,11 +86,33 @@ QVariantMap Character::toMap() const {
     map["Mana"]         = mana;
     map["MaxMana"]      = maxMana;
     map["StatusFlags"] = statusFlags;
+    map["isAlive"]      = isAlive;
     map["DungeonLevel"] = dungeonLevel;
     map["DungeonX"]     = dungeonX;
     map["DungeonY"]     = dungeonY;
-    map["Inventory"]    = inventory;
     map["row"]          = row;
+
+    // Serialize inventory as a list of maps.
+    QVariantList invList;
+    for (const HeldItem& item : inventory) {
+        invList.append(heldItemToMap(item));
+    }
+    map["Inventory"] = invList;
+
+    // Serialize bank inventory.
+    QVariantList bankList;
+    for (const HeldItem& item : bankInventory) {
+        bankList.append(heldItemToMap(item));
+    }
+    map["BankInventory"] = bankList;
+
+    // Serialize equipped items.
+    QVariantList eqList;
+    for (const HeldItem& item : equipped) {
+        eqList.append(heldItemToMap(item));
+    }
+    map["Equipped"] = eqList;
+
     return map;
 }
 
@@ -51,21 +137,267 @@ void Character::loadFromMap(const QVariantMap &map) {
     maxMana      = map.value("MaxMana", 0).toInt();
     
     statusFlags  = map.value("StatusFlags", StatusFlag::None).toUInt();
-//    poisoned     = map.value("Poisoned", false).toBool();
-//    blinded      = map.value("Blinded", false).toBool();
-//    diseased     = map.value("Diseased", false).toBool();
-//    isAlive      = map.value("isAlive", true).toBool();
+    // Default true so saves written before this field existed still load as alive.
+    isAlive      = map.value("isAlive", true).toBool();
     
     dungeonLevel = map.value("DungeonLevel", 0).toInt();
     dungeonX     = map.value("DungeonX", 0).toInt();
     dungeonY     = map.value("DungeonY", 0).toInt();
 
     row          = map.value("row", 0).toInt();
-    inventory    = map.value("Inventory").toStringList();
+
+    // Load inventory — handle old (QStringList or QVariantList of strings) and
+    // new (QVariantList of maps) formats.
+    inventory = loadInventoryFromVariant(map.value("Inventory"));
+    bankInventory = loadInventoryFromVariant(map.value("BankInventory"));
+
+    // Load equipped items.
+    equipped.clear();
+    QVariant eqVar = map.value("Equipped");
+    if (eqVar.typeId() == QMetaType::QVariantList) {
+        for (const QVariant& v : eqVar.toList()) {
+            equipped.append(heldItemFromMap(v.toMap()));
+        }
+    }
 }
 
 void Character::addStatus(uint flag) { statusFlags |= flag; }
 void Character::removeStatus(uint flag) { statusFlags &= ~flag; }
+
+// --- Equip / Unequip ---
+
+bool Character::equipItem(int inventoryIndex, QString& reason) {
+    if (inventoryIndex < 0 || inventoryIndex >= inventory.size()) {
+        reason = "Invalid inventory index.";
+        return false;
+    }
+
+    HeldItem item = inventory[inventoryIndex];
+    const ItemDef* def = ItemDatabase::instance().byName(item.name);
+    if (!def) {
+        reason = QString("Unknown item: %1").arg(item.name);
+        return false;
+    }
+
+    if (!def->equippable()) {
+        reason = QString("%1 cannot be equipped.").arg(item.name);
+        return false;
+    }
+
+    // Check stat requirements.
+    struct { const char* name; int req; int stat; } checks[] = {
+        {"Strength",     def->strReq, strength},
+        {"Intelligence", def->intReq, intelligence},
+        {"Wisdom",       def->wisReq, wisdom},
+        {"Constitution", def->conReq, constitution},
+        {"Charisma",     def->chaReq, charisma},
+        {"Dexterity",    def->dexReq, dexterity},
+    };
+    for (const auto& c : checks) {
+        if (c.req > c.stat) {
+            reason = QString("Requires %1 %2 (you have %3).")
+                         .arg(c.req).arg(c.name).arg(c.stat);
+            return false;
+        }
+    }
+
+    // Check nHands: two-handed weapons need both MainHand and OffHand free.
+    ItemSlot::Slot slot = def->slot();
+    if (def->nHands == 2) {
+        // Check if both hands are free.
+        bool mainHandFree = true;
+        bool offHandFree = true;
+        for (const HeldItem& eq : equipped) {
+            if (eq.M4E97 == 0) continue; // empty slot
+            const ItemDef* eqDef = ItemDatabase::instance().byName(eq.name);
+            if (!eqDef) continue;
+            if (eqDef->slot() == ItemSlot::MainHand) mainHandFree = false;
+            if (eqDef->slot() == ItemSlot::OffHand) offHandFree = false;
+        }
+        if (!mainHandFree || !offHandFree) {
+            reason = "Two-handed weapon requires both hands free.";
+            return false;
+        }
+    } else {
+        // Check if the target slot is already occupied.
+        for (const HeldItem& eq : equipped) {
+            if (eq.M4E97 == 0) continue;
+            const ItemDef* eqDef = ItemDatabase::instance().byName(eq.name);
+            if (!eqDef) continue;
+            if (eqDef->slot() == slot) {
+                reason = QString("Slot already occupied by %1.").arg(eq.name);
+                return false;
+            }
+        }
+    }
+
+    // Equip: add to equipped list, remove from inventory.
+    equipped.append(item);
+    inventory.removeAt(inventoryIndex);
+    return true;
+}
+
+bool Character::unequipItem(int slotIndex, QString& reason) {
+    if (slotIndex < 0 || slotIndex >= equipped.size()) {
+        reason = "Invalid slot index.";
+        return false;
+    }
+
+    HeldItem item = equipped[slotIndex];
+    if (item.M4E97 == 0) {
+        reason = "Slot is empty.";
+        return false;
+    }
+
+    // Cursed items cannot be unequipped.
+    if (const ItemDef* def = ItemDatabase::instance().byName(item.name)) {
+        if (def->cursed) {
+            reason = QString("%1 is cursed and cannot be removed. Uncurse it first.").arg(item.name);
+            return false;
+        }
+    }
+
+    // Move back to inventory.
+    inventory.append(item);
+    equipped.removeAt(slotIndex);
+    return true;
+}
+
+// --- Effective stats (base + equipped modifiers) ---
+
+int Character::effectiveStrength() const {
+    int total = strength;
+    for (const HeldItem& item : equipped) {
+        if (const ItemDef* def = ItemDatabase::instance().byName(item.name)) {
+            total += def->strMod;
+        }
+    }
+    return total;
+}
+
+int Character::effectiveIntelligence() const {
+    int total = intelligence;
+    for (const HeldItem& item : equipped) {
+        if (const ItemDef* def = ItemDatabase::instance().byName(item.name)) {
+            total += def->intMod;
+        }
+    }
+    return total;
+}
+
+int Character::effectiveWisdom() const {
+    int total = wisdom;
+    for (const HeldItem& item : equipped) {
+        if (const ItemDef* def = ItemDatabase::instance().byName(item.name)) {
+            total += def->wisMod;
+        }
+    }
+    return total;
+}
+
+int Character::effectiveConstitution() const {
+    int total = constitution;
+    for (const HeldItem& item : equipped) {
+        if (const ItemDef* def = ItemDatabase::instance().byName(item.name)) {
+            total += def->conMod;
+        }
+    }
+    return total;
+}
+
+int Character::effectiveCharisma() const {
+    int total = charisma;
+    for (const HeldItem& item : equipped) {
+        if (const ItemDef* def = ItemDatabase::instance().byName(item.name)) {
+            total += def->chaMod;
+        }
+    }
+    return total;
+}
+
+int Character::effectiveDexterity() const {
+    int total = dexterity;
+    for (const HeldItem& item : equipped) {
+        if (const ItemDef* def = ItemDatabase::instance().byName(item.name)) {
+            total += def->dexMod;
+        }
+    }
+    return total;
+}
+
+int Character::effectiveStat(const QString& statName) const {
+    const QString s = statName.trimmed().toLower();
+    if (s == "strength")     return effectiveStrength();
+    if (s == "intelligence") return effectiveIntelligence();
+    if (s == "wisdom")       return effectiveWisdom();
+    if (s == "constitution") return effectiveConstitution();
+    if (s == "charisma")     return effectiveCharisma();
+    if (s == "dexterity")    return effectiveDexterity();
+    return 0;
+}
+
+// --- Consumables ---
+
+bool Character::useConsumable(int inventoryIndex, QString& effectDescription) {
+    if (inventoryIndex < 0 || inventoryIndex >= inventory.size()) {
+        effectDescription = "Invalid inventory index.";
+        return false;
+    }
+
+    HeldItem item = inventory[inventoryIndex];
+    const ItemDef* def = ItemDatabase::instance().byName(item.name);
+    if (!def) {
+        effectDescription = QString("Unknown item: %1").arg(item.name);
+        return false;
+    }
+
+    // Only potions (23), scrolls (24), and tomes (25) are consumable.
+    if (def->type != 23 && def->type != 24 && def->type != 25) {
+        effectDescription = QString("%1 cannot be used.").arg(item.name);
+        return false;
+    }
+
+    // Apply effect based on spellIndex / spellID.
+    // For now, healing potions restore HP, mana potions restore mana.
+    // This is a simplified system — full spell resolution comes in Phase 2.
+    QString nameLower = item.name.toLower();
+    if (nameLower.contains("healing") || nameLower.contains("health")) {
+        int healAmount = 10 + (def->spellLvl * 5);
+        hp = qMin(maxHp, hp + healAmount);
+        effectDescription = QString("Restored %1 HP.").arg(healAmount);
+    } else if (nameLower.contains("mana")) {
+        int manaAmount = 10 + (def->spellLvl * 5);
+        mana = qMin(maxMana, mana + manaAmount);
+        effectDescription = QString("Restored %1 mana.").arg(manaAmount);
+    } else if (nameLower.contains("strength")) {
+        // Temporary buff — for now just show a message.
+        // Full buff system comes in Phase 2.
+        effectDescription = "You feel stronger! (Buff not yet implemented)";
+    } else if (nameLower.contains("intelligence")) {
+        effectDescription = "Your mind sharpens! (Buff not yet implemented)";
+    } else if (nameLower.contains("cure") || nameLower.contains("poison")) {
+        // Cure poison
+        if (statusFlags & 0x02) {  // Poisoned flag
+            statusFlags &= ~0x02;
+            effectDescription = "Poison cured!";
+        } else {
+            effectDescription = "No poison to cure.";
+        }
+    } else {
+        effectDescription = QString("Used %1. (Effect not yet implemented)").arg(item.name);
+    }
+
+    // Decrement charges.
+    item.M4ED4--;
+    if (item.M4ED4 <= 0) {
+        inventory.removeAt(inventoryIndex);
+        effectDescription += " The item is consumed.";
+    } else {
+        inventory[inventoryIndex] = item;
+    }
+
+    return true;
+}
 
 void Character::setDead() {
     addStatus(StatusFlag::Dead);
@@ -120,6 +452,11 @@ QVariantMap Party::toMap() const {
 }
 
 void Party::loadFromMap(const QVariantMap &map) {
+    // Replacing a party means replacing it: without this clear, every load
+    // appends the saved members to whatever is already in memory and the
+    // party doubles in size each time.
+    members.clear();
+
     sharedGold = map.value("SharedGold", 0).toInt();
     QVariantList charList = map.value("Members").toList();
 

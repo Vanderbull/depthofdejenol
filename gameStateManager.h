@@ -62,7 +62,6 @@ private:
     // the exact size of PartyManager yet.
     PartyManager* m_partyManager;
     //int m_currentCharacterIndex = 0; 
-    Party m_currentParty;
 
 
     QTcpSocket* m_clientSocket;
@@ -122,7 +121,20 @@ public:
     void initializeResources();
     QPixmap getFontSpriteSheet() const { return m_fontSpriteSheet; }
 
-    void addItemToInventory(const QString& itemName);
+    void addItemToInventory(const HeldItem& item);
+
+    // --- Equip / Unequip ---
+    bool equipItem(int characterIndex, int inventoryIndex, QString& reason);
+    bool unequipItem(int characterIndex, int slotIndex, QString& reason);
+
+    // --- Consumables ---
+    bool useConsumable(int characterIndex, int inventoryIndex, QString& effectDescription);
+
+    // --- Item identification ---
+    bool identifyItem(int characterIndex, int inventoryIndex, QString& result);
+
+    // --- Cursed items ---
+    bool uncurseItem(int characterIndex, int inventoryIndex, QString& result);
     //Character getCurrentCharacter() const;
     //bool hasLivingCharacters() const;
     virtual ~gameStateManager();
@@ -251,10 +263,10 @@ public:
     void incrementStock(const QString& name);
     void decrementStock(const QString& name);
     QMap<QString, int> getConfinementStock() const;
-//    void setBankInventory(const QStringList& items);
-//    QStringList getBankInventory() const;
-    void setCharacterInventory(int characterIndex, const QStringList& items);
-    void addItemToCharacter(int characterIndex, const QString& itemName);
+    void setBankInventory(const QList<HeldItem>& items);
+    QList<HeldItem> getBankInventory() const;
+    void setCharacterInventory(int characterIndex, const QList<HeldItem>& items);
+    void addItemToCharacter(int characterIndex, const HeldItem& item);
     // --- Persistence ---
     bool loadCharacterFromFile(const QString& characterName);
     bool saveCharacterToFile(int partyIndex);
