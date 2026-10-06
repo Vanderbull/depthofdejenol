@@ -403,9 +403,10 @@ bool Character::useConsumable(int inventoryIndex, QString& effectDescription) {
     } else if (nameLower.contains("intelligence")) {
         effectDescription = "Your mind sharpens! (Buff not yet implemented)";
     } else if (nameLower.contains("cure") || nameLower.contains("poison")) {
-        // Cure poison
-        if (statusFlags & 0x02) {  // Poisoned flag
-            statusFlags &= ~0x02;
+        // Cure poison. The flag is StatusFlag::Poisoned (1 << 0); the old
+        // literal 0x02 was Blinded, so this used to cure the wrong status.
+        if (statusFlags & StatusFlag::Poisoned) {
+            statusFlags &= ~StatusFlag::Poisoned;
             effectDescription = "Poison cured!";
         } else {
             effectDescription = "No poison to cure.";

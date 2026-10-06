@@ -14,7 +14,8 @@ namespace GameConstants {
         Poisoned  = 1 << 0,
         Blinded   = 1 << 1,
         OnFire    = 1 << 2,
-        Alive     = 1 << 3
+        Alive     = 1 << 3,
+        Dead      = 1 << 4
     };
     Q_DECLARE_FLAGS(EntityStatuses, EntityStatus)
     

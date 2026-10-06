@@ -771,6 +771,9 @@ than rewards, no banner at NG+0, banner text at NG+1.
 
 **Files:** `src/library_dialog/BestiaryDialog.h/.cpp`.
 
+**Note:** monster data is loaded from `MDATA5.csv` with its raw column names — the
+hit-point column is `hits`, not `hp`. The bestiary dialog and the tests both read `hits`.
+
 ### 7.7 Journal `M` — ✅ DONE
 **Done:** `JournalDialog` — timestamped entries with category filter (Quest/Combat/Exploration/Notes), add notes, clear all. Persists to `data/journal.json`.
 

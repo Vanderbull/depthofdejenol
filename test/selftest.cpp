@@ -177,6 +177,11 @@ int runSelfTest()
         const bool stillDead = !gsm->getParty().members.isEmpty()
                                && !gsm->getParty().members[0].isAlive;
         check(stillDead, "member is still dead after load");
+
+        // Revive: later sections exercise the living party, and a corpse
+        // would silently skip every rest / cure / aging path.
+        gsm->getParty().members[0].resurrect();
+        check(gsm->getParty().members[0].isAlive, "member revived for later tests");
     }
 
     // ------------------------------------------------- item database (1.1)
@@ -3679,9 +3684,10 @@ int runSelfTest()
             c.mana = c.maxMana;
         }
 
-        // KNOWN FAILURE: rest HP/mana — skipped per user request
-        // check(members[0].hp == members[0].maxHp, "rest restores HP");
-        // check(members[0].mana == members[0].maxMana, "rest restores mana");
+        check(members[0].hp == members[0].maxHp, "rest restores HP",
+              QString("%1 / %2").arg(members[0].hp).arg(members[0].maxHp));
+        check(members[0].mana == members[0].maxMana, "rest restores mana",
+              QString("%1 / %2").arg(members[0].mana).arg(members[0].maxMana));
         check(gsm->getPartyGold() == goldBefore - restCost, "rest deducts gold");
 
         // Cure: 50 + 50 = 100 gold
@@ -3695,19 +3701,24 @@ int runSelfTest()
             gsm->setCharacterStatus(i, GameConstants::Blinded, false);
         }
 
-        // KNOWN FAILURE: poison/blindness cure — skipped per user request
-        // check((members[0].statusFlags & GameConstants::Poisoned) == 0, "poison cured");
-        // check((members[0].statusFlags & GameConstants::Blinded) == 0, "blindness cured");
+        check((members[0].statusFlags & GameConstants::Poisoned) == 0, "poison cured",
+              QString::number(members[0].statusFlags));
+        check((members[0].statusFlags & GameConstants::Blinded) == 0, "blindness cured",
+              QString::number(members[0].statusFlags));
         check(gsm->getPartyGold() == goldBefore - restCost - cureCost, "cure deducts gold");
     }
     {
-        // Advance time
+        // Advance time. incrementPartyAge skips placeholder slots, so give
+        // the member a real name first.
         auto *gsm = gameStateManager::instance();
-        int ageBefore = gsm->getPartyMembers()[0].age;
+        auto& members = gsm->getPartyMembers();
+        if (!members.isEmpty() && members[0].name == "Empty Slot") {
+            members[0].name = "Aging Test";
+        }
+        int ageBefore = members[0].age;
         gsm->incrementPartyAge(1);
-        // KNOWN FAILURE: time advance — skipped per user request
-        // check(gsm->getPartyMembers()[0].age == ageBefore + 1, "time advances by 1 year");
-        Q_UNUSED(ageBefore);
+        check(members[0].age == ageBefore + 1, "time advances by 1 year",
+              QString("%1 -> %2").arg(ageBefore).arg(members[0].age));
     }
 
     // ------------------------------------------- Character sheet (7.5)
@@ -3751,16 +3762,26 @@ int runSelfTest()
         if (sb.isLoaded()) {
             auto *gsm = gameStateManager::instance();
             Character& c = gsm->getPartyMembers()[0];
-            c.joinGuild("Mage");
-            c.incrementGuildLevel("Mage");
-            c.incrementGuildLevel("Mage");
-            c.incrementGuildLevel("Mage");
+            // Guild names come from data/guilds.json and are what
+            // data/spells.json lists ("Mages Guild", not "Mage").
+            // Intelligence must clear the spells' required_stats, or every
+            // guild level yields the same handful of level-1 spells.
+            c.intelligence = 20;
+            c.equipped.clear();
 
+            c.joinGuild("Mages Guild");
+            QList<SpellDef> noviceSpells = sb.spellsFor(c);
+
+            c.incrementGuildLevel("Mages Guild");
+            c.incrementGuildLevel("Mages Guild");
+            c.incrementGuildLevel("Mages Guild");
             QList<SpellDef> spells = sb.spellsFor(c);
-            // A level-3 Mage should know at least some spells
-            // KNOWN FAILURE: Mage spells at guild level 3 — skipped per user request
-            // check(spells.size() > 0, "Mage knows spells at guild level 3",
-            //       QString::number(spells.size()));
+
+            check(spells.size() > 0, "Mage knows spells at guild level 4",
+                  QString::number(spells.size()));
+            check(spells.size() > noviceSpells.size(),
+                  "a higher guild level unlocks more spells",
+                  QString("%1 > %2").arg(spells.size()).arg(noviceSpells.size()));
         }
     }
 
@@ -3773,15 +3794,18 @@ int runSelfTest()
         check(monsters.size() > 0, "monster data is loaded",
               QString::number(monsters.size()));
 
-        // Check that monsters have required fields
-        bool allValid = true;
+        // Monsters are loaded from MDATA5.csv with its raw column names:
+        // the hit-point column is "hits", not "hp".
+        int missingName = 0;
+        int missingHits = 0;
         for (const auto& m : monsters) {
-            if (m.value("name").toString().isEmpty()) { allValid = false; break; }
-            if (m.value("hp", 0).toInt() <= 0) { allValid = false; break; }
+            if (m.value("name").toString().isEmpty()) ++missingName;
+            if (m.value("hits", 0).toInt() <= 0) ++missingHits;
         }
-        // KNOWN FAILURE: monster name/HP validation — skipped per user request
-        // check(allValid, "all monsters have name and HP");
-        Q_UNUSED(allValid);
+        check(missingName == 0, "every monster has a name",
+              QString("%1 missing").arg(missingName));
+        check(missingHits == 0, "every monster has hits",
+              QString("%1 missing").arg(missingHits));
 
         // Check floor distribution
         QSet<int> floors;
@@ -4426,6 +4450,59 @@ int runSelfTest()
         check(history.size() >= 5, "at least 5 versions in history",
               QString::number(history.size()));
         check(history[0].first == "1.0.0", "latest version is 1.0.0");
+    }
+
+    // ------------------------------------------- Status flag integrity
+    section("[57] Status flags");
+    {
+        // One statusFlags field carries both the death bit and the combat
+        // statuses, so their bits must not overlap.
+        check(StatusFlag::Dead != StatusFlag::Poisoned, "Dead and Poisoned are different bits");
+        check(StatusFlag::Dead != StatusFlag::Blinded, "Dead and Blinded are different bits");
+        check(StatusFlag::Dead != StatusFlag::OnFire, "Dead and OnFire are different bits");
+        check((StatusFlag::Dead & StatusFlag::Poisoned) == 0, "Dead and Poisoned do not overlap");
+        check((StatusFlag::Dead & StatusFlag::Blinded) == 0, "Dead and Blinded do not overlap");
+        check((StatusFlag::Dead & StatusFlag::OnFire) == 0, "Dead and OnFire do not overlap");
+    }
+    {
+        // Death must not look like poison, and vice versa.
+        Character c;
+        c.name = "StatusTest";
+        c.isAlive = true;
+
+        c.addStatus(StatusFlag::Poisoned);
+        check((c.statusFlags & StatusFlag::Poisoned) != 0, "poison bit set");
+        check((c.statusFlags & StatusFlag::Dead) == 0, "poison does not read as dead");
+        check(c.isAlive, "a poisoned character is still alive");
+
+        c.removeStatus(StatusFlag::Poisoned);
+        c.addStatus(StatusFlag::Dead);
+        check((c.statusFlags & StatusFlag::Dead) != 0, "dead bit set");
+        check((c.statusFlags & StatusFlag::Poisoned) == 0, "death does not read as poisoned");
+    }
+    {
+        // The cure-poison branch in useConsumable() reads statusFlags
+        // directly; no item in MDATA3.csv currently reaches it, so assert
+        // the invariant the branch depends on instead of the branch itself.
+        Character c;
+        c.name = "CureTest";
+        c.isAlive = true;
+        c.addStatus(StatusFlag::Poisoned);
+        c.addStatus(StatusFlag::Blinded);
+
+        // Clearing poison must leave blindness intact.
+        c.removeStatus(StatusFlag::Poisoned);
+        check((c.statusFlags & StatusFlag::Poisoned) == 0, "poison cleared",
+              QString::number(c.statusFlags));
+        check((c.statusFlags & StatusFlag::Blinded) != 0, "blindness survives a poison cure",
+              QString::number(c.statusFlags));
+
+        // And the reverse.
+        c.removeStatus(StatusFlag::Blinded);
+        c.addStatus(StatusFlag::Poisoned);
+        check((c.statusFlags & StatusFlag::Blinded) == 0, "blindness cleared");
+        check((c.statusFlags & StatusFlag::Poisoned) != 0, "poison survives a blindness cure",
+              QString::number(c.statusFlags));
     }
 
     // -------------------------------------------------------------- cleanup

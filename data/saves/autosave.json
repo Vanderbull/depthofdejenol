@@ -1,17 +1,17 @@
 {
-    "BankSlotsFree": 24,
     "BankedGold": 0,
     "ConfigIntegrityOK": true,
     "CurrentCharacterCharisma": 5,
     "CurrentCharacterConstitution": 6,
     "CurrentCharacterDexterity": 6,
     "CurrentCharacterGold": 1500,
+    "CurrentCharacterHP": 0,
     "CurrentCharacterIntelligence": 9,
     "CurrentCharacterStrength": 4,
     "CurrentCharacterWisdom": 4,
-    "DungeonLevel": 1,
-    "DungeonX": 24,
-    "DungeonY": 9,
+    "DungeonLevel": 2,
+    "DungeonX": 9,
+    "DungeonY": 18,
     "GameStates": [
         {
             "ActiveCharacterIndex": 0,
@@ -63,6 +63,10 @@
                         ],
                         "Experience": 0,
                         "Gold": 0,
+                        "GuildExperience": {
+                        },
+                        "GuildLevels": {
+                        },
                         "HP": 0,
                         "Intelligence": 0,
                         "Inventory": [
@@ -94,6 +98,10 @@
                         ],
                         "Experience": 0,
                         "Gold": 0,
+                        "GuildExperience": {
+                        },
+                        "GuildLevels": {
+                        },
                         "HP": 0,
                         "Intelligence": 0,
                         "Inventory": [
@@ -125,6 +133,10 @@
                         ],
                         "Experience": 0,
                         "Gold": 0,
+                        "GuildExperience": {
+                        },
+                        "GuildLevels": {
+                        },
                         "HP": 0,
                         "Intelligence": 0,
                         "Inventory": [
@@ -156,6 +168,10 @@
                         ],
                         "Experience": 0,
                         "Gold": 0,
+                        "GuildExperience": {
+                        },
+                        "GuildLevels": {
+                        },
                         "HP": 0,
                         "Intelligence": 0,
                         "Inventory": [
@@ -329,15 +345,26 @@
                 ],
                 "Experience": 0,
                 "Gold": 0,
+                "GuildExperience": {
+                },
+                "GuildLevels": {
+                },
                 "HP": 50,
                 "Intelligence": 9,
                 "Inventory": [
                     {
                         "charges": 0,
                         "equipped": 0,
-                        "id": 0,
+                        "id": 5,
                         "identified": true,
                         "name": "Rations"
+                    },
+                    {
+                        "charges": 22046,
+                        "equipped": 0,
+                        "id": 57,
+                        "identified": false,
+                        "name": "Magician's Armor"
                     }
                 ],
                 "Level": 1,
@@ -366,5 +393,6 @@
     "confinementStock": null,
     "currentLocation": 0,
     "currentMode": 0,
-    "lastSaved": "Mon Oct 5 19:46:49 2026"
+    "isAlive": 0,
+    "lastSaved": "Wed Oct 7 01:45:47 2026"
 }

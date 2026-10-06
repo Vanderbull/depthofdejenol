@@ -238,9 +238,15 @@ struct Party {
     void loadFromMap(const QVariantMap& map);
 };
 
+// Status bits live in one namespace so they cannot collide: Character has a
+// single statusFlags field, and GameConstants::EntityStatus already defines
+// Poisoned/Blinded/OnFire/Dead for it.
 namespace StatusFlag {
-    constexpr uint None = 0;
-    constexpr uint Dead = 1;
+    constexpr uint None     = 0;
+    constexpr uint Poisoned = GameConstants::Poisoned;
+    constexpr uint Blinded  = GameConstants::Blinded;
+    constexpr uint OnFire   = GameConstants::OnFire;
+    constexpr uint Dead     = GameConstants::Dead;
 }
 
 #endif // CHARACTER_H
