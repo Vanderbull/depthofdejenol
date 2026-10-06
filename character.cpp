@@ -430,7 +430,7 @@ void Character::setDead() {
     addStatus(StatusFlag::Dead);
     hp = 0;
     isAlive = false;
-    dungeonLevel = 0; 
+    // The body stays where it fell; dungeonLevel/X/Y are the recovery marker.
 }
 
 void Character::resurrect() {

@@ -107,6 +107,9 @@ SOURCES       = src/core/savegameUtils.cpp \
 		src/core/DungeonThemes.cpp \
 		src/core/DoorAndSearch.cpp \
 		src/core/BossEncounter.cpp \
+		src/core/DeathRecovery.cpp \
+		src/core/QuestChain.cpp \
+		src/core/Endgame.cpp \
 		src/spell_casting/SpellBook.cpp \
 		src/spell_casting/SpellCastingDialog.cpp \
 		fontManager.cpp \
@@ -234,6 +237,9 @@ OBJECTS       = build/obj/release/savegameUtils.o \
 		build/obj/release/DungeonThemes.o \
 		build/obj/release/DoorAndSearch.o \
 		build/obj/release/BossEncounter.o \
+		build/obj/release/DeathRecovery.o \
+		build/obj/release/QuestChain.o \
+		build/obj/release/Endgame.o \
 		build/obj/release/SpellBook.o \
 		build/obj/release/SpellCastingDialog.o \
 		build/obj/release/fontManager.o \
@@ -435,6 +441,9 @@ DIST          = .gitignore \
 		src/core/DungeonThemes.h \
 		src/core/DoorAndSearch.h \
 		src/core/BossEncounter.h \
+		src/core/DeathRecovery.h \
+		src/core/QuestChain.h \
+		src/core/Endgame.h \
 		src/spell_casting/SpellBook.h \
 		src/core/savegameUtils.h \
 		gameStateManager.h \
@@ -534,6 +543,9 @@ DIST          = .gitignore \
 		src/core/DungeonThemes.cpp \
 		src/core/DoorAndSearch.cpp \
 		src/core/BossEncounter.cpp \
+		src/core/DeathRecovery.cpp \
+		src/core/QuestChain.cpp \
+		src/core/Endgame.cpp \
 		src/spell_casting/SpellBook.cpp \
 		src/spell_casting/SpellCastingDialog.cpp \
 		fontManager.cpp \
@@ -838,8 +850,8 @@ distdir: FORCE
 	@test -d $(DISTDIR) || mkdir -p $(DISTDIR)
 	$(COPY_FILE) --parents $(DIST) $(DISTDIR)/
 	$(COPY_FILE) --parents /usr/lib/x86_64-linux-gnu/qt6/mkspecs/features/data/dummy.cpp $(DISTDIR)/
-	$(COPY_FILE) --parents test/selftest.h src/items/ItemDatabase.h src/combat/CombatState.h src/combat/TurnEngine.h src/combat/CombatActions.h src/combat/MonsterAI.h src/combat/EncounterBuilder.h src/combat/VictoryReward.h src/combat/CombatDeathHandler.h src/core/LevelTable.h src/core/AgingRules.h src/core/DungeonLevelState.h src/core/DungeonThemes.h src/core/DoorAndSearch.h src/core/BossEncounter.h src/spell_casting/SpellBook.h src/core/savegameUtils.h gameStateManager.h src/partymanager/PartyManager.h src/core/GameConstants.h audioManager.h blacklands.h theCity.h storyDialog.h src/network_manager/NetworkManager.h src/hall_of_records/hallofrecordsdialog.h src/create_character/createcharacterdialog.h src/about_dialog/AboutDialog.h src/character_dialog/CharacterDialog.h src/message_window/MessageWindow.h src/sender_window/SenderWindow.h src/library_dialog/library_dialog.h src/automap/automap_dialog.h src/game_controller/game_controller.h src/characterlist_dialog/characterlistdialog.h src/helplesson/helplesson.h src/mordorstatistics/mordorstatistics.h src/loadingscreen/LoadingScreen.h src/guilds_dialog/GuildsDialog.h src/general_store/GeneralStore.h src/morgue_dialog/MorgueDialog.h src/seer_dialog/SeerDialog.h src/confinement_dialog/ConfinementDialog.h src/bank_dialog/BankDialog.h src/race_data/RaceData.h src/inventory_dialog/inventorydialog.h src/options_dialog/optionsdialog.h src/dungeon_dialog/DungeonDialog.h src/partyinfo_dialog/partyinfodialog.h src/dungeonmap/dungeonmap.h src/bank_dialog/TradeDialog.h src/core/game_resources.h src/dungeon_dialog/DungeonHandlers.h src/event/EventManager.h src/dungeon_dialog/MiniMapDialog.h src/update/UpdateManager.h src/update/UpdateDialog.h character.h src/spell_casting/SpellCastingDialog.h fontManager.h $(DISTDIR)/
-	$(COPY_FILE) --parents src/core/savegameUtils.cpp gameStateManager.cpp src/partymanager/PartyManager.cpp audioManager.cpp blacklands.cpp theCity.cpp src/network_manager/NetworkManager.cpp src/hall_of_records/hallofrecordsdialog.cpp src/create_character/createcharacterdialog.cpp src/about_dialog/AboutDialog.cpp src/character_dialog/CharacterDialog.cpp src/message_window/MessageWindow.cpp src/sender_window/SenderWindow.cpp src/library_dialog/library_dialog.cpp src/automap/automap_dialog.cpp src/game_controller/game_controller.cpp src/characterlist_dialog/characterlistdialog.cpp src/helplesson/helplesson.cpp src/mordorstatistics/mordorstatistics.cpp src/loadingscreen/LoadingScreen.cpp src/guilds_dialog/GuildsDialog.cpp src/general_store/GeneralStore.cpp src/morgue_dialog/MorgueDialog.cpp src/seer_dialog/SeerDialog.cpp src/confinement_dialog/ConfinementDialog.cpp src/bank_dialog/BankDialog.cpp src/race_data/RaceData.cpp src/inventory_dialog/inventorydialog.cpp src/options_dialog/optionsdialog.cpp src/dungeon_dialog/DungeonDialog.cpp src/partyinfo_dialog/partyinfodialog.cpp src/dungeonmap/dungeonmap.cpp src/bank_dialog/TradeDialog.cpp src/game_resources.cpp src/dungeon_dialog/DungeonMinimap.cpp src/dungeon_dialog/DungeonHandlers.cpp src/event/EventManager.cpp src/update/UpdateManager.cpp src/update/UpdateDialog.cpp character.cpp test/selftest.cpp src/items/ItemDatabase.cpp src/combat/CombatState.cpp src/combat/TurnEngine.cpp src/combat/CombatActions.cpp src/combat/MonsterAI.cpp src/combat/EncounterBuilder.cpp src/combat/VictoryReward.cpp src/combat/CombatDeathHandler.cpp src/core/LevelTable.cpp src/core/AgingRules.cpp src/core/DungeonLevelState.cpp src/core/DungeonThemes.cpp src/core/DoorAndSearch.cpp src/core/BossEncounter.cpp src/spell_casting/SpellBook.cpp src/spell_casting/SpellCastingDialog.cpp fontManager.cpp 3rdparty/lua/lapi.c 3rdparty/lua/lcode.c 3rdparty/lua/lctype.c 3rdparty/lua/ldebug.c 3rdparty/lua/ldo.c 3rdparty/lua/ldump.c 3rdparty/lua/lfunc.c 3rdparty/lua/lgc.c 3rdparty/lua/llex.c 3rdparty/lua/lmem.c 3rdparty/lua/lobject.c 3rdparty/lua/lopcodes.c 3rdparty/lua/lparser.c 3rdparty/lua/lstate.c 3rdparty/lua/lstring.c 3rdparty/lua/ltable.c 3rdparty/lua/ltm.c 3rdparty/lua/lundump.c 3rdparty/lua/lvm.c 3rdparty/lua/lzio.c 3rdparty/lua/lauxlib.c 3rdparty/lua/lbaselib.c 3rdparty/lua/lcorolib.c 3rdparty/lua/ldblib.c 3rdparty/lua/liolib.c 3rdparty/lua/lmathlib.c 3rdparty/lua/loadlib.c 3rdparty/lua/loslib.c 3rdparty/lua/lstrlib.c 3rdparty/lua/ltablib.c 3rdparty/lua/lutf8lib.c 3rdparty/lua/linit.c $(DISTDIR)/
+	$(COPY_FILE) --parents test/selftest.h src/items/ItemDatabase.h src/combat/CombatState.h src/combat/TurnEngine.h src/combat/CombatActions.h src/combat/MonsterAI.h src/combat/EncounterBuilder.h src/combat/VictoryReward.h src/combat/CombatDeathHandler.h src/core/LevelTable.h src/core/AgingRules.h src/core/DungeonLevelState.h src/core/DungeonThemes.h src/core/DoorAndSearch.h src/core/BossEncounter.h src/core/DeathRecovery.h src/core/QuestChain.h src/core/Endgame.h src/spell_casting/SpellBook.h src/core/savegameUtils.h gameStateManager.h src/partymanager/PartyManager.h src/core/GameConstants.h audioManager.h blacklands.h theCity.h storyDialog.h src/network_manager/NetworkManager.h src/hall_of_records/hallofrecordsdialog.h src/create_character/createcharacterdialog.h src/about_dialog/AboutDialog.h src/character_dialog/CharacterDialog.h src/message_window/MessageWindow.h src/sender_window/SenderWindow.h src/library_dialog/library_dialog.h src/automap/automap_dialog.h src/game_controller/game_controller.h src/characterlist_dialog/characterlistdialog.h src/helplesson/helplesson.h src/mordorstatistics/mordorstatistics.h src/loadingscreen/LoadingScreen.h src/guilds_dialog/GuildsDialog.h src/general_store/GeneralStore.h src/morgue_dialog/MorgueDialog.h src/seer_dialog/SeerDialog.h src/confinement_dialog/ConfinementDialog.h src/bank_dialog/BankDialog.h src/race_data/RaceData.h src/inventory_dialog/inventorydialog.h src/options_dialog/optionsdialog.h src/dungeon_dialog/DungeonDialog.h src/partyinfo_dialog/partyinfodialog.h src/dungeonmap/dungeonmap.h src/bank_dialog/TradeDialog.h src/core/game_resources.h src/dungeon_dialog/DungeonHandlers.h src/event/EventManager.h src/dungeon_dialog/MiniMapDialog.h src/update/UpdateManager.h src/update/UpdateDialog.h character.h src/spell_casting/SpellCastingDialog.h fontManager.h $(DISTDIR)/
+	$(COPY_FILE) --parents src/core/savegameUtils.cpp gameStateManager.cpp src/partymanager/PartyManager.cpp audioManager.cpp blacklands.cpp theCity.cpp src/network_manager/NetworkManager.cpp src/hall_of_records/hallofrecordsdialog.cpp src/create_character/createcharacterdialog.cpp src/about_dialog/AboutDialog.cpp src/character_dialog/CharacterDialog.cpp src/message_window/MessageWindow.cpp src/sender_window/SenderWindow.cpp src/library_dialog/library_dialog.cpp src/automap/automap_dialog.cpp src/game_controller/game_controller.cpp src/characterlist_dialog/characterlistdialog.cpp src/helplesson/helplesson.cpp src/mordorstatistics/mordorstatistics.cpp src/loadingscreen/LoadingScreen.cpp src/guilds_dialog/GuildsDialog.cpp src/general_store/GeneralStore.cpp src/morgue_dialog/MorgueDialog.cpp src/seer_dialog/SeerDialog.cpp src/confinement_dialog/ConfinementDialog.cpp src/bank_dialog/BankDialog.cpp src/race_data/RaceData.cpp src/inventory_dialog/inventorydialog.cpp src/options_dialog/optionsdialog.cpp src/dungeon_dialog/DungeonDialog.cpp src/partyinfo_dialog/partyinfodialog.cpp src/dungeonmap/dungeonmap.cpp src/bank_dialog/TradeDialog.cpp src/game_resources.cpp src/dungeon_dialog/DungeonMinimap.cpp src/dungeon_dialog/DungeonHandlers.cpp src/event/EventManager.cpp src/update/UpdateManager.cpp src/update/UpdateDialog.cpp character.cpp test/selftest.cpp src/items/ItemDatabase.cpp src/combat/CombatState.cpp src/combat/TurnEngine.cpp src/combat/CombatActions.cpp src/combat/MonsterAI.cpp src/combat/EncounterBuilder.cpp src/combat/VictoryReward.cpp src/combat/CombatDeathHandler.cpp src/core/LevelTable.cpp src/core/AgingRules.cpp src/core/DungeonLevelState.cpp src/core/DungeonThemes.cpp src/core/DoorAndSearch.cpp src/core/BossEncounter.cpp src/core/DeathRecovery.cpp src/core/QuestChain.cpp src/core/Endgame.cpp src/spell_casting/SpellBook.cpp src/spell_casting/SpellCastingDialog.cpp fontManager.cpp 3rdparty/lua/lapi.c 3rdparty/lua/lcode.c 3rdparty/lua/lctype.c 3rdparty/lua/ldebug.c 3rdparty/lua/ldo.c 3rdparty/lua/ldump.c 3rdparty/lua/lfunc.c 3rdparty/lua/lgc.c 3rdparty/lua/llex.c 3rdparty/lua/lmem.c 3rdparty/lua/lobject.c 3rdparty/lua/lopcodes.c 3rdparty/lua/lparser.c 3rdparty/lua/lstate.c 3rdparty/lua/lstring.c 3rdparty/lua/ltable.c 3rdparty/lua/ltm.c 3rdparty/lua/lundump.c 3rdparty/lua/lvm.c 3rdparty/lua/lzio.c 3rdparty/lua/lauxlib.c 3rdparty/lua/lbaselib.c 3rdparty/lua/lcorolib.c 3rdparty/lua/ldblib.c 3rdparty/lua/liolib.c 3rdparty/lua/lmathlib.c 3rdparty/lua/loadlib.c 3rdparty/lua/loslib.c 3rdparty/lua/lstrlib.c 3rdparty/lua/ltablib.c 3rdparty/lua/lutf8lib.c 3rdparty/lua/linit.c $(DISTDIR)/
 
 
 clean: compiler_clean 
@@ -1591,7 +1603,8 @@ build/obj/release/MorgueDialog.o: src/morgue_dialog/MorgueDialog.cpp src/morgue_
 		dataRegistry.h \
 		audioManager.h \
 		fontManager.h \
-		character.h
+		character.h \
+		src/core/DeathRecovery.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/MorgueDialog.o src/morgue_dialog/MorgueDialog.cpp
 
 build/obj/release/SeerDialog.o: src/seer_dialog/SeerDialog.cpp src/seer_dialog/SeerDialog.h \
@@ -1690,6 +1703,10 @@ build/obj/release/DungeonDialog.o: src/dungeon_dialog/DungeonDialog.cpp src/char
 		src/dungeon_dialog/MiniMapDialog.h \
 		src/dungeon_dialog/DungeonHandlers.h \
 		src/items/ItemDatabase.h \
+		src/core/DungeonThemes.h \
+		src/core/DungeonLevelState.h \
+		src/core/BossEncounter.h \
+		src/core/DoorAndSearch.h \
 		src/spell_casting/SpellCastingDialog.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/DungeonDialog.o src/dungeon_dialog/DungeonDialog.cpp
 
@@ -1819,6 +1836,9 @@ build/obj/release/selftest.o: test/selftest.cpp test/selftest.h \
 		src/core/DungeonThemes.h \
 		src/core/DoorAndSearch.h \
 		src/core/BossEncounter.h \
+		src/core/DeathRecovery.h \
+		src/core/QuestChain.h \
+		src/core/Endgame.h \
 		src/spell_casting/SpellBook.h \
 		src/partymanager/PartyManager.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/selftest.o test/selftest.cpp
@@ -1879,6 +1899,20 @@ build/obj/release/DoorAndSearch.o: src/core/DoorAndSearch.cpp src/core/DoorAndSe
 build/obj/release/BossEncounter.o: src/core/BossEncounter.cpp src/core/BossEncounter.h \
 		src/core/DungeonThemes.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/BossEncounter.o src/core/BossEncounter.cpp
+
+build/obj/release/DeathRecovery.o: src/core/DeathRecovery.cpp src/core/DeathRecovery.h \
+		character.h \
+		src/core/GameConstants.h
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/DeathRecovery.o src/core/DeathRecovery.cpp
+
+build/obj/release/QuestChain.o: src/core/QuestChain.cpp src/core/QuestChain.h
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/QuestChain.o src/core/QuestChain.cpp
+
+build/obj/release/Endgame.o: src/core/Endgame.cpp src/core/Endgame.h \
+		src/core/QuestChain.h \
+		src/core/BossEncounter.h \
+		src/core/DungeonThemes.h
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/Endgame.o src/core/Endgame.cpp
 
 build/obj/release/SpellBook.o: src/spell_casting/SpellBook.cpp src/spell_casting/SpellBook.h \
 		character.h \

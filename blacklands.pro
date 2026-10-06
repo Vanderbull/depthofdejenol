@@ -119,6 +119,12 @@ HEADERS += src/core/DoorAndSearch.h
 SOURCES += src/core/DoorAndSearch.cpp
 HEADERS += src/core/BossEncounter.h
 SOURCES += src/core/BossEncounter.cpp
+HEADERS += src/core/DeathRecovery.h
+SOURCES += src/core/DeathRecovery.cpp
+HEADERS += src/core/QuestChain.h
+SOURCES += src/core/QuestChain.cpp
+HEADERS += src/core/Endgame.h
+SOURCES += src/core/Endgame.cpp
 HEADERS += src/spell_casting/SpellBook.h
 SOURCES += src/spell_casting/SpellBook.cpp
 

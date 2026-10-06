@@ -16,6 +16,9 @@
 #include "src/core/DungeonThemes.h"
 #include "src/core/DoorAndSearch.h"
 #include "src/core/BossEncounter.h"
+#include "src/core/DeathRecovery.h"
+#include "src/core/QuestChain.h"
+#include "src/core/Endgame.h"
 #include "src/spell_casting/SpellBook.h"
 #include "src/partymanager/PartyManager.h"
 
@@ -3205,6 +3208,439 @@ int runSelfTest()
         }
         check(finds > 150, "adjacent easy door found most of the time",
               QString::number(finds));
+    }
+
+    // ------------------------------------------- Death state / bodies (5.1)
+    section("[35] Death state and body carrying");
+    {
+        // A character dies; the body records where it fell.
+        Character c;
+        c.name = "Fallen";
+        c.level = 3;
+        c.hp = 10;
+        c.maxHp = 30;
+
+        DeathRecovery::killCharacter(c, 4, 12, 9);
+
+        check(!c.isAlive, "character is dead");
+        check(c.hp == 0, "HP is 0");
+        check((c.statusFlags & StatusFlag::Dead) != 0, "Dead status applied");
+        check(c.dungeonLevel == 4, "body remembers the floor",
+              QString::number(c.dungeonLevel));
+        check(c.dungeonX == 12 && c.dungeonY == 9, "body remembers the position");
+    }
+    {
+        // A body in the dungeon can be carried.
+        BodyLocation loc;
+        loc.valid = true;
+        loc.dungeonLevel = 4;
+
+        check(DeathRecovery::canCarry(loc), "dungeon body can be carried");
+
+        QString reason;
+        check(DeathRecovery::carryBody(loc, reason), "carry succeeds", reason);
+        check(loc.carried, "body is now carried");
+        check(!DeathRecovery::canCarry(loc), "cannot carry it twice");
+    }
+    {
+        // Carried bodies come home when the party reaches town.
+        QList<BodyLocation> bodies;
+        BodyLocation carried;
+        carried.valid = true;
+        carried.carried = true;
+        carried.dungeonLevel = 5;
+        bodies.append(carried);
+
+        BodyLocation leftBehind;
+        leftBehind.valid = true;
+        leftBehind.dungeonLevel = 5;
+        bodies.append(leftBehind);
+
+        int brought = DeathRecovery::bringBodiesToTown(bodies);
+        check(brought == 1, "one body brought home",
+              QString::number(brought));
+        check(bodies[0].inCity, "carried body is now in town");
+        check(!bodies[0].carried, "no longer carried once home");
+        check(!bodies[1].inCity, "body left behind stays in the dungeon");
+    }
+    {
+        // Dropping a carried body puts it back where the party stands.
+        BodyLocation loc;
+        loc.valid = true;
+        loc.carried = true;
+        loc.dungeonLevel = 2;
+
+        DeathRecovery::dropBody(loc, 3, 7, 8);
+        check(!loc.carried, "body dropped");
+        check(loc.dungeonLevel == 3, "body is on the current floor");
+        check(loc.x == 7 && loc.y == 8, "body at the drop position");
+        check(DeathRecovery::canCarry(loc), "dropped body can be picked up again");
+    }
+
+    // ------------------------------------------- Morgue / resurrection (5.2)
+    section("[36] Morgue resurrection");
+    {
+        // Cost scales with level; a dungeon body costs extra.
+        BodyLocation inTown;
+        inTown.valid = true;
+        inTown.inCity = true;
+
+        BodyLocation inDungeon;
+        inDungeon.valid = true;
+        inDungeon.dungeonLevel = 5;
+
+        check(DeathRecovery::resurrectionCost(1, inTown) == 500,
+              "level 1 in town costs 500",
+              QString::number(DeathRecovery::resurrectionCost(1, inTown)));
+        check(DeathRecovery::resurrectionCost(5, inTown) == 2500,
+              "level 5 in town costs 2500",
+              QString::number(DeathRecovery::resurrectionCost(5, inTown)));
+        check(DeathRecovery::resurrectionCost(5, inDungeon) == 3000,
+              "level 5 in the dungeon costs 3000 (rescue fee)",
+              QString::number(DeathRecovery::resurrectionCost(5, inDungeon)));
+    }
+    {
+        // Resurrection fails when gold is short.
+        Character c;
+        c.name = "Fallen";
+        c.level = 3;
+        c.isAlive = false;
+
+        BodyLocation loc;
+        loc.valid = true;
+        loc.inCity = true;
+
+        int gold = 100;  // needs 1500
+        QString reason;
+        check(!DeathRecovery::resurrect(c, loc, gold, reason), "resurrect fails without gold", reason);
+        check(!c.isAlive, "still dead");
+        check(gold == 100, "gold untouched on failure");
+        check(loc.valid, "body still present");
+    }
+    {
+        // Resurrection succeeds with enough gold.
+        Character c;
+        c.name = "Fallen";
+        c.level = 3;
+        c.isAlive = false;
+        c.hp = 0;
+
+        BodyLocation loc;
+        loc.valid = true;
+        loc.inCity = true;
+
+        int gold = 2000;
+        QString reason;
+        check(DeathRecovery::resurrect(c, loc, gold, reason), "resurrect succeeds", reason);
+        check(c.isAlive, "character is alive");
+        check(c.hp >= 1, "HP restored");
+        check((c.statusFlags & StatusFlag::Dead) == 0, "Dead status cleared");
+        check(gold == 500, "1500 gold spent (2000 - 1500)",
+              QString::number(gold));
+        check(!loc.valid, "body consumed");
+    }
+    {
+        // Resurrecting a living character is refused.
+        Character c;
+        c.name = "Alive";
+        c.isAlive = true;
+
+        BodyLocation loc;
+        loc.valid = true;
+
+        int gold = 10000;
+        QString reason;
+        check(!DeathRecovery::resurrect(c, loc, gold, reason), "cannot resurrect the living", reason);
+        check(gold == 10000, "gold untouched");
+    }
+
+    // ------------------------------------------- Party wipe / rescue (5.3)
+    section("[37] Party wipe and rescue");
+    {
+        // A party with one survivor is not wiped.
+        QList<Character> party;
+        Character a; a.name = "A"; a.isAlive = true;
+        Character b; b.name = "B"; b.isAlive = false;
+        party.append(a);
+        party.append(b);
+
+        check(!DeathRecovery::isPartyWiped(party), "one survivor means not wiped");
+        check(!DeathRecovery::needsRescue(party), "no rescue needed");
+    }
+    {
+        // All dead: wiped and stranded.
+        QList<Character> party;
+        Character a; a.name = "A"; a.isAlive = false;
+        Character b; b.name = "B"; b.isAlive = false;
+        party.append(a);
+        party.append(b);
+
+        check(DeathRecovery::isPartyWiped(party), "whole party down");
+        check(DeathRecovery::needsRescue(party), "rescue needed");
+    }
+    {
+        // An empty party is not a wipe.
+        QList<Character> empty;
+        check(!DeathRecovery::isPartyWiped(empty), "empty party is not wiped");
+    }
+    {
+        // Rescue cost scales with depth, superlinearly.
+        check(DeathRecovery::rescuePartyCost(1) == 250, "depth 1 rescue costs 250",
+              QString::number(DeathRecovery::rescuePartyCost(1)));
+        check(DeathRecovery::rescuePartyCost(5) == 6250, "depth 5 rescue costs 6250",
+              QString::number(DeathRecovery::rescuePartyCost(5)));
+        check(DeathRecovery::rescuePartyCost(10) > DeathRecovery::rescuePartyCost(5),
+              "deeper rescues cost more");
+        check(DeathRecovery::rescuePartyCost(0) == 250, "depth 0 clamps to depth 1");
+    }
+    {
+        // A rescue recovers bodies on the target floor only.
+        QList<BodyLocation> bodies;
+        BodyLocation b5a; b5a.valid = true; b5a.dungeonLevel = 5;
+        BodyLocation b5b; b5b.valid = true; b5b.dungeonLevel = 5;
+        BodyLocation b7;  b7.valid = true;  b7.dungeonLevel = 7;
+        bodies.append(b5a);
+        bodies.append(b5b);
+        bodies.append(b7);
+
+        int recovered = DeathRecovery::recoverBodies(bodies, 5);
+        check(recovered == 2, "two bodies recovered from floor 5",
+              QString::number(recovered));
+        check(bodies[0].inCity && bodies[1].inCity, "both floor-5 bodies are home");
+        check(!bodies[2].inCity, "the floor-7 body is untouched");
+    }
+    {
+        // Hardcore mode means no resurrection at all.
+        check(DeathRecovery::isPermanentlyDead(true), "hardcore is permanent");
+        check(!DeathRecovery::isPermanentlyDead(false), "normal mode is not permanent");
+    }
+
+    // ------------------------------------------- Main quest chain (6.1)
+    section("[38] Main quest chain");
+    {
+        check(QuestChain::stepCount() == 6, "6 quest steps",
+              QString::number(QuestChain::stepCount()));
+
+        QuestStep s0 = QuestChain::step(0);
+        check(s0.id == "first_descent", "step 0 is first descent");
+        check(s0.requiresDepth == 1, "step 0 needs depth 1");
+
+        QuestStep s5 = QuestChain::step(5);
+        check(s5.id == "prince_of_devils", "step 5 is the Prince");
+        check(s5.bossFloor == 15, "step 5 needs the floor-15 boss");
+
+        QuestStep invalid = QuestChain::step(99);
+        check(invalid.index == -1, "out-of-range step is invalid");
+    }
+    {
+        // Objective text describes the goal.
+        check(QuestChain::objectiveText(QuestChain::step(0)).contains("level 1"),
+              "depth objective mentions the floor");
+        check(QuestChain::objectiveText(QuestChain::step(1)).contains("floor 5"),
+              "boss objective mentions the floor");
+    }
+    {
+        // A fresh party is on step 0 and the chain is incomplete.
+        QList<int> noBosses;
+        QStringList noItems;
+
+        check(QuestChain::nextStepIndex(0, noBosses, noItems) == 0,
+              "fresh party is on step 0");
+        check(!QuestChain::isChainComplete(0, noBosses, noItems),
+              "chain not complete");
+    }
+    {
+        // Reaching floor 1 completes step 0; the party moves to step 1.
+        QList<int> noBosses;
+        QStringList noItems;
+
+        check(QuestChain::nextStepIndex(1, noBosses, noItems) == 1,
+              "reaching depth 1 advances to step 1");
+    }
+    {
+        // Killing the floor-5 boss completes step 1.
+        QList<int> bosses;
+        bosses.append(5);
+        QStringList noItems;
+
+        check(QuestChain::isStepComplete(QuestChain::step(1), 5, bosses, noItems),
+              "floor 5 boss completes step 1");
+        check(QuestChain::nextStepIndex(5, bosses, noItems) == 2,
+              "chain advances to step 2");
+    }
+    {
+        // Steps cannot be skipped: depth 15 without the floor-5 boss still
+        // leaves the party on step 1.
+        QList<int> noBosses;
+        QStringList noItems;
+
+        check(QuestChain::nextStepIndex(15, noBosses, noItems) == 1,
+              "missing boss keeps the party on step 1");
+    }
+    {
+        // The full chain completes only when the Prince is dead.
+        QList<int> bosses;
+        bosses.append(5);
+        bosses.append(10);
+        QStringList noItems;
+
+        check(!QuestChain::isChainComplete(15, bosses, noItems),
+              "chain incomplete without the Prince");
+
+        bosses.append(15);
+        check(QuestChain::isChainComplete(15, bosses, noItems),
+              "chain complete once the Prince is dead");
+        check(QuestChain::nextStepIndex(15, bosses, noItems) == -1,
+              "no steps left when complete");
+    }
+
+    // ------------------------------------------- Final boss / victory (6.2, 6.3)
+    section("[39] Final boss and victory");
+    {
+        check(Endgame::finalBossName() == "The Prince of Devils", "final boss name");
+
+        QVariantMap prince = Endgame::buildFinalBoss();
+        QVariantMap floorBoss = BossEncounter::buildBoss(15);
+
+        check(prince["name"].toString() == "The Prince of Devils", "prince built");
+        check(prince["hp"].toInt() > floorBoss["hp"].toInt(),
+              "the Prince outlasts the floor-15 boss",
+              QString("%1 vs %2").arg(prince["hp"].toInt()).arg(floorBoss["hp"].toInt()));
+        check(prince["att"].toInt() > floorBoss["att"].toInt(), "the Prince hits harder");
+        check(prince["swings"].toInt() > floorBoss["swings"].toInt(), "the Prince swings more");
+    }
+    {
+        // Victory requires the floor-15 boss to be down.
+        QList<int> bosses;
+        bosses.append(5);
+        bosses.append(10);
+        check(!Endgame::isVictory(bosses), "not victory without the Prince");
+
+        bosses.append(15);
+        check(Endgame::isVictory(bosses), "victory once the Prince falls");
+    }
+    {
+        // Victory text exists and reads as a sequence.
+        check(!Endgame::victoryTitle().isEmpty(), "victory has a title");
+        check(Endgame::victoryParagraphs().size() >= 3, "victory has paragraphs",
+              QString::number(Endgame::victoryParagraphs().size()));
+    }
+
+    // ------------------------------------------- Hall of Records (6.4)
+    section("[40] Hall of Records");
+    {
+        GameRecord a;
+        a.heroName = "A";
+        a.highestLevel = 20;
+        a.mostGold = 1000;
+        a.deepestFloor = 10;
+
+        GameRecord b;
+        b.heroName = "B";
+        b.highestLevel = 15;
+        b.mostGold = 5000;
+        b.deepestFloor = 15;
+
+        check(Endgame::outranks(a, b, Endgame::Category::HighestLevel),
+              "A outranks B on level");
+        check(!Endgame::outranks(a, b, Endgame::Category::MostGold),
+              "B outranks A on gold");
+        check(Endgame::outranks(b, a, Endgame::Category::DeepestFloor),
+              "B outranks A on depth");
+    }
+    {
+        // Fastest completion: a win beats a non-win; faster beats slower.
+        GameRecord wonFast;
+        wonFast.won = true;
+        wonFast.completionTimeSeconds = 3600;
+
+        GameRecord wonSlow;
+        wonSlow.won = true;
+        wonSlow.completionTimeSeconds = 7200;
+
+        GameRecord notWon;
+        notWon.won = false;
+        notWon.completionTimeSeconds = 100;
+
+        check(Endgame::outranks(wonFast, wonSlow, Endgame::Category::FastestCompletion),
+              "faster win outranks slower win");
+        check(Endgame::outranks(wonSlow, wonFast, Endgame::Category::FastestCompletion) == false,
+              "slower win does not outrank faster");
+        check(Endgame::outranks(wonFast, notWon, Endgame::Category::FastestCompletion),
+              "a win outranks a non-finish");
+        check(!Endgame::outranks(notWon, wonFast, Endgame::Category::FastestCompletion),
+              "a non-finish never outranks a win");
+    }
+    {
+        // Ranking sorts best-first.
+        QList<GameRecord> records;
+        GameRecord r1; r1.heroName = "Low";  r1.highestLevel = 5;
+        GameRecord r2; r2.heroName = "High"; r2.highestLevel = 30;
+        GameRecord r3; r3.heroName = "Mid";  r3.highestLevel = 15;
+        records << r1 << r2 << r3;
+
+        QList<GameRecord> sorted = Endgame::ranked(records, Endgame::Category::HighestLevel);
+        check(sorted[0].heroName == "High", "highest level ranked first", sorted[0].heroName);
+        check(sorted[1].heroName == "Mid", "mid ranked second");
+        check(sorted[2].heroName == "Low", "low ranked last");
+    }
+    {
+        // Record serialization round-trip.
+        GameRecord r;
+        r.heroName = "Hero";
+        r.highestLevel = 25;
+        r.mostGold = 999999;
+        r.deepestFloor = 15;
+        r.completionTimeSeconds = 4530;
+        r.won = true;
+
+        QVariantMap map = r.toMap();
+        GameRecord loaded;
+        loaded.loadFromMap(map);
+
+        check(loaded.heroName == "Hero", "hero name persists");
+        check(loaded.highestLevel == 25, "level persists");
+        check(loaded.mostGold == 999999, "gold persists");
+        check(loaded.deepestFloor == 15, "depth persists");
+        check(loaded.won, "win persists");
+        check(loaded.completionTimeSeconds == 4530, "time persists");
+    }
+    {
+        // Time formatting.
+        GameRecord r;
+        r.completionTimeSeconds = 3661;  // 1h 1m 1s
+        check(r.formattedTime() == "01:01:01", "time formats as HH:MM:SS", r.formattedTime());
+
+        GameRecord unfinished;
+        check(unfinished.formattedTime() == "--:--:--", "unfinished shows placeholder");
+    }
+    {
+        // Category names.
+        check(Endgame::categoryName(Endgame::Category::HighestLevel) == "Highest Level",
+              "level category name");
+        check(Endgame::categoryName(Endgame::Category::FastestCompletion) == "Fastest Completion",
+              "completion category name");
+    }
+
+    // ------------------------------------------- New Game Plus (6.5)
+    section("[41] New Game Plus");
+    {
+        check(Endgame::ngPlusMonsterMultiplier(0) == 1.0, "NG+0 monsters are normal");
+        check(Endgame::ngPlusMonsterMultiplier(1) == 1.5, "NG+1 monsters are 50% stronger",
+              QString::number(Endgame::ngPlusMonsterMultiplier(1)));
+        check(Endgame::ngPlusMonsterMultiplier(2) == 2.0, "NG+2 monsters are twice as strong");
+
+        check(Endgame::ngPlusRewardMultiplier(0) == 1.0, "NG+0 rewards are normal");
+        check(Endgame::ngPlusRewardMultiplier(1) == 1.25, "NG+1 rewards are 25% higher",
+              QString::number(Endgame::ngPlusRewardMultiplier(1)));
+
+        // Difficulty rises faster than rewards, so NG+ stays a challenge.
+        check(Endgame::ngPlusMonsterMultiplier(2) > Endgame::ngPlusRewardMultiplier(2),
+              "monsters scale faster than rewards");
+
+        check(Endgame::ngPlusBanner(0).isEmpty(), "no banner at NG+0");
+        check(Endgame::ngPlusBanner(1).contains("New Game +1"), "NG+1 banner",
+              Endgame::ngPlusBanner(1));
     }
 
     // -------------------------------------------------------------- cleanup

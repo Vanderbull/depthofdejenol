@@ -1,5 +1,6 @@
 #include "MorgueDialog.h"
 #include "gameStateManager.h"
+#include "src/core/DeathRecovery.h"
 #include <QtWidgets>
 #include <QSettings>
 #include <QDir>
@@ -142,7 +143,8 @@ bool MorgueDialog::updateCharacterFile(const QString &fileName)
 }
 
 int MorgueDialog::calculateRescueCost(int level) const { 
-    return (level <= 0) ? 1000 : level * 1000; 
+    // Rescue cost scales superlinearly with depth (see DeathRecovery).
+    return DeathRecovery::rescuePartyCost(level);
 }
 
 void MorgueDialog::onActionClicked()

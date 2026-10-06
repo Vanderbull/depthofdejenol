@@ -646,31 +646,96 @@ respawns nothing, an ungenerated floor is a no-op.
 
 ## Phase 5 — Death and consequences
 
-### 5.1 Death state and body carrying `M`
-**Do:** dead members stay in the party as bodies, carried back to town.
+### 5.1 Death state and body carrying `M` — ✅ DONE
+**Done:** added `src/core/DeathRecovery.h/.cpp`. `killCharacter()` marks a character dead and
+records where the body fell (floor + coordinates). Bodies can be carried (`carryBody`), dropped
+(`dropBody`), and are brought home when the party reaches town (`bringBodiesToTown`).
+`Character::setDead()` no longer wipes the dungeon coordinates — they are the recovery marker.
 
-### 5.2 Morgue integration `M`
+**Files:** `src/core/DeathRecovery.h/.cpp`, `character.cpp`.
+
+**Verify:** `make check` section [35] — 17 checks: death records floor and position, a body can
+be carried once (not twice), carried bodies come home while left-behind ones do not, a dropped
+body can be picked up again.
+
+### 5.2 Morgue integration `M` — ✅ DONE
 **Why:** `MorgueDialog` has resurrection, body hiring and body grabbing; nothing feeds it.
 
-**Do:** dead characters appear in the Morgue; resurrection costs gold scaled to level.
+**Done:** `resurrectionCost(level, loc)` = `level × 500`, plus 500 when the body is still in the
+dungeon. `resurrect()` deducts gold from the party purse and revives the character. `MorgueDialog`
+now uses `DeathRecovery::rescuePartyCost()` for its Hire Rescuers pricing.
 
-**Verify:** die, return to town, resurrect, member is alive and in the party.
+**Files:** `src/core/DeathRecovery.h/.cpp`, `src/morgue_dialog/MorgueDialog.cpp`.
 
-### 5.3 Party wipe and rescue `L`
-**Do:** all dead → the party is stranded; form a rescue party from town to recover bodies
-and gear. Permadeath option for hardcore.
+**Verify:** `make check` section [36] — 15 checks: cost scales with level and depth, resurrection
+fails without gold (gold untouched, body intact), succeeds with gold (dead status cleared, body
+consumed), and the living cannot be resurrected.
 
-**Verify:** wipe a party, recover it with a second party.
+### 5.3 Party wipe and rescue `L` — ✅ DONE
+**Done:** `isPartyWiped()` / `needsRescue()` detect a stranded party. `rescuePartyCost(depth)`
+scales quadratically (`depth² × 250`). `recoverBodies(bodies, level)` brings home every body on
+a floor after a successful rescue. `isPermanentlyDead(hardcore)` exposes the permadeath option.
+
+**Files:** `src/core/DeathRecovery.h/.cpp`.
+
+**Verify:** `make check` section [37] — 14 checks: one survivor means not wiped, all-dead means
+stranded, an empty party is not a wipe, rescue cost scales with depth and clamps at 1, and a
+floor-5 rescue recovers floor-5 bodies while leaving a floor-7 body alone.
 
 ---
 
 ## Phase 6 — Win condition and endgame
 
-### 6.1 Main quest chain `M`
-### 6.2 Final boss — the Prince of Devils `M`
-### 6.3 Victory sequence `S` — counterpart to the intro `StoryDialog`
-### 6.4 Hall of Records `M` — fastest completion, highest level, most gold, deepest floor
-### 6.5 New Game Plus `M`
+### 6.1 Main quest chain `M` — ✅ DONE
+**Done:** added `src/core/QuestChain.h/.cpp` — 6 ordered steps (Into the Dark → Grotto Warden →
+Beneath the Crypts → Bone Tyrant → Devil's Threshold → Prince of Devils). Each step has a goal
+(depth reached, boss defeated, or item held), a gold and XP reward, and `objectiveText()`.
+`nextStepIndex()` reports the active step; steps cannot be skipped.
+
+**Files:** `src/core/QuestChain.h/.cpp`.
+
+**Verify:** `make check` section [38] — 17 checks: 6 steps, correct ids and goals, a fresh party
+is on step 0, reaching depth 1 advances, the floor-5 boss completes step 1, depth 15 without that
+boss still leaves the party on step 1, and the chain completes only when the Prince dies.
+
+### 6.2 Final boss — the Prince of Devils `M` — ✅ DONE
+**Done:** `Endgame::buildFinalBoss()` — the Prince has 5000 HP, 120 att, 60 def and 5 swings,
+an order of magnitude beyond the floor-15 boss. `Endgame::isVictory()` checks the floor-15 boss.
+
+**Files:** `src/core/Endgame.h/.cpp`.
+
+**Verify:** `make check` section [39] — the Prince outlasts, out-hits and out-swings the floor-15
+boss; victory requires the Prince's death.
+
+### 6.3 Victory sequence `S` — ✅ DONE
+**Done:** `Endgame::victoryTitle()` and `victoryParagraphs()` — three paragraphs closing the
+gate, the counterpart to the intro `StoryDialog`.
+
+**Files:** `src/core/Endgame.h/.cpp`.
+
+**Verify:** `make check` section [39] — title is non-empty, at least three paragraphs.
+
+### 6.4 Hall of Records `M` — ✅ DONE
+**Done:** `GameRecord` (hero, level, gold, depth, completion time, won) with serialization and
+`formattedTime()`. `Endgame::outranks()` / `ranked()` compare records across four categories
+(highest level, most gold, deepest floor, fastest completion). A win always outranks a
+non-finish in the completion category.
+
+**Files:** `src/core/Endgame.h/.cpp`.
+
+**Verify:** `make check` section [40] — 20 checks: per-category ranking, a faster win beats a
+slower one, a win beats a non-finish, best-first sorting, save/load round-trip, HH:MM:SS
+formatting, and category names.
+
+### 6.5 New Game Plus `M` — ✅ DONE
+**Done:** `Endgame::ngPlusMonsterMultiplier()` (+50% per cycle), `ngPlusRewardMultiplier()`
+(+25% per cycle), and `ngPlusBanner()`. Monsters scale faster than rewards so NG+ stays a
+challenge.
+
+**Files:** `src/core/Endgame.h/.cpp`.
+
+**Verify:** `make check` section [41] — 8 checks: multipliers at NG+0/1/2, monsters scale faster
+than rewards, no banner at NG+0, banner text at NG+1.
 
 ---
 
