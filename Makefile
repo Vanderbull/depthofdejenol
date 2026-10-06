@@ -101,6 +101,9 @@ SOURCES       = src/core/savegameUtils.cpp \
 		src/combat/EncounterBuilder.cpp \
 		src/combat/VictoryReward.cpp \
 		src/combat/CombatDeathHandler.cpp \
+		src/core/LevelTable.cpp \
+		src/core/AgingRules.cpp \
+		src/spell_casting/SpellBook.cpp \
 		src/spell_casting/SpellCastingDialog.cpp \
 		fontManager.cpp \
 		3rdparty/lua/lapi.c \
@@ -221,6 +224,9 @@ OBJECTS       = build/obj/release/savegameUtils.o \
 		build/obj/release/EncounterBuilder.o \
 		build/obj/release/VictoryReward.o \
 		build/obj/release/CombatDeathHandler.o \
+		build/obj/release/LevelTable.o \
+		build/obj/release/AgingRules.o \
+		build/obj/release/SpellBook.o \
 		build/obj/release/SpellCastingDialog.o \
 		build/obj/release/fontManager.o \
 		build/obj/release/lapi.o \
@@ -415,6 +421,9 @@ DIST          = .gitignore \
 		src/combat/EncounterBuilder.h \
 		src/combat/VictoryReward.h \
 		src/combat/CombatDeathHandler.h \
+		src/core/LevelTable.h \
+		src/core/AgingRules.h \
+		src/spell_casting/SpellBook.h \
 		src/core/savegameUtils.h \
 		gameStateManager.h \
 		src/partymanager/PartyManager.h \
@@ -507,6 +516,9 @@ DIST          = .gitignore \
 		src/combat/EncounterBuilder.cpp \
 		src/combat/VictoryReward.cpp \
 		src/combat/CombatDeathHandler.cpp \
+		src/core/LevelTable.cpp \
+		src/core/AgingRules.cpp \
+		src/spell_casting/SpellBook.cpp \
 		src/spell_casting/SpellCastingDialog.cpp \
 		fontManager.cpp \
 		3rdparty/lua/lapi.c \
@@ -810,8 +822,8 @@ distdir: FORCE
 	@test -d $(DISTDIR) || mkdir -p $(DISTDIR)
 	$(COPY_FILE) --parents $(DIST) $(DISTDIR)/
 	$(COPY_FILE) --parents /usr/lib/x86_64-linux-gnu/qt6/mkspecs/features/data/dummy.cpp $(DISTDIR)/
-	$(COPY_FILE) --parents test/selftest.h src/items/ItemDatabase.h src/combat/CombatState.h src/combat/TurnEngine.h src/combat/CombatActions.h src/combat/MonsterAI.h src/combat/EncounterBuilder.h src/combat/VictoryReward.h src/combat/CombatDeathHandler.h src/core/savegameUtils.h gameStateManager.h src/partymanager/PartyManager.h src/core/GameConstants.h audioManager.h blacklands.h theCity.h storyDialog.h src/network_manager/NetworkManager.h src/hall_of_records/hallofrecordsdialog.h src/create_character/createcharacterdialog.h src/about_dialog/AboutDialog.h src/character_dialog/CharacterDialog.h src/message_window/MessageWindow.h src/sender_window/SenderWindow.h src/library_dialog/library_dialog.h src/automap/automap_dialog.h src/game_controller/game_controller.h src/characterlist_dialog/characterlistdialog.h src/helplesson/helplesson.h src/mordorstatistics/mordorstatistics.h src/loadingscreen/LoadingScreen.h src/guilds_dialog/GuildsDialog.h src/general_store/GeneralStore.h src/morgue_dialog/MorgueDialog.h src/seer_dialog/SeerDialog.h src/confinement_dialog/ConfinementDialog.h src/bank_dialog/BankDialog.h src/race_data/RaceData.h src/inventory_dialog/inventorydialog.h src/options_dialog/optionsdialog.h src/dungeon_dialog/DungeonDialog.h src/partyinfo_dialog/partyinfodialog.h src/dungeonmap/dungeonmap.h src/bank_dialog/TradeDialog.h src/core/game_resources.h src/dungeon_dialog/DungeonHandlers.h src/event/EventManager.h src/dungeon_dialog/MiniMapDialog.h src/update/UpdateManager.h src/update/UpdateDialog.h character.h src/spell_casting/SpellCastingDialog.h fontManager.h $(DISTDIR)/
-	$(COPY_FILE) --parents src/core/savegameUtils.cpp gameStateManager.cpp src/partymanager/PartyManager.cpp audioManager.cpp blacklands.cpp theCity.cpp src/network_manager/NetworkManager.cpp src/hall_of_records/hallofrecordsdialog.cpp src/create_character/createcharacterdialog.cpp src/about_dialog/AboutDialog.cpp src/character_dialog/CharacterDialog.cpp src/message_window/MessageWindow.cpp src/sender_window/SenderWindow.cpp src/library_dialog/library_dialog.cpp src/automap/automap_dialog.cpp src/game_controller/game_controller.cpp src/characterlist_dialog/characterlistdialog.cpp src/helplesson/helplesson.cpp src/mordorstatistics/mordorstatistics.cpp src/loadingscreen/LoadingScreen.cpp src/guilds_dialog/GuildsDialog.cpp src/general_store/GeneralStore.cpp src/morgue_dialog/MorgueDialog.cpp src/seer_dialog/SeerDialog.cpp src/confinement_dialog/ConfinementDialog.cpp src/bank_dialog/BankDialog.cpp src/race_data/RaceData.cpp src/inventory_dialog/inventorydialog.cpp src/options_dialog/optionsdialog.cpp src/dungeon_dialog/DungeonDialog.cpp src/partyinfo_dialog/partyinfodialog.cpp src/dungeonmap/dungeonmap.cpp src/bank_dialog/TradeDialog.cpp src/game_resources.cpp src/dungeon_dialog/DungeonMinimap.cpp src/dungeon_dialog/DungeonHandlers.cpp src/event/EventManager.cpp src/update/UpdateManager.cpp src/update/UpdateDialog.cpp character.cpp test/selftest.cpp src/items/ItemDatabase.cpp src/combat/CombatState.cpp src/combat/TurnEngine.cpp src/combat/CombatActions.cpp src/combat/MonsterAI.cpp src/combat/EncounterBuilder.cpp src/combat/VictoryReward.cpp src/combat/CombatDeathHandler.cpp src/spell_casting/SpellCastingDialog.cpp fontManager.cpp 3rdparty/lua/lapi.c 3rdparty/lua/lcode.c 3rdparty/lua/lctype.c 3rdparty/lua/ldebug.c 3rdparty/lua/ldo.c 3rdparty/lua/ldump.c 3rdparty/lua/lfunc.c 3rdparty/lua/lgc.c 3rdparty/lua/llex.c 3rdparty/lua/lmem.c 3rdparty/lua/lobject.c 3rdparty/lua/lopcodes.c 3rdparty/lua/lparser.c 3rdparty/lua/lstate.c 3rdparty/lua/lstring.c 3rdparty/lua/ltable.c 3rdparty/lua/ltm.c 3rdparty/lua/lundump.c 3rdparty/lua/lvm.c 3rdparty/lua/lzio.c 3rdparty/lua/lauxlib.c 3rdparty/lua/lbaselib.c 3rdparty/lua/lcorolib.c 3rdparty/lua/ldblib.c 3rdparty/lua/liolib.c 3rdparty/lua/lmathlib.c 3rdparty/lua/loadlib.c 3rdparty/lua/loslib.c 3rdparty/lua/lstrlib.c 3rdparty/lua/ltablib.c 3rdparty/lua/lutf8lib.c 3rdparty/lua/linit.c $(DISTDIR)/
+	$(COPY_FILE) --parents test/selftest.h src/items/ItemDatabase.h src/combat/CombatState.h src/combat/TurnEngine.h src/combat/CombatActions.h src/combat/MonsterAI.h src/combat/EncounterBuilder.h src/combat/VictoryReward.h src/combat/CombatDeathHandler.h src/core/LevelTable.h src/core/AgingRules.h src/spell_casting/SpellBook.h src/core/savegameUtils.h gameStateManager.h src/partymanager/PartyManager.h src/core/GameConstants.h audioManager.h blacklands.h theCity.h storyDialog.h src/network_manager/NetworkManager.h src/hall_of_records/hallofrecordsdialog.h src/create_character/createcharacterdialog.h src/about_dialog/AboutDialog.h src/character_dialog/CharacterDialog.h src/message_window/MessageWindow.h src/sender_window/SenderWindow.h src/library_dialog/library_dialog.h src/automap/automap_dialog.h src/game_controller/game_controller.h src/characterlist_dialog/characterlistdialog.h src/helplesson/helplesson.h src/mordorstatistics/mordorstatistics.h src/loadingscreen/LoadingScreen.h src/guilds_dialog/GuildsDialog.h src/general_store/GeneralStore.h src/morgue_dialog/MorgueDialog.h src/seer_dialog/SeerDialog.h src/confinement_dialog/ConfinementDialog.h src/bank_dialog/BankDialog.h src/race_data/RaceData.h src/inventory_dialog/inventorydialog.h src/options_dialog/optionsdialog.h src/dungeon_dialog/DungeonDialog.h src/partyinfo_dialog/partyinfodialog.h src/dungeonmap/dungeonmap.h src/bank_dialog/TradeDialog.h src/core/game_resources.h src/dungeon_dialog/DungeonHandlers.h src/event/EventManager.h src/dungeon_dialog/MiniMapDialog.h src/update/UpdateManager.h src/update/UpdateDialog.h character.h src/spell_casting/SpellCastingDialog.h fontManager.h $(DISTDIR)/
+	$(COPY_FILE) --parents src/core/savegameUtils.cpp gameStateManager.cpp src/partymanager/PartyManager.cpp audioManager.cpp blacklands.cpp theCity.cpp src/network_manager/NetworkManager.cpp src/hall_of_records/hallofrecordsdialog.cpp src/create_character/createcharacterdialog.cpp src/about_dialog/AboutDialog.cpp src/character_dialog/CharacterDialog.cpp src/message_window/MessageWindow.cpp src/sender_window/SenderWindow.cpp src/library_dialog/library_dialog.cpp src/automap/automap_dialog.cpp src/game_controller/game_controller.cpp src/characterlist_dialog/characterlistdialog.cpp src/helplesson/helplesson.cpp src/mordorstatistics/mordorstatistics.cpp src/loadingscreen/LoadingScreen.cpp src/guilds_dialog/GuildsDialog.cpp src/general_store/GeneralStore.cpp src/morgue_dialog/MorgueDialog.cpp src/seer_dialog/SeerDialog.cpp src/confinement_dialog/ConfinementDialog.cpp src/bank_dialog/BankDialog.cpp src/race_data/RaceData.cpp src/inventory_dialog/inventorydialog.cpp src/options_dialog/optionsdialog.cpp src/dungeon_dialog/DungeonDialog.cpp src/partyinfo_dialog/partyinfodialog.cpp src/dungeonmap/dungeonmap.cpp src/bank_dialog/TradeDialog.cpp src/game_resources.cpp src/dungeon_dialog/DungeonMinimap.cpp src/dungeon_dialog/DungeonHandlers.cpp src/event/EventManager.cpp src/update/UpdateManager.cpp src/update/UpdateDialog.cpp character.cpp test/selftest.cpp src/items/ItemDatabase.cpp src/combat/CombatState.cpp src/combat/TurnEngine.cpp src/combat/CombatActions.cpp src/combat/MonsterAI.cpp src/combat/EncounterBuilder.cpp src/combat/VictoryReward.cpp src/combat/CombatDeathHandler.cpp src/core/LevelTable.cpp src/core/AgingRules.cpp src/spell_casting/SpellBook.cpp src/spell_casting/SpellCastingDialog.cpp fontManager.cpp 3rdparty/lua/lapi.c 3rdparty/lua/lcode.c 3rdparty/lua/lctype.c 3rdparty/lua/ldebug.c 3rdparty/lua/ldo.c 3rdparty/lua/ldump.c 3rdparty/lua/lfunc.c 3rdparty/lua/lgc.c 3rdparty/lua/llex.c 3rdparty/lua/lmem.c 3rdparty/lua/lobject.c 3rdparty/lua/lopcodes.c 3rdparty/lua/lparser.c 3rdparty/lua/lstate.c 3rdparty/lua/lstring.c 3rdparty/lua/ltable.c 3rdparty/lua/ltm.c 3rdparty/lua/lundump.c 3rdparty/lua/lvm.c 3rdparty/lua/lzio.c 3rdparty/lua/lauxlib.c 3rdparty/lua/lbaselib.c 3rdparty/lua/lcorolib.c 3rdparty/lua/ldblib.c 3rdparty/lua/liolib.c 3rdparty/lua/lmathlib.c 3rdparty/lua/loadlib.c 3rdparty/lua/loslib.c 3rdparty/lua/lstrlib.c 3rdparty/lua/ltablib.c 3rdparty/lua/lutf8lib.c 3rdparty/lua/linit.c $(DISTDIR)/
 
 
 clean: compiler_clean 
@@ -1305,7 +1317,8 @@ build/obj/release/gameStateManager.o: gameStateManager.cpp gameStateManager.h \
 
 build/obj/release/PartyManager.o: src/partymanager/PartyManager.cpp src/partymanager/PartyManager.h \
 		character.h \
-		src/core/GameConstants.h
+		src/core/GameConstants.h \
+		src/core/LevelTable.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/PartyManager.o src/partymanager/PartyManager.cpp
 
 build/obj/release/audioManager.o: audioManager.cpp audioManager.h
@@ -1759,7 +1772,8 @@ build/obj/release/UpdateDialog.o: src/update/UpdateDialog.cpp src/update/UpdateD
 
 build/obj/release/character.o: character.cpp character.h \
 		src/core/GameConstants.h \
-		src/items/ItemDatabase.h
+		src/items/ItemDatabase.h \
+		src/core/LevelTable.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/character.o character.cpp
 
 build/obj/release/selftest.o: test/selftest.cpp test/selftest.h \
@@ -1781,7 +1795,11 @@ build/obj/release/selftest.o: test/selftest.cpp test/selftest.h \
 		src/combat/MonsterAI.h \
 		src/combat/EncounterBuilder.h \
 		src/combat/VictoryReward.h \
-		src/combat/CombatDeathHandler.h
+		src/combat/CombatDeathHandler.h \
+		src/core/LevelTable.h \
+		src/core/AgingRules.h \
+		src/spell_casting/SpellBook.h \
+		src/partymanager/PartyManager.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/selftest.o test/selftest.cpp
 
 build/obj/release/ItemDatabase.o: src/items/ItemDatabase.cpp src/items/ItemDatabase.h
@@ -1819,6 +1837,19 @@ build/obj/release/CombatDeathHandler.o: src/combat/CombatDeathHandler.cpp src/co
 		src/combat/TurnEngine.h \
 		src/combat/CombatActions.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/CombatDeathHandler.o src/combat/CombatDeathHandler.cpp
+
+build/obj/release/LevelTable.o: src/core/LevelTable.cpp src/core/LevelTable.h
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/LevelTable.o src/core/LevelTable.cpp
+
+build/obj/release/AgingRules.o: src/core/AgingRules.cpp src/core/AgingRules.h \
+		character.h \
+		src/core/GameConstants.h
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/AgingRules.o src/core/AgingRules.cpp
+
+build/obj/release/SpellBook.o: src/spell_casting/SpellBook.cpp src/spell_casting/SpellBook.h \
+		character.h \
+		src/core/GameConstants.h
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/SpellBook.o src/spell_casting/SpellBook.cpp
 
 build/obj/release/SpellCastingDialog.o: src/spell_casting/SpellCastingDialog.cpp src/spell_casting/SpellCastingDialog.h \
 		gameStateManager.h \

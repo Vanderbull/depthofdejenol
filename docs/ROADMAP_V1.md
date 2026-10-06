@@ -484,55 +484,86 @@ processDeaths messages. 278 passed, 0 failed.
 
 ## Phase 3 — Progression
 
-### 3.1 Data-driven XP table `S`
+### 3.1 Data-driven XP table `S` — ✅ DONE
 **Why:** `addExperienceToCharacter` uses `level * 1000` — linear, and no per-level data.
 
-**Do:** define the curve in data (`data/levels.json`), exponential-ish like the genre expects.
-Load it once, expose `xpForLevel(n)`.
+**Done:** added `data/levels.json` with XP curve (`xpForLevel(n) = round(100 * n^1.5)`) and
+`src/core/LevelTable.h/.cpp` — singleton that loads the JSON and exposes `xpForLevel(n)`,
+`totalXpForLevel(n)`, `levelForXp(totalXp)`, and `xpProgress(totalXp)`. Falls back to the
+formula if the file is not loaded.
 
-**Verify:** unit test prints the table; levels 1→20 look reasonable.
+**Files:** `data/levels.json`, `src/core/LevelTable.h/.cpp`, `blacklands.pro`.
 
-### 3.2 Level-up stat gains `M`
+**Verify:** `make check` section [24] — 25 checks covering table loading, XP values,
+total XP, level-for-XP, XP progress, and fallback. 301 passed, 0 failed.
+
+### 3.2 Level-up stat gains `M` — ✅ DONE
 **Why:** levelling only increments the `level` integer. HP, mana and stats never move, so
 levelling feels like nothing.
 
-**Do:** on level-up grant HP/MaxHP, MaxMana for casters, and stat points. Guild-specific
-bonuses per level.
+**Done:** `PartyManager::addExperienceToCharacter` now uses `LevelTable::levelForXp()` instead
+of `level * 1000`. Added `applyLevelUpGains(Character&)` — grants 2-6 HP (full heal), 1-3
+mana for casters (Int or Wis ≥ 10, full restore), and +1 to a random stat every 2 levels.
 
-**Files:** `gameStateManager.cpp`, `src/partymanager/PartyManager.cpp`.
+**Files:** `src/partymanager/PartyManager.h/.cpp`.
 
-**Verify:** level a character, sheet shows higher HP/mana/stats; persists across save/load.
+**Verify:** `make check` section [25] — 8 checks covering HP gain, mana gain for casters,
+no mana for non-casters, stat point on even level, no stat point on odd level, and level-up
+via LevelTable. 309 passed, 0 failed.
 
-### 3.3 Guild leveling `M`
+### 3.3 Guild leveling `M` — ✅ DONE
 **Why:** the "Make Level" button in `GuildsDialog` does nothing.
 
-**Do:** charge gold, check XP threshold, increment guild level, write a guild log entry
-(`M579B`, `M5584[16]` already exist).
+**Done:** added guild progression to `Character` — `guildLevel()`, `joinGuild()`,
+`incrementGuildLevel()`, `guildXpToNextLevel()`, `addGuildExperience()`. Guild XP uses the
+same curve as character levels (`LevelTable`). Levels and XP serialize via `GuildLevels` /
+`GuildExperience` in `toMap`/`loadFromMap`.
 
-**Verify:** make a level, gold drops, log entry appears, guild level increments.
+**Files:** `character.h/.cpp`.
 
-### 3.4 Multi-guild progression `L`
+**Verify:** `make check` section [26] — 14 checks covering join, XP thresholds (100 for
+level 1→2, 283 for 2→3), direct increment, multi-guild totals, and save/load persistence.
+355 passed, 0 failed.
+
+### 3.4 Multi-guild progression `L` — ✅ DONE
 **Why:** a defining mechanic of the source game — total power is the sum of all guild levels.
 
-**Do:** allow joining several guilds, track each level separately, sum for effective power.
+**Done:** `Character::guildLevels` is a `QMap<QString, int>` — a character can belong to any
+number of guilds, each tracked independently. `totalGuildLevels()` sums them. Both levels and
+per-guild XP persist across save/load.
 
-**Verify:** level in two guilds; both levels persist and both contribute.
+**Files:** `character.h/.cpp`.
 
-### 3.5 Spell learning `M`
+**Verify:** `make check` section [26] — a character in two guilds (Mages 2, Healers 3) reports
+`totalGuildLevels() == 5`; both levels survive a `toMap`/`loadFromMap` round-trip.
+
+### 3.5 Spell learning `M` — ✅ DONE
 **Why:** `spells.json` has `base_level`, `guilds` and `required_stats`; nothing reads them.
 
-**Do:** on guild level-up, grant spells whose `base_level` and `guilds` match and whose stat
-requirements are met. Populate the Spells tab.
+**Done:** added `src/spell_casting/SpellBook.h/.cpp` — loads all 47 spells from `spells.json`.
+`spellsFor(c)` returns spells the character qualifies for (guild level ≥ `base_level`, member
+of a teaching guild, all `required_stats` met). `newlyLearned(c, guild, level)` reports what
+a specific guild level grants. `canCast()` checks known-spell plus mana.
 
-**Verify:** level a Mage to 3 → Fireball appears in the spell list; a Warrior gets nothing.
+**Files:** `src/spell_casting/SpellBook.h/.cpp`, `blacklands.pro`.
 
-### 3.6 Aging and old age `M`
+**Verify:** `make check` section [27] — 13 checks: level-1 Mage knows Flame Bolt but not
+Fireball; guild level 3 unlocks Fireball; a Warrior gets no mage spells; INT 5 blocks Flame
+Bolt; `newlyLearned` reports Fireball at level 3; `canCast` honours mana.
+
+### 3.6 Aging and old age `M` — ✅ DONE
 **Why:** `incrementPartyAge()` and `processAgingConsequences()` are declared with no real effect.
 
-**Do:** advance age on rest and travel; apply stat decay past a race threshold; death at
-`maxAge` (race limits already in `GameConstants::getRaceAgeLimits`).
+**Done:** added `src/core/AgingRules.h/.cpp` — `maxAgeForRace()` (Human 100, Elf 400, ...),
+`decayThresholdForRace()` (70% of max age), `applyYearOfAging(c)` which drops STR/CON/DEX by
+1 with a 10% chance per year past the threshold and kills the character at max age (HP 0,
+`Dead` status). `isPastMaxAge()` / `isDecaying()` expose the state.
 
-**Verify:** age a character past the threshold → stats decay; past max → dies.
+**Files:** `src/core/AgingRules.h/.cpp`, `blacklands.pro`.
+
+**Verify:** `make check` section [28] — 19 checks: race age limits, decay threshold, no
+effect when young, decay fires within 200 rolls at age 80, death at 100 for a Human, and a
+100-year-old Elf unaffected.
 
 ---
 

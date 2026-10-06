@@ -102,6 +102,12 @@ struct Character {
     int dungeonY = 0;
     int row = 0;
 
+    // --- Guild progression ---
+    // Maps guild name -> guild level. A character can belong to several guilds;
+    // total power is the sum of all guild levels.
+    QMap<QString, int> guildLevels;
+    QMap<QString, qint64> guildExperience;  // XP earned within each guild
+
     // --- Inventory ---
     QList<HeldItem> inventory;
     QList<HeldItem> bankInventory;
@@ -206,6 +212,20 @@ struct Character {
     // --- Consumables ---
     // Use a consumable item. Returns true on success.
     bool useConsumable(int inventoryIndex, QString& effectDescription);
+
+    // --- Guild progression ---
+    // Get the level in a specific guild (0 if not a member).
+    int guildLevel(const QString& guildName) const;
+    // Join a guild (starts at level 1).
+    void joinGuild(const QString& guildName);
+    // Increment the level in a guild. Returns the new level.
+    int incrementGuildLevel(const QString& guildName);
+    // Total power = sum of all guild levels.
+    int totalGuildLevels() const;
+    // XP required to reach the next guild level.
+    qint64 guildXpToNextLevel(const QString& guildName) const;
+    // Add XP to a guild. Returns true if a level was gained.
+    bool addGuildExperience(const QString& guildName, qint64 amount);
 };
 
 // --- Party ---

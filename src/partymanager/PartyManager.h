@@ -18,6 +18,9 @@ public:
     void addExperienceToParty(int totalXp);
     void addExperienceToCharacter(int index, int amount);
     void updateMemberStatus(int index, bool isAlive);
+
+    // Level-up stat gains
+    void applyLevelUpGains(Character& c);
     
     // Data conversion (for UI/Saving)
     QVariantMap getPartyAsMap() const { return m_party.toMap(); }

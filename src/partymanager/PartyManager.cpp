@@ -1,4 +1,6 @@
 #include "PartyManager.h"
+#include "src/core/LevelTable.h"
+#include <QRandomGenerator>
 
 // The constructor must match the header's signature
 PartyManager::PartyManager(QObject *parent) 
@@ -42,17 +44,47 @@ void PartyManager::addExperienceToParty(int totalXp) {
 
 void PartyManager::addExperienceToCharacter(int index, int amount) {
     if (index < 0 || index >= m_party.members.size()) return;
-    
+
     Character& c = m_party.members[index];
     c.experience += amount;
-    
-    int nextLevel = c.level * 1000;
-    if (c.experience >= nextLevel) {
-        c.level++;
+
+    // Use LevelTable for XP thresholds
+    LevelTable& lt = LevelTable::instance();
+    int newLevel = lt.levelForXp(c.experience);
+    if (newLevel > c.level) {
+        c.level = newLevel;
+        applyLevelUpGains(c);
         emit leveledUp(index, c.level);
     }
-    
+
     emit partyUpdated();
+}
+
+void PartyManager::applyLevelUpGains(Character& c) {
+    // HP gain: 2-6 per level
+    int hpGain = 2 + QRandomGenerator::global()->bounded(5);
+    c.maxHp += hpGain;
+    c.hp = c.maxHp;  // Full heal on level up
+
+    // Mana gain for casters (Intelligence or Wisdom based)
+    if (c.intelligence >= 10 || c.wisdom >= 10) {
+        int manaGain = 1 + QRandomGenerator::global()->bounded(4);
+        c.maxMana += manaGain;
+        c.mana = c.maxMana;  // Full restore on level up
+    }
+
+    // Stat point: +1 to a random stat every 2 levels
+    if (c.level % 2 == 0) {
+        int statRoll = QRandomGenerator::global()->bounded(6);
+        switch (statRoll) {
+        case 0: c.strength++; break;
+        case 1: c.intelligence++; break;
+        case 2: c.wisdom++; break;
+        case 3: c.constitution++; break;
+        case 4: c.charisma++; break;
+        case 5: c.dexterity++; break;
+        }
+    }
 }
 
 void PartyManager::updateMemberStatus(int index, bool isAlive) {

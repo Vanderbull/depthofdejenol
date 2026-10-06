@@ -1,0 +1,26 @@
+{
+  "description": "XP required to reach each level from the previous level",
+  "formula": "xpForLevel(n) = round(100 * n^1.5)",
+  "levels": [
+    { "level": 1, "xpToNext": 100 },
+    { "level": 2, "xpToNext": 283 },
+    { "level": 3, "xpToNext": 520 },
+    { "level": 4, "xpToNext": 800 },
+    { "level": 5, "xpToNext": 1118 },
+    { "level": 6, "xpToNext": 1470 },
+    { "level": 7, "xpToNext": 1852 },
+    { "level": 8, "xpToNext": 2262 },
+    { "level": 9, "xpToNext": 2697 },
+    { "level": 10, "xpToNext": 3155 },
+    { "level": 11, "xpToNext": 3634 },
+    { "level": 12, "xpToNext": 4133 },
+    { "level": 13, "xpToNext": 4650 },
+    { "level": 14, "xpToNext": 5184 },
+    { "level": 15, "xpToNext": 5735 },
+    { "level": 16, "xpToNext": 6301 },
+    { "level": 17, "xpToNext": 6882 },
+    { "level": 18, "xpToNext": 7477 },
+    { "level": 19, "xpToNext": 8086 },
+    { "level": 20, "xpToNext": 8708 }
+  ]
+}

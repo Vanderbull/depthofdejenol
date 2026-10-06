@@ -1,5 +1,6 @@
 #include "character.h"
 #include "src/items/ItemDatabase.h"
+#include "src/core/LevelTable.h"
 
 // --- Character Implementation ---
 
@@ -92,6 +93,19 @@ QVariantMap Character::toMap() const {
     map["DungeonY"]     = dungeonY;
     map["row"]          = row;
 
+    // Serialize guild levels.
+    QVariantMap guildMap;
+    for (auto it = guildLevels.constBegin(); it != guildLevels.constEnd(); ++it) {
+        guildMap[it.key()] = it.value();
+    }
+    map["GuildLevels"] = guildMap;
+
+    QVariantMap guildXpMap;
+    for (auto it = guildExperience.constBegin(); it != guildExperience.constEnd(); ++it) {
+        guildXpMap[it.key()] = QVariant::fromValue(it.value());
+    }
+    map["GuildExperience"] = guildXpMap;
+
     // Serialize inventory as a list of maps.
     QVariantList invList;
     for (const HeldItem& item : inventory) {
@@ -145,6 +159,19 @@ void Character::loadFromMap(const QVariantMap &map) {
     dungeonY     = map.value("DungeonY", 0).toInt();
 
     row          = map.value("row", 0).toInt();
+
+    // Load guild levels.
+    guildLevels.clear();
+    QVariantMap guildMap = map.value("GuildLevels").toMap();
+    for (auto it = guildMap.constBegin(); it != guildMap.constEnd(); ++it) {
+        guildLevels[it.key()] = it.value().toInt();
+    }
+
+    guildExperience.clear();
+    QVariantMap guildXpMap = map.value("GuildExperience").toMap();
+    for (auto it = guildXpMap.constBegin(); it != guildXpMap.constEnd(); ++it) {
+        guildExperience[it.key()] = it.value().toLongLong();
+    }
 
     // Load inventory — handle old (QStringList or QVariantList of strings) and
     // new (QVariantList of maps) formats.
@@ -417,23 +444,74 @@ void Character::addExperience(int amount) {
 
     experience += amount;
 
-    // Basic level-up logic: Level * 1000 threshold
-    // Example: Level 1 needs 1000 XP to hit Level 2
-    int nextLevelThreshold = level * 1000;
+    // Level-up thresholds come from the data-driven table (data/levels.json).
+    LevelTable& lt = LevelTable::instance();
+    int newLevel = lt.levelForXp(experience);
 
-    while (experience >= nextLevelThreshold) {
-        experience -= nextLevelThreshold;
+    while (level < newLevel) {
         level++;
-        
+
         // Boost stats on level up
         maxHp += 5;
         hp = maxHp; // Heal on level up
         maxMana += 2;
         mana = maxMana;
-        
-        // Recalculate next threshold for the new level
-        nextLevelThreshold = level * 1000;
     }
+}
+
+// --- Guild progression ---
+
+int Character::guildLevel(const QString& guildName) const {
+    return guildLevels.value(guildName, 0);
+}
+
+void Character::joinGuild(const QString& guildName) {
+    if (!guildLevels.contains(guildName)) {
+        guildLevels[guildName] = 1;
+        guildExperience[guildName] = 0;
+    }
+}
+
+int Character::incrementGuildLevel(const QString& guildName) {
+    if (!guildLevels.contains(guildName)) {
+        joinGuild(guildName);
+        return guildLevels.value(guildName, 1);
+    }
+    guildLevels[guildName] += 1;
+    return guildLevels[guildName];
+}
+
+int Character::totalGuildLevels() const {
+    int total = 0;
+    for (auto it = guildLevels.constBegin(); it != guildLevels.constEnd(); ++it) {
+        total += it.value();
+    }
+    return total;
+}
+
+qint64 Character::guildXpToNextLevel(const QString& guildName) const {
+    int lvl = guildLevel(guildName);
+    if (lvl <= 0) return 0;
+    // Guild levels use the same curve as character levels.
+    return static_cast<qint64>(LevelTable::instance().xpForLevel(lvl));
+}
+
+bool Character::addGuildExperience(const QString& guildName, qint64 amount) {
+    if (amount <= 0) return false;
+    if (!guildLevels.contains(guildName)) {
+        joinGuild(guildName);
+    }
+
+    guildExperience[guildName] += amount;
+
+    // Level up while the guild XP pool covers the next level's cost.
+    bool leveled = false;
+    while (guildExperience[guildName] >= guildXpToNextLevel(guildName)) {
+        guildExperience[guildName] -= guildXpToNextLevel(guildName);
+        guildLevels[guildName] += 1;
+        leveled = true;
+    }
+    return leveled;
 }
 
 // --- Party Implementation ---

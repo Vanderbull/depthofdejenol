@@ -10,6 +10,10 @@
 #include "src/combat/EncounterBuilder.h"
 #include "src/combat/VictoryReward.h"
 #include "src/combat/CombatDeathHandler.h"
+#include "src/core/LevelTable.h"
+#include "src/core/AgingRules.h"
+#include "src/spell_casting/SpellBook.h"
+#include "src/partymanager/PartyManager.h"
 
 #include <QJsonArray>
 #include <QJsonDocument>
@@ -2410,6 +2414,446 @@ int runSelfTest()
         QStringList messages = dh.processDeaths();
         check(messages.size() > 0, "death message generated");
         check(messages[0].contains("Warrior"), "message contains Warrior");
+    }
+
+    // ------------------------------------------- LevelTable (3.1)
+    section("[24] Data-driven XP table");
+    {
+        LevelTable& lt = LevelTable::instance();
+        check(lt.load("data/levels.json"), "levels.json loads");
+
+        check(lt.isLoaded(), "LevelTable is loaded");
+        check(lt.maxLevel() == 20, "max level = 20",
+              QString::number(lt.maxLevel()));
+
+        // XP values increase with level
+        check(lt.xpForLevel(1) < lt.xpForLevel(5), "XP increases with level");
+        check(lt.xpForLevel(5) < lt.xpForLevel(10), "XP increases with level (5<10)");
+        check(lt.xpForLevel(10) < lt.xpForLevel(20), "XP increases with level (10<20)");
+
+        // Specific values from the table
+        check(lt.xpForLevel(1) == 100, "xpForLevel(1) = 100");
+        check(lt.xpForLevel(2) == 283, "xpForLevel(2) = 283");
+        check(lt.xpForLevel(5) == 1118, "xpForLevel(5) = 1118");
+        check(lt.xpForLevel(10) == 3155, "xpForLevel(10) = 3155");
+        check(lt.xpForLevel(20) == 8708, "xpForLevel(20) = 8708");
+
+        // totalXpForLevel
+        check(lt.totalXpForLevel(1) == 0, "totalXpForLevel(1) = 0");
+        check(lt.totalXpForLevel(2) == 100, "totalXpForLevel(2) = 100");
+        check(lt.totalXpForLevel(3) == 383, "totalXpForLevel(3) = 383");
+
+        // levelForXp
+        check(lt.levelForXp(0) == 1, "levelForXp(0) = 1");
+        check(lt.levelForXp(99) == 1, "levelForXp(99) = 1");
+        check(lt.levelForXp(100) == 2, "levelForXp(100) = 2");
+        check(lt.levelForXp(382) == 2, "levelForXp(382) = 2");
+        check(lt.levelForXp(383) == 3, "levelForXp(383) = 3");
+
+        // xpProgress
+        QPair<int, int> progress = lt.xpProgress(150);
+        check(progress.first == 50, "xpProgress(150).first = 50",
+              QString::number(progress.first));
+        check(progress.second == 283, "xpProgress(150).second = 283",
+              QString::number(progress.second));
+
+        // Fallback for unloaded table
+        LevelTable fallback;
+        check(fallback.xpForLevel(1) == 100, "fallback xpForLevel(1) = 100");
+        check(fallback.xpForLevel(5) == 1118, "fallback xpForLevel(5) = 1118");
+    }
+
+    // ------------------------------------------- Level-up stat gains (3.2)
+    section("[25] Level-up stat gains");
+    {
+        // Level-up grants HP, mana for casters, and stat points.
+        PartyManager pm;
+        Character c;
+        c.name = "TestChar";
+        c.level = 1;
+        c.experience = 0;
+        c.maxHp = 20;
+        c.hp = 20;
+        c.maxMana = 10;
+        c.mana = 10;
+        c.strength = 10;
+        c.intelligence = 12;  // Caster
+        c.wisdom = 10;
+        c.constitution = 10;
+        c.charisma = 10;
+        c.dexterity = 10;
+
+        int oldMaxHp = c.maxHp;
+        int oldMaxMana = c.maxMana;
+
+        pm.applyLevelUpGains(c);
+
+        check(c.maxHp > oldMaxHp, "HP increases on level up",
+              QString("old=%1 new=%2").arg(oldMaxHp).arg(c.maxHp));
+        check(c.hp == c.maxHp, "HP fully restored on level up");
+        check(c.maxMana > oldMaxMana, "mana increases for caster",
+              QString("old=%1 new=%2").arg(oldMaxMana).arg(c.maxMana));
+        check(c.mana == c.maxMana, "mana fully restored on level up");
+    }
+    {
+        // Non-caster: no mana gain.
+        PartyManager pm;
+        Character c;
+        c.name = "Warrior";
+        c.level = 1;
+        c.experience = 0;
+        c.maxHp = 20;
+        c.hp = 20;
+        c.maxMana = 10;
+        c.mana = 10;
+        c.strength = 15;
+        c.intelligence = 8;  // Not a caster
+        c.wisdom = 8;
+        c.constitution = 12;
+        c.charisma = 8;
+        c.dexterity = 10;
+
+        int oldMaxMana = c.maxMana;
+        pm.applyLevelUpGains(c);
+
+        check(c.maxMana == oldMaxMana, "no mana gain for non-caster");
+    }
+    {
+        // Stat point every 2 levels.
+        PartyManager pm;
+        Character c;
+        c.name = "TestChar";
+        c.level = 2;  // Even level
+        c.experience = 0;
+        c.maxHp = 20;
+        c.hp = 20;
+        c.maxMana = 10;
+        c.mana = 10;
+        c.strength = 10;
+        c.intelligence = 10;
+        c.wisdom = 10;
+        c.constitution = 10;
+        c.charisma = 10;
+        c.dexterity = 10;
+
+        int totalStatsBefore = c.strength + c.intelligence + c.wisdom +
+                              c.constitution + c.charisma + c.dexterity;
+        pm.applyLevelUpGains(c);
+        int totalStatsAfter = c.strength + c.intelligence + c.wisdom +
+                             c.constitution + c.charisma + c.dexterity;
+
+        check(totalStatsAfter == totalStatsBefore + 1,
+              "stat point granted on even level",
+              QString("before=%1 after=%2").arg(totalStatsBefore).arg(totalStatsAfter));
+    }
+    {
+        // No stat point on odd level.
+        PartyManager pm;
+        Character c;
+        c.name = "TestChar";
+        c.level = 3;  // Odd level
+        c.experience = 0;
+        c.maxHp = 20;
+        c.hp = 20;
+        c.maxMana = 10;
+        c.mana = 10;
+        c.strength = 10;
+        c.intelligence = 10;
+        c.wisdom = 10;
+        c.constitution = 10;
+        c.charisma = 10;
+        c.dexterity = 10;
+
+        int totalStatsBefore = c.strength + c.intelligence + c.wisdom +
+                              c.constitution + c.charisma + c.dexterity;
+        pm.applyLevelUpGains(c);
+        int totalStatsAfter = c.strength + c.intelligence + c.wisdom +
+                             c.constitution + c.charisma + c.dexterity;
+
+        check(totalStatsAfter == totalStatsBefore,
+              "no stat point on odd level",
+              QString("before=%1 after=%2").arg(totalStatsBefore).arg(totalStatsAfter));
+    }
+    {
+        // addExperienceToCharacter uses LevelTable.
+        LevelTable::instance().load("data/levels.json");
+        PartyManager pm;
+        Character c;
+        c.name = "TestChar";
+        c.level = 1;
+        c.experience = 0;
+        c.maxHp = 20;
+        c.hp = 20;
+        c.maxMana = 10;
+        c.mana = 10;
+        c.strength = 10;
+        c.intelligence = 12;
+        c.wisdom = 10;
+        c.constitution = 10;
+        c.charisma = 10;
+        c.dexterity = 10;
+        pm.currentParty().members.append(c);
+
+        // Give enough XP to level up (level 1→2 needs 100 XP)
+        pm.addExperienceToCharacter(0, 100);
+
+        check(pm.currentParty().members[0].level == 2, "level up via LevelTable",
+              QString::number(pm.currentParty().members[0].level));
+    }
+
+    // ------------------------------------------- Guild leveling (3.3)
+    section("[26] Guild leveling");
+    {
+        // Join a guild, gain XP, level up.
+        Character c;
+        c.name = "Mage";
+        c.intelligence = 15;
+        c.mana = 100;
+        c.maxMana = 100;
+
+        check(c.guildLevel("Mages Guild") == 0, "not a member initially");
+
+        c.joinGuild("Mages Guild");
+        check(c.guildLevel("Mages Guild") == 1, "join starts at level 1");
+
+        // Level 1 -> 2 costs 100 XP
+        bool leveled = c.addGuildExperience("Mages Guild", 99);
+        check(!leveled, "99 XP does not level");
+        check(c.guildLevel("Mages Guild") == 1, "still level 1");
+
+        leveled = c.addGuildExperience("Mages Guild", 1);
+        check(leveled, "100 XP levels up");
+        check(c.guildLevel("Mages Guild") == 2, "now level 2");
+
+        // Level 2 -> 3 costs 283
+        leveled = c.addGuildExperience("Mages Guild", 283);
+        check(leveled, "283 XP levels up again");
+        check(c.guildLevel("Mages Guild") == 3, "now level 3");
+
+        // Increment directly
+        int newLevel = c.incrementGuildLevel("Mages Guild");
+        check(newLevel == 4, "incrementGuildLevel returns 4",
+              QString::number(newLevel));
+    }
+    {
+        // totalGuildLevels sums all guild levels.
+        Character c;
+        c.joinGuild("Mages Guild");
+        c.incrementGuildLevel("Mages Guild");  // 2
+        c.joinGuild("Healers Guild");          // 1
+        c.incrementGuildLevel("Healers Guild"); // 2
+        c.incrementGuildLevel("Healers Guild"); // 3
+
+        check(c.guildLevel("Mages Guild") == 2, "Mages Guild = 2");
+        check(c.guildLevel("Healers Guild") == 3, "Healers Guild = 3");
+        check(c.totalGuildLevels() == 5, "total guild levels = 5",
+              QString::number(c.totalGuildLevels()));
+    }
+    {
+        // Guild levels persist through save/load.
+        Character c;
+        c.name = "Mage";
+        c.joinGuild("Mages Guild");
+        c.addGuildExperience("Mages Guild", 100);  // -> 2
+        c.addGuildExperience("Mages Guild", 283);  // -> 3
+
+        QVariantMap map = c.toMap();
+        Character loaded;
+        loaded.loadFromMap(map);
+
+        check(loaded.guildLevel("Mages Guild") == 3, "guild level persists",
+              QString::number(loaded.guildLevel("Mages Guild")));
+        check(loaded.totalGuildLevels() == 3, "total persists");
+    }
+
+    // ------------------------------------------- Spell learning (3.5)
+    section("[27] Spell learning");
+    {
+        SpellBook& sb = SpellBook::instance();
+        check(sb.load("data/spells.json"), "spells.json loads");
+        check(sb.isLoaded(), "SpellBook is loaded");
+        check(sb.spellCount() == 47, "47 spells loaded",
+              QString::number(sb.spellCount()));
+
+        // A level-1 Mage knows Flame Bolt (base_level 1, int 10).
+        Character mage;
+        mage.name = "Mage";
+        mage.intelligence = 15;  // Fireball needs 15
+        mage.joinGuild("Mages Guild");
+
+        QList<SpellDef> known = sb.spellsFor(mage);
+        bool hasFlameBolt = false;
+        for (const SpellDef& s : known) {
+            if (s.name == "Flame Bolt") hasFlameBolt = true;
+        }
+        check(hasFlameBolt, "level-1 mage knows Flame Bolt");
+
+        // Fireball needs base_level 3.
+        bool hasFireball = false;
+        for (const SpellDef& s : known) {
+            if (s.name == "Fireball") hasFireball = true;
+        }
+        check(!hasFireball, "level-1 mage does not know Fireball");
+
+        // Level the mage's guild to 3 -> Fireball appears.
+        mage.addGuildExperience("Mages Guild", 100 + 283);  // -> level 3
+        check(mage.guildLevel("Mages Guild") == 3, "mage is guild level 3");
+
+        known = sb.spellsFor(mage);
+        hasFireball = false;
+        for (const SpellDef& s : known) {
+            if (s.name == "Fireball") hasFireball = true;
+        }
+        check(hasFireball, "guild level 3 mage knows Fireball");
+    }
+    {
+        // A Warrior gets no mage spells.
+        Character warrior;
+        warrior.name = "Warrior";
+        warrior.strength = 18;
+        warrior.intelligence = 8;
+        warrior.joinGuild("Warriors Guild");
+
+        SpellBook& sb = SpellBook::instance();
+        QList<SpellDef> known = sb.spellsFor(warrior);
+
+        bool hasMageSpell = false;
+        for (const SpellDef& s : known) {
+            if (s.guilds.contains("Mages Guild")) hasMageSpell = true;
+        }
+        check(!hasMageSpell, "warrior knows no mage spells");
+    }
+    {
+        // Stat requirements are enforced: low INT blocks Flame Bolt.
+        Character weakMage;
+        weakMage.name = "WeakMage";
+        weakMage.intelligence = 5;  // below the required 10
+        weakMage.joinGuild("Mages Guild");
+
+        SpellBook& sb = SpellBook::instance();
+        QList<SpellDef> known = sb.spellsFor(weakMage);
+
+        bool hasFlameBolt = false;
+        for (const SpellDef& s : known) {
+            if (s.name == "Flame Bolt") hasFlameBolt = true;
+        }
+        check(!hasFlameBolt, "INT 5 blocks Flame Bolt (needs 10)");
+    }
+    {
+        // newlyLearned reports spells granted at a specific guild level.
+        Character mage;
+        mage.name = "Mage";
+        mage.intelligence = 20;
+        mage.mana = 200;
+        mage.joinGuild("Mages Guild");
+        mage.incrementGuildLevel("Mages Guild");
+        mage.incrementGuildLevel("Mages Guild");  // level 3
+
+        SpellBook& sb = SpellBook::instance();
+        QList<SpellDef> learned = sb.newlyLearned(mage, "Mages Guild", 3);
+
+        bool hasFireball = false;
+        for (const SpellDef& s : learned) {
+            if (s.name == "Fireball") hasFireball = true;
+        }
+        check(hasFireball, "Fireball learned at guild level 3");
+    }
+    {
+        // canCast respects known-spell and mana checks.
+        Character mage;
+        mage.name = "Mage";
+        mage.intelligence = 15;
+        mage.mana = 5;   // not enough for Flame Bolt (10)
+        mage.maxMana = 100;
+        mage.joinGuild("Mages Guild");
+
+        SpellBook& sb = SpellBook::instance();
+        check(!sb.canCast(mage, "Flame Bolt"), "cannot cast without mana");
+
+        mage.mana = 50;
+        check(sb.canCast(mage, "Flame Bolt"), "can cast with mana");
+
+        check(!sb.canCast(mage, "Inferno"), "cannot cast unknown spell");
+    }
+
+    // ------------------------------------------- Aging (3.6)
+    section("[28] Aging and old age");
+    {
+        check(AgingRules::maxAgeForRace("Human") == 100, "Human max age = 100");
+        check(AgingRules::maxAgeForRace("Elf") == 400, "Elf max age = 400");
+        check(AgingRules::maxAgeForRace("Unknown") == 100, "unknown race falls back to 100");
+
+        check(AgingRules::decayThresholdForRace("Human") == 70,
+              "Human decay threshold = 70",
+              QString::number(AgingRules::decayThresholdForRace("Human")));
+    }
+    {
+        // A young character ages without effect.
+        Character c;
+        c.name = "Young";
+        c.race = "Human";
+        c.age = 30;
+        c.strength = 15;
+        c.constitution = 15;
+        c.dexterity = 15;
+
+        QStringList msgs = AgingRules::applyYearOfAging(c);
+        check(msgs.isEmpty(), "no messages for a young character");
+        check(c.isAlive, "young character survives");
+        check(!AgingRules::isPastMaxAge(c), "not past max age");
+        check(!AgingRules::isDecaying(c), "not decaying");
+    }
+    {
+        // Past the decay threshold, stats can drop.
+        Character c;
+        c.name = "Old";
+        c.race = "Human";
+        c.age = 80;  // past 70
+        c.strength = 10;
+        c.constitution = 10;
+        c.dexterity = 10;
+
+        check(AgingRules::isDecaying(c), "80-year-old is decaying");
+
+        // Over many years, stats should drop at least once.
+        bool dropped = false;
+        for (int i = 0; i < 200 && !dropped; i++) {
+            Character t = c;
+            t.age = 80;
+            QStringList msgs = AgingRules::applyYearOfAging(t);
+            if (!msgs.isEmpty()) dropped = true;
+        }
+        check(dropped, "decay happens within 200 years of rolls");
+    }
+    {
+        // At max age the character dies.
+        Character c;
+        c.name = "Ancient";
+        c.race = "Human";
+        c.age = 100;  // exactly max age
+        c.isAlive = true;
+
+        check(AgingRules::isPastMaxAge(c), "100-year-old Human is past max age");
+
+        QStringList msgs = AgingRules::applyYearOfAging(c);
+        check(!c.isAlive, "character dies at max age");
+        check(c.hp == 0, "HP is 0 on death");
+        check((c.statusFlags & StatusFlag::Dead) != 0, "Dead status applied");
+        check(msgs.size() == 1, "death message produced");
+        check(msgs[0].contains("old age"), "message mentions old age", msgs[0]);
+    }
+    {
+        // An Elf at 100 is nowhere near death.
+        Character c;
+        c.name = "Elf";
+        c.race = "Elf";
+        c.age = 100;
+
+        check(!AgingRules::isPastMaxAge(c), "100-year-old Elf is not past max age");
+        check(!AgingRules::isDecaying(c), "100-year-old Elf is not decaying");
+
+        AgingRules::applyYearOfAging(c);
+        check(c.isAlive, "Elf survives");
     }
 
     // -------------------------------------------------------------- cleanup

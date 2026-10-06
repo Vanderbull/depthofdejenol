@@ -107,6 +107,12 @@ HEADERS += src/combat/VictoryReward.h
 SOURCES += src/combat/VictoryReward.cpp
 HEADERS += src/combat/CombatDeathHandler.h
 SOURCES += src/combat/CombatDeathHandler.cpp
+HEADERS += src/core/LevelTable.h
+SOURCES += src/core/LevelTable.cpp
+HEADERS += src/core/AgingRules.h
+SOURCES += src/core/AgingRules.cpp
+HEADERS += src/spell_casting/SpellBook.h
+SOURCES += src/spell_casting/SpellBook.cpp
 
 #--------------------------------------------------
 # Header Files
