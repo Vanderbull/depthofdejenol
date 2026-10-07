@@ -672,6 +672,7 @@ build/bin/blacklands:  $(OBJECTS)
 	$(LINK) $(LFLAGS) -o $(TARGET)  $(OBJECTS) $(OBJCOMP) $(LIBS)
 	
 	 $(COPY_DIR) /home/rickard/Documents/GitHub/depthofdejenol/data build/bin 
+	 $(COPY_DIR) /home/rickard/Documents/GitHub/depthofdejenol/resources build/bin 
 	 $(COPY_FILE) build/bin/blacklands /home/rickard/Documents/GitHub/depthofdejenol/blacklands
 
 Makefile: blacklands.pro /usr/lib/x86_64-linux-gnu/qt6/mkspecs/linux-g++/qmake.conf /usr/lib/x86_64-linux-gnu/qt6/mkspecs/features/spec_pre.prf \
@@ -1986,7 +1987,8 @@ build/obj/release/selftest.o: test/selftest.cpp test/selftest.h \
 		src/tutorial/Tutorial.h \
 		src/quest_board/QuestBoardDialog.h \
 		src/journal_dialog/JournalDialog.h \
-		src/partymanager/PartyManager.h
+		src/partymanager/PartyManager.h \
+		src/library_dialog/BestiaryDialog.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/selftest.o test/selftest.cpp
 
 build/obj/release/ItemDatabase.o: src/items/ItemDatabase.cpp src/items/ItemDatabase.h

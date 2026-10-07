@@ -32,12 +32,18 @@
 #include "src/journal_dialog/JournalDialog.h"
 #include "src/spell_casting/SpellBook.h"
 #include "src/partymanager/PartyManager.h"
+#include "src/library_dialog/BestiaryDialog.h"
+#include "src/character_dialog/CharacterSheetDialog.h"
 
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QFile>
 #include <QStringList>
+#include <QComboBox>
+#include <QLabel>
+#include <QPushButton>
+#include <QTableWidget>
 
 #include <cstdio>
 
@@ -3785,33 +3791,154 @@ int runSelfTest()
         }
     }
 
+    section("[43b] Character sheet dialog");
+    {
+        // Constructing the dialog used to crash: refreshSheet() cleared and
+        // refilled the member combo, which emitted currentIndexChanged, which
+        // is wired to onMemberChanged -> refreshSheet, recursing until the
+        // stack overflowed. The dialog must survive construction.
+        auto *gsm = gameStateManager::instance();
+        if (gsm->getPartyMembers().isEmpty()) {
+            Character filler;
+            filler.name = "SheetTest";
+            gsm->getPartyMembers().append(filler);
+        }
+
+        CharacterSheetDialog sheet;
+        auto *combo = sheet.findChild<QComboBox*>();
+        auto *nameLabel = sheet.findChild<QLabel*>();
+
+        check(combo != nullptr, "character sheet has a member combo");
+        if (combo) {
+            check(combo->count() == gsm->getPartyMembers().size(),
+                  "member combo lists every party member",
+                  QString("%1 vs %2").arg(combo->count())
+                      .arg(gsm->getPartyMembers().size()));
+        }
+        check(nameLabel != nullptr, "character sheet shows the member name");
+
+        // The stats table must be filled, not merely present: an empty sheet
+        // is the visible symptom of refreshSheet() bailing out early.
+        QTableWidget *stats = nullptr;
+        for (QTableWidget *t : sheet.findChildren<QTableWidget*>()) {
+            if (t->columnCount() == 2 && t->rowCount() == 6) { stats = t; break; }
+        }
+        check(stats != nullptr, "character sheet has a six-row stats table");
+        if (stats) {
+            int filled = 0;
+            for (int r = 0; r < stats->rowCount(); ++r) {
+                const auto *nameCell = stats->item(r, 0);
+                const auto *valueCell = stats->item(r, 1);
+                if (nameCell && valueCell && !nameCell->text().isEmpty()) ++filled;
+            }
+            check(filled == 6, "every stat row is populated",
+                  QString("%1 of 6").arg(filled));
+            if (filled == 6) {
+                check(stats->item(0, 0)->text() == QStringLiteral("Strength"),
+                      "first stat row is Strength",
+                      stats->item(0, 0)->text());
+            }
+        }
+    }
+
     // ------------------------------------------- Bestiary (7.6)
+
     section("[44] Bestiary");
     {
-        auto *gsm = gameStateManager::instance();
-        const QList<QVariantMap>& monsters = gsm->monsterData();
+        // The bestiary is built from data/bestiary.json (see
+        // tools/gen_bestiary.py), not straight from the raw CSV, so that it
+        // can carry the categories, pictures and walkthrough prose the CSV
+        // only stores as opaque flags.
+        const QList<QVariantMap>& entries = BestiaryDialog::entries();
+        check(entries.size() > 0, "bestiary data is loaded",
+              QString::number(entries.size()));
 
-        check(monsters.size() > 0, "monster data is loaded",
-              QString::number(monsters.size()));
-
-        // Monsters are loaded from MDATA5.csv with its raw column names:
-        // the hit-point column is "hits", not "hp".
-        int missingName = 0;
-        int missingHits = 0;
-        for (const auto& m : monsters) {
+        int missingName = 0, missingHits = 0, missingImage = 0, missingCategory = 0;
+        int missingPictureFile = 0;
+        // picture -> how many monsters use it, and the best category count
+        // for that picture.
+        QHash<int, int> pictureCounts;
+        QHash<int, int> topCategoryCount;
+        QHash<int, QHash<QString, int>> categoryCounts;
+        for (const auto& m : entries) {
             if (m.value("name").toString().isEmpty()) ++missingName;
             if (m.value("hits", 0).toInt() <= 0) ++missingHits;
+            if (m.value("category").toString().isEmpty()) ++missingCategory;
+            const QString img = m.value("image").toString();
+            if (img.isEmpty()) ++missingImage;
+            else if (!QFile::exists(img)) ++missingPictureFile;
+
+            const int pic = m.value("picture").toInt();
+            pictureCounts[pic] += 1;
+            categoryCounts[pic][m.value("category").toString()] += 1;
+        }
+        for (auto it = categoryCounts.constBegin(); it != categoryCounts.constEnd(); ++it) {
+            int best = 0;
+            for (int n : it.value()) best = qMax(best, n);
+            topCategoryCount.insert(it.key(), best);
         }
         check(missingName == 0, "every monster has a name",
               QString("%1 missing").arg(missingName));
         check(missingHits == 0, "every monster has hits",
               QString("%1 missing").arg(missingHits));
+        check(missingCategory == 0, "every monster has a category",
+              QString("%1 missing").arg(missingCategory));
+        check(missingImage == 0, "every monster has a picture",
+              QString("%1 missing").arg(missingImage));
+        check(missingPictureFile == 0, "every picture file exists on disk",
+              QString("%1 missing").arg(missingPictureFile));
 
-        // Check floor distribution
-        QSet<int> floors;
-        for (const auto& m : monsters) {
-            floors.insert(m.value("levelFound", 0).toInt());
+        // The CSV's raw hp column does not exist; the field is "hits".
+        // Guard the exact bug that made the old dialog show HP: 0.
+        const QVariantMap goblie = BestiaryDialog::entry("Goblie");
+        check(!goblie.isEmpty(), "a known monster can be looked up by name");
+        if (!goblie.isEmpty()) {
+            check(goblie.value("hits").toInt() > 0, "looked-up monster has hits",
+                  QString::number(goblie.value("hits").toInt()));
+
+            // The portrait must actually decode, not merely exist on disk.
+            const QString path = BestiaryDialog::imagePath(goblie);
+            QPixmap pix(path);
+            check(!pix.isNull(), "the portrait loads as a pixmap", path);
+            check(pix.width() > 0 && pix.height() > 0,
+                  "the portrait has real dimensions",
+                  QString("%1x%2").arg(pix.width()).arg(pix.height()));
         }
+
+        // The five picture groups the walkthrough wraps onto long lines used
+        // to lose their category entirely.
+        check(BestiaryDialog::categories().size() > 10,
+              "bestiary has multiple categories",
+              QString::number(BestiaryDialog::categories().size()));
+
+        // Categories come from the walkthrough's own headings and are per
+        // monster, not per picture: "Werebear" sits under Lycanthropes even
+        // though it shares a picture with the bears. So the picture only
+        // supplies a fallback category for monsters the walkthrough never
+        // names, and that fallback must cover at least half the picture's
+        // monsters or it would be arbitrary.
+        int ambiguousPictures = 0;
+        for (auto it = pictureCounts.constBegin(); it != pictureCounts.constEnd(); ++it) {
+            const int total = it.value();
+            const int top = topCategoryCount.value(it.key(), 0);
+            if (total > 0 && top * 2 < total) ++ambiguousPictures;
+        }
+        check(ambiguousPictures == 0,
+              "every picture has a dominant category",
+              QString("%1 ambiguous").arg(ambiguousPictures));
+
+        // Every category the data uses must be one of the known headings.
+        const QStringList known = BestiaryDialog::categories();
+        int unknownCategory = 0;
+        for (const auto& m : entries) {
+            if (!known.contains(m.value("category").toString())) ++unknownCategory;
+        }
+        check(unknownCategory == 0, "every category is a known heading",
+              QString("%1 unknown").arg(unknownCategory));
+
+        // Floor distribution still spans the dungeon.
+        QSet<int> floors;
+        for (const auto& m : entries) floors.insert(m.value("level").toInt());
         check(floors.size() > 1, "monsters span multiple floors",
               QString::number(floors.size()));
     }

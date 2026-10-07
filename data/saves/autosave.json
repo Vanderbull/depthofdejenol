@@ -4,14 +4,10 @@
     "CurrentCharacterCharisma": 5,
     "CurrentCharacterConstitution": 6,
     "CurrentCharacterDexterity": 6,
-    "CurrentCharacterGold": 1500,
-    "CurrentCharacterHP": 0,
+    "CurrentCharacterGold": 0,
     "CurrentCharacterIntelligence": 9,
     "CurrentCharacterStrength": 4,
     "CurrentCharacterWisdom": 4,
-    "DungeonLevel": 2,
-    "DungeonX": 9,
-    "DungeonY": 18,
     "GameStates": [
         {
             "ActiveCharacterIndex": 0,
@@ -358,13 +354,6 @@
                         "id": 5,
                         "identified": true,
                         "name": "Rations"
-                    },
-                    {
-                        "charges": 22046,
-                        "equipped": 0,
-                        "id": 57,
-                        "identified": false,
-                        "name": "Magician's Armor"
                     }
                 ],
                 "Level": 1,
@@ -381,18 +370,17 @@
             }
         ],
         "PLUTTEN": "PLUTTEN",
-        "SharedGold": 1500
+        "SharedGold": 0
     },
     "PartyHP": [
         50,
         40,
         30
     ],
-    "PlayerGold": 1500,
+    "PlayerGold": 0,
     "ResourcesLoaded": true,
     "confinementStock": null,
     "currentLocation": 0,
     "currentMode": 0,
-    "isAlive": 0,
-    "lastSaved": "Wed Oct 7 01:45:47 2026"
+    "lastSaved": "Wed Oct 7 02:48:04 2026"
 }

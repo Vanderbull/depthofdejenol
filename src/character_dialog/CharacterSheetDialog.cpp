@@ -100,10 +100,19 @@ void CharacterSheetDialog::refreshSheet() {
     auto *gsm = gameStateManager::instance();
     const auto& members = gsm->getPartyMembers();
 
-    // Populate member combo
-    m_memberCombo->clear();
-    for (int i = 0; i < members.size(); ++i) {
-        m_memberCombo->addItem(tr("%1 (Lv %2)").arg(members[i].name).arg(members[i].level));
+    // Populate member combo. Filling it emits currentIndexChanged, which is
+    // wired to onMemberChanged -> refreshSheet; without blocking that signal
+    // the refill re-enters this function and recurses until the stack blows.
+    const int previous = m_memberCombo->currentIndex();
+    {
+        const QSignalBlocker blocker(m_memberCombo);
+        m_memberCombo->clear();
+        for (int i = 0; i < members.size(); ++i) {
+            m_memberCombo->addItem(tr("%1 (Lv %2)").arg(members[i].name).arg(members[i].level));
+        }
+        if (previous >= 0 && previous < m_memberCombo->count()) {
+            m_memberCombo->setCurrentIndex(previous);
+        }
     }
 
     if (members.isEmpty()) {
