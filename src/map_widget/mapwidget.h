@@ -6,6 +6,7 @@
 #include <QPainter>
 #include <QKeyEvent>
 #include "mapeditor.h"
+#include <QObject>
 
 class MapWidget : public QWidget {
     Q_OBJECT

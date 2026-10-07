@@ -10,6 +10,7 @@
 #include <QRegularExpression>
 
 #include "gameStateManager.h"
+#include <QObject>
 
 class ConfinementAndHoldingDialog : public QDialog
 {

@@ -10,6 +10,7 @@
 #include <QGroupBox>
 #include <QJsonObject>
 #include <QJsonArray>
+#include <QObject>
 
 // Forward declaration
 class gameStateManager;

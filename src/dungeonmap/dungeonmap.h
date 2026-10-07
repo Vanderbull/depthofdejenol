@@ -3,6 +3,7 @@
 
 #include <QWidget>
 #include <vector>
+#include <QObject>
 
 class DungeonMap : public QWidget {
     Q_OBJECT

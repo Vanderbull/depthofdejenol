@@ -13,6 +13,7 @@
 #include <QString>
 #include "src/race_data/RaceData.h" 
 #include "gameStateManager.h"
+#include <QObject>
 
 class CreateCharacterDialog : public QDialog
 {

@@ -9,6 +9,7 @@
 #include <QStringList>
 
 #include "gameStateManager.h"
+#include <QObject>
 
 // Forward declaration
 class BankDialog; 

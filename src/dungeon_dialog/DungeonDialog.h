@@ -18,6 +18,7 @@
 #include "../event/EventManager.h"
 #include "../../gameStateManager.h"
 #include "MiniMapDialog.h"
+#include <QObject>
 
 // Forward declarations
 class QGraphicsScene;

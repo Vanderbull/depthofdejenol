@@ -3,6 +3,7 @@
 #include <QAbstractListModel>
 #include <QVector>
 #include "Item.h"
+#include <QObject>
 
 class CompanionInventoryModel : public QAbstractListModel {
     Q_OBJECT

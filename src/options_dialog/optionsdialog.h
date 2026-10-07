@@ -10,6 +10,7 @@
 #include <QFontDialog>
 
 #include "gameStateManager.h"
+#include <QObject>
 
 class QCheckBox;
 class QSlider;

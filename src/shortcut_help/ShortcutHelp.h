@@ -5,6 +5,7 @@
 #include <QString>
 #include <QStringList>
 #include <QList>
+#include <QObject>
 
 // A single keyboard shortcut entry.
 struct ShortcutEntry {

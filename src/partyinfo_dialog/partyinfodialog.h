@@ -6,6 +6,7 @@
 #include <QVector> 
 #include <QStringList>
 #include <QVariant>
+#include <QObject>
 
 class PartyInfoDialog : public QDialog 
 {

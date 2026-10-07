@@ -8,6 +8,7 @@
 #include <QStringList>
 #include <QPropertyAnimation>    // Added for the animation system
 #include <QGraphicsOpacityEffect> // Added to allow opacity manipulation
+#include <QObject>
 
 class LoadingScreen : public QDialog
 {

@@ -3,6 +3,7 @@
 
 #include <QDialog>
 #include <memory>
+#include <QObject>
 
 // Forward declarations
 class gameStateManager;

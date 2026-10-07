@@ -6,6 +6,7 @@
 #include <QVariant>
 #include <QLabel>
 #include "gameStateManager.h"
+#include <QObject>
 
 class CharacterDialog : public QDialog {
     Q_OBJECT

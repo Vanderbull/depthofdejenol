@@ -9,6 +9,7 @@
 #include <QStandardItemModel>
 
 #include "gameStateManager.h"
+#include <QObject>
 
 class BankDialog : public QDialog
 {

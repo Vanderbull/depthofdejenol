@@ -6,6 +6,7 @@
 #include <QStringList>
 #include <QList>
 #include <QVariantMap>
+#include <QObject>
 
 class QListWidget;
 class QListWidgetItem;

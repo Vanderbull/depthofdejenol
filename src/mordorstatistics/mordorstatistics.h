@@ -5,6 +5,7 @@
 #include <QTableWidget>
 #include <QLabel>
 #include <QVBoxLayout>
+#include <QObject>
 
 class MordorStatistics : public QDialog
 {

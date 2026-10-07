@@ -9,6 +9,7 @@
 #include <QLineEdit>
 
 #include "gameStateManager.h"
+#include <QObject>
 
 class SeerDialog : public QDialog
 {

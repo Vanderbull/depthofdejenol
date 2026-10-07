@@ -4,6 +4,7 @@
 #include <QDialog>
 #include "Map.h"
 #include "MapWidget.h"
+#include <QObject>
 
 class MapDialog : public QDialog
 {

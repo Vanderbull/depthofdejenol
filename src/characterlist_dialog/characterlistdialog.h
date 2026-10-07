@@ -8,6 +8,7 @@
 #include <QLabel>
 
 #include "gameStateManager.h"
+#include <QObject>
 /**
  * @brief The dialog window for displaying and managing the list of characters.
  */

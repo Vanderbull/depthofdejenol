@@ -12,6 +12,7 @@
 #include <QMessageBox>
 
 #include "gameStateManager.h"
+#include <QObject>
 
 class GuildsDialog : public QDialog
 {

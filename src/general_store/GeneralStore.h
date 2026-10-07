@@ -14,6 +14,7 @@
 #include <QMessageBox>
 
 #include "gameStateManager.h"
+#include <QObject>
 
 class GeneralStore : public QDialog
 {

@@ -3,6 +3,7 @@
 
 #include <QWidget>
 #include "Map.h"
+#include <QObject>
 
 class MapWidget : public QWidget
 {

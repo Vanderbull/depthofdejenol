@@ -8,6 +8,7 @@
 #include <QVBoxLayout>
 #include <QCheckBox>
 #include <QKeyEvent>
+#include <QObject>
 
 class MinimapDialog : public QDialog {
     Q_OBJECT

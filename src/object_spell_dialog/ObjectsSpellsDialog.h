@@ -3,6 +3,7 @@
 
 #include <QDialog>
 #include <QStringListModel>
+#include <QObject>
 
 // Forward declarations speed up compilation
 class QTabWidget;

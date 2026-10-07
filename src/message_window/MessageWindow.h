@@ -4,6 +4,7 @@
 #include <QWidget>
 #include <QTextEdit>
 #include <QVBoxLayout>
+#include <QObject>
 
 class MessagesWindow : public QWidget
 {

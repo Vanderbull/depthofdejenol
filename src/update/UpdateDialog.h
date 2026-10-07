@@ -2,6 +2,7 @@
 
 #include <QDialog>
 #include <QUrl>
+#include <QObject>
 
 class QPushButton;
 class QLabel;

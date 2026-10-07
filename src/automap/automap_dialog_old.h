@@ -6,6 +6,7 @@
 #include <QPushButton>
 #include <QString>
 #include <QWidget> 
+#include <QObject>
 
 /**
  * @brief Custom QWidget class responsible for drawing the map and the player's position.

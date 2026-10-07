@@ -5,6 +5,7 @@
 #include <QString>
 #include <QList>
 #include <QDateTime>
+#include <QObject>
 
 class QListWidget;
 class QListWidgetItem;

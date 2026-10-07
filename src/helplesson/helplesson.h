@@ -10,6 +10,7 @@
 #include <QUrl>
 #include <QAction>
 #include "gameStateManager.h"
+#include <QObject>
 
 class HelpLessonDialog : public QDialog
 {

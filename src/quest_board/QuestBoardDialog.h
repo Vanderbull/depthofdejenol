@@ -5,6 +5,7 @@
 #include <QString>
 #include <QStringList>
 #include <QList>
+#include <QObject>
 
 class QListWidget;
 class QListWidgetItem;

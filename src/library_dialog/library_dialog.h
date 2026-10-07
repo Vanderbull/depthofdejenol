@@ -12,6 +12,7 @@
 #include <QPushButton>
 #include <QLineEdit>
 #include "gameStateManager.h"
+#include <QObject>
 // Define Category Constants
 //const QString CATEGORY_MAGIC = "Magic Books";
 //const QString CATEGORY_MONSTERS = "Creatures";

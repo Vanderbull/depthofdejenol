@@ -3,6 +3,7 @@
 
 #include <QWidget>
 #include "gameStateManager.h"
+#include <QObject>
 
 class CompassWidget : public QWidget
 {

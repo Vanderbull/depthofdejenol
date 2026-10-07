@@ -4,6 +4,7 @@
 #include <QDialog>
 #include <QString>
 #include <QList>
+#include <QObject>
 
 class QLabel;
 class QPushButton;

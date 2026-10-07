@@ -3,6 +3,7 @@
 
 #include <QMainWindow>
 #include <QPushButton>
+#include <QObject>
 
 class SenderWindow : public QMainWindow
 {

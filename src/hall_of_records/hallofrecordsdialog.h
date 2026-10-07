@@ -2,6 +2,7 @@
 #define HALLOFRECORDSDIALOG_H
 
 #include <QDialog>
+#include <QObject>
 
 class HallOfRecordsDialog : public QDialog {
     Q_OBJECT
