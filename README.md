@@ -1,107 +1,128 @@
-
 <div align="center">
-  
+
 ![Debian](https://img.shields.io/badge/OS-Debian%2013-A81D33?style=for-the-badge&logo=debian&logoColor=white)
-![Coffee](https://img.shields.io/badge/Maintained%20with-Coffee-6F4E37?style=for-the-badge&logo=coffeescript&logoColor=white)
-![Quest](https://img.shields.io/badge/Quest-Building%20with%20Bear-orange?style=for-the-badge&logo=adventure-caps&logoColor=white)
-![Open Source](https://img.shields.io/badge/Loot-Open%20Source-brightgreen?style=for-the-badge&logo=github&logoColor=white)
-[![Build Status](https://img.shields.io/github/actions/workflow/status/Vanderbull//build.yaml?branch=main&label=QUEST%20STATUS&logo=github&style=for-the-badge)](https://github.com/Vanderbull/depthofdejenol/actions)
-![Language](https://img.shields.io/badge/Skill-C%2B%2B%2020-blueviolet?style=for-the-badge&logo=c%2B%2B)
+![C++](https://img.shields.io/badge/Language-C%2B%2B%2020-blueviolet?style=for-the-badge&logo=c%2B%2B)
 ![Qt6](https://img.shields.io/badge/Engine-Qt%206-green?style=for-the-badge&logo=qt&logoColor=white)
-![Graphics](https://img.shields.io/badge/Visuals-Raster%202D-E91E63?style=for-the-badge&logo=image&logoColor=white)
-![Spells](https://img.shields.io/badge/Casting-Core%20Logic-9370DB?style=for-the-badge&logo=magic&logoColor=white)
-![Recursion](https://img.shields.io/badge/Spell-Recursive%20Loop-4B0082?style=for-the-badge&logo=darkreader&logoColor=white)
-![Memory](https://img.shields.io/badge/Potion-Memory%20Safety-EC2F2F?style=for-the-badge&logo=flask&logoColor=white)
-![Optimization](https://img.shields.io/badge/Potion-High%20FPS-2ECC71?style=for-the-badge&logo=speedtest&logoColor=white)
-![Assets](https://img.shields.io/badge/Potion-Asset%20Mana-3498DB?style=for-the-badge&logo=liquity&logoColor=white)
-[![Quest Status](https://img.shields.io/github/actions/workflow/status/Vanderbull/depthofdejenol/build.yaml?label=QUEST%20STATUS&logo=github&style=for-the-badge)](https://github.com/Vanderbull/depthofdejenol/actions)
+![Tests](https://img.shields.io/badge/Tests-840%20Passing-brightgreen?style=for-the-badge&logo=github-actions)
+![License](https://img.shields.io/badge/License-MIT-yellow?style=for-the-badge)
 
 </div>
 
 <img width="1019" height="216" alt="title_banner" src="https://github.com/user-attachments/assets/555af4ae-3b9a-442d-8d4d-8bd12da5f87f" />
-<img width="1404" height="515" alt="races_banner" src="https://github.com/user-attachments/assets/84a36ce2-efab-49fe-8c1d-a92310ec23ba" />
 
 # BlackLands
 
-Title: BlackLands (Working Title)
+**Genre:** Party-based Dungeon Crawler / RPG
 
-Genre: Party-based Dungeon Crawler / RPG
+**Platform:** PC (Linux, Windows, macOS)
 
-Platform: PC (Windows/Mac/Linux)
+**Core Loop:** Recruit heroes → Descend into the Depths → Kill monsters & find loot → Return to the surface to level up & identify items.
 
-Core Loop: Recruit heroes → Descend into the Depths → Kill monsters/Find loot → Return to the surface to level up/identify items.
+---
 
-# Core Pillars
-
-The Grid: Movement is strictly tile-based and 90-degree turns.
-
-The Grind: Leveling should feel meaningful. The 1% stat increases matter.
-
-The Mystery: Hidden doors, teleporters, and pits must be mapped (or memorized) by the player.
-
-The Library: A massive database of items and monsters that rewards "collecting" knowledge.
-    
 ## Features
 
-- 401 Monsters (with Monster Editor tool and monster conversion utilities)
-- 100 Spells (with Spellbook Editor tool)
-- 366 Items
-- 16 Soundtracks
-- Dungeon map and automap support (levels, parties, exploration)
-- Character management and dialogs (creation, confinement, party info, morgue)
-- In-game facilities: General Store, Guilds, Bank, Seer
-- Statistics and records dialog
-- Extremly basic city multiplayer server and client functions with chat
-
-
-For more details, see: [Mdata1.mdr documentation](https://dejenol.com/index.php?title=Mdata1.mdr)
-
-# ⚔️ BlackLands
-
-<div align="center">
-
-[![Quest Status](https://img.shields.io/github/actions/workflow/status/Vanderbull/depthofdejenol/build.yaml?label=QUEST%20STATUS&logo=github&style=for-the-badge)](https://github.com/Vanderbull/depthofdejenol/actions)
-![Realm](https://img.shields.io/badge/Realm-Debian%2013-red?style=for-the-badge&logo=debian&logoColor=white)
-
-</div>
+| Category | Details |
+|----------|---------|
+| **Monsters** | 401 unique monsters with portraits, categories, abilities, and resistances |
+| **Spells** | 100 spells across multiple guilds |
+| **Items** | 366 items with identification and equipment system |
+| **Audio** | 16 soundtracks with Qt Multimedia |
+| **Dungeon** | Tile-based movement, automap, multiple levels |
+| **Characters** | Creation, leveling, guild membership, party management |
+| **Facilities** | General Store, Guilds, Bank, Seer, Tavern |
+| **Multiplayer** | Basic city server/client with chat |
+| **Editors** | Monster Editor, Spellbook Editor, Map Editor |
 
 ---
 
-## 📜 The Arcanum (Technical Lore)
+## Building
 
-Every great adventurer needs to understand the laws of the world they inhabit. In the realm of *Depth of Dejenol*, these laws are written in **C++20** and powered by the **Qt6 Engine**.
+### Prerequisites
 
-### 🧪 Equipped Potions (Resource Management)
-* **Potion of Memory Safety (RAII):** We use Smart Pointers ($inline$ $std::unique\_ptr$ $inline$ and $inline$ $std::shared\_ptr$ $inline$) to ensure memory is reclaimed. No manual `delete` calls are allowed.
-* **Elixir of High FPS (Optimization):** Utilizing the **Qt RHI**, we draw frames efficiently without the overhead of heavy abstractions.
-* **Draft of Resource Loading:** Assets are managed via **Qt Resource Files (.qrc)**, bundling textures into the binary "flask" for instant access.
+**Debian / Ubuntu:**
 
-### 🪄 Active Spells (Code Logic)
-* **The Signal-Slot Incantation:** Communication is handled via **Qt's Signal/Slot system**, allowing decoupled "spell casting" between objects.
-* **The Bear's Scrying Mirror (LSP):** We use **Bear** to generate a `compile_commands.json`, granting your editor foresight into the code structure.
-* **The Ritual of qmake:** The `.pro` blueprint must be read by **qmake6** to prepare the "Scroll of Construction" (Makefile).
+```bash
+sudo apt update
+sudo apt install build-essential qmake6 qt6-base-dev qt6-multimedia-dev
+```
+
+**Fedora:**
+
+```bash
+sudo dnf install gcc-c++ make qt6-qtbase-devel qt6-qtmultimedia-devel
+```
+
+**macOS (Homebrew):**
+
+```bash
+brew install qt@6
+```
+
+### Compile
+
+```bash
+# Generate the Makefile
+qmake6 blacklands.pro
+
+# Build
+make -j$(nproc)
+```
+
+The binary lands at `build/bin/blacklands`.
+
+### Run
+
+```bash
+./build/bin/blacklands
+```
+
+> **Note:** The binary expects `data/` and `resources/` alongside it. Both are copied automatically during the build.
 
 ---
 
-## 🗺️ Quest Log (Roadmap)
+## Testing
 
-| Quest | Status | Reward |
-| :--- | :--- | :--- |
-| **The Foundation** | ✅ Complete | Basic Engine & Qt Window |
-| **Cleaning the dungeon** | 🏃 In Progress | Nicer looking game | 
-| **Dungeon Generation** | 🔒 Locked | Procedural Level Logic |
-| **The Final Boss** | 🔒 Locked | Release v1.0 |
+The project ships with a self-contained test suite (840 tests):
 
----
+```bash
+make check
+```
 
-## 🛡️ The Developer's Character Sheet
+Or run directly:
 
-| Attribute | Required Level | Tool |
-| :--- | :--- | :--- |
-| **Intelligence** | C++20 Standard | `g++` / `clang` |
-| **Wisdom** | Qt 6.x Framework | `qt6-base-dev` |
-| **Perception** | Language Server |
+```bash
+./blacklands --selftest
+```
 
 ---
 
-Test
+## Project Structure
+
+```
+blacklands.pro          # qmake build file
+src/                      # Game source code
+  core/                   # Game state, constants, data loading
+  character_dialog/       # Character sheet, creation
+  library_dialog/         # Bestiary, journal
+  spell_casting/          # Spellbook, casting
+  partymanager/           # Party management
+  ...
+data/                     # Game data (JSON, CSV)
+resources/                # Images, sounds, fonts
+tools/                    # Editor and converter utilities
+test/                     # Self-test suite
+docs/                     # Documentation
+```
+
+---
+
+## Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for build setup, code style, and workflow.
+
+---
+
+## License
+
+[MIT](LICENSE) — Copyright (c) 2025 Vanderbull Gaming
