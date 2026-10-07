@@ -109,10 +109,24 @@ private:
         s_resources.insert("hostile", QPixmap("resources/images/hostile.png"));
         s_resources.insert("introtitle", QPixmap("resources/images/introtitle.png"));
 
+        // City-dialog buttons. theCity::loadButtonIcons() requests these keys,
+        // so they must be registered here or the buttons render blank.
+        s_resources.insert("tavern", QPixmap("resources/images/tavern.png"));
+        s_resources.insert("library", QPixmap("resources/images/library.png"));
+        s_resources.insert("quest_board", QPixmap("resources/images/quest_board.png"));
+        s_resources.insert("character_sheet", QPixmap("resources/images/character_sheet.png"));
+        s_resources.insert("bestiary", QPixmap("resources/images/bestiary.png"));
+        s_resources.insert("journal", QPixmap("resources/images/journal.png"));
+        s_resources.insert("npc", QPixmap("resources/images/npc.png"));
+
         // Debug output to confirm loading
         qDebug() << "Game resources loaded:" << s_resources.count() << "items.";
-        if (s_resources.value("general_store").isNull()) {
-             qWarning() << "CRITICAL: 'general_store' failed to load. Check path in loadResources().";
+
+        // Report every key whose file failed to load, not just general_store.
+        for (auto it = s_resources.constBegin(); it != s_resources.constEnd(); ++it) {
+            if (it.value().isNull()) {
+                qWarning() << "Missing game resource:" << it.key();
+            }
         }
     }
 

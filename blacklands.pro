@@ -216,6 +216,10 @@ SOURCES += fontManager.cpp
 # Copy data folder from project root to build/bin/
 QMAKE_POST_LINK += $$escape_expand(\\n\\t) $(COPY_DIR) $$quote($$PWD/data) $$quote($$DESTDIR)
 
+# Copy resources folder (all game art) to build/bin/. Without this the binary
+# in build/bin finds no artwork and every button/texture renders blank.
+QMAKE_POST_LINK += $$escape_expand(\\n\\t) $(COPY_DIR) $$quote($$PWD/resources) $$quote($$DESTDIR)
+
 # Copy final binary back to root for easy execution
 QMAKE_POST_LINK += $$escape_expand(\\n\\t) $(COPY_FILE) $$quote($$DESTDIR/$$TARGET) $$quote($$PWD/$$TARGET)
 
