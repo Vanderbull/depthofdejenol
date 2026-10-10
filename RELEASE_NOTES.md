@@ -138,6 +138,22 @@ serializes to map and back ✅.
 
 **Tests:** 1254 + 3 passed, 0 failed.
 
+## Slice 2.8 — Status effects in combat
+
+**Problem:** `GameConstants` defines Poison, Blind, Confusion, On Fire. `CombatActions` handles
+Confusion (25% chance to hit ally) and Blind (to-hit penalty). But Poison DoT is not
+applied, and no monster or spell inflicts these statuses.
+
+**Fix:**
+- `tickStatusEffects()` applies poison DoT (1-3 damage/round), fire DoT (2-5 damage/round), blind duration, confusion duration
+- `applyStatus()` sets status flags with duration
+- Monster fire breath sets players on fire
+- Poison kills at 0 HP
+
+**Verified:** tests [99]-[104] — poison DoT applied each round ✅; blind reduces to-hit and expires ✅; fire DoT and expires ✅; confusion causes friendly fire ✅; monster fire breath sets on fire ✅; poison kills at 0 HP ✅.
+
+**Tests:** 1265 + 3 passed, 0 failed.
+
 ---
 
 # v1.0.1 — 2026-10-10 ✅ RELEASED

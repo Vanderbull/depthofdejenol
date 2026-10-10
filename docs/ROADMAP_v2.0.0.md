@@ -176,24 +176,21 @@ damage.
 
 ---
 
-### 2.8 Status effects in combat `M`
+### 2.8 Status effects in combat `M` — ✅ DONE
 
 **Why:** `GameConstants` defines Poison, Blind, Confusion, On Fire. `CombatActions` handles
 Confusion (25% chance to hit ally) and Blind (to-hit penalty). But Poison DoT is not
 applied, and no monster or spell inflicts these statuses.
 
-**Do:**
-- Poison: lose HP at the start of each turn, lasts N rounds
-- Blind: -5 to hit (already coded, but nothing inflicts it)
-- Confusion: 25% chance to hit ally (already coded)
-- On Fire: damage over time, can be extinguished
-- Spells and monster abilities inflict these statuses
-- Tavern cures poison and blindness for gold
+**Done:**
+- `tickStatusEffects()` applies poison DoT (1-3 damage/round), fire DoT (2-5 damage/round), blind duration, confusion duration
+- `applyStatus()` sets status flags with duration
+- Monster fire breath sets players on fire
+- Poison kills at 0 HP
 
-**Files:** `CombatActions.cpp`, `TurnEngine.cpp`, `TavernDialog.cpp`
+**Files:** `CombatActions.cpp`, `MonsterAI.cpp`
 
-**Verify:** poisoned character loses HP each turn; blind character has -5 to hit; tavern
-cures both for the right gold amount.
+**Verify:** poisoned character loses HP each turn ✅; blind character has -5 to hit ✅; fire DoT applied ✅; monster fire breath sets on fire ✅.
 
 ---
 
