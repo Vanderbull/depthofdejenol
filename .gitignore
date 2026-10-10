@@ -58,3 +58,7 @@ Makefile
 # lsp
 .cache/
 compile_commands.json
+
+# python bytecode
+__pycache__/
+*.pyc
