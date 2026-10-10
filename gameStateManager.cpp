@@ -21,6 +21,7 @@
 #include <QMapIterator>
 #include <QDateTime>
 #include <QFile>
+#include <QSaveFile>
 #include <QTextStream>
 #include <QIODevice>
 #include <QJsonDocument>
@@ -2248,25 +2249,30 @@ bool gameStateManager::saveFullGameState(const QString& saveName) {
     // 2. Prepare the data (Sync live objects to the map)
     packStateForSaving();
 
-    // 3. Write atomically: write to .tmp, then rename
+    // 3. Write atomically via QSaveFile. QFile::rename() refuses to overwrite an
+    //    existing destination, so the old write-to-.tmp-then-rename approach
+    //    failed on every save after the first one (e.g. the periodic autosave,
+    //    which targets the same path over and over). QSaveFile writes to a
+    //    temporary file and atomically replaces the target on commit().
     QString filePath = QString("data/saves/%1.json").arg(saveName);
-    QString tmpPath = filePath + ".tmp";
-    QFile file(tmpPath);
+    QSaveFile file(filePath);
 
     if (!file.open(QIODevice::WriteOnly)) {
-        qWarning() << "Failed to create save file:" << tmpPath;
+        qWarning() << "Failed to create save file:" << filePath << file.errorString();
         return false;
     }
 
     // 4. Convert the QVariantMap to JSON and write
     QJsonDocument doc = QJsonDocument::fromVariant(m_gameStateData);
-    file.write(doc.toJson());
-    file.close();
+    if (file.write(doc.toJson()) < 0) {
+        qWarning() << "Failed to write save file:" << filePath << file.errorString();
+        file.cancelWriting();
+        return false;
+    }
 
-    // 5. Atomic rename
-    if (!QFile::rename(tmpPath, filePath)) {
-        qWarning() << "Failed to rename save file:" << tmpPath << "->" << filePath;
-        QFile::remove(tmpPath);
+    // 5. Atomic replace (commit closes the file and renames the temp over target)
+    if (!file.commit()) {
+        qWarning() << "Failed to commit save file:" << filePath << file.errorString();
         return false;
     }
 

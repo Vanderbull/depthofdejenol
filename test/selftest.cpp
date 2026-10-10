@@ -163,6 +163,26 @@ int runSelfTest()
     check(gsm->getPartyGold() == 700,
           "gold is 700 after load", QString::number(gsm->getPartyGold()));
 
+    // -------------------------------- re-saving over an existing file works
+    // The periodic autosave targets the same path over and over. The old
+    // implementation wrote a .tmp and called QFile::rename(), which refuses to
+    // overwrite an existing destination — so every save after the first failed
+    // silently. This must keep succeeding on the second and third write.
+    section("[4b] Saving over an existing file (autosave path)");
+    {
+        gsm->getParty().sharedGold = 111;
+        check(gsm->saveFullGameState(kTestSave), "second save over existing file succeeds");
+        gsm->getParty().sharedGold = 222;
+        check(gsm->saveFullGameState(kTestSave), "third save over existing file succeeds");
+
+        const QJsonObject again = readSaveFile();
+        const int gold = again.value("Party").toObject().value("SharedGold").toInt();
+        check(gold == 222, "the latest write wins", QString::number(gold));
+
+        // No stray temp file should be left behind.
+        check(!QFile::exists(savePath() + ".tmp"), "no leftover .tmp file");
+    }
+
     // ------------------------------------ load replaces rather than appends
     section("[5] Load replaces the party, never appends");
     gsm->getParty().members.clear();
@@ -5487,6 +5507,79 @@ int runSelfTest()
             check(viewport->width() < wideW,
                   "viewport shrinks with the dialog",
                   QString("%1 -> %2").arg(wideW).arg(viewport->width()));
+        }
+    }
+
+    // ------------------------------------------- DungeonDialog action buttons are a grid
+    // The 14 action buttons (Fight, Spell, Rest, ...) must render as a tidy 3-column
+    // grid inside the sidebar, not as a crammed pile. Assert real geometry:
+    //  - every action button has a sane size (at least 80x30)
+    //  - no two buttons overlap
+    //  - the buttons stay inside the sidebar
+    section("[63b] DungeonDialog action buttons form a grid");
+    {
+        DungeonDialog dlg;
+        dlg.resize(1280, 800);
+        dlg.show();
+        QApplication::processEvents();
+        dlg.resize(1280, 800);
+        QApplication::processEvents();
+
+        QWidget* sidebar = dlg.findChild<QWidget*>("dungeonSidebar");
+        check(sidebar != nullptr, "sidebar exists for button check");
+
+        if (sidebar) {
+            const QStringList actionNames = {"Fight", "Spell", "Rest", "Talk",
+                "Search", "Pickup", "Drop", "Open", "Map", "Chest",
+                "Teleport", "Exit", "Stairs Up", "Stairs Down"};
+
+            QList<QPushButton*> actionBtns;
+            for (QPushButton* btn : dlg.findChildren<QPushButton*>()) {
+                if (actionNames.contains(btn->text()))
+                    actionBtns.append(btn);
+            }
+
+            check(actionBtns.size() >= 14,
+                  "at least 14 action buttons present",
+                  QString::number(actionBtns.size()));
+
+            // Collect rects for overlap detection
+            QVector<QRect> rects;
+            for (QPushButton* btn : actionBtns) {
+                const QRect r = btn->geometry();
+                check(r.width() >= 80,
+                      QString("'%1' is wide enough").arg(btn->text()),
+                      QString::number(r.width()));
+                check(r.height() >= 30,
+                      QString("'%1' is tall enough").arg(btn->text()),
+                      QString::number(r.height()));
+                check(sidebar->rect().contains(r.center()),
+                      QString("'%1' lies inside the sidebar").arg(btn->text()),
+                      QString("btn@%1,%2 sidebar w=%3 h=%4")
+                          .arg(r.x()).arg(r.y())
+                          .arg(sidebar->width()).arg(sidebar->height()));
+                rects.append(r);
+            }
+
+            // No two buttons may overlap
+            int overlaps = 0;
+            for (int i = 0; i < rects.size(); ++i) {
+                for (int j = i + 1; j < rects.size(); ++j) {
+                    if (rects[i].intersects(rects[j]))
+                        ++overlaps;
+                }
+            }
+            check(overlaps == 0,
+                  "no two action buttons overlap",
+                  QString("%1 overlaps").arg(overlaps));
+
+            // Buttons should span roughly 3 distinct columns (x positions)
+            QSet<int> xPositions;
+            for (const QRect& r : rects)
+                xPositions.insert(r.x() / 20); // group within 20px tolerance
+            check(xPositions.size() >= 3,
+                  "buttons form at least 3 columns",
+                  QString("%1 distinct x-groups").arg(xPositions.size()));
         }
     }
 

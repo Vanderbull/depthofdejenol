@@ -1,4 +1,5 @@
 {
+    "BankSlotsFree": 24,
     "BankedGold": 0,
     "ConfigIntegrityOK": true,
     "CurrentCharacterCharisma": 5,
@@ -8,6 +9,10 @@
     "CurrentCharacterIntelligence": 9,
     "CurrentCharacterStrength": 4,
     "CurrentCharacterWisdom": 4,
+    "DungeonLevels": {
+        "levels": [
+        ]
+    },
     "GameStates": [
         {
             "ActiveCharacterIndex": 0,
@@ -64,12 +69,14 @@
                         "GuildLevels": {
                         },
                         "HP": 0,
+                        "Hunger": 100,
                         "Intelligence": 0,
                         "Inventory": [
                         ],
                         "Level": 0,
                         "Mana": 0,
                         "MaxHP": 0,
+                        "MaxHunger": 100,
                         "MaxMana": 0,
                         "Name": "Empty Slot",
                         "Race": "Human",
@@ -99,12 +106,14 @@
                         "GuildLevels": {
                         },
                         "HP": 0,
+                        "Hunger": 100,
                         "Intelligence": 0,
                         "Inventory": [
                         ],
                         "Level": 0,
                         "Mana": 0,
                         "MaxHP": 0,
+                        "MaxHunger": 100,
                         "MaxMana": 0,
                         "Name": "Empty Slot",
                         "Race": "Human",
@@ -134,12 +143,14 @@
                         "GuildLevels": {
                         },
                         "HP": 0,
+                        "Hunger": 100,
                         "Intelligence": 0,
                         "Inventory": [
                         ],
                         "Level": 0,
                         "Mana": 0,
                         "MaxHP": 0,
+                        "MaxHunger": 100,
                         "MaxMana": 0,
                         "Name": "Empty Slot",
                         "Race": "Human",
@@ -169,12 +180,14 @@
                         "GuildLevels": {
                         },
                         "HP": 0,
+                        "Hunger": 100,
                         "Intelligence": 0,
                         "Inventory": [
                         ],
                         "Level": 0,
                         "Mana": 0,
                         "MaxHP": 0,
+                        "MaxHunger": 100,
                         "MaxMana": 0,
                         "Name": "Empty Slot",
                         "Race": "Human",
@@ -188,11 +201,6 @@
                 "PLUTTEN": "PLUTTEN",
                 "SharedGold": 0
             },
-            "PartyHP": [
-                50,
-                40,
-                30
-            ],
             "PlayerScore": 0,
             "ResourcesLoaded": false,
             "inCity": false,
@@ -286,6 +294,8 @@
             "RecordValue": 22
         }
     ],
+    "HallOfRecords": [
+    ],
     "MaxRaceAge": [
         {
             "Age": 100,
@@ -346,6 +356,7 @@
                 "GuildLevels": {
                 },
                 "HP": 50,
+                "Hunger": 100,
                 "Intelligence": 9,
                 "Inventory": [
                     {
@@ -359,6 +370,7 @@
                 "Level": 1,
                 "Mana": 0,
                 "MaxHP": 50,
+                "MaxHunger": 100,
                 "MaxMana": 0,
                 "Name": "benke stolt",
                 "Race": "Human",
@@ -372,15 +384,11 @@
         "PLUTTEN": "PLUTTEN",
         "SharedGold": 0
     },
-    "PartyHP": [
-        50,
-        40,
-        30
-    ],
     "PlayerGold": 0,
     "ResourcesLoaded": true,
+    "SaveVersion": 1,
     "confinementStock": null,
     "currentLocation": 0,
     "currentMode": 0,
-    "lastSaved": "Wed Oct 7 02:48:04 2026"
+    "lastSaved": "Sat Oct 10 09:02:49 2026"
 }

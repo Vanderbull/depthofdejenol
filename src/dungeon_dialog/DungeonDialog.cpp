@@ -775,15 +775,23 @@ DungeonDialog::DungeonDialog(QWidget *parent)
     setupControls();
 
     QGridLayout *actionLayout = new QGridLayout();
-        
+    actionLayout->setSpacing(6);
+    actionLayout->setContentsMargins(0, 0, 0, 0);
+
     QStringList actions = {"Fight", "Spell", "Rest", "Talk", "Search", "Pickup", "Drop", "Open", "Map", "Chest", "Teleport", "Exit", "Stairs Up", "Stairs Down"};
     int row = 0, col = 0;
     for (const QString& name : actions) {
         if (m_controls.contains(name)) {
-            actionLayout->addWidget(m_controls[name], row, col);
+            QPushButton* btn = m_controls[name];
+            btn->setMinimumSize(80, 32);
+            actionLayout->addWidget(btn, row, col);
             if (++col > 2) { col = 0; row++; } // Grid layout: 3 buttons per row
         }
     }
+    // Stretch columns to fill the sidebar width evenly
+    actionLayout->setColumnStretch(0, 1);
+    actionLayout->setColumnStretch(1, 1);
+    actionLayout->setColumnStretch(2, 1);
 
     // --- Left Panel: main first-person view (grows) + adventure log ---
     QVBoxLayout *leftPanelLayout = new QVBoxLayout();
