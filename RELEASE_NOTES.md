@@ -245,6 +245,21 @@ scaling, VictoryReward scaling, NG+ level storage). 1018 passed, 0 failed, 25/25
 
 ---
 
+## Slice 1.4 — MonsterBalance into encounters ✅
+
+**Why.** 8.1 built a per-floor difficulty curve and a readiness check; nothing applied it.
+Encounters used raw MDATA5 stats, so the curve was not in the game.
+
+**Changed.**
+- `EncounterBuilder::buildEncounter()` takes `int floorLevel = 1` and scales monster HP,
+  ATT, and DEF by `MonsterBalance::statMultiplier(floorLevel)` (stacked with NG+ scaling).
+- `DungeonDialog` passes the current `DungeonLevel` and `NgPlusLevel` to `buildEncounter`.
+
+**Verified.** `make check` section [69] — 10 checks (stat multiplier, floor 1/10/15 HP and
+ATT scaling, NG+ and floor stacking, isPartyReady). 1028 passed, 0 failed, 25/25 stable.
+
+---
+
 # v0.0 — 2026-10-07 (game systems)
 
 The release that built the game's systems: eight phases covering items, equipment, combat,

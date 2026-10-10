@@ -106,19 +106,18 @@ scaling, VictoryReward scaling, NG+ level storage). 1018 passed, 0 failed, 25/25
 
 ---
 
-### 1.4 MonsterBalance into the encounter path `M`
+### 1.4 MonsterBalance into the encounter path `M` — ✅ DONE
 
-**Why:** 8.1 built a per-floor difficulty curve and a readiness check; nothing applies it.
-Encounters use raw MDATA5 stats, so the curve the roadmap describes is not in the game.
+**Why:** 8.1 built a per-floor difficulty curve and a readiness check; nothing applied it.
+Encounters used raw MDATA5 stats, so the curve the roadmap describes was not in the game.
 
-**Do:** route `EncounterBuilder` (or `DungeonDialog` when spawning) through
-`MonsterBalance`'s scaled stats for the current floor. Optionally warn on entry when the
-party is under-levelled for the floor.
+**Done:**
+- `EncounterBuilder::buildEncounter()` takes `int floorLevel = 1` and scales monster HP,
+  ATT, and DEF by `MonsterBalance::statMultiplier(floorLevel)` (stacked with NG+ scaling).
+- `DungeonDialog` passes the current `DungeonLevel` and `NgPlusLevel` to `buildEncounter`.
 
-**Files:** `src/combat/EncounterBuilder.cpp` or `DungeonDialog.cpp`, `src/core/MonsterBalance.*`.
-
-**Verify:** a floor-10 encounter has higher HP/att than the same monster on floor 1, by the
-documented multiplier.
+**Verified:** `make check` section [69] — 10 checks (stat multiplier, floor 1/10/15 HP and
+ATT scaling, NG+ and floor stacking, isPartyReady). 1028 passed, 0 failed, 25/25 stable.
 
 ---
 

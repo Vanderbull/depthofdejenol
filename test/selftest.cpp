@@ -5786,6 +5786,61 @@ int runSelfTest()
         gsm->setNgPlusLevel(0);  // restore
     }
 
+    // ------------------------------------------- v1.0.0 — slice 1.4: MonsterBalance
+    section("[69] v1.0.0 slice 1.4: MonsterBalance into encounters");
+    {
+        // MonsterBalance is the per-floor difficulty curve. Floor 1 is baseline.
+        check(MonsterBalance::statMultiplier(1) == 1.0, "floor 1 multiplier is 1.0");
+        check(MonsterBalance::statMultiplier(10) > 1.5, "floor 10 multiplier is significant",
+              QString::number(MonsterBalance::statMultiplier(10)));
+        check(MonsterBalance::statMultiplier(15) > 2.0, "floor 15 multiplier is high",
+              QString::number(MonsterBalance::statMultiplier(15)));
+
+        // EncounterBuilder applies floor scaling: same monster, deeper floor = stronger.
+        gameStateManager* gsm = gameStateManager::instance();
+        const QList<QVariantMap>& monsters = gsm->getMonsterData();
+        if (!monsters.isEmpty()) {
+            QString testMonster;
+            for (const QVariantMap& m : monsters) {
+                if (m.contains("ingroup") && m["hits"].toInt() > 0) {
+                    testMonster = m["name"].toString();
+                    break;
+                }
+            }
+            if (testMonster.isEmpty()) testMonster = monsters[0]["name"].toString();
+
+            auto floor1 = EncounterBuilder::buildEncounter(testMonster, monsters, 0, 1);
+            auto floor10 = EncounterBuilder::buildEncounter(testMonster, monsters, 0, 10);
+            auto floor15 = EncounterBuilder::buildEncounter(testMonster, monsters, 0, 15);
+
+            if (!floor1.isEmpty() && !floor10.isEmpty() && !floor15.isEmpty()) {
+                check(floor10.first().hp > floor1.first().hp,
+                      "floor 10 monster has more HP than floor 1",
+                      QString("%1 → %2").arg(floor1.first().hp).arg(floor10.first().hp));
+                check(floor15.first().hp > floor10.first().hp,
+                      "floor 15 monster has more HP than floor 10",
+                      QString("%1 → %2").arg(floor10.first().hp).arg(floor15.first().hp));
+                check(floor10.first().att > floor1.first().att,
+                      "floor 10 monster has higher ATT than floor 1",
+                      QString("%1 → %2").arg(floor1.first().att).arg(floor10.first().att));
+            }
+
+            // NG+ and floor scaling stack multiplicatively.
+            auto ng1floor1 = EncounterBuilder::buildEncounter(testMonster, monsters, 1, 1);
+            auto ng1floor10 = EncounterBuilder::buildEncounter(testMonster, monsters, 1, 10);
+            if (!ng1floor1.isEmpty() && !ng1floor10.isEmpty()) {
+                check(ng1floor10.first().hp > ng1floor1.first().hp,
+                      "NG+1 floor 10 > NG+1 floor 1 (floor scaling stacks with NG+)",
+                      QString("%1 → %2").arg(ng1floor1.first().hp).arg(ng1floor10.first().hp));
+            }
+        }
+
+        // isPartyReady gates entry by party size and level.
+        check(MonsterBalance::isPartyReady(4, 1, 1), "4 members at level 1 ready for floor 1");
+        check(!MonsterBalance::isPartyReady(1, 1, 15), "solo level 1 not ready for floor 15");
+        check(MonsterBalance::isPartyReady(4, 15, 15), "4 members at level 15 ready for floor 15");
+    }
+
     // -------------------------------------------------------------- cleanup
     QFile::remove(savePath());
 

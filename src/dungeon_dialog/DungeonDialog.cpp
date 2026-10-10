@@ -1323,7 +1323,9 @@ void DungeonDialog::on_fightButton_clicked()
             // gameStateManager): hits = HP, att/def, numGroups x ingroup = the
             // encounter size.
             QList<CombatParticipant> monsters = EncounterBuilder::buildEncounter(
-                monsterName, gsm->getMonsterData());
+                monsterName, gsm->getMonsterData(),
+                gsm->getNgPlusLevel(),
+                gsm->getGameValue("DungeonLevel").toInt());
             for (const auto& m : monsters) {
                 m_combatState->addParticipant(m);
             }

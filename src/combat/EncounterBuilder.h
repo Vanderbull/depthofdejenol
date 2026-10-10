@@ -15,11 +15,14 @@ public:
     // monsterName: the monster type (e.g. "Orc", "Rattlesnake")
     // monsterData: the full monster data list from gameStateManager
     // ngPlusLevel: 0 = base game, 1 = NG+1 (monsters 50% stronger), etc.
+    // floorLevel: the dungeon floor the encounter happens on. MonsterBalance
+    //            scales monster stats by this floor (1.0 at floor 1).
     // Returns a list of CombatParticipant objects ready for combat.
     static QList<CombatParticipant> buildEncounter(
         const QString& monsterName,
         const QList<QVariantMap>& monsterData,
-        int ngPlusLevel = 0);
+        int ngPlusLevel = 0,
+        int floorLevel = 1);
 
     // Get the number of monsters that would spawn for this type.
     static int getGroupSize(const QString& monsterName,
