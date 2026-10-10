@@ -5526,12 +5526,25 @@ int runSelfTest()
     //  - the buttons stay inside the sidebar
     section("[63b] DungeonDialog action buttons form a grid");
     {
-        DungeonDialog dlg;
-        // Test at BOTH the default size and the declared minimum (900x640).
-        // The sidebar holds more content than fits at the minimum height, and a
-        // plain layout crushes the buttons into each other there (13 overlaps).
-        // Checking only the roomy default size misses that entirely.
-        const QList<QSize> sizes = {QSize(1280, 800), QSize(900, 640)};
+        // Reproduce the REAL style inheritance: the dialog is created as a child
+        // of theCity, a child of GameMenu, and GameMenu applies MainMenu.qss.
+        // That sheet pins every QPushButton to min-width/max-width 200px — three
+        // such columns do not fit the 320px sidebar, so the buttons overlap.
+        // Constructing a bare DungeonDialog (no ancestor sheet) renders plain
+        // buttons and passes while the game is visibly broken. The sheet must
+        // sit on an ANCESTOR so the dialog's own override layers on top.
+        QWidget styleHost;
+        {
+            // Same lookup the game uses: the .qss next to blacklands.cpp.
+            const QString qssPath =
+                QFileInfo(QString(__FILE__)).absolutePath() + "/../MainMenu.qss";
+            QFile qss(qssPath);
+            if (qss.open(QFile::ReadOnly | QFile::Text))
+                styleHost.setStyleSheet(QString::fromUtf8(qss.readAll()));
+        }
+        styleHost.show();
+        DungeonDialog dlg(&styleHost);
+        const QList<QSize> sizes = {QSize(1280, 800), QSize(900, 640), QSize(1636, 1070)};
         for (const QSize& sz : sizes) {
             dlg.resize(sz);
             dlg.show();
@@ -5561,10 +5574,10 @@ int runSelfTest()
             QVector<QRect> rects;
             for (QPushButton* btn : actionBtns) {
                 const QRect r = btn->geometry();
-                check(r.width() >= 80,
+                check(r.width() >= 50,
                       QString("'%1' is wide enough").arg(btn->text()),
                       QString::number(r.width()));
-                check(r.height() >= 30,
+                check(r.height() >= 20,
                       QString("'%1' is tall enough").arg(btn->text()),
                       QString::number(r.height()));
                 rects.append(r);
@@ -5583,6 +5596,22 @@ int runSelfTest()
                   QString("no two action buttons overlap at %1x%2")
                       .arg(sz.width()).arg(sz.height()),
                   QString("%1 overlaps").arg(overlaps));
+
+            // All sidebar content must fit without scrolling. The sidebar holds
+            // info, party status, minimap, 14 action buttons and movement
+            // controls — at 900x640 the old layout overflowed by ~100px and
+            // forced a scrollbar.
+            int contentBottom = 0;
+            for (QWidget* w : sidebar->findChildren<QWidget*>(
+                     QString(), Qt::FindDirectChildrenOnly)) {
+                if (w->isVisible() && !w->geometry().isEmpty())
+                    contentBottom = qMax(contentBottom, w->geometry().bottom());
+            }
+            check(contentBottom <= sidebar->height(),
+                  QString("sidebar content fits at %1x%2 (no scrollbar)")
+                      .arg(sz.width()).arg(sz.height()),
+                  QString("content bottom %1 > sidebar height %2")
+                      .arg(contentBottom).arg(sidebar->height()));
         }
     }
 

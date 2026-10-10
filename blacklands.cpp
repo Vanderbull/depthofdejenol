@@ -267,11 +267,24 @@ int main(int argc, char *argv[]) {
     if (a.arguments().contains("--probe-dungeon")) {
         LoadingScreen loadingScreen;
         loadingScreen.exec();
-        DungeonDialog dlg;
+        // Reproduce the REAL style inheritance: in the game DungeonDialog is a
+        // child of theCity, a child of GameMenu, and GameMenu applies
+        // MainMenu.qss. The sheet must sit on an ANCESTOR, not on the dialog
+        // itself, or the dialog's own override would be replaced instead of
+        // layered on top. Without this the probe renders plain 32px buttons and
+        // misses what the player sees.
+        QWidget styleHost;
+        {
+            QFile qss(QFileInfo(__FILE__).absolutePath() + "/MainMenu.qss");
+            if (qss.open(QFile::ReadOnly | QFile::Text))
+                styleHost.setStyleSheet(QString::fromUtf8(qss.readAll()));
+        }
+        styleHost.show();
+        DungeonDialog dlg(&styleHost);
         dlg.show();
         // Probe at several sizes: the default resize, the declared minimum
         // (900x640), and the size the user's screen actually gives it.
-        QList<QSize> sizes = {QSize(1280, 800), QSize(900, 640)};
+        QList<QSize> sizes = {QSize(1280, 800), QSize(900, 640), QSize(1636, 1070)};
         for (const QSize& sz : sizes) {
             dlg.resize(sz);
             for (int i = 0; i < 40; ++i) QApplication::processEvents();
@@ -312,6 +325,7 @@ int main(int argc, char *argv[]) {
                     << "content bottom:" << bottom
                     << (bottom > sidebar->height() ? "  <<< CONTENT OVERFLOWS" : "");
             qInfo() << "=== END PROBE" << sz << "===";
+            dlg.grab().save(QString("/tmp/probe_%1x%2.png").arg(sz.width()).arg(sz.height()));
         }
         dlg.resize(1280, 800);
         for (int i = 0; i < 40; ++i) QApplication::processEvents();

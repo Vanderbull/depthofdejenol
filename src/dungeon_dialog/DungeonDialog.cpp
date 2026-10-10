@@ -775,8 +775,18 @@ DungeonDialog::DungeonDialog(QWidget *parent)
     QHBoxLayout *rootLayout = new QHBoxLayout(this);
     setupControls();
 
+    // MainMenu.qss is inherited down the chain GameMenu -> theCity -> this
+    // dialog, and its QPushButton rule pins every button to
+    // min-width/max-width 200px. Three 200px columns do not fit in this 320px
+    // sidebar, so the action buttons overlapped each other and read as a single
+    // mashed pile. Relax the width constraint only; keep a sane minimum height
+    // so the buttons stay clickable.
+    setStyleSheet(
+        "QPushButton { min-width: 0px; max-width: 999px;"
+        " min-height: 24px; padding: 4px 2px; font-size: 11px; }");
+
     QGridLayout *actionLayout = new QGridLayout();
-    actionLayout->setSpacing(6);
+    actionLayout->setSpacing(4);
     actionLayout->setContentsMargins(0, 0, 0, 0);
 
     QStringList actions = {"Fight", "Spell", "Rest", "Talk", "Search", "Pickup", "Drop", "Open", "Map", "Chest", "Teleport", "Exit", "Stairs Up", "Stairs Down"};
@@ -784,7 +794,7 @@ DungeonDialog::DungeonDialog(QWidget *parent)
     for (const QString& name : actions) {
         if (m_controls.contains(name)) {
             QPushButton* btn = m_controls[name];
-            btn->setMinimumSize(80, 32);
+            btn->setMinimumSize(60, 26);
             actionLayout->addWidget(btn, row, col);
             if (++col > 2) { col = 0; row++; } // Grid layout: 3 buttons per row
         }
@@ -827,7 +837,7 @@ DungeonDialog::DungeonDialog(QWidget *parent)
     // area so widgets keep their real size and the panel scrolls instead.
     QWidget *rightPanel = new QWidget(this);
     rightPanel->setObjectName("dungeonSidebar");
-    rightPanel->setFixedWidth(320);
+    rightPanel->setFixedWidth(360);
     rightPanel->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Expanding);
 
     QScrollArea *sidebarScroll = new QScrollArea(this);
@@ -837,11 +847,11 @@ DungeonDialog::DungeonDialog(QWidget *parent)
     sidebarScroll->setFrameShape(QFrame::NoFrame);
     sidebarScroll->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     sidebarScroll->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
-    sidebarScroll->setFixedWidth(320);
+    sidebarScroll->setFixedWidth(360);
     rootLayout->addWidget(sidebarScroll, 0);
 
     QVBoxLayout *rightPanelLayout = new QVBoxLayout(rightPanel);
-    rightPanelLayout->setSpacing(15);
+    rightPanelLayout->setSpacing(8);
     // 1. Location and Compass
     QGroupBox *infoBox = new QGroupBox("Current Location");
     QGridLayout *infoLayout = new QGridLayout(infoBox);
@@ -867,7 +877,7 @@ DungeonDialog::DungeonDialog(QWidget *parent)
     QGroupBox* partyBox = new QGroupBox("Party Status");
     QVBoxLayout* partyBoxLayout = new QVBoxLayout(partyBox);
     m_partyStatusList = new QListWidget(partyBox);
-    m_partyStatusList->setMaximumHeight(100);
+    m_partyStatusList->setMaximumHeight(60);
     m_partyStatusList->setFocusPolicy(Qt::NoFocus);
     partyBoxLayout->addWidget(m_partyStatusList);
     rightPanelLayout->addWidget(partyBox);
@@ -876,7 +886,7 @@ DungeonDialog::DungeonDialog(QWidget *parent)
     QGroupBox* miniMapBox = new QGroupBox("Automap");
     QVBoxLayout* miniMapBoxLayout = new QVBoxLayout(miniMapBox);
     m_miniMapViewIntegrated = new QGraphicsView(miniMapBox);
-    m_miniMapViewIntegrated->setMinimumSize(150, 150);
+    m_miniMapViewIntegrated->setMinimumSize(100, 100);
     m_miniMapViewIntegrated->setFocusPolicy(Qt::NoFocus);
     m_miniMapViewIntegrated->setBackgroundRole(QPalette::Dark);
     miniMapBoxLayout->addWidget(m_miniMapViewIntegrated);
