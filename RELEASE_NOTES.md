@@ -42,19 +42,21 @@ file and asserts the latest write wins.
 
 ## 2. Dungeon action buttons were crushed together
 
-The sidebar holds more content than fits at the dialog's declared minimum height (900x640).
-A plain `QVBoxLayout` resolved the shortfall by shrinking every child: the 14 action buttons
-(Fight, Spell, Rest, …) came out 32px tall on a 22px row pitch, so they **overlapped each
-other 13 times** and read as a single mashed pile. At the roomy default size (1280x800) it
-looked fine, which is why the original layout test missed it.
+**Root cause:** `MainMenu.qss` pins every `QPushButton` to `min-width: 200px; max-width: 200px`.
+This rule is inherited through `GameMenu → theCity → DungeonDialog`. Three 200px columns
+cannot fit in a 320px sidebar, so the 14 action buttons overlapped each other 13 times and
+read as a single mashed pile. At the roomy default size (1280x800) it looked fine, which is
+why the original layout test missed it.
 
-Fixed by wrapping the sidebar content in a `QScrollArea`: widgets keep their natural size
-and the panel scrolls instead of compressing. Buttons also got an explicit
-`setMinimumSize(80, 32)`, 6px grid spacing, and equal column stretch so they form a tidy
-3-column grid.
+**Fix:** `DungeonDialog` now applies its own `setStyleSheet` override that relaxes the width
+constraint (`min-width: 0; max-width: 999px`). The sidebar was widened from 320px to 360px,
+button minimum size reduced from 80×32 to 60×26, section spacing from 15px to 8px, grid
+spacing from 6px to 4px, minimap from 150×150 to 100×100, and party status list from
+100px to 60px. All content now fits without a scrollbar at any window size.
 
-`[63b]` now asserts button geometry at **both** 1280x800 and 900x640, including pairwise
-overlap — 0 required. Reverting the scroll area makes it report 11 overlaps at 900x640.
+`[63b]` now applies `MainMenu.qss` on an ancestor widget (real CSS inheritance), checks at
+1280×800, 900×640, and 1636×1070, and includes both pairwise overlap and content-overflow
+checks. Non-vacuous: 3 FAIL without the fix.
 
 ## 3. Main-menu background never loaded from `build/bin/`
 
@@ -75,9 +77,9 @@ alongside `data/` and `resources/`.
 
 ## Verification
 
-- `make check` → **1140 passed, 0 failed**, orphaned-system guard PASS.
+- `make check` → **1176 passed, 0 failed**, orphaned-system guard PASS.
 - Non-vacuous: reverting the `QSaveFile` fix → `[4b]` reports 3 FAIL; reverting the
-  scroll area → `[63b]` reports 11 overlaps at 900x640.
+  stylesheet override → `[63b]` reports 3 FAIL (one per window size).
 - Live: two consecutive autosaves both log `Full game state saved`; no
   `Could not load background image` on startup; window title reads `Blacklands v1.0.0`.
 
