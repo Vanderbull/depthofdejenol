@@ -12,8 +12,8 @@ We follow [semver.org](https://semver.org) with game-studio conventions:
 | **Minor** | `X.Y.0` | New features, mechanics, areas, or systems — backwards-compatible |
 | **Patch** | `X.Y.Z` | Bug fixes, balance, text, polish — no new features |
 
-**Pre-release:** `v0.x` is used before the first finishable release. `v0.1` is the current
-security/stability pass. `v1.0.0` will be the first version a player can complete.
+**Pre-release:** `v0.x` is used before the first finishable release. `v0.1` was the
+security/stability pass. **`v1.0.0` is the first version a player can complete** — current.
 
 ## Where the version lives
 
@@ -32,7 +32,7 @@ When a version is ready to ship:
 
 1. **Bump the version** in `blacklands.pro`:
    ```qmake
-   SEMVER_MAJOR = 1   # or 0
+   SEMVER_MAJOR = 1   # current
    SEMVER_MINOR = 0   # or current
    SEMVER_PATCH = 0   # or current
    ```

@@ -299,8 +299,8 @@ lessThan(VERSION_INT, 0): VERSION_INT = 0
 # Semantic version: v<major>.<minor>.<patch>
 # Bump MAJOR for the first finishable release or a fundamental rework.
 # Bump MINOR for new features/mechanics. Bump PATCH for fixes/balance/polish.
-SEMVER_MAJOR = 0
-SEMVER_MINOR = 1
+SEMVER_MAJOR = 1
+SEMVER_MINOR = 0
 SEMVER_PATCH = 0
 SEMVER = \"$${SEMVER_MAJOR}.$${SEMVER_MINOR}.$${SEMVER_PATCH}\"
 

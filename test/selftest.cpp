@@ -4854,12 +4854,12 @@ int runSelfTest()
     // ------------------------------------------- Release packaging (8.5)
     section("[56] Release packaging");
     {
-        check(ReleaseInfo::version() == "0.1.0", "version is 0.1.0");
-        check(ReleaseInfo::versionString() == "v0.1.0", "version string");
+        check(ReleaseInfo::version() == "1.0.0", "version is 1.0.0");
+        check(ReleaseInfo::versionString() == "v1.0.0", "version string");
         check(!ReleaseInfo::releaseDate().isEmpty(), "release date exists");
         check(!ReleaseInfo::systemRequirements().isEmpty(), "system requirements exist");
-        check(ReleaseInfo::installerName().contains("0.1.0"), "installer name");
-        check(ReleaseInfo::banner().contains("0.1.0"), "banner");
+        check(ReleaseInfo::installerName().contains("1.0.0"), "installer name");
+        check(ReleaseInfo::banner().contains("1.0.0"), "banner");
     }
     {
         // Release notes.
@@ -4879,7 +4879,7 @@ int runSelfTest()
         QList<QPair<QString, QString>> history = ReleaseInfo::versionHistory();
         check(history.size() >= 5, "at least 5 versions in history",
               QString::number(history.size()));
-        check(history[0].first == "0.1.0", "latest version is 0.1.0");
+        check(history[0].first == "1.0.0", "latest version is 1.0.0");
     }
 
     // ------------------------------------------- Status flag integrity
@@ -5766,14 +5766,17 @@ int runSelfTest()
                 }
             }
             if (!testMonster.isEmpty()) {
-                // Run multiple times to account for randomness.
+                // Gold has a random component (1–10 × goldFactor × multiplier),
+                // so a small sample can invert the comparison by chance. Sum
+                // enough rolls that the NG+ multiplier (1.25×) dominates the
+                // noise: at 2000 rolls the gap is ~15 sigma.
                 int baseTotal = 0, ng1Total = 0;
-                for (int i = 0; i < 50; ++i) {
+                for (int i = 0; i < 2000; ++i) {
                     baseTotal += VictoryReward::calculateGold(testMonster, monsters, 0);
                     ng1Total += VictoryReward::calculateGold(testMonster, monsters, 1);
                 }
                 check(ng1Total > baseTotal,
-                      "NG+1 gold reward is higher than base over 50 rolls",
+                      "NG+1 gold reward is higher than base over 2000 rolls",
                       QString("%1 → %2").arg(baseTotal).arg(ng1Total));
             }
         }

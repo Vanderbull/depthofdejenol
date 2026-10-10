@@ -331,6 +331,24 @@ callers, `GoldSinks` yields three). `make check` exits 0.
 
 ---
 
+## v1.0.0 version set ✅
+
+**Changed.**
+- `blacklands.pro`: `SEMVER_MAJOR = 1`, `SEMVER_MINOR = 0`, `SEMVER_PATCH = 0` →
+  `GameConstants::SEMANTIC_VERSION = "1.0.0"`.
+- `ReleaseInfo::versionHistory()` gains a 1.0.0 entry as the latest version.
+- Suite updated: `[56]` now expects `1.0.0` for version, version string, installer name,
+  banner, and the head of the version history.
+
+**Also fixed a flaky test.** `[68]`'s "NG+1 gold reward is higher than base" summed 50 rolls;
+gold carries a random 1–10× component, so the ~2.6σ comparison inverted roughly 1 run in 25.
+Raised to 2000 rolls (~14σ). 40/40 consecutive runs now stable.
+
+**Verified.** `make check` exits 0; `SEMANTIC_VERSION` reads `1.0.0` in the generated
+`version.h`; 1070 passed, 0 failed, 40/40 stable.
+
+---
+
 # v0.0 — 2026-10-07 (game systems)
 
 The release that built the game's systems: eight phases covering items, equipment, combat,

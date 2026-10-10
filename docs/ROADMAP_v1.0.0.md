@@ -1,8 +1,9 @@
 # Roadmap v1.0.0 — Connect the Orphaned Systems
 
-**Status:** Not started
+**Status:** ✅ Complete (2026-10-10) — code and tests; manual playthrough pending
 **Version:** v1.0.0 (major — first finishable release)
 **Test suite at start:** 983 passed, 0 failed
+**Test suite at end:** 1070 passed, 0 failed, 40/40 stable
 
 ## Goal
 
@@ -215,7 +216,13 @@ v1.0.0 is ready when:
 - [ ] New Game Plus is accessible from the victory screen
 - [x] All tests pass (1070 checks)
 - [x] `RELEASE_NOTES.md` is updated
-- [ ] `ReleaseInfo.cpp` version history is updated
+- [x] `ReleaseInfo.cpp` version history is updated
 
 **Note:** the three remaining items require a manual playthrough. The code paths are wired
 and unit-tested, but the end-to-end run has not been performed.
+
+## Version
+
+v1.0.0 is set: `SEMVER_MAJOR = 1`, `SEMVER_MINOR = 0`, `SEMVER_PATCH = 0` in `blacklands.pro`,
+which generates `GameConstants::SEMANTIC_VERSION = "1.0.0"`. `ReleaseInfo::versionHistory()`
+lists 1.0.0 as the latest entry.

@@ -59,6 +59,7 @@ QString ReleaseInfo::banner() {
 
 QList<QPair<QString, QString>> ReleaseInfo::versionHistory() {
     return {
+        {"1.0.0", "2026-10-10 — First finishable release: victory sequence, Hall of Records, New Game Plus, and the six orphaned systems wired in"},
         {"0.1.0", "2026-10-10 — Phase 0: security hardening and latent breakage fixes"},
         {"0.0", "2026-10-07 — Game systems built (8 phases)"},
         {"0.9.0", "2026-10-01 — Phase 7 complete"},
