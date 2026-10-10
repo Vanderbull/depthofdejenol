@@ -113,11 +113,9 @@ private slots:
     // --- Combat Slots ---
     void on_combatAttackButton_clicked();
     void on_combatDefendButton_clicked();
-    void on_combatFleeButton_clicked();
     void on_combatUseItemButton_clicked();
     void on_combatSpellButton_clicked();
     void updateCombatUI();
-    void advanceCombat();
     void handleVictory();
     void handlePartyWipe();
     void syncCombatToGameState();
@@ -128,6 +126,9 @@ public:
     // combat was started. Extracted from on_fightButton_clicked so that
     // handleEncounters can call it when the player steps onto a monster.
     bool startCombatAt(const QPair<int, int>& pos);
+    void on_combatFleeButton_clicked();
+    bool fleeCombat(); // public: true if the party escaped
+    void advanceCombat(); // public for tests
 
 private:
     void awardBattleLoot();

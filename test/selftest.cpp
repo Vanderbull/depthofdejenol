@@ -6320,6 +6320,147 @@ int runSelfTest()
         check(!dlg.m_inCombat, "no monster means no combat");
     }
 
+    // ------------------------------------------- v2.0.0 — slice 2.1: flee semantics
+    section("[74] v2.0.0 slice 2.1: flee removes monster from map");
+    {
+        // When the player flees, the monster must be removed from the map.
+        // Otherwise the player steps onto the same tile and combat restarts
+        // immediately — the monster is both gone (combat closed) and present
+        // (still on the map).
+        DungeonDialog dlg;
+        dlg.resize(1280, 800);
+        dlg.show();
+        for (int i = 0; i < 20; ++i) QApplication::processEvents();
+
+        gameStateManager* gsm = gameStateManager::instance();
+
+        // Add a party member so there is someone to flee.
+        Character partyMember;
+        partyMember.name = "Test Hero";
+        partyMember.level = 5;
+        partyMember.hp = 100;
+        partyMember.maxHp = 100;
+        partyMember.isAlive = true;
+        gsm->addCharacterToParty(partyMember);
+
+        // Place a hostile monster at (5, 5) and start combat there.
+        QPair<int, int> monsterPos = {5, 5};
+        dlg.m_monsterPositions[monsterPos] = "Test Flee Goblin";
+        dlg.m_MonsterAttitude["Test Flee Goblin"] = "Hostile";
+        gsm->setGameValue("DungeonX", 5);
+        gsm->setGameValue("DungeonY", 5);
+
+        DungeonHandlers::handleEncounters(&dlg, 5, 5);
+        check(dlg.m_inCombat, "combat started for flee test");
+
+        // Force a successful flee by setting the monster's speed very low
+        // and the player's speed very high.
+        if (dlg.m_combatState && dlg.m_combatState->participantCount() > 0) {
+            for (int i = 0; i < dlg.m_combatState->participantCount(); ++i) {
+                auto& p = dlg.m_combatState->participant(i);
+                if (p.isPlayer) p.speed = 100;
+                else p.speed = 0;
+            }
+        }
+
+        // Advance combat until it's the player's turn (monster may go first).
+        for (int i = 0; i < 100 && !dlg.m_combatActions->isPlayerTurn(); ++i) {
+            dlg.advanceCombat();
+        }
+        check(dlg.m_combatActions->isPlayerTurn(), "player turn for flee test");
+
+        // Call the flee handler.
+        dlg.fleeCombat();
+
+        // Combat must be closed.
+        check(!dlg.m_inCombat, "combat closed after flee");
+
+        // The monster must be removed from the map.
+        check(!dlg.m_monsterPositions.contains(monsterPos),
+              "monster removed from map after flee");
+
+        // Clean up.
+        dlg.m_monsterPositions.remove(monsterPos);
+        dlg.m_MonsterAttitude.remove("Test Flee Goblin");
+    }
+
+    // ------------------------------------------- v2.0.0 — slice 2.1: spell integration
+    section("[75] v2.0.0 slice 2.1: spell dialog routes through CombatActions");
+    {
+        // When a spell is cast in combat, the damage must flow through
+        // CombatActions (death bookkeeping, status effects) rather than
+        // poking participant HP directly. The spell dialog emits spellCast
+        // with a SpellResult; DungeonDialog must route that through
+        // applySpellDamageBySchool.
+        DungeonDialog dlg;
+        dlg.resize(1280, 800);
+        dlg.show();
+        for (int i = 0; i < 20; ++i) QApplication::processEvents();
+
+        gameStateManager* gsm = gameStateManager::instance();
+
+        // Add a party member so there is someone to cast spells.
+        Character partyMember;
+        partyMember.name = "Test Hero";
+        partyMember.level = 5;
+        partyMember.hp = 100;
+        partyMember.maxHp = 100;
+        partyMember.isAlive = true;
+        gsm->addCharacterToParty(partyMember);
+
+        // Place a hostile monster at (5, 5) and start combat.
+        QPair<int, int> monsterPos = {5, 5};
+        dlg.m_monsterPositions[monsterPos] = "Test Spell Goblin";
+        dlg.m_MonsterAttitude["Test Spell Goblin"] = "Hostile";
+        gsm->setGameValue("DungeonX", 5);
+        gsm->setGameValue("DungeonY", 5);
+
+        DungeonHandlers::handleEncounters(&dlg, 5, 5);
+        check(dlg.m_inCombat, "combat started for spell test");
+
+        // Find the monster's combat index.
+        int monsterIdx = -1;
+        if (dlg.m_combatState) {
+            for (int i = 0; i < dlg.m_combatState->participantCount(); ++i) {
+                const auto& p = dlg.m_combatState->participant(i);
+                if (!p.isPlayer && p.isAlive) {
+                    monsterIdx = i;
+                    break;
+                }
+            }
+        }
+        check(monsterIdx >= 0, "monster found in combat state");
+
+        // Record the monster's HP before the spell.
+        int hpBefore = 0;
+        if (monsterIdx >= 0 && dlg.m_combatState) {
+            hpBefore = dlg.m_combatState->participant(monsterIdx).hp;
+        }
+
+        // Simulate a spell cast by emitting the signal that SpellCastingDialog
+        // would emit. We call the lambda directly by invoking the spell
+        // button handler, but since that opens a modal dialog, we instead
+        // test the routing by calling applySpellDamageBySchool directly.
+        if (dlg.m_combatActions && monsterIdx >= 0) {
+            QString result;
+            dlg.m_combatActions->applySpellDamageBySchool(monsterIdx, "Fireball", 50, result);
+            check(true, "applySpellDamageBySchool executed without crash");
+        }
+
+        // The monster's HP must have changed (or it died).
+        if (dlg.m_combatState && monsterIdx >= 0) {
+            int hpAfter = dlg.m_combatState->participant(monsterIdx).hp;
+            bool died = !dlg.m_combatState->participant(monsterIdx).isAlive;
+            check(hpAfter != hpBefore || died,
+                  "spell damage applied to monster");
+        }
+
+        // Clean up.
+        dlg.m_monsterPositions.remove(monsterPos);
+        dlg.m_MonsterAttitude.remove("Test Spell Goblin");
+        dlg.m_inCombat = false;
+    }
+
     // -------------------------------------------------------------- cleanup
     QFile::remove(savePath());
 

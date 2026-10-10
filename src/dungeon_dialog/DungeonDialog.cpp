@@ -1436,13 +1436,25 @@ void DungeonDialog::on_combatDefendButton_clicked()
 
 void DungeonDialog::on_combatFleeButton_clicked()
 {
-    if (!m_inCombat || !m_combatActions) return;
+    fleeCombat();
+}
+
+bool DungeonDialog::fleeCombat()
+{
+    if (!m_inCombat || !m_combatActions) return false;
 
     QString result;
     bool fled = m_combatActions->flee(result);
     logMessage(result);
 
     if (fled) {
+        // Remove the monster from the map so the player can step onto this
+        // tile again without combat restarting immediately.
+        QPair<int, int> pos = getCurrentPosition();
+        m_monsterPositions.remove(pos);
+        renderWireframeView();
+        drawMinimap();
+
         m_inCombat = false;
         m_combatGroup->setVisible(false);
         logMessage("You flee from combat!");
@@ -1452,6 +1464,7 @@ void DungeonDialog::on_combatFleeButton_clicked()
         advanceCombat();
     }
     updateCombatUI();
+    return fled;
 }
 
 void DungeonDialog::on_combatUseItemButton_clicked()
