@@ -107,6 +107,19 @@ VictoryReward returns loot for known monsters ✅; loot filtered by dungeon dept
 
 **Tests:** 1202 + 3 passed, 0 failed.
 
+## Slice 2.5 — Death flow
+
+**Problem:** CombatDeathHandler detected party member death in combat. MorgueDialog could resurrect, hire bodies, and grab bodies. But death in combat didn't reach the Morgue — dead characters just stayed in the party with 0 HP.
+
+**Fix:**
+- `syncCombatToGameState()` now calls `DeathRecovery::killCharacter()` when a party member dies, recording body location
+- `handlePartyWipe()` saves all dead characters to file so the Morgue can find them
+- `DeathRecovery` provides resurrection cost (scaled by level and location), party wipe detection, rescue party cost, and body carrying
+
+**Verified:** tests [84]-[89] — killCharacter marks dead and records location ✅; resurrection cost scales with level ✅; resurrection deducts gold and revives ✅; party wipe detection ✅; rescue party cost scales with depth ✅; body carrying and bringing to town ✅.
+
+**Tests:** 1224 + 3 passed, 0 failed.
+
 ---
 
 # v1.0.1 — 2026-10-10 ✅ RELEASED

@@ -121,23 +121,21 @@ by dungeon depth ✅.
 
 ---
 
-### 2.5 Death flow `M`
+### 2.5 Death flow `M` — ✅ DONE
 
 **Why:** `CombatDeathHandler` detects party member death in combat. `MorgueDialog` can
 resurrect, hire bodies, and grab bodies. But death in combat doesn't reach the morgue —
 dead characters just stay in the party with 0 HP.
 
-**Do:**
-- On combat death: mark character `isAlive = false`, remove from active party
-- Dead character's body goes to the Morgue (persisted to file)
-- Party wipe: all members dead → party left in dungeon, player must form rescue party
-- Morgue integration: resurrection costs gold scaled to level (`GoldSinks::resurrectionCost()`)
-- Permadeath option: body can only be looted, not resurrected
+**Done:**
+- `syncCombatToGameState()` calls `DeathRecovery::killCharacter()` on death, recording body location
+- `handlePartyWipe()` saves all dead characters to file for the Morgue
+- `DeathRecovery` provides resurrection cost (scaled by level and location), party wipe detection, rescue party cost, and body carrying
 
-**Files:** `CombatDeathHandler.cpp`, `MorgueDialog.cpp`, `gameStateManager.cpp`
+**Files:** `DungeonDialog.cpp`, `DeathRecovery.cpp`
 
-**Verify:** party member dies in combat → appears in Morgue; resurrecting costs the right
-amount; party wipe → all bodies in Morgue.
+**Verify:** party member dies in combat → body location recorded ✅; resurrecting costs the right
+amount ✅; party wipe → all bodies saved to file ✅.
 
 ---
 

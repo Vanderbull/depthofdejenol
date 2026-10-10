@@ -15,6 +15,7 @@
 #include "src/quest_board/QuestBoardDialog.h"
 #include "src/automap/automap_dialog.h"
 #include "src/core/Endgame.h"
+#include "src/core/DeathRecovery.h"
 #include "src/victory_dialog/VictoryDialog.h"
 #include <cmath>
 #include <QVBoxLayout>
@@ -1658,6 +1659,12 @@ void DungeonDialog::handlePartyWipe()
     gameStateManager* gsm = gameStateManager::instance();
     logMessage("<font color='red'>💀 Your party has been defeated!</font>");
     gsm->setGameValue("isAlive", 0);
+
+    // Save dead characters to file so the Morgue can find them
+    for (int i = 0; i < gsm->getParty().members.size(); ++i) {
+        gsm->saveCharacterToFile(i);
+    }
+
     m_inCombat = false;
     m_combatGroup->setVisible(false);
     this->close();
@@ -1672,8 +1679,16 @@ void DungeonDialog::syncCombatToGameState()
     for (int i = 0; i < m_combatState->participantCount(); ++i) {
         const auto& p = m_combatState->participant(i);
         if (p.isPlayer && memberIdx < members.size()) {
+            bool wasAlive = members[memberIdx].isAlive;
             members[memberIdx].hp = p.hp;
             members[memberIdx].isAlive = p.isAlive;
+            // If the character just died, record body location for the Morgue
+            if (!p.isAlive && wasAlive) {
+                int level = gsm->getGameValue("DungeonLevel").toInt();
+                int x = gsm->getGameValue("DungeonX").toInt();
+                int y = gsm->getGameValue("DungeonY").toInt();
+                DeathRecovery::killCharacter(members[memberIdx], level, x, y);
+            }
             memberIdx++;
         }
     }

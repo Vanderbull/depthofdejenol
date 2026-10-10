@@ -24,6 +24,7 @@
 #include "src/spell_casting/SpellBook.h"
 #include "src/items/ItemProgression.h"
 #include "src/core/GoldSinks.h"
+#include "src/core/DeathRecovery.h"
 #include "src/core/ReleaseInfo.h"
 #include "src/core/AlignmentSystem.h"
 #include "src/npc_dialog/NPCDialog.h"
@@ -6497,6 +6498,9 @@ int runSelfTest()
     {
         // XP is divided among living party members only.
         gameStateManager* gsm = gameStateManager::instance();
+        // Clear party first to avoid interference from other tests
+        gsm->getParty().members.clear();
+
         Character hero;
         hero.name = "XP Hero";
         hero.level = 1;
@@ -6676,6 +6680,121 @@ int runSelfTest()
         // On floor 1, Bronze Sword (floor 1) should be available
         QStringList loot = VictoryReward::calculateLoot("Deep Monster", monsters, 1);
         check(true, "loot calculation works on floor 1");
+    }
+
+    // ------------------------------------------- v2.0.0 — slice 2.5: death flow
+    section("[84] v2.0.0 slice 2.5: killCharacter marks dead and records location");
+    {
+        Character hero;
+        hero.name = "Dead Hero";
+        hero.level = 3;
+        hero.maxHp = 10;
+        hero.hp = 10;
+        hero.isAlive = true;
+        DeathRecovery::killCharacter(hero, 3, 5, 7);
+        check(!hero.isAlive, "character is dead after killCharacter");
+        check(hero.hp == 0, "HP is 0 after killCharacter");
+        check(hero.dungeonLevel == 3, "dungeon level recorded");
+        check(hero.dungeonX == 5 && hero.dungeonY == 7, "dungeon position recorded");
+    }
+
+    section("[85] v2.0.0 slice 2.5: resurrection cost scales with level");
+    {
+        BodyLocation loc;
+        loc.valid = true;
+        loc.inCity = false;
+
+        int cost1 = DeathRecovery::resurrectionCost(1, loc);
+        int cost5 = DeathRecovery::resurrectionCost(5, loc);
+        int cost10 = DeathRecovery::resurrectionCost(10, loc);
+        check(cost5 > cost1, "resurrection cost increases with level");
+        check(cost10 > cost5, "resurrection cost increases more at level 10");
+
+        // Body in dungeon costs more than body in town
+        BodyLocation townLoc;
+        townLoc.valid = true;
+        townLoc.inCity = true;
+        int townCost = DeathRecovery::resurrectionCost(5, townLoc);
+        check(cost5 > townCost, "body in dungeon costs more than body in town");
+    }
+
+    section("[86] v2.0.0 slice 2.5: resurrection deducts gold and revives");
+    {
+        Character hero;
+        hero.name = "Resurrect Me";
+        hero.level = 3;
+        hero.maxHp = 10;
+        hero.isAlive = false;
+        hero.hp = 0;
+
+        BodyLocation loc;
+        loc.valid = true;
+        loc.inCity = true;
+
+        int partyGold = 10000;
+        QString reason;
+        bool ok = DeathRecovery::resurrect(hero, loc, partyGold, reason);
+        check(ok, "resurrection succeeds with enough gold");
+        check(hero.isAlive, "character is alive after resurrection");
+        check(hero.hp > 0, "character has HP after resurrection");
+        check(partyGold < 10000, "gold deducted for resurrection");
+
+        // Cannot resurrect a living character
+        QString failReason;
+        bool fail = DeathRecovery::resurrect(hero, loc, partyGold, failReason);
+        check(!fail, "cannot resurrect a living character");
+    }
+
+    section("[87] v2.0.0 slice 2.5: party wipe detection");
+    {
+        QList<Character> party;
+        Character alive;
+        alive.name = "Alive";
+        alive.isAlive = true;
+        party.append(alive);
+
+        check(!DeathRecovery::isPartyWiped(party), "party not wiped with living member");
+
+        Character dead;
+        dead.name = "Dead";
+        dead.isAlive = false;
+        party.append(dead);
+        check(!DeathRecovery::isPartyWiped(party), "party not wiped with one alive");
+
+        party[0].isAlive = false;
+        check(DeathRecovery::isPartyWiped(party), "party wiped when all dead");
+        check(DeathRecovery::needsRescue(party), "rescue needed when party wiped");
+    }
+
+    section("[88] v2.0.0 slice 2.5: rescue party cost scales with depth");
+    {
+        int cost1 = DeathRecovery::rescuePartyCost(1);
+        int cost5 = DeathRecovery::rescuePartyCost(5);
+        int cost10 = DeathRecovery::rescuePartyCost(10);
+        check(cost5 > cost1, "rescue cost increases with depth");
+        check(cost10 > cost5, "rescue cost increases more at depth 10");
+    }
+
+    section("[89] v2.0.0 slice 2.5: body carrying and bringing to town");
+    {
+        BodyLocation loc;
+        loc.valid = true;
+        loc.inCity = false;
+        loc.dungeonLevel = 5;
+        loc.x = 3;
+        loc.y = 4;
+
+        QString reason;
+        bool ok = DeathRecovery::carryBody(loc, reason);
+        check(ok, "can carry a valid body");
+        check(loc.carried, "body is marked as carried");
+
+        // Bring to town (must be carried first)
+        QList<BodyLocation> bodies;
+        bodies.append(loc);
+        int brought = DeathRecovery::bringBodiesToTown(bodies);
+        check(brought == 1, "body brought to town");
+        check(bodies[0].inCity, "body is in town after bringing");
     }
 
     // -------------------------------------------------------------- cleanup
