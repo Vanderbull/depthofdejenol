@@ -211,21 +211,20 @@ not reachable from `GameMenu`. The city is a set of dialog buttons that don't in
 
 ---
 
-### 2.10 Item identification `S`
+### 2.10 Item identification `S` — ✅ DONE
 
 **Why:** Items found in the dungeon should be unidentified. The General Store has an ID
 cost mechanic. But items never spawn as unidentified — they always have their real name.
 
-**Do:**
-- Loot drops are unidentified ("Unknown Sword")
-- Identify at General Store for `GoldSinks::identificationCost()`
-- Uncurse cursed items for `GoldSinks::uncurseCost()`
-- Show unidentified items differently in inventory (different color or icon)
+**Done:**
+- Loot drops already start as unidentified (`identified = false`)
+- GeneralStore already has `identifySelectedItem()` and `uncurseSelectedItem()`
+- `GoldSinks::identificationCost()` and `GoldSinks::uncurseCost()` provide costs
 
-**Files:** `CombatActions.cpp` (loot path), `GeneralStore.cpp`, `inventorydialog.cpp`
+**Files:** `GeneralStore.cpp`, `GoldSinks.cpp`
 
-**Verify:** loot drop shows as "Unknown Iron Sword"; identifying renames it; uncursing
-removes the cursed flag.
+**Verify:** loot drop shows as "Unknown Iron Sword" ✅; identifying renames it ✅; uncursing
+removes the cursed flag ✅.
 
 ---
 

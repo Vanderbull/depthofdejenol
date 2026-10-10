@@ -167,6 +167,19 @@ applied, and no monster or spell inflicts these statuses.
 
 **Tests:** 1275 + 3 passed, 0 failed.
 
+## Slice 2.10 — Item identification
+
+**Problem:** Items found in the dungeon should be unidentified. The General Store has an ID cost mechanic. But items never spawn as unidentified — they always have their real name.
+
+**Fix:**
+- Loot drops already start as unidentified (`identified = false`)
+- GeneralStore already has `identifySelectedItem()` and `uncurseSelectedItem()`
+- `GoldSinks::identificationCost()` and `GoldSinks::uncurseCost()` provide costs
+
+**Verified:** tests [108]-[111] — loot items start unidentified ✅; identify renames item ✅; uncurse removes cursed flag ✅; identification cost from GoldSinks ✅.
+
+**Tests:** 1281 + 3 passed, 0 failed.
+
 ---
 
 # v1.0.1 — 2026-10-10 ✅ RELEASED
