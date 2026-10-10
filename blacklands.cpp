@@ -128,7 +128,7 @@ void GameMenu::loadStyleSheet() {
 }
 
 void GameMenu::loadBackgroundImage() {
-    QString imagePath = QDir::cleanPath(qApp->applicationDirPath() + "/introtitle.png");
+    QString imagePath = QDir::cleanPath(qApp->applicationDirPath() + "/resources/images/introtitle.png");
     if (m_backgroundPixmap.load(imagePath)) {
         resizeEvent(nullptr); // Force initial scale
         gameStateManager::instance()->setGameValue("ResourcesLoaded", true); 
