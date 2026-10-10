@@ -23,6 +23,28 @@ mid-development commits.
 
 ---
 
+# v2.0.0 — IN PROGRESS
+
+**Major — "The Real Game": wire existing systems into the core loop.**
+
+## Slice 2.1 — Combat auto-start on hostile encounter
+
+**Problem:** stepping onto a monster only logged a line. Combat began only if the player
+then pressed Fight while standing on the tile. `initiateFight()` was an empty stub.
+
+**Fix:**
+- Extracted `startCombatAt(pos)` from `on_fightButton_clicked` so both the button and the
+  encounter handler share the same combat setup path
+- `handleEncounters` now calls `startCombatAt` for Hostile monsters
+- Neutral and friendly monsters do not trigger combat
+
+**Verified:** test [73] drives the real `handleEncounters` path — hostile starts combat,
+neutral does not, empty tile does not. Non-vacuous: 2 FAIL without the auto-start.
+
+**Tests:** 1176 → 1181 passed, 0 failed.
+
+---
+
 # v1.0.1 — 2026-10-10 ✅ RELEASED
 
 **Patch — three defects found by actually playing the game.** No new features.
