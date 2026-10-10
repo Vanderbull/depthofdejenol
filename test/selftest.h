@@ -1,6 +1,8 @@
 #ifndef SELFTEST_H
 #define SELFTEST_H
 
+#include <QString>
+
 // Headless verification suite for the core game logic.
 //
 // Runs without a GUI or user interaction, so it can gate every change:
@@ -12,5 +14,6 @@
 // slice that can silently regress.
 
 int runSelfTest();
+int runEquipmentTest();
 
 #endif // SELFTEST_H

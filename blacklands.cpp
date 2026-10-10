@@ -258,7 +258,9 @@ int main(int argc, char *argv[]) {
     // can gate every change; see test/selftest.cpp.
     if (a.arguments().contains("--selftest")) {
         qputenv("QT_QPA_PLATFORM", "offscreen");
-        return runSelfTest();
+        int rc = runSelfTest();
+        if (rc != 0) return rc;
+        return runEquipmentTest();
     }
 
     // Layout probe: build the real DungeonDialog through the normal xcb path,

@@ -462,6 +462,8 @@ int runSelfTest()
         sword.M4E97 = 8;
         c.inventory.append(sword);
 
+        // Bronze Sword requires Nomad membership (guild bit 0).
+        c.joinGuild("Nomad");
         QString reason;
         bool ok = c.equipItem(0, reason);
         check(ok, "equip Bronze Sword with sufficient STR", reason);
@@ -514,6 +516,8 @@ int runSelfTest()
         eliminator.M4ED4 = 0;
         c.inventory.append(eliminator);
 
+        // Eliminator requires a guild the character must join first.
+        c.joinGuild("Paladin");
         QString reason;
         bool ok = c.equipItem(0, reason);
         check(ok, "equip two-handed Eliminator with both hands free", reason);
@@ -534,6 +538,8 @@ int runSelfTest()
         eliminator.M4E97 = 999;
         c.inventory.append(eliminator);
 
+        // Eliminator requires a guild the character must join first.
+        c.joinGuild("Paladin");
         QString reason;
         bool ok = c.equipItem(0, reason);
         check(!ok, "equip two-handed weapon with occupied hand is refused");
@@ -550,6 +556,8 @@ int runSelfTest()
         sword1.M4E97 = 8;
         c.inventory.append(sword1);
 
+        // Bronze Sword requires a guild the character must join first.
+        c.joinGuild("Nomad");
         QString reason;
         bool ok1 = c.equipItem(0, reason);
         check(ok1, "first sword equips", reason);
@@ -573,6 +581,8 @@ int runSelfTest()
         sword.M4E97 = 8;
         c.inventory.append(sword);
 
+        // Bronze Sword requires a guild the character must join first.
+        c.joinGuild("Nomad");
         QString reason;
         c.equipItem(0, reason);
         check(c.equipped.size() == 1, "item equipped before unequip");
@@ -596,6 +606,8 @@ int runSelfTest()
         sword.M4E97 = 8;
         c.inventory.append(sword);
 
+        // Bronze Sword requires a guild the character must join first.
+        c.joinGuild("Nomad");
         QString reason;
         c.equipItem(0, reason);
 
@@ -628,6 +640,7 @@ int runSelfTest()
             members[0].inventory.append(sword);
 
             QString reason;
+            members[0].joinGuild("Nomad");
             bool ok = gsm->equipItem(0, members[0].inventory.size() - 1, reason);
             check(ok, "gsm equipItem succeeds", reason);
             check(members[0].equipped.size() == 1, "gsm equipped has one item",
@@ -677,6 +690,7 @@ int runSelfTest()
         c.inventory.append(girdle);
 
         QString reason;
+        c.joinGuild("Nomad");
         bool ok = c.equipItem(0, reason);
         check(ok, "equip Girdle of Strength", reason);
         check(c.effectiveStrength() == 16, "effective STR is 16 after +1 girdle",
@@ -701,6 +715,7 @@ int runSelfTest()
         }
         c.inventory.append(girdle);
 
+        c.joinGuild("Nomad");
         QString reason;
         c.equipItem(0, reason);
         check(c.effectiveStrength() == 16, "STR is 16 while equipped");
@@ -723,6 +738,7 @@ int runSelfTest()
         }
         c.inventory.append(girdle);
 
+        c.joinGuild("Nomad");
         QString reason;
         c.equipItem(0, reason);
 
@@ -762,6 +778,7 @@ int runSelfTest()
 
         QString reason;
         c.equipItem(0, reason);  // Girdle
+        c.joinGuild("Nomad");
         if (c.inventory.size() > 0) {
             c.equipItem(0, reason);  // Ring (now at index 0 after girdle was removed)
         }
@@ -981,6 +998,8 @@ int runSelfTest()
         }
         c.inventory.append(cursed);
 
+        // Gnarled Hands requires Villain membership (guild bit 3).
+        c.joinGuild("Villain");
         QString reason;
         bool ok = c.equipItem(0, reason);
         check(ok, "equip cursed item succeeds", reason);
@@ -4074,6 +4093,7 @@ int runSelfTest()
         check(c.effectiveStat("Strength") == c.effectiveStrength(), "effectiveStat matches");
 
         // Guilds
+        c.guildLevels.clear();
         c.joinGuild("Warrior");
         c.joinGuild("Mage");
         check(c.guildLevel("Warrior") == 1, "Warrior guild level 1");
@@ -6460,6 +6480,16 @@ int runSelfTest()
         dlg.m_MonsterAttitude.remove("Test Spell Goblin");
         dlg.m_inCombat = false;
     }
+
+    // Helper: join all guilds so any guild-restricted item can be equipped.
+    auto joinAllGuilds = [](Character& c) {
+        const QStringList guilds = GameConstants::GUILD_NAMES;
+        for (const QString& g : guilds) c.joinGuild(g);
+    };
+
+    // Equipment guild-restriction tests live in test/equipment_test.cpp
+    // (run separately via --selftest) so their guild membership doesn't
+    // leak into other tests' characters.
 
     // -------------------------------------------------------------- cleanup
     QFile::remove(savePath());

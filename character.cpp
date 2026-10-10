@@ -234,6 +234,28 @@ bool Character::equipItem(int inventoryIndex, QString& reason) {
         }
     }
 
+    // Check guild restrictions: each bit in def->guilds maps to a guild in
+    // GameConstants::GUILD_NAMES. The character must be a member of at least
+    // one of the required guilds.
+    if (def->guilds != 0) {
+        const QStringList guildNames = GameConstants::GUILD_NAMES;
+        bool hasRequiredGuild = false;
+        for (int bit = 0; bit < guildNames.size(); ++bit) {
+            if (def->guilds & (1 << bit)) {
+                const QString& guildName = guildNames.at(bit);
+                if (guildLevel(guildName) > 0) {
+                    hasRequiredGuild = true;
+                    break;
+                }
+            }
+        }
+        if (!hasRequiredGuild) {
+            reason = QString("%1 requires membership in a specific guild.")
+                         .arg(item.name);
+            return false;
+        }
+    }
+
     // Check nHands: two-handed weapons need both MainHand and OffHand free.
     ItemSlot::Slot slot = def->slot();
     if (def->nHands == 2) {

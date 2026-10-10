@@ -80,7 +80,7 @@ SOURCES += \
 # into the real binary. It is only reachable via the `blacklands --selftest`
 # flag, so the shipped executable is unchanged.
 HEADERS += test/selftest.h
-SOURCES += test/selftest.cpp
+SOURCES += test/selftest.cpp test/equipment_test.cpp
 
 #--------------------------------------------------
 # Item database
