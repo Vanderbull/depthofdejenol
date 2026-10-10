@@ -16,6 +16,7 @@
 #include "src/automap/automap_dialog.h"
 #include "src/core/Endgame.h"
 #include "src/core/DeathRecovery.h"
+#include "src/journal_dialog/JournalDialog.h"
 #include "src/victory_dialog/VictoryDialog.h"
 #include <cmath>
 #include <QVBoxLayout>
@@ -1594,6 +1595,16 @@ void DungeonDialog::handleVictory()
 
     logMessage(QString("<font color='gold'>🏆 Victory! Gained %1 XP and %2 gold.</font>").arg(xp).arg(gold));
 
+    // Journal: record the victory.
+    JournalDialog::addEntry(QStringLiteral("Combat"),
+        QStringLiteral("Defeated %1 on floor %2 (+%3 XP, +%4 gold)")
+            .arg(m_combatMonsterName).arg(level).arg(xp).arg(gold));
+    if (m_combatIsBoss) {
+        JournalDialog::addEntry(QStringLiteral("Combat"),
+            QStringLiteral("Slew the boss %1 on floor %2!")
+                .arg(m_combatMonsterName).arg(level));
+    }
+
     // Add loot items to the first living party member's inventory
     for (const QString& itemName : loot) {
         HeldItem lootItem;
@@ -1660,6 +1671,10 @@ void DungeonDialog::handlePartyWipe()
     logMessage("<font color='red'>💀 Your party has been defeated!</font>");
     gsm->setGameValue("isAlive", 0);
 
+    JournalDialog::addEntry(QStringLiteral("Combat"),
+        QStringLiteral("The party was wiped out on floor %1.")
+            .arg(gsm->getGameValue("DungeonLevel").toInt()));
+
     // Save dead characters to file so the Morgue can find them
     for (int i = 0; i < gsm->getParty().members.size(); ++i) {
         gsm->saveCharacterToFile(i);
@@ -1688,6 +1703,9 @@ void DungeonDialog::syncCombatToGameState()
                 int x = gsm->getGameValue("DungeonX").toInt();
                 int y = gsm->getGameValue("DungeonY").toInt();
                 DeathRecovery::killCharacter(members[memberIdx], level, x, y);
+                JournalDialog::addEntry(QStringLiteral("Combat"),
+                    QStringLiteral("%1 fell in battle on floor %2 (%3,%4).")
+                        .arg(members[memberIdx].name).arg(level).arg(x).arg(y));
             }
             memberIdx++;
         }

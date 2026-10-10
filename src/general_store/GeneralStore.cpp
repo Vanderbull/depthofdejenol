@@ -1,6 +1,7 @@
 #include "GeneralStore.h"
 #include "src/core/GoldSinks.h"
 #include "src/items/ItemDatabase.h"
+#include "src/journal_dialog/JournalDialog.h"
 #include <QDebug>
 
 // Find the index of an item by name in a QList<HeldItem>, or -1.
@@ -583,6 +584,9 @@ void GeneralStore::identifySelectedItem()
 
     QMessageBox::information(this, "Item Identified", 
                              QString("The shopkeeper inspects the item...\n\nIt is a %1!").arg(identifiedName));
+
+    JournalDialog::addEntry(QStringLiteral("Exploration"),
+        QStringLiteral("Identified %1 (fee %2 gold)").arg(identifiedName).arg(identifyFee));
 }
 void GeneralStore::uncurseSelectedItem()
 {
@@ -648,6 +652,9 @@ void GeneralStore::uncurseSelectedItem()
     QMessageBox::information(this, "Curse Lifted", 
                              QString("The shopkeeper recites an incantation...\n\nThe dark magic binding %1 has been lifted!")
                              .arg(rawItemName));
+
+    JournalDialog::addEntry(QStringLiteral("Exploration"),
+        QStringLiteral("Lifted the curse on %1 (fee %2 gold)").arg(uncursedName).arg(uncurseFee));
 }
 void GeneralStore::combineSelectedItems()
 {

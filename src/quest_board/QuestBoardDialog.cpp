@@ -1,6 +1,7 @@
 #include "QuestBoardDialog.h"
 #include "gameStateManager.h"
 #include "character.h"
+#include "src/journal_dialog/JournalDialog.h"
 #include <QtWidgets>
 #include <QMessageBox>
 
@@ -66,6 +67,8 @@ bool QuestBoardDialog::acceptQuest(const QString& id) {
     if (q.id.isEmpty()) return false;
     if (s_accepted.contains(id)) return false;
     s_accepted.append(id);
+    JournalDialog::addEntry(QStringLiteral("Quest"),
+        QStringLiteral("Accepted quest: %1").arg(q.title));
     return true;
 }
 
@@ -142,6 +145,10 @@ bool QuestBoardDialog::turnIn(const QString& id, int& goldOut, int& xpOut) {
     s_accepted.removeAll(id);
     s_kills.remove(id);
     s_fetched.remove(id);
+
+    JournalDialog::addEntry(QStringLiteral("Quest"),
+        QStringLiteral("Completed quest: %1 (+%2 gold, +%3 XP)")
+            .arg(q.title).arg(goldOut).arg(xpOut));
     return true;
 }
 

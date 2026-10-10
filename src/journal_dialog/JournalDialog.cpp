@@ -199,3 +199,29 @@ void JournalDialog::addEntry(const QString& category, const QString& text) {
         out.close();
     }
 }
+
+QList<JournalEntry> JournalDialog::allEntries() {
+    QList<JournalEntry> entries;
+
+    QFile file("data/journal.json");
+    if (!file.open(QIODevice::ReadOnly)) return entries;
+
+    const QJsonDocument doc = QJsonDocument::fromJson(file.readAll());
+    file.close();
+    if (!doc.isArray()) return entries;
+
+    for (const auto& val : doc.array()) {
+        if (!val.isObject()) continue;
+        const QJsonObject obj = val.toObject();
+        JournalEntry e;
+        e.timestamp = QDateTime::fromString(obj.value("timestamp").toString(), Qt::ISODate);
+        e.category = obj.value("category").toString();
+        e.text = obj.value("text").toString();
+        entries.append(e);
+    }
+    return entries;
+}
+
+void JournalDialog::clearAll() {
+    QFile::remove("data/journal.json");
+}

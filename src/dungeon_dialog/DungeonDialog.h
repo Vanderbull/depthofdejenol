@@ -116,7 +116,6 @@ private slots:
     void on_combatUseItemButton_clicked();
     void on_combatSpellButton_clicked();
     void updateCombatUI();
-    void handleVictory();
     void handlePartyWipe();
     void syncCombatToGameState();
     QStringList getThematicMonsters(int level) const;
@@ -129,6 +128,7 @@ public:
     void on_combatFleeButton_clicked();
     bool fleeCombat(); // public: true if the party escaped
     void advanceCombat(); // public for tests
+    void handleVictory(); // public for tests
 
 private:
     void awardBattleLoot();

@@ -2,6 +2,7 @@
 #include "src/core/SoundEffects.h"
 #include "src/core/LevelTable.h"
 #include "src/spell_casting/SpellBook.h"
+#include "src/journal_dialog/JournalDialog.h"
 #include <QRandomGenerator>
 
 // The constructor must match the header's signature
@@ -64,6 +65,9 @@ void PartyManager::addExperienceToCharacter(int index, int amount) {
 
 void PartyManager::applyLevelUpGains(Character& c) {
     SoundEffects::instance()->play(SoundEffects::Type::LevelUp);
+
+    JournalDialog::addEntry(QStringLiteral("Combat"),
+        QStringLiteral("%1 reached level %2!").arg(c.name).arg(c.level));
 
     // Base HP gain: 2-6 per level
     int hpGain = 2 + QRandomGenerator::global()->bounded(5);

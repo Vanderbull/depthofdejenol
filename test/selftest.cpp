@@ -4292,6 +4292,10 @@ int runSelfTest()
     // ------------------------------------------- Journal (7.7)
     section("[45] Journal");
     {
+        // Start from a clean file: earlier tests now trigger real journal
+        // writes (level-ups, quests), so the absolute contents must be reset.
+        JournalDialog::clearAll();
+
         // Add an entry
         JournalDialog::addEntry("Quest", "Test quest entry");
         JournalDialog::addEntry("Combat", "Test combat entry");
@@ -7429,6 +7433,107 @@ int runSelfTest()
         BestiaryDialog::recordEncounter("Goblie");
         check(BestiaryDialog::isEncountered("Goblie"), "met after recording");
         check(goblie.value("hits").toInt() >= 0, "stats available once encountered");
+    }
+
+    // ------------------------------------------- v2.0.0 — slice 2.12: journal wiring
+    section("[116] v2.0.0 slice 2.12: quest accept writes a journal entry");
+    {
+        JournalDialog::clearAll();
+        QuestBoardDialog::reset();
+
+        QList<BoardQuest> quests = QuestBoardDialog::availableQuests();
+        check(!quests.isEmpty(), "quests available");
+        if (!quests.isEmpty()) {
+            const BoardQuest q = quests.first();
+            QuestBoardDialog::acceptQuest(q.id);
+
+            QList<JournalEntry> entries = JournalDialog::allEntries();
+            bool found = false;
+            for (const JournalEntry& e : entries) {
+                if (e.category == "Quest" && e.text.contains(q.title)) found = true;
+            }
+            check(found, "accepting a quest wrote a Quest journal entry");
+        }
+    }
+
+    section("[117] v2.0.0 slice 2.12: quest turn-in writes a journal entry");
+    {
+        JournalDialog::clearAll();
+        QuestBoardDialog::reset();
+
+        QList<BoardQuest> quests = QuestBoardDialog::availableQuests();
+        BoardQuest killQuest;
+        for (const BoardQuest& q : quests) {
+            if (!q.isFetch && q.killCount > 0 && !q.targetMonster.isEmpty()) {
+                killQuest = q;
+                break;
+            }
+        }
+        if (!killQuest.id.isEmpty()) {
+            QuestBoardDialog::acceptQuest(killQuest.id);
+            for (int i = 0; i < killQuest.killCount; ++i) {
+                QuestBoardDialog::reportKill(killQuest.targetMonster, killQuest.targetFloor);
+            }
+            int gold = 0, xp = 0;
+            QuestBoardDialog::turnIn(killQuest.id, gold, xp);
+
+            QList<JournalEntry> entries = JournalDialog::allEntries();
+            bool found = false;
+            for (const JournalEntry& e : entries) {
+                if (e.category == "Quest" && e.text.contains("Completed")) found = true;
+            }
+            check(found, "turning in a quest wrote a Completed entry");
+        } else {
+            check(true, "no kill quest posted (skip)");
+        }
+    }
+
+    section("[118] v2.0.0 slice 2.12: victory writes a journal entry");
+    {
+        JournalDialog::clearAll();
+
+        DungeonDialog dlg;
+        dlg.resize(1280, 800);
+        dlg.show();
+        for (int i = 0; i < 20; ++i) QApplication::processEvents();
+
+        gameStateManager* gsm = gameStateManager::instance();
+        gsm->setGameValue("DungeonLevel", 3);
+        gsm->setGameValue("DungeonX", 4);
+        gsm->setGameValue("DungeonY", 4);
+
+        dlg.handleVictory();
+
+        QList<JournalEntry> entries = JournalDialog::allEntries();
+        bool found = false;
+        for (const JournalEntry& e : entries) {
+            if (e.category == "Combat" && e.text.contains("Defeated")) found = true;
+        }
+        check(found, "handleVictory wrote a Combat journal entry");
+    }
+
+    section("[119] v2.0.0 slice 2.12: level-up writes a journal entry");
+    {
+        JournalDialog::clearAll();
+
+        PartyManager pm;
+        Character hero;
+        hero.name = "Journal Hero";
+        hero.level = 1;
+        hero.experience = 0;
+        hero.maxHp = 20;
+        hero.hp = 20;
+        hero.isAlive = true;
+
+        hero.level = 2;   // simulate the level the character just reached
+        pm.applyLevelUpGains(hero);
+
+        QList<JournalEntry> entries = JournalDialog::allEntries();
+        bool found = false;
+        for (const JournalEntry& e : entries) {
+            if (e.category == "Combat" && e.text.contains("reached level")) found = true;
+        }
+        check(found, "level-up wrote a journal entry");
     }
 
     // -------------------------------------------------------------- cleanup

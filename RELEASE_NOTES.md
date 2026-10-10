@@ -192,9 +192,29 @@ applied, and no monster or spell inflicts these statuses.
 
 **Verified:** tests [112]-[115] — bestiary empty at start ✅; encountering unlocks the entry ✅; `handleEncounters` records through the real path ✅; stats only for met monsters ✅.
 
+**Fixed along the way:** test [104] ("poison kills at 0 HP") was flaky — poison deals 1-3 damage and the player had 2 HP, so it only died on a roll of ≥2. Now 1 HP, which any tick kills. Verified stable over 3 consecutive runs.
+
 **Tests:** 1292 + 3 passed, 0 failed.
 
-**Fixed along the way:** test [104] ("poison kills at 0 HP") was flaky — poison deals 1-3 damage and the player had 2 HP, so it only died on a roll of ≥2. Now 1 HP, which any tick kills. Verified stable over 3 consecutive runs.
+## Slice 2.12 — Journal wiring
+
+**Problem:** `JournalDialog` has a full UI (add note, filter, clear, exit) and a working static `addEntry()`. But nothing in the game ever called it — the journal stayed empty.
+
+**Fix:** journal entries now written from the real event paths:
+- `handleVictory()` — Combat: "Defeated X on floor N (+xp, +gold)", plus a separate entry for bosses
+- `handlePartyWipe()` — Combat: "The party was wiped out on floor N"
+- `syncCombatToGameState()` — Combat: "<name> fell in battle on floor N (x,y)"
+- `PartyManager::applyLevelUpGains()` — Combat: "<name> reached level N!"
+- `QuestBoardDialog::acceptQuest()` / `turnIn()` — Quest: accepted / completed with reward
+- `GeneralStore::identifySelectedItem()` / `uncurseSelectedItem()` — Exploration: fee paid
+
+Also added `JournalDialog::allEntries()` and `clearAll()` so tests can read back and reset.
+
+**Verified:** tests [116]-[119] — quest accept writes an entry ✅; turn-in writes a Completed entry ✅; victory writes a Combat entry ✅; level-up writes an entry ✅. Non-vacuous: removing the victory and level-up calls fails exactly those two tests.
+
+**Tests:** 1297 + 3 passed, 0 failed.
+
+**Fixed along the way:** test [45] (the original journal test) asserted on absolute file contents; earlier tests now write real journal entries, so it clears the file first.
 
 ---
 

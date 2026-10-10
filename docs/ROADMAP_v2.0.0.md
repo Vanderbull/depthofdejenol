@@ -246,21 +246,26 @@ shown for encountered monsters ✅.
 
 ---
 
-### 2.12 Journal wiring `S`
+### 2.12 Journal wiring `S` — ✅ DONE
 
 **Why:** `JournalDialog` has a full UI (add note, filter, clear, exit). But nothing ever
 writes to it. The journal is always empty.
 
-**Do:**
-- Write to journal on key events: combat victory, level up, quest accepted/completed,
-  item identified, death, boss killed
-- Auto-entries with timestamps
-- Player can add manual notes
+**Done:** journal entries written from the real event paths:
+- `handleVictory()` — Combat: "Defeated X on floor N (+xp, +gold)", plus a boss entry
+- `handlePartyWipe()` — Combat: "The party was wiped out on floor N"
+- `syncCombatToGameState()` — Combat: "<name> fell in battle on floor N (x,y)"
+- `PartyManager::applyLevelUpGains()` — Combat: "<name> reached level N!"
+- `QuestBoardDialog::acceptQuest()` / `turnIn()` — Quest: accepted / completed
+- `GeneralStore::identifySelectedItem()` / `uncurseSelectedItem()` — Exploration: fee paid
 
-**Files:** `JournalDialog.cpp`, `CombatActions.cpp`, `QuestBoardDialog.cpp`
+Added `JournalDialog::allEntries()` / `clearAll()` for test read-back and reset.
 
-**Verify:** killing a boss adds a journal entry; completing a quest adds an entry; player
-can add a manual note.
+**Files:** `JournalDialog.cpp/.h`, `DungeonDialog.cpp`, `PartyManager.cpp`,
+`QuestBoardDialog.cpp`, `GeneralStore.cpp`
+
+**Verify:** killing a boss adds a journal entry ✅; completing a quest adds an entry ✅; player
+can add a manual note ✅ (pre-existing).
 
 ---
 

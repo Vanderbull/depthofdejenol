@@ -31,6 +31,11 @@ public:
     // Add a journal entry programmatically.
     static void addEntry(const QString& category, const QString& text);
 
+    // Read back everything on disk, and wipe it. Used by the self-tests to
+    // verify that the game's own event paths actually write entries.
+    static QList<JournalEntry> allEntries();
+    static void clearAll();
+
 private slots:
     void onEntrySelected(QListWidgetItem *item);
     void onFilterChanged(int index);
