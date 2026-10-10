@@ -59,6 +59,8 @@ QVariantMap LevelSnapshot::toMap() const {
     m["visitedTiles"] = positionsToList(visitedTiles);
     m["collectedItems"] = positionsToList(collectedItems);
     m["unlockedDoors"] = positionsToList(unlockedDoors);
+    m["triggeredTraps"] = positionsToList(triggeredTraps);
+    m["trapPositions"] = monsterMapToList(trapPositions);
 
     QVariantMap up;
     up["x"] = stairsUp.first;
@@ -78,6 +80,8 @@ QVariantMap LevelSnapshot::toMap() const {
     QVariantList torches;
     for (const QString& t : collectedTorches) torches.append(t);
     m["collectedTorches"] = torches;
+    m["collectedItems"] = positionsToList(collectedItems);
+    m["unlockedDoors"] = positionsToList(unlockedDoors);
     m["triggeredTraps"] = positionsToList(triggeredTraps);
     m["trapPositions"] = monsterMapToList(trapPositions);
     return m;
@@ -105,6 +109,8 @@ void LevelSnapshot::loadFromMap(const QVariantMap& map) {
     lightRadius = map.value("lightRadius", 2).toInt();
     QVariantList torches = map.value("collectedTorches").toList();
     for (const QVariant& v : torches) collectedTorches.append(v.toString());
+    collectedItems = listToPositions(map.value("collectedItems").toList());
+    unlockedDoors = listToPositions(map.value("unlockedDoors").toList());
     triggeredTraps = listToPositions(map.value("triggeredTraps").toList());
     trapPositions = listToMonsterMap(map.value("trapPositions").toList());
 }

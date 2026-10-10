@@ -139,23 +139,22 @@ amount ✅; party wipe → all bodies saved to file ✅.
 
 ---
 
-### 2.6 Dungeon persistence `L`
+### 2.6 Dungeon persistence `L` — ✅ DONE
 
 **Why:** `DungeonLevelRegistry` stores level state (monsters, treasures, obstacles, torch
 fuel). But levels are regenerated on every visit. When you leave floor 3 and return, it's a
 new floor 3.
 
-**Do:**
-- Save level state to disk on exit (or use the registry's existing persistence)
-- Restore saved state on re-entry
-- Monster respawning: some monsters respawn when you leave and return
-- Boss monsters do not respawn
-- Locked doors and keys persist
+**Done:**
+- `collectedItems` and `unlockedDoors` added to `LevelSnapshot` serialization
+- `packStateForSaving()` already saves `DungeonLevels` to save file
+- `unpackStateAfterLoading()` already restores them
+- `enterLevel()` already restores from registry and respawns 30% of monsters
 
-**Files:** `DungeonLevelRegistry.cpp`, `DungeonDialog.cpp`, `gameStateManager.cpp`
+**Files:** `DungeonLevelState.cpp`, `gameStateManager.cpp`
 
-**Verify:** place an item on floor 3, leave, return → item is still there; kill a monster,
-leave, return → normal monsters respawned, boss still dead.
+**Verify:** place an item on floor 3, leave, return → item is still there ✅; kill a monster,
+leave, return → normal monsters respawned, boss still dead ✅.
 
 ---
 

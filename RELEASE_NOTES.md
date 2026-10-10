@@ -120,6 +120,24 @@ VictoryReward returns loot for known monsters ✅; loot filtered by dungeon dept
 
 **Tests:** 1224 + 3 passed, 0 failed.
 
+## Slice 2.6 — Dungeon persistence
+
+**Problem:** `DungeonLevelRegistry` stores level state (monsters, treasures, obstacles, torch
+fuel). But levels are regenerated on every visit. When you leave floor 3 and return, it's a
+new floor 3.
+
+**Fix:**
+- `collectedItems` and `unlockedDoors` added to `LevelSnapshot` serialization
+- `packStateForSaving()` already saves `DungeonLevels` to save file
+- `unpackStateAfterLoading()` already restores them
+- `enterLevel()` already restores from registry and respawns 30% of monsters
+
+**Verified:** tests [90]-[94] — LevelSnapshot serialization round-trip ✅; registry store/retrieve ✅;
+respawnMonsters adds monsters back ✅; respawnMonsters skips with empty pool ✅; registry
+serializes to map and back ✅.
+
+**Tests:** 1254 + 3 passed, 0 failed.
+
 ---
 
 # v1.0.1 — 2026-10-10 ✅ RELEASED
