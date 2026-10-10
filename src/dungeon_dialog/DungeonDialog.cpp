@@ -1277,108 +1277,115 @@ void DungeonDialog::on_teleportButton_clicked()
 
 void DungeonDialog::on_fightButton_clicked()
 {
-    // Start combat with the monster at the current position
     gameStateManager* gsm = gameStateManager::instance();
     QPair<int, int> pos = {
         gsm->getGameValue("DungeonX").toInt(),
         gsm->getGameValue("DungeonY").toInt()
     };
 
-    if (m_monsterPositions.contains(pos)) {
-        QString monsterName = m_monsterPositions.value(pos);
-        int level = gsm->getGameValue("DungeonLevel").toInt();
-        bool isBoss = BossEncounter::hasBoss(level) && monsterName == BossEncounter::bossName(level);
-
-        m_combatMonsterName = monsterName;
-        m_combatMonsterLevel = level;
-        m_combatIsBoss = isBoss;
-        m_inCombat = true;
-
-        // Build combat encounter
-        m_combatState->clear();
-
-        // Add party members
-        auto& members = gsm->getPartyMembers();
-        for (int i = 0; i < members.size(); ++i) {
-            const Character& c = members[i];
-            if (!c.isAlive || c.hp <= 0) continue;
-
-            CombatParticipant p;
-            p.name = c.name;
-            p.isPlayer = true;
-            p.isAlive = true;
-            p.hp = c.hp;
-            p.maxHp = c.maxHp;
-            p.level = c.level;
-            p.att = 5 + c.level + (c.effectiveStrength() - 10) / 2;
-            p.def = 10 + (c.effectiveDexterity() - 10) / 2;
-            p.speed = c.effectiveDexterity();
-            p.dex = c.effectiveDexterity();
-            p.mana = c.mana;
-            p.maxMana = c.maxMana;
-
-            // Add weapon bonus
-            for (const HeldItem& item : c.equipped) {
-                if (const ItemDef* def = ItemDatabase::instance().byName(item.name)) {
-                    if (def->slot() == ItemSlot::MainHand || def->slot() == ItemSlot::OffHand) {
-                        p.att += def->att;
-                    }
-                    if (def->slot() == ItemSlot::Body || def->slot() == ItemSlot::Head ||
-                        def->slot() == ItemSlot::OffHand) {
-                        p.def += def->def;
-                    }
-                }
-            }
-
-            m_combatState->addParticipant(p);
-        }
-
-        // Add monsters
-        if (isBoss) {
-            QVariantMap bossData = BossEncounter::buildBoss(level);
-            CombatParticipant boss;
-            boss.name = monsterName;
-            boss.isPlayer = false;
-            boss.isAlive = true;
-            boss.hp = bossData["hp"].toInt();
-            boss.maxHp = boss.hp;
-            boss.att = bossData["att"].toInt();
-            boss.def = bossData["def"].toInt();
-            boss.speed = bossData["speed"].toInt();
-            boss.dex = bossData["dex"].toInt();
-            boss.level = bossData["level"].toInt();
-            boss.damageMod = bossData["damageMod"].toInt();
-            boss.swings = bossData["swings"].toInt();
-            m_combatState->addParticipant(boss);
-        } else {
-            // Monster stats come from the game's own MDATA5 table (loaded by
-            // gameStateManager): hits = HP, att/def, numGroups x ingroup = the
-            // encounter size.
-            QList<CombatParticipant> monsters = EncounterBuilder::buildEncounter(
-                monsterName, gsm->getMonsterData(),
-                gsm->getNgPlusLevel(),
-                gsm->getGameValue("DungeonLevel").toInt());
-            for (const auto& m : monsters) {
-                m_combatState->addParticipant(m);
-            }
-        }
-
-        // Start combat
-        m_turnEngine->startRound();
-        m_combatGroup->setVisible(true);
-        updateCombatUI();
-
-        logMessage(QString("<font color='red'>⚔️ Combat begins with %1!</font>").arg(monsterName));
-
-        // If monster goes first, take its turn
-        if (m_turnEngine->hasCurrentParticipant() && !m_combatActions->isPlayerTurn()) {
-            QString aiResult = m_monsterAI->takeTurn();
-            logMessage(aiResult);
-            advanceCombat();
-        }
-    } else {
+    if (!startCombatAt(pos)) {
         logMessage("There is nothing to fight here.");
     }
+}
+
+bool DungeonDialog::startCombatAt(const QPair<int, int>& pos)
+{
+    if (!m_monsterPositions.contains(pos)) return false;
+
+    gameStateManager* gsm = gameStateManager::instance();
+    QString monsterName = m_monsterPositions.value(pos);
+    int level = gsm->getGameValue("DungeonLevel").toInt();
+    bool isBoss = BossEncounter::hasBoss(level) && monsterName == BossEncounter::bossName(level);
+
+    m_combatMonsterName = monsterName;
+    m_combatMonsterLevel = level;
+    m_combatIsBoss = isBoss;
+    m_inCombat = true;
+
+    // Build combat encounter
+    m_combatState->clear();
+
+    // Add party members
+    auto& members = gsm->getPartyMembers();
+    for (int i = 0; i < members.size(); ++i) {
+        const Character& c = members[i];
+        if (!c.isAlive || c.hp <= 0) continue;
+
+        CombatParticipant p;
+        p.name = c.name;
+        p.isPlayer = true;
+        p.isAlive = true;
+        p.hp = c.hp;
+        p.maxHp = c.maxHp;
+        p.level = c.level;
+        p.att = 5 + c.level + (c.effectiveStrength() - 10) / 2;
+        p.def = 10 + (c.effectiveDexterity() - 10) / 2;
+        p.speed = c.effectiveDexterity();
+        p.dex = c.effectiveDexterity();
+        p.mana = c.mana;
+        p.maxMana = c.maxMana;
+
+        // Add weapon bonus
+        for (const HeldItem& item : c.equipped) {
+            if (const ItemDef* def = ItemDatabase::instance().byName(item.name)) {
+                if (def->slot() == ItemSlot::MainHand || def->slot() == ItemSlot::OffHand) {
+                    p.att += def->att;
+                }
+                if (def->slot() == ItemSlot::Body || def->slot() == ItemSlot::Head ||
+                    def->slot() == ItemSlot::OffHand) {
+                    p.def += def->def;
+                }
+            }
+        }
+
+        m_combatState->addParticipant(p);
+    }
+
+    // Add monsters
+    if (isBoss) {
+        QVariantMap bossData = BossEncounter::buildBoss(level);
+        CombatParticipant boss;
+        boss.name = monsterName;
+        boss.isPlayer = false;
+        boss.isAlive = true;
+        boss.hp = bossData["hp"].toInt();
+        boss.maxHp = boss.hp;
+        boss.att = bossData["att"].toInt();
+        boss.def = bossData["def"].toInt();
+        boss.speed = bossData["speed"].toInt();
+        boss.dex = bossData["dex"].toInt();
+        boss.level = bossData["level"].toInt();
+        boss.damageMod = bossData["damageMod"].toInt();
+        boss.swings = bossData["swings"].toInt();
+        m_combatState->addParticipant(boss);
+    } else {
+        // Monster stats come from the game's own MDATA5 table (loaded by
+        // gameStateManager): hits = HP, att/def, numGroups x ingroup = the
+        // encounter size.
+        QList<CombatParticipant> monsters = EncounterBuilder::buildEncounter(
+            monsterName, gsm->getMonsterData(),
+            gsm->getNgPlusLevel(),
+            gsm->getGameValue("DungeonLevel").toInt());
+        for (const auto& m : monsters) {
+            m_combatState->addParticipant(m);
+        }
+    }
+
+    // Start combat
+    m_turnEngine->startRound();
+    m_combatGroup->setVisible(true);
+    updateCombatUI();
+
+    logMessage(QString("<font color='red'>⚔️ Combat begins with %1!</font>").arg(monsterName));
+
+    // If monster goes first, take its turn
+    if (m_turnEngine->hasCurrentParticipant() && !m_combatActions->isPlayerTurn()) {
+        QString aiResult = m_monsterAI->takeTurn();
+        logMessage(aiResult);
+        advanceCombat();
+    }
+
+    return true;
 }
 
 // --- Combat Action Slots ---

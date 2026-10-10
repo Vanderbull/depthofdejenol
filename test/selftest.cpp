@@ -40,6 +40,7 @@
 
 #include "src/automap/automap_dialog.h"
 #include "src/dungeon_dialog/DungeonDialog.h"
+#include "src/dungeon_dialog/DungeonHandlers.h"
 #include "version.h"
 #include "src/traps_calculations.h"
 #include "audioManager.h"
@@ -6243,6 +6244,80 @@ int runSelfTest()
                 check(cs.participant(1).hp == 500, "target unharmed on failure");
             }
         }
+    }
+
+    // ------------------------------------------- v2.0.0 — slice 2.1: combat auto-start
+    section("[73] v2.0.0 slice 2.1: combat auto-start");
+    {
+        // Drive the REAL path: place a hostile monster at the player's position,
+        // call handleEncounters, and verify combat starts without pressing Fight.
+        DungeonDialog dlg;
+        dlg.resize(1280, 800);
+        dlg.show();
+        for (int i = 0; i < 20; ++i) QApplication::processEvents();
+
+        gameStateManager* gsm = gameStateManager::instance();
+
+        // Place a hostile monster at (5, 5) and put the player there.
+        QPair<int, int> monsterPos = {5, 5};
+        dlg.m_monsterPositions[monsterPos] = "Test Goblin";
+        dlg.m_MonsterAttitude["Test Goblin"] = "Hostile";
+        gsm->setGameValue("DungeonX", 5);
+        gsm->setGameValue("DungeonY", 5);
+
+        // Before: not in combat.
+        check(!dlg.m_inCombat, "not in combat before handleEncounters");
+
+        // Call the real encounter handler.
+        DungeonHandlers::handleEncounters(&dlg, 5, 5);
+
+        // After: combat must have started automatically.
+        check(dlg.m_inCombat, "combat starts automatically on hostile encounter");
+        check(dlg.m_combatGroup && dlg.m_combatGroup->isVisible(),
+              "combat group is visible after auto-start");
+
+        // Clean up.
+        dlg.m_monsterPositions.remove(monsterPos);
+        dlg.m_MonsterAttitude.remove("Test Goblin");
+        dlg.m_inCombat = false;
+    }
+    {
+        // A neutral monster must NOT trigger combat.
+        DungeonDialog dlg;
+        dlg.resize(1280, 800);
+        dlg.show();
+        for (int i = 0; i < 20; ++i) QApplication::processEvents();
+
+        gameStateManager* gsm = gameStateManager::instance();
+
+        QPair<int, int> neutralPos = {7, 7};
+        dlg.m_monsterPositions[neutralPos] = "Test Neutral";
+        dlg.m_MonsterAttitude["Test Neutral"] = "Neutral";
+        gsm->setGameValue("DungeonX", 7);
+        gsm->setGameValue("DungeonY", 7);
+
+        DungeonHandlers::handleEncounters(&dlg, 7, 7);
+
+        check(!dlg.m_inCombat, "neutral monster does not trigger combat");
+
+        // Clean up.
+        dlg.m_monsterPositions.remove(neutralPos);
+        dlg.m_MonsterAttitude.remove("Test Neutral");
+    }
+    {
+        // handleEncounters with no monster at the position must not start combat.
+        DungeonDialog dlg;
+        dlg.resize(1280, 800);
+        dlg.show();
+        for (int i = 0; i < 20; ++i) QApplication::processEvents();
+
+        gameStateManager* gsm = gameStateManager::instance();
+        gsm->setGameValue("DungeonX", 10);
+        gsm->setGameValue("DungeonY", 10);
+
+        DungeonHandlers::handleEncounters(&dlg, 10, 10);
+
+        check(!dlg.m_inCombat, "no monster means no combat");
     }
 
     // -------------------------------------------------------------- cleanup

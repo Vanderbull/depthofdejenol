@@ -122,13 +122,22 @@ private slots:
     void handlePartyWipe();
     void syncCombatToGameState();
     QStringList getThematicMonsters(int level) const;
-    
+
+public:
+    // Start combat with the monster at the given position. Returns true if
+    // combat was started. Extracted from on_fightButton_clicked so that
+    // handleEncounters can call it when the player steps onto a monster.
+    bool startCombatAt(const QPair<int, int>& pos);
+
 private:
     void awardBattleLoot();
     void setupControls();
     void handleFalling(); // New method to handle falling through a pit
     QSet<QPair<int, int>> m_bodyPositions;
+
+public:
     PartyInfoDialog *m_charSheet = nullptr; // Track the window here
+    QMap<QPair<int, int>, QString> m_monsterPositions; // public for tests
     QPair<int, int> getCurrentPosition(); // The helper function
     // --- Phase 4: Torch / Light ---
     int m_torchFuel = 0;              // turns of light remaining on the current floor
@@ -240,7 +249,6 @@ private:
     // Map data
     // In the private section of DungeonDialog class
     QSet<QPair<int, int>> m_visitedTiles; // Tracks which (x, y) coordinates have been seen
-    QMap<QPair<int, int>, QString> m_monsterPositions;
     QMap<QPair<int, int>, QString> m_treasurePositions;
     QMap<QPair<int, int>, QString> m_trapPositions;
     QSet<QPair<int, int>> m_lockedChests;      // chests that need a key

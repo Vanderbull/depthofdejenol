@@ -133,6 +133,12 @@ void DungeonHandlers::handleEncounters(DungeonDialog* dialog, int x, int y)
         QString monster = dialog->m_monsterPositions.value(pos);
         QString attitude = dialog->m_MonsterAttitude.value(monster, "Hostile");
         dialog->logMessage(QString("You encounter a **%1**! It looks **%2**.").arg(monster).arg(attitude));
+
+        // Start combat automatically when stepping onto a hostile monster.
+        // Neutral and friendly monsters do not trigger combat.
+        if (attitude == "Hostile" && !dialog->m_inCombat) {
+            dialog->startCombatAt(pos);
+        }
     }
 }
 
