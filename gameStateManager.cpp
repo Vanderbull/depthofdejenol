@@ -3,6 +3,7 @@
 #include "src/core/savegameUtils.h"
 #include "src/core/DungeonLevelState.h"
 #include "src/core/AgingRules.h"
+#include "src/journal_dialog/JournalDialog.h"
 #include "src/core/Endgame.h"
 #include "src/spell_casting/SpellBook.h"
 #include "src/items/ItemDatabase.h"
@@ -845,7 +846,17 @@ bool gameStateManager::loadCharacterFromFile(const QString& characterName)
 
 bool gameStateManager::saveCharacterToFile(int partyIndex) 
 {
-    QVariantList party = m_gameStateData["Party"].toList();
+    // "Party" is written by refreshUI() as a map with a "Members" list, but
+    // older code paths stored a bare list. Accept both so callers don't have to
+    // know which one ran last.
+    QVariant partyValue = m_gameStateData["Party"];
+    QVariantList party;
+    if (partyValue.canConvert<QVariantMap>() &&
+        partyValue.toMap().contains("Members")) {
+        party = partyValue.toMap()["Members"].toList();
+    } else {
+        party = partyValue.toList();
+    }
     if (partyIndex < 0 || partyIndex >= party.size()) return false;
 
     QVariantMap character = party[partyIndex].toMap();
@@ -1109,8 +1120,10 @@ void gameStateManager::processAgingConsequences() {
     // chance, which meant the tested rules were dead and an untested copy ran.
     bool changed = false;
     QStringList messages;
+    QList<int> oldAgeDeathIndices;
 
-    for (Character& pc : m_partyManager->currentParty().members) {
+    for (int memberIdx = 0; memberIdx < m_partyManager->currentParty().members.size(); ++memberIdx) {
+        Character& pc = m_partyManager->currentParty().members[memberIdx];
         if (pc.name == "Empty Slot") continue;
         if (!pc.isAlive) continue;
 
@@ -1118,11 +1131,30 @@ void gameStateManager::processAgingConsequences() {
         if (!events.isEmpty()) {
             changed = true;
             messages += events;
+
+            // Death by old age is a real death: the body goes to the Morgue
+            // (i.e. the character file is saved dead) and the journal records it.
+            if (!pc.isAlive) {
+                const QString msg = events.join(QStringLiteral(" "));
+                JournalDialog::addEntry(QStringLiteral("Exploration"),
+                    QStringLiteral("%1").arg(msg));
+                oldAgeDeathIndices.append(memberIdx);
+            }
         }
     }
 
     for (const QString& m : messages) {
         qDebug() << "Aging:" << m;
+    }
+
+    // Save the bodies of anyone who just died of old age so the Morgue sees them.
+    // refreshUI() first: saveCharacterToFile reads m_gameStateData["Party"], which
+    // is synced from the party structs there.
+    if (!oldAgeDeathIndices.isEmpty()) {
+        refreshUI();
+        for (int idx : oldAgeDeathIndices) {
+            saveCharacterToFile(idx);
+        }
     }
 
     if (changed) {

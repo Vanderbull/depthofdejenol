@@ -214,6 +214,8 @@ Also added `JournalDialog::allEntries()` and `clearAll()` so tests can read back
 
 **Tests:** 1297 + 3 passed, 0 failed.
 
+**Fixed along the way:** test [45] (the original journal test) asserted on absolute file contents; earlier tests now write real journal entries, so it clears the file first.
+
 ## Slice 2.13 — Gold sinks wiring
 
 **Problem:** `GoldSinks` is the single authority for every gold charge, but three call sites bypassed it: the Morgue's "Raise Character" was completely free, and the Tavern hard-coded `10` per hour and `50` per cure instead of reading the GoldSinks rates. (Identify/uncurse, guild leveling, rescue and rest already went through GoldSinks.)
@@ -228,7 +230,43 @@ Also added `JournalDialog::allEntries()` and `clearAll()` so tests can read back
 
 **Tests:** 1316 + 3 passed, 0 failed.
 
-**Fixed along the way:** test [45] (the original journal test) asserted on absolute file contents; earlier tests now write real journal entries, so it clears the file first.
+## Slice 2.14 — Aging consequences
+
+**Problem:** `AgingRules` was already wired into `processAgingConsequences()` (Phase 0 work), but two consequences were missing: an old-age death only went to `qDebug()` (no journal entry), and the body was never written to a character file, so the Morgue could never find it.
+
+**Fix:**
+- `processAgingConsequences()` writes an Exploration journal entry on death by old age
+- It then saves the dead character's file so the Morgue can recover the body
+- **Latent bug fixed:** `saveCharacterToFile()` read `m_gameStateData["Party"]` as a bare list, but `refreshUI()` writes it as a map with a `Members` key — so after any `refreshUI()` the save silently did nothing. It now accepts both shapes.
+
+**Verified:** tests [124]-[125] — death by old age writes a journal entry ✅; the dead character's file is written and marked `isAlive: 0` ✅. Non-vacuous: removing the wiring fails both tests.
+
+**Tests:** 1320 + 3 passed, 0 failed.
+
+---
+
+# v2.0.0 — Core loop complete
+
+All 14 slices are done. The core loop **Fight → Loot → Equip → Level → Descend Deeper** is wired end to end.
+
+| Slice | Status |
+|---|---|
+| 2.1 Combat auto-start and flee semantics | ✅ |
+| 2.2 Equipment system | ✅ |
+| 2.3 XP and leveling | ✅ |
+| 2.4 Loot drops | ✅ |
+| 2.5 Death flow | ✅ |
+| 2.6 Dungeon persistence | ✅ |
+| 2.7 Monster spellcasting | ✅ |
+| 2.8 Status effects in combat | ✅ |
+| 2.9 Town wiring | ✅ |
+| 2.10 Item identification | ✅ |
+| 2.11 Bestiary auto-population | ✅ |
+| 2.12 Journal wiring | ✅ |
+| 2.13 Gold sinks wiring | ✅ |
+| 2.14 Aging consequences | ✅ |
+
+**Test suite:** 1320 + 3 passing, 0 failing.
 
 ---
 

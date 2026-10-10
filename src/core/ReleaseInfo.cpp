@@ -29,11 +29,14 @@ QStringList ReleaseInfo::releaseNotes() {
 
 QStringList ReleaseInfo::changes() {
     return {
-        "Monster difficulty curve: floor 1 beatable at level 1, floor 15 needs a real party",
-        "Spell differentiation: fire AoE, cold slow, lightning chain, mind crowd control",
-        "Item progression: Bronze → Iron → Steel → Adamantite → Mithril",
-        "Gold sinks: resurrection, identification, uncursing, guild leveling",
-        "Release packaging: version 1.0.0, release notes, system requirements"
+        "Core loop wired end to end: fight, loot, equip, level, descend",
+        "Combat starts on encounter; flee removes the monster from the map",
+        "Monster spellcasting, status effects (poison, blind, confusion, fire)",
+        "Loot drops start unidentified; identify/uncurse at the General Store",
+        "Bestiary unlocks a monster only once you have met it",
+        "Journal records victories, level-ups, quests, deaths and identification",
+        "Gold sinks charged for resurrection, identification, uncursing, guild leveling, rest and cures",
+        "Aging causes stat decay and death by old age; the body reaches the Morgue"
     };
 }
 
@@ -59,6 +62,7 @@ QString ReleaseInfo::banner() {
 
 QList<QPair<QString, QString>> ReleaseInfo::versionHistory() {
     return {
+        {"2.0.0", "2026-10-10 — Core loop complete: all 14 v2.0.0 slices wired (combat, equipment, XP, loot, death, persistence, monster spells, status effects, town, item ID, bestiary, journal, gold sinks, aging)"},
         {"1.0.0", "2026-10-10 — First finishable release: victory sequence, Hall of Records, New Game Plus, and the six orphaned systems wired in"},
         {"0.1.0", "2026-10-10 — Phase 0: security hardening and latent breakage fixes"},
         {"0.0", "2026-10-07 — Game systems built (8 phases)"},

@@ -4903,12 +4903,12 @@ int runSelfTest()
     // ------------------------------------------- Release packaging (8.5)
     section("[56] Release packaging");
     {
-        check(ReleaseInfo::version() == "1.0.0", "version is 1.0.0");
-        check(ReleaseInfo::versionString() == "v1.0.0", "version string");
+        check(ReleaseInfo::version() == "2.0.0", "version is 2.0.0");
+        check(ReleaseInfo::versionString() == "v2.0.0", "version string");
         check(!ReleaseInfo::releaseDate().isEmpty(), "release date exists");
         check(!ReleaseInfo::systemRequirements().isEmpty(), "system requirements exist");
-        check(ReleaseInfo::installerName().contains("1.0.0"), "installer name");
-        check(ReleaseInfo::banner().contains("1.0.0"), "banner");
+        check(ReleaseInfo::installerName().contains("2.0.0"), "installer name");
+        check(ReleaseInfo::banner().contains("2.0.0"), "banner");
     }
     {
         // Release notes.
@@ -4928,7 +4928,7 @@ int runSelfTest()
         QList<QPair<QString, QString>> history = ReleaseInfo::versionHistory();
         check(history.size() >= 5, "at least 5 versions in history",
               QString::number(history.size()));
-        check(history[0].first == "1.0.0", "latest version is 1.0.0");
+        check(history[0].first == "2.0.0", "latest version is 2.0.0");
     }
 
     // ------------------------------------------- Status flag integrity
@@ -5748,12 +5748,14 @@ int runSelfTest()
             check(c.strength == strBefore && c.constitution == conBefore,
                   "an Elf at 100 suffers no decay (race-aware threshold)");
 
-            // Restore.
+            // Restore. processAgingConsequences() now saves the body of anyone
+            // who died, so clean that file up too.
             c.name = savedName;
             c.age = savedAge;
             c.isAlive = savedAlive;
             c.hp = savedHp;
             c.race = savedRace;
+            QFile::remove("data/characters/AgingProbe.txt");
         }
     }
     {
@@ -7622,6 +7624,90 @@ int runSelfTest()
               "resurrection fails when gold is short");
         check(!dead2.isAlive, "character stays dead");
         check(poorGold == 1, "no gold deducted on failure");
+    }
+
+    // ------------------------------------------- v2.0.0 — slice 2.14: aging consequences
+    section("[124] v2.0.0 slice 2.14: death by old age writes a journal entry");
+    {
+        JournalDialog::clearAll();
+
+        auto& members = gsm->getPartyMembers();
+        check(!members.isEmpty(), "party has members to age");
+        if (!members.isEmpty()) {
+            Character& c = members[0];
+            const QString savedName = c.name;
+            const int savedAge = c.age;
+            const bool savedAlive = c.isAlive;
+            const int savedHp = c.hp;
+            const QString savedRace = c.race;
+
+            c.name = "OldAgeJournal";
+            c.race = "Human";
+            c.isAlive = true;
+            c.hp = 50;
+            c.age = 100;   // exactly Human max age
+
+            gsm->processAgingConsequences();
+
+            QList<JournalEntry> entries = JournalDialog::allEntries();
+            bool found = false;
+            for (const JournalEntry& e : entries) {
+                if (e.text.contains("OldAgeJournal") &&
+                    (e.text.contains("old age") || e.text.contains("died"))) {
+                    found = true;
+                }
+            }
+            check(found, "death by old age wrote a journal entry");
+
+            // Restore and clean up (the death path also saved a character file).
+            c.name = savedName;
+            c.age = savedAge;
+            c.isAlive = savedAlive;
+            c.hp = savedHp;
+            c.race = savedRace;
+            QFile::remove("data/characters/OldAgeJournal.txt");
+        }
+    }
+
+    section("[125] v2.0.0 slice 2.14: body of an old-age death reaches the Morgue");
+    {
+        auto& members = gsm->getPartyMembers();
+        if (!members.isEmpty()) {
+            Character& c = members[0];
+            const QString savedName = c.name;
+            const int savedAge = c.age;
+            const bool savedAlive = c.isAlive;
+            const int savedHp = c.hp;
+            const QString savedRace = c.race;
+
+            c.name = "OldAgeBody";
+            c.race = "Human";
+            c.isAlive = true;
+            c.hp = 50;
+            c.age = 100;
+
+            gsm->processAgingConsequences();
+
+            // The Morgue finds bodies by reading character files that are dead.
+            const QString path = "data/characters/OldAgeBody.txt";
+            check(QFile::exists(path), "dead character was saved to file");
+
+            QFile f(path);
+            if (f.open(QIODevice::ReadOnly | QIODevice::Text)) {
+                const QString content = QString::fromUtf8(f.readAll());
+                f.close();
+                check(content.contains("isAlive: 0"),
+                      "saved body is marked dead");
+            }
+
+            // Restore and clean up.
+            c.name = savedName;
+            c.age = savedAge;
+            c.isAlive = savedAlive;
+            c.hp = savedHp;
+            c.race = savedRace;
+            QFile::remove(path);
+        }
     }
 
     // -------------------------------------------------------------- cleanup

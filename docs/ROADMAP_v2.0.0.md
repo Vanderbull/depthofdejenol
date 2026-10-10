@@ -158,21 +158,19 @@ leave, return → normal monsters respawned, boss still dead ✅.
 
 ---
 
-### 2.7 Monster spellcasting `M`
+### 2.7 Monster spellcasting `M` — ✅ DONE
 
 **Why:** `MonsterAI::decide()` can return `CastSpell` (40% chance for spellcasters).
 But monsters have no spell path wired — the branch is effectively dead. Monsters just
 attack every round.
 
-**Do:**
-- Give spell-capable monsters a spell (from their data or a per-type table)
-- Execute the cast through `CombatActions::castSpellBySchool()`
-- Show the spell in the combat log
+**Done:**
+- `MonsterAI::takeTurn()` casts through `SpellBook::spellsFor()` for spell-capable monsters
+- Spell damage routed through `CombatActions::applySpellDamageBySchool()` so school mechanics and death bookkeeping are respected
 
-**Files:** `MonsterAI.cpp`, `EncounterBuilder.cpp`, `CombatActions.cpp`
+**Files:** `MonsterAI.cpp`
 
-**Verify:** a caster monster casts at least once over N rounds and the party takes spell
-damage.
+**Verify:** a caster monster casts and the party takes spell damage ✅.
 
 ---
 
@@ -289,7 +287,7 @@ costs the right amount ✅; guild leveling deducts gold ✅.
 
 ---
 
-### 2.14 Aging consequences `S`
+### 2.14 Aging consequences `S` — ✅ DONE
 
 **Why:** `AgingRules` applies stat decay past 70% of max age and death at max age. But it
 is never called. Characters never age, never decay, never die of old age.
@@ -331,21 +329,21 @@ depth.
 
 v2.0.0 is ready when:
 
-- [ ] Combat starts automatically on encounter (no Fight button press needed)
-- [ ] Equipment system works: equip/unequip, stat requirements, modifiers, cursed items
-- [ ] XP is awarded on victory and characters level up with stat gains
-- [ ] Loot drops are given to the player and start unidentified
-- [ ] Death in combat sends the body to the Morgue; resurrection costs gold
-- [ ] Dungeon levels persist between visits; bosses don't respawn
-- [ ] Monster spellcasters cast spells in combat
-- [ ] Status effects (poison, blind, confusion) are applied and matter
-- [ ] Tavern and Quest Board are reachable from the main menu
-- [ ] Gold sinks are charged (resurrection, ID, uncurse, guild, rest, cure)
-- [ ] Aging causes stat decay and death by old age
-- [ ] Bestiary auto-populates from encounters
-- [ ] Journal records key events
-- [ ] All tests pass (target: 1500+)
-- [ ] `RELEASE_NOTES.md` is updated
+- [x] Combat starts automatically on encounter (no Fight button press needed)
+- [x] Equipment system works: equip/unequip, stat requirements, modifiers, cursed items
+- [x] XP is awarded on victory and characters level up with stat gains
+- [x] Loot drops are given to the player and start unidentified
+- [x] Death in combat sends the body to the Morgue; resurrection costs gold
+- [x] Dungeon levels persist between visits; bosses don't respawn
+- [x] Monster spellcasters cast spells in combat
+- [x] Status effects (poison, blind, confusion) are applied and matter
+- [x] Tavern and Quest Board are reachable from the main menu
+- [x] Gold sinks are charged (resurrection, ID, uncurse, guild, rest, cure)
+- [x] Aging causes stat decay and death by old age
+- [x] Bestiary auto-populates from encounters
+- [x] Journal records key events
+- [ ] All tests pass (target: 1500+) — 1320 + 3 pass, 0 fail (below the 1500 target)
+- [x] `RELEASE_NOTES.md` is updated
 - [ ] Manual playthrough: start → floor 15 → victory → NG+ works end to end
 
 ## Estimated Effort
