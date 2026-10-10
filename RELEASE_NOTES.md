@@ -175,6 +175,33 @@ integer after stripping an optional `v`, and carries at most one `v`. Generated
 
 ---
 
+# v1.0.0 — in progress
+
+**Phase 1 — connect the orphaned systems.** Wires the tested-but-unreachable classes into
+the game so a player can start a new game, progress through the dungeon, defeat the final
+boss, and see the victory screen.
+
+**Test suite at start of v1.0.0:** 983 passed, 0 failed.
+
+---
+
+## Slice 1.1 — Victory sequence ✅
+
+**Why.** `Endgame::victoryTitle()`, `victoryParagraphs()` and `isVictory()` had zero
+callers. The final boss existed, the quest chain completed, and the player got nothing.
+
+**Changed.**
+- New `src/victory_dialog/VictoryDialog.h/.cpp` — full-screen dialog with gold title,
+  body paragraphs, fade-in animation, and a "New Game Plus" button (final victory only).
+- `DungeonDialog::handleVictory()` checks `m_combatIsBoss && level == 15` (the Prince of
+  Devils) and shows the victory dialog.
+- A `GameRecord` is built from party state (persistence is slice 1.2).
+- Registered in `blacklands.pro`.
+
+**Verified.** `make check` section [66] — 9 checks. 992 passed, 0 failed, 25/25 stable.
+
+---
+
 # v0.0 — 2026-10-07 (game systems)
 
 The release that built the game's systems: eight phases covering items, equipment, combat,

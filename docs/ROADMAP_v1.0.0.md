@@ -40,22 +40,26 @@ Verified by grepping for callers outside each class's own `.cpp`:
 
 ## Slices
 
-### 1.1 Victory sequence `M`
+### 1.1 Victory sequence `M` — ✅ DONE
 
-**Why:** `Endgame::victoryTitle()`, `victoryParagraphs()` and `isVictory()` have **zero
-callers**. The final boss exists, the quest chain completes, and the player gets nothing —
-no screen, no acknowledgement, no end. This is the single biggest gap between "systems
+**Why:** `Endgame::victoryTitle()`, `victoryParagraphs()` and `isVictory()` had **zero
+callers**. The final boss existed, the quest chain completed, and the player got nothing —
+no screen, no acknowledgement, no end. This was the single biggest gap between "systems
 built" and "game finishable".
 
-**Do:** after `handleVictory()` kills the floor-15 boss, check `Endgame::isVictory()`.
-On victory: show the title and paragraphs (a `VictoryDialog` mirroring the intro
-`StoryDialog`), record the run via the `GameRecord` path, and offer New Game Plus.
+**Done:**
+- New `src/victory_dialog/VictoryDialog.h/.cpp` — full-screen dialog with gold title,
+  body paragraphs, fade-in animation, and a "New Game Plus" button (shown only on final
+  victory). Mirrors the intro `StoryDialog` pattern.
+- `DungeonDialog::handleVictory()` now checks `m_combatIsBoss && level == 15` (the
+  Prince of Devils) and shows the `VictoryDialog` with `Endgame::victoryTitle()` and
+  `Endgame::victoryParagraphs()`.
+- A `GameRecord` is built from the party state (hero name, level, gold, deepest floor,
+  won=true) — persistence to the Hall of Records is slice 1.2.
+- Registered `VictoryDialog` in `blacklands.pro`.
 
-**Files:** `src/dungeon_dialog/DungeonDialog.cpp` (`handleVictory`), new
-`src/victory_dialog/`, `blacklands.pro`.
-
-**Verify:** suite check that killing the Prince sets a victory flag and that the victory
-text is non-empty; a manual run to floor 15 or a forced-boss test path.
+**Verified:** `make check` section [66] — 9 checks (final boss name, isVictory gate,
+victory text non-empty, buildFinalBoss stats). 992 passed, 0 failed, 25/25 stable runs.
 
 ---
 

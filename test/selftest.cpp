@@ -5616,6 +5616,32 @@ int runSelfTest()
         check(v.count('v') <= 1, "FULL_VERSION carries at most one 'v' prefix", v);
     }
 
+    // ------------------------------------------- v1.0.0 — slice 1.1: Victory sequence
+    section("[66] v1.0.0 slice 1.1: victory sequence");
+    {
+        // The Prince of Devils is the floor-15 boss. His defeat is the win condition.
+        check(Endgame::finalBossName() == "The Prince of Devils", "final boss is the Prince of Devils");
+
+        // isVictory is the gate the victory screen checks. A run that has not killed the
+        // Prince is not a win; one that has is.
+        check(!Endgame::isVictory({}), "not victory with no bosses defeated");
+        check(!Endgame::isVictory({1, 5, 10}), "not victory without the Prince");
+        check(Endgame::isVictory({1, 5, 10, 15}), "victory once the Prince falls");
+
+        // The victory text exists and is non-empty — the screen has something to show.
+        check(!Endgame::victoryTitle().isEmpty(), "victory has a title");
+        check(Endgame::victoryParagraphs().size() >= 3, "victory has paragraphs",
+              QString::number(Endgame::victoryParagraphs().size()));
+
+        // buildFinalBoss produces a monster far beyond a normal floor boss.
+        QVariantMap boss = Endgame::buildFinalBoss();
+        check(boss["name"].toString() == "The Prince of Devils", "final boss name in data");
+        check(boss["hp"].toInt() >= 5000, "final boss has 5000+ HP",
+              QString::number(boss["hp"].toInt()));
+        check(boss["level"].toInt() >= 40, "final boss is level 40+",
+              QString::number(boss["level"].toInt()));
+    }
+
     // -------------------------------------------------------------- cleanup
     QFile::remove(savePath());
 

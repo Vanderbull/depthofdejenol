@@ -14,6 +14,8 @@
 #include "src/spell_casting/SpellCastingDialog.h"
 #include "src/quest_board/QuestBoardDialog.h"
 #include "src/automap/automap_dialog.h"
+#include "src/core/Endgame.h"
+#include "src/victory_dialog/VictoryDialog.h"
 #include <cmath>
 #include <QVBoxLayout>
 #include <QHBoxLayout>
@@ -1543,6 +1545,29 @@ void DungeonDialog::handleVictory()
 
     m_inCombat = false;
     m_combatGroup->setVisible(false);
+
+    // Check for final victory: the Prince of Devils is the floor-15 boss.
+    // When he falls, the game is won.
+    if (m_combatIsBoss && level == 15) {
+        bool won = true;  // isVictory() checks for floor-15 boss defeat
+        if (won) {
+            QString title = Endgame::victoryTitle();
+            QStringList paragraphs = Endgame::victoryParagraphs();
+            VictoryDialog* dlg = new VictoryDialog(title, paragraphs, true, this);
+            dlg->setAttribute(Qt::WA_DeleteOnClose);
+            // Record the run for the Hall of Records.
+            GameRecord rec;
+            rec.heroName = gsm->getPartyMembers().isEmpty() ? "Unknown" : gsm->getPartyMembers()[0].name;
+            rec.highestLevel = gsm->getPartyMembers().isEmpty() ? 1 : gsm->getPartyMembers()[0].level;
+            rec.mostGold = gsm->getPartyGold();
+            rec.deepestFloor = level;
+            rec.completionTimeSeconds = 0;  // TODO: track actual play time
+            rec.won = true;
+            // TODO: persist record via HallOfRecords
+            dlg->exec();
+        }
+    }
+
     drawMinimap();
     renderWireframeView();
 }

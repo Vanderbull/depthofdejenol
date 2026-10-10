@@ -89,6 +89,8 @@ SOURCES += test/selftest.cpp
 # name instead of scanning QVariantMaps.
 HEADERS += src/items/ItemDatabase.h
 SOURCES += src/items/ItemDatabase.cpp
+HEADERS += src/victory_dialog/VictoryDialog.h
+SOURCES += src/victory_dialog/VictoryDialog.cpp
 
 #--------------------------------------------------
 # Combat engine
