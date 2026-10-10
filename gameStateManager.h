@@ -119,6 +119,9 @@ public:
     bool saveFullGameState(const QString& saveName);
     bool loadFullGameState(const QString& saveName);
     void addGameRecord(const GameRecord& record);
+    // New Game Plus cycle count (0 = base game, 1 = NG+1, etc.)
+    int getNgPlusLevel() const { return m_gameStateData.value("NGPlusLevel", 0).toInt(); }
+    void setNgPlusLevel(int level) { setGameValue("NGPlusLevel", level); }
     void checkSettingsFile();
     void initializeResources();
     QPixmap getFontSpriteSheet() const { return m_fontSpriteSheet; }

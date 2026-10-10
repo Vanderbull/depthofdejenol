@@ -5706,6 +5706,86 @@ int runSelfTest()
               "a win outranks a non-win for fastest completion");
     }
 
+    // ------------------------------------------- v1.0.0 — slice 1.3: New Game Plus
+    section("[68] v1.0.0 slice 1.3: New Game Plus");
+    {
+        // NG+ multipliers: monsters +50%/cycle, rewards +25%/cycle.
+        check(Endgame::ngPlusMonsterMultiplier(0) == 1.0, "NG+0 monsters are normal");
+        check(Endgame::ngPlusMonsterMultiplier(1) == 1.5, "NG+1 monsters are 50% stronger",
+              QString::number(Endgame::ngPlusMonsterMultiplier(1)));
+        check(Endgame::ngPlusMonsterMultiplier(2) == 2.0, "NG+2 monsters are twice as strong");
+        check(Endgame::ngPlusRewardMultiplier(0) == 1.0, "NG+0 rewards are normal");
+        check(Endgame::ngPlusRewardMultiplier(1) == 1.25, "NG+1 rewards are 25% higher",
+              QString::number(Endgame::ngPlusRewardMultiplier(1)));
+        check(Endgame::ngPlusMonsterMultiplier(2) > Endgame::ngPlusRewardMultiplier(2),
+              "monsters scale faster than rewards");
+
+        // NG+ banner describes the difficulty.
+        check(Endgame::ngPlusBanner(0).isEmpty(), "no banner for base game");
+        check(Endgame::ngPlusBanner(1).contains("50%"), "NG+1 banner mentions 50%",
+              Endgame::ngPlusBanner(1));
+
+        // EncounterBuilder applies NG+ scaling to monster stats.
+        gameStateManager* gsm = gameStateManager::instance();
+        const QList<QVariantMap>& monsters = gsm->getMonsterData();
+        if (!monsters.isEmpty()) {
+            // Find a monster with known stats.
+            QString testMonster;
+            for (const QVariantMap& m : monsters) {
+                if (m.contains("ingroup") && m["hits"].toInt() > 0) {
+                    testMonster = m["name"].toString();
+                    break;
+                }
+            }
+            if (testMonster.isEmpty()) testMonster = monsters[0]["name"].toString();
+
+            auto base = EncounterBuilder::buildEncounter(testMonster, monsters, 0);
+            auto ng1 = EncounterBuilder::buildEncounter(testMonster, monsters, 1);
+            auto ng2 = EncounterBuilder::buildEncounter(testMonster, monsters, 2);
+
+            if (!base.isEmpty() && !ng1.isEmpty() && !ng2.isEmpty()) {
+                check(ng1.first().hp > base.first().hp,
+                      "NG+1 monster has more HP than base",
+                      QString("%1 → %2").arg(base.first().hp).arg(ng1.first().hp));
+                check(ng2.first().hp > ng1.first().hp,
+                      "NG+2 monster has more HP than NG+1",
+                      QString("%1 → %2").arg(ng1.first().hp).arg(ng2.first().hp));
+                check(ng1.first().att > base.first().att,
+                      "NG+1 monster has higher ATT than base",
+                      QString("%1 → %2").arg(base.first().att).arg(ng1.first().att));
+            }
+        }
+
+        // VictoryReward applies NG+ scaling to gold.
+        if (!monsters.isEmpty()) {
+            QString testMonster;
+            for (const QVariantMap& m : monsters) {
+                if (m.contains("ingroup") && m["goldFactor"].toInt() > 0) {
+                    testMonster = m["name"].toString();
+                    break;
+                }
+            }
+            if (!testMonster.isEmpty()) {
+                // Run multiple times to account for randomness.
+                int baseTotal = 0, ng1Total = 0;
+                for (int i = 0; i < 50; ++i) {
+                    baseTotal += VictoryReward::calculateGold(testMonster, monsters, 0);
+                    ng1Total += VictoryReward::calculateGold(testMonster, monsters, 1);
+                }
+                check(ng1Total > baseTotal,
+                      "NG+1 gold reward is higher than base over 50 rolls",
+                      QString("%1 → %2").arg(baseTotal).arg(ng1Total));
+            }
+        }
+
+        // NG+ level is stored in game state.
+        gsm->setNgPlusLevel(0);
+        check(gsm->getNgPlusLevel() == 0, "NG+ level starts at 0");
+        gsm->setNgPlusLevel(1);
+        check(gsm->getNgPlusLevel() == 1, "NG+ level can be set to 1");
+        gsm->setNgPlusLevel(0);  // restore
+    }
+
     // -------------------------------------------------------------- cleanup
     QFile::remove(savePath());
 

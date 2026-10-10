@@ -47,6 +47,9 @@ VictoryDialog::VictoryDialog(const QString& title, const QStringList& paragraphs
 
     m_quitBtn = new QPushButton("Return to Menu", this);
     m_quitBtn->setMinimumSize(150, 40);
+    if (m_ngPlusBtn) {
+        connect(m_ngPlusBtn, &QPushButton::clicked, this, &VictoryDialog::startNewGamePlus);
+    }
     connect(m_quitBtn, &QPushButton::clicked, this, &QDialog::accept);
     btnLayout->addWidget(m_quitBtn);
 

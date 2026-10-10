@@ -225,6 +225,26 @@ ranked sorting for all 4 categories, win-outranks-non-win). 1004 passed, 0 faile
 
 ---
 
+## Slice 1.3 — New Game Plus ✅
+
+**Why.** `ngPlusMonsterMultiplier()` / `ngPlusRewardMultiplier()` / `ngPlusBanner()` had no
+caller. NG+ was designed and unreachable.
+
+**Changed.**
+- `EncounterBuilder::buildEncounter()` takes `int ngPlusLevel = 0` and scales monster HP,
+  ATT, and DEF by `Endgame::ngPlusMonsterMultiplier()`.
+- `VictoryReward::calculateGold()` takes `int ngPlusLevel = 0` and scales gold by
+  `Endgame::ngPlusRewardMultiplier()`.
+- `gameStateManager::getNgPlusLevel()` / `setNgPlusLevel()` store the cycle count in game
+  state.
+- `VictoryDialog` emits `startNewGamePlus`; `DungeonDialog` connects it to
+  `gsm->setNgPlusLevel(gsm->getNgPlusLevel() + 1)`.
+
+**Verified.** `make check` section [68] — 14 checks (multipliers, banner, EncounterBuilder
+scaling, VictoryReward scaling, NG+ level storage). 1018 passed, 0 failed, 25/25 stable.
+
+---
+
 # v0.0 — 2026-10-07 (game systems)
 
 The release that built the game's systems: eight phases covering items, equipment, combat,

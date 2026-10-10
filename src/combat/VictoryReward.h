@@ -16,9 +16,10 @@ public:
                            const QList<QVariantMap>& monsterData);
 
     // Calculate gold reward for a defeated monster.
-    // gold = goldFactor * random(1, 10)
+    // gold = goldFactor * random(1, 10) * NG+ reward multiplier
     static int calculateGold(const QString& monsterName,
-                             const QList<QVariantMap>& monsterData);
+                             const QList<QVariantMap>& monsterData,
+                             int ngPlusLevel = 0);
 
     // Calculate loot drops for a defeated monster.
     // Rolls on Item0-Item9, each has a chance to drop.

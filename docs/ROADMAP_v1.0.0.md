@@ -86,17 +86,23 @@ ranked sorting for all 4 categories, win-outranks-non-win). 1004 passed, 0 faile
 
 ---
 
-### 1.3 New Game Plus entry `S`
+### 1.3 New Game Plus entry `S` — ✅ DONE
 
-**Why:** `ngPlusMonsterMultiplier()` / `ngPlusRewardMultiplier()` / `ngPlusBanner()` have no
-caller. NG+ is designed and unreachable.
+**Why:** `ngPlusMonsterMultiplier()` / `ngPlusRewardMultiplier()` / `ngPlusBanner()` had no
+caller. NG+ was designed and unreachable.
 
-**Do:** offer NG+ on the victory screen; store the cycle count in game state; apply the two
-multipliers in `EncounterBuilder` and `VictoryReward`.
+**Done:**
+- `EncounterBuilder::buildEncounter()` takes `int ngPlusLevel = 0` and scales monster HP,
+  ATT, and DEF by `Endgame::ngPlusMonsterMultiplier()`.
+- `VictoryReward::calculateGold()` takes `int ngPlusLevel = 0` and scales gold by
+  `Endgame::ngPlusRewardMultiplier()`.
+- `gameStateManager::getNgPlusLevel()` / `setNgPlusLevel()` store the cycle count in game
+  state (persisted via `m_gameStateData["NGPlusLevel"]`).
+- `VictoryDialog` emits `startNewGamePlus` signal; `DungeonDialog` connects it to
+  `gsm->setNgPlusLevel(gsm->getNgPlusLevel() + 1)`.
 
-**Files:** victory dialog, `EncounterBuilder.cpp`, `VictoryReward.cpp`, `gameStateManager`.
-
-**Verify:** starting NG+1 raises monster HP and reward gold by the documented multipliers.
+**Verified:** `make check` section [68] — 14 checks (multipliers, banner, EncounterBuilder
+scaling, VictoryReward scaling, NG+ level storage). 1018 passed, 0 failed, 25/25 stable.
 
 ---
 

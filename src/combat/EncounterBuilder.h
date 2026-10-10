@@ -14,10 +14,12 @@ public:
     // Build a list of CombatParticipants for a monster encounter.
     // monsterName: the monster type (e.g. "Orc", "Rattlesnake")
     // monsterData: the full monster data list from gameStateManager
+    // ngPlusLevel: 0 = base game, 1 = NG+1 (monsters 50% stronger), etc.
     // Returns a list of CombatParticipant objects ready for combat.
     static QList<CombatParticipant> buildEncounter(
         const QString& monsterName,
-        const QList<QVariantMap>& monsterData);
+        const QList<QVariantMap>& monsterData,
+        int ngPlusLevel = 0);
 
     // Get the number of monsters that would spawn for this type.
     static int getGroupSize(const QString& monsterName,

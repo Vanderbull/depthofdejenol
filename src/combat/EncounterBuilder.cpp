@@ -1,4 +1,5 @@
 #include "EncounterBuilder.h"
+#include "src/core/Endgame.h"
 #include <QVariantMap>
 #include <QList>
 #include <QString>
@@ -28,9 +29,11 @@ int readStat(const QVariantMap& m, const QString& legacyKey, const QString& stat
 
 QList<CombatParticipant> EncounterBuilder::buildEncounter(
     const QString& monsterName,
-    const QList<QVariantMap>& monsterData)
+    const QList<QVariantMap>& monsterData,
+    int ngPlusLevel)
 {
     QList<CombatParticipant> result;
+    const double ngMult = Endgame::ngPlusMonsterMultiplier(ngPlusLevel);
 
     // Find the monster in the data
     QVariantMap monsterInfo;
@@ -117,8 +120,11 @@ QList<CombatParticipant> EncounterBuilder::buildEncounter(
         if (p.hp < 1) p.hp = 1;
         p.maxHp = p.hp;
 
-        p.att = baseAtt;
-        p.def = baseDef;
+        // New Game Plus scaling: monsters get stronger each cycle.
+        p.hp = qMax(1, qRound(p.hp * ngMult));
+        p.maxHp = p.hp;
+        p.att = qMax(1, qRound(baseAtt * ngMult));
+        p.def = qMax(1, qRound(baseDef * ngMult));
         p.speed = baseSpeed;
         p.dex = baseDex;
         p.level = baseLevel;

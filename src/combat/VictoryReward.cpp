@@ -1,6 +1,7 @@
 #include "VictoryReward.h"
 #include "src/items/ItemDatabase.h"
 #include "src/core/SoundEffects.h"
+#include "src/core/Endgame.h"
 #include <QRandomGenerator>
 
 namespace {
@@ -33,11 +34,13 @@ int VictoryReward::calculateXp(const QString& monsterName,
 }
 
 int VictoryReward::calculateGold(const QString& monsterName,
-                                 const QList<QVariantMap>& monsterData)
+                                 const QList<QVariantMap>& monsterData,
+                                 int ngPlusLevel)
 {
     int goldFactor = getGoldFactor(monsterName, monsterData);
     if (goldFactor <= 0) return 0;
-    return goldFactor * (1 + QRandomGenerator::global()->bounded(10));
+    const double ngMult = Endgame::ngPlusRewardMultiplier(ngPlusLevel);
+    return qRound(goldFactor * (1 + QRandomGenerator::global()->bounded(10)) * ngMult);
 }
 
 QStringList VictoryReward::calculateLoot(const QString& monsterName,

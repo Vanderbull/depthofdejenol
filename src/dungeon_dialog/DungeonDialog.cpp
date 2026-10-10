@@ -1555,6 +1555,9 @@ void DungeonDialog::handleVictory()
             QStringList paragraphs = Endgame::victoryParagraphs();
             VictoryDialog* dlg = new VictoryDialog(title, paragraphs, true, this);
             dlg->setAttribute(Qt::WA_DeleteOnClose);
+            connect(dlg, &VictoryDialog::startNewGamePlus, gsm, [gsm]() {
+                gsm->setNgPlusLevel(gsm->getNgPlusLevel() + 1);
+            });
             // Record the run for the Hall of Records.
             GameRecord rec;
             rec.heroName = gsm->getPartyMembers().isEmpty() ? "Unknown" : gsm->getPartyMembers()[0].name;
