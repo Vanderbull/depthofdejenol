@@ -2636,10 +2636,11 @@ void DungeonDialog::on_spellButton_clicked()
                 }
             }
             if (targetIdx >= 0) {
-                QString spellName = m_combatState->participant(targetIdx).name;
                 QString dmgResult;
-                m_combatActions->applySpellDamage(targetIdx, spellName, result.damageDealt,
-                                                  false, dmgResult);
+                // Route through the school-aware path so fire splashes, cold
+                // slows, lightning chains and mind stuns actually happen.
+                m_combatActions->applySpellDamageBySchool(targetIdx, spellName,
+                                                          result.damageDealt, dmgResult);
                 logMessage(QString("<font color='yellow'>%1</font>").arg(dmgResult));
 
                 if (!m_combatState->participant(targetIdx).isAlive) {

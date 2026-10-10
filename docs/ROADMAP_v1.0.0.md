@@ -153,18 +153,25 @@ sinkDescription). 1054 passed, 0 failed, 25/25 stable.
 
 ---
 
-### 1.7 SpellMechanics into combat `M`
+### 1.7 SpellMechanics into combat `M` — ✅ DONE
 
-**Why:** 8.2 built fire-AoE / cold-slow / lightning-chain / mind-CC and none of it is used;
-combat casting does not differentiate schools.
+**Why:** 8.2 built fire-AoE / cold-slow / lightning-chain / mind-CC and none of it was used;
+combat casting did not differentiate schools.
 
-**Do:** route `CombatActions::castSpellAdvanced()` through `SpellMechanics` for the school's
-mechanic.
+**Done:**
+- `CombatActions::applySpellDamageBySchool()` looks a spell up in the `SpellBook` and applies
+  its school's mechanic via `SpellMechanics`: fire splashes (with the per-target bonus), cold
+  slows (speed penalty restored on expiry), lightning chains (20% falloff per jump), mind
+  stuns (and may confuse).
+- `CombatActions::castSpellBySchool()` resolves the spell, charges its own mana cost, rolls
+  from its damage range, then applies the school mechanic.
+- `CombatParticipant` gained `slowDuration` / `slowAmount` / `stunDuration`; `tickStatusEffects()`
+  expires them, and `CombatState::nextTurn()` skips a stunned participant's turn.
+- `DungeonDialog`'s spell handler routes through the school-aware path.
 
-**Files:** `src/combat/CombatActions.cpp`, `src/spell_casting/SpellMechanics.*`.
-
-**Verify:** a fire spell hits multiple targets, a cold spell applies slow, a lightning spell
-chains, per the `SpellMechanics` tests.
+**Verified:** `make check` section [72] — 15 checks (fire splash, cold slow + expiry,
+lightning chain, mind stun, stun skips a turn, mana charged from the spell, refusal when
+short). 1070 passed, 0 failed, 25/25 stable.
 
 ---
 

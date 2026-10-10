@@ -48,9 +48,14 @@ bool CombatState::nextTurn() {
             return false;
         }
         int participantIdx = m_initiativeOrder[m_currentTurnIndex];
-        if (m_participants[participantIdx].isAlive && !m_participants[participantIdx].hasActed) {
-            return true;
+        CombatParticipant& p = m_participants[participantIdx];
+        if (!p.isAlive || p.hasActed) continue;
+        // A stunned participant loses its turn: mark it as acted and move on.
+        if (p.stunDuration > 0) {
+            p.hasActed = true;
+            continue;
         }
+        return true;
     }
     return false;
 }

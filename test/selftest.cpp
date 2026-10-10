@@ -5951,6 +5951,172 @@ int runSelfTest()
         check(GoldSinks::sinkDescription("guild").contains("Guild"), "guild desc");
     }
 
+    // ------------------------------------------- v1.0.0 — slice 1.7: SpellMechanics
+    section("[72] v1.0.0 slice 1.7: SpellMechanics into combat");
+    {
+        SpellBook& sb = SpellBook::instance();
+        if (!sb.isLoaded()) sb.load("data/spells.json");
+
+        // --- Fire: Fireball splashes to multiple targets ---
+        {
+            CombatState cs;
+            CombatParticipant mage; mage.name = "Mage"; mage.isPlayer = true;
+            mage.speed = 100; mage.mana = 200; mage.maxMana = 200;
+            cs.addParticipant(mage);
+            for (int i = 0; i < 4; ++i) {
+                CombatParticipant g; g.name = QString("Goblin %1").arg(i + 1);
+                g.isPlayer = false; g.hp = 500; g.maxHp = 500; g.speed = 5;
+                cs.addParticipant(g);
+            }
+            TurnEngine te; te.setCombatState(&cs);
+            CombatActions ca(&cs, &te);
+            te.startRound(); te.nextTurn();
+
+            QString result;
+            int total = ca.applySpellDamageBySchool(1, "Fireball", 20, result);
+            check(total > 0, "Fireball school path deals damage", result);
+            // Fireball baseLevel 3 → fireTargets = 1 + 3/3 = 2 targets.
+            int hit = 0;
+            for (int i = 1; i <= 4; ++i) if (cs.participant(i).hp < 500) hit++;
+            check(hit >= 2, "Fireball hits multiple targets", QString::number(hit));
+        }
+
+        // --- Cold: Iceball slows the target and the slow expires ---
+        {
+            CombatState cs;
+            CombatParticipant mage; mage.name = "Mage"; mage.isPlayer = true;
+            mage.speed = 100; mage.mana = 200;
+            CombatParticipant troll; troll.name = "Troll"; troll.isPlayer = false;
+            troll.hp = 500; troll.maxHp = 500; troll.speed = 20;
+            cs.addParticipant(mage); cs.addParticipant(troll);
+            TurnEngine te; te.setCombatState(&cs);
+            CombatActions ca(&cs, &te);
+            te.startRound(); te.nextTurn();
+
+            QString result;
+            ca.applySpellDamageBySchool(1, "Iceball", 20, result);
+            check(cs.participant(1).speed < 20, "Iceball slows the target",
+                  QString("speed=%1").arg(cs.participant(1).speed));
+            check(cs.participant(1).slowDuration > 0, "slow has a duration");
+            check(result.contains("slowed", Qt::CaseInsensitive), "slow is reported", result);
+
+            int slowedSpeed = cs.participant(1).speed;
+            // Tick until the slow expires.
+            for (int i = 0; i < 5; ++i) ca.tickStatusEffects();
+            check(cs.participant(1).speed == 20, "speed restored when slow expires",
+                  QString("speed=%1 (was %2)").arg(cs.participant(1).speed).arg(slowedSpeed));
+        }
+
+        // --- Lightning: Chain Lightning arcs to several targets ---
+        {
+            CombatState cs;
+            CombatParticipant mage; mage.name = "Mage"; mage.isPlayer = true;
+            mage.speed = 100; mage.mana = 200;
+            cs.addParticipant(mage);
+            for (int i = 0; i < 4; ++i) {
+                CombatParticipant g; g.name = QString("Orc %1").arg(i + 1);
+                g.isPlayer = false; g.hp = 500; g.maxHp = 500; g.speed = 5;
+                cs.addParticipant(g);
+            }
+            TurnEngine te; te.setCombatState(&cs);
+            CombatActions ca(&cs, &te);
+            te.startRound(); te.nextTurn();
+
+            QString result;
+            ca.applySpellDamageBySchool(1, "Chain Lightning", 40, result);
+            int hit = 0;
+            for (int i = 1; i <= 4; ++i) if (cs.participant(i).hp < 500) hit++;
+            check(hit >= 3, "Chain Lightning arcs to multiple targets", QString::number(hit));
+            check(result.contains("arcs", Qt::CaseInsensitive), "chain is reported", result);
+        }
+
+        // --- Mind: Confusion stuns the target ---
+        {
+            CombatState cs;
+            CombatParticipant mage; mage.name = "Mage"; mage.isPlayer = true;
+            mage.speed = 100; mage.mana = 200;
+            CombatParticipant ogre; ogre.name = "Ogre"; ogre.isPlayer = false;
+            ogre.hp = 500; ogre.maxHp = 500; ogre.speed = 10;
+            cs.addParticipant(mage); cs.addParticipant(ogre);
+            TurnEngine te; te.setCombatState(&cs);
+            CombatActions ca(&cs, &te);
+            te.startRound(); te.nextTurn();
+
+            QString result;
+            ca.applySpellDamageBySchool(1, "Confusion", 0, result);
+            check(cs.participant(1).stunDuration > 0, "Confusion stuns the target",
+                  QString("stun=%1").arg(cs.participant(1).stunDuration));
+            check(result.contains("stunned", Qt::CaseInsensitive), "stun is reported", result);
+        }
+
+        // --- Stun costs the target its turn ---
+        {
+            CombatState cs;
+            CombatParticipant a; a.name = "A"; a.isPlayer = true; a.speed = 100;
+            CombatParticipant b; b.name = "B"; b.isPlayer = true; b.speed = 50;
+            b.stunDuration = 1;
+            cs.addParticipant(a); cs.addParticipant(b);
+            TurnEngine te; te.setCombatState(&cs);
+            te.startRound();
+            int turnsSeen = 0;
+            while (te.nextTurn()) {
+                turnsSeen++;
+                te.markCurrentActed();
+                if (turnsSeen > 10) break;
+            }
+            // Only A acts; B is stunned and skipped.
+            check(turnsSeen == 1, "a stunned participant loses its turn",
+                  QString("turns=%1").arg(turnsSeen));
+        }
+
+        // --- castSpellBySchool: mana is charged from the spell's own cost ---
+        {
+            SpellBook& book = SpellBook::instance();
+            const SpellDef* fireball = book.byName("Fireball");
+            if (fireball) {
+                CombatState cs;
+                CombatParticipant mage; mage.name = "Mage"; mage.isPlayer = true;
+                mage.speed = 100; mage.mana = 200; mage.maxMana = 200;
+                CombatParticipant goblin; goblin.name = "Goblin"; goblin.isPlayer = false;
+                goblin.hp = 500; goblin.maxHp = 500; goblin.speed = 5;
+                cs.addParticipant(mage); cs.addParticipant(goblin);
+                TurnEngine te; te.setCombatState(&cs);
+                CombatActions ca(&cs, &te);
+                te.startRound(); te.nextTurn();
+
+                QString result;
+                int dmg = ca.castSpellBySchool(1, "Fireball", result);
+                check(dmg > 0, "castSpellBySchool deals damage", result);
+                check(cs.participant(0).mana == 200 - fireball->mana,
+                      "castSpellBySchool charges the spell's mana cost",
+                      QString("mana=%1 cost=%2").arg(cs.participant(0).mana).arg(fireball->mana));
+            }
+        }
+
+        // --- castSpellBySchool refuses when mana is short ---
+        {
+            SpellBook& book = SpellBook::instance();
+            const SpellDef* fireball = book.byName("Fireball");
+            if (fireball) {
+                CombatState cs;
+                CombatParticipant mage; mage.name = "Mage"; mage.isPlayer = true;
+                mage.speed = 100; mage.mana = 1;
+                CombatParticipant goblin; goblin.name = "Goblin"; goblin.isPlayer = false;
+                goblin.hp = 500; goblin.maxHp = 500; goblin.speed = 5;
+                cs.addParticipant(mage); cs.addParticipant(goblin);
+                TurnEngine te; te.setCombatState(&cs);
+                CombatActions ca(&cs, &te);
+                te.startRound(); te.nextTurn();
+
+                QString result;
+                int dmg = ca.castSpellBySchool(1, "Fireball", result);
+                check(dmg == -1, "castSpellBySchool fails without mana", result);
+                check(cs.participant(0).mana == 1, "mana untouched on failure");
+                check(cs.participant(1).hp == 500, "target unharmed on failure");
+            }
+        }
+    }
+
     // -------------------------------------------------------------- cleanup
     QFile::remove(savePath());
 

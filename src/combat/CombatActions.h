@@ -41,6 +41,19 @@ public:
     int applySpellDamage(int targetIndex, const QString& spellName, int damage,
                          bool isAoE, QString& result);
 
+    // School-aware variant of applySpellDamage: looks the spell up in the
+    // SpellBook and applies the mechanic its school dictates (fire AoE, cold
+    // slow, lightning chain, mind stun/confuse) via SpellMechanics. Falls back
+    // to a single-target hit when the spell is unknown.
+    // Returns total damage dealt, or -1 on failure.
+    int applySpellDamageBySchool(int targetIndex, const QString& spellName,
+                                 int damage, QString& result);
+
+    // Cast a spell the school-aware way: resolves the spell in the SpellBook,
+    // checks and deducts mana, rolls damage from the spell's own range, then
+    // applies the school mechanic. Returns total damage dealt, or -1 on failure.
+    int castSpellBySchool(int targetIndex, const QString& spellName, QString& result);
+
     // Heal spell: current participant heals target.
     // healAmount: base healing amount
     int castHeal(int targetIndex, int healAmount, QString& result);

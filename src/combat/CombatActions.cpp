@@ -2,6 +2,8 @@
 #include "src/core/GameConstants.h"
 #include "src/core/SoundEffects.h"
 #include "src/items/ItemDatabase.h"
+#include "src/spell_casting/SpellBook.h"
+#include "src/spell_casting/SpellMechanics.h"
 #include <QRandomGenerator>
 
 CombatActions::CombatActions(CombatState* state, TurnEngine* engine)
@@ -261,6 +263,162 @@ int CombatActions::applySpellDamage(int targetIndex, const QString& spellName,
     return totalDamage;
 }
 
+// Applies a spell's damage using the mechanic its school dictates. Fire spells
+// splash to extra targets, cold slows, lightning chains, mind stuns/confuses.
+int CombatActions::applySpellDamageBySchool(int targetIndex, const QString& spellName,
+                                            int damage, QString& result) {
+    if (!m_state || !m_engine) { result = "No combat"; return -1; }
+    if (targetIndex < 0 || targetIndex >= m_state->participantCount()) {
+        result = "Invalid target"; return -1;
+    }
+
+    const SpellDef* spell = SpellBook::instance().byName(spellName);
+
+    // Unknown spell: fall back to a plain single-target hit.
+    if (!spell) {
+        return applySpellDamage(targetIndex, spellName, damage, false, result);
+    }
+
+    const SpellMechanics::School school = SpellMechanics::schoolFor(spell->category);
+    const bool targetIsPlayer = m_state->participant(targetIndex).isPlayer;
+
+    // --- Fire: area of effect, +10% damage per extra target ---
+    if (school == SpellMechanics::School::Fire && SpellMechanics::isAoe(*spell)) {
+        const int targets = SpellMechanics::fireTargets(*spell);
+        const int bonusPct = SpellMechanics::fireBonusPerTarget(*spell);
+        const int perTarget = qMax(1, damage * (100 + bonusPct) / 100);
+
+        int hit = 0;
+        int total = 0;
+        QStringList names;
+        for (int i = 0; i < m_state->participantCount() && hit < targets; ++i) {
+            CombatParticipant& p = m_state->participant(i);
+            if (!p.isAlive || p.isPlayer != targetIsPlayer) continue;
+            int dmg = perTarget;
+            if (p.isDefending) dmg = qMax(1, dmg / 2);
+            p.hp -= dmg;
+            if (p.hp <= 0) { p.hp = 0; p.isAlive = false; }
+            total += dmg;
+            names.append(p.name);
+            hit++;
+        }
+        result = QString("%1 erupts in fire, hitting %2 for %3 damage each!")
+            .arg(spellName).arg(names.join(", ")).arg(perTarget);
+        return total;
+    }
+
+    // --- Lightning: chains to extra targets, -20% damage per jump ---
+    if (school == SpellMechanics::School::Lightning) {
+        const int chains = SpellMechanics::lightningChainTargets(*spell);
+        if (chains > 0) {
+            const int falloff = SpellMechanics::lightningChainFalloff(*spell);
+            int total = 0;
+            QStringList names;
+            int jump = 0;
+            int dmg = damage;
+            for (int i = 0; i < m_state->participantCount() && jump <= chains; ++i) {
+                CombatParticipant& p = m_state->participant(i);
+                if (!p.isAlive || p.isPlayer != targetIsPlayer) continue;
+                int hitDmg = qMax(1, dmg * (100 - falloff * jump) / 100);
+                if (p.isDefending) hitDmg = qMax(1, hitDmg / 2);
+                p.hp -= hitDmg;
+                if (p.hp <= 0) { p.hp = 0; p.isAlive = false; }
+                total += hitDmg;
+                names.append(QString("%1 (%2)").arg(p.name).arg(hitDmg));
+                jump++;
+            }
+            result = QString("%1 arcs between %2 for %3 total damage!")
+                .arg(spellName).arg(names.join(", ")).arg(total);
+            return total;
+        }
+    }
+
+    // --- Single-target schools (cold slow, mind stun/confuse, plain damage) ---
+    CombatParticipant& target = m_state->participant(targetIndex);
+    int dmg = damage;
+    if (target.isDefending) dmg = qMax(1, dmg / 2);
+    target.hp -= dmg;
+    bool slain = false;
+    if (target.hp <= 0) {
+        target.hp = 0;
+        target.isAlive = false;
+        slain = true;
+    }
+
+    QString extra;
+
+    // --- Cold: slow the target ---
+    if (school == SpellMechanics::School::Cold) {
+        const int turns = SpellMechanics::coldSlowTurns(*spell);
+        const int pct = SpellMechanics::coldSlowPercent(*spell);
+        // Restore any previous slow before applying a fresh one, so the speed
+        // penalty never stacks with itself.
+        target.speed += target.slowAmount;
+        target.slowAmount = qMax(1, target.speed * pct / 100);
+        target.speed = qMax(1, target.speed - target.slowAmount);
+        target.slowDuration = turns;
+        extra = QString(" %1 is slowed by %2% for %3 rounds!")
+            .arg(target.name).arg(pct).arg(turns);
+    }
+
+    // --- Mind: stun, with a chance to confuse ---
+    if (school == SpellMechanics::School::Mind && !slain) {
+        const int stun = SpellMechanics::mindStunTurns(*spell);
+        target.stunDuration = qMax(target.stunDuration, stun);
+        extra = QString(" %1 is stunned for %2 rounds!").arg(target.name).arg(stun);
+
+        const int confusePct = SpellMechanics::mindConfuseChance(*spell);
+        if (QRandomGenerator::global()->bounded(100) < confusePct) {
+            target.confusionDuration = qMax(target.confusionDuration, stun + 1);
+            extra += QString(" %1 is confused!").arg(target.name);
+        }
+    }
+
+    if (slain) {
+        result = QString("%1 hits %2 for %3 damage — %2 is slain!%4")
+            .arg(spellName).arg(target.name).arg(dmg).arg(extra);
+    } else {
+        result = QString("%1 hits %2 for %3 damage.%4")
+            .arg(spellName).arg(target.name).arg(dmg).arg(extra);
+    }
+    return dmg;
+}
+
+int CombatActions::castSpellBySchool(int targetIndex, const QString& spellName, QString& result) {
+    if (!m_state || !m_engine) { result = "No combat"; return -1; }
+    int casterIdx = m_engine->currentParticipantIndex();
+    if (casterIdx < 0) { result = "No caster"; return -1; }
+
+    const SpellDef* spell = SpellBook::instance().byName(spellName);
+    if (!spell) { result = QString("Unknown spell: %1").arg(spellName); return -1; }
+
+    CombatParticipant& caster = m_state->participant(casterIdx);
+    if (caster.mana < spell->mana) {
+        result = QString("%1 does not have enough mana for %2 (need %3, have %4).")
+            .arg(caster.name).arg(spellName).arg(spell->mana).arg(caster.mana);
+        return -1;
+    }
+
+    // Roll damage from the spell's own range; non-damage spells carry no range.
+    int damage = 0;
+    if (!spell->damage.isEmpty()) {
+        QStringList parts = spell->damage.split('-');
+        int minDmg = parts.value(0).toInt();
+        int maxDmg = parts.size() == 2 ? parts.value(1).toInt() : minDmg;
+        if (maxDmg < minDmg) maxDmg = minDmg;
+        damage = minDmg + QRandomGenerator::global()->bounded(maxDmg - minDmg + 1);
+    }
+
+    caster.mana -= spell->mana;
+    SoundEffects::instance()->play(SoundEffects::Type::SpellCast);
+
+    // A control-only spell (no damage) still applies its mechanic.
+    if (damage <= 0) {
+        return applySpellDamageBySchool(targetIndex, spellName, 0, result);
+    }
+    return applySpellDamageBySchool(targetIndex, spellName, damage, result);
+}
+
 int CombatActions::castHeal(int targetIndex, int healAmount, QString& result) {
     if (!m_state || !m_engine) { result = "No combat"; return -1; }
     int casterIdx = m_engine->currentParticipantIndex();
@@ -389,6 +547,24 @@ QStringList CombatActions::tickStatusEffects() {
             p.confusionDuration--;
             if (p.confusionDuration <= 0) {
                 messages.append(QString("%1 is no longer confused.").arg(p.name));
+            }
+        }
+
+        // Cold slow: the speed penalty is restored when it expires.
+        if (p.slowDuration > 0) {
+            p.slowDuration--;
+            if (p.slowDuration <= 0) {
+                p.speed += p.slowAmount;
+                p.slowAmount = 0;
+                messages.append(QString("%1 is no longer slowed.").arg(p.name));
+            }
+        }
+
+        // Mind stun: the participant loses its turn while it lasts.
+        if (p.stunDuration > 0) {
+            p.stunDuration--;
+            if (p.stunDuration <= 0) {
+                messages.append(QString("%1 recovers from the stun.").arg(p.name));
             }
         }
 

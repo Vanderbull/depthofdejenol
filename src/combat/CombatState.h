@@ -39,6 +39,11 @@ struct CombatParticipant {
     int fireDuration = 0;
     int confusionDuration = 0;
 
+    // School mechanics (driven by SpellMechanics)
+    int slowDuration = 0;   // rounds of cold slow remaining
+    int slowAmount = 0;     // speed removed by the slow, restored on expiry
+    int stunDuration = 0;   // rounds the participant loses its turn (mind)
+
     // Monster abilities
     bool canPoison = false;
     bool canBreathFire = false;
