@@ -5841,6 +5841,82 @@ int runSelfTest()
         check(MonsterBalance::isPartyReady(4, 15, 15), "4 members at level 15 ready for floor 15");
     }
 
+    // ------------------------------------------- v1.0.0 — slice 1.5: ItemProgression
+    section("[70] v1.0.0 slice 1.5: ItemProgression into loot");
+    {
+        using Tier = ItemProgression::Tier;
+
+        // Tier curve: Bronze → Iron → Steel → Adamantite → Mithril.
+        check(ItemProgression::tierForFloor(1) == Tier::Bronze, "floor 1 is bronze");
+        check(ItemProgression::tierForFloor(5) == Tier::Iron, "floor 5 is iron");
+        check(ItemProgression::tierForFloor(8) == Tier::Steel, "floor 8 is steel");
+        check(ItemProgression::tierForFloor(12) == Tier::Adamantite, "floor 12 is adamantite");
+        check(ItemProgression::tierForFloor(15) == Tier::Mithril, "floor 15 is mithril");
+
+        // Tier availability gates loot: Mithril is not available on floor 1.
+        check(ItemProgression::isAvailable(Tier::Bronze, 1), "bronze available floor 1");
+        check(!ItemProgression::isAvailable(Tier::Mithril, 1), "mithril not available floor 1");
+        check(ItemProgression::isAvailable(Tier::Mithril, 15), "mithril available floor 15");
+
+        // VictoryReward applies tier-gating: a monster whose drop table contains
+        // a Mithril-prefixed item must not drop it on floor 1.
+        gameStateManager* gsm = gameStateManager::instance();
+        const QList<QVariantMap>& monsters = gsm->getMonsterData();
+        const QList<ItemDef>& items = ItemDatabase::instance().all();
+
+        // Find a Mithril-prefixed item in the database.
+        const ItemDef* mithrilItem = nullptr;
+        for (const ItemDef& item : items) {
+            if (item.name.startsWith("Mithril", Qt::CaseInsensitive)) {
+                mithrilItem = &item;
+                break;
+            }
+        }
+
+        if (mithrilItem && !monsters.isEmpty()) {
+            // Find a monster that drops this item.
+            QString dropper;
+            for (const QVariantMap& m : monsters) {
+                for (int i = 0; i <= 9; ++i) {
+                    if (m.value(QString("Item%1").arg(i)).toInt() == mithrilItem->id) {
+                        dropper = m["name"].toString();
+                        break;
+                    }
+                }
+                if (!dropper.isEmpty()) break;
+            }
+
+            if (!dropper.isEmpty()) {
+                // On floor 1, the Mithril item must never drop.
+                bool foundMithril = false;
+                for (int i = 0; i < 100; ++i) {
+                    QStringList loot = VictoryReward::calculateLoot(dropper, monsters, 1);
+                    if (loot.contains(mithrilItem->name)) {
+                        foundMithril = true;
+                        break;
+                    }
+                }
+                check(!foundMithril,
+                      "Mithril item does not drop on floor 1 (tier-gated)",
+                      mithrilItem->name);
+
+                // On floor 15, it can drop (may not always due to RNG, but the
+                // tier gate must not block it).
+                bool foundMithrilDeep = false;
+                for (int i = 0; i < 200; ++i) {
+                    QStringList loot = VictoryReward::calculateLoot(dropper, monsters, 15);
+                    if (loot.contains(mithrilItem->name)) {
+                        foundMithrilDeep = true;
+                        break;
+                    }
+                }
+                check(foundMithrilDeep,
+                      "Mithril item can drop on floor 15 (tier available)",
+                      mithrilItem->name);
+            }
+        }
+    }
+
     // -------------------------------------------------------------- cleanup
     QFile::remove(savePath());
 

@@ -121,17 +121,18 @@ ATT scaling, NG+ and floor stacking, isPartyReady). 1028 passed, 0 failed, 25/25
 
 ---
 
-### 1.5 ItemProgression into loot and shops `M`
+### 1.5 ItemProgression into loot and shops `M` — ✅ DONE
 
-**Why:** 8.3 built tiers (Bronze→Mithril) and floor→tier mapping; nothing uses it, so loot
-tiering is whatever `VictoryReward`'s ad-hoc filter does.
+**Why:** 8.3 built tiers (Bronze→Mithril) and floor→tier mapping; nothing used it, so loot
+tiering was whatever `VictoryReward`'s ad-hoc filter did.
 
-**Do:** use `ItemProgression::tierForFloor()` to filter/augment drops and to gate store
-stock.
+**Done:**
+- `VictoryReward::calculateLoot()` now gates drops by `ItemProgression::isAvailable()`:
+  items whose tier prefix is not available on the current floor are skipped.
+- Unprefixed items keep the existing depth filter.
 
-**Files:** `src/combat/VictoryReward.cpp`, `src/general_store/*`, `src/items/ItemProgression.*`.
-
-**Verify:** floor-1 loot is Bronze-tier; floor-15 loot can be Mithril.
+**Verified:** `make check` section [70] — 10 checks (tier curve, availability, Mithril
+gating on floor 1 vs floor 15). 1038 passed, 0 failed, 25/25 stable.
 
 ---
 

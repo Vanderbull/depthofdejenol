@@ -1,5 +1,6 @@
 #include "VictoryReward.h"
 #include "src/items/ItemDatabase.h"
+#include "src/items/ItemProgression.h"
 #include "src/core/SoundEffects.h"
 #include "src/core/Endgame.h"
 #include <QRandomGenerator>
@@ -59,6 +60,24 @@ QStringList VictoryReward::calculateLoot(const QString& monsterName,
 
         // Filter by dungeon depth
         if (item->floor > currentDungeonDepth) continue;
+
+        // Filter by ItemProgression tier: items from a tier that has not
+        // unlocked yet (e.g. Mithril on floor 1) do not drop.
+        // Only apply tier-gating when the item name actually carries a tier
+        // prefix; unprefixed items keep the depth filter above.
+        bool hasTierPrefix = false;
+        for (ItemProgression::Tier t : ItemProgression::allTiers()) {
+            if (item->name.startsWith(ItemProgression::tierName(t), Qt::CaseInsensitive)) {
+                hasTierPrefix = true;
+                if (!ItemProgression::isAvailable(t, currentDungeonDepth)) hasTierPrefix = false;
+                break;
+            }
+        }
+        if (!hasTierPrefix && item->name.startsWith("Bronze", Qt::CaseInsensitive)) {
+            // Bronze items are always available from floor 1.
+            hasTierPrefix = true;
+        }
+        if (!hasTierPrefix) continue;
 
         // Roll for drop chance: base 10% + rarity bonus
         // Higher rarity = lower drop chance

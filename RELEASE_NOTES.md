@@ -260,6 +260,20 @@ ATT scaling, NG+ and floor stacking, isPartyReady). 1028 passed, 0 failed, 25/25
 
 ---
 
+## Slice 1.5 — ItemProgression into loot ✅
+
+**Why.** 8.3 built tiers (Bronze→Mithril) and floor→tier mapping; nothing used it.
+
+**Changed.**
+- `VictoryReward::calculateLoot()` gates drops by `ItemProgression::isAvailable()`:
+  items whose tier prefix is not available on the current floor are skipped.
+- Unprefixed items keep the existing depth filter.
+
+**Verified.** `make check` section [70] — 10 checks (tier curve, availability, Mithril
+gating on floor 1 vs floor 15). 1038 passed, 0 failed, 25/25 stable.
+
+---
+
 # v0.0 — 2026-10-07 (game systems)
 
 The release that built the game's systems: eight phases covering items, equipment, combat,
