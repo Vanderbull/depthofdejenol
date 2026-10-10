@@ -274,6 +274,23 @@ gating on floor 1 vs floor 15). 1038 passed, 0 failed, 25/25 stable.
 
 ---
 
+## Slice 1.6 — GoldSinks into town dialogs ✅
+
+**Why.** 8.4 defined seven sinks with costs; no dialog charged them. Prices were scattered as
+literals across Tavern/Morgue/Store instead of one authority.
+
+**Changed.**
+- `GeneralStore` identification fee: `50` → `GoldSinks::identificationCost()`.
+- `GeneralStore` uncurse fee: `100` → `GoldSinks::uncurseCost()`.
+- `GuildsDialog` level-up cost: `50 * currentLevel` → `GoldSinks::guildLevelCost()`.
+- `MorgueDialog` rescue cost: `DeathRecovery::rescuePartyCost()` → `GoldSinks::rescueCost()`.
+- Added `GoldSinks.h` includes to all three dialogs.
+
+**Verified.** `make check` section [71] — 16 checks (all sink costs, scaling, allSinks,
+sinkDescription). 1054 passed, 0 failed, 25/25 stable.
+
+---
+
 # v0.0 — 2026-10-07 (game systems)
 
 The release that built the game's systems: eight phases covering items, equipment, combat,

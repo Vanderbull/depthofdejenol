@@ -5917,6 +5917,40 @@ int runSelfTest()
         }
     }
 
+    // ------------------------------------------- v1.0.0 — slice 1.6: GoldSinks
+    section("[71] v1.0.0 slice 1.6: GoldSinks into town dialogs");
+    {
+        // GoldSinks is the single authority for every gold charge.
+        check(GoldSinks::identificationCost() == 50, "identification 50");
+        check(GoldSinks::uncurseCost() == 100, "uncurse 100");
+        check(GoldSinks::restCostPerHour() == 10, "rest 10/hour");
+        check(GoldSinks::curePoisonCost() == 50, "cure poison 50");
+        check(GoldSinks::cureBlindnessCost() == 50, "cure blindness 50");
+
+        // Resurrection scales with level and body location.
+        check(GoldSinks::resurrectionCost(1, false) == 500, "level 1 resurrection 500");
+        check(GoldSinks::resurrectionCost(5, false) == 2500, "level 5 resurrection 2500");
+        check(GoldSinks::resurrectionCost(5, true) == 3000, "level 5 dungeon resurrection 3000");
+
+        // Rescue scales superlinearly with depth.
+        check(GoldSinks::rescueCost(1) == 250, "depth 1 rescue 250");
+        check(GoldSinks::rescueCost(5) == 6250, "depth 5 rescue 6250");
+
+        // Guild leveling scales with current level.
+        check(GoldSinks::guildLevelCost("Mage", 0) == 500, "guild level 0→1 costs 500");
+        check(GoldSinks::guildLevelCost("Mage", 5) == 3000, "guild level 5→6 costs 3000");
+
+        // allSinks returns all categories.
+        QList<QVariantMap> sinks = GoldSinks::allSinks();
+        check(sinks.size() >= 7, "at least 7 gold sink categories",
+              QString::number(sinks.size()));
+
+        // sinkDescription gives a human-readable explanation.
+        check(GoldSinks::sinkDescription("resurrection").contains("Morgue"), "resurrection desc");
+        check(GoldSinks::sinkDescription("identification").contains("Store"), "identification desc");
+        check(GoldSinks::sinkDescription("guild").contains("Guild"), "guild desc");
+    }
+
     // -------------------------------------------------------------- cleanup
     QFile::remove(savePath());
 

@@ -136,18 +136,20 @@ gating on floor 1 vs floor 15). 1038 passed, 0 failed, 25/25 stable.
 
 ---
 
-### 1.6 GoldSinks into the town dialogs `M`
+### 1.6 GoldSinks into the town dialogs `M` — ✅ DONE
 
-**Why:** 8.4 defined seven sinks with costs; no dialog charges them. Prices are scattered as
+**Why:** 8.4 defined seven sinks with costs; no dialog charged them. Prices were scattered as
 literals across Tavern/Morgue/Store instead of one authority.
 
-**Do:** route every gold charge (resurrect, rescue, identify, uncurse, guild level, rest,
-cure) through `GoldSinks` so the cost has one definition.
+**Done:**
+- `GeneralStore` identification fee: `50` → `GoldSinks::identificationCost()`.
+- `GeneralStore` uncurse fee: `100` → `GoldSinks::uncurseCost()`.
+- `GuildsDialog` level-up cost: `50 * currentLevel` → `GoldSinks::guildLevelCost()`.
+- `MorgueDialog` rescue cost: `DeathRecovery::rescuePartyCost()` → `GoldSinks::rescueCost()`.
+- Added `GoldSinks.h` includes to all three dialogs.
 
-**Files:** `TavernDialog`, `MorgueDialog`, `GeneralStore`, `GuildsDialog`,
-`src/core/GoldSinks.*`.
-
-**Verify:** suite check that each dialog's charge equals the `GoldSinks` value.
+**Verified:** `make check` section [71] — 16 checks (all sink costs, scaling, allSinks,
+sinkDescription). 1054 passed, 0 failed, 25/25 stable.
 
 ---
 

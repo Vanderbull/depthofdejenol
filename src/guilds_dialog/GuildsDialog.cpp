@@ -1,4 +1,5 @@
 #include "GuildsDialog.h"
+#include "src/core/GoldSinks.h"
 #include "src/library_dialog/library_dialog.h" // Include the LibraryDialog header
 #include "src/spell_casting/SpellBook.h"
 #include "src/core/AlignmentSystem.h"
@@ -166,9 +167,9 @@ void GuildsDialog::on_makeLevelButton_clicked()
         return;
     }
 
-    // Leveling costs gold. The cost scales with the guild level.
+    // Leveling costs gold via GoldSinks. The cost scales with the guild level.
     int currentLevel = c.guildLevel(guildName);
-    int cost = 50 * currentLevel;
+    int cost = GoldSinks::guildLevelCost(guildName, currentLevel);
     int partyGold = gsm->getPartyGold();
 
     if (partyGold < cost) {

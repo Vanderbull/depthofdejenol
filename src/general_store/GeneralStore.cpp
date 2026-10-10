@@ -1,4 +1,5 @@
 #include "GeneralStore.h"
+#include "src/core/GoldSinks.h"
 #include "src/items/ItemDatabase.h"
 #include <QDebug>
 
@@ -539,7 +540,7 @@ void GeneralStore::identifySelectedItem()
         return;
     }
     // 3. Gold Verification (e.g., standard fee of 50 GP)
-    const qulonglong identifyFee = 50;
+    const qulonglong identifyFee = GoldSinks::identificationCost();
 
     if (gameStateManager::instance()->getPartyGold() < static_cast<int>(identifyFee)) {
         // Handle insufficient gold
@@ -602,8 +603,8 @@ void GeneralStore::uncurseSelectedItem()
         QMessageBox::information(this, "Uncurse Item", "This item does not appear to be cursed!");
         return;
     }
-    // 3. Gold Verification ( standard uncurse fee of 100 GP)
-    const qulonglong uncurseFee = 100;
+    // 3. Gold Verification (standard uncurse fee via GoldSinks)
+    const qulonglong uncurseFee = GoldSinks::uncurseCost();
 
     if (gameStateManager::instance()->getPartyGold() < static_cast<int>(uncurseFee)) {
         // Handle insufficient gold
