@@ -5642,6 +5642,70 @@ int runSelfTest()
               QString::number(boss["level"].toInt()));
     }
 
+    // ------------------------------------------- v1.0.0 — slice 1.2: Hall of Records
+    section("[67] v1.0.0 slice 1.2: Hall of Records");
+    {
+        // addGameRecord appends a record and emits the signal.
+        gameStateManager* gsm = gameStateManager::instance();
+        // Record the count before adding. The suite may run against a state that
+        // already has records from a previous section, so compare relatively.
+        const int before = gsm->getGameValue("HallOfRecords").toList().size();
+
+        GameRecord rec;
+        rec.heroName = "TestHero";
+        rec.highestLevel = 12;
+        rec.mostGold = 5000;
+        rec.deepestFloor = 8;
+        rec.completionTimeSeconds = 3600;
+        rec.won = true;
+        gsm->addGameRecord(rec);
+
+        const QVariantList after = gsm->getGameValue("HallOfRecords").toList();
+        check(after.size() == before + 1, "addGameRecord appends one record",
+              QString("%1 → %2").arg(before).arg(after.size()));
+
+        // The persisted record round-trips through toMap/loadFromMap.
+        GameRecord loaded;
+        loaded.loadFromMap(after.last().toMap());
+        check(loaded.heroName == "TestHero", "record round-trips: hero name");
+        check(loaded.highestLevel == 12, "record round-trips: level");
+        check(loaded.mostGold == 5000, "record round-trips: gold");
+        check(loaded.deepestFloor == 8, "record round-trips: floor");
+        check(loaded.won, "record round-trips: won flag");
+        check(loaded.formattedTime() == "01:00:00", "record formatted time",
+              loaded.formattedTime());
+
+        // Endgame::ranked sorts best-first for each category.
+        QList<GameRecord> records;
+        GameRecord a; a.heroName = "A"; a.highestLevel = 5;  a.mostGold = 100;  a.deepestFloor = 3;  a.completionTimeSeconds = 0; a.won = false;
+        GameRecord b; b.heroName = "B"; b.highestLevel = 10; b.mostGold = 2000; b.deepestFloor = 12; b.completionTimeSeconds = 7200; b.won = true;
+        GameRecord c; c.heroName = "C"; c.highestLevel = 8;  c.mostGold = 500;  c.deepestFloor = 8;  c.completionTimeSeconds = 3600; c.won = true;
+        records << a << b << c;
+
+        QList<GameRecord> byLevel = Endgame::ranked(records, Endgame::Category::HighestLevel);
+        check(byLevel.first().heroName == "B", "ranked: highest level first",
+              byLevel.first().heroName);
+
+        QList<GameRecord> byGold = Endgame::ranked(records, Endgame::Category::MostGold);
+        check(byGold.first().heroName == "B", "ranked: most gold first",
+              byGold.first().heroName);
+
+        QList<GameRecord> byFloor = Endgame::ranked(records, Endgame::Category::DeepestFloor);
+        check(byFloor.first().heroName == "B", "ranked: deepest floor first",
+              byFloor.first().heroName);
+
+        // Fastest completion: only wins count, then shortest time.
+        QList<GameRecord> bySpeed = Endgame::ranked(records, Endgame::Category::FastestCompletion);
+        check(bySpeed.first().heroName == "C", "ranked: fastest completion first",
+              bySpeed.first().heroName);
+
+        // A win always outranks a non-win.
+        GameRecord loser; loser.heroName = "Loser"; loser.highestLevel = 99; loser.mostGold = 99999; loser.deepestFloor = 15; loser.completionTimeSeconds = 100; loser.won = false;
+        GameRecord winner; winner.heroName = "Winner"; winner.highestLevel = 1; winner.mostGold = 1; winner.deepestFloor = 1; winner.completionTimeSeconds = 5000; winner.won = true;
+        check(Endgame::outranks(winner, loser, Endgame::Category::FastestCompletion),
+              "a win outranks a non-win for fastest completion");
+    }
+
     // -------------------------------------------------------------- cleanup
     QFile::remove(savePath());
 

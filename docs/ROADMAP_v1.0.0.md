@@ -63,19 +63,26 @@ victory text non-empty, buildFinalBoss stats). 992 passed, 0 failed, 25/25 stabl
 
 ---
 
-### 1.2 Hall of Records reads real records `M`
+### 1.2 Hall of Records reads real records `M` — ✅ DONE
 
-**Why:** the dialog exists and is reachable from the main menu, but it reads
-`GuildLeaders` — it never touches `Endgame::ranked()` / `GameRecord`, which 6.4 built and
-tested. The Hall shows guild leaders, not records.
+**Why:** the dialog existed and was reachable from the main menu, but it read
+`GuildLeaders` — it never touched `Endgame::ranked()` / `GameRecord`, which 6.4 built and
+tested. The Hall showed guild leaders, not records.
 
-**Do:** have the dialog display the four ranked categories from `Endgame::ranked()` (highest
-level, most gold, deepest floor, fastest completion), fed from a persisted record list.
-Keep the guild-leaders section or split the dialog into two tabs.
+**Done:**
+- `gameStateManager::addGameRecord(const GameRecord&)` — public method that appends to
+  `m_hallofrecordsData` and emits `gameValueChanged("HallOfRecords", ...)`.
+- `getGameValue("HallOfRecords")` now returns `m_hallofrecordsData` (not `m_gameStateData`).
+- `packStateForSaving()` persists `HallOfRecords` as a `QVariantList` of `QVariantMap`.
+- `unpackStateAfterLoading()` restores `m_hallofrecordsData` from the saved list.
+- `HallOfRecordsDialog` now builds four ranked sections (Highest Level, Most Gold,
+  Deepest Floor, Fastest Completion) using `Endgame::ranked()`, displayed alongside the
+  existing guild-leaders section.
+- `DungeonDialog::handleVictory()` calls `gsm->addGameRecord(rec)` on final victory.
 
-**Files:** `src/hall_of_records/hallofrecordsdialog.cpp`, `src/core/Endgame.*`.
-
-**Verify:** suite check that a saved `GameRecord` appears in the dialog's ranked output.
+**Verified:** `make check` section [67] — 11 checks (addGameRecord append, round-trip,
+ranked sorting for all 4 categories, win-outranks-non-win). 1004 passed, 0 failed,
+25/25 stable runs.
 
 ---
 

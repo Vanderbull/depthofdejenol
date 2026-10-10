@@ -1563,7 +1563,7 @@ void DungeonDialog::handleVictory()
             rec.deepestFloor = level;
             rec.completionTimeSeconds = 0;  // TODO: track actual play time
             rec.won = true;
-            // TODO: persist record via HallOfRecords
+            gsm->addGameRecord(rec);
             dlg->exec();
         }
     }

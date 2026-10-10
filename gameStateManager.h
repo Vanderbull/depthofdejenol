@@ -9,6 +9,7 @@ extern "C" {
 
 // Project Includes
 #include "src/core/GameConstants.h"
+#include "src/core/Endgame.h"
 #include "src/core/game_resources.h"
 #include "dataRegistry.h"
 #include "audioManager.h"
@@ -117,6 +118,7 @@ public:
 
     bool saveFullGameState(const QString& saveName);
     bool loadFullGameState(const QString& saveName);
+    void addGameRecord(const GameRecord& record);
     void checkSettingsFile();
     void initializeResources();
     QPixmap getFontSpriteSheet() const { return m_fontSpriteSheet; }
@@ -356,7 +358,7 @@ private:
     QList<QVariantMap> m_libraryentriesData;
     QList<QVariantMap> m_hallofrecordsData;
     QList<QVariantMap> m_confinementcreaturesData;
-    
+
     QTimer *m_autosaveTimer = nullptr;
 };
 

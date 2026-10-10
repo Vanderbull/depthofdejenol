@@ -202,6 +202,29 @@ callers. The final boss existed, the quest chain completed, and the player got n
 
 ---
 
+## Slice 1.2 — Hall of Records ✅
+
+**Why.** The dialog existed and was reachable from the main menu, but it read
+`GuildLeaders` — it never touched `Endgame::ranked()` / `GameRecord`. The Hall showed
+guild leaders, not records.
+
+**Changed.**
+- `gameStateManager::addGameRecord(const GameRecord&)` — public method that appends to
+  `m_hallofrecordsData` and emits `gameValueChanged("HallOfRecords", ...)`.
+- `getGameValue("HallOfRecords")` now returns `m_hallofrecordsData` (not `m_gameStateData`).
+- `packStateForSaving()` persists `HallOfRecords` as a `QVariantList` of `QVariantMap`.
+- `unpackStateAfterLoading()` restores `m_hallofrecordsData` from the saved list.
+- `HallOfRecordsDialog` now builds four ranked sections (Highest Level, Most Gold,
+  Deepest Floor, Fastest Completion) using `Endgame::ranked()`, displayed alongside the
+  existing guild-leaders section.
+- `DungeonDialog::handleVictory()` calls `gsm->addGameRecord(rec)` on final victory.
+
+**Verified.** `make check` section [67] — 11 checks (addGameRecord append, round-trip,
+ranked sorting for all 4 categories, win-outranks-non-win). 1004 passed, 0 failed,
+25/25 stable runs.
+
+---
+
 # v0.0 — 2026-10-07 (game systems)
 
 The release that built the game's systems: eight phases covering items, equipment, combat,

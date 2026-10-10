@@ -3,6 +3,7 @@
 #include "src/core/savegameUtils.h"
 #include "src/core/DungeonLevelState.h"
 #include "src/core/AgingRules.h"
+#include "src/core/Endgame.h"
 #include "src/spell_casting/SpellBook.h"
 #include "src/items/ItemDatabase.h"
 
@@ -450,6 +451,9 @@ void gameStateManager::setGameValue(const QString& key, const QVariant& value)
 
 QVariant gameStateManager::getGameValue(const QString& key) const
 {
+    if (key == "HallOfRecords") {
+        return QVariant::fromValue(m_hallofrecordsData);
+    }
     return m_gameStateData.value(key);
 }
 
@@ -2315,6 +2319,13 @@ void gameStateManager::packStateForSaving() {
 
     // 5. Version for save schema compatibility.
     m_gameStateData["SaveVersion"] = 1;
+
+    // 6. Persist Hall of Records (game records from completed runs).
+    QVariantList hallRecords;
+    for (const QVariantMap& rec : m_hallofrecordsData) {
+        hallRecords.append(rec);
+    }
+    m_gameStateData["HallOfRecords"] = hallRecords;
 }
 
 // Distributes data from the master map back into live objects after a load
@@ -2337,8 +2348,23 @@ void gameStateManager::unpackStateAfterLoading() {
             m_gameStateData.value("DungeonLevels").toMap());
     }
 
-    // 4. Trigger UI updates so the game reflects the new state
+    // 4. Restore Hall of Records (game records from completed runs).
+    m_hallofrecordsData.clear();
+    if (m_gameStateData.contains("HallOfRecords")) {
+        QVariantList hallRecords = m_gameStateData["HallOfRecords"].toList();
+        for (const QVariant& v : hallRecords) {
+            m_hallofrecordsData.append(v.toMap());
+        }
+    }
+
+    // 5. Trigger UI updates so the game reflects the new state
     refreshUI();
+}
+
+void gameStateManager::addGameRecord(const GameRecord& record)
+{
+    m_hallofrecordsData.append(record.toMap());
+    emit gameValueChanged("HallOfRecords", QVariant::fromValue(m_hallofrecordsData));
 }
 
 QString gameStateManager::getCraftingRecipeResult(const QString& item1, const QString& item2)
