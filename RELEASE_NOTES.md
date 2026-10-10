@@ -43,6 +43,22 @@ neutral does not, empty tile does not. Non-vacuous: 2 FAIL without the auto-star
 
 **Tests:** 1176 → 1181 passed, 0 failed.
 
+## Slice 2.1 (cont.) — Flee semantics and spell routing
+
+**Problem:** fleeing closed combat but left the monster on the map, so stepping onto the
+same tile restarted combat immediately. Spell damage poked participant HP directly instead
+of routing through CombatActions (no death bookkeeping, no status effects).
+
+**Fix:**
+- `fleeCombat()` extracted from `on_combatFleeButton_clicked`; removes the monster from
+  the map on successful flee
+- Spell damage flows through `applySpellDamageBySchool` so death handling and school
+  mechanics (fire AoE, cold slow, lightning chain, mind stun) are respected
+- Test [74] drives the real flee path. Non-vacuous: 1 FAIL without the monster removal.
+- Test [75] verifies spell damage routing.
+
+**Tests:** 1181 → 1189 passed, 0 failed.
+
 ---
 
 # v1.0.1 — 2026-10-10 ✅ RELEASED

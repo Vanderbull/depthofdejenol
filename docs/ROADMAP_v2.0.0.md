@@ -37,26 +37,24 @@ wires them into the game loop so they matter.
 
 ## Slices
 
-### 2.1 Combat auto-start and flee semantics `M` — ✅ DONE (auto-start)
+### 2.1 Combat auto-start and flee semantics `M` — ✅ DONE
 
 **Why:** stepping onto a monster only logs a line. Combat begins only if the player then
 presses Fight while standing on the tile. `initiateFight()` is an empty stub. The encounter
 is announced and then ignored. Fleeing marks monsters dead but they stay on the map.
 
-**Done (auto-start):**
+**Done:**
 - Extracted `startCombatAt(pos)` from `on_fightButton_clicked` — shared combat setup path
 - `handleEncounters` calls `startCombatAt` for Hostile monsters
 - Neutral and friendly monsters do not trigger combat
-- Test [73] drives the real `handleEncounters` path. Non-vacuous: 2 FAIL without fix.
-
-**Remaining (flee semantics):**
-- Flee: monster stays on the map, party disengages (or monster is removed — pick one)
-- Wire `SpellCastingDialog` result into `CombatActions::castSpellBySchool()`
+- Extracted `fleeCombat()` — removes monster from map on successful flee
+- Spell damage routes through `applySpellDamageBySchool` (death bookkeeping + school mechanics)
+- Tests [73], [74], [75] drive the real paths. Non-vacuous: 2 FAIL + 1 FAIL without fixes.
 
 **Files:** `DungeonDialog.cpp`, `DungeonHandlers.cpp`, `CombatActions.cpp`
 
 **Verify:** walking onto a hostile monster opens combat without pressing Fight ✅; flee →
-monster is either still on the tile or gone, never both (pending).
+monster removed from map ✅; spell damage flows through CombatActions ✅.
 
 ---
 
