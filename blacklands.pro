@@ -318,8 +318,10 @@ VERSION_INT  = \"v$$VERSION_INT\"
 #--------------------------------------------------
 # Declaring `check` here overrides the default generated target (qmake only
 # adds `check: first` when the project has not defined it), so `make check`
-# builds and then runs the headless self-test suite.
+# builds and then runs the headless self-test suite, followed by the
+# orphaned-system guard (a system reachable only from the tests is not wired
+# into the game).
 QMAKE_EXTRA_TARGETS += check
 check.target = check
 check.depends = first
-check.commands = ./$${TARGET} --selftest
+check.commands = ./$${TARGET} --selftest $$escape_expand(\\n\\t) python3 $$quote($$PWD/tools/check_orphaned_systems.py)

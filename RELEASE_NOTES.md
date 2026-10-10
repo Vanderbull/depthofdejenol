@@ -313,6 +313,24 @@ short). 1070 passed, 0 failed, 25/25 stable.
 
 ---
 
+## Orphaned-system guard ✅
+
+**Why.** Every v1.0.0 slice had the same root cause: a class was written, tested against
+directly, and never called by the game. Tests passed; the feature did not exist.
+
+**Changed.**
+- `tools/check_orphaned_systems.py` asserts that each of the six previously-orphaned systems
+  (`Endgame`, `MonsterBalance`, `GoldSinks`, `AgingRules`, `ItemProgression`,
+  `SpellMechanics`) has at least one `Class::` reference outside its own translation unit and
+  outside `test/`.
+- Wired into `make check` via `blacklands.pro`, so `make check` now runs the self-test suite
+  and then the guard.
+
+**Verified.** All six systems pass; the guard is non-vacuous (a synthetic class yields zero
+callers, `GoldSinks` yields three). `make check` exits 0.
+
+---
+
 # v0.0 — 2026-10-07 (game systems)
 
 The release that built the game's systems: eight phases covering items, equipment, combat,

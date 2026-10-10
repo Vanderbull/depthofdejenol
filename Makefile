@@ -965,7 +965,8 @@ distclean: clean
 ####### Sub-libraries
 
 check: first
-	./blacklands --selftest
+	./blacklands --selftest 
+	 python3 /home/rickard/Documents/GitHub/depthofdejenol/tools/check_orphaned_systems.py
 
 mocclean: compiler_moc_header_clean compiler_moc_objc_header_clean compiler_moc_source_clean
 
@@ -1831,6 +1832,7 @@ build/obj/release/GuildsDialog.o: src/guilds_dialog/GuildsDialog.cpp src/guilds_
 		audioManager.h \
 		fontManager.h \
 		character.h \
+		src/core/GoldSinks.h \
 		src/library_dialog/library_dialog.h \
 		src/spell_casting/SpellBook.h \
 		src/core/AlignmentSystem.h
@@ -1850,10 +1852,12 @@ build/obj/release/GeneralStore.o: src/general_store/GeneralStore.cpp src/general
 		audioManager.h \
 		fontManager.h \
 		character.h \
+		src/core/GoldSinks.h \
 		src/items/ItemDatabase.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/GeneralStore.o src/general_store/GeneralStore.cpp
 
 build/obj/release/MorgueDialog.o: src/morgue_dialog/MorgueDialog.cpp src/morgue_dialog/MorgueDialog.h \
+		src/core/GoldSinks.h \
 		gameStateManager.h \
 		3rdparty/lua/lua.h \
 		3rdparty/lua/luaconf.h \
@@ -2197,7 +2201,9 @@ build/obj/release/CombatActions.o: src/combat/CombatActions.cpp src/combat/Comba
 		character.h \
 		src/core/GameConstants.h \
 		src/core/SoundEffects.h \
-		src/items/ItemDatabase.h
+		src/items/ItemDatabase.h \
+		src/spell_casting/SpellBook.h \
+		src/spell_casting/SpellMechanics.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/CombatActions.o src/combat/CombatActions.cpp
 
 build/obj/release/MonsterAI.o: src/combat/MonsterAI.cpp src/combat/MonsterAI.h \
@@ -2209,12 +2215,18 @@ build/obj/release/MonsterAI.o: src/combat/MonsterAI.cpp src/combat/MonsterAI.h \
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/MonsterAI.o src/combat/MonsterAI.cpp
 
 build/obj/release/EncounterBuilder.o: src/combat/EncounterBuilder.cpp src/combat/EncounterBuilder.h \
-		src/combat/CombatState.h
+		src/combat/CombatState.h \
+		src/core/Endgame.h \
+		src/core/QuestChain.h \
+		src/core/MonsterBalance.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/EncounterBuilder.o src/combat/EncounterBuilder.cpp
 
 build/obj/release/VictoryReward.o: src/combat/VictoryReward.cpp src/combat/VictoryReward.h \
 		src/items/ItemDatabase.h \
-		src/core/SoundEffects.h
+		src/items/ItemProgression.h \
+		src/core/SoundEffects.h \
+		src/core/Endgame.h \
+		src/core/QuestChain.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/VictoryReward.o src/combat/VictoryReward.cpp
 
 build/obj/release/CombatDeathHandler.o: src/combat/CombatDeathHandler.cpp src/combat/CombatDeathHandler.h \

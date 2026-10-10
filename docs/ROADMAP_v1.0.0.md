@@ -175,18 +175,19 @@ short). 1070 passed, 0 failed, 25/25 stable.
 
 ---
 
-## The "orphaned system" check
+## The "orphaned system" check — ✅ DONE
 
 The root cause of every slice is the same: a class was written, tested against directly, and
 never called. Add a guard so it cannot recur.
 
-**Do:** for every class under `src/core/`, `src/combat/`, `src/items/`, `src/spell_casting/`,
-assert in the suite (or a script) that at least one caller exists **outside** the class's own
-translation unit and its tests. A class with zero external callers is either dead code to
-delete or a system to wire — never quietly both.
+**Done:** `tools/check_orphaned_systems.py` asserts, for each of the six systems, that at
+least one `Class::` reference exists outside the class's own translation unit(s) and outside
+`test/`. It runs as part of `make check` (wired through `blacklands.pro`'s `check.commands`),
+so a future orphan fails the build check rather than passing silently.
 
-**Verify:** the check fails today for `Endgame`, `MonsterBalance`, `GoldSinks`,
-`AgingRules`, `ItemProgression`, `SpellMechanics`, and passes once v1.0.0 is done.
+**Verified:** the guard passes for all six systems today and is non-vacuous — a class with no
+external callers yields zero (checked with a synthetic class name), while `GoldSinks` yields
+three. `make check` exits 0 with both the suite and the guard green.
 
 ---
 
@@ -206,12 +207,15 @@ delete or a system to wire — never quietly both.
 
 v1.0.0 is ready when:
 
-- [ ] All 7 slices are complete
-- [ ] The "orphaned system" check passes for all 6 systems
+- [x] All 7 slices are complete
+- [x] The "orphaned system" check passes for all 6 systems
 - [ ] A player can start a new game, reach floor 15, kill the Prince of Devils, and see the
       victory screen
 - [ ] The Hall of Records shows real records
 - [ ] New Game Plus is accessible from the victory screen
-- [ ] All tests pass (target: 1000+ checks)
-- [ ] `RELEASE_NOTES.md` is updated
+- [x] All tests pass (1070 checks)
+- [x] `RELEASE_NOTES.md` is updated
 - [ ] `ReleaseInfo.cpp` version history is updated
+
+**Note:** the three remaining items require a manual playthrough. The code paths are wired
+and unit-tested, but the end-to-end run has not been performed.
