@@ -3,6 +3,29 @@
 #include <QList>
 #include <QString>
 
+namespace {
+
+// The monster tables in this repo come in two shapes: the older MDATA5-style
+// rows used by the self-tests ("numGroups", "levelFound", "StatDex") and the
+// curated data/bestiary.json rows ("groups", "level", stats.Dexterity). Read
+// whichever is present so both sources work.
+int readInt(const QVariantMap& m, const QString& a, const QString& b, int fallback = 0)
+{
+    if (m.contains(a)) return m.value(a).toInt();
+    if (m.contains(b)) return m.value(b).toInt();
+    return fallback;
+}
+
+int readStat(const QVariantMap& m, const QString& legacyKey, const QString& statName)
+{
+    if (m.contains(legacyKey)) return m.value(legacyKey).toInt();
+    const QVariantMap stats = m.value("stats").toMap();
+    if (stats.contains(statName)) return stats.value(statName).toInt();
+    return 0;
+}
+
+} // namespace
+
 QList<CombatParticipant> EncounterBuilder::buildEncounter(
     const QString& monsterName,
     const QList<QVariantMap>& monsterData)
@@ -37,26 +60,50 @@ QList<CombatParticipant> EncounterBuilder::buildEncounter(
         return result;
     }
 
-    // Get group size from numGroups and hits
-    int numGroups = monsterInfo["numGroups"].toInt();
-    int hits = monsterInfo["hits"].toInt();
+    // Three monster-table shapes exist in this repo, and "hits" means different
+    // things in each:
+    //   MDATA5 rows   (gameStateManager): hits = HP, numGroups = groups,
+    //                                     ingroup = monsters per group
+    //   bestiary rows (data/bestiary.json): hits = HP, groups = group count
+    //   legacy test rows: hits = monsters per group, HP from Constitution
+    // `ingroup` only exists in the MDATA5 shape, which is what tells them apart.
+    const bool mdataShape   = monsterInfo.contains("ingroup");
+    const bool bestiaryShape = !mdataShape &&
+                               monsterInfo.contains("level") && monsterInfo.contains("groups");
 
-    // Total monsters = numGroups * hits (but cap at reasonable number)
-    int totalMonsters = numGroups * hits;
+    int numGroups = readInt(monsterInfo, "numGroups", "groups", 1);
+    int perGroup;
+    if (mdataShape)          perGroup = qMax(1, monsterInfo.value("ingroup").toInt());
+    else if (bestiaryShape)  perGroup = 1;
+    else                     perGroup = qMax(1, monsterInfo.value("hits").toInt());
+
+    // Total monsters in the encounter.
+    int totalMonsters = numGroups * perGroup;
     if (totalMonsters < 1) totalMonsters = 1;
     if (totalMonsters > 10) totalMonsters = 10;  // Cap at 10 for sanity
 
-    // Get base stats
-    int baseHp = monsterInfo["StatCon"].toInt() * 2 + 10;  // HP from constitution
+    // Base HP. MDATA5 and bestiary rows carry it directly in "hits"; legacy
+    // rows build it from Constitution.
+    int baseHp;
+    if (mdataShape || bestiaryShape) {
+        baseHp = monsterInfo.value("hits").toInt();
+    } else {
+        baseHp = readStat(monsterInfo, "StatCon", "Constitution") * 2 + 10;
+    }
     if (baseHp < 5) baseHp = 20;
     int baseAtt = monsterInfo["att"].toInt();
     int baseDef = monsterInfo["def"].toInt();
-    int baseSpeed = monsterInfo["StatDex"].toInt();
-    int baseDex = monsterInfo["StatDex"].toInt();
-    int baseLevel = monsterInfo["levelFound"].toInt();
+    int baseSpeed = readStat(monsterInfo, "StatDex", "Dexterity");
+    int baseDex = baseSpeed;
+    int baseLevel = readInt(monsterInfo, "levelFound", "level", 1);
+    if (baseLevel < 1) baseLevel = 1;
     int baseDamageMod = monsterInfo["damageMod"].toInt();
-    int baseSwings = monsterInfo["hits"].toInt();
+    if (baseDamageMod <= 0) baseDamageMod = 100;
+    // Attacks per round. Only an explicit "swings" column sets this; "hits" is
+    // HP in the real tables, so it must never be read as a swing count.
+    int baseSwings = monsterInfo.value("swings", 1).toInt();
     if (baseSwings < 1) baseSwings = 1;
+    if (baseSwings > 4) baseSwings = 4;  // keep multi-attack sane
 
     // Create individual monsters with slight variation
     for (int i = 0; i < totalMonsters; ++i) {
@@ -79,6 +126,30 @@ QList<CombatParticipant> EncounterBuilder::buildEncounter(
         p.swings = baseSwings;
         p.levelScale = 0;  // Monsters don't scale with level by default
 
+        // Set abilities based on monster name and bestiary category.
+        QString lowerName = monsterName.toLower();
+        QString category = monsterInfo.value("category").toString().toLower();
+        if (lowerName.contains("spider") || lowerName.contains("snake") ||
+            lowerName.contains("scorpion") || lowerName.contains("centipede") ||
+            category == "insects" || category == "reptiles") {
+            p.canPoison = true;
+        }
+        if (lowerName.contains("dragon") || lowerName.contains("demon") ||
+            lowerName.contains("devil") || lowerName.contains("fire") ||
+            category == "dragons" || category == "demons" || category == "devils") {
+            p.canBreathFire = true;
+        }
+        if (lowerName.contains("troll") || lowerName.contains("ooze") ||
+            lowerName.contains("slime") || category == "slimes") {
+            p.canRegenerate = true;
+            p.regenerateAmount = 2 + baseLevel / 2;
+        }
+        if (lowerName.contains("mage") || lowerName.contains("wizard") ||
+            lowerName.contains("sorcerer") || lowerName.contains("enchanter") ||
+            category == "mages") {
+            p.canCastSpells = true;
+        }
+
         result.append(p);
     }
 
@@ -90,9 +161,10 @@ int EncounterBuilder::getGroupSize(const QString& monsterName,
 {
     for (const QVariantMap& m : monsterData) {
         if (m["name"].toString() == monsterName) {
-            int numGroups = m["numGroups"].toInt();
-            int hits = m["hits"].toInt();
-            int total = numGroups * hits;
+            const bool bestiaryShape = m.contains("level") || m.contains("groups");
+            int numGroups = readInt(m, "numGroups", "groups", 1);
+            int perGroup = bestiaryShape ? 1 : m["hits"].toInt();
+            int total = numGroups * perGroup;
             if (total < 1) total = 1;
             if (total > 10) total = 10;
             return total;

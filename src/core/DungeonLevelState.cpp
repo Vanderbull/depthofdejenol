@@ -71,6 +71,15 @@ QVariantMap LevelSnapshot::toMap() const {
     m["stairsDown"] = down;
 
     m["bossDefeated"] = bossDefeated;
+
+    // Torch / light state.
+    m["torchTurns"] = torchTurnsRemaining;
+    m["lightRadius"] = lightRadius;
+    QVariantList torches;
+    for (const QString& t : collectedTorches) torches.append(t);
+    m["collectedTorches"] = torches;
+    m["triggeredTraps"] = positionsToList(triggeredTraps);
+    m["trapPositions"] = monsterMapToList(trapPositions);
     return m;
 }
 
@@ -90,6 +99,14 @@ void LevelSnapshot::loadFromMap(const QVariantMap& map) {
     stairsDown = qMakePair(down.value("x", -1).toInt(), down.value("y", -1).toInt());
 
     bossDefeated = map.value("bossDefeated", false).toBool();
+
+    // Torch / light state.
+    torchTurnsRemaining = map.value("torchTurns", 0).toInt();
+    lightRadius = map.value("lightRadius", 2).toInt();
+    QVariantList torches = map.value("collectedTorches").toList();
+    for (const QVariant& v : torches) collectedTorches.append(v.toString());
+    triggeredTraps = listToPositions(map.value("triggeredTraps").toList());
+    trapPositions = listToMonsterMap(map.value("trapPositions").toList());
 }
 
 // --- DungeonLevelRegistry ---
@@ -123,9 +140,11 @@ void DungeonLevelRegistry::store(const LevelSnapshot& snapshot) {
 
 int DungeonLevelRegistry::respawnMonsters(int level, double fraction,
                                           int originalMonsterCount,
-                                          QRandomGenerator& rng) {
+                                          QRandomGenerator& rng,
+                                          const QStringList& monsterPool) {
     auto it = m_levels.find(level);
     if (it == m_levels.end() || !it.value().generated) return 0;
+    if (monsterPool.isEmpty()) return 0;  // no pool to draw from
 
     LevelSnapshot& snap = it.value();
     int current = snap.monsterPositions.size();
@@ -144,7 +163,8 @@ int DungeonLevelRegistry::respawnMonsters(int level, double fraction,
         if (snap.treasurePositions.contains(pos)) continue;
         if (pos == snap.stairsUp || pos == snap.stairsDown) continue;
 
-        snap.monsterPositions.insert(pos, "Orc");
+        const QString monster = monsterPool.at(rng.bounded(monsterPool.size()));
+        snap.monsterPositions.insert(pos, monster);
         placed++;
     }
     return placed;

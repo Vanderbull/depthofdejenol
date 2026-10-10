@@ -15,7 +15,8 @@ namespace GameConstants {
         Blinded   = 1 << 1,
         OnFire    = 1 << 2,
         Alive     = 1 << 3,
-        Dead      = 1 << 4
+        Dead      = 1 << 4,
+        Snared    = 1 << 5   // immobilized by a snare trap
     };
     Q_DECLARE_FLAGS(EntityStatuses, EntityStatus)
     

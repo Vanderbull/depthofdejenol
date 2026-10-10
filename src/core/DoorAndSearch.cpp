@@ -67,3 +67,32 @@ int DoorAndSearch::searchForSecretDoors(const QMap<QPair<int, int>, DoorState>& 
     }
     return count;
 }
+
+int DoorAndSearch::trapDetectionDifficulty(int floorLevel) {
+    // Floor 1 is DC 9; each floor adds 1.
+    return 8 + floorLevel;
+}
+
+int DoorAndSearch::searchForTraps(const QMap<QPair<int, int>, QString>& traps,
+                                  int x, int y,
+                                  int wisdom, int intelligence,
+                                  int floorLevel,
+                                  QList<QPair<int, int>>& found,
+                                  QRandomGenerator& rng) {
+    int count = 0;
+    int roll = searchRoll(wisdom, intelligence, rng);
+    int dc = trapDetectionDifficulty(floorLevel);
+
+    for (auto it = traps.constBegin(); it != traps.constEnd(); ++it) {
+        // Only a 3x3 area around the searcher.
+        int dx = qAbs(it.key().first - x);
+        int dy = qAbs(it.key().second - y);
+        if (dx > 1 || dy > 1) continue;
+
+        if (roll >= dc) {
+            found.append(it.key());
+            count++;
+        }
+    }
+    return count;
+}

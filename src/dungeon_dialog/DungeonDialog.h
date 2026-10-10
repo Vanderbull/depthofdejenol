@@ -10,13 +10,23 @@
 #include <QSet>
 #include <QPair>
 #include <QTableWidget>
+#include <QGroupBox>
 #include <QRandomGenerator>
 #include <QHash>
+#include <QVector>
 
 #include "src/inventory_dialog/inventorydialog.h"
 #include "src/partyinfo_dialog/partyinfodialog.h"
 #include "../event/EventManager.h"
 #include "../../gameStateManager.h"
+#include "src/combat/CombatState.h"
+#include "src/combat/TurnEngine.h"
+#include "src/combat/CombatActions.h"
+#include "src/combat/MonsterAI.h"
+#include "src/combat/EncounterBuilder.h"
+#include "src/combat/VictoryReward.h"
+#include "src/combat/CombatDeathHandler.h"
+#include "src/core/DoorAndSearch.h"
 #include "MiniMapDialog.h"
 #include <QObject>
 
@@ -61,11 +71,9 @@ public:
     void updateMinimap(int x, int y, int z);
 signals:
     void teleporterUsed();
-    void companionAttacked(int companionId);
-    void companionCarried(int companionId);
+
     void exitedDungeonToCity();
 private slots:
-    void processCombatTick(); // Add this under private slots
     void on_fightButton_clicked();
     // --- NEW MOVEMENT SLOTS ---
     void moveForward();
@@ -75,26 +83,45 @@ private slots:
     void on_rotateLeftButton_clicked();
     void on_rotateRightButton_clicked();
     void on_teleportButton_clicked();
-    void on_attackCompanionButton_clicked();
-    void on_carryCompanionButton_clicked();
+
     void on_mapButton_clicked();
+    void openAutomap();
     void on_pickupButton_clicked();
     void on_dropButton_clicked();
     void on_spellButton_clicked();
     void on_takeButton_clicked();
     void on_openButton_clicked();
     void on_exitButton_clicked();
-    void on_searchButton_clicked(); 
-    void on_restButton_clicked(); 
+    void on_searchButton_clicked();
+    void on_disarmButton_clicked();
+    void on_restButton_clicked();
     void on_talkButton_clicked();
     void on_stairsDownButton_clicked();
     void on_stairsUpButton_clicked();
     void on_chestButton_clicked();
     void onEventTriggered(const GameEvent& event);
-    void checkMonsterSpawn();
     void initiateFight();
+    void moveMonsters();
+
+    // Monster AI helpers.
+    int distanceBetween(QPair<int, int> a, QPair<int, int> b);
+    bool hasLineOfSight(QPair<int, int> from, QPair<int, int> to);
+    QVector<QPair<int, int>> getWalkableNeighbors(QPair<int, int> pos);
     void on_winBattle_trigger();
     void togglePartyInfo();
+
+    // --- Combat Slots ---
+    void on_combatAttackButton_clicked();
+    void on_combatDefendButton_clicked();
+    void on_combatFleeButton_clicked();
+    void on_combatUseItemButton_clicked();
+    void on_combatSpellButton_clicked();
+    void updateCombatUI();
+    void advanceCombat();
+    void handleVictory();
+    void handlePartyWipe();
+    void syncCombatToGameState();
+    QStringList getThematicMonsters(int level) const;
     
 private:
     void awardBattleLoot();
@@ -103,17 +130,10 @@ private:
     QSet<QPair<int, int>> m_bodyPositions;
     PartyInfoDialog *m_charSheet = nullptr; // Track the window here
     QPair<int, int> getCurrentPosition(); // The helper function
-    QTimer *m_combatTimer = nullptr; // MUST be here
-    int m_playerAttackCooldown = 0;
-    int m_monsterAttackCooldown = 0;
-    bool m_isFighting = false;
-    bool m_isDefending = false;
+    // --- Phase 4: Torch / Light ---
+    int m_torchFuel = 0;              // turns of light remaining on the current floor
+    static const int DEFAULT_TORCH_FUEL = 50;
 
-    void performPlayerAttack();
-    void performMonsterAttack();
-
-    QString m_activeMonsterName;
-    int m_activeMonsterHP;
     bool m_isInCombat = false;
     QSet<QPair<int, int>> m_roomFloorTiles; // Tracks tiles that are part of rooms
     MinimapDialog *m_standaloneMinimap = nullptr;
@@ -126,14 +146,11 @@ private:
     };
     // Core State Members
     QGraphicsScene *m_dungeonScene;
-    QGraphicsScene *m_fullMapScene; 
-    QTimer *m_spawnTimer;           
     bool m_chestFound;
     MonsterAttitude m_currentMonsterAttitude;
     // UI Member Widgets
     QLabel *m_locationLabel;
     QLabel *m_compassLabel;
-    QGraphicsView *m_miniMapView;
     QListWidget *m_messageLog;
     // Buttons
     QMap<QString, QPushButton*> m_controls;
@@ -157,6 +174,45 @@ private:
     PartyInfoDialog *m_partyInfoDialog;
     // Health Management Helper
     void updatePartyMemberHealth(int row, int damage);
+
+    // Combat System (from src/combat/)
+    CombatState* m_combatState = nullptr;
+    TurnEngine* m_turnEngine = nullptr;
+    CombatActions* m_combatActions = nullptr;
+    MonsterAI* m_monsterAI = nullptr;
+    CombatDeathHandler* m_deathHandler = nullptr;
+    bool m_inCombat = false;
+    QString m_combatMonsterName;
+    int m_combatMonsterLevel = 1;
+    bool m_combatIsBoss = false;
+
+    // Combat UI elements
+    QPushButton* m_combatAttackBtn = nullptr;
+    QPushButton* m_combatDefendBtn = nullptr;
+    QPushButton* m_combatFleeBtn = nullptr;
+    QPushButton* m_combatUseItemBtn = nullptr;
+    QPushButton* m_combatSpellBtn = nullptr;
+    QLabel* m_combatMonsterHpLabel = nullptr;
+    QLabel* m_combatPartyHpLabel = nullptr;
+    QGroupBox* m_combatGroup = nullptr;
+
+    // --- Phase 3: Movement & UI ---
+    // Integrated minimap (in the main layout, not a popup)
+    QGraphicsView* m_miniMapViewIntegrated = nullptr;
+    // Party status panel
+    QListWidget* m_partyStatusList = nullptr;
+    void updatePartyPanel();
+    // Auto-backtrack
+    void on_backtrackButton_clicked();
+    QPushButton* m_backtrackButton = nullptr;
+    // Diagonal movement
+    void moveDiagonalForwardLeft();
+    void moveDiagonalForwardRight();
+    // --- Phase 4: Torch / Light ---
+    void updateTorchState();
+    void restForTorch();
+    bool torchLit() const;
+    int torchFuel() const;
     // Map generation/management
     // Change all coordinate-based containers to use TilePos
     QSet<TilePos> m_visitedTiles3D; 
@@ -178,16 +234,19 @@ private:
     QSet<QPair<int, int>> m_rotatorPositions; // implemented
     QSet<QPair<int, int>> m_studPositions; // implemented
     QSet<QPair<int, int>> m_chutePositions; // implemeted
-    QSet<QPair<int, int>> m_teleportPositions; // implemented
     QSet<QPair<int, int>> m_waterPositions; // implemented
     QSet<QPair<int, int>> m_teleporterPositions; // implemented
-    QSet<QPair<int, int>> m_hiddenDoorPositions;
+    QMap<QPair<int, int>, DoorState> m_hiddenDoorPositions;
     // Map data
     // In the private section of DungeonDialog class
     QSet<QPair<int, int>> m_visitedTiles; // Tracks which (x, y) coordinates have been seen
     QMap<QPair<int, int>, QString> m_monsterPositions;
     QMap<QPair<int, int>, QString> m_treasurePositions;
     QMap<QPair<int, int>, QString> m_trapPositions;
+    QSet<QPair<int, int>> m_lockedChests;      // chests that need a key
+    QMap<QPair<int, int>, QString> m_chestKeys; // chest pos -> key name
+    QSet<QPair<int, int>> m_openedChests;      // chests already opened
+    QSet<QPair<int, int>> m_triggeredTraps;
     QMap<QString, QString> m_MonsterAttitude;
     enum class StairDirection {
         Up,
@@ -207,11 +266,9 @@ private:
     void populateRandomTreasures(int level);
     void processTreasureOpening();
     void keyPressEvent(QKeyEvent *event) override;
-    QGraphicsScene* m_threeDScene;
-    // ... other private members ...
-    QGraphicsView* m_graphicsView;   // Add this line
-    void update3DView();
-    void drawWireframeWall(int depth, bool left, bool right, bool front);
+    // Main first-person wireframe view (fills the left panel).
+    QGraphicsView* m_graphicsView;
+    void fitViewport();
     bool isWallAt(int x, int y);
     bool isWallAtSide(int x, int y, const QString& side);
     void renderWireframeView();

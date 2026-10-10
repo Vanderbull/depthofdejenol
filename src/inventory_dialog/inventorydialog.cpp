@@ -56,11 +56,13 @@ void InventoryDialog::setupUi()
     useButton = new QPushButton("Use");
     dropButton = new QPushButton("Drop");
     infoButton = new QPushButton("Info");
+    identifyButton = new QPushButton("Identify");
     buttonsLayout->addWidget(equipButton);
     buttonsLayout->addWidget(unequipButton);
     buttonsLayout->addWidget(useButton);
     buttonsLayout->addWidget(dropButton);
     buttonsLayout->addWidget(infoButton);
+    buttonsLayout->addWidget(identifyButton);
 
     // Effective stats panel
     effectiveStatsLabel = new QLabel(this);
@@ -79,6 +81,7 @@ void InventoryDialog::setupUi()
     connect(useButton, &QPushButton::clicked, this, &InventoryDialog::onUseButtonClicked);
     connect(dropButton, &QPushButton::clicked, this, &InventoryDialog::onDropButtonClicked);
     connect(infoButton, &QPushButton::clicked, this, &InventoryDialog::onInfoButtonClicked);
+    connect(identifyButton, &QPushButton::clicked, this, &InventoryDialog::onIdentifyButtonClicked);
 }
 
 void InventoryDialog::loadInventoryData() {
@@ -185,12 +188,22 @@ void InventoryDialog::onUnequipButtonClicked()
 void InventoryDialog::onDropButtonClicked()
 {
     int currentIndex = tabWidget->currentIndex();
-    QListWidget* currentList = nullptr;
-    if (currentIndex == 0) currentList = inventoryList;
-    else if (currentIndex == 1) currentList = equippedList;
-    if (currentList && currentList->currentItem()) {
-        delete currentList->currentItem();
-        qDebug() << "Item removed from UI.";
+    // Only the inventory tab holds droppable items; equipped items must be
+    // unequipped first (and cursed ones cannot be removed at all).
+    if (currentIndex != 0) {
+        QMessageBox::information(this, "Drop", "Unequip the item before dropping it.");
+        return;
+    }
+    if (!inventoryList->currentItem()) return;
+
+    gameStateManager* gsm = gameStateManager::instance();
+    int activeIdx = gsm->getCurrentCharacterIndex();
+    int invRow = inventoryList->currentRow();
+    QString reason;
+    if (gsm->removeItemFromInventory(activeIdx, invRow, reason)) {
+        loadInventoryData();
+    } else {
+        QMessageBox::warning(this, "Cannot Drop", reason);
     }
 }
 
@@ -243,6 +256,41 @@ void InventoryDialog::onUseButtonClicked()
     } else {
         QMessageBox::warning(this, "Cannot Use", effect);
     }
+}
+
+void InventoryDialog::onIdentifyButtonClicked()
+{
+    if (!inventoryList->currentItem()) return;
+
+    int activeIdx = gameStateManager::instance()->getCurrentCharacterIndex();
+    int invRow = inventoryList->currentRow();
+
+    auto& members = gameStateManager::instance()->getPartyMembers();
+    if (activeIdx < 0 || activeIdx >= members.size()) return;
+    if (invRow < 0 || invRow >= members[activeIdx].inventory.size()) return;
+
+    HeldItem& item = members[activeIdx].inventory[invRow];
+    if (item.identified) {
+        QMessageBox::information(this, "Identify", QString("%1 is already identified.").arg(item.name));
+        return;
+    }
+
+    // Identification cost: 10 GP per item.
+    const int identifyCost = 10;
+    int partyGold = gameStateManager::instance()->getPartyGold();
+    if (partyGold < identifyCost) {
+        QMessageBox::warning(this, "Cannot Identify",
+            QString("Identifying an item costs %1 gold, but the party only has %2.")
+            .arg(identifyCost).arg(partyGold));
+        return;
+    }
+
+    gameStateManager::instance()->spendPartyGold(identifyCost);
+    item.identified = true;
+
+    QMessageBox::information(this, "Identify",
+        QString("You identify the %1. (-%2 gold)").arg(item.name).arg(identifyCost));
+    loadInventoryData();
 }
 
 InventoryDialog::~InventoryDialog() {}

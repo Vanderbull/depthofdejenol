@@ -183,8 +183,11 @@ void QuestBoardDialog::setupUi() {
 
     auto *btnLayout = new QHBoxLayout;
     m_acceptBtn = new QPushButton(tr("Accept Quest"));
+    m_turnInBtn = new QPushButton(tr("Turn In"));
+    m_turnInBtn->setEnabled(false);
     m_exitBtn = new QPushButton(tr("Close"));
     btnLayout->addWidget(m_acceptBtn);
+    btnLayout->addWidget(m_turnInBtn);
     btnLayout->addStretch();
     btnLayout->addWidget(m_exitBtn);
     mainLayout->addLayout(btnLayout);
@@ -195,6 +198,7 @@ void QuestBoardDialog::setupUi() {
                 onQuestSelected(current);
             });
     connect(m_acceptBtn, &QPushButton::clicked, this, &QuestBoardDialog::onAcceptClicked);
+    connect(m_turnInBtn, &QPushButton::clicked, this, &QuestBoardDialog::onTurnInClicked);
     connect(m_exitBtn, &QPushButton::clicked, this, &QuestBoardDialog::onExitClicked);
 }
 
@@ -252,6 +256,10 @@ void QuestBoardDialog::refreshDetail() {
         .arg(q.rewardGold)
         .arg(q.rewardXp)
         .arg(status));
+
+    // Turn In is only meaningful for a completed, accepted quest.
+    m_turnInBtn->setEnabled(isComplete(q.id));
+    m_acceptBtn->setEnabled(!s_accepted.contains(q.id));
 }
 
 void QuestBoardDialog::onQuestSelected(QListWidgetItem *item) {
@@ -278,6 +286,32 @@ void QuestBoardDialog::onAcceptClicked() {
     acceptQuest(q.id);
     refreshList();
     refreshDetail();
+}
+
+void QuestBoardDialog::onTurnInClicked() {
+    QListWidgetItem *item = m_questList->currentItem();
+    if (!item) return;
+
+    int row = m_questList->row(item);
+    QList<BoardQuest> quests = availableQuests();
+    if (row < 0 || row >= quests.size()) return;
+
+    const BoardQuest& q = quests[row];
+
+    if (!isComplete(q.id)) {
+        QMessageBox::information(this, tr("Quest Board"),
+                                 tr("This quest is not complete yet."));
+        return;
+    }
+
+    int gold = 0, xp = 0;
+    if (turnIn(q.id, gold, xp)) {
+        QMessageBox::information(this, tr("Quest Board"),
+                                 tr("Quest turned in!\nReward: %1 gold, %2 XP.")
+                                     .arg(gold).arg(xp));
+        refreshList();
+        refreshDetail();
+    }
 }
 
 void QuestBoardDialog::onExitClicked() {

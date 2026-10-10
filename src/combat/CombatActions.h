@@ -3,6 +3,7 @@
 
 #include "CombatState.h"
 #include "TurnEngine.h"
+#include "character.h"
 #include <QString>
 
 // Combat actions a player can take. Pure logic — no Qt UI dependency.
@@ -30,6 +31,15 @@ public:
     // Returns total damage dealt, or -1 on failure.
     int castSpellAdvanced(int targetIndex, const QString& spellName, int manaCost,
                           const QString& damageRange, bool isAoE, QString& result);
+
+    // Apply pre-resolved spell damage to combat participants. Use this when the
+    // damage (and mana cost) were already computed elsewhere — e.g. by the
+    // spell-casting dialog — so the effect still flows through the combat layer
+    // (death handling, HP bookkeeping) instead of poking participant HP.
+    // isAoE hits every living participant of the same type as targetIndex.
+    // Returns total damage dealt, or -1 on failure.
+    int applySpellDamage(int targetIndex, const QString& spellName, int damage,
+                         bool isAoE, QString& result);
 
     // Heal spell: current participant heals target.
     // healAmount: base healing amount
@@ -63,9 +73,14 @@ public:
     // Check if a participant is on fire (DoT)
     bool isOnFire(int index) const;
 
-    // Use item: current participant uses consumable item.
-    // itemIndex is the inventory index of the item.
-    bool useItem(int itemIndex, QString& result);
+    // Remove a status effect from a participant (cure/cleanse).
+    void cureStatus(int targetIndex, uint statusFlag, QString& result);
+
+    // Use item: current participant uses consumable item from `user`'s
+    // inventory. itemIndex is the inventory index of the item. The effect is
+    // applied to both the combat participant and the Character, and the item
+    // is consumed. Returns false when the item is missing or unusable.
+    bool useItem(int itemIndex, Character& user, QString& result);
 
     // Flee: attempt to flee combat. Returns true on success.
     bool flee(QString& result);

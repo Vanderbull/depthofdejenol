@@ -42,6 +42,19 @@ public:
 
     // Difficulty for a secret door on a given floor.
     static int secretDoorDifficulty(int floorLevel);
+
+    // Search a 3x3 area around (x, y) for traps.
+    // Uses the same search roll as secret doors; DC is 8 + floorLevel.
+    // `found` receives the positions of detected traps. Returns count.
+    static int searchForTraps(const QMap<QPair<int, int>, QString>& traps,
+                              int x, int y,
+                              int wisdom, int intelligence,
+                              int floorLevel,
+                              QList<QPair<int, int>>& found,
+                              QRandomGenerator& rng);
+
+    // Difficulty class for detecting a trap on a given floor.
+    static int trapDetectionDifficulty(int floorLevel);
 };
 
 #endif // DOORANDSEARCH_H

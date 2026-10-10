@@ -91,6 +91,8 @@ struct Character {
     // --- Resource Pools ---
     int mana = 50;
     int maxMana = 50;
+    int hunger = 100;       // 0 = starving, 100 = full
+    int maxHunger = 100;
 
     // --- Status Effects ---
     uint statusFlags = 0;
@@ -213,6 +215,18 @@ struct Character {
     // Use a consumable item. Returns true on success.
     bool useConsumable(int inventoryIndex, QString& effectDescription);
 
+    // --- Food / hunger ---
+    // Decrease hunger by `amount` (clamped to 0). Starvation damage is
+    // applied separately by the caller so it can route through combat state.
+    void consumeHunger(int amount);
+    // Restore hunger by `amount` (clamped to maxHunger).
+    void restoreHunger(int amount);
+    // True when hunger has hit zero and the character is taking starvation
+    // damage each turn.
+    bool isStarving() const { return hunger <= 0; }
+    // Eat a food item from the inventory. Returns true on success.
+    bool eatFood(int inventoryIndex, QString& effectDescription);
+
     // --- Guild progression ---
     // Get the level in a specific guild (0 if not a member).
     int guildLevel(const QString& guildName) const;
@@ -247,6 +261,7 @@ namespace StatusFlag {
     constexpr uint Blinded  = GameConstants::Blinded;
     constexpr uint OnFire   = GameConstants::OnFire;
     constexpr uint Dead     = GameConstants::Dead;
+    constexpr uint Snared   = GameConstants::Snared;
 }
 
 #endif // CHARACTER_H

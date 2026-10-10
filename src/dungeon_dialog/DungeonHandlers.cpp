@@ -2,6 +2,7 @@
 #include "DungeonDialog.h"
 #include "../../gameStateManager.h"
 #include "src/core/SoundEffects.h"
+#include "src/core/DoorAndSearch.h"
 
 void DungeonHandlers::handlePit(DungeonDialog* dialog, int x, int y)
 {
@@ -46,13 +47,51 @@ void DungeonHandlers::handleAntimagic(DungeonDialog* dialog, int x, int y)
 void DungeonHandlers::handleTrap(DungeonDialog* dialog, int x, int y)
 {
     QPair<int, int> pos = {x, y};
-    if (dialog->m_trapPositions.contains(pos)) {
+    if (dialog->m_trapPositions.contains(pos) && !dialog->m_triggeredTraps.contains(pos)) {
         QString trapType = dialog->m_trapPositions.value(pos);
-        int damage = QRandomGenerator::global()->bounded(1, 10);
-        dialog->updatePartyMemberHealth(0, damage);
-        dialog->logMessage(QString("You step on a **%1** trap and take %2 damage!").arg(trapType).arg(damage));
+        gameStateManager* gsm = gameStateManager::instance();
+        auto& members = gsm->getPartyMembers();
+        if (members.isEmpty()) return;
+
+        // Each trap type has a distinct effect — not just "1-10 damage".
+        if (trapType == "Spike") {
+            int damage = QRandomGenerator::global()->bounded(1, 11);
+            dialog->updatePartyMemberHealth(0, damage);
+            dialog->logMessage(QString("<font color='red'>You step on a **Spike** trap and take %1 damage!</font>").arg(damage));
+        } else if (trapType == "Poison Needler") {
+            int damage = QRandomGenerator::global()->bounded(1, 6);
+            dialog->updatePartyMemberHealth(0, damage);
+            if (members[0].isAlive) {
+                members[0].addStatus(StatusFlag::Poisoned);
+                dialog->logMessage(QString("<font color='red'>A **Poison Needler** hits you for %1 damage and poisons you!</font>").arg(damage));
+            }
+        } else if (trapType == "Dart") {
+            int damage = QRandomGenerator::global()->bounded(3, 9);
+            dialog->updatePartyMemberHealth(0, damage);
+            dialog->logMessage(QString("<font color='red'>A **Dart** strikes you for %1 damage!</font>").arg(damage));
+        } else if (trapType == "Pit Cover") {
+            int damage = QRandomGenerator::global()->bounded(5, 16);
+            dialog->updatePartyMemberHealth(0, damage);
+            dialog->logMessage(QString("<font color='red'>The floor gives way! You fall into a pit and take %1 damage!</font>").arg(damage));
+            if (QRandomGenerator::global()->bounded(100) < 25) {
+                dialog->logMessage("<font color='orange'>You tumble to the level below...</font>");
+                int nextLevel = gsm->getGameValue("DungeonLevel").toInt() + 1;
+                dialog->enterLevel(nextLevel);
+            }
+        } else if (trapType == "Snare") {
+            if (members[0].isAlive) {
+                members[0].addStatus(StatusFlag::Snared);
+                dialog->logMessage("<font color='orange'>A **Snare** snaps shut around your leg! You are immobilized!</font>");
+            }
+        } else {
+            // Unknown trap type — fall back to generic damage.
+            int damage = QRandomGenerator::global()->bounded(1, 11);
+            dialog->updatePartyMemberHealth(0, damage);
+            dialog->logMessage(QString("<font color='red'>You step on a **%1** trap and take %2 damage!</font>").arg(trapType).arg(damage));
+        }
+
         SoundEffects::instance()->play(SoundEffects::Type::Trap);
-        dialog->m_trapPositions.remove(pos);
+        dialog->m_triggeredTraps.insert(pos);
         dialog->drawMinimap();
     }
 };

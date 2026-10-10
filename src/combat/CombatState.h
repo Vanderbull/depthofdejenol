@@ -17,6 +17,9 @@ struct CombatParticipant {
     bool isPlayer = false;
     bool isAlive = true;
     bool hasActed = false;  // true once this participant has acted this round
+    bool isDefending = false;  // true after Defend; halves incoming damage this round
+    bool hasFled = false;      // true once this monster has fled the fight
+    bool deathAnnounced = false;  // true once the death message has been emitted
 
     // Monster-specific
     int level = 1;
@@ -35,6 +38,13 @@ struct CombatParticipant {
     int blindDuration = 0;
     int fireDuration = 0;
     int confusionDuration = 0;
+
+    // Monster abilities
+    bool canPoison = false;
+    bool canBreathFire = false;
+    bool canRegenerate = false;
+    int regenerateAmount = 0;
+    bool canCastSpells = false;
 };
 
 // Pure combat state — no Qt UI dependency. Holds participants, initiative order,

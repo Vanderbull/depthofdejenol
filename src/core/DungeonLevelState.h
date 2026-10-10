@@ -30,6 +30,17 @@ struct LevelSnapshot {
     // Boss state (only meaningful on boss floors).
     bool bossDefeated = false;
 
+    // Torch / light mechanic.
+    int torchTurnsRemaining = 0;   // >0 while the torch burns; 0 = out.
+    int lightRadius = 2;           // tiles visible around the player in darkness.
+    QStringList collectedTorches;  // names of distinct torch items found on this floor (for persistence).
+
+    // Trapped floor tiles that have already fired (so they don't repeat).
+    QSet<QPair<int, int>> triggeredTraps;
+
+    // Trap positions with their type (e.g. "Spike", "Dart").
+    QMap<QPair<int, int>, QString> trapPositions;
+
     QVariantMap toMap() const;
     void loadFromMap(const QVariantMap& map);
 };
@@ -55,8 +66,11 @@ public:
     // `fraction` is 0.0-1.0; 0.3 means roughly 30% of the floor's original
     // monster count is placed back on free tiles. Returns how many respawned.
     // Uses `originalMonsterCount` as the floor's baseline population.
+    // `monsterPool` is the set of monster names to draw from (typically the
+    // floor's thematic monsters); when empty the respawn is skipped, because
+    // this pure-logic layer has no access to the bestiary.
     int respawnMonsters(int level, double fraction, int originalMonsterCount,
-                        QRandomGenerator& rng);
+                        QRandomGenerator& rng, const QStringList& monsterPool = {});
 
     // Serialize every floor (for the save file).
     QVariantMap toMap() const;

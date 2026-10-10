@@ -69,6 +69,7 @@ public:
 private slots:
     void onQuestSelected(QListWidgetItem *item);
     void onAcceptClicked();
+    void onTurnInClicked();
     void onExitClicked();
 
 private:
@@ -80,6 +81,7 @@ private:
     QTextEdit *m_detailText = nullptr;
     QLabel *m_countLabel = nullptr;
     QPushButton *m_acceptBtn = nullptr;
+    QPushButton *m_turnInBtn = nullptr;
     QPushButton *m_exitBtn = nullptr;
 };
 

@@ -36,8 +36,11 @@ QStringList CombatDeathHandler::processDeaths() {
 
     for (int i = 0; i < m_state->participantCount(); ++i) {
         CombatParticipant& p = m_state->participant(i);
-        if (p.isPlayer && !p.isAlive && !p.hasActed) {
-            // This player just died (hasActed is false because they died before acting)
+        // A death is announced exactly once. `!hasActed` is not a reliable
+        // "just died" test — participants who die before their turn also have
+        // it false — so track the announcement with its own flag.
+        if (p.isPlayer && !p.isAlive && !p.deathAnnounced) {
+            p.deathAnnounced = true;
             messages.append(QString("%1 has fallen!").arg(p.name));
             SoundEffects::instance()->play(SoundEffects::Type::Death);
         }

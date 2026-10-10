@@ -3,6 +3,28 @@
 #include "src/core/SoundEffects.h"
 #include <QRandomGenerator>
 
+namespace {
+
+// Monster rows exist in two shapes in this repo: the older MDATA5-style rows
+// used by the self-tests ("levelFound") and the curated data/bestiary.json
+// rows ("level"). Read whichever is present.
+int monsterLevel(const QVariantMap& m)
+{
+    if (m.contains("levelFound")) return m.value("levelFound").toInt();
+    return m.value("level", 1).toInt();
+}
+
+const QVariantMap* findMonster(const QString& monsterName,
+                               const QList<QVariantMap>& monsterData)
+{
+    for (const QVariantMap& m : monsterData) {
+        if (m["name"].toString() == monsterName) return &m;
+    }
+    return nullptr;
+}
+
+} // namespace
+
 int VictoryReward::calculateXp(const QString& monsterName,
                                const QList<QVariantMap>& monsterData)
 {
@@ -49,10 +71,8 @@ QStringList VictoryReward::calculateLoot(const QString& monsterName,
 int VictoryReward::getMonsterLevel(const QString& monsterName,
                                    const QList<QVariantMap>& monsterData)
 {
-    for (const QVariantMap& m : monsterData) {
-        if (m["name"].toString() == monsterName) {
-            return m["levelFound"].toInt();
-        }
+    if (const QVariantMap* m = findMonster(monsterName, monsterData)) {
+        return monsterLevel(*m);
     }
     return 1;
 }
@@ -60,10 +80,8 @@ int VictoryReward::getMonsterLevel(const QString& monsterName,
 int VictoryReward::getGoldFactor(const QString& monsterName,
                                  const QList<QVariantMap>& monsterData)
 {
-    for (const QVariantMap& m : monsterData) {
-        if (m["name"].toString() == monsterName) {
-            return m["goldFactor"].toInt();
-        }
+    if (const QVariantMap* m = findMonster(monsterName, monsterData)) {
+        return m->value("goldFactor").toInt();
     }
     return 0;
 }
@@ -72,17 +90,14 @@ QList<int> VictoryReward::getDropTable(const QString& monsterName,
                                        const QList<QVariantMap>& monsterData)
 {
     QList<int> dropTable;
-    for (const QVariantMap& m : monsterData) {
-        if (m["name"].toString() == monsterName) {
-            // Item0 through Item9
-            for (int i = 0; i <= 9; ++i) {
-                QString key = QString("Item%1").arg(i);
-                int itemId = m[key].toInt();
-                if (itemId > 0) {
-                    dropTable.append(itemId);
-                }
+    if (const QVariantMap* m = findMonster(monsterName, monsterData)) {
+        // Item0 through Item9
+        for (int i = 0; i <= 9; ++i) {
+            QString key = QString("Item%1").arg(i);
+            int itemId = m->value(key).toInt();
+            if (itemId > 0) {
+                dropTable.append(itemId);
             }
-            break;
         }
     }
     return dropTable;

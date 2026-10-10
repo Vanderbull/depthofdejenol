@@ -1,6 +1,9 @@
 #include "gameStateManager.h"
 #include "src/partymanager/PartyManager.h"
 #include "src/core/savegameUtils.h"
+#include "src/core/DungeonLevelState.h"
+#include "src/core/AgingRules.h"
+#include "src/spell_casting/SpellBook.h"
 #include "src/items/ItemDatabase.h"
 
 #include "version.h"
@@ -35,8 +38,11 @@ void gameStateManager::initializeResources() {
     // 2. Load the shared font sprite sheet (the "small thing" from the previous step)
     m_fontSpriteSheet.load("resources/images/font_spritesheet_transparent.png");
 
-    // 3. Mark resources as loaded in the state map
-    setGameValue("ResourcesLoaded", true);
+    // 3. Load the spell book
+    SpellBook::instance().load("data/spells.json");
+
+    // 4. Mark resources as loaded in the state map
+    setGameValue("ResourcesLoaded",true);
     
     qDebug() << "Game resources and Font SpriteSheet initialized by gameStateManager.";
 }
@@ -210,10 +216,13 @@ gameStateManager::gameStateManager(QObject *parent)
     // 1. Setup Lua (if not already done)
     m_L = luaL_newstate();
     luaL_openlibs(m_L);
+    // Close the host escape hatches (io, os.execute, dofile, ...) before any
+    // script runs. Everything below relies on this having happened.
+    sandboxLua(m_L);
 
-    // Fetch the version from version.h and push it to Lua
-    // This will be something like "528-9629655" based on your uploaded file
-    QString versionStr = QString("v%1").arg(GameConstants::FULL_VERSION);
+    // Push the build version to Lua. FULL_VERSION already carries its own "v"
+    // prefix (e.g. "v642"), so do not add another.
+    QString versionStr = QString::fromLatin1(GameConstants::FULL_VERSION);
     
     lua_pushstring(m_L, versionStr.toUtf8().constData());
     lua_setglobal(m_L, "GameVersion");
@@ -1089,53 +1098,33 @@ void gameStateManager::incrementPartyAge(int years)
 void gameStateManager::processAgingConsequences() {
     if (m_partyManager->currentParty().members.isEmpty()) return;
 
-    bool statsChanged = false;
+    // Delegate to AgingRules, which is the single definition of how aging works
+    // (race-specific decay threshold and max age, with death at max age). This
+    // used to be duplicated here with a hardcoded `age > 70` and a flat 10%
+    // chance, which meant the tested rules were dead and an untested copy ran.
+    bool changed = false;
+    QStringList messages;
 
-    for (int i = 0; i < m_partyManager->currentParty().members.size(); ++i) {
-        Character &pc = m_partyManager->currentParty().members[i];
+    for (Character& pc : m_partyManager->currentParty().members) {
+        if (pc.name == "Empty Slot") continue;
+        if (!pc.isAlive) continue;
 
-        if (pc.age > 70) {
-            // QRandomGenerator::global()->bounded(100) returns a 0-99 value
-            if (QRandomGenerator::global()->bounded(100) < 10) { 
-                pc.strength = qMax(3, pc.strength - 1);
-                pc.constitution = qMax(3, pc.constitution - 1);
-                statsChanged = true;
-            }
+        const QStringList events = AgingRules::applyYearOfAging(pc);
+        if (!events.isEmpty()) {
+            changed = true;
+            messages += events;
         }
     }
 
-    if (statsChanged) {
+    for (const QString& m : messages) {
+        qDebug() << "Aging:" << m;
+    }
+
+    if (changed) {
         emit gameValueChanged("party_data", m_partyManager->getPartyAsMap());
     }
 }
 
-/*
-void gameStateManager::processAgingConsequences()
-{
-    for (int i = 0; i < m_PC.size(); ++i) {
-        if (m_PC[i].name == "Empty Slot") continue;
-
-        if (isCharacterPastMaxAge(i)) {
-            // Log the event
-            QString deathMsg = QString("%1 has passed away peacefully of old age at %2.")
-                               .arg(m_PC[i].name)
-                               .arg(m_PC[i].age);
-            logGuildAction(deathMsg);
-            qDebug() << deathMsg;
-
-            // Handle death logic
-            if (i == 0) {
-                // If it's the player, set the global "isAlive" state to 0
-                setIsAlive(0); 
-            } else {
-                // Handle party member death (e.g., mark as dead in struct/map)
-                m_PC[i].isAlive = 0;
-                updatePartyMemberHP(i, 0);
-            }
-        }
-    }
-}
-*/
 void gameStateManager::setProportionalFont(const QFont& font) {
     // Simply delegate to the specialized manager
     fontManager::instance()->setProportionalFont(font);
@@ -1313,7 +1302,6 @@ void gameStateManager::initializeGameState()
         record["isAlive"] = 1;
         record["GameVersion"] = "Version 0.0";
 	record["Party"] = m_partyManager->getPartyAsMap();
-	record["PartyHP"] = QVariant(QVariantList({50, 40, 30}));
 
         GameStateList.append(record);
     };
@@ -1424,7 +1412,6 @@ void gameStateManager::initializeParty() {
     }
     //m_gameStateData["Party"] = party;
     m_gameStateData["Party"] = m_partyManager->getPartyAsMap();
-    m_gameStateData["PartyHP"] = QVariant(QVariantList({50, 40, 30}));
     emit gameValueChanged("party_data", m_partyManager->getPartyAsMap());
 }
 
@@ -1719,19 +1706,75 @@ void gameStateManager::onLuaTimerTick() {
     }
 }
 
+void gameStateManager::sandboxLua(lua_State* L) {
+    if (!L) return;
+
+    // 1. Drop whole libraries that can reach the host system.
+    static const char* const kHostLibs[] = { "io", "package", "debug", nullptr };
+    for (int i = 0; kHostLibs[i]; ++i) {
+        lua_pushnil(L);
+        lua_setglobal(L, kHostLibs[i]);
+    }
+
+    // 2. Drop the file-loading entry points. The engine loads its own scripts
+    //    through luaL_dofile in C++, so scripts never need these.
+    static const char* const kFileFuncs[] = {
+        "dofile", "loadfile", "require", "load", "loadstring", nullptr
+    };
+    for (int i = 0; kFileFuncs[i]; ++i) {
+        lua_pushnil(L);
+        lua_setglobal(L, kFileFuncs[i]);
+    }
+
+    // 3. Keep only the harmless half of the `os` table. The shipped heartbeat
+    //    script uses os.date/os.time; everything that executes, spawns, reads or
+    //    writes must go, or a script (or an injected string) can shell out.
+    lua_getglobal(L, "os");
+    if (lua_istable(L, -1)) {
+        static const char* const kDangerousOs[] = {
+            "execute", "exit", "remove", "rename", "tmpname", "getenv", "setlocale",
+            nullptr
+        };
+        for (int i = 0; kDangerousOs[i]; ++i) {
+            lua_pushnil(L);
+            lua_setfield(L, -2, kDangerousOs[i]);
+        }
+    }
+    lua_pop(L, 1);
+}
+
 void gameStateManager::onServerDataReceived() {
-    // Read all available data from the socket
+    // Messages from the multiplayer server are DATA, never code.
+    //
+    // This used to hand the raw bytes to luaL_dostring(), which meant anything
+    // that could reach the socket (the bundled server binds 0.0.0.0, so that is
+    // the whole LAN) could run arbitrary Lua in the client. Parse a fixed
+    // message set instead and re-emit the text; nothing here is executed.
     while (m_clientSocket->canReadLine()) {
-        QByteArray data = m_clientSocket->readLine().trimmed();
-        QString message = QString::fromUtf8(data);
+        const QByteArray line = m_clientSocket->readLine().trimmed();
+        if (line.isEmpty()) continue;
 
-        qDebug() << "Message from Server:" << message;
+        const QJsonDocument doc = QJsonDocument::fromJson(line);
+        if (doc.isNull() || !doc.isObject()) {
+            // Not one of ours — log it and move on. Never interpreted.
+            qDebug() << "Server said (unrecognised, ignored):" << line;
+            continue;
+        }
 
-        // Pass the server message into your Lua engine!
-        // This allows the server to remotely run Lua code in your game.
-        if (luaL_dostring(m_L, data.constData()) != LUA_OK) {
-             // If it wasn't valid Lua, just log it
-             qDebug() << "Server said (non-Lua):" << message;
+        const QJsonObject obj = doc.object();
+        const QString type = obj.value("type").toString();
+
+        if (type == "chat") {
+            emit systemMessage(obj.value("sender").toString(),
+                               obj.value("message").toString());
+        } else if (type == "player_join") {
+            emit systemMessage("", QString("%1 has entered the city.")
+                                       .arg(obj.value("username").toString()));
+        } else if (type == "player_leave") {
+            emit systemMessage("", QString("%1 has left the city.")
+                                       .arg(obj.value("username").toString()));
+        } else {
+            qDebug() << "Server message of unhandled type:" << type;
         }
     }
 }
@@ -2071,6 +2114,34 @@ void gameStateManager::addItemToInventory(const HeldItem& item) {
              << members[idx].inventory.size();
 }
 
+bool gameStateManager::removeItemFromInventory(int characterIndex, int inventoryIndex, QString& reason) {
+    auto& members = m_partyManager->currentParty().members;
+    if (characterIndex < 0 || characterIndex >= members.size()) {
+        reason = "Invalid character.";
+        return false;
+    }
+
+    Character& c = members[characterIndex];
+    if (inventoryIndex < 0 || inventoryIndex >= c.inventory.size()) {
+        reason = "Invalid inventory slot.";
+        return false;
+    }
+
+    // Cursed items cling to their owner and cannot be dropped.
+    const QString itemName = c.inventory[inventoryIndex].name;
+    if (const ItemDef* def = ItemDatabase::instance().byName(itemName)) {
+        if (def->cursed) {
+            reason = QString("%1 is cursed and cannot be dropped.").arg(itemName);
+            return false;
+        }
+    }
+
+    c.inventory.removeAt(inventoryIndex);
+    refreshUI();
+    reason = QString("Dropped %1.").arg(itemName);
+    return true;
+}
+
 bool gameStateManager::equipItem(int characterIndex, int inventoryIndex, QString& reason) {
     auto& members = m_partyManager->currentParty().members;
     if (characterIndex < 0 || characterIndex >= members.size()) {
@@ -2173,12 +2244,13 @@ bool gameStateManager::saveFullGameState(const QString& saveName) {
     // 2. Prepare the data (Sync live objects to the map)
     packStateForSaving();
 
-    // 3. Create the file
+    // 3. Write atomically: write to .tmp, then rename
     QString filePath = QString("data/saves/%1.json").arg(saveName);
-    QFile file(filePath);
-    
+    QString tmpPath = filePath + ".tmp";
+    QFile file(tmpPath);
+
     if (!file.open(QIODevice::WriteOnly)) {
-        qWarning() << "Failed to create save file:" << filePath;
+        qWarning() << "Failed to create save file:" << tmpPath;
         return false;
     }
 
@@ -2186,6 +2258,13 @@ bool gameStateManager::saveFullGameState(const QString& saveName) {
     QJsonDocument doc = QJsonDocument::fromVariant(m_gameStateData);
     file.write(doc.toJson());
     file.close();
+
+    // 5. Atomic rename
+    if (!QFile::rename(tmpPath, filePath)) {
+        qWarning() << "Failed to rename save file:" << tmpPath << "->" << filePath;
+        QFile::remove(tmpPath);
+        return false;
+    }
 
     qDebug() << "Full game state saved to:" << filePath;
     return true;
@@ -2196,7 +2275,20 @@ bool gameStateManager::loadFullGameState(const QString& saveName) {
     if (!file.open(QIODevice::ReadOnly)) return false;
 
     QJsonDocument doc = QJsonDocument::fromJson(file.readAll());
-    m_gameStateData = doc.toVariant().toMap();
+    file.close();
+
+    // Guard against a truncated or empty save wiping all live state.
+    if (doc.isNull() || doc.isEmpty()) {
+        qWarning() << "Save file is not valid JSON:" << saveName;
+        return false;
+    }
+    QVariantMap loaded = doc.toVariant().toMap();
+    if (loaded.isEmpty()) {
+        qWarning() << "Save file has no data:" << saveName;
+        return false;
+    }
+
+    m_gameStateData = loaded;
 
     // unpackStateAfterLoading() restores the Party from m_gameStateData; doing
     // it here as well would load the party twice.
@@ -2217,6 +2309,12 @@ void gameStateManager::packStateForSaving() {
     m_gameStateData["confinementStock"] = QVariant::fromValue(m_confinementStock);
     //m_gameStateData["bank"] = getBankInventory();
     m_gameStateData["lastSaved"] = QDateTime::currentDateTime().toString();
+
+    // 4. Persist dungeon floor state (monsters, traps, visited tiles, torch).
+    m_gameStateData["DungeonLevels"] = DungeonLevelRegistry::instance().toMap();
+
+    // 5. Version for save schema compatibility.
+    m_gameStateData["SaveVersion"] = 1;
 }
 
 // Distributes data from the master map back into live objects after a load
@@ -2233,7 +2331,13 @@ void gameStateManager::unpackStateAfterLoading() {
     m_currentMode = static_cast<GameConstants::GameMode>(m_gameStateData.value("currentMode", 0).toInt());
     m_currentCityLocation = static_cast<GameConstants::CityLocation>(m_gameStateData.value("currentLocation", 0).toInt());
 
-    // 3. Trigger UI updates so the game reflects the new state
+    // 3. Restore dungeon floor state (monsters, traps, visited tiles, torch).
+    if (m_gameStateData.contains("DungeonLevels")) {
+        DungeonLevelRegistry::instance().loadFromMap(
+            m_gameStateData.value("DungeonLevels").toMap());
+    }
+
+    // 4. Trigger UI updates so the game reflects the new state
     refreshUI();
 }
 

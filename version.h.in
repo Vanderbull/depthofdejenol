@@ -2,11 +2,13 @@
 #define version_H
 
 namespace GameConstants {
-    // These will now correctly expand to "value" because of the quotes in the .pro
+    // FULL_VERSION is parsed by UpdateManager::parseVersionNumber(), which
+    // expects a plain integer with an optional "v" prefix (e.g. "v642"). Do NOT
+    // concatenate the git hash here — "v6421ed6b1a" fails to parse and silently
+    // disables the update check. The hash is separate metadata.
     static const char* const GIT_HASH = $$VERSION_HASH;
     static const char* const BUILD_TIMESTAMP = $$VERSION_DATE;
-    static const char* const FULL_VERSION = $$VERSION_INT
-$$VERSION_HASH;
+    static const char* const FULL_VERSION = $$VERSION_INT;
 }
 
 #endif

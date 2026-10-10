@@ -147,6 +147,8 @@ HEADERS += src/npc_dialog/NPCDialog.h
 SOURCES += src/npc_dialog/NPCDialog.cpp
 HEADERS += src/tavern_dialog/TavernDialog.h
 SOURCES += src/tavern_dialog/TavernDialog.cpp
+HEADERS += src/temple_dialog/TempleDialog.h
+SOURCES += src/temple_dialog/TempleDialog.cpp
 HEADERS += src/character_dialog/CharacterSheetDialog.h
 SOURCES += src/character_dialog/CharacterSheetDialog.cpp
 HEADERS += src/library_dialog/BestiaryDialog.h
@@ -155,6 +157,8 @@ HEADERS += src/journal_dialog/JournalDialog.h
 SOURCES += src/journal_dialog/JournalDialog.cpp
 HEADERS += src/quest_board/QuestBoardDialog.h
 SOURCES += src/quest_board/QuestBoardDialog.cpp
+HEADERS += src/quest_chain_dialog/QuestChainDialog.h
+SOURCES += src/quest_chain_dialog/QuestChainDialog.cpp
 HEADERS += src/spell_casting/SpellBook.h
 SOURCES += src/spell_casting/SpellBook.cpp
 

@@ -123,6 +123,11 @@ public:
 
     void addItemToInventory(const HeldItem& item);
 
+    // --- Drop / remove ---
+    // Remove an item from a character's inventory (drop). Returns false when
+    // the index is out of range. Cursed equipped items cannot be dropped.
+    bool removeItemFromInventory(int characterIndex, int inventoryIndex, QString& reason);
+
     // --- Equip / Unequip ---
     bool equipItem(int characterIndex, int inventoryIndex, QString& reason);
     bool unequipItem(int characterIndex, int slotIndex, QString& reason);
@@ -166,6 +171,10 @@ public:
     bool loadPartyFromFile(const QString& filePath);
     void addCharacterToParty(const Character& character);
     bool loadLuaScript(const QString& filePath);
+    // Strips every Lua capability that can touch the host system (io, package,
+    // debug, dofile/loadfile/require, and os.* except date/time). Call once
+    // after luaL_openlibs; safe to call twice.
+    static void sandboxLua(lua_State* L);
     QString getLuaString(const QString& variableName);
     void saveCharacterToLua(const Character& character, const QString& filePath);
     Character loadCharacterFromLua(const QString& filePath);
@@ -223,7 +232,6 @@ public:
     void setCharacterGold(int index, qulonglong newGold);
     void updateCharacterGold(int characterIndex, qulonglong amount, bool add = true);
     void updatePartyMemberHP(int index, int newHP);
-    bool readyBodyForResurrection(const QString& characterName);
     // --- Aging and Progression ---
     void incrementPartyAge(int years = 1);
     void processAgingConsequences();
@@ -320,6 +328,8 @@ public:
 signals:
     void gameValueChanged(const QString& key, const QVariant& value);
     void fontChanged();
+    // Text from the multiplayer server, already parsed and never executed.
+    void systemMessage(const QString& sender, const QString& message);
 
 private slots:
     void handleAutosave();

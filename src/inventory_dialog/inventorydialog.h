@@ -20,6 +20,7 @@ private slots:
     void onDropButtonClicked();
     void onInfoButtonClicked();
     void onUseButtonClicked();
+    void onIdentifyButtonClicked();
 private:
     void setupUi();
     void initializeItemData();
@@ -35,6 +36,7 @@ private:
     QPushButton *useButton;
     QPushButton *dropButton;
     QPushButton *infoButton;
+    QPushButton *identifyButton;
     QLabel *effectiveStatsLabel;
     // A map to store item descriptions and stats
     QMap<QString, QString> itemInfoMap;

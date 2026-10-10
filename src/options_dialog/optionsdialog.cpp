@@ -11,8 +11,20 @@
 #include <QCoreApplication>
 #include <QDir>
 #include <QFile>
+#include <QSettings>
 #include <QString>
 #include <QDateTime>
+
+namespace {
+// Every Game Settings checkbox persists to the same ini file the rest of the
+// game already reads (game_settings.ini), under the [Game] group, keyed by the
+// short option name. Loading them back keeps the choices across restarts.
+void saveOption(const QString& key, bool checked)
+{
+    QSettings settings("game_settings.ini", QSettings::IniFormat);
+    settings.setValue("Game/" + key, checked);
+}
+} // namespace
 
 void OptionsDialog::onNoMusicToggled(bool checked) 
 {
@@ -104,49 +116,31 @@ OptionsDialog::OptionsDialog(QWidget *parent) : QDialog(parent) {
     // Connect the new Backup/Restore buttons
     connect(backupButton, &QPushButton::clicked, this, &OptionsDialog::onBackupClicked);
     // --- Connect Game Settings Checkboxes ---
-    connect(noPartySoundCheckBox, &QCheckBox::toggled, this, [](bool checked) {
-        qDebug() << "No Party Sound:" << checked;
-        // gameStateManager::instance()->setPartySound(!checked);
-    });
+    // Each checkbox persists its state to game_settings.ini and restores it on
+    // open, so the choice actually survives a restart.
+    auto wireOption = [](QCheckBox* box, const QString& key) {
+        QSettings settings("game_settings.ini", QSettings::IniFormat);
+        box->setChecked(settings.value("Game/" + key, false).toBool());
+        QObject::connect(box, &QCheckBox::toggled, box, [key](bool checked) {
+            saveOption(key, checked);
+        });
+    };
 
-    connect(noMsgDingCheckBox, &QCheckBox::toggled, this, [](bool checked) {
-        qDebug() << "No Msg Ding:" << checked;
-    });
-
-    connect(noHelpSoundCheckBox, &QCheckBox::toggled, this, [](bool checked) {
-        qDebug() << "No Help Sound:" << checked;
-    });
-
-    connect(noToolbarCheckBox, &QCheckBox::toggled, this, [](bool checked) {
-        qDebug() << "No Toolbar:" << checked;
-    });
-
-    connect(noAutomapCursorBlinkCheckBox, &QCheckBox::toggled, this, [](bool checked) {
-        qDebug() << "No Automap Blink:" << checked;
-    });
-
-    connect(no3DCheckBox, &QCheckBox::toggled, this, [](bool checked) {
-        qDebug() << "No 3D:" << checked;
-    });
-
-    connect(noStretchBltCheckBox, &QCheckBox::toggled, this, [](bool checked) {
-        qDebug() << "No StretchBlt:" << checked;
-    });
-
-    connect(noLoadAutomapCheckBox, &QCheckBox::toggled, this, [](bool checked) {
-        qDebug() << "No Load Automap:" << checked;
-    });
-
-    connect(noAutosaveCheckBox, &QCheckBox::toggled, this, [](bool checked) {
-        qDebug() << "No Autosave:" << checked;
-    });
+    wireOption(noPartySoundCheckBox, "NoPartySound");
+    wireOption(noMsgDingCheckBox, "NoMsgDing");
+    wireOption(noHelpSoundCheckBox, "NoHelpSound");
+    wireOption(noToolbarCheckBox, "NoToolbar");
+    wireOption(noAutomapCursorBlinkCheckBox, "NoAutomapCursorBlink");
+    wireOption(no3DCheckBox, "No3D");
+    wireOption(noStretchBltCheckBox, "NoStretchBlt");
+    wireOption(noLoadAutomapCheckBox, "NoLoadAutomap");
+    wireOption(noAutosaveCheckBox, "NoAutosave");
 
     // --- Connect Audio Settings Checkboxes ---
     // Note: noMusicCheckBox is already connected to onNoMusicToggled in your original code
 
     connect(noSoundFxCheckBox, &QCheckBox::toggled, this, [](bool checked) {
-        qDebug() << "No Sound FX:" << checked;
-        // gameStateManager::instance()->setSfxMuted(checked);
+        audioManager::instance()->setSfxVolume(checked ? 0.0f : 0.75f);
     });
     connect(restoreButton, &QPushButton::clicked, this, &OptionsDialog::onRestoreClicked);
 
@@ -226,11 +220,11 @@ void OptionsDialog::setupUi()
     audioLayout->addWidget(new QLabel("Sfx Vol."));
     sfxVolSlider = new QSlider(Qt::Horizontal);
     sfxVolSlider->setRange(0, 100);
-    sfxVolSlider->setValue(50); // Default
+    sfxVolSlider->setValue(static_cast<int>(audioManager::instance()->getSfxVolume() * 100.0f));
 
     connect(sfxVolSlider, &QSlider::valueChanged, this, [](int value) {
         float vol = static_cast<float>(value) / 100.0f;
-        audioManager::instance()->setMusicVolume(vol);
+        audioManager::instance()->setSfxVolume(vol);
     });
 
     noSoundFxCheckBox = new QCheckBox("No Sound FX");

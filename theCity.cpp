@@ -4,6 +4,7 @@
 #include "src/network_manager/NetworkManager.h"
 #include "src/partyinfo_dialog/partyinfodialog.h"
 #include "src/general_store/GeneralStore.h"
+#include "src/temple_dialog/TempleDialog.h"
 #include "src/guilds_dialog/GuildsDialog.h"
 #include "src/morgue_dialog/MorgueDialog.h"
 #include "src/seer_dialog/SeerDialog.h"
@@ -16,6 +17,7 @@
 #include "src/library_dialog/library_dialog.h"
 #include "src/journal_dialog/JournalDialog.h"
 #include "src/quest_board/QuestBoardDialog.h"
+#include "src/quest_chain_dialog/QuestChainDialog.h"
 #include "src/npc_dialog/NPCDialog.h"
 #include "src/core/AlignmentSystem.h"
 #include "src/core/savegameUtils.h"
@@ -44,7 +46,11 @@ void theCity::processLocation(GameConstants::CityLocation location) {
             break;
         case GameConstants::CityLocation::Temple:
             titleLabel->setText("Temple - 'Pray you will win'");
-            // Handle healing and resurrection
+            {
+                TempleDialog *temple = new TempleDialog(this);
+                temple->setAttribute(Qt::WA_DeleteOnClose);
+                temple->show();
+            }
             break;
         case GameConstants::CityLocation::Guild:
             titleLabel->setText("Guild - 'Where heros go'");
@@ -134,6 +140,7 @@ void theCity::setupUi()
     tavernButton = new QToolButton(this);
     libraryButton = new QToolButton(this);
     questBoardButton = new QToolButton(this);
+    questChainButton = new QToolButton(this);
     characterSheetButton = new QToolButton(this);
     bestiaryButton = new QToolButton(this);
     journalButton = new QToolButton(this);
@@ -150,6 +157,7 @@ void theCity::setupUi()
     gridLayout->addWidget(tavernButton,        1, 3);
     gridLayout->addWidget(libraryButton,       2, 0);
     gridLayout->addWidget(questBoardButton,    2, 1);
+    gridLayout->addWidget(questChainButton,    3, 3);
     gridLayout->addWidget(characterSheetButton,2, 2);
     gridLayout->addWidget(bestiaryButton,      2, 3);
     gridLayout->addWidget(journalButton,       3, 0);
@@ -183,6 +191,7 @@ void theCity::setupUi()
     connect(tavernButton,         &QToolButton::clicked, this, &theCity::handleLocationClick);
     connect(libraryButton,        &QToolButton::clicked, this, &theCity::handleLocationClick);
     connect(questBoardButton,     &QToolButton::clicked, this, &theCity::handleLocationClick);
+    connect(questChainButton,     &QToolButton::clicked, this, &theCity::handleLocationClick);
     connect(characterSheetButton, &QToolButton::clicked, this, &theCity::handleLocationClick);
     connect(bestiaryButton,       &QToolButton::clicked, this, &theCity::handleLocationClick);
     connect(journalButton,        &QToolButton::clicked, this, &theCity::handleLocationClick);
@@ -285,6 +294,10 @@ void theCity::loadButtonIcons()
     questBoardButton->setIcon(QIcon(GameResources::getPixmap("quest_board")));
     questBoardButton->setIconSize(iconSize);
     questBoardButton->setToolTip("Quest Board");
+
+    questChainButton->setIcon(QIcon(GameResources::getPixmap("quest_board")));
+    questChainButton->setIconSize(iconSize);
+    questChainButton->setToolTip("Main Quest");
 
     characterSheetButton->setIcon(QIcon(GameResources::getPixmap("character_sheet")));
     characterSheetButton->setIconSize(iconSize);
@@ -434,6 +447,12 @@ void theCity::on_questBoardButton_clicked() {
     QuestBoardDialog *qb = new QuestBoardDialog(this);
     qb->setAttribute(Qt::WA_DeleteOnClose);
     qb->exec();
+}
+
+void theCity::on_questChainButton_clicked() {
+    QuestChainDialog *qc = new QuestChainDialog(this);
+    qc->setAttribute(Qt::WA_DeleteOnClose);
+    qc->exec();
 }
 
 void theCity::on_characterSheetButton_clicked() {

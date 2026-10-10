@@ -35,13 +35,13 @@ private:
     // Models
     QStringListModel *m_itemsModel;
     QStringListModel *m_spellsModel;
-    QStringListModel *m_companionsModel;
+
 
     // UI Elements
     QTabWidget *m_tabWidget;
     QListView *m_itemsListView;
     QListView *m_spellsListView;
-    QListView *m_companionsListView;
+
     
     QTextEdit *m_charInfoDisplay;
     QTextEdit *m_guildInfoDisplay;

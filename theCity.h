@@ -16,6 +16,8 @@
 #include <QMediaPlayer>
 #include <QAudioOutput>
 
+class TempleDialog;
+
 class theCity : public QDialog
 {
     Q_OBJECT
@@ -39,6 +41,7 @@ private slots:
     void on_tavernButton_clicked();
     void on_libraryButton_clicked();
     void on_questBoardButton_clicked();
+    void on_questChainButton_clicked();
     void on_characterSheetButton_clicked();
     void on_bestiaryButton_clicked();
     void on_journalButton_clicked();
@@ -66,6 +69,7 @@ private:
     QToolButton *tavernButton;
     QToolButton *libraryButton;
     QToolButton *questBoardButton;
+    QToolButton *questChainButton;
     QToolButton *characterSheetButton;
     QToolButton *bestiaryButton;
     QToolButton *journalButton;

@@ -86,6 +86,8 @@ QVariantMap Character::toMap() const {
     map["Dexterity"]    = dexterity;
     map["Mana"]         = mana;
     map["MaxMana"]      = maxMana;
+    map["Hunger"]       = hunger;
+    map["MaxHunger"]    = maxHunger;
     map["StatusFlags"] = statusFlags;
     map["isAlive"]      = isAlive;
     map["DungeonLevel"] = dungeonLevel;
@@ -149,7 +151,11 @@ void Character::loadFromMap(const QVariantMap &map) {
 
     mana         = map.value("Mana", 0).toInt();
     maxMana      = map.value("MaxMana", 0).toInt();
-    
+
+    // Default full so saves written before hunger existed do not start starving.
+    hunger       = map.value("Hunger", 100).toInt();
+    maxHunger    = map.value("MaxHunger", 100).toInt();
+
     statusFlags  = map.value("StatusFlags", StatusFlag::None).toUInt();
     // Default true so saves written before this field existed still load as alive.
     isAlive      = map.value("isAlive", true).toBool();
@@ -420,6 +426,55 @@ bool Character::useConsumable(int inventoryIndex, QString& effectDescription) {
     if (item.M4ED4 <= 0) {
         inventory.removeAt(inventoryIndex);
         effectDescription += " The item is consumed.";
+    } else {
+        inventory[inventoryIndex] = item;
+    }
+
+    return true;
+}
+
+// --- Food / hunger ---
+
+void Character::consumeHunger(int amount) {
+    if (amount <= 0) return;
+    hunger = qMax(0, hunger - amount);
+}
+
+void Character::restoreHunger(int amount) {
+    if (amount <= 0) return;
+    hunger = qMin(maxHunger, hunger + amount);
+}
+
+bool Character::eatFood(int inventoryIndex, QString& effectDescription) {
+    if (inventoryIndex < 0 || inventoryIndex >= inventory.size()) {
+        effectDescription = "Invalid inventory index.";
+        return false;
+    }
+
+    HeldItem item = inventory[inventoryIndex];
+    const ItemDef* def = ItemDatabase::instance().byName(item.name);
+    if (!def) {
+        effectDescription = QString("Unknown item: %1").arg(item.name);
+        return false;
+    }
+
+    // Only food items (type 22) can be eaten.
+    if (def->type != 22) {
+        effectDescription = QString("%1 is not food.").arg(item.name);
+        return false;
+    }
+
+    // Food restores hunger based on spellLvl (5 + spellLvl*3, min 5).
+    int restoreAmount = qMax(5, 5 + def->spellLvl * 3);
+    restoreHunger(restoreAmount);
+    effectDescription = QString("You eat the %1. (+%2 hunger)")
+                            .arg(item.name).arg(restoreAmount);
+
+    // Decrement charges.
+    item.M4ED4--;
+    if (item.M4ED4 <= 0) {
+        inventory.removeAt(inventoryIndex);
+        effectDescription += " The food is consumed.";
     } else {
         inventory[inventoryIndex] = item;
     }

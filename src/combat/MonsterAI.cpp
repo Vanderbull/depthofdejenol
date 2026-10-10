@@ -1,4 +1,5 @@
 #include "MonsterAI.h"
+#include "src/core/GameConstants.h"
 #include <QRandomGenerator>
 
 MonsterAI::MonsterAI(CombatState* state, TurnEngine* engine, CombatActions* actions)
@@ -18,17 +19,29 @@ MonsterAI::Decision MonsterAI::decide() const {
 
     const CombatParticipant& monster = m_state->participant(idx);
 
-    // Flee if HP is low (below 25%)
-    if (monster.hp < monster.maxHp / 4) {
-        // 50% chance to flee when low
-        if (QRandomGenerator::global()->bounded(100) < 50) {
+    // Bosses never run; they fight to the end.
+    if (monster.level >= 5) {
+        return Decision::Attack;
+    }
+
+    if (monster.hp > 0 && monster.maxHp > 0) {
+        // Critically wounded (below 10%): always flee.
+        if (monster.hp < monster.maxHp / 10) {
             return Decision::Flee;
+        }
+        // Badly wounded (below 25%): sometimes flee.
+        if (monster.hp < monster.maxHp / 4) {
+            if (QRandomGenerator::global()->bounded(100) < 40) {
+                return Decision::Flee;
+            }
         }
     }
 
-    // Flee if very low (below 10%)
-    if (monster.hp < monster.maxHp / 10) {
-        return Decision::Flee;
+    // Spellcasters sometimes open with magic instead of a melee swing.
+    if (monster.canCastSpells) {
+        if (QRandomGenerator::global()->bounded(100) < 40) {
+            return Decision::CastSpell;
+        }
     }
 
     // Otherwise attack
@@ -72,6 +85,7 @@ QString MonsterAI::takeTurn() {
     Decision d = decide();
     int monsterIdx = m_engine->currentParticipantIndex();
     QString monsterName = m_state->participant(monsterIdx).name;
+    const CombatParticipant& monster = m_state->participant(monsterIdx);
 
     switch (d) {
     case Decision::Flee: {
@@ -88,13 +102,53 @@ QString MonsterAI::takeTurn() {
         }
         QString result;
         m_actions->attack(targetIdx, result);
+
+        // Apply poison on hit
+        if (monster.canPoison && m_state->participant(targetIdx).isAlive) {
+            QString poisonResult;
+            m_actions->applyStatus(targetIdx, GameConstants::Poisoned, 3, poisonResult);
+            result += " " + poisonResult;
+        }
+
         m_engine->markCurrentActed();
         return result;
     }
     case Decision::CastSpell: {
-        // Monsters don't cast spells in this simplified system
+        // Monster casts a spell (fire breath, etc.)
+        if (monster.canBreathFire) {
+            // Fire breath hits all players and sets them on fire.
+            QString result;
+            int totalDamage = 0;
+            for (int i = 0; i < m_state->participantCount(); ++i) {
+                CombatParticipant& p = m_state->participant(i);
+                if (p.isPlayer && p.isAlive) {
+                    int damage = 5 + QRandomGenerator::global()->bounded(10) + monster.level;
+                    p.hp -= damage;
+                    totalDamage += damage;
+                    if (p.hp <= 0) {
+                        p.hp = 0;
+                        p.isAlive = false;
+                    } else {
+                        // Set on fire for 2 rounds (DoT handled by tickStatusEffects).
+                        QString fireResult;
+                        m_actions->applyStatus(i, GameConstants::OnFire, 2, fireResult);
+                    }
+                }
+            }
+            result = QString("%1 breathes fire for %2 total damage!").arg(monsterName).arg(totalDamage);
+            m_engine->markCurrentActed();
+            return result;
+        }
+        // Fallback: regular attack
+        int targetIdx = chooseTarget();
+        if (targetIdx < 0) {
+            m_engine->markCurrentActed();
+            return QString("%1 has no target!").arg(monsterName);
+        }
+        QString result;
+        m_actions->attack(targetIdx, result);
         m_engine->markCurrentActed();
-        return QString("%1 tries to cast a spell but fails!").arg(monsterName);
+        return result;
     }
     }
 

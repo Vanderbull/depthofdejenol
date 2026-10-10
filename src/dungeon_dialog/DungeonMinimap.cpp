@@ -217,7 +217,7 @@ void DungeonDialog::drawMinimap()
         }
     }
     // 7.8. Draw Teleporter Tiles (Only if visited)
-    for (const auto& pos : m_teleportPositions) {
+    for (const auto& pos : m_teleporterPositions) {
         if (revealAll || m_visitedTiles.contains(pos)) {
             if (!scaledTeleporter.isNull()) {
                 // Use the teleporter image tile
@@ -272,7 +272,8 @@ void DungeonDialog::drawMinimap()
     QPixmap scaledDoor = doorPixmap.scaled(TILE_SIZE, TILE_SIZE, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
 
     // Draw Hidden Doors
-    for (const auto& pos : m_hiddenDoorPositions) {
+    for (auto it = m_hiddenDoorPositions.constBegin(); it != m_hiddenDoorPositions.constEnd(); ++it) {
+        const auto& pos = it.key();
         // Logic: Show if debug 'revealAll' is on, OR if the tile is visited
         if (revealAll || m_visitedTiles.contains(pos)) {
             if (!doorPixmap.isNull()) {
@@ -342,10 +343,16 @@ void DungeonDialog::drawMinimap()
     playerArrow->setRotation(rotation);
     playerArrow->setPos(currentPos.first * TILE_SIZE, currentPos.second * TILE_SIZE);
     scene->addItem(playerArrow);
+    // Render into the integrated minimap panel (always present).
+    if (m_miniMapViewIntegrated) {
+        m_miniMapViewIntegrated->setScene(scene);
+        m_miniMapViewIntegrated->fitInView(scene->sceneRect(), Qt::KeepAspectRatio);
+    }
+    // The standalone popup, when open, shows the same scene.
     if (m_standaloneMinimap) {
         m_standaloneMinimap->updateScene(scene);
-    } else {
-        delete scene; // Cleanup if window doesn't exist
+    } else if (!m_miniMapViewIntegrated) {
+        delete scene; // No view is displaying it; clean up.
     }
     QString bodyPath = "resources/images/minimap/body.png";
     QPixmap bodyPixmap(bodyPath);

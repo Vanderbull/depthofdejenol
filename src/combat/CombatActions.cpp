@@ -1,6 +1,7 @@
 #include "CombatActions.h"
 #include "src/core/GameConstants.h"
 #include "src/core/SoundEffects.h"
+#include "src/items/ItemDatabase.h"
 #include <QRandomGenerator>
 
 CombatActions::CombatActions(CombatState* state, TurnEngine* engine)
@@ -39,6 +40,7 @@ int CombatActions::attack(int targetIndex, QString& result) {
             int allyIdx = allies[QRandomGenerator::global()->bounded(allies.size())];
             CombatParticipant& ally = m_state->participant(allyIdx);
             int damage = qMax(1, attacker.att * attacker.swings * attacker.damageMod / 100);
+            if (ally.isDefending) damage = qMax(1, damage / 2);
             ally.hp -= damage;
             if (ally.hp <= 0) {
                 ally.hp = 0;
@@ -71,6 +73,7 @@ int CombatActions::attack(int targetIndex, QString& result) {
         int baseDamage = qMax(1, static_cast<int>(attacker.att * attacker.swings * attacker.damageMod / 100.0 * levelMultiplier));
         int damage = baseDamage + QRandomGenerator::global()->bounded(0, 5);
         if (roll == 20) damage *= 2;  // crit
+        if (target.isDefending) damage = qMax(1, damage / 2);  // stance halves damage
         target.hp -= damage;
         if (target.hp <= 0) {
             target.hp = 0;
@@ -96,8 +99,11 @@ void CombatActions::defend(QString& result) {
     if (!m_state || !m_engine) { result = "No combat"; return; }
     int idx = m_engine->currentParticipantIndex();
     if (idx < 0) { result = "No defender"; return; }
-    m_state->participant(idx).hasActed = true;
-    result = QString("%1 takes a defensive stance.").arg(m_state->participant(idx).name);
+    CombatParticipant& defender = m_state->participant(idx);
+    defender.hasActed = true;
+    // A defensive stance halves all damage taken until the next round.
+    defender.isDefending = true;
+    result = QString("%1 takes a defensive stance.").arg(defender.name);
 }
 
 int CombatActions::castSpell(int targetIndex, int spellPower, QString& result) {
@@ -203,6 +209,53 @@ int CombatActions::castSpellAdvanced(int targetIndex, const QString& spellName,
                 .arg(caster.name).arg(spellName).arg(target.name).arg(damage);
         }
         totalDamage = damage;
+    }
+
+    return totalDamage;
+}
+
+int CombatActions::applySpellDamage(int targetIndex, const QString& spellName,
+                                    int damage, bool isAoE, QString& result) {
+    if (!m_state || !m_engine) { result = "No combat"; return -1; }
+    if (targetIndex < 0 || targetIndex >= m_state->participantCount()) {
+        result = "Invalid target"; return -1;
+    }
+
+    CombatParticipant& target = m_state->participant(targetIndex);
+    if (!target.isAlive) { result = "Target is already dead"; return -1; }
+
+    int totalDamage = 0;
+    QStringList hitNames;
+
+    if (isAoE) {
+        bool targetIsPlayer = target.isPlayer;
+        for (int i = 0; i < m_state->participantCount(); ++i) {
+            CombatParticipant& p = m_state->participant(i);
+            if (p.isAlive && p.isPlayer == targetIsPlayer) {
+                int dmg = damage;
+                if (p.isDefending) dmg = qMax(1, dmg / 2);
+                p.hp -= dmg;
+                if (p.hp <= 0) { p.hp = 0; p.isAlive = false; }
+                totalDamage += dmg;
+                hitNames.append(p.name);
+            }
+        }
+        result = QString("%1 hits %2 for %3 damage each!")
+            .arg(spellName).arg(hitNames.join(", ")).arg(damage);
+    } else {
+        int dmg = damage;
+        if (target.isDefending) dmg = qMax(1, dmg / 2);
+        target.hp -= dmg;
+        if (target.hp <= 0) {
+            target.hp = 0;
+            target.isAlive = false;
+            result = QString("%1 hits %2 for %3 damage — %2 is slain!")
+                .arg(spellName).arg(target.name).arg(dmg);
+        } else {
+            result = QString("%1 hits %2 for %3 damage.")
+                .arg(spellName).arg(target.name).arg(dmg);
+        }
+        totalDamage = dmg;
     }
 
     return totalDamage;
@@ -338,6 +391,13 @@ QStringList CombatActions::tickStatusEffects() {
                 messages.append(QString("%1 is no longer confused.").arg(p.name));
             }
         }
+
+        // Regeneration: monsters with canRegenerate heal each round.
+        if (p.canRegenerate && p.isAlive && p.hp < p.maxHp) {
+            int heal = qMin(p.regenerateAmount, p.maxHp - p.hp);
+            p.hp += heal;
+            messages.append(QString("%1 regenerates %2 HP.").arg(p.name).arg(heal));
+        }
     }
 
     return messages;
@@ -360,14 +420,80 @@ bool CombatActions::isOnFire(int index) const {
     return hasStatus(index, GameConstants::OnFire);
 }
 
-bool CombatActions::useItem(int /*itemIndex*/, QString& result) {
+void CombatActions::cureStatus(int targetIndex, uint statusFlag, QString& result) {
+    if (!m_state || !m_engine) { result = "No combat"; return; }
+    if (targetIndex < 0 || targetIndex >= m_state->participantCount()) {
+        result = "Invalid target"; return;
+    }
+
+    CombatParticipant& target = m_state->participant(targetIndex);
+    if ((target.statusFlags & statusFlag) == 0) {
+        result = QString("%1 is not affected.").arg(target.name);
+        return;
+    }
+
+    target.statusFlags &= ~statusFlag;
+    if (statusFlag & GameConstants::Poisoned) target.poisonDuration = 0;
+    if (statusFlag & GameConstants::Blinded) target.blindDuration = 0;
+    if (statusFlag & GameConstants::OnFire) target.fireDuration = 0;
+
+    QString statusName;
+    if (statusFlag & GameConstants::Poisoned) statusName = "poisoned";
+    else if (statusFlag & GameConstants::Blinded) statusName = "blinded";
+    else if (statusFlag & GameConstants::OnFire) statusName = "on fire";
+    else statusName = "affected";
+
+    result = QString("%1 is no longer %2.").arg(target.name).arg(statusName);
+}
+
+bool CombatActions::useItem(int itemIndex, Character& user, QString& result) {
     if (!m_state || !m_engine) { result = "No combat"; return false; }
     int userIdx = m_engine->currentParticipantIndex();
     if (userIdx < 0) { result = "No user"; return false; }
-    // Item usage is handled by Character::useConsumable in the full system.
-    // For now, just mark as acted.
-    m_state->participant(userIdx).hasActed = true;
-    result = "Item used.";
+
+    if (itemIndex < 0 || itemIndex >= user.inventory.size()) {
+        result = "No such item.";
+        return false;
+    }
+
+    const QString itemName = user.inventory[itemIndex].name;
+    const QString lower = itemName.toLower();
+
+    // Resolve the effect on the combat participant, then consume the item via
+    // Character::useConsumable so inventory HP/charges stay authoritative.
+    CombatParticipant& participant = m_state->participant(userIdx);
+
+    if (lower.contains("healing") || lower.contains("health")) {
+        const ItemDef* def = ItemDatabase::instance().byName(itemName);
+        int healAmount = 10 + (def ? def->spellLvl * 5 : 0);
+        int actual = qMin(healAmount, participant.maxHp - participant.hp);
+        participant.hp += actual;
+        result = QString("%1 uses %2 and restores %3 HP.")
+                     .arg(participant.name).arg(itemName).arg(actual);
+    } else if (lower.contains("mana")) {
+        const ItemDef* def = ItemDatabase::instance().byName(itemName);
+        int manaAmount = 10 + (def ? def->spellLvl * 5 : 0);
+        int actual = qMin(manaAmount, participant.maxMana - participant.mana);
+        participant.mana += actual;
+        result = QString("%1 uses %2 and restores %3 mana.")
+                     .arg(participant.name).arg(itemName).arg(actual);
+    } else if (lower.contains("cure") || lower.contains("poison")) {
+        bool had = (participant.statusFlags & GameConstants::Poisoned) != 0;
+        participant.statusFlags &= ~GameConstants::Poisoned;
+        participant.poisonDuration = 0;
+        result = had ? QString("%1 uses %2 — the poison is cured.")
+                           .arg(participant.name).arg(itemName)
+                     : QString("%1 uses %2 — nothing to cure.")
+                           .arg(participant.name).arg(itemName);
+    } else {
+        result = QString("%1 uses %2.").arg(participant.name).arg(itemName);
+    }
+
+    // Consume: apply the real inventory effect (decrements charges / removes).
+    QString effect;
+    user.useConsumable(itemIndex, effect);
+
+    participant.hasActed = true;
     return true;
 }
 
@@ -376,14 +502,38 @@ bool CombatActions::flee(QString& result) {
     int idx = m_engine->currentParticipantIndex();
     if (idx < 0) { result = "No fleer"; return false; }
 
-    // Flee roll: d20 + speed vs 12
+    CombatParticipant& fleer = m_state->participant(idx);
+
+    // Flee roll: d20 + speed vs a base of 12, adjusted by the pursuers. A
+    // faster pack is harder to outrun and being surrounded is harder still,
+    // but the speed term is capped so an extreme gap does not make escape
+    // impossible outright.
     int roll = QRandomGenerator::global()->bounded(1, 21);
-    int fleeRoll = roll + m_state->participant(idx).speed;
-    if (fleeRoll >= 12) {
-        result = QString("%1 flees successfully!").arg(m_state->participant(idx).name);
+    int fastestPursuer = 0;
+    int pursuers = 0;
+    for (int i = 0; i < m_state->participantCount(); ++i) {
+        const CombatParticipant& p = m_state->participant(i);
+        if (p.isAlive && p.isPlayer != fleer.isPlayer) {
+            fastestPursuer = qMax(fastestPursuer, p.speed);
+            pursuers++;
+        }
+    }
+    int speedGap = qMax(0, fastestPursuer - fleer.speed);
+    int escapeTarget = 12 + qMin(8, speedGap / 5) + qMax(0, pursuers - 1) * 2;
+    int fleeRoll = roll + fleer.speed;
+
+    if (fleeRoll >= escapeTarget) {
+        // A fleeing monster leaves the fight for good; a fleeing player is
+        // handled by the caller (the combat UI closes), so it must not be
+        // marked dead here.
+        if (!fleer.isPlayer) {
+            fleer.hasFled = true;
+            fleer.isAlive = false;
+        }
+        result = QString("%1 flees successfully!").arg(fleer.name);
         return true;
     } else {
-        result = QString("%1 fails to flee!").arg(m_state->participant(idx).name);
+        result = QString("%1 fails to flee!").arg(fleer.name);
         return false;
     }
 }

@@ -115,5 +115,6 @@ void CombatState::markActed(int index) {
 void CombatState::resetActedFlags() {
     for (auto& p : m_participants) {
         p.hasActed = false;
+        p.isDefending = false;  // a defensive stance lasts one round
     }
 }

@@ -19,6 +19,7 @@ public:
     void setMusicVolume(float volume); // 0.0 to 1.0
     float getMusicVolume() const { return m_musicOutput->volume(); }
     void setSfxVolume(float volume);
+    float getSfxVolume() const { return m_sfxVolume; }
     void stopAllAudio();
 
 private:

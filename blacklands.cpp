@@ -14,6 +14,7 @@
 #include "src/helplesson/helplesson.h"
 #include "src/loadingscreen/LoadingScreen.h"
 #include "src/race_data/RaceData.h"
+#include "src/core/DungeonLevelState.h"
 #include "test/selftest.h"
 
 // Qt Includes
@@ -226,6 +227,11 @@ void GameMenu::onHelpClicked() {
 
 void GameMenu::startNewGame() {
     audioManager::instance()->stopAllAudio();
+
+    // Clear any leftover dungeon / placed-item state from a previous game so
+    // a fresh start never inherits stale floors or items.
+    DungeonLevelRegistry::instance().clear();
+
     auto *dialog = new CreateCharacterDialog(loadRaceData(), loadGuildData(), this);
     connect(dialog, &CreateCharacterDialog::characterCreated, this, &GameMenu::onCharacterCreated);
     dialog->setAttribute(Qt::WA_DeleteOnClose);
