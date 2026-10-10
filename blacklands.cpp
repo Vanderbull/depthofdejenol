@@ -16,6 +16,8 @@
 #include "src/race_data/RaceData.h"
 #include "src/core/DungeonLevelState.h"
 #include "test/selftest.h"
+#include "src/dungeon_dialog/DungeonDialog.h"
+#include <QPushButton>
 
 // Qt Includes
 #include <QVBoxLayout>
@@ -28,6 +30,7 @@
 #include <QTextStream>
 #include <QFileDialog>
 #include <QDir>
+#include <algorithm>
 #include <QPainter>
 
 GameMenu::GameMenu(QWidget *parent)
@@ -128,7 +131,7 @@ void GameMenu::loadStyleSheet() {
 }
 
 void GameMenu::loadBackgroundImage() {
-    QString imagePath = QDir::cleanPath(qApp->applicationDirPath() + "/resources/images/introtitle.png");
+    QString imagePath = QDir::cleanPath(qApp->applicationDirPath() + "/introtitle.png");
     if (m_backgroundPixmap.load(imagePath)) {
         resizeEvent(nullptr); // Force initial scale
         gameStateManager::instance()->setGameValue("ResourcesLoaded", true); 
@@ -256,6 +259,65 @@ int main(int argc, char *argv[]) {
     if (a.arguments().contains("--selftest")) {
         qputenv("QT_QPA_PLATFORM", "offscreen");
         return runSelfTest();
+    }
+
+    // Layout probe: build the real DungeonDialog through the normal xcb path,
+    // show it, and dump the on-screen geometry of every action button. Used to
+    // verify the button grid against what the user actually sees.
+    if (a.arguments().contains("--probe-dungeon")) {
+        LoadingScreen loadingScreen;
+        loadingScreen.exec();
+        DungeonDialog dlg;
+        dlg.show();
+        // Probe at several sizes: the default resize, the declared minimum
+        // (900x640), and the size the user's screen actually gives it.
+        QList<QSize> sizes = {QSize(1280, 800), QSize(900, 640)};
+        for (const QSize& sz : sizes) {
+            dlg.resize(sz);
+            for (int i = 0; i < 40; ++i) QApplication::processEvents();
+            qInfo() << "=== DUNGEON PROBE" << sz << "===";
+            qInfo() << "actual dialog size:" << dlg.size();
+            QWidget* sidebar = dlg.findChild<QWidget*>("dungeonSidebar");
+            if (!sidebar) { qInfo() << "no sidebar!"; continue; }
+            qInfo() << "sidebar:" << sidebar->geometry();
+            QList<QWidget*> kids = sidebar->findChildren<QWidget*>(
+                QString(), Qt::FindDirectChildrenOnly);
+            QList<QPair<QString,QRect>> rects;
+            for (QWidget* w : kids) {
+                if (!w->isVisible() || w->geometry().isEmpty()) continue;
+                const QRect r = w->geometry();
+                QString label = w->objectName().isEmpty()
+                    ? QString(w->metaObject()->className()) : w->objectName();
+                if (auto* gb = qobject_cast<QGroupBox*>(w)) label += "(" + gb->title() + ")";
+                if (auto* btn = qobject_cast<QPushButton*>(w)) label += "(" + btn->text() + ")";
+                if (auto* lbl = qobject_cast<QLabel*>(w)) label += "(" + lbl->text().left(20) + ")";
+                rects.append({label, r});
+                qInfo().noquote() << QString("  %1  geo=%2,%3 %4x%5  bottom=%6")
+                    .arg(label, -40)
+                    .arg(r.x()).arg(r.y()).arg(r.width()).arg(r.height())
+                    .arg(r.y() + r.height());
+            }
+            int overlaps = 0;
+            for (int i = 0; i < rects.size(); ++i)
+                for (int j = i + 1; j < rects.size(); ++j)
+                    if (rects[i].second.intersects(rects[j].second)) {
+                        ++overlaps;
+                        qInfo().noquote() << QString("  OVERLAP: %1 <-> %2")
+                            .arg(rects[i].first, rects[j].first);
+                    }
+            qInfo() << "sidebar direct-child overlaps:" << overlaps;
+            int bottom = 0;
+            for (auto& p : rects) bottom = qMax(bottom, p.second.bottom());
+            qInfo() << "sidebar height:" << sidebar->height()
+                    << "content bottom:" << bottom
+                    << (bottom > sidebar->height() ? "  <<< CONTENT OVERFLOWS" : "");
+            qInfo() << "=== END PROBE" << sz << "===";
+        }
+        dlg.resize(1280, 800);
+        for (int i = 0; i < 40; ++i) QApplication::processEvents();
+        dlg.grab().save("/tmp/dungeon_probe.png");
+        qInfo() << "saved grab to /tmp/dungeon_probe.png";
+        return 0;
     }
 
     // Initial sequence

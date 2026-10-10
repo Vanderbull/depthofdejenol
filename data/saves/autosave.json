@@ -1,18 +1,573 @@
 {
-    "BankSlotsFree": 24,
     "BankedGold": 0,
     "ConfigIntegrityOK": true,
     "CurrentCharacterCharisma": 5,
     "CurrentCharacterConstitution": 6,
     "CurrentCharacterDexterity": 6,
-    "CurrentCharacterGold": 0,
+    "CurrentCharacterGold": 1500,
     "CurrentCharacterIntelligence": 9,
     "CurrentCharacterStrength": 4,
     "CurrentCharacterWisdom": 4,
+    "DungeonLevel": 1,
     "DungeonLevels": {
         "levels": [
+            {
+                "bossDefeated": false,
+                "collectedItems": [
+                ],
+                "collectedTorches": [
+                ],
+                "generated": true,
+                "level": 1,
+                "lightRadius": 2,
+                "monsters": [
+                    {
+                        "name": "Giant Frog",
+                        "x": 18,
+                        "y": 5
+                    }
+                ],
+                "openedChests": [
+                ],
+                "stairsDown": {
+                    "x": 4,
+                    "y": 26
+                },
+                "stairsUp": {
+                    "x": 24,
+                    "y": 9
+                },
+                "torchTurns": 50,
+                "trapPositions": [
+                    {
+                        "name": "Pit Cover",
+                        "x": 10,
+                        "y": 5
+                    },
+                    {
+                        "name": "Snare",
+                        "x": 10,
+                        "y": 26
+                    }
+                ],
+                "treasures": [
+                    {
+                        "name": "Sphere of Dislocation",
+                        "x": 1,
+                        "y": 6
+                    },
+                    {
+                        "name": "Gem of Healing",
+                        "x": 1,
+                        "y": 14
+                    },
+                    {
+                        "name": "Crest of the Healer",
+                        "x": 2,
+                        "y": 3
+                    },
+                    {
+                        "name": "Rod of Binding",
+                        "x": 2,
+                        "y": 6
+                    },
+                    {
+                        "name": "Amulet of the Drakul",
+                        "x": 2,
+                        "y": 11
+                    },
+                    {
+                        "name": "Adamantite Sword",
+                        "x": 2,
+                        "y": 14
+                    },
+                    {
+                        "name": "Tome of Binding",
+                        "x": 3,
+                        "y": 11
+                    },
+                    {
+                        "name": "Eliminator",
+                        "x": 3,
+                        "y": 12
+                    },
+                    {
+                        "name": "Master's Gloves",
+                        "x": 3,
+                        "y": 20
+                    },
+                    {
+                        "name": "Bronze Dagger",
+                        "x": 4,
+                        "y": 5
+                    },
+                    {
+                        "name": "Cap of Visions",
+                        "x": 4,
+                        "y": 6
+                    },
+                    {
+                        "name": "Paladin's Armor",
+                        "x": 4,
+                        "y": 12
+                    },
+                    {
+                        "name": "Scarab of Defense",
+                        "x": 4,
+                        "y": 13
+                    },
+                    {
+                        "name": "Ring of Protection",
+                        "x": 4,
+                        "y": 25
+                    },
+                    {
+                        "name": "Scarab of Life",
+                        "x": 5,
+                        "y": 13
+                    },
+                    {
+                        "name": "Cross of Commanding",
+                        "x": 5,
+                        "y": 19
+                    },
+                    {
+                        "name": "Pine Staff",
+                        "x": 5,
+                        "y": 20
+                    },
+                    {
+                        "name": "Dalyn's Tear",
+                        "x": 5,
+                        "y": 21
+                    },
+                    {
+                        "name": "Amulet of Ultravision",
+                        "x": 5,
+                        "y": 26
+                    },
+                    {
+                        "name": "Dwarven Hammer",
+                        "x": 6,
+                        "y": 13
+                    },
+                    {
+                        "name": "Robe of Insight",
+                        "x": 6,
+                        "y": 18
+                    },
+                    {
+                        "name": "Sphere of Harm",
+                        "x": 6,
+                        "y": 25
+                    },
+                    {
+                        "name": "Adamantite Plate",
+                        "x": 7,
+                        "y": 20
+                    },
+                    {
+                        "name": "Scarab of Life",
+                        "x": 8,
+                        "y": 7
+                    },
+                    {
+                        "name": "Dorlan's Sash",
+                        "x": 9,
+                        "y": 2
+                    },
+                    {
+                        "name": "Bells of Kwalish",
+                        "x": 9,
+                        "y": 7
+                    },
+                    {
+                        "name": "Feather Leather Armor",
+                        "x": 9,
+                        "y": 12
+                    },
+                    {
+                        "name": "Cube of Controlling",
+                        "x": 9,
+                        "y": 13
+                    },
+                    {
+                        "name": "Magician's Helm",
+                        "x": 10,
+                        "y": 7
+                    },
+                    {
+                        "name": "Mithril Mace",
+                        "x": 10,
+                        "y": 9
+                    },
+                    {
+                        "name": "Dalyn's Smile",
+                        "x": 10,
+                        "y": 12
+                    },
+                    {
+                        "name": "Lethal Gauntlets",
+                        "x": 10,
+                        "y": 13
+                    },
+                    {
+                        "name": "Crest of the Thief",
+                        "x": 10,
+                        "y": 21
+                    },
+                    {
+                        "name": "White Sash",
+                        "x": 10,
+                        "y": 24
+                    },
+                    {
+                        "name": "Key of Opening",
+                        "x": 10,
+                        "y": 25
+                    },
+                    {
+                        "name": "Gloves of Might",
+                        "x": 11,
+                        "y": 3
+                    },
+                    {
+                        "name": "Studded Cuirboulli",
+                        "x": 11,
+                        "y": 4
+                    },
+                    {
+                        "name": "Steel Bracers",
+                        "x": 11,
+                        "y": 8
+                    },
+                    {
+                        "name": "Magical Dust",
+                        "x": 11,
+                        "y": 9
+                    },
+                    {
+                        "name": "Paladin's Helm",
+                        "x": 11,
+                        "y": 12
+                    },
+                    {
+                        "name": "Potion of Netamu",
+                        "x": 11,
+                        "y": 15
+                    },
+                    {
+                        "name": "Boots of Agility",
+                        "x": 11,
+                        "y": 18
+                    },
+                    {
+                        "name": "Lamurian Ring",
+                        "x": 11,
+                        "y": 21
+                    },
+                    {
+                        "name": "Barrier Battle Axe",
+                        "x": 11,
+                        "y": 24
+                    },
+                    {
+                        "name": "Gloves of Doom",
+                        "x": 11,
+                        "y": 25
+                    },
+                    {
+                        "name": "Mace of Kordul",
+                        "x": 12,
+                        "y": 8
+                    },
+                    {
+                        "name": "Dust of Opening",
+                        "x": 12,
+                        "y": 14
+                    },
+                    {
+                        "name": "Studded Leather Armor",
+                        "x": 12,
+                        "y": 18
+                    },
+                    {
+                        "name": "Sphere of Frost",
+                        "x": 13,
+                        "y": 26
+                    },
+                    {
+                        "name": "Dust of Opening",
+                        "x": 14,
+                        "y": 26
+                    },
+                    {
+                        "name": "Ninja's Hood",
+                        "x": 16,
+                        "y": 8
+                    },
+                    {
+                        "name": "Potion of Fitness",
+                        "x": 16,
+                        "y": 9
+                    },
+                    {
+                        "name": "Gold Pouch",
+                        "x": 16,
+                        "y": 10
+                    },
+                    {
+                        "name": "Ring of Venom",
+                        "x": 16,
+                        "y": 26
+                    },
+                    {
+                        "name": "Potion of Nesamu",
+                        "x": 17,
+                        "y": 2
+                    },
+                    {
+                        "name": "Dalyn's Groan",
+                        "x": 17,
+                        "y": 3
+                    },
+                    {
+                        "name": "Cross of Redemption",
+                        "x": 17,
+                        "y": 7
+                    },
+                    {
+                        "name": "Ring of Entrapment",
+                        "x": 17,
+                        "y": 8
+                    },
+                    {
+                        "name": "Steel Shield",
+                        "x": 17,
+                        "y": 24
+                    },
+                    {
+                        "name": "Cloth Cloak",
+                        "x": 17,
+                        "y": 25
+                    },
+                    {
+                        "name": "Lamurian Crown",
+                        "x": 18,
+                        "y": 1
+                    },
+                    {
+                        "name": "Padded Leather Armor",
+                        "x": 18,
+                        "y": 2
+                    },
+                    {
+                        "name": "Tome of Agility",
+                        "x": 18,
+                        "y": 3
+                    },
+                    {
+                        "name": "Static Sash",
+                        "x": 18,
+                        "y": 8
+                    },
+                    {
+                        "name": "Bronze Plate Mail",
+                        "x": 18,
+                        "y": 13
+                    },
+                    {
+                        "name": "Ring of Teleportation",
+                        "x": 18,
+                        "y": 15
+                    },
+                    {
+                        "name": "Potion of Youth",
+                        "x": 18,
+                        "y": 16
+                    },
+                    {
+                        "name": "Boots of Levitation",
+                        "x": 18,
+                        "y": 17
+                    },
+                    {
+                        "name": "Crest of the Scavenger",
+                        "x": 18,
+                        "y": 18
+                    },
+                    {
+                        "name": "Ring of Death",
+                        "x": 18,
+                        "y": 22
+                    },
+                    {
+                        "name": "Pendragon",
+                        "x": 18,
+                        "y": 23
+                    },
+                    {
+                        "name": "Avenger",
+                        "x": 19,
+                        "y": 6
+                    },
+                    {
+                        "name": "Barrier Battle Axe",
+                        "x": 19,
+                        "y": 8
+                    },
+                    {
+                        "name": "Mystic Shield",
+                        "x": 19,
+                        "y": 15
+                    },
+                    {
+                        "name": "Ring of Truth",
+                        "x": 19,
+                        "y": 18
+                    },
+                    {
+                        "name": "Dalyn's Groan",
+                        "x": 19,
+                        "y": 19
+                    },
+                    {
+                        "name": "Giant King's Hammer",
+                        "x": 19,
+                        "y": 26
+                    },
+                    {
+                        "name": "Iron Sword",
+                        "x": 20,
+                        "y": 8
+                    },
+                    {
+                        "name": "Scroll of Negrun",
+                        "x": 20,
+                        "y": 17
+                    },
+                    {
+                        "name": "Steel Plate Mail",
+                        "x": 20,
+                        "y": 27
+                    },
+                    {
+                        "name": "Crest of the Wizard",
+                        "x": 21,
+                        "y": 17
+                    },
+                    {
+                        "name": "Rod of Passage",
+                        "x": 23,
+                        "y": 8
+                    },
+                    {
+                        "name": "Scroll of Kanji",
+                        "x": 23,
+                        "y": 16
+                    },
+                    {
+                        "name": "Dorlan's Sash",
+                        "x": 23,
+                        "y": 17
+                    },
+                    {
+                        "name": "Tome of Endurance",
+                        "x": 23,
+                        "y": 18
+                    },
+                    {
+                        "name": "Sphere of Thunder",
+                        "x": 24,
+                        "y": 7
+                    },
+                    {
+                        "name": "Spectral Plate Armor",
+                        "x": 25,
+                        "y": 17
+                    },
+                    {
+                        "name": "Potion of Flight",
+                        "x": 25,
+                        "y": 18
+                    },
+                    {
+                        "name": "Avenger",
+                        "x": 25,
+                        "y": 24
+                    },
+                    {
+                        "name": "Steel Plate Mail",
+                        "x": 25,
+                        "y": 25
+                    },
+                    {
+                        "name": "Ninja's Armor",
+                        "x": 25,
+                        "y": 26
+                    },
+                    {
+                        "name": "Shield of Defense",
+                        "x": 26,
+                        "y": 7
+                    },
+                    {
+                        "name": "Steel Gauntlets",
+                        "x": 26,
+                        "y": 10
+                    },
+                    {
+                        "name": "Boots of the Elven Lords",
+                        "x": 26,
+                        "y": 17
+                    },
+                    {
+                        "name": "Staff of Helarno",
+                        "x": 26,
+                        "y": 26
+                    },
+                    {
+                        "name": "Lodestone",
+                        "x": 26,
+                        "y": 27
+                    },
+                    {
+                        "name": "Crystal of Restoration",
+                        "x": 27,
+                        "y": 7
+                    },
+                    {
+                        "name": "Sphere of Dislocation",
+                        "x": 27,
+                        "y": 8
+                    },
+                    {
+                        "name": "Helm of Brilliance",
+                        "x": 27,
+                        "y": 9
+                    },
+                    {
+                        "name": "FlameStone",
+                        "x": 27,
+                        "y": 25
+                    },
+                    {
+                        "name": "Cutlass",
+                        "x": 27,
+                        "y": 27
+                    }
+                ],
+                "triggeredTraps": [
+                ],
+                "unlockedDoors": [
+                ],
+                "visitedTiles": [
+                ]
+            }
         ]
     },
+    "DungeonX": 24,
+    "DungeonY": 9,
     "GameStates": [
         {
             "ActiveCharacterIndex": 0,
@@ -382,13 +937,13 @@
             }
         ],
         "PLUTTEN": "PLUTTEN",
-        "SharedGold": 0
+        "SharedGold": 1500
     },
-    "PlayerGold": 0,
+    "PlayerGold": 1500,
     "ResourcesLoaded": true,
     "SaveVersion": 1,
     "confinementStock": null,
     "currentLocation": 0,
     "currentMode": 0,
-    "lastSaved": "Sat Oct 10 09:02:49 2026"
+    "lastSaved": "Sat Oct 10 09:34:02 2026"
 }

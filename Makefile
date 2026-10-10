@@ -691,6 +691,7 @@ build/bin/blacklands:  $(OBJECTS)
 	
 	 $(COPY_DIR) /home/rickard/Documents/GitHub/depthofdejenol/data build/bin 
 	 $(COPY_DIR) /home/rickard/Documents/GitHub/depthofdejenol/resources build/bin 
+	 $(COPY_FILE) /home/rickard/Documents/GitHub/depthofdejenol/introtitle.png build/bin/introtitle.png 
 	 $(COPY_FILE) build/bin/blacklands /home/rickard/Documents/GitHub/depthofdejenol/blacklands
 
 Makefile: blacklands.pro /usr/lib/x86_64-linux-gnu/qt6/mkspecs/linux-g++/qmake.conf /usr/lib/x86_64-linux-gnu/qt6/mkspecs/features/spec_pre.prf \
@@ -1594,7 +1595,18 @@ build/obj/release/blacklands.o: blacklands.cpp blacklands.h \
 		src/helplesson/helplesson.h \
 		src/loadingscreen/LoadingScreen.h \
 		src/core/DungeonLevelState.h \
-		test/selftest.h
+		test/selftest.h \
+		src/dungeon_dialog/DungeonDialog.h \
+		src/partyinfo_dialog/partyinfodialog.h \
+		src/combat/CombatState.h \
+		src/combat/TurnEngine.h \
+		src/combat/CombatActions.h \
+		src/combat/MonsterAI.h \
+		src/combat/EncounterBuilder.h \
+		src/combat/VictoryReward.h \
+		src/combat/CombatDeathHandler.h \
+		src/core/DoorAndSearch.h \
+		src/dungeon_dialog/MiniMapDialog.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/blacklands.o blacklands.cpp
 
 build/obj/release/theCity.o: theCity.cpp theCity.h \

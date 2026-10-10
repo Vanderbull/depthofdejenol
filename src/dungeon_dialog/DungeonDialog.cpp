@@ -20,6 +20,7 @@
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QGridLayout>
+#include <QScrollArea>
 #include <QPushButton>
 #include <QLabel>
 #include <QListWidget>
@@ -820,13 +821,26 @@ DungeonDialog::DungeonDialog(QWidget *parent)
     rootLayout->addLayout(leftPanelLayout, 3);
 
     // --- Right Panel: fixed-width sidebar (info, party, minimap, controls) ---
-    QVBoxLayout *rightPanelLayout = new QVBoxLayout();
+    // The sidebar holds more content than fits at the dialog's minimum height
+    // (900x640). A plain QVBoxLayout crushes the widgets together — the action
+    // buttons end up overlapping by ~10px each. Wrap the content in a scroll
+    // area so widgets keep their real size and the panel scrolls instead.
     QWidget *rightPanel = new QWidget(this);
-    rightPanel->setLayout(rightPanelLayout);
-    rightPanel->setFixedWidth(320);
     rightPanel->setObjectName("dungeonSidebar");
+    rightPanel->setFixedWidth(320);
     rightPanel->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Expanding);
-    rootLayout->addWidget(rightPanel, 0);
+
+    QScrollArea *sidebarScroll = new QScrollArea(this);
+    sidebarScroll->setObjectName("dungeonSidebarScroll");
+    sidebarScroll->setWidget(rightPanel);
+    sidebarScroll->setWidgetResizable(true);
+    sidebarScroll->setFrameShape(QFrame::NoFrame);
+    sidebarScroll->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    sidebarScroll->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+    sidebarScroll->setFixedWidth(320);
+    rootLayout->addWidget(sidebarScroll, 0);
+
+    QVBoxLayout *rightPanelLayout = new QVBoxLayout(rightPanel);
     rightPanelLayout->setSpacing(15);
     // 1. Location and Compass
     QGroupBox *infoBox = new QGroupBox("Current Location");

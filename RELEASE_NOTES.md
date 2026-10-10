@@ -23,6 +23,66 @@ mid-development commits.
 
 ---
 
+# v1.0.1 — 2026-10-10 ✅ RELEASED
+
+**Patch — three defects found by actually playing the game.** No new features.
+
+## 1. Autosave silently failed after the first save
+
+`gameStateManager::saveFullGameState()` wrote to a `.tmp` file and then called
+`QFile::rename()`. Qt's `rename` **refuses to overwrite an existing destination**, and the
+periodic autosave targets the same path every 30 seconds — so the first save of a session
+succeeded and every later one failed, logging only `Failed to rename save file`. Progress
+was lost without any visible error.
+
+Fixed by switching to `QSaveFile`, which writes to a temporary file and atomically replaces
+the target on `commit()`. The existing test suite missed this because it deleted the save
+file at the end of each run; the new `[4b]` test saves three times in a row over the same
+file and asserts the latest write wins.
+
+## 2. Dungeon action buttons were crushed together
+
+The sidebar holds more content than fits at the dialog's declared minimum height (900x640).
+A plain `QVBoxLayout` resolved the shortfall by shrinking every child: the 14 action buttons
+(Fight, Spell, Rest, …) came out 32px tall on a 22px row pitch, so they **overlapped each
+other 13 times** and read as a single mashed pile. At the roomy default size (1280x800) it
+looked fine, which is why the original layout test missed it.
+
+Fixed by wrapping the sidebar content in a `QScrollArea`: widgets keep their natural size
+and the panel scrolls instead of compressing. Buttons also got an explicit
+`setMinimumSize(80, 32)`, 6px grid spacing, and equal column stretch so they form a tidy
+3-column grid.
+
+`[63b]` now asserts button geometry at **both** 1280x800 and 900x640, including pairwise
+overlap — 0 required. Reverting the scroll area makes it report 11 overlaps at 900x640.
+
+## 3. Main-menu background never loaded from `build/bin/`
+
+`GameMenu::loadBackgroundImage()` reads the background via `applicationDirPath()`. The
+1024x535 image sits at the repo root, which serves the root-level binary but not
+`build/bin/blacklands` — so the deployed binary logged
+`FATAL: Could not load background image` and painted a blank menu.
+
+Fixed in `blacklands.pro`: the post-link step now copies `introtitle.png` into `DESTDIR`
+alongside `data/` and `resources/`.
+
+> **Correction:** an earlier attempt "fixed" this by pointing the path at
+> `resources/images/introtitle.png`. That is a different, 400x100 placeholder sprite, and
+> the change broke the background for *both* binaries. The path was correct; the missing
+> file copy was the bug. Reverted.
+
+---
+
+## Verification
+
+- `make check` → **1140 passed, 0 failed**, orphaned-system guard PASS.
+- Non-vacuous: reverting the `QSaveFile` fix → `[4b]` reports 3 FAIL; reverting the
+  scroll area → `[63b]` reports 11 overlaps at 900x640.
+- Live: two consecutive autosaves both log `Full game state saved`; no
+  `Could not load background image` on startup; window title reads `Blacklands v1.0.0`.
+
+---
+
 # v0.1 — 2026-10-10 ✅ RELEASED
 
 **Phase 0 — security and latent breakage.** Small, independent fixes for real defects that

@@ -226,6 +226,11 @@ QMAKE_POST_LINK += $$escape_expand(\\n\\t) $(COPY_DIR) $$quote($$PWD/data) $$quo
 # in build/bin finds no artwork and every button/texture renders blank.
 QMAKE_POST_LINK += $$escape_expand(\\n\\t) $(COPY_DIR) $$quote($$PWD/resources) $$quote($$DESTDIR)
 
+# Copy the main-menu background to build/bin/. GameMenu::loadBackgroundImage()
+# reads it via applicationDirPath(), so the binary in build/bin needs its own
+# copy — the one at the repo root only serves the root-level binary.
+QMAKE_POST_LINK += $$escape_expand(\\n\\t) $(COPY_FILE) $$quote($$PWD/introtitle.png) $$quote($$DESTDIR/introtitle.png)
+
 # Copy final binary back to root for easy execution
 QMAKE_POST_LINK += $$escape_expand(\\n\\t) $(COPY_FILE) $$quote($$DESTDIR/$$TARGET) $$quote($$PWD/$$TARGET)
 
