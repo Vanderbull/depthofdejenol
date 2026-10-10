@@ -269,24 +269,23 @@ can add a manual note ✅ (pre-existing).
 
 ---
 
-### 2.13 Gold sinks wiring `S`
+### 2.13 Gold sinks wiring `S` — ✅ DONE
 
 **Why:** `GoldSinks` calculates costs for resurrection, identification, uncursing, guild
 leveling, rest, cure poison, cure blindness. But no UI charges these costs — everything is
 free.
 
-**Do:**
-- Resurrection at Morgue costs `GoldSinks::resurrectionCost(level, bodyInDungeon)`
-- Identification at General Store costs `GoldSinks::identificationCost()`
-- Uncurse at General Store costs `GoldSinks::uncurseCost()`
-- Guild leveling costs `GoldSinks::guildLevelCost(guild, level)`
-- Rest at Tavern costs `GoldSinks::restCostPerHour()` per member
-- Cure poison/blindness at Tavern costs the respective amounts
+**Done:**
+- `MorgueDialog::raiseCost(level, bodyInCity)` → `GoldSinks::resurrectionCost`; "Raise Character" checks funds, confirms the fee, deducts it
+- `TavernDialog::restCost(hours, living)` → `hours * GoldSinks::restCostPerHour() * living`
+- `TavernDialog::cureCost(poison, blindness)` → sums the two GoldSinks cure rates
+- `onRestClicked()` / `onCureClicked()` call those helpers
+- Already wired (verified): identify/uncurse at the General Store, guild leveling, Morgue rescue
 
-**Files:** `MorgueDialog.cpp`, `GeneralStore.cpp`, `GuildsDialog.cpp`, `TavernDialog.cpp`
+**Files:** `MorgueDialog.cpp/.h`, `TavernDialog.cpp/.h`
 
-**Verify:** resurrecting a level-5 character costs the right amount; identifying an item
-costs the right amount; guild leveling deducts gold.
+**Verify:** resurrecting a level-5 character costs 2500 (in town) ✅; identifying an item
+costs the right amount ✅; guild leveling deducts gold ✅.
 
 ---
 

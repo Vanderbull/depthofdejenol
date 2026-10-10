@@ -1,5 +1,6 @@
 #include "TavernDialog.h"
 #include "gameStateManager.h"
+#include "src/core/GoldSinks.h"
 #include "character.h"
 #include <QtWidgets>
 #include <QMessageBox>
@@ -107,12 +108,12 @@ void TavernDialog::onRestClicked() {
     auto *gsm = gameStateManager::instance();
     int hours = m_hoursSpin->value();
 
-    // Cost: 10 gold per hour per living member
+    // Cost: GoldSinks rate per hour per living member
     const auto& members = gsm->getPartyMembers();
     int livingCount = 0;
     for (const auto& c : members) if (c.isAlive) livingCount++;
 
-    int cost = hours * 10 * livingCount;
+    int cost = restCost(hours, livingCount);
     if (cost > gsm->getPartyGold()) {
         QMessageBox::warning(this, tr("Not Enough Gold"),
                              tr("Resting %1 hours costs %2 gold.").arg(hours).arg(cost));
@@ -147,9 +148,7 @@ void TavernDialog::onCureClicked() {
         return;
     }
 
-    int cost = 0;
-    if (curePoison) cost += 50;
-    if (cureBlind) cost += 50;
+    int cost = cureCost(curePoison, cureBlind);
 
     if (cost > gsm->getPartyGold()) {
         QMessageBox::warning(this, tr("Not Enough Gold"),
@@ -193,4 +192,16 @@ void TavernDialog::onAdvanceTimeClicked() {
 
 void TavernDialog::onExitClicked() {
     accept();
+}
+
+int TavernDialog::restCost(int hours, int livingMembers) {
+    if (hours <= 0 || livingMembers <= 0) return 0;
+    return hours * GoldSinks::restCostPerHour() * livingMembers;
+}
+
+int TavernDialog::cureCost(bool poison, bool blindness) {
+    int cost = 0;
+    if (poison) cost += GoldSinks::curePoisonCost();
+    if (blindness) cost += GoldSinks::cureBlindnessCost();
+    return cost;
 }

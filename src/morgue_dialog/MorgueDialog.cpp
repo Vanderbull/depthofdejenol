@@ -143,9 +143,14 @@ bool MorgueDialog::updateCharacterFile(const QString &fileName)
     return moveBodyToCityInFile(fileName);
 }
 
-int MorgueDialog::calculateRescueCost(int level) const { 
+int MorgueDialog::calculateRescueCost(int level) const {
     // Rescue cost scales superlinearly with depth (see DeathRecovery).
     return GoldSinks::rescueCost(level);
+}
+
+int MorgueDialog::raiseCost(int characterLevel, bool bodyInCity) {
+    // GoldSinks::resurrectionCost takes bodyInDungeon, which is the inverse.
+    return GoldSinks::resurrectionCost(characterLevel, !bodyInCity);
 }
 
 void MorgueDialog::onActionClicked()
@@ -212,6 +217,23 @@ void MorgueDialog::onActionClicked()
             QMessageBox::critical(this, tr("Error"), tr("%1 is not in the city!").arg(selected));
             return;
         }
+
+        // Raising the dead costs gold via GoldSinks; the body is in town here,
+        // so the cheaper in-city rate applies.
+        int level = gsm->getPC().at(0).level;
+        int raiseFee = raiseCost(level, true);
+        if (gsm->getPartyGold() < raiseFee) {
+            QMessageBox::warning(this, tr("Funds"),
+                tr("Raising %1 costs %2 gold (you have %3).")
+                    .arg(selected).arg(raiseFee).arg(gsm->getPartyGold()));
+            return;
+        }
+        if (QMessageBox::Yes != QMessageBox::question(this, tr("Raise"),
+                tr("Pay %1 gold to raise %2?").arg(raiseFee).arg(selected))) {
+            return;
+        }
+        gsm->spendPartyGold(raiseFee);
+
         if (updateCharacterFile(selected)) {
             QString nameOnly = selected;
             if (nameOnly.endsWith(".txt")) nameOnly.chop(4);

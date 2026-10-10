@@ -20,6 +20,11 @@ public:
     explicit TavernDialog(QWidget *parent = nullptr);
     ~TavernDialog() override;
 
+    // GoldSinks-backed pricing, shared with the self-tests. restCost is
+    // hours * rate * living members; cureCost sums the selected cures.
+    static int restCost(int hours, int livingMembers);
+    static int cureCost(bool poison, bool blindness);
+
 private slots:
     void onRestClicked();
     void onCureClicked();

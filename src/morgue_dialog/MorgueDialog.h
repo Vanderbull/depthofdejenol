@@ -36,6 +36,12 @@ private:
     
     int calculateRescueCost(int level) const;
 
+public:
+    // Raise cost for a body at a level, in town or still in the dungeon.
+    // GoldSinks is the single authority for the amount.
+    static int raiseCost(int characterLevel, bool bodyInCity);
+
+private:
     QLabel *m_welcomeLabel;
     QPushButton *m_raiseBtn;
     QPushButton *m_hireBtn;

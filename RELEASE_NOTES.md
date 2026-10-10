@@ -214,6 +214,20 @@ Also added `JournalDialog::allEntries()` and `clearAll()` so tests can read back
 
 **Tests:** 1297 + 3 passed, 0 failed.
 
+## Slice 2.13 — Gold sinks wiring
+
+**Problem:** `GoldSinks` is the single authority for every gold charge, but three call sites bypassed it: the Morgue's "Raise Character" was completely free, and the Tavern hard-coded `10` per hour and `50` per cure instead of reading the GoldSinks rates. (Identify/uncurse, guild leveling, rescue and rest already went through GoldSinks.)
+
+**Fix:**
+- `MorgueDialog::raiseCost(level, bodyInCity)` → `GoldSinks::resurrectionCost`; "Raise Character" now checks funds, confirms the fee, and deducts it before reviving
+- `TavernDialog::restCost(hours, livingMembers)` → `hours * GoldSinks::restCostPerHour() * living`
+- `TavernDialog::cureCost(poison, blindness)` → sums the two GoldSinks cure rates
+- Both `onRestClicked()` / `onCureClicked()` now call those helpers
+
+**Verified:** tests [120]-[123] — rest cost uses the GoldSinks rate and scales with members ✅; cure cost uses both GoldSinks rates ✅; morgue raise cost is 2500 in town / 3000 in the dungeon ✅; `DeathRecovery::resurrect` deducts exactly the cost and deducts nothing when gold is short ✅. Non-vacuous: changing the GoldSinks rest rate while the Tavern hard-codes the old value fails both rest-cost tests.
+
+**Tests:** 1316 + 3 passed, 0 failed.
+
 **Fixed along the way:** test [45] (the original journal test) asserted on absolute file contents; earlier tests now write real journal entries, so it clears the file first.
 
 ---

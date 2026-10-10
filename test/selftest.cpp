@@ -32,6 +32,8 @@
 #include "src/tutorial/Tutorial.h"
 #include "src/quest_board/QuestBoardDialog.h"
 #include "src/journal_dialog/JournalDialog.h"
+#include "src/tavern_dialog/TavernDialog.h"
+#include "src/morgue_dialog/MorgueDialog.h"
 #include "src/spell_casting/SpellBook.h"
 #include "src/partymanager/PartyManager.h"
 #include "src/library_dialog/BestiaryDialog.h"
@@ -7534,6 +7536,92 @@ int runSelfTest()
             if (e.category == "Combat" && e.text.contains("reached level")) found = true;
         }
         check(found, "level-up wrote a journal entry");
+    }
+
+    // ------------------------------------------- v2.0.0 — slice 2.13: gold sinks wiring
+    section("[120] v2.0.0 slice 2.13: tavern rest cost comes from GoldSinks");
+    {
+        // 3 hours for 2 living members, priced at GoldSinks::restCostPerHour().
+        const int rate = GoldSinks::restCostPerHour();
+        check(TavernDialog::restCost(3, 2) == 3 * rate * 2,
+              "rest cost = hours * GoldSinks rate * living members",
+              QString::number(TavernDialog::restCost(3, 2)));
+
+        // The rate must actually flow through: 2h for 5 members is a clean
+        // multiple that a stale literal would miss unless it equals the rate.
+        check(TavernDialog::restCost(2, 5) == 10 * rate,
+              "rest cost scales with members",
+              QString::number(TavernDialog::restCost(2, 5)));
+
+        // Dead members don't pay.
+        check(TavernDialog::restCost(3, 0) == 0, "no living members, no cost");
+        check(TavernDialog::restCost(0, 4) == 0, "zero hours, no cost");
+    }
+
+    section("[121] v2.0.0 slice 2.13: tavern cure cost comes from GoldSinks");
+    {
+        check(TavernDialog::cureCost(true, false) == GoldSinks::curePoisonCost(),
+              "poison cure uses GoldSinks rate");
+        check(TavernDialog::cureCost(false, true) == GoldSinks::cureBlindnessCost(),
+              "blindness cure uses GoldSinks rate");
+        check(TavernDialog::cureCost(true, true)
+                  == GoldSinks::curePoisonCost() + GoldSinks::cureBlindnessCost(),
+              "both cures sum the two GoldSinks rates");
+        check(TavernDialog::cureCost(false, false) == 0, "nothing selected, no cost");
+    }
+
+    section("[122] v2.0.0 slice 2.13: morgue raise cost comes from GoldSinks");
+    {
+        // Concrete amounts: a level-5 body in town is 5 * 500; still in the
+        // dungeon adds the 500 rescue fee.
+        check(MorgueDialog::raiseCost(5, true) == 2500,
+              "level 5 body in city costs 2500",
+              QString::number(MorgueDialog::raiseCost(5, true)));
+        check(MorgueDialog::raiseCost(5, false) == 3000,
+              "level 5 body in dungeon costs 3000",
+              QString::number(MorgueDialog::raiseCost(5, false)));
+        check(MorgueDialog::raiseCost(5, true) == GoldSinks::resurrectionCost(5, false),
+              "body in city matches resurrectionCost(level, false)");
+        check(MorgueDialog::raiseCost(5, false) == GoldSinks::resurrectionCost(5, true),
+              "body in dungeon matches resurrectionCost(level, true)");
+        check(MorgueDialog::raiseCost(5, false) > MorgueDialog::raiseCost(5, true),
+              "raising from the dungeon costs more");
+    }
+
+    section("[123] v2.0.0 slice 2.13: DeathRecovery::resurrect deducts gold");
+    {
+        Character dead;
+        dead.name = "Fallen Hero";
+        dead.level = 4;
+        dead.isAlive = false;
+
+        BodyLocation loc;
+        loc.valid = true;
+        loc.inCity = true;
+
+        const int cost = GoldSinks::resurrectionCost(4, false);
+        int gold = cost + 100;
+        QString reason;
+
+        bool ok = DeathRecovery::resurrect(dead, loc, gold, reason);
+        check(ok, "resurrection succeeds with enough gold");
+        check(dead.isAlive, "character is alive again");
+        check(gold == 100, "exactly the resurrection cost was deducted",
+              QString::number(gold));
+
+        // Not enough gold: nothing happens.
+        Character dead2;
+        dead2.name = "Broke Hero";
+        dead2.level = 4;
+        dead2.isAlive = false;
+        BodyLocation loc2;
+        loc2.valid = true;
+        loc2.inCity = true;
+        int poorGold = 1;
+        check(!DeathRecovery::resurrect(dead2, loc2, poorGold, reason),
+              "resurrection fails when gold is short");
+        check(!dead2.isAlive, "character stays dead");
+        check(poorGold == 1, "no gold deducted on failure");
     }
 
     // -------------------------------------------------------------- cleanup
