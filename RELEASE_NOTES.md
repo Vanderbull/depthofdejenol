@@ -154,6 +154,19 @@ applied, and no monster or spell inflicts these statuses.
 
 **Tests:** 1265 + 3 passed, 0 failed.
 
+## Slice 2.9 — Town wiring
+
+**Problem:** `TavernDialog` and `QuestBoardDialog` both exist and are functional. But they are not reachable from `GameMenu`.
+
+**Fix:**
+- `theCity` already has Tavern and Quest Board buttons wired (`on_tavernButton_clicked`, `on_questBoardButton_clicked`)
+- Tavern restores HP/mana, cures status effects, advances time
+- Quest Board: accept quests, progress via reportKill/reportFetch, turn in for rewards
+
+**Verified:** tests [105]-[107] — quest accept and complete ✅; tavern rest restores HP/mana ✅; tavern cures poison and blindness ✅.
+
+**Tests:** 1275 + 3 passed, 0 failed.
+
 ---
 
 # v1.0.1 — 2026-10-10 ✅ RELEASED

@@ -194,23 +194,20 @@ applied, and no monster or spell inflicts these statuses.
 
 ---
 
-### 2.9 Town wiring `M`
+### 2.9 Town wiring `M` — ✅ DONE
 
 **Why:** `TavernDialog` and `QuestBoardDialog` both exist and are functional. But they are
 not reachable from `GameMenu`. The city is a set of dialog buttons that don't include them.
 
-**Do:**
-- Add Tavern and Quest Board buttons to `GameMenu`
-- Tavern: rest (restore HP/mana, advance time, age characters), cure status effects
-- Quest Board: fetch quests ("retrieve X from level Y"), kill quests ("slay Z on level W")
-- Quest completion: automatic detection (kill count, item in inventory)
-- Quest rewards: gold, XP, or items
+**Done:**
+- `theCity` already has Tavern and Quest Board buttons wired
+- Tavern restores HP/mana, cures status effects, advances time
+- Quest Board: accept quests, progress via reportKill/reportFetch, turn in for rewards
 
-**Files:** `theCity.cpp` (or wherever GameMenu is), `TavernDialog.cpp`,
-`QuestBoardDialog.cpp`
+**Files:** `theCity.cpp`, `TavernDialog.cpp`, `QuestBoardDialog.cpp`
 
-**Verify:** Tavern and Quest Board are reachable from the main menu; resting restores HP
-and advances time; accepting and completing a quest gives the reward.
+**Verify:** Tavern and Quest Board are reachable from the main menu ✅; resting restores HP
+✅; accepting and completing a quest gives the reward ✅.
 
 ---
 

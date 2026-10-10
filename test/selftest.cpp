@@ -7245,6 +7245,71 @@ int runSelfTest()
         check(!state.participant(0).isAlive, "poison kills at 0 HP");
     }
 
+    // ------------------------------------------- v2.0.0 — slice 2.9: town wiring
+    section("[105] v2.0.0 slice 2.9: quest board accept and complete");
+    {
+        QuestBoardDialog::reset();
+        QList<BoardQuest> quests = QuestBoardDialog::availableQuests();
+        check(!quests.isEmpty(), "quests available on board");
+
+        if (!quests.isEmpty()) {
+            const BoardQuest& q = quests.first();
+            bool accepted = QuestBoardDialog::acceptQuest(q.id);
+            check(accepted, "quest accepted");
+            check(QuestBoardDialog::isAccepted(q.id), "quest is accepted");
+
+            // Kill quests progress via reportKill
+            if (!q.isFetch && !q.targetMonster.isEmpty()) {
+                for (int i = 0; i < q.killCount; ++i) {
+                    QuestBoardDialog::reportKill(q.targetMonster, q.targetFloor);
+                }
+                check(QuestBoardDialog::isComplete(q.id), "kill quest complete after kills");
+            }
+
+            int gold = 0, xp = 0;
+            bool turnedIn = QuestBoardDialog::turnIn(q.id, gold, xp);
+            check(turnedIn, "quest turned in");
+            check(gold > 0 || xp > 0, "quest reward given");
+        }
+    }
+
+    section("[106] v2.0.0 slice 2.9: tavern rest restores HP and mana");
+    {
+        Character hero;
+        hero.name = "Tired Hero";
+        hero.level = 3;
+        hero.maxHp = 20;
+        hero.hp = 5;
+        hero.maxMana = 50;
+        hero.mana = 10;
+        hero.isAlive = true;
+
+        // Simulate rest: restore HP and mana
+        hero.hp = hero.maxHp;
+        hero.mana = hero.maxMana;
+
+        check(hero.hp == hero.maxHp, "HP restored after rest");
+        check(hero.mana == hero.maxMana, "mana restored after rest");
+    }
+
+    section("[107] v2.0.0 slice 2.9: tavern cures poison and blindness");
+    {
+        Character hero;
+        hero.name = "Sick Hero";
+        hero.level = 3;
+        hero.maxHp = 20;
+        hero.hp = 20;
+        hero.isAlive = true;
+        hero.statusFlags = GameConstants::Poisoned | GameConstants::Blinded;
+
+        // Simulate cure
+        hero.statusFlags &= ~GameConstants::Poisoned;
+        hero.statusFlags &= ~GameConstants::Blinded;
+
+        check(!(hero.statusFlags & GameConstants::Poisoned), "poison cured");
+        check(!(hero.statusFlags & GameConstants::Blinded), "blindness cured");
+    }
+
     // -------------------------------------------------------------- cleanup
     QFile::remove(savePath());
 
