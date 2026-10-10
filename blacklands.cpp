@@ -320,6 +320,26 @@ int main(int argc, char *argv[]) {
         return 0;
     }
 
+    // Menu probe: build the real GameMenu and report whether its background
+    // pixmap loaded. Verifies the introtitle.png copy into DESTDIR.
+    if (a.arguments().contains("--probe-menu")) {
+        GameMenu w;
+        w.resize(1280, 800);
+        w.show();
+        for (int i = 0; i < 40; ++i) QApplication::processEvents();
+        const QString p = QDir::cleanPath(qApp->applicationDirPath() + "/introtitle.png");
+        QPixmap probe;
+        qInfo() << "=== MENU PROBE ===";
+        qInfo() << "applicationDirPath:" << qApp->applicationDirPath();
+        qInfo() << "introtitle path:" << p << "exists:" << QFile::exists(p);
+        qInfo() << "loads as pixmap:" << probe.load(p)
+                << "size:" << probe.size();
+        w.grab().save("/tmp/menu_probe.png");
+        qInfo() << "saved grab to /tmp/menu_probe.png";
+        qInfo() << "=== END PROBE ===";
+        return 0;
+    }
+
     // Initial sequence
     LoadingScreen loadingScreen; 
     loadingScreen.exec(); 
