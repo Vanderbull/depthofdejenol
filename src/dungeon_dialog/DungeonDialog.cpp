@@ -1579,6 +1579,15 @@ void DungeonDialog::handleVictory()
     gsm->addExperienceToParty(xp);
     gsm->addPartyGold(gold);
 
+    // Award guild experience to living party members
+    for (int i = 0; i < gsm->getParty().members.size(); ++i) {
+        Character& member = gsm->getPartyMember(i);
+        if (!member.isAlive) continue;
+        for (auto it = member.guildLevels.constBegin(); it != member.guildLevels.constEnd(); ++it) {
+            member.addGuildExperience(it.key(), xp);
+        }
+    }
+
     // Report kill to the quest board so kill-quests progress.
     QuestBoardDialog::reportKill(m_combatMonsterName, level);
 

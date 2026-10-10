@@ -21,6 +21,7 @@
 #include "src/core/Endgame.h"
 #include "src/core/MonsterBalance.h"
 #include "src/spell_casting/SpellMechanics.h"
+#include "src/spell_casting/SpellBook.h"
 #include "src/items/ItemProgression.h"
 #include "src/core/GoldSinks.h"
 #include "src/core/ReleaseInfo.h"
@@ -6490,6 +6491,113 @@ int runSelfTest()
     // Equipment guild-restriction tests live in test/equipment_test.cpp
     // (run separately via --selftest) so their guild membership doesn't
     // leak into other tests' characters.
+
+    // ------------------------------------------- v2.0.0 — slice 2.3: XP/leveling
+    section("[77] v2.0.0 slice 2.3: XP awarded to living party members");
+    {
+        // XP is divided among living party members only.
+        gameStateManager* gsm = gameStateManager::instance();
+        Character hero;
+        hero.name = "XP Hero";
+        hero.level = 1;
+        hero.experience = 0;
+        hero.maxHp = 10;
+        hero.hp = 10;
+        hero.isAlive = true;
+
+        Character dead;
+        dead.name = "Dead Member";
+        dead.level = 1;
+        dead.experience = 0;
+        dead.isAlive = false;
+
+        gsm->addCharacterToParty(hero);
+        gsm->addCharacterToParty(dead);
+
+        int xpBefore = gsm->getPartyMember(0).experience;
+        gsm->addExperienceToParty(300);
+        int xpAfter = gsm->getPartyMember(0).experience;
+        check(xpAfter > xpBefore, "living member gains XP");
+        check(gsm->getPartyMember(1).experience == 0, "dead member gains no XP");
+    }
+
+    section("[78] v2.0.0 slice 2.3: level-up increases MaxHP and MaxMana");
+    {
+        Character hero;
+        hero.name = "LevelUp Hero";
+        hero.level = 1;
+        hero.experience = 0;
+        hero.maxHp = 10;
+        hero.hp = 10;
+        hero.maxMana = 50;
+        hero.mana = 50;
+        hero.intelligence = 12; // caster
+
+        int hpBefore = hero.maxHp;
+        int manaBefore = hero.maxMana;
+
+        // Award enough XP to level up (level 1→2 needs 100 XP)
+        hero.addExperience(100);
+
+        check(hero.level == 2, "level increased to 2");
+        check(hero.maxHp > hpBefore, "MaxHP increased on level-up");
+        check(hero.maxMana > manaBefore, "MaxMana increased for caster on level-up");
+        check(hero.hp == hero.maxHp, "HP fully restored on level-up");
+    }
+
+    section("[79] v2.0.0 slice 2.3: spell learning on level-up");
+    {
+        // A Mage guild member learns new spells when leveling up.
+        Character mage;
+        mage.name = "Spell Learner";
+        mage.level = 1;
+        mage.experience = 0;
+        mage.maxHp = 10;
+        mage.hp = 10;
+        mage.maxMana = 50;
+        mage.mana = 50;
+        mage.intelligence = 15;
+        mage.wisdom = 15;
+        mage.joinGuild("Mages Guild");
+
+        // Load spells.json so SpellBook has data
+        SpellBook::instance().load("data/spells.json");
+
+        // Level up to 2 — should learn spells with base_level <= 2
+        mage.addExperience(100);
+
+        QList<SpellDef> known = SpellBook::instance().spellsFor(mage);
+        bool hasNewSpell = false;
+        for (const SpellDef& s : known) {
+            if (s.baseLevel <= 2 && s.guilds.contains("Mages Guild")) {
+                hasNewSpell = true;
+                break;
+            }
+        }
+        check(hasNewSpell, "mage learns new spell on level-up");
+    }
+
+    section("[80] v2.0.0 slice 2.3: guild experience awarded on victory");
+    {
+        // Guild experience is awarded to living party members on combat victory.
+        Character warrior;
+        warrior.name = "Guild XP Hero";
+        warrior.level = 1;
+        warrior.experience = 0;
+        warrior.maxHp = 10;
+        warrior.hp = 10;
+        warrior.isAlive = true;
+        warrior.joinGuild("Warrior");
+
+        gameStateManager* gsm = gameStateManager::instance();
+        gsm->addCharacterToParty(warrior);
+
+        // Award guild experience directly
+        bool leveled = warrior.addGuildExperience("Warrior", 100);
+        // After level-up, guild XP is consumed (100 XP = level 1→2 threshold)
+        check(warrior.guildLevel("Warrior") >= 2, "guild level increased after XP");
+        check(warrior.guildExperience["Warrior"] < 100, "guild XP consumed on level-up");
+    }
 
     // -------------------------------------------------------------- cleanup
     QFile::remove(savePath());

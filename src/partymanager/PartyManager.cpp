@@ -1,6 +1,7 @@
 #include "PartyManager.h"
 #include "src/core/SoundEffects.h"
 #include "src/core/LevelTable.h"
+#include "src/spell_casting/SpellBook.h"
 #include <QRandomGenerator>
 
 // The constructor must match the header's signature
@@ -63,14 +64,35 @@ void PartyManager::addExperienceToCharacter(int index, int amount) {
 
 void PartyManager::applyLevelUpGains(Character& c) {
     SoundEffects::instance()->play(SoundEffects::Type::LevelUp);
-    // HP gain: 2-6 per level
+
+    // Base HP gain: 2-6 per level
     int hpGain = 2 + QRandomGenerator::global()->bounded(5);
+
+    // Guild-based HP bonuses: Warriors and Paladins get extra HP
+    if (c.guildLevel("Warrior") > 0 || c.guildLevel("Paladin") > 0) {
+        hpGain += 2;
+    }
+    // Mages and Wizards get less HP but more mana
+    if (c.guildLevel("Mage") > 0 || c.guildLevel("Wizard") > 0) {
+        hpGain = qMax(1, hpGain - 1);
+    }
+
     c.maxHp += hpGain;
     c.hp = c.maxHp;  // Full heal on level up
 
     // Mana gain for casters (Intelligence or Wisdom based)
     if (c.intelligence >= 10 || c.wisdom >= 10) {
         int manaGain = 1 + QRandomGenerator::global()->bounded(4);
+
+        // Guild-based mana bonuses: Mages and Wizards get extra mana
+        if (c.guildLevel("Mage") > 0 || c.guildLevel("Wizard") > 0) {
+            manaGain += 2;
+        }
+        // Healers get bonus mana from Wisdom
+        if (c.guildLevel("Healer") > 0) {
+            manaGain += 1;
+        }
+
         c.maxMana += manaGain;
         c.mana = c.maxMana;  // Full restore on level up
     }
@@ -85,6 +107,27 @@ void PartyManager::applyLevelUpGains(Character& c) {
         case 3: c.constitution++; break;
         case 4: c.charisma++; break;
         case 5: c.dexterity++; break;
+        }
+    }
+
+    // Guild-based stat bonuses: Warriors get +1 STR, Mages get +1 INT
+    if (c.guildLevel("Warrior") > 0 && c.level % 3 == 0) {
+        c.strength++;
+    }
+    if (c.guildLevel("Mage") > 0 && c.level % 3 == 0) {
+        c.intelligence++;
+    }
+
+    // Spell learning: check each guild the character belongs to for newly
+    // available spells at the new level.
+    if (SpellBook::instance().isLoaded()) {
+        for (auto it = c.guildLevels.constBegin(); it != c.guildLevels.constEnd(); ++it) {
+            const QString& guildName = it.key();
+            int guildLvl = it.value();
+            QList<SpellDef> newSpells = SpellBook::instance().newlyLearned(c, guildName, guildLvl);
+            for (const SpellDef& s : newSpells) {
+                qDebug() << c.name << "learned" << s.name << "from" << guildName;
+            }
         }
     }
 }

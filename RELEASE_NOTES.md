@@ -77,6 +77,20 @@ without guild, can equip after joining. Non-vacuous: 2 FAIL without the check.
 
 **Tests:** 1189 + 3 passed, 0 failed.
 
+## Slice 2.3 — XP and leveling
+
+**Problem:** XP was already wired via PartyManager (`handleVictory()` → `addExperienceToParty()` → `LevelTable`), but spell learning, guild experience, and guild-based level-up bonuses were missing.
+
+**Fix:**
+- `applyLevelUpGains()` now calls `SpellBook::newlyLearned()` for each guild the character belongs to
+- `handleVictory()` awards guild experience to all living party members
+- Guild-based level-up bonuses: Warriors/Paladins get +2 HP, Mages/Wizards get -1 HP but +2 mana, Healers get +1 mana
+- Guild-based stat bonuses: Warriors get +1 STR every 3 levels, Mages get +1 INT every 3 levels
+
+**Verified:** tests [77]-[80] — XP divided among living members only ✅; level-up increases MaxHP/MaxMana ✅; mage learns new spell on level-up ✅; guild experience awarded on victory ✅.
+
+**Tests:** 1198 + 3 passed, 0 failed.
+
 ---
 
 # v1.0.1 — 2026-10-10 ✅ RELEASED

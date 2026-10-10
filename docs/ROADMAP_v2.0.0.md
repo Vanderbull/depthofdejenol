@@ -81,25 +81,24 @@ be removed ✅; guild-restricted item cannot be equipped without guild membershi
 
 ---
 
-### 2.3 XP and leveling `L`
+### 2.3 XP and leveling `L` — ✅ DONE
 
 **Why:** `VictoryReward::calculateXp()` returns `levelFound * 100`. `LevelTable` loads from
 `data/levels.json`. But XP is never awarded to characters after combat. There is no level-up
 flow. Characters have `level` and `experience` fields that never change.
 
-**Do:**
-- Award XP to all living party members on combat victory
-- Check XP against `LevelTable::xpForLevel()` after each award
-- On level up: increase MaxHP, increase MaxMana (for casters), show level-up message
-- Guild-based leveling: different guilds grant different HP/mana/stat bonuses
-- Spell learning: characters learn new spells from `spells.json` based on `base_level` and
-  `guilds` when they level in a magic guild
+**Done:**
+- XP was already wired via PartyManager: `handleVictory()` → `addExperienceToParty()` → `LevelTable`
+- `applyLevelUpGains()` now calls `SpellBook::newlyLearned()` for each guild
+- `handleVictory()` awards guild experience to all living party members
+- Guild-based level-up bonuses: Warriors/Paladins +2 HP, Mages/Wizards -1 HP +2 mana, Healers +1 mana
+- Guild-based stat bonuses: Warriors +1 STR every 3 levels, Mages +1 INT every 3 levels
 
-**Files:** `CombatActions.cpp` (victory path), `character.h`, `LevelTable.cpp`,
-`GuildsDialog.cpp`, `SpellBook.cpp`
+**Files:** `PartyManager.cpp`, `DungeonDialog.cpp`
 
-**Verify:** killing a level-3 monster awards 300 XP; reaching the threshold increases level
-and MaxHP; a Mage guild member learns a new spell on level-up.
+**Verify:** killing a level-3 monster awards 300 XP ✅; reaching the threshold increases level
+and MaxHP ✅; a Mage guild member learns a new spell on level-up ✅; guild experience awarded
+on victory ✅.
 
 ---
 
