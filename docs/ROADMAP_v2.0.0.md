@@ -228,21 +228,21 @@ removes the cursed flag ✅.
 
 ---
 
-### 2.11 Bestiary auto-population `S`
+### 2.11 Bestiary auto-population `S` — ✅ DONE
 
 **Why:** `BestiaryDialog` loads from `bestiary.json` (401 monsters). But it never
 auto-populates from encounters — the player sees all monsters from the start, or none.
 
-**Do:**
-- Track which monsters the player has encountered
-- Show only encountered monsters in the bestiary
-- Show monster stats (HP, Att, Def, level found) for encountered monsters
-- Show "???" for unencountered monsters
+**Done:**
+- `recordEncounter()` / `isEncountered()` / `encounteredCount()` / `resetEncounters()` / `displayName()` on `BestiaryDialog`
+- `handleEncounters()` records the monster when the party steps on its tile
+- The list shows "???" (grey) for unmet monsters, with no tooltip stats
+- `showEntry()` shows no portrait and no numbers for unmet monsters
 
-**Files:** `BestiaryDialog.cpp`, `DungeonDialog.cpp` (encounter path)
+**Files:** `BestiaryDialog.cpp`, `DungeonHandlers.cpp`
 
-**Verify:** bestiary is empty at game start; encountering a monster adds it; stats are
-shown for encountered monsters.
+**Verify:** bestiary is empty at game start ✅; encountering a monster adds it ✅; stats are
+shown for encountered monsters ✅.
 
 ---
 

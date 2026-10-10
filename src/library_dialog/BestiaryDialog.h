@@ -38,6 +38,15 @@ public:
     // Resolved image path for an entry ("" when it has no picture).
     static QString imagePath(const QVariantMap& entry);
 
+    // Encounter tracking: the bestiary only reveals a monster once the party
+    // has actually met it. Shared by the dialog and the self-tests.
+    static void recordEncounter(const QString& name);
+    static bool isEncountered(const QString& name);
+    static int encounteredCount();
+    static void resetEncounters();
+    // What the list shows for this monster: its name, or "???" if unmet.
+    static QString displayName(const QString& name);
+
 private slots:
     void onMonsterSelected(QListWidgetItem *item);
     void onFilterChanged(int index);

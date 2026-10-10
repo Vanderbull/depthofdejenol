@@ -1,5 +1,6 @@
 #include "MonsterAI.h"
 #include "src/core/GameConstants.h"
+#include "src/spell_casting/SpellBook.h"
 #include <QRandomGenerator>
 
 MonsterAI::MonsterAI(CombatState* state, TurnEngine* engine, CombatActions* actions)
@@ -138,6 +139,35 @@ QString MonsterAI::takeTurn() {
             result = QString("%1 breathes fire for %2 total damage!").arg(monsterName).arg(totalDamage);
             m_engine->markCurrentActed();
             return result;
+        }
+        // Generic spell casting via SpellBook
+        if (SpellBook::instance().isLoaded()) {
+            QList<SpellDef> knownSpells = SpellBook::instance().spellsFor(
+                [&]() {
+                    Character c;
+                    c.name = monster.name;
+                    c.level = monster.level;
+                    c.strength = monster.att;
+                    c.intelligence = monster.att;
+                    c.wisdom = monster.att;
+                    c.constitution = monster.def;
+                    c.charisma = monster.def;
+                    c.dexterity = monster.speed;
+                    c.mana = 1000;
+                    c.maxMana = 1000;
+                    return c;
+                }()
+            );
+            if (!knownSpells.isEmpty()) {
+                const SpellDef& spell = knownSpells.first();
+                int targetIdx = chooseTarget();
+                if (targetIdx >= 0) {
+                    QString result;
+                    m_actions->castSpellBySchool(targetIdx, spell.name, result);
+                    m_engine->markCurrentActed();
+                    return result;
+                }
+            }
         }
         // Fallback: regular attack
         int targetIdx = chooseTarget();

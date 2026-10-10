@@ -7,6 +7,7 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QPixmap>
+#include <QSet>
 
 namespace {
 
@@ -137,6 +138,40 @@ QVariantMap BestiaryDialog::entry(const QString& name) {
     return {};
 }
 
+// ------------------------------------------------------- encounter tracking
+//
+// The party has to actually meet a monster before the bestiary describes it.
+// The set lives here rather than in the dialog so it survives the dialog being
+// closed and reopened, and so the self-tests can drive it directly.
+
+namespace {
+QSet<QString>& encounteredSet()
+{
+    static QSet<QString> s;
+    return s;
+}
+} // namespace
+
+void BestiaryDialog::recordEncounter(const QString& name) {
+    if (!name.isEmpty()) encounteredSet().insert(name);
+}
+
+bool BestiaryDialog::isEncountered(const QString& name) {
+    return encounteredSet().contains(name);
+}
+
+int BestiaryDialog::encounteredCount() {
+    return encounteredSet().size();
+}
+
+void BestiaryDialog::resetEncounters() {
+    encounteredSet().clear();
+}
+
+QString BestiaryDialog::displayName(const QString& name) {
+    return isEncountered(name) ? name : QStringLiteral("???");
+}
+
 QString BestiaryDialog::imagePath(const QVariantMap& entry) {
     const QString rel = entry.value("image").toString();
     if (rel.isEmpty()) return {};
@@ -246,10 +281,16 @@ void BestiaryDialog::refreshList() {
             }
         }
 
-        auto *item = new QListWidgetItem(name, m_monsterList);
-        item->setToolTip(QStringLiteral("%1 — floor %2")
-                             .arg(m.value("category").toString())
-                             .arg(floor));
+        // Unmet monsters stay anonymous in the list; the tooltip gives no
+        // stats away either.
+        const bool met = isEncountered(name);
+        auto *item = new QListWidgetItem(met ? name : QStringLiteral("???"), m_monsterList);
+        item->setData(Qt::UserRole, name);
+        item->setToolTip(met ? QStringLiteral("%1 — floor %2")
+                                   .arg(m.value("category").toString())
+                                   .arg(floor)
+                             : tr("Not yet encountered"));
+        if (!met) item->setForeground(QColor(120, 120, 120));
         ++count;
     }
 
@@ -265,7 +306,10 @@ void BestiaryDialog::refreshList() {
 
 void BestiaryDialog::onMonsterSelected(QListWidgetItem *item) {
     if (!item) return;
-    showEntry(item->text());
+    // The visible text is "???" for unmet monsters; the real name rides in
+    // UserRole so showEntry() can still find the data.
+    const QString name = item->data(Qt::UserRole).toString();
+    showEntry(name.isEmpty() ? item->text() : name);
 }
 
 void BestiaryDialog::showEntry(const QString& name) {
@@ -273,6 +317,18 @@ void BestiaryDialog::showEntry(const QString& name) {
     if (m.isEmpty()) {
         m_imageLabel->clear();
         m_descriptionText->setHtml(tr("No data available."));
+        return;
+    }
+
+    // Unmet monster: no portrait, no numbers — the entry stays a mystery
+    // until the party has actually met it.
+    if (!isEncountered(name)) {
+        m_imageLabel->setPixmap(QPixmap());
+        m_imageLabel->setText(tr("???"));
+        m_descriptionText->setHtml(
+            QStringLiteral("<h2>???</h2><p>%1</p>")
+                .arg(tr("You have not yet encountered this creature. "
+                        "Its entry in the bestiary remains a mystery.")));
         return;
     }
 

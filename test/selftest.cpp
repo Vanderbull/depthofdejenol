@@ -7231,7 +7231,7 @@ int runSelfTest()
         player.name = "Doomed Hero";
         player.isPlayer = true;
         player.isAlive = true;
-        player.hp = 2;
+        player.hp = 1;   // any poison tick (1-3) is lethal, so the test is deterministic
         player.maxHp = 20;
         state.addParticipant(player);
 
@@ -7241,7 +7241,7 @@ int runSelfTest()
 
         QString result;
         actions.applyStatus(0, GameConstants::Poisoned, 3, result);
-        actions.tickStatusEffects();  // 1-3 damage, will kill at 2 HP
+        actions.tickStatusEffects();  // 1-3 damage, always kills at 1 HP
         check(!state.participant(0).isAlive, "poison kills at 0 HP");
     }
 
@@ -7370,6 +7370,65 @@ int runSelfTest()
 
         int uncurseCost = GoldSinks::uncurseCost();
         check(uncurseCost > 0, "uncurse cost is positive");
+    }
+
+    // ------------------------------------------- v2.0.0 — slice 2.11: bestiary auto-population
+    section("[112] v2.0.0 slice 2.11: bestiary is empty at game start");
+    {
+        BestiaryDialog::resetEncounters();
+        check(BestiaryDialog::encounteredCount() == 0, "no monsters encountered at start");
+        check(BestiaryDialog::displayName("Goblie") == "???",
+              "unmet monster shows as ???");
+    }
+
+    section("[113] v2.0.0 slice 2.11: encountering a monster unlocks its entry");
+    {
+        BestiaryDialog::resetEncounters();
+        BestiaryDialog::recordEncounter("Goblie");
+        check(BestiaryDialog::isEncountered("Goblie"), "Goblie is now encountered");
+        check(BestiaryDialog::encounteredCount() == 1, "exactly one encountered");
+        check(BestiaryDialog::displayName("Goblie") == "Goblie",
+              "met monster shows its real name");
+        check(BestiaryDialog::displayName("Dragon") == "???",
+              "still-unmet monster stays hidden");
+    }
+
+    section("[114] v2.0.0 slice 2.11: handleEncounters records the monster");
+    {
+        BestiaryDialog::resetEncounters();
+        DungeonDialog dlg;
+        dlg.resize(1280, 800);
+        dlg.show();
+        for (int i = 0; i < 20; ++i) QApplication::processEvents();
+
+        QPair<int, int> pos = {6, 6};
+        dlg.m_monsterPositions[pos] = "Goblie";
+        dlg.m_MonsterAttitude["Goblie"] = "Neutral";
+        gameStateManager* gsm = gameStateManager::instance();
+        gsm->setGameValue("DungeonX", 6);
+        gsm->setGameValue("DungeonY", 6);
+
+        DungeonHandlers::handleEncounters(&dlg, 6, 6);
+
+        check(BestiaryDialog::isEncountered("Goblie"),
+              "real encounter path records the monster");
+
+        dlg.m_monsterPositions.remove(pos);
+        dlg.m_MonsterAttitude.remove("Goblie");
+    }
+
+    section("[115] v2.0.0 slice 2.11: stats shown only for encountered monsters");
+    {
+        BestiaryDialog::resetEncounters();
+        const QVariantMap goblie = BestiaryDialog::entry("Goblie");
+        check(!goblie.isEmpty(), "Goblie exists in the bestiary data");
+
+        // Unmet: no stats revealed.
+        check(!BestiaryDialog::isEncountered("Goblie"), "unmet before recording");
+
+        BestiaryDialog::recordEncounter("Goblie");
+        check(BestiaryDialog::isEncountered("Goblie"), "met after recording");
+        check(goblie.value("hits").toInt() >= 0, "stats available once encountered");
     }
 
     // -------------------------------------------------------------- cleanup

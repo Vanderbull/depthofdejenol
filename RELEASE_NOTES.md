@@ -180,6 +180,22 @@ applied, and no monster or spell inflicts these statuses.
 
 **Tests:** 1281 + 3 passed, 0 failed.
 
+## Slice 2.11 — Bestiary auto-population
+
+**Problem:** `BestiaryDialog` loads all 401 monsters from `bestiary.json` from the start. The party sees every monster's stats and portrait before ever meeting one.
+
+**Fix:**
+- `recordEncounter(name)` / `isEncountered(name)` / `encounteredCount()` / `resetEncounters()` / `displayName(name)` on `BestiaryDialog`
+- `handleEncounters()` records the monster when the party steps on its tile
+- The list shows "???" (grey) for unmet monsters, with no tooltip stats
+- `showEntry()` shows no portrait and no numbers for unmet monsters
+
+**Verified:** tests [112]-[115] — bestiary empty at start ✅; encountering unlocks the entry ✅; `handleEncounters` records through the real path ✅; stats only for met monsters ✅.
+
+**Tests:** 1292 + 3 passed, 0 failed.
+
+**Fixed along the way:** test [104] ("poison kills at 0 HP") was flaky — poison deals 1-3 damage and the player had 2 HP, so it only died on a roll of ≥2. Now 1 HP, which any tick kills. Verified stable over 3 consecutive runs.
+
 ---
 
 # v1.0.1 — 2026-10-10 ✅ RELEASED

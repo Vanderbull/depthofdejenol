@@ -3,6 +3,7 @@
 #include "../../gameStateManager.h"
 #include "src/core/SoundEffects.h"
 #include "src/core/DoorAndSearch.h"
+#include "src/library_dialog/BestiaryDialog.h"
 
 void DungeonHandlers::handlePit(DungeonDialog* dialog, int x, int y)
 {
@@ -133,6 +134,9 @@ void DungeonHandlers::handleEncounters(DungeonDialog* dialog, int x, int y)
         QString monster = dialog->m_monsterPositions.value(pos);
         QString attitude = dialog->m_MonsterAttitude.value(monster, "Hostile");
         dialog->logMessage(QString("You encounter a **%1**! It looks **%2**.").arg(monster).arg(attitude));
+
+        // Meeting a monster is what unlocks its bestiary entry.
+        BestiaryDialog::recordEncounter(monster);
 
         // Start combat automatically when stepping onto a hostile monster.
         // Neutral and friendly monsters do not trigger combat.
