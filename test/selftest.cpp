@@ -6797,6 +6797,283 @@ int runSelfTest()
         check(bodies[0].inCity, "body is in town after bringing");
     }
 
+    // ------------------------------------------- v2.0.0 — slice 2.6: dungeon persistence
+    section("[90] v2.0.0 slice 2.6: LevelSnapshot serializes and deserializes");
+    {
+        LevelSnapshot snap;
+        snap.level = 3;
+        snap.generated = true;
+        snap.monsterPositions.insert(qMakePair(1, 2), "Goblin");
+        snap.treasurePositions.insert(qMakePair(3, 4), "Iron Sword");
+        snap.openedChests.insert(qMakePair(5, 6));
+        snap.visitedTiles.insert(qMakePair(7, 8));
+        snap.stairsUp = qMakePair(9, 10);
+        snap.stairsDown = qMakePair(11, 12);
+        snap.bossDefeated = true;
+        snap.torchTurnsRemaining = 42;
+        snap.lightRadius = 3;
+        snap.collectedTorches.append("Torch");
+        snap.triggeredTraps.insert(qMakePair(13, 14));
+        snap.trapPositions.insert(qMakePair(15, 16), "Spike");
+
+        QVariantMap map = snap.toMap();
+        LevelSnapshot restored;
+        restored.loadFromMap(map);
+
+        check(restored.level == 3, "level preserved");
+        check(restored.generated, "generated flag preserved");
+        check(restored.monsterPositions.size() == 1, "monster positions preserved");
+        check(restored.treasurePositions.size() == 1, "treasure positions preserved");
+        check(restored.openedChests.size() == 1, "opened chests preserved");
+        check(restored.visitedTiles.size() == 1, "visited tiles preserved");
+        check(restored.stairsUp == qMakePair(9, 10), "stairs up preserved");
+        check(restored.stairsDown == qMakePair(11, 12), "stairs down preserved");
+        check(restored.bossDefeated, "boss defeated preserved");
+        check(restored.torchTurnsRemaining == 42, "torch turns preserved");
+        check(restored.lightRadius == 3, "light radius preserved");
+        check(restored.collectedTorches.size() == 1, "collected torches preserved");
+        check(restored.triggeredTraps.size() == 1, "triggered traps preserved");
+        check(restored.trapPositions.size() == 1, "trap positions preserved");
+    }
+
+    section("[91] v2.0.0 slice 2.6: DungeonLevelRegistry stores and retrieves levels");
+    {
+        DungeonLevelRegistry& registry = DungeonLevelRegistry::instance();
+        registry.clear();
+
+        LevelSnapshot snap;
+        snap.level = 5;
+        snap.generated = true;
+        snap.monsterPositions.insert(qMakePair(1, 1), "Orc");
+        registry.store(snap);
+
+        check(registry.hasLevel(5), "level 5 exists after store");
+        check(registry.count() == 1, "registry has 1 level");
+
+        const LevelSnapshot* retrieved = registry.level(5);
+        check(retrieved != nullptr, "level 5 retrieved");
+        check(retrieved->monsterPositions.size() == 1, "monster positions preserved");
+    }
+
+    section("[92] v2.0.0 slice 2.6: respawnMonsters adds monsters back");
+    {
+        DungeonLevelRegistry& registry = DungeonLevelRegistry::instance();
+        registry.clear();
+
+        LevelSnapshot snap;
+        snap.level = 7;
+        snap.generated = true;
+        snap.monsterPositions.insert(qMakePair(1, 1), "Goblin");
+        registry.store(snap);
+
+        QStringList pool;
+        pool << "Goblin" << "Orc" << "Troll";
+
+        QRandomGenerator rng(42);
+        int respawned = registry.respawnMonsters(7, 0.5, 10, rng, pool);
+        check(respawned > 0, "monsters respawned");
+        check(registry.level(7)->monsterPositions.size() > 1, "monster count increased");
+    }
+
+    section("[93] v2.0.0 slice 2.6: respawnMonsters skips when no pool");
+    {
+        DungeonLevelRegistry& registry = DungeonLevelRegistry::instance();
+        registry.clear();
+
+        LevelSnapshot snap;
+        snap.level = 9;
+        snap.generated = true;
+        snap.monsterPositions.insert(qMakePair(1, 1), "Goblin");
+        registry.store(snap);
+
+        QRandomGenerator rng(42);
+        int respawned = registry.respawnMonsters(9, 0.5, 10, rng, {});
+        check(respawned == 0, "no respawn with empty pool");
+    }
+
+    section("[94] v2.0.0 slice 2.6: registry serializes to map and back");
+    {
+        DungeonLevelRegistry& registry = DungeonLevelRegistry::instance();
+        registry.clear();
+
+        LevelSnapshot snap;
+        snap.level = 11;
+        snap.generated = true;
+        snap.monsterPositions.insert(qMakePair(2, 3), "Skeleton");
+        snap.bossDefeated = true;
+        registry.store(snap);
+
+        QVariantMap map = registry.toMap();
+        check(map.contains("levels"), "map contains levels");
+
+        DungeonLevelRegistry& registry2 = DungeonLevelRegistry::instance();
+        registry2.clear();
+        registry2.loadFromMap(map);
+
+        check(registry2.hasLevel(11), "level 11 restored from map");
+        check(registry2.level(11)->bossDefeated, "boss defeated restored");
+        check(registry2.level(11)->monsterPositions.size() == 1, "monsters restored");
+    }
+
+    // ------------------------------------------- v2.0.0 — slice 2.7: monster spells
+    section("[95] v2.0.0 slice 2.7: monster spellcaster casts via CombatActions");
+    {
+        // A spell-capable monster casts a spell through CombatActions.
+        CombatState state;
+        CombatParticipant monster;
+        monster.name = "Dark Mage";
+        monster.isPlayer = false;
+        monster.isAlive = true;
+        monster.hp = 30;
+        monster.maxHp = 30;
+        monster.canCastSpells = true;
+        monster.level = 3;
+        state.addParticipant(monster);
+
+        CombatParticipant player;
+        player.name = "Hero";
+        player.isPlayer = true;
+        player.isAlive = true;
+        player.hp = 20;
+        player.maxHp = 20;
+        state.addParticipant(player);
+
+        TurnEngine engine;
+        CombatActions actions(&state, &engine);
+
+        // Load spells so SpellBook has data
+        SpellBook::instance().load("data/spells.json");
+
+        // Cast a fire spell at the player
+        QString result;
+        int damage = actions.applySpellDamageBySchool(1, "Flame Bolt", 8, result);
+        check(damage > 0, "monster spell deals damage");
+        check(state.participant(1).hp < 20, "player HP reduced after spell");
+    }
+
+    section("[96] v2.0.0 slice 2.7: monster AI decides to cast spell");
+    {
+        // MonsterAI returns CastSpell decision for spellcasters.
+        CombatState state;
+        CombatParticipant monster;
+        monster.name = "Spellcaster";
+        monster.isPlayer = false;
+        monster.isAlive = true;
+        monster.hp = 30;
+        monster.maxHp = 30;
+        monster.canCastSpells = true;
+        monster.level = 1;
+        state.addParticipant(monster);
+
+        CombatParticipant player;
+        player.name = "Hero";
+        player.isPlayer = true;
+        player.isAlive = true;
+        player.hp = 20;
+        player.maxHp = 20;
+        state.addParticipant(player);
+
+        TurnEngine engine;
+        engine.setCombatState(&state);
+        CombatActions actions(&state, &engine);
+        MonsterAI ai(&state, &engine, &actions);
+
+        // Start a round and advance to the monster's turn
+        state.rollInitiative();
+        engine.startRound();
+        // Advance until it's the monster's turn (initiative order is random)
+        for (int i = 0; i < 10 && !ai.isMonsterTurn(); ++i) {
+            engine.nextTurn();
+        }
+
+        // Force the AI to decide — with canCastSpells and full HP,
+        // it should sometimes choose CastSpell (40% chance)
+        bool sawCastSpell = false;
+        for (int i = 0; i < 50; ++i) {
+            MonsterAI::Decision d = ai.decide();
+            if (d == MonsterAI::Decision::CastSpell) {
+                sawCastSpell = true;
+                break;
+            }
+        }
+        check(sawCastSpell, "monster AI chooses CastSpell for spellcaster");
+    }
+
+    section("[97] v2.0.0 slice 2.7: monster AI flees when critically wounded");
+    {
+        // MonsterAI returns Flee decision when HP is critically low.
+        CombatState state;
+        CombatParticipant monster;
+        monster.name = "Coward";
+        monster.isPlayer = false;
+        monster.isAlive = true;
+        monster.hp = 2;
+        monster.maxHp = 30;
+        monster.canCastSpells = false;
+        monster.level = 1;
+        state.addParticipant(monster);
+
+        CombatParticipant player;
+        player.name = "Hero";
+        player.isPlayer = true;
+        player.isAlive = true;
+        player.hp = 20;
+        player.maxHp = 20;
+        state.addParticipant(player);
+
+        TurnEngine engine;
+        engine.setCombatState(&state);
+        CombatActions actions(&state, &engine);
+        MonsterAI ai(&state, &engine, &actions);
+
+        // Start a round and advance to the monster's turn
+        state.rollInitiative();
+        engine.startRound();
+        // Advance until it's the monster's turn (initiative order is random)
+        for (int i = 0; i < 10 && !ai.isMonsterTurn(); ++i) {
+            engine.nextTurn();
+        }
+
+        MonsterAI::Decision d = ai.decide();
+        check(d == MonsterAI::Decision::Flee, "monster flees when critically wounded");
+    }
+
+    section("[98] v2.0.0 slice 2.7: boss never flees");
+    {
+        // Bosses (level >= 5) always attack, never flee.
+        CombatState state;
+        CombatParticipant boss;
+        boss.name = "Dragon";
+        boss.isPlayer = false;
+        boss.isAlive = true;
+        boss.hp = 5;
+        boss.maxHp = 100;
+        boss.canCastSpells = false;
+        boss.level = 10;
+        state.addParticipant(boss);
+
+        CombatParticipant player;
+        player.name = "Hero";
+        player.isPlayer = true;
+        player.isAlive = true;
+        player.hp = 20;
+        player.maxHp = 20;
+        state.addParticipant(player);
+
+        TurnEngine engine;
+        engine.setCombatState(&state);
+        CombatActions actions(&state, &engine);
+        MonsterAI ai(&state, &engine, &actions);
+
+        // Start a round and advance to the monster's turn
+        state.rollInitiative();
+        engine.startRound();
+        engine.nextTurn();
+
+        MonsterAI::Decision d = ai.decide();
+        check(d != MonsterAI::Decision::Flee, "boss never flees");
+    }
+
     // -------------------------------------------------------------- cleanup
     QFile::remove(savePath());
 
