@@ -30,7 +30,7 @@ were already in the tree. Scope: `docs/ROADMAP_v0.1.md`.
 
 **Test suite before:** 954 passed, 0 failed.
 **Test suite after:** 983 passed, 0 failed.
-**Commit:** `35cc244`
+**Commits:** `35cc244` (Phase 0), `051e478` (versioning + docs)
 
 ---
 

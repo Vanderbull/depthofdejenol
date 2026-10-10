@@ -810,6 +810,7 @@ The eight-phase build that created the game's systems.
 The security and latent breakage pass.
 
 - `35cc244` — Phase 0 (v0.1): security hardening + backlog of completed work
+- `051e478` — v0.1: semantic versioning, per-version roadmaps, complete history
 
 This commit includes:
 - Lua RCE fix (sandbox + JSON dispatch)
