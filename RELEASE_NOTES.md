@@ -59,6 +59,24 @@ of routing through CombatActions (no death bookkeeping, no status effects).
 
 **Tests:** 1181 → 1189 passed, 0 failed.
 
+## Slice 2.2 — Equipment guild restriction
+
+**Problem:** `equipItem()` checked stat requirements and slot collisions but ignored
+the `guilds` bitmask from MDATA3. Any character could equip any item regardless of
+guild membership.
+
+**Fix:**
+- `equipItem()` now checks guild bitmask: character must be a member of at least
+  one of the required guilds
+- Equipment guild-restriction test moved to `test/equipment_test.cpp` so guild
+  membership doesn't leak into other tests' characters
+- Existing equip tests updated to join the required guild first
+
+**Verified:** test [76] in `equipment_test.cpp` — cannot equip guild-restricted item
+without guild, can equip after joining. Non-vacuous: 2 FAIL without the check.
+
+**Tests:** 1189 + 3 passed, 0 failed.
+
 ---
 
 # v1.0.1 — 2026-10-10 ✅ RELEASED

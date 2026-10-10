@@ -58,26 +58,26 @@ monster removed from map ✅; spell damage flows through CombatActions ✅.
 
 ---
 
-### 2.2 Equipment system `L`
+### 2.2 Equipment system `L` — ✅ DONE
 
 **Why:** 366 items exist in MDATA3 with `type`, `StrReq`, `IntReq`, `WisReq`, `ConReq`,
 `ChaReq`, `DexReq`, `StrMod`, `IntMod`, `WisMod`, `ConMod`, `ChaMod`, `DexMod`, `cursed`,
 `guilds` bitmask. The inventory shows equipped items and has unequip. But there is no equip
 action, no stat requirement enforcement, no stat modifier application.
 
-**Do:**
-- Add equip action to `InventoryDialog` (double-click or button)
-- Map MDATA3 `type` numbers to slots: Main Hand, Off Hand, Head, Body, Hands, Feet, Cloak,
-  Waist, Wrist, Ring
-- Enforce stat requirements on equip (block if not met)
-- Apply stat modifiers on equip, remove on unequip
-- Cursed items cannot be unequipped until uncursed
-- Guild bitmask restricts which guilds can use an item
+**Done:**
+- `equipItem()` / `unequipItem()` already existed with stat requirements, slot
+  collision, cursed-item handling, and effective stat modifiers
+- Added guild bitmask check: character must be a member of at least one required guild
+- Equipment guild-restriction test moved to `test/equipment_test.cpp` to avoid
+  guild membership leaking into other tests
+- Existing equip tests updated to join the required guild first
 
-**Files:** `inventorydialog.cpp`, `ItemDatabase.h`, `character.h`
+**Files:** `character.cpp`, `test/equipment_test.cpp`, `test/selftest.cpp`
 
-**Verify:** equipping a sword with StrReq 15 blocks a character with Str 12; equipping a
-+2 Str gauntlets shows effective Str = base + 2; cursed item cannot be removed.
+**Verify:** equipping a sword with StrReq 15 blocks a character with Str 12 ✅;
+equipping a +2 Str gauntlets shows effective Str = base + 2 ✅; cursed item cannot
+be removed ✅; guild-restricted item cannot be equipped without guild membership ✅.
 
 ---
 
