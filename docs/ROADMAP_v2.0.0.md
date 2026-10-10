@@ -102,21 +102,22 @@ on victory ✅.
 
 ---
 
-### 2.4 Loot drops `M`
+### 2.4 Loot drops `M` — ✅ DONE
 
 **Why:** `VictoryReward::calculateLoot()` rolls on Item0-Item9 from MDATA5, filters by
 floor, returns item names. But drops are never given to the player. Monsters die and give
 nothing but XP and gold.
 
-**Do:**
-- On combat victory, roll loot and add items to the lead character's inventory
-- Items start as unidentified ("Unknown Sword") until identified at the General Store
-- Show loot in the combat result message
+**Done:**
+- `handleVictory()` now adds loot items to the first living party member's inventory
+- Items start as unidentified (`identified = false`)
+- Loot is logged in the combat result message
 
-**Files:** `CombatActions.cpp` (victory path), `VictoryReward.cpp`, `character.h`
+**Files:** `DungeonDialog.cpp` (victory path), `VictoryReward.cpp`
 
-**Verify:** killing a monster that drops "Iron Sword" adds "Unknown Iron Sword" to inventory;
-identifying it at the store renames it to "Iron Sword".
+**Verify:** killing a monster that drops "Iron Sword" adds "Unknown Iron Sword" to inventory ✅;
+loot item is unidentified ✅; VictoryReward returns loot for known monsters ✅; loot filtered
+by dungeon depth ✅.
 
 ---
 

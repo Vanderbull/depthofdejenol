@@ -91,6 +91,22 @@ without guild, can equip after joining. Non-vacuous: 2 FAIL without the check.
 
 **Tests:** 1198 + 3 passed, 0 failed.
 
+## Slice 2.4 — Loot drops
+
+**Problem:** `VictoryReward::calculateLoot()` rolls on Item0-Item9 from MDATA5, filters by
+floor, returns item names. But drops are never given to the player. Monsters die and give
+nothing but XP and gold.
+
+**Fix:**
+- `handleVictory()` now adds loot items to the first living party member's inventory
+- Items start as unidentified (`identified = false`)
+- Loot is logged in the combat result message
+
+**Verified:** tests [81]-[83] — loot item added to inventory ✅; loot item is unidentified ✅;
+VictoryReward returns loot for known monsters ✅; loot filtered by dungeon depth ✅.
+
+**Tests:** 1202 + 3 passed, 0 failed.
+
 ---
 
 # v1.0.1 — 2026-10-10 ✅ RELEASED

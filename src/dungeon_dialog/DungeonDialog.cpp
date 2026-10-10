@@ -1592,8 +1592,23 @@ void DungeonDialog::handleVictory()
     QuestBoardDialog::reportKill(m_combatMonsterName, level);
 
     logMessage(QString("<font color='gold'>🏆 Victory! Gained %1 XP and %2 gold.</font>").arg(xp).arg(gold));
-    for (const QString& item : loot) {
-        logMessage(QString("<font color='gold'>💰 Loot: %1</font>").arg(item));
+
+    // Add loot items to the first living party member's inventory
+    for (const QString& itemName : loot) {
+        HeldItem lootItem;
+        lootItem.name = itemName;
+        lootItem.identified = false;  // dungeon loot starts unidentified
+        if (const ItemDef* def = ItemDatabase::instance().byName(itemName)) {
+            lootItem.M4E97 = static_cast<int16_t>(def->id);
+        }
+        // Find first living party member
+        for (int i = 0; i < gsm->getParty().members.size(); ++i) {
+            if (gsm->getPartyMember(i).isAlive) {
+                gsm->addItemToCharacter(i, lootItem);
+                logMessage(QString("<font color='gold'>💰 Loot: %1 (unidentified)</font>").arg(itemName));
+                break;
+            }
+        }
     }
 
     // Remove monster from map
