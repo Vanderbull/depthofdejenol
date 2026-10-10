@@ -1,18 +1,19 @@
-# BlackLands — Roadmap (versioned)
+# BlackLands — Roadmap (SUPERSEDED)
 
-> **Version scheme (2026-10-10):** each phase is a release, committed at its boundary.
+> **This file is kept for git history only.** The active roadmaps are now per-version:
 >
-> | Phase | Version | Content |
-> |---|---|---|
-> | Phase 0 | **v1.0.0** | Security and latent breakage (✅ done) |
-> | Phase 1 | **v1.0.1** | Connect the orphaned systems |
-> | Phase 2 | **v1.0.2** | Combat reachability and depth |
-> | Phase 3 | **v1.0.3** | Debt and hygiene |
+> - [docs/ROADMAP_v0.1.md](ROADMAP_v0.1.md) — Security and latent breakage (✅ done)
+> - [docs/ROADMAP_v1.0.0.md](ROADMAP_v1.0.0.md) — Connect the orphaned systems (next)
+> - [docs/ROADMAP_v1.1.0.md](ROADMAP_v1.1.0.md) — Combat reachability and depth
+> - [docs/ROADMAP_v1.1.1.md](ROADMAP_v1.1.1.md) — Debt and hygiene
 >
-> This file keeps its original filename (`ROADMAP_V1.1.md`) because the git history and
-> release notes reference it; the top of this file is the current plan.
+> See [docs/VERSIONING.md](VERSIONING.md) for the version scheme and release process.
 
-The v1.0 release built the systems. v1.0.1 **connects them to the game**. The audit below
+---
+
+## Original audit (2026-10-10)
+
+The v0.0 release built the systems. v1.0.0 **connects them to the game**. The audit below
 found that large parts of Phases 3–8 of that build exist as pure, tested logic that
 **nothing calls** — the tests pass because they test the classes directly, not because the
 player can reach them.
@@ -175,7 +176,7 @@ Generated `version.h` reads `FULL_VERSION = "v642"`.
 
 ---
 
-## Phase 1 (v1.0.1) — Connect the orphaned systems
+## Phase 1 (v1.0.0) — Connect the orphaned systems
 
 The heart of this release. Each slice wires one tested-but-unreachable class into the game.
 Landing all seven is what makes the game completable, not just assembled.
@@ -282,7 +283,7 @@ chains, per the `SpellMechanics` tests.
 
 ---
 
-## Phase 2 (v1.0.2) — Combat reachability and depth
+## Phase 2 (v1.1.0) — Combat reachability and depth
 
 ### 2.1 Start combat from the encounter, not the button `M`
 **Why:** stepping onto a monster only logs a line (`handleEncounters`). Combat begins only
@@ -340,7 +341,7 @@ with combat state.
 
 ---
 
-## Phase 3 (v1.0.3) — Debt and hygiene
+## Phase 3 (v1.1.1) — Debt and hygiene
 
 ### 3.1 `initializeParty()` dead code and emit spam `S`
 FIXLIST #4. Remove the commented lines and hoist the `emit` out of the loop (4 signals → 1).

@@ -5,25 +5,32 @@ Format: what changed, why it mattered, and how it was verified.
 
 ## Version scheme (agreed 2026-10-10)
 
-| Phase | Version | Content |
-|---|---|---|
-| Phase 0 | **v1.0.0** | Security and latent breakage |
-| Phase 1 | **v1.0.1** | Connect the orphaned systems |
-| Phase 2 | **v1.0.2** | Combat reachability and depth |
-| Phase 3 | **v1.0.3** | Debt and hygiene |
+Semantic versioning with game-studio conventions:
+
+- **Major (X.0.0)** — first version that can be played start to finish, or a fundamental rework of the game's character.
+- **Minor (X.Y.0)** — new features, mechanics, areas; backwards-compatible.
+- **Patch (X.Y.Z)** — bug fixes, balance, text, polish; no new features.
+
+| Phase | Version | Level | Content |
+|---|---|---|---|
+| Phase 0 | **v0.1** | Pre-release | Security and latent breakage |
+| Phase 1 | **v1.0.0** | Major | Connect the orphaned systems — makes the game finishable |
+| Phase 2 | **v1.1.0** | Minor | Combat reachability and depth |
+| Phase 3 | **v1.1.1** | Patch | Debt and hygiene |
 
 One commit per version boundary. Each phase lands as a release, not as a batch of
 mid-development commits.
 
 ---
 
-# v1.0.0 — 2026-10-10
+# v0.1 — 2026-10-10 ✅ RELEASED
 
 **Phase 0 — security and latent breakage.** Small, independent fixes for real defects that
-were already in the tree. Scope: `docs/ROADMAP_V1.1.md`.
+were already in the tree. Scope: `docs/ROADMAP_v0.1.md`.
 
 **Test suite before:** 954 passed, 0 failed.
 **Test suite after:** 983 passed, 0 failed.
+**Commit:** `35cc244`
 
 ---
 
@@ -168,7 +175,7 @@ integer after stripping an optional `v`, and carries at most one `v`. Generated
 
 ---
 
-# v1.0.0 — 2026-10-07 (game systems)
+# v0.0 — 2026-10-07 (game systems)
 
 The release that built the game's systems: eight phases covering items, equipment, combat,
 progression, dungeon depth, death, the endgame, the town, and balance.
@@ -204,4 +211,4 @@ Notable commits:
 | `3543ead` | Phase 8: balance and release |
 | `04ba939` | Phase 7: town and quality of life |
 | `0dc6a83` | Phase 5-6: death and consequences, win condition and endgame |
-| (uncommitted) | Phase 0: security and latent breakage — see `v1.0.0` above |
+| `35cc244` | v0.1: security and latent breakage (Phase 0) |

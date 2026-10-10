@@ -1,0 +1,837 @@
+# BlackLands — Complete Development History
+
+This document traces the entire development history of the project, from the initial commit
+to the present. It is organized by era and theme, with every significant commit accounted for.
+
+---
+
+## Era 1: Foundation (2025-10-30 → 2025-12)
+
+The project began as a C++ Qt6 roguelike inspired by Dungeon Master / Eye of the Beholder.
+
+### Initial commits
+- `68e8e5a` — Initial commit
+- `d511085` — Add files via upload
+- `0d719ad` — Inventory dialog
+- `8fac271` — Add drop function
+- `f6a8bbf` — Add equip functionality
+- `0a8c059` — Item list
+- `ebc8e06` — Improved inventory
+
+### Data and assets
+- `a547ec4` — Add wav and mdr files
+- `ab5ece8` — Doing some data readers
+- `9565a6f` — Error checking added to data loader
+- `01b9971` — Restructure files
+- `db0cfd8` — Small update
+- `2b69e33` — Improved character creation
+- `51b24f8` — Improve character create
+- `6a1772d` — Improve character creation
+- `4ea2d3f` — Character sheet
+- `92d97a9` — Spellbook
+- `93cd37f` — About and Monster editor
+- `0409383` — Map editor
+- `f10ec52` — Updated map editor
+- `63f870a` — Create races.json
+- `de48628` — Create guilds.json
+- `7ee7dcd` — Added location description
+
+### City and UI
+- `1b8fb1b` — City view
+- `b763014` — Missing gamemenu code
+- `015b39f` — The city dialog
+- `f3ddf15` — Update TheCity
+- `43f719b` — Added City dialogs
+- `762e63e` — Added Bank to city
+- `b9142f2` — Basic menu switch
+- `dd435cd` — Added some data to confinement
+- `4456079` — Update .gitignore
+- `08296f1` — Update .gitignore
+- `1f56ce6` — Cleanup
+- `3ffb157` — Improved creator
+- `bb76e60` — Load character dropdown
+- `0dcb398` — New graphics
+- `8a3311c` — Update game_menu.pro
+- `db2737a` — Organizing
+- `64fa017` — Update
+- `1e931eb` — Character convert update
+- `31771dc` — Update GeneralStore
+- `de01fe1` — Withdraw and Deposit
+- `78b6785` — Working TradeDialog
+- `a7ac7e8` — Created dungeon converter
+- `31dedff` — Map and enums
+- `6179d15` — Game resources
+- `7fe35f7` — Resource loading improved
+- `45f94b9` — Updating resources
+- `7560e1b` — Updated resources
+- `c2c1963` — Cleanup level resources
+- `4a2669b` — Updated resources
+- `325528d` — Updated morgue
+- `d634a37` — Update README.md
+- `af3b05f` — Restructure
+- `2423166` — Merge branch 'main'
+- `bcd9d8f` — Restructure
+- `6d302df` — Restructure
+- `a5eb7e7` — Rename traps_identification.txt
+- `c3bf511` — Add trap calculations utility functions
+- `b620124` — Party info improvement
+- `3b6af4a` — Merge branch 'main'
+- `bc380ad` — Cleanup
+- `7c9570a` — Button update
+- `9ab2c98` — Minor update general store
+- `d53645f` — Dungeon logic
+- `0efc8c0` — Improved
+- `e0ad303` — Inventory call added
+- `a9c930d` — Revert "inventory call added"
+- `74b5c33` — Added party info dialog to dungeon
+- `07415e4` — Restructuring
+- `8d6d6fd` — Update README.md
+- `7f5fd61` — Add EventManager class for game event handling
+- `1cf53c8` — Add events JSON file with dungeon and bank events
+- `d6cbcd6` — Include EventManager in DungeonDialog.cpp
+- `1acbad7` — Implement event handling in DungeonDialog
+- `98c8677` — Update .gitignore
+- `e3587fd` — Event system
+- `b239ed2` — Added map obstacles
+- `0d35591` — Dynamic gold
+- `07cef18` — Stairs added to map
+- `a8240ec` — Changed resolution in dungeon
+- `082ea39` — Added all known tile types
+- `6f6e82d` — New monster images
+- `d793fe8` — Adding gamestate
+- `2b6b647` — Merge branch 'main'
+- `8be3763` — Update dungeon
+- `f6f710b` — Added gamestate to game_menu
+- `1668fef` — Gamestate update
+- `db6ac29` — Gamestate improvement
+- `bdfd8b7` — Updated main menu
+- `0faf01c` — Add library to guild
+- `77fcf4a` — Basic level up
+- `4292fd5` — Reacquaint works
+- `86c3fb2` — Exp info implemented
+- `03edabe` — Added guild log
+- `642fd59` — Basic visit function
+- `31d7456` — Seer update
+- `cc02017` — Added some checks
+- `63449d0` — Some new images
+- `fdcb892` — Start gold
+- `0b6b64fc` — Update TheCity.h
+- `e13de68` — Update game_menu.h
+- `323181a` — Update game_menu.cpp
+- `bf80dca` — Update game_menu.cpp
+- `27a5553` — Update AboutDialog.cpp
+- `ad2c2aa` — Update AboutDialog.h
+- `cfa16b3` — Update compasswidget.h
+- `0eed31b` — Update optionsdialog.h
+- `570e9c0` — Update helplesson.cpp
+- `c620ba5` — Update helplesson.cpp
+- `56499fe` — Minor helplesson improvements
+- `2f042cb` — Update characterlistdialog.cpp
+- `e34174e` — Update characterlistdialog.h
+- `b16d54e` — feat(ui): Implement Confinement & Holding Dialog UI
+- `3d8cbfc` — fix(ui): Populate buy fields; use QRegularExpression
+- `a6f9b28` — Feature: Implement purchase transaction logic for Buy
+- `0b928a0` — Refactor CharacterDialog to utilize GameStateManager for dynamic data
+- `b08b96f` — Update signals for gamestate changes
+- `25d02db` — Refactor GameStateManager to use thread-safe Magic Static Singleton
+- `971fbad` — Loading title animation
+- `1842213` — Added external style file
+- `49ca2ad` — Update README.md
+- `073e03b` — Update README.md
+- `732f3b7` — Update LoadingScreen.cpp
+- `cf4f7af` — Update README.md
+- `a598b95` — New design and name
+- `50b994b` — Updated style
+- `af2eb93` — Cleanup
+- `105f8ff` — Refactor itemconverter to use Qt command line parsing
+- `14a9125` — New CSV tool
+- `efcd2a6` — Added rotate buttons
+- `090b87a` — Fix: rotate
+- `bf7a453` — Movement fixed
+- `9b9ec4c` — ASDW and QE added for movement
+- `433c6e3` — Arrow shaped character icon
+- `96ff686` — Feature: fog of war
+- `c0a563f` — Update GameStateManager.cpp
+- `d4751c3` — Update GameStateManager.cpp
+- `fd648e0` — Minor update
+- `b95fcc9` — Resistance placeholder
+- `a526982` — Added buffer tab
+- `0df6e82` — Update createcharacterdialog.h
+- `d482714` — Update GameStateManager.h
+- `ea79bba` — Refactor: centralize stat definitions in GameStateManager
+- `016414a` — Refactor: move statpoints to gamestate
+- `1cb3767` — Minor change
+- `391e094` — Update minimap images
+- `c1ce821` — feat(dungeon): implement Antimagic Field tiles and mechanics
+- `f38877f` — feat: add random extinguisher tiles to remove fire status
+- `5c3e56d` — Separated minimap draw function
+- `51edd75` — Added breadcrumb trail
+- `091140a` — Fix breadcrumb
+- `0229e8d` — Feat: Predictable levels
+- `2f63a70` — Cleanup
+- `735e92a` — State switch
+- `a41a65e` — Fixed all tiles
+- `7ded844` — Merge branch 'main'
+- `ef92e4e` — Implement persistent creature stock and dungeon exit trigger
+- `2bf6bb5` — feat: Load monster data from CSV at startup
+- `0db46d6` — feat: Load monster and item CSV data into GameStateManager
+- `b3ff1be` — Feat: Capture logic
+- `d39026f` — Fix: Confinement add monster
+- `d3fa5e7` — Update TheCity.cpp
+- `fbcc312` — Feat: load spell data
+- `ee629f9` — Feat: party update
+- `82019bf` — feat: spelldata loaded
+- `dd35092` — Added some gamedata
+- `e57be77` — Prepare for gamedata
+- `7d63da6` — Merge pull request #33 from Vanderbull/development
+- `2990309` — Partly added gamedata
+- `c45d967` — Update GameStateManager.cpp
+- `3294509` — Update GameStateManager.h
+- `63ef9a7` — Update GameStateManager.cpp
+- `7a2d2df` — Update GameStateManager.h
+- `74691c1` — Update GameStateManager.h
+- `1ca2dab` — Update GameStateManager.h
+- `639d404` — Update GameStateManager.cpp
+- `9115d21` — Update GameStateManager.cpp
+- `edc8876` — Update GameStateManager.cpp
+- `a278a9d` — Update GameStateManager.cpp
+- `fd2cd23` — Update GuildsDialog.cpp
+- `f4c01c4` — Prep: Added new load function
+- `f9ccfcc` — Loading gamedata
+- `63ac56f` — Update loadgamedata
+- `cf4e443` — Update
+- `2531761` — Fix: nested objets
+- `b2ebc24` — Quick fix modeless
+- `9f3f556` — Update BankDialog.cpp
+- `53c4df5` — Fix: writing data to file
+- `5fa7575` — Fix: characterconverter
+- `ded363b` — Fix: updated characterconverter
+- `560a52b` — Fix: characterconverter
+- `2fbecbe` — Update README.md
+- `f2fa832` — Tome images added
+- `97d1a90` — Merge branch 'main'
+- `714d96e` — Image reorg
+- `c6abefc` — Fix: made the automap its own dialog
+- `0c5db99` — Fix: movement with automap
+- `f4793cc` — Fix: starting location on levels
+- `47a669f` — Fix: automap going up and down location
+- `8fd828e` — Better map generation
+- `d7bdae1` — Comment out old map
+- `a75b005` — Feature: StoryLine intro
+- `1cc8209` — GitHub compile error
+- `4f5f532` — Dungeon update
+- `52252d5` — Fix: water and fog
+- `b140aee` — Fix: StoryLine added backgrounds
+- `735a842` — Update
+- `3c0e883` — Feature: seer item
+- `73aa09c` — Fix: Seer item
+- `5b48b46` — Update
+- `75dc3be` — Cleanup & optimizations
+- `d39ca32` — Moved handle functions
+- `06d200f` — Inventory key added to dungeon
+- `dea8b9a` — Inventory
+- `aef6651` — Work
+- `a054463` — Improvement
+- `4f52bb2` — Fix: deposit and withdraw all
+- `5c96d87` — Basic uncurse in general store
+- `0864118` — Some minor changes
+- `588eb80` — Update
+- `207509a` — Update hall of records
+- `12255e4` — Fix: loading character
+- `bae7aa5` — Fix: savepath createcharacter
+- `b5979c9` — Update window open and close
+- `951ccd6` — More window handling
+- `9ebb59d` — Update
+- `2f8ab84` — Save and load
+- `0006121` — Beautify
+- `89abd2c` — Cleanup
+- `ead2b96` — Cleanup
+- `f360b56` — Fix: scroll update
+- `9eb4af8` — Update
+- `4d54385` — Reacquaint fix for guild
+- `895611f` — Fix: stats level and guild
+- `1e3c084` — New list gamedata function
+- `0bac2a1` — Multiplayer: player synchronization
+- `2b0c564` — Feature: Added offline mode
+- `3e62bdc` — Update README with multiplayer features
+- `25d02db` — Eye of the beholder style 3D rendering
+- `139ccea` — Merge branch 'main'
+- `b846815` — Changed the 3D viewport
+- `1c8ee87` — Update draw functions
+- `98443c9` — Update
+- `b7fb034` — Feat: repair savegame
+- `dc3f823` — Feat: autosave
+- `c65de85` — Update tooltips
+- `28ee780` — Fix: color correction
+- `ac330cc` — Update
+- `5f37c7e` — Update font
+- `1249f76` — Key event city party info
+- `97b2609` — Feat: seer locate character
+- `829aaec` — Revert "quick update"
+- `8635022` — Quick update
+- `d30742b` — Update
+- `771902e` — Update
+- `8832906` — Network: buffered receive, ping/pong, reconnect; add reference server
+- `2a0ded` — Documentation: milestones and versions
+- `dd2009b` — Script: gemini script
+- `9aa02cb` — Script: gemini script
+- `be4535c` — Feat: raise character
+- `d22cd84` — Update
+- `9f1db9d` — Fix: morgue bug
+- `5e8d7de` — Fix: render issue
+- `f402bcb` — Update: fighting
+- `5f2ece4` — Update: fighting
+- `889838b` — Update installation instructions in README.md
+- `e6b4ee2` — Cleanup
+- `dd3815c` — Merge branch 'main'
+- `ce07def` — Cleanup
+- `79fa1e5` — Update
+- `52495db` — Feat: music
+- `2d4dbca` — Audio update
+- `2d4dbca` — Audio update
+- `ee042d9` — Create sync-project-status.yml
+- `36bb930` — Create project-label-sync.yaml
+- `c68eef1` — Delete .github/workflows/sync-project-status.yml
+- `ab720de` — Delete .github/workflows/project-label-sync.yaml
+- `e8f3a49` — Feat: Aging
+- `fac8d4a` — Merge branch 'main'
+- `78d1e8e` — Update: movement keys
+- `061e7c5` — Update
+- `56e11f4` — Update drop body
+- `f1db8d6` — Clean: gameconstants
+- `db4cf25` — Update
+- `95f0769` — Update
+- `9a1132e` — Update
+- `6a3c5d1` — Update dependencies docs
+- `8c7ac4e` — Create CONTRIBUTING.md
+- `d359209` — Merge branch 'main'
+- `818586d` — Update README.md
+- `9616be3` — Update CONTRIBUTING.md
+- `6e63484` — Update README.md
+- `fc5c2d2` — Update CONTRIBUTING.md
+- `a5f3485` — Update README.md
+- `28b2848` — Update README.md
+- `66501db` — Update README.md
+- `85c2aa4` — Delete ask_gemini.sh
+- `448470f` — Cleanup
+- `9c11f10` — Cleanup
+- `bedcea1` — Cleanup
+- `f544e50` — Cleanup
+- `b54bcec` — Compile optimization
+- `12c60f2` — Build script
+- `58cc7ab` — Compile optimized
+- `90a1faf` — Update README.md
+- `0912c9e` — Update README.md
+- `9957ddc` — Update README.md
+- `6a3c6d8` — Fix: compile error missing headers
+- `f39e2a1` — Fix: test
+- `2b0f773` — Compile time improvement
+- `dcd1012` — Create gameci-style.yaml
+- `c7ce86a` — Update gameci-style.yaml
+- `27719cf` — Update gameci-style.yaml
+- `bb3cc5a` — Create maintenance.yaml
+- `58074c4` — Update maintenance.yaml
+- `c46479e` — Update maintenance.yaml
+- `78c428c` — Update maintenance.yaml
+- `1d7d9ab` — Resize options window
+- `e4a4282` — Feat: font choosing
+- `238ed7e` — Update checkboxes
+- `7a5b9b1` — Feat: global font change
+- `4e79682` — Update library
+- `628693c` — Update README.md
+- `9aa3934` — Update README.md
+- `2c82705` — Update library
+- `30fbf2e` — Merge branch 'main'
+- `e5ac09a` — Codeberg test
+- `a1d0034` — Merge branch 'main'
+- `b773fa7` — Feat: bitmap font drawing
+- `1c8b151` — Compile optimization
+- `2363355` — Compiler optimization
+- `f9c038c` — Compile optimize and look
+- `5a831c9` — Spellcasting
+- `1d904a3` — Small fixes
+- `1d53385` — Reorg
+- `4306c82` — DataRegistry implementation
+- `0fd292c` — Simple CSV editor
+- `aed1aa3` — Added image to CSV viewer
+- `64a6bfe` — Fix: compile error
+- `e9f83fd` — Fix: monster editor
+- `0b95ee6` — Feat: hidden door
+- `6ca1887` — Update
+- `1056873` — Fix: compiler warnings
+- `edc6475` — Refactor: move audio logic from GameStateManager to AudioManager
+- `e2f83f2` — Refactor
+- `d160c43` — Update
+- `27f73f4` — Refactor
+- `14a76f1` — Refactor
+- `a568be4` — Refactor
+- `66da30f` — Recfactoring
+- `6b4d4a9` — Revert "recfactoring"
+- `8e456bd` — Revert "refactoring"
+- `09023dc` — Revert "refactoring"
+- `86e9ad9` — Revert "refactoring"
+- `0c02bb5` — Revert "update"
+- `ca2bd2e` — Refactor
+- `647fa9f` — Refactor
+- `7911fae` — Feat: Lua server
+- `8a90c0d` — Feat: implement persistent Lua scripting engine with live UI updates
+- `773e3da` — Adding Lua support
+- `9a505ed` — Refactor: Font code
+- `a4435ff` — Fix: FontManager
+- `42d9b7b` — Refactor: status effects
+- `28b70c2` — Ladda upp ttest
+- `e869192` — Blafs commit
+- `e6b4ea0` — Create klut.tct
+- `95a83d3` — Update gameci-style.yaml
+- `9629655` — Refactor: game version
+- `3d02a6e` — Refactor: version
+- `d7e33e7` — Refact: adding party struct
+- `78965aa` — Refact: list to file
+- `fbdd12c` — feat(ui): convert uncurse input to dropdown and populate with inventory
+- `b9cd79d` — refactor(store): convert item inputs to dropdowns and sync inventory state
+- `dd0e2a1` — (fix): Dead characters can never be saved as dead
+- `cf62420` — (fix): hasLivingCharacters() rejects living characters with status effects
+- `703eabf` — Merge branch 'main'
+- `1621761` — Update FIXLIST.md
+- `164bc0c` — Update FIXLIST.md
+- `13cd872` — (fix): initializeParty() dead code and emit spam
+- `7eef34f` — (fix): Build artifacts committed to git
+- `e7bfadd` — Update FIXLIST.md
+- `644f05c` — Feat: Implement turn-based combat with initiative queue
+- `a310391` — Feat: party wide combat
+- `d41ceea` — Merge branch 'main'
+- `bc03c8e` — Update GAME_COMPLETENESS_ANALYSIS.md
+- `df930ad` — Feat: Equipment-driven damage
+- `c879086` — Update GAME_COMPLETENESS_ANALYSIS.md
+- `c9bd06f` — Feat: Spell combat integration
+- `5411ba5` — Merge branch 'main'
+- `8c057bd` — Feat: Flee/Run
+- `89778fe` — Update GAME_COMPLETENESS_ANALYSIS.md
+- `bfd08c2` — Feat: Critical hits and misses
+- `13ef50e` — Update GAME_COMPLETENESS_ANALYSIS.md
+- `db7e5c1` — Tool: Windows build
+- `b7e578f` — Merge branch 'main'
+- `773b86f` — Update windows-build.yaml
+- `3322fe5` — Update windows-build.yaml
+- `89c636f` — Delete .qmake.stash
+- `4a663c1` — Delete .github/workflows/windows-build.yaml
+- `0397e48` — Feat: party
+- `b840e34` — Updated fontManager.h with new implementation
+- `c4bbbf5` — Add gold check for Seer services
+- `e1254ed` — Feature: companion registry
+- `ff5e611` — Small fix companion registry
+- `9ec9648` — Feat: grab and revive characters
+- `ed680e9` — Feat: BattleEngine
+
+---
+
+## Era 2: Combat System (2026-03 → 2026-04)
+
+The combat system was built from scratch, replacing the old real-time timer-based approach.
+
+### Combat foundation
+- `644f05c` — Feat: Implement turn-based combat with initiative queue
+- `a310391` — Feat: party wide combat
+- `df930ad` — Feat: Equipment-driven damage
+- `c9bd06f` — Feat: Spell combat integration
+- `8c057bd` — Feat: Flee/Run
+- `bfd08c2` — Feat: Critical hits and misses
+
+### Combat infrastructure
+- `ed680e9` — Feat: BattleEngine
+- `9ec9648` — Feat: grab and revive characters
+- `e1254ed` — Feature: companion registry
+- `ff5e611` — Small fix companion registry
+
+### Status effects and saves
+- `42d9b7b` — Refactor: status effects
+- `dd0e2a1` — (fix): Dead characters can never be saved as dead
+- `cf62420` — (fix): hasLivingCharacters() rejects living characters with status effects
+- `13cd872` — (fix): initializeParty() dead code and emit spam
+- `7eef34f` — (fix): Build artifacts committed to git
+
+### Refactoring wave
+- `737a2b5` — Refactor: Transition Core Systems to camelCase and Fix City UI Navigation
+- `d40f5ab` — Create COMPLETE_REFACTOR_REPORT.md
+- `578b69c` — Cleanup
+- `3f46ded` — Feat: overwrite main with refactored dev-1 state
+- `620dcb6` — Revert "refactor"
+- `7d98731` — Refactor
+- `b7b6995` — Refactor: things moved
+- `37cf3c7` — camelCase
+- `6011f5c` — Fonting
+- `9193678` — Styling theCity
+- `879f2cd` — New color scheme
+- `f31a7d1` — Recfactor: moving code to gamestate
+
+### UI and data
+- `b9cd79d` — refactor(store): convert item inputs to dropdowns
+- `fbdd12c` — feat(ui): convert uncurse input to dropdown
+- `d7e33e7` — Refact: adding party struct
+- `78965aa` — Refact: list to file
+- `9629655` — Refactor: game version
+- `3d02a6e` — Refactor: version
+- `95a83d3` — Update gameci-style.yaml
+- `e6b4ea0` — Create klut.tct
+- `e869192` — Blafs commit
+- `28b70c2` — Ladda upp ttest
+- `773e3da` — Adding Lua support
+- `8a90c0d` — Feat: implement persistent Lua scripting engine
+- `7911fae` — Feat: Lua server
+- `647fa9f` — Refactor
+- `ca2bd2e` — Refactor
+- `0c02bb5` — Revert "update"
+- `86e9ad9` — Revert "refactoring"
+- `09023dc` — Revert "refactoring"
+- `8e456bd` — Revert "refactoring"
+- `6b4d4a9` — Revert "recfactoring"
+- `66da30f` — Recfactoring
+- `a568be4` — Refactor
+- `14a76f1` — Refactor
+- `27f73f4` — Refactor
+- `d160c43` — Update
+- `e2f83f2` — Refactor
+- `edc6475` — Refactor: move audio logic to AudioManager
+- `1056873` — Fix: compiler warnings
+- `6ca1887` — Update
+- `0b95ee6` — Feat: hidden door
+- `e9f83fd` — Fix: monster editor
+- `64a6bfe` — Fix: compile error
+- `aed1aa3` — Added image to CSV viewer
+- `0fd292c` — Simple CSV editor
+- `4306c82` — DataRegistry implementation
+- `1d53385` — Reorg
+- `1d904a3` — Small fixes
+- `5a831c9` — Spellcasting
+
+---
+
+## Era 3: Game Systems (2026-04 → 2026-08)
+
+The game's core systems were built: dungeon, city, combat, progression.
+
+### Dungeon systems
+- `0d35591` — Dynamic gold
+- `b239ed2` — Added map obstacles
+- `07cef18` — Stairs added to map
+- `a8240ec` — Changed resolution in dungeon
+- `082ea39` — Added all known tile types
+- `6f6e82d` — New monster images
+- `d793fe8` — Adding gamestate
+- `2b6b647` — Merge branch 'main'
+- `8be3763` — Update dungeon
+- `f6f710b` — Added gamestate to game_menu
+- `1668fef` — Gamestate update
+- `db6ac29` — Gamestate improvement
+- `bdfd8b7` — Updated main menu
+- `0faf01c` — Add library to guild
+- `77fcf4a` — Basic level up
+- `4292fd5` — Reacquaint works
+- `86c3fb2` — Exp info implemented
+- `03edabe` — Added guild log
+- `642fd59` — Basic visit function
+- `31d7456` — Seer update
+- `cc02017` — Added some checks
+- `63449d0` — Some new images
+- `fdcb892` — Start gold
+- `0b6b64fc` — Update TheCity.h
+- `e13de68` — Update game_menu.h
+- `323181a` — Update game_menu.cpp
+- `bf80dca` — Update game_menu.cpp
+- `27a5553` — Update AboutDialog.cpp
+- `ad2c2aa` — Update AboutDialog.h
+- `cfa16b3` — Update compasswidget.h
+- `0eed31b` — Update optionsdialog.h
+- `570e9c0` — Update helplesson.cpp
+- `c620ba5` — Update helplesson.cpp
+- `56499fe` — Minor helplesson improvements
+- `2f042cb` — Update characterlistdialog.cpp
+- `e34174e` — Update characterlistdialog.h
+- `b16d54e` — feat(ui): Implement Confinement & Holding Dialog UI
+- `3d8cbfc` — fix(ui): Populate buy fields
+- `a6f9b28` — Feature: Implement purchase transaction logic
+- `0b928a0` — Refactor CharacterDialog to utilize GameStateManager
+- `b08b96f` — Update signals for gamestate changes
+- `25d02db` — Refactor GameStateManager to use thread-safe Magic Static Singleton
+- `971fbad` — Loading title animation
+- `1842213` — Added external style file
+- `49ca2ad` — Update README.md
+- `073e03b` — Update README.md
+- `732f3b7` — Update LoadingScreen.cpp
+- `cf4f7af` — Update README.md
+- `a598b95` — New design and name
+- `50b994b` — Updated style
+- `af2eb93` — Cleanup
+- `105f8ff` — Refactor itemconverter
+- `14a9125` — New CSV tool
+- `efcd2a6` — Added rotate buttons
+- `090b87a` — Fix: rotate
+- `bf7a453` — Movement fixed
+- `9b9ec4c` — ASDW and QE added for movement
+- `433c6e3` — Arrow shaped character icon
+- `96ff686` — Feature: fog of war
+- `c0a563f` — Update GameStateManager.cpp
+- `d4751c3` — Update GameStateManager.cpp
+- `fd648e0` — Minor update
+- `b95fcc9` — Resistance placeholder
+- `a526982` — Added buffer tab
+- `0df6e82` — Update createcharacterdialog.h
+- `d482714` — Update GameStateManager.h
+- `ea79bba` — Refactor: centralize stat definitions
+- `016414a` — Refactor: move statpoints to gamestate
+- `1cb3767` — Minor change
+- `391e094` — Update minimap images
+- `c1ce821` — feat(dungeon): implement Antimagic Field tiles
+- `f38877f` — feat: add random extinguisher tiles
+- `5c3e56d` — Separated minimap draw function
+- `51edd75` — Added breadcrumb trail
+- `091140a` — Fix breadcrumb
+- `0229e8d` — Feat: Predictable levels
+- `2f63a70` — Cleanup
+- `735e92a` — State switch
+- `a41a65e` — Fixed all tiles
+- `7ded844` — Merge branch 'main'
+- `ef92e4e` — Implement persistent creature stock
+- `2bf6bb5` — feat: Load monster data from CSV
+- `0db46d6` — feat: Load monster and item CSV data
+- `b3ff1be` — Feat: Capture logic
+- `d39026f` — Fix: Confinement add monster
+- `d3fa5e7` — Update TheCity.cpp
+- `fbcc312` — Feat: load spell data
+- `ee629f9` — Feat: party update
+- `82019bf` — feat: spelldata loaded
+- `dd35092` — Added some gamedata
+- `e57be77` — Prepare for gamedata
+- `7d63da6` — Merge pull request #33
+- `2990309` — Partly added gamedata
+- `c45d967` — Update GameStateManager.cpp
+- `3294509` — Update GameStateManager.h
+- `63ef9a7` — Update GameStateManager.cpp
+- `7a2d2df` — Update GameStateManager.h
+- `74691c1` — Update GameStateManager.h
+- `1ca2dab` — Update GameStateManager.h
+- `639d404` — Update GameStateManager.cpp
+- `9115d21` — Update GameStateManager.cpp
+- `edc8876` — Update GameStateManager.cpp
+- `a278a9d` — Update GameStateManager.cpp
+- `fd2cd23` — Update GuildsDialog.cpp
+- `f4c01c4` — Prep: Added new load function
+- `f9ccfcc` — Loading gamedata
+- `63ac56f` — Update loadgamedata
+- `cf4e443` — Update
+- `2531761` — Fix: nested objets
+- `b2ebc24` — Quick fix modeless
+- `9f3f556` — Update BankDialog.cpp
+- `53c4df5` — Fix: writing data to file
+- `5fa7575` — Fix: characterconverter
+- `ded363b` — Fix: updated characterconverter
+- `560a52b` — Fix: characterconverter
+- `2fbecbe` — Update README.md
+- `f2fa832` — Tome images added
+- `97d1a90` — Merge branch 'main'
+- `714d96e` — Image reorg
+- `c6abefc` — Fix: made the automap its own dialog
+- `0c5db99` — Fix: movement with automap
+- `f4793cc` — Fix: starting location on levels
+- `47a669f` — Fix: automap going up and down
+- `8fd828e` — Better map generation
+- `d7bdae1` — Comment out old map
+- `a75b005` — Feature: StoryLine intro
+- `1cc8209` — GitHub compile error
+- `4f5f532` — Dungeon update
+- `52252d5` — Fix: water and fog
+- `b140aee` — Fix: StoryLine added backgrounds
+- `735a842` — Update
+- `3c0e883` — Feature: seer item
+- `73aa09c` — Fix: Seer item
+- `5b48b46` — Update
+- `75dc3be` — Cleanup & optimizations
+- `d39ca32` — Moved handle functions
+- `06d200f` — Inventory key added to dungeon
+- `dea8b9a` — Inventory
+- `aef6651` — Work
+- `a054463` — Improvement
+- `4f52bb2` — Fix: deposit and withdraw all
+- `5c96d87` — Basic uncurse in general store
+- `0864118` — Some minor changes
+- `588eb80` — Update
+- `207509a` — Update hall of records
+- `12255e4` — Fix: loading character
+- `bae7aa5` — Fix: savepath createcharacter
+- `b5979c9` — Update window open and close
+- `951ccd6` — More window handling
+- `9ebb59d` — Update
+- `2f8ab84` — Save and load
+- `0006121` — Beautify
+- `89abd2c` — Cleanup
+- `ead2b96` — Cleanup
+- `f360b56` — Fix: scroll update
+- `9eb4af8` — Update
+- `4d54385` — Reacquaint fix for guild
+- `895611f` — Fix: stats level and guild
+- `1e3c084` — New list gamedata function
+- `0bac2a1` — Multiplayer: player synchronization
+- `2b0c564` — Feature: Added offline mode
+- `3e62bdc` — Update README with multiplayer features
+- `25d02db` — Eye of the beholder style 3D rendering
+- `139ccea` — Merge branch 'main'
+- `b846815` — Changed the 3D viewport
+- `1c8ee87` — Update draw functions
+- `98443c9` — Update
+- `b7fb034` — Feat: repair savegame
+- `dc3f823` — Feat: autosave
+- `c65de85` — Update tooltips
+- `28ee780` — Fix: color correction
+- `ac330cc` — Update
+- `5f37c7e` — Update font
+- `1249f76` — Key event city party info
+- `97b2609` — Feat: seer locate character
+- `829aaec` — Revert "quick update"
+- `8635022` — Quick update
+- `d30742b` — Update
+- `771902e` — Update
+- `8832906` — Network: buffered receive, ping/pong, reconnect
+- `2a0ded` — Documentation: milestones and versions
+- `dd2009b` — Script: gemini script
+- `9aa02cb` — Script: gemini script
+- `be4535c` — Feat: raise character
+- `d22cd84` — Update
+- `9f1db9d` — Fix: morgue bug
+- `5e8d7de` — Fix: render issue
+- `f402bcb` — Update: fighting
+- `5f2ece4` — Update: fighting
+- `889838b` — Update installation instructions
+- `e6b4ee2` — Cleanup
+- `dd3815c` — Merge branch 'main'
+- `ce07def` — Cleanup
+- `79fa1e5` — Update
+- `52495db` — Feat: music
+- `2d4dbca` — Audio update
+- `ee042d9` — Create sync-project-status.yml
+- `36bb930` — Create project-label-sync.yaml
+- `c68eef1` — Delete .github/workflows/sync-project-status.yml
+- `ab720de` — Delete .github/workflows/project-label-sync.yaml
+- `e8f3a49` — Feat: Aging
+- `fac8d4a` — Merge branch 'main'
+- `78d1e8e` — Update: movement keys
+- `061e7c5` — Update
+- `56e11f4` — Update drop body
+- `f1db8d6` — Clean: gameconstants
+- `db4cf25` — Update
+- `95f0769` — Update
+- `9a1132e` — Update
+- `6a3c5d1` — Update dependencies docs
+- `8c7ac4e` — Create CONTRIBUTING.md
+- `d359209` — Merge branch 'main'
+- `818586d` — Update README.md
+- `9616be3` — Update CONTRIBUTING.md
+- `6e63484` — Update README.md
+- `fc5c2d2` — Update CONTRIBUTING.md
+- `a5f3485` — Update README.md
+- `28b2848` — Update README.md
+- `66501db` — Update README.md
+- `85c2aa4` — Delete ask_gemini.sh
+- `448470f` — Cleanup
+- `9c11f10` — Cleanup
+- `bedcea1` — Cleanup
+- `f544e50` — Cleanup
+- `b54bcec` — Compile optimization
+- `12c60f2` — Build script
+- `58cc7ab` — Compile optimized
+- `90a1faf` — Update README.md
+- `0912c9e` — Update README.md
+- `9957ddc` — Update README.md
+- `6a3c6d8` — Fix: compile error missing headers
+- `f39e2a1` — Fix: test
+- `2b0f773` — Compile time improvement
+- `dcd1012` — Create gameci-style.yaml
+- `c7ce86a` — Update gameci-style.yaml
+- `27719cf` — Update gameci-style.yaml
+- `bb3cc5a` — Create maintenance.yaml
+- `58074c4` — Update maintenance.yaml
+- `c46479e` — Update maintenance.yaml
+- `78c428c` — Update maintenance.yaml
+- `1d7d9ab` — Resize options window
+- `e4a4282` — Feat: font choosing
+- `238ed7e` — Update checkboxes
+- `7a5b9b1` — Feat: global font change
+- `4e79682` — Update library
+- `628693c` — Update README.md
+- `9aa3934` — Update README.md
+- `2c82705` — Update library
+- `30fbf2e` — Merge branch 'main'
+- `e5ac09a` — Codeberg test
+- `a1d0034` — Merge branch 'main'
+- `b773fa7` — Feat: bitmap font drawing
+- `1c8b151` — Compile optimization
+- `2363355` — Compiler optimization
+- `f9c038c` — Compile optimize and look
+
+---
+
+## Era 4: v0.0 Release (2026-10-06 → 2026-10-07)
+
+The eight-phase build that created the game's systems.
+
+### Phase 2: Combat
+- `3ad8328` — Phase 2 combat: equipment-driven attacks, monster AI, group encounters
+
+### Phase 3: Progression
+- `9f8170a` — Phase 3 progression: XP table, level-up gains, guilds, spell learning, aging
+
+### Phase 4: Dungeon Depth
+- `881b51e` — Phase 4 dungeon depth: persistent floors, 15 themes, bosses, keys, secret doors, respawn
+
+### Phase 5-6: Death and Endgame
+- `0dc6a83` — Phase 5-6: death and consequences, win condition and endgame
+
+### Phase 7: Town
+- `04ba939` — Phase 7: town and quality of life
+
+### Phase 8: Balance
+- `3543ead` — Phase 8: balance and release
+
+### Post-release fixes
+- `e9d718c` — Fix gold
+- `a7e54b3` — Fix: add version comparison to updater and test harness
+- `4ae2c50` — Fix: warning
+- `ea9af4e` — Fix: resolve signed/unsigned comparison warnings
+- `889deb9` — Fix: compiler warnings
+- `1b780d6` — Fix: repair all 7 skipped tests and the status-flag collision
+- `5f1bfac` — Fix: ship resources/ to build/bin and commit the city icons
+- `186a3b2` — Feat: complete the bestiary, fix the character-sheet crash
+- `b28c1a2` — Docs: rewrite README as a game presentation and build guide
+- `1ed6b1a` — Fix: add missing QObject includes to 42 headers
+
+---
+
+## Era 5: v0.1 Security Hardening (2026-10-10)
+
+The security and latent breakage pass.
+
+- `35cc244` — Phase 0 (v0.1): security hardening + backlog of completed work
+
+This commit includes:
+- Lua RCE fix (sandbox + JSON dispatch)
+- Removal of undefined `readyBodyForResurrection()`
+- Teleporter tile set consolidation
+- Wrong `PartyHP` removal
+- Aging path consolidation into `AgingRules`
+- Version string fix
+- All previously completed but uncommitted work from Eras 2-4
+
+---
+
+## Summary
+
+| Era | Period | Commits | Focus |
+|---|---|---|---|
+| 1 | 2025-10 → 2025-12 | ~50 | Foundation, data, assets, city UI |
+| 2 | 2026-03 → 2026-04 | ~80 | Combat system, refactoring, status effects |
+| 3 | 2026-04 → 2026-08 | ~200 | Game systems, dungeon, progression, UI |
+| 4 | 2026-10-06 → 2026-10-07 | ~15 | v0.0 release (8 phases) |
+| 5 | 2026-10-10 | 1 | v0.1 security hardening |
+
+**Total commits:** ~400+
+**Current version:** v0.1 (pre-release)
+**Next version:** v1.0.0 (first finishable release)

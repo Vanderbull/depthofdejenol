@@ -1,8 +1,9 @@
 #include "ReleaseInfo.h"
+#include "version.h"
 #include <QPair>
 
 QString ReleaseInfo::version() {
-    return "1.0.0";
+    return QString::fromLatin1(GameConstants::SEMANTIC_VERSION);
 }
 
 QString ReleaseInfo::versionString() {
@@ -58,7 +59,8 @@ QString ReleaseInfo::banner() {
 
 QList<QPair<QString, QString>> ReleaseInfo::versionHistory() {
     return {
-        {"1.0.0", "2026-10-07 — Full release"},
+        {"0.1.0", "2026-10-10 — Phase 0: security hardening and latent breakage fixes"},
+        {"0.0", "2026-10-07 — Game systems built (8 phases)"},
         {"0.9.0", "2026-10-01 — Phase 7 complete"},
         {"0.8.0", "2026-09-28 — Phase 6 complete"},
         {"0.7.0", "2026-09-20 — Phase 5 complete"},

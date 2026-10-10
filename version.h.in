@@ -9,6 +9,8 @@ namespace GameConstants {
     static const char* const GIT_HASH = $$VERSION_HASH;
     static const char* const BUILD_TIMESTAMP = $$VERSION_DATE;
     static const char* const FULL_VERSION = $$VERSION_INT;
+    // Semantic version for the release. Format: v<major>.<minor>.<patch>
+    static const char* const SEMANTIC_VERSION = $$SEMVER;
 }
 
 #endif

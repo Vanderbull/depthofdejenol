@@ -2066,6 +2066,7 @@ build/obj/release/selftest.o: test/selftest.cpp test/selftest.h \
 		src/partyinfo_dialog/partyinfodialog.h \
 		src/event/EventManager.h \
 		src/dungeon_dialog/MiniMapDialog.h \
+		version.h \
 		src/traps_calculations.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/selftest.o test/selftest.cpp
 
@@ -2167,7 +2168,8 @@ build/obj/release/GoldSinks.o: src/core/GoldSinks.cpp src/core/GoldSinks.h \
 		src/core/GameConstants.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/GoldSinks.o src/core/GoldSinks.cpp
 
-build/obj/release/ReleaseInfo.o: src/core/ReleaseInfo.cpp src/core/ReleaseInfo.h
+build/obj/release/ReleaseInfo.o: src/core/ReleaseInfo.cpp src/core/ReleaseInfo.h \
+		version.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/obj/release/ReleaseInfo.o src/core/ReleaseInfo.cpp
 
 build/obj/release/SoundEffects.o: src/core/SoundEffects.cpp src/core/SoundEffects.h \
