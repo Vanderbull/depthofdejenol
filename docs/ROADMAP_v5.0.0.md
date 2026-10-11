@@ -11,7 +11,7 @@ The game has a hunger/starvation system that a player can never see, never manag
 and whose deaths the game does not treat as deaths. The user's report — *"starving
 did not kill"* — is the symptom of a mechanic that is unreachable rather than absent.
 
-This version makes survival real:
+This version makes survival real, and lets you load a whole party:
 
 - **Hunger is visible** — the player can see it draining and act on it.
 - **Food exists and can be eaten** — a real food item and an eat action, not a
@@ -22,6 +22,8 @@ This version makes survival real:
   rest damage land on the same character the party panel shows.
 - **A town resupply loop** — the inn sells food and restores hunger, so survival is
   a resource decision rather than an unpayable tax.
+- **Load a whole party** — load a saved party of several characters at once, not one
+  character at a time.
 
 ## What the audit found
 
@@ -88,6 +90,46 @@ consequences. This is why it reads as "did not kill".
 - Companions: the help text documents a full system (charm/bind/sell/name), the
   `Companion` struct exists, and `ConfinementDialog` has Buy/Sell buttons that only
   show a `QMessageBox` (`ConfinementDialog.cpp:227`).
+
+### You can only load one character, never a party
+
+The game supports a party of four (`MAX_PARTY_SIZE = 4`) and the plumbing for a
+whole-party save already exists, but no UI path reaches it:
+
+- **The party serializer is done and unused.** `Party::toMap()` writes `Members`
+  (a list) and `SharedGold`; `Party::loadFromMap()` reads them back and clears
+  first. `gameStateManager::savePartyToFile()` / `loadPartyFromFile()`
+  (`gameStateManager.cpp:1960,1973`) wrap it — and have **zero callers**. They are
+  dead code.
+- **Every live save/load path handles exactly one character.**
+  `saveCharacterToFile(int partyIndex)` writes a flat `.txt` for one member;
+  `saveFullGameState()` / `loadFullGameState()` snapshot the whole game under
+  `data/saves/` (autosave), but that is a whole-session snapshot, not "load these
+  four characters".
+- **The load UI is single-select.** `CharacterListDialog`
+  (`characterlistdialog.cpp`) lists `data/characters/*.txt` with
+  `QAbstractItemView::SingleSelection`, and its Select button only shows a
+  "the game would proceed to load … here" placeholder — it does not load anything.
+- **The main menu loads one file.** `GameMenu::loadGame()` (`blacklands.cpp:182`)
+  opens a file dialog for a single `.json`/`.lua` and calls
+  `loadCharacterFromFile(fileName)`.
+- **The character-list loader is broken.** It lists `./data/characters` but Delete
+  removes `characters/<name>.txt` (wrong directory), and its Select handler is a
+  stub.
+- **The legacy `.txt` loader is dead.** The `loadCharacterFromFile(characterName)`
+  overload that parses `data/characters/<name>.txt`
+  (`gameStateManager.cpp:806`) sits inside a `/* … */` block (lines 805-897). The
+  `.txt` files in `data/characters/` can be written but not read back by that path.
+
+**Consequence:** a player can save a party's members one at a time and can never
+load them back as a party. The serializer that would make it work is already tested
+by `Party::toMap`/`loadFromMap` and simply has no UI.
+
+### Repo hygiene note
+`data/characters/` holds runtime save files (`adam.txt`, `benke stolt.lua`, …) that
+are **not** in `.gitignore` (only `data/journal.json` and `data/saves/` are). A
+party-load feature will write more of these; they should be ignored, and the
+committed fixtures removed.
 
 ## Slices
 
@@ -196,7 +238,43 @@ be where survival is paid for.
 **Verify:** tests — inn rest restores hunger; food can be bought; a new party starts
 with food. Non-vacuous: removing the hunger restore fails the inn test.
 
-### 5.6 Repo hygiene: dead duplicates and build junk `S`
+### 5.6 Load a whole party `M`
+
+**Why:** you can save four characters but never load them back together — every
+load path handles exactly one character. The party serializer
+(`Party::toMap`/`loadFromMap`) and its wrappers (`savePartyToFile`/
+`loadPartyFromFile`) already exist and are unused; the feature is a missing UI and a
+missing multi-select path, not missing logic.
+
+**Do:**
+- Make `CharacterListDialog` multi-select
+  (`QAbstractItemView::ExtendedSelection`) and load **every** selected character into
+  the party via `addCharacterToParty()`, respecting `MAX_PARTY_SIZE`.
+- Replace the placeholder Select handler with a real load that calls
+  `loadCharacterFromFile` per selected name and populates the party.
+- Add a **Save Party / Load Party** path built on the existing
+  `savePartyToFile()` / `loadPartyFromFile()`: save the current party to a named
+  party file, and load a whole party back in one action. Prefer a JSON party file
+  (the `Members` list + `SharedGold` shape `Party::toMap()` already produces).
+- Fix the Delete handler to remove the file it actually listed
+  (`data/characters/<name>.txt`, not `characters/<name>.txt`).
+- Make the load path robust: a party load must `clear()` the existing party first
+  (`Party::loadFromMap()` already clears), reject an over-full party, and skip
+  corrupt/absent members rather than aborting the whole load.
+
+**Files:** `src/characterlist_dialog/characterlistdialog.cpp` / `.h`,
+`blacklands.cpp` (`GameMenu::loadGame`), `gameStateManager.cpp` / `.h`,
+`character.cpp` (`Party::toMap`/`loadFromMap` if a format tweak is needed)
+
+**Verify:** tests — selecting three characters loads three members into the party;
+selecting more than `MAX_PARTY_SIZE` loads only the first four (or is rejected);
+a saved party round-trips through `savePartyToFile`/`loadPartyFromFile` with the same
+member count, names, and shared gold; loading a party over an existing party replaces
+it rather than appending (the double-load test). Non-vacuous: reverting the
+multi-select to single-select fails the "loads three members" test; removing the
+`clear()` in the load path fails the replace test.
+
+### 5.7 Repo hygiene: dead duplicates and build junk `S`
 
 **Why:** the tree carries dead duplicates and committed build output that confuse
 navigation and the build.
@@ -213,7 +291,7 @@ navigation and the build.
 **Verify:** no source or `.pro` file references a removed file ✅; build green ✅;
 suite green ✅.
 
-### 5.7 Release `S`
+### 5.8 Release `S`
 
 **Why:** v5.0.0 needs a proper release with notes and a version bump.
 
@@ -237,15 +315,17 @@ notes complete ✅.
 5.1 Hunger visible ── 5.2 Food ── 5.5 Town resupply (needs food to sell)
 5.3 Starvation death is real (independent, but needs 5.1 to be observable)
 5.4 One HP source of truth (independent)
-5.6 Repo hygiene (independent)
-5.7 Release (after all others)
+5.6 Load a whole party (independent — reuses the unused party serializer)
+5.7 Repo hygiene (independent)
+5.8 Release (after all others)
 ```
 
 **Critical path:** `5.1 → 5.2 → 5.5` — visibility, then a way to eat, then a way to
 buy food. A survival mechanic is only fair once all three exist.
 
 **Ordering note:** land 5.4 (HP source of truth) early — it touches the same damage
-and rest paths that 5.3 and 5.5 modify.
+and rest paths that 5.3 and 5.5 modify. Land 5.7 (repo hygiene) before 5.8, and let
+it also ignore `data/characters/` so 5.6's party files do not litter the tree.
 
 ## Release Criteria
 
@@ -254,10 +334,11 @@ and rest paths that 5.3 and 5.5 modify.
 - [ ] A starvation death records a body, a journal entry, and triggers a party wipe
 - [ ] One HP source of truth: trap/rest damage and the party panel agree
 - [ ] The inn restores hunger and sells food
+- [ ] A whole party can be loaded at once, and saved/loaded as a party
 - [ ] Dead duplicate files and committed build junk are gone
 - [ ] `SEMANTIC_VERSION` is `5.0.0`
 - [ ] `RELEASE_NOTES.md` is updated
-- [ ] All tests pass (target: 1650+)
+- [ ] All tests pass (target: 1700+)
 - [ ] `make check` is green
 
 ## Slice Sizes
@@ -269,11 +350,13 @@ and rest paths that 5.3 and 5.5 modify.
 | 5.3 Starvation death is a real death | M | — |
 | 5.4 One HP source of truth | M | — |
 | 5.5 Town resupply loop | S | 5.2 |
-| 5.6 Repo hygiene | S | — |
-| 5.7 Release | S | 5.1–5.6 |
+| 5.6 Load a whole party | M | — |
+| 5.7 Repo hygiene | S | — |
+| 5.8 Release | S | 5.1–5.7 |
 
 ---
 
-**Target:** 7 slices. The spine is the survival loop: see hunger → eat food → die
+**Target:** 8 slices. The spine is the survival loop: see hunger → eat food → die
 properly when you can't. Everything else is either the same class of defect (silent
-state, unreachable mechanics) or hygiene.
+state, unreachable mechanics) or a missing UI over working logic (party load) —
+plus hygiene.
