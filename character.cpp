@@ -393,6 +393,14 @@ int Character::effectiveStat(const QString& statName) const {
 
 // --- Consumables ---
 
+bool Character::isConsumable(const HeldItem& item) {
+    const ItemDef* def = ItemDatabase::instance().byName(item.name);
+    if (!def) return false;
+    // Only potions (23), scrolls (24) and tomes (25) are consumable — the same
+    // rule useConsumable() enforces.
+    return def->type == 23 || def->type == 24 || def->type == 25;
+}
+
 bool Character::useConsumable(int inventoryIndex, QString& effectDescription) {
     if (inventoryIndex < 0 || inventoryIndex >= inventory.size()) {
         effectDescription = "Invalid inventory index.";

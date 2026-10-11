@@ -41,6 +41,7 @@
 #include <QGuiApplication>
 #include <QGraphicsScene>
 #include <QGraphicsView>
+#include <QInputDialog>
 
 
 // Constants that depend on MAP_SIZE (which is now in the header)
@@ -1478,22 +1479,42 @@ void DungeonDialog::on_combatUseItemButton_clicked()
     if (!m_inCombat || !m_combatActions || !m_turnEngine->hasCurrentParticipant()) return;
     if (!m_combatActions->isPlayerTurn()) return;
 
-    // Use a healing potion if available
+    // Offer the party member's actual usable items instead of guessing at the
+    // first name containing "healing". isConsumable() is the same rule
+    // Character::useConsumable() enforces, so every listed item really works.
     gameStateManager* gsm = gameStateManager::instance();
     Character& c = gsm->getPartyMember(gsm->getCurrentCharacterIndex());
+
+    QStringList names;
+    QList<int> slotIndices;   // 'slots' is a Qt macro, so not a valid name
     for (int i = 0; i < c.inventory.size(); ++i) {
+        if (!Character::isConsumable(c.inventory[i])) continue;
+        slotIndices << i;
         const HeldItem& item = c.inventory[i];
-        if (item.name.toLower().contains("healing") || item.name.toLower().contains("health")) {
-            QString result;
-            m_combatActions->useItem(i, c, result);
-            logMessage(result);
-            m_turnEngine->markCurrentActed();
-            updateCombatUI();
-            advanceCombat();
-            return;
-        }
+        QString label = item.name;
+        if (item.M4ED4 > 1) label += QString(" (x%1)").arg(item.M4ED4);
+        names << label;
     }
-    logMessage("No usable items in inventory.");
+
+    if (slotIndices.isEmpty()) {
+        logMessage("No usable items in inventory.");
+        return;
+    }
+
+    bool ok = false;
+    const QString chosen = QInputDialog::getItem(this, "Use Item",
+        "Choose an item to use:", names, 0, false, &ok);
+    if (!ok || chosen.isEmpty()) return;
+
+    const int listIdx = names.indexOf(chosen);
+    if (listIdx < 0 || listIdx >= slotIndices.size()) return;
+
+    QString result;
+    m_combatActions->useItem(slotIndices[listIdx], c, result);
+    logMessage(result);
+    m_turnEngine->markCurrentActed();
+    updateCombatUI();
+    advanceCombat();
 }
 
 void DungeonDialog::on_combatSpellButton_clicked()
@@ -1524,14 +1545,21 @@ void DungeonDialog::updateCombatUI()
     // selection moves to the first living one so play never stalls.
     if (m_combatTargetList) {
         const int previous = selectedMonsterIndex();
+        const int actingIdx = m_turnEngine ? m_turnEngine->currentParticipantIndex() : -1;
         m_combatTargetList->blockSignals(true);
         m_combatTargetList->clear();
         for (int i = 0; i < m_combatState->participantCount(); ++i) {
             const auto& p = m_combatState->participant(i);
             if (p.isPlayer || !p.isAlive) continue;
-            auto* item = new QListWidgetItem(
-                QString("%1  %2/%3").arg(p.name).arg(p.hp).arg(p.maxHp),
-                m_combatTargetList);
+
+            // One row per monster: name, HP, status. The row that is acting this
+            // turn is marked with a marker so the player can see the turn order.
+            QString label = QString("%1  %2/%3").arg(p.name).arg(p.hp).arg(p.maxHp);
+            const QString status = combatStatusText(p);
+            if (!status.isEmpty()) label += "  [" + status + "]";
+            if (i == actingIdx) label.prepend("> ");
+
+            auto* item = new QListWidgetItem(label, m_combatTargetList);
             item->setData(Qt::UserRole, i);
             if (i == previous) item->setSelected(true);
         }
@@ -1565,6 +1593,19 @@ int DungeonDialog::selectedMonsterIndex() const
     const auto& p = m_combatState->participant(idx);
     if (p.isPlayer || !p.isAlive) return -1;
     return idx;
+}
+
+QString DungeonDialog::combatStatusText(const CombatParticipant& p)
+{
+    QStringList parts;
+    if (p.poisonDuration > 0) parts << QString("poison %1").arg(p.poisonDuration);
+    if (p.fireDuration > 0)   parts << QString("fire %1").arg(p.fireDuration);
+    if (p.blindDuration > 0)  parts << QString("blind %1").arg(p.blindDuration);
+    if (p.confusionDuration > 0) parts << QString("confused %1").arg(p.confusionDuration);
+    if (p.stunDuration > 0)   parts << QString("stunned %1").arg(p.stunDuration);
+    if (p.slowDuration > 0)   parts << QString("slowed %1").arg(p.slowDuration);
+    if (p.isDefending)        parts << "defending";
+    return parts.join(", ");
 }
 
 int DungeonDialog::selectFirstLivingMonster()

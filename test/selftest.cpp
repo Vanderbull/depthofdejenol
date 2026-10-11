@@ -7940,6 +7940,150 @@ int runSelfTest()
         dlg.m_inCombat = false;
     }
 
+    // ------------------------------------------- v3.0.0 — slice 3.2: per-monster display
+    section("[129] v3.0.0 slice 3.2: one row per monster with independent HP");
+    {
+        DungeonDialog dlg;
+        dlg.resize(1280, 800);
+        dlg.show();
+        for (int i = 0; i < 20; ++i) QApplication::processEvents();
+
+        gameStateManager* gsm = gameStateManager::instance();
+        gsm->getPartyMembers().clear();
+        gsm->addCharacterToParty([]{
+            Character c;
+            c.name = "Row Hero";
+            c.level = 5;
+            c.hp = 100; c.maxHp = 100;
+            c.isAlive = true;
+            return c;
+        }());
+
+        QPair<int, int> pos = {8, 8};
+        dlg.m_monsterPositions[pos] = "Test Row Goblin";
+        dlg.m_MonsterAttitude["Test Row Goblin"] = "Hostile";
+        gsm->setGameValue("DungeonX", 8);
+        gsm->setGameValue("DungeonY", 8);
+        DungeonHandlers::handleEncounters(&dlg, 8, 8);
+
+        dlg.m_combatState->clear();
+        CombatParticipant hero;
+        hero.name = "Row Hero";
+        hero.isPlayer = true;
+        hero.isAlive = true;
+        hero.hp = 100; hero.maxHp = 100;
+        dlg.m_combatState->addParticipant(hero);
+
+        for (int m = 0; m < 3; ++m) {
+            CombatParticipant mon;
+            mon.name = QString("Row Goblin %1").arg(m + 1);
+            mon.isPlayer = false;
+            mon.isAlive = true;
+            mon.hp = 20 + m * 10;   // distinct HP per row
+            mon.maxHp = 20 + m * 10;
+            dlg.m_combatState->addParticipant(mon);
+        }
+
+        dlg.updateCombatUI();
+
+        check(dlg.m_combatTargetList->count() == 3, "three rows, one per monster",
+              QString::number(dlg.m_combatTargetList->count()));
+
+        // Each row must show its own HP, not a shared total.
+        check(dlg.m_combatTargetList->item(0)->text().contains("20/20"),
+              "row 1 shows its own HP", dlg.m_combatTargetList->item(0)->text());
+        check(dlg.m_combatTargetList->item(1)->text().contains("30/30"),
+              "row 2 shows its own HP", dlg.m_combatTargetList->item(1)->text());
+        check(dlg.m_combatTargetList->item(2)->text().contains("40/40"),
+              "row 3 shows its own HP", dlg.m_combatTargetList->item(2)->text());
+
+        // Damage only the second monster: only its row changes.
+        dlg.m_combatState->participant(2).hp = 5;
+        dlg.updateCombatUI();
+
+        check(dlg.m_combatTargetList->item(0)->text().contains("20/20"),
+              "untouched row 1 unchanged", dlg.m_combatTargetList->item(0)->text());
+        check(dlg.m_combatTargetList->item(1)->text().contains("5/30"),
+              "damaged row 2 shows the new HP", dlg.m_combatTargetList->item(1)->text());
+        check(dlg.m_combatTargetList->item(2)->text().contains("40/40"),
+              "untouched row 3 unchanged", dlg.m_combatTargetList->item(2)->text());
+
+        // Status must reach the ROW, not just exist in combatStatusText().
+        // Participant 0 is the hero, so goblins are participants 1..3 and list
+        // rows 0..2.
+        dlg.m_combatState->participant(1).poisonDuration = 4;   // goblin 1 = row 0
+        dlg.m_combatState->participant(3).fireDuration = 2;     // goblin 3 = row 2
+        dlg.updateCombatUI();
+
+        check(dlg.m_combatTargetList->item(0)->text().contains("poison 4"),
+              "poison shows in the poisoned monster's row",
+              dlg.m_combatTargetList->item(0)->text());
+        check(dlg.m_combatTargetList->item(2)->text().contains("fire 2"),
+              "fire shows in the burning monster's row",
+              dlg.m_combatTargetList->item(2)->text());
+        check(!dlg.m_combatTargetList->item(1)->text().contains("poison") &&
+              !dlg.m_combatTargetList->item(1)->text().contains("fire"),
+              "the clean row shows no status",
+              dlg.m_combatTargetList->item(1)->text());
+
+        dlg.m_monsterPositions.remove(pos);
+        dlg.m_MonsterAttitude.remove("Test Row Goblin");
+        dlg.m_inCombat = false;
+    }
+
+    section("[130] v3.0.0 slice 3.2: status is shown per monster");
+    {
+        // combatStatusText is the single definition of what a row displays.
+        CombatParticipant clean;
+        check(DungeonDialog::combatStatusText(clean).isEmpty(),
+              "a clean participant has no status text");
+
+        CombatParticipant poisoned;
+        poisoned.poisonDuration = 3;
+        check(DungeonDialog::combatStatusText(poisoned).contains("poison 3"),
+              "poison shows its remaining rounds",
+              DungeonDialog::combatStatusText(poisoned));
+
+        CombatParticipant burning;
+        burning.fireDuration = 2;
+        check(DungeonDialog::combatStatusText(burning).contains("fire 2"),
+              "fire shows its remaining rounds",
+              DungeonDialog::combatStatusText(burning));
+
+        CombatParticipant stunned;
+        stunned.stunDuration = 1;
+        check(DungeonDialog::combatStatusText(stunned).contains("stunned 1"),
+              "stun is shown", DungeonDialog::combatStatusText(stunned));
+
+        CombatParticipant many;
+        many.poisonDuration = 2;
+        many.blindDuration = 1;
+        many.isDefending = true;
+        const QString text = DungeonDialog::combatStatusText(many);
+        check(text.contains("poison 2") && text.contains("blind 1") &&
+              text.contains("defending"),
+              "multiple statuses combine", text);
+    }
+
+    section("[131] v3.0.0 slice 3.2: only real consumables are offered in combat");
+    {
+        // The item picker lists exactly the items useConsumable() accepts, so a
+        // listed item always works. isConsumable() is that single rule.
+        HeldItem potion;
+        potion.name = "Potion of Health";
+        HeldItem elven;
+        elven.name = "Elven Potion";
+        HeldItem sword;
+        sword.name = "Bronze Sword";
+        HeldItem junk;
+        junk.name = "Definitely Not A Real Item Name";
+
+        check(Character::isConsumable(potion), "a potion is consumable");
+        check(Character::isConsumable(elven), "another potion is consumable");
+        check(!Character::isConsumable(sword), "a weapon is not consumable");
+        check(!Character::isConsumable(junk), "an unknown item is not consumable");
+    }
+
     // -------------------------------------------------------------- cleanup
     QFile::remove(savePath());
 

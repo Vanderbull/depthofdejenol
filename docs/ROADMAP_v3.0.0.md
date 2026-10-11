@@ -52,7 +52,7 @@ Non-vacuous: restoring "take the first living monster" fails the targeting test.
 
 ---
 
-### 3.2 Per-monster combat display `M`
+### 3.2 Per-monster combat display `M` — ✅ DONE
 
 **Why:** the combat panel collapses every monster into one label:
 `m_combatMonsterHpLabel->setText("Monster: " + monsterHp.join(", "))` (`DungeonDialog.cpp:1516`).
@@ -61,17 +61,24 @@ combat UI). With groups this reads as a wall of numbers. Combat item use is also
 `on_combatUseItemButton_clicked()` searches the inventory for a name containing "healing"
 or "health" and uses the first match — the player cannot choose a potion.
 
-**Do:**
-- Replace the joined label with a per-monster row: name, HP (bar or `cur/max`), and status
-  icons (poison, fire, blind, stunned).
-- Highlight the row that currently acts and the one the player has selected.
-- Let combat item use pick from the party member's usable items instead of the first
-  "healing" match.
+**Done:**
+- Each target row shows the monster's own HP plus its status, via
+  `combatStatusText()`: poison/fire/blind/confused/stunned/slowed rounds and "defending"
+- The row that is acting this turn is marked with `> ` so the turn order is visible
+- `on_combatUseItemButton_clicked()` opens a picker listing the party member's actual
+  consumables instead of guessing at the first "healing" match
+- `Character::isConsumable()` is the single rule for what counts (potions 23, scrolls 24,
+  tomes 25) — the same one `useConsumable()` enforces, so a listed item always works
 
-**Files:** `src/dungeon_dialog/DungeonDialog.cpp` / `.h`
+**Files:** `src/dungeon_dialog/DungeonDialog.cpp` / `.h`, `character.cpp` / `character.h`
 
-**Verify:** a 3-monster fight shows 3 distinct rows with independent HP; damaging one
-changes only its row; the item button offers the actual usable items.
+**Verify:** tests [129]-[131] — three monsters give three rows with independent HP and
+damaging one changes only its row ✅; status reaches the row, not just the helper ✅; only
+real consumables are offered ✅. Non-vacuous: dropping the status from the row fails the
+row tests; accepting every item as consumable fails the consumable test.
+
+**Note:** the aggregated `m_combatMonsterHpLabel` is kept — it is the compact "Monster:"
+summary and several existing tests read it.
 
 ---
 
@@ -245,7 +252,7 @@ the migration path exists from the first save that contains them.
 v3.0.0 is ready when:
 
 - [x] The player can choose which monster to attack, and the choice is visible
-- [ ] Each monster in a group shows its own HP and status
+- [x] Each monster in a group shows its own HP and status
 - [ ] Front/back row changes who melee can reach
 - [ ] Level-ups grant spendable stat points; the pool persists
 - [ ] The main quest chain advances from play and grants its rewards

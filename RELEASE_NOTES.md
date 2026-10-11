@@ -30,6 +30,20 @@ Semantic versioning with game-studio conventions:
 
 **Tests:** 1333 + 3 passed, 0 failed (stable over 3 runs).
 
+## Slice 3.2 — Per-monster combat display
+
+**Problem:** The combat panel collapsed every monster into one `join(", ")` label, so a group fight read as a wall of numbers. Combat item use was hardcoded: it searched the inventory for a name containing "healing"/"health" and used the first match, so the player could never choose.
+
+**Fix:**
+- Each target row shows its own HP **and** status via `combatStatusText()` — poison/fire/blind/confused/stunned/slowed rounds plus "defending"
+- The acting row is marked with `> ` so turn order is visible
+- The item button opens a picker of the party member's actual consumables
+- `Character::isConsumable()` is the single rule (potions 23, scrolls 24, tomes 25) — the same one `useConsumable()` enforces, so every listed item works
+
+**Verified:** tests [129]-[131] — three monsters give three rows with independent HP, and damaging one changes only its row ✅; status reaches the row ✅; only real consumables are offered ✅. Non-vacuous: dropping the status from the row fails the row tests; accepting every item as consumable fails the consumable test.
+
+**Tests:** 1352 + 3 passed, 0 failed (stable over 3 runs).
+
 ---
 
 | Phase | Version | Level | Content |

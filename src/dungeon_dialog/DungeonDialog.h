@@ -218,6 +218,11 @@ public:
     // the selected monster dies so keyboard-only play keeps working).
     int selectFirstLivingMonster();
 
+    // Short human-readable status for a combat row: "poison 3", "fire 2",
+    // "blind", "stunned", "slowed". Empty when the participant is clean.
+    // Static and free of UI state so the self-tests can check it directly.
+    static QString combatStatusText(const CombatParticipant& p);
+
     // --- Phase 3: Movement & UI ---
     // Integrated minimap (in the main layout, not a popup)
     QGraphicsView* m_miniMapViewIntegrated = nullptr;

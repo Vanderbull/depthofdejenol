@@ -215,6 +215,11 @@ struct Character {
     // Use a consumable item. Returns true on success.
     bool useConsumable(int inventoryIndex, QString& effectDescription);
 
+    // Can this inventory slot be used as a consumable? Potions (23), scrolls
+    // (24) and tomes (25) are the usable types; the same rule useConsumable()
+    // enforces, exposed so the combat item picker can list exactly those.
+    static bool isConsumable(const HeldItem& item);
+
     // --- Food / hunger ---
     // Decrease hunger by `amount` (clamped to 0). Starvation damage is
     // applied separately by the caller so it can route through combat state.
