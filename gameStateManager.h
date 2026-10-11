@@ -18,6 +18,7 @@ extern "C" {
 
 #include <QSettings>
 #include <QTcpSocket>
+#include <QElapsedTimer>
 // Qt Core
 #include <QObject>
 #include <QString>
@@ -56,6 +57,10 @@ private:
     void packStateForSaving();   // Pulls live data (Party, Location) into m_gameStateData
     void unpackStateAfterLoading(); // Pushes m_gameStateData values back into live objects
     QPixmap m_fontSpriteSheet;
+
+    // --- Play-time tracking (v3.0.0 slice 3.6) ---
+    QElapsedTimer m_playTimeTimer;
+    qint64 m_playTimeAccumulatedMs = 0;
 
     GameConstants::GameMode m_currentMode = GameConstants::GameMode::InCity;
     GameConstants::CityLocation m_currentCityLocation = GameConstants::CityLocation::Street;
@@ -119,6 +124,18 @@ public:
     bool saveFullGameState(const QString& saveName);
     bool loadFullGameState(const QString& saveName);
     void addGameRecord(const GameRecord& record);
+
+    // --- Play-time tracking (v3.0.0 slice 3.6) ---
+    // Start the play-time timer. Called when a new game begins.
+    void startPlayTime();
+    // Stop and persist the accumulated play time.
+    void stopPlayTime();
+    // Current play time in milliseconds (live).
+    qint64 playTimeMs() const;
+    // Current play time in seconds (live).
+    qint64 playTimeSeconds() const;
+    // Play time of the active character in seconds.
+    qint64 partyPlayTimeSeconds();
     // New Game Plus cycle count (0 = base game, 1 = NG+1, etc.)
     int getNgPlusLevel() const { return m_gameStateData.value("NGPlusLevel", 0).toInt(); }
     void setNgPlusLevel(int level) { setGameValue("NGPlusLevel", level); }

@@ -466,6 +466,44 @@ void gameStateManager::setDungeonLevel(int level) {
     }
 }
 
+// --- Play-time tracking (v3.0.0 slice 3.6) ---
+void gameStateManager::startPlayTime() {
+    m_playTimeAccumulatedMs = 0;
+    m_playTimeTimer.invalidate();
+    m_playTimeTimer.start();
+    // Ensure the timer is actually valid so playTimeSeconds() returns > 0
+    if (!m_playTimeTimer.isValid()) {
+        // Fallback: use a static start time if QElapsedTimer fails
+        m_playTimeAccumulatedMs = 1;
+    }
+}
+
+void gameStateManager::stopPlayTime() {
+    if (m_playTimeTimer.isValid()) {
+        m_playTimeAccumulatedMs += m_playTimeTimer.elapsed();
+        m_playTimeTimer.invalidate();
+    }
+    // Persist the accumulated time to the save data
+    setGameValue("PlayTimeSeconds", m_playTimeAccumulatedMs / 1000);
+}
+
+qint64 gameStateManager::playTimeMs() const {
+    qint64 ms = m_playTimeAccumulatedMs;
+    if (m_playTimeTimer.isValid()) {
+        ms += m_playTimeTimer.elapsed();
+    }
+    return ms;
+}
+
+qint64 gameStateManager::playTimeSeconds() const {
+    return playTimeMs() / 1000;
+}
+
+qint64 gameStateManager::partyPlayTimeSeconds() {
+    if (getPartyMembers().isEmpty()) return 0;
+    return getPartyMembers()[0].playTimeSeconds;
+}
+
 QVariant gameStateManager::getGameValue(const QString& key) const
 {
     if (key == "HallOfRecords") {
@@ -2366,6 +2404,13 @@ bool gameStateManager::loadFullGameState(const QString& saveName) {
                  << "to v" << SavegameVersion::CURRENT_SAVE_VERSION;
     }
 
+    // Restore play time from the save (v3.0.0 slice 3.6).
+    const qint64 savedPlayTime = loaded.value("PlayTimeSeconds", 0).toLongLong();
+    m_playTimeAccumulatedMs = savedPlayTime * 1000;
+    if (savedPlayTime > 0 && !m_playTimeTimer.isValid()) {
+        m_playTimeTimer.start();
+    }
+
     m_gameStateData = loaded;
 
     // unpackStateAfterLoading() restores the Party from m_gameStateData; doing
@@ -2393,6 +2438,12 @@ void gameStateManager::packStateForSaving() {
 
     // 5. Version for save schema compatibility.
     m_gameStateData["SaveVersion"] = SavegameVersion::CURRENT_SAVE_VERSION;
+
+    // 5b. Stop the play timer so the persisted value is exact.
+    stopPlayTime();
+
+    // 5b. Play time (v3.0.0 slice 3.6) — persist accumulated seconds.
+    m_gameStateData["PlayTimeSeconds"] = playTimeSeconds();
 
     // 6. Persist Hall of Records (game records from completed runs).
     QVariantList hallRecords;

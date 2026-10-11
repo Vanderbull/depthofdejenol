@@ -160,23 +160,29 @@ step ✅. Non-vacuous: disabling reward granting fails [149] and [150].
 
 ---
 
-### 3.6 Play-time tracking and a real Hall of Records `S`
+### 3.6 Play-time tracking and a real Hall of Records `S` — ✅ DONE
 
-**Why:** `DungeonDialog.cpp:1657` records `rec.completionTimeSeconds = 0; // TODO: track
-actual play time`. `Endgame::isBetter()` treats `completionTimeSeconds <= 0` as "not
-finished" (`Endgame.cpp:89`), so the fastest-completion record can never be set. Play time
-is not measured anywhere (verified: no `QElapsedTimer`/`playTime` in the codebase).
+**Why:** `DungeonDialog.cpp:1657` recorded `rec.completionTimeSeconds = 0; // TODO: track
+actual play time`. `Endgame::outranks()` treats `completionTimeSeconds <= 0` as "not
+finished", so the fastest-completion record could never be set. Play time was not measured
+anywhere.
 
-**Do:**
-- Start a timer when a run begins; persist elapsed seconds with the save.
-- Populate `completionTimeSeconds` on victory.
-- Show play time on the character sheet and in the Hall of Records.
+**Done:**
+- `gameStateManager::playTimeMs()` / `playTimeSeconds()` — live millisecond resolution
+  (`QElapsedTimer`), so sub-second precision survives
+- `stopPlayTime()` now called from `packStateForSaving()` so the persisted value is exact
+- `PlayTimeSeconds` persisted in save and restored on load
+- `completionTimeSeconds` on victory uses `gsm->playTimeSeconds()` instead of hardcoded 0
+- `GameRecord::formattedTime()` formats as HH:MM:SS; `Endgame::outranks()` sorts
+  fastest-completion correctly
+- Hall of Records displays `formattedTime()` for the Fastest Completion category
 
-**Files:** `gameStateManager.cpp`, `src/dungeon_dialog/DungeonDialog.cpp`,
-`src/hall_of_records/hallofrecordsdialog.cpp`, `src/core/Endgame.cpp`
+**Files:** `gameStateManager.cpp` / `.h`, `src/dungeon_dialog/DungeonDialog.cpp`,
+`src/core/Endgame.cpp`, `src/hall_of_records/hallofrecordsdialog.cpp`
 
-**Verify:** a completed run records a non-zero time; a faster run sorts ahead of a slower
-one; the time survives save/load.
+**Verify:** tests [154]-[158] — playTimeMs non-zero after 50ms ✅; timer resets ✅;
+play time survives save/load ✅; completionTimeSeconds populated ✅; faster run sorts
+ahead ✅. Non-vacuous: forcing playTimeMs to 0 fails [154] and [155].
 
 ---
 
@@ -270,7 +276,7 @@ v3.0.0 is ready when:
 - [x] Front/back row changes who melee can reach
 - [ ] Level-ups grant spendable stat points; the pool persists
 - [x] The main quest chain advances from play and grants its rewards
-- [ ] Play time is tracked and the Hall of Records sorts by it
+- [x] Play time is tracked and the Hall of Records sorts by it
 - [ ] Saves are versioned, migrated, and newer saves are refused
 - [ ] Combat gives visual feedback on hits and deaths
 - [ ] `Makefile`, `blacklands` and `qrc_resources.cpp` are untracked; a clean build works

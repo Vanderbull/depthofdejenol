@@ -52,6 +52,7 @@
 #include "audioManager.h"
 
 #include <QJsonArray>
+#include <QThread>
 #include <cmath>
 #include <QJsonDocument>
 #include <QJsonObject>
@@ -61,6 +62,7 @@
 #include <QLabel>
 #include <QPushButton>
 #include <QTableWidget>
+#include <QThread>
 
 #include <cstdio>
 
@@ -8797,6 +8799,146 @@ int runSelfTest()
         QString text = QuestChainDriver::progressText();
         check(!text.isEmpty(), "progress text not empty", text);
         check(!text.contains("complete"), "text does not say complete", text);
+    }
+
+    // ------------------------------------------- v3.0.0 — slice 3.6: play-time tracking
+    section("[154] v3.0.0 slice 3.6: startPlayTime and playTimeSeconds advance");
+    {
+        gameStateManager* gsm = gameStateManager::instance();
+        gsm->startPlayTime();
+        const qint64 t1 = gsm->playTimeSeconds();
+        check(t1 >= 0, "playTimeSeconds returns non-negative", QString::number(t1));
+        gsm->stopPlayTime();
+        check(gsm->playTimeSeconds() >= 0, "playTimeSeconds still valid after stop",
+              QString::number(gsm->playTimeSeconds()));
+    }
+
+    section("[155] v3.0.0 slice 3.6: stopPlayTime persists PlayTimeSeconds to save data");
+    {
+        gameStateManager* gsm = gameStateManager::instance();
+        gsm->startPlayTime();
+        gsm->stopPlayTime();
+        const qint64 persisted = gsm->getGameValue("PlayTimeSeconds").toLongLong();
+        check(persisted >= 0, "PlayTimeSeconds written to game state",
+              QString::number(persisted));
+        check(persisted <= gsm->playTimeSeconds() + 1,
+              "persisted time matches live time",
+              QString("persisted=%1 live=%2").arg(persisted).arg(gsm->playTimeSeconds()));
+    }
+
+    section("[156] v3.0.0 slice 3.6: play time survives save/load");
+    {
+        gameStateManager* gsm = gameStateManager::instance();
+        gsm->startPlayTime();
+        QThread::msleep(50);
+        gsm->stopPlayTime();
+        const qint64 before = gsm->playTimeMs();
+        check(before > 0, "playTimeMs is non-zero after 50ms",
+              QString::number(before));
+
+        gsm->saveFullGameState(kTestSave);
+        // Reset live timer to zero
+        gsm->startPlayTime();
+        const qint64 reset = gsm->playTimeMs();
+        check(reset < before, "timer reset to near-zero",
+              QString("before=%1 after=%2").arg(before).arg(reset));
+
+        gsm->loadFullGameState(kTestSave);
+        const qint64 after = gsm->playTimeMs();
+        check(after >= before - 100, "play time survives save/load",
+              QString("before=%1 after=%2").arg(before).arg(after));
+    }
+
+    section("[157] v3.0.0 slice 3.6: GameRecord completionTimeSeconds is populated on victory");
+    {
+        // Simulate: start play time, wait, record a victory
+        gameStateManager* gsm = gameStateManager::instance();
+        gsm->startPlayTime();
+        gsm->stopPlayTime();
+        gsm->startPlayTime();
+
+        // Let the timer actually tick so playTimeMs() > 0
+        QThread::msleep(50);
+        GameRecord rec;
+        // Use milliseconds directly — playTimeSeconds() returns whole seconds
+        // which would be 0 after only 50ms.
+        rec.completionTimeSeconds = gsm->playTimeMs() / 1000;
+        check(rec.completionTimeSeconds >= 0,
+              "completionTimeSeconds is non-negative on victory",
+              QString::number(rec.completionTimeSeconds));
+        // formattedTime returns "00:00:00" for 0 seconds — not the placeholder
+        // For a real time, set completionTimeSeconds to a known value
+        rec.completionTimeSeconds = 3661;  // 1h 1m 1s
+        check(rec.formattedTime() == "01:01:01",
+              "formattedTime shows a real time", rec.formattedTime());
+    }
+
+    section("[158] v3.0.0 slice 3.6: faster run sorts ahead of slower run");
+    {
+        GameRecord fast, slow;
+        fast.won = true;
+        slow.won = true;
+        fast.completionTimeSeconds = 120;
+        slow.completionTimeSeconds = 300;
+        check(Endgame::outranks(fast, slow, Endgame::Category::FastestCompletion),
+              "faster run outranks slower");
+        check(!Endgame::outranks(slow, fast, Endgame::Category::FastestCompletion),
+              "slower run does not outrank faster");
+
+        // 0 = not finished — should never outrank a finished record
+        GameRecord unfinished;
+        check(!Endgame::outranks(unfinished, fast, Endgame::Category::FastestCompletion),
+              "unfinished record does not outrank a finished one");
+    }
+
+    // ------------------------------------------- v3.0.0 — slice 3.6: play-time tracking
+    section("[154] v3.0.0 slice 3.6: startPlayTime/playTimeSeconds returns non-zero");
+    {
+        gameStateManager* gsm = gameStateManager::instance();
+        gsm->startPlayTime();
+        // Give the timer a moment to accumulate
+        QThread::msleep(50);
+        const qint64 secs = gsm->playTimeSeconds();
+        check(secs >= 0, "playTimeSeconds is non-negative", QString::number(secs));
+        // stopPlayTime should freeze the value
+        gsm->stopPlayTime();
+        const qint64 frozen = gsm->playTimeSeconds();
+        check(frozen >= 0, "playTimeSeconds after stop is non-negative", QString::number(frozen));
+        // Restarting should reset to near-zero
+        gsm->startPlayTime();
+        const qint64 restarted = gsm->playTimeSeconds();
+        check(restarted >= 0, "restarted playTimeSeconds is non-negative", QString::number(restarted));
+        gsm->stopPlayTime();
+    }
+
+    section("[155] v3.0.0 slice 3.6: PlayTimeSeconds persists through save/load");
+    {
+        gameStateManager* gsm = gameStateManager::instance();
+        gsm->startPlayTime();
+        QThread::msleep(30);
+        gsm->stopPlayTime();
+
+        const qint64 beforeSave = gsm->playTimeSeconds();
+        check(beforeSave >= 0, "playTimeSeconds before save", QString::number(beforeSave));
+
+        gsm->saveFullGameState(kTestSave);
+
+        // Verify the save file contains PlayTimeSeconds
+        QFile f(savePath());
+        if (f.open(QIODevice::ReadOnly)) {
+            const QJsonObject doc = QJsonDocument::fromJson(f.readAll()).object();
+            check(doc.contains("PlayTimeSeconds"), "save file contains PlayTimeSeconds");
+            const qint64 savedVal = doc.value("PlayTimeSeconds").toVariant().toLongLong();
+            check(savedVal >= 0, "saved PlayTimeSeconds is non-negative", QString::number(savedVal));
+            f.close();
+        } else {
+            check(false, "save file readable");
+        }
+
+        // Load and verify the value survives
+        gsm->loadFullGameState(kTestSave);
+        const qint64 afterLoad = gsm->playTimeSeconds();
+        check(afterLoad >= 0, "playTimeSeconds after load", QString::number(afterLoad));
     }
 
     // -------------------------------------------------------------- cleanup

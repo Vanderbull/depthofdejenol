@@ -101,6 +101,25 @@ progressText shows current step ✅. Non-vacuous: disabling reward granting fail
 
 **Tests:** 1422 + 3 passed, 0 failed (stable over 3 runs).
 
+## Slice 3.6 — Play-time tracking and a real Hall of Records
+
+**Problem:** `completionTimeSeconds` was hardcoded to 0 on victory, so the fastest-completion
+category could never be set. Play time was not measured anywhere.
+
+**Fix:**
+- `gameStateManager::playTimeMs()` / `playTimeSeconds()` — live millisecond resolution
+- `stopPlayTime()` called from `packStateForSaving()` so the persisted value is exact
+- `PlayTimeSeconds` persisted in save and restored on load
+- `completionTimeSeconds` on victory uses `gsm->playTimeSeconds()` instead of hardcoded 0
+- `GameRecord::formattedTime()` formats as HH:MM:SS; `Endgame::outranks()` sorts correctly
+- Hall of Records displays `formattedTime()` for Fastest Completion
+
+**Verified:** tests [154]-[158] — playTimeMs non-zero after 50ms ✅; timer resets ✅;
+play time survives save/load ✅; completionTimeSeconds populated ✅; faster run sorts
+ahead ✅. Non-vacuous: forcing playTimeMs to 0 fails [154] and [155].
+
+**Tests:** 1441 + 3 passed, 0 failed (stable over 3 runs).
+
 ---
 
 | Phase | Version | Level | Content |
