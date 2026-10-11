@@ -9018,6 +9018,90 @@ int runSelfTest()
         dlg.flashCombatFx(false);
     }
 
+    // ------------------------------------------- v4.0.0 — slice 4.1: New Game Plus
+    section("[162] v4.0.0 slice 4.1: startNewGamePlus increases NG+ level");
+    {
+        gameStateManager* gsm = gameStateManager::instance();
+        gsm->setNgPlusLevel(0);
+        gsm->startNewGamePlus();
+        check(gsm->getNgPlusLevel() == 1, "NG+ level is 1 after first NG+",
+              QString::number(gsm->getNgPlusLevel()));
+
+        gsm->startNewGamePlus();
+        check(gsm->getNgPlusLevel() == 2, "NG+ level is 2 after second NG+",
+              QString::number(gsm->getNgPlusLevel()));
+
+        gsm->setNgPlusLevel(0);  // restore
+    }
+
+    section("[163] v4.0.0 slice 4.1: startNewGamePlus keeps party level and gold");
+    {
+        gameStateManager* gsm = gameStateManager::instance();
+        gsm->getPartyMembers().clear();
+        gsm->addCharacterToParty([]{ Character c; c.name="NGTest"; c.race="Human"; c.level=10; c.hp=50; c.maxHp=50; c.mana=30; c.maxMana=30; c.gold=500; c.isAlive=true; return c; }());
+        gsm->setNgPlusLevel(0);
+        gsm->startNewGamePlus();
+
+        check(gsm->getPartyMembers().size() == 1, "party still has 1 member");
+        check(gsm->getPartyMembers()[0].level == 10, "level preserved",
+              QString::number(gsm->getPartyMembers()[0].level));
+        check(gsm->getPartyMembers()[0].gold == 500, "gold preserved",
+              QString::number(gsm->getPartyMembers()[0].gold));
+        check(gsm->getPartyMembers()[0].hp == gsm->getPartyMembers()[0].maxHp, "HP restored to full");
+        check(gsm->getPartyMembers()[0].isAlive, "character is alive");
+
+        gsm->getPartyMembers().clear();
+        gsm->setNgPlusLevel(0);
+    }
+
+    section("[164] v4.0.0 slice 4.1: startNewGamePlus resets dungeon and quest state");
+    {
+        gameStateManager* gsm = gameStateManager::instance();
+        gsm->setDungeonLevel(5);
+        gsm->setGameValue("QuestChainStep", 3);
+        gsm->setGameValue("QuestRewardGiven_step1", true);
+        gsm->setNgPlusLevel(0);
+
+        gsm->startNewGamePlus();
+
+        check(gsm->getGameValue("QuestChainStep").toInt() == 0, "quest chain reset");
+        check(!gsm->getGameValue("QuestRewardGiven_step1").toBool(), "quest rewards reset");
+
+        gsm->setNgPlusLevel(0);
+    }
+
+    section("[165] v4.0.0 slice 4.1: NGPlusLevel persists through save/load");
+    {
+        gameStateManager* gsm = gameStateManager::instance();
+        gsm->setNgPlusLevel(3);
+        gsm->saveFullGameState(kTestSave);
+        // Verify the raw JSON file contains NGPlusLevel
+        QFile f(savePath());
+        f.open(QIODevice::ReadOnly);
+        QJsonDocument doc = QJsonDocument::fromJson(f.readAll());
+        f.close();
+        check(doc.toVariant().toMap().value("NGPlusLevel", -1).toInt() == 3,
+              "NGPlusLevel written to save file",
+              QString::number(doc.toVariant().toMap().value("NGPlusLevel", -1).toInt()));
+        // Now test load
+        gsm->setNgPlusLevel(0);
+        gsm->loadFullGameState(kTestSave);
+        check(gsm->getNgPlusLevel() == 3, "NG+ level persists through save/load",
+              QString::number(gsm->getNgPlusLevel()));
+        gsm->setNgPlusLevel(0);
+    }
+
+    section("[166] v4.0.0 slice 4.1: NGPlusLevel defaults to 0 for old saves");
+    {
+        // Simulate an old save without NGPlusLevel
+        QVariantMap save;
+        save["SaveVersion"] = 1;
+        save["Party"] = QVariantMap();
+        SavegameVersion::migrate(save);
+        check(save.value("NGPlusLevel", -1).toInt() == 0, "NGPlusLevel defaults to 0",
+              QString::number(save.value("NGPlusLevel", -1).toInt()));
+    }
+
     // -------------------------------------------------------------- cleanup
     QFile::remove(savePath());
 
