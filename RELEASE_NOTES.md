@@ -154,6 +154,43 @@ Every commit in v2.0.0 carried binary churn — a rebuilt `blacklands` and a reg
 
 ---
 
+# v4.0.0 — IN PROGRESS
+
+**Major — "Endgame Depth and Replayability": extend the game past victory.**
+
+## Slice 4.1 — New Game Plus
+
+**Problem:** VictoryDialog had a "New Game Plus" button but it did nothing — no party carry-over, no difficulty scaling, no NG+ counter.
+
+**Fix:**
+- `gameStateManager::startNewGamePlus()` — increases NG+ level, resets dungeon/quest/playtime, keeps party (level, stats, equipment, gold)
+- `getNgPlusLevel()` / `setNgPlusLevel()` — read/write NG+ level in game state
+- `EncounterBuilder` — accepts `ngPlusLevel`, scales monsters with `ngPlusMonsterMultiplier` (+50% per cycle)
+- `VictoryReward` — uses `ngPlusRewardMultiplier` (+25% per cycle)
+- Save versioning: `CURRENT_SAVE_VERSION` bumped to 3, migration handles NGPlusLevel
+- NGPlusLevel persists through save/load
+
+**Verified:** tests [162]-[166] — NG+ level increments ✅; party level and gold preserved ✅; NGPlusLevel persists through save/load ✅; NGPlusLevel defaults to 0 for old saves ✅.
+
+**Tests:** 1460 + 3 passed, 0 failed.
+
+## Slice 4.2 — Endgame dungeon: The Abyss
+
+**Problem:** after beating the final boss, there was nowhere left to go. No post-victory content.
+
+**Fix:**
+- `AbyssThemes` — 10-floor post-victory mega-dungeon with unique themes
+- Boss floors 5 and 10 with `Abyssal Maw` and `The Abyssal Heart`
+- `BossEncounter::buildAbyssBoss()` — multiplicative scaling (floor 10 significantly harder than floor 5)
+- Abyss boss XP far above main dungeon bosses
+- Version bumped to 4.0.0
+
+**Verified:** tests [167]-[170] — Abyss has 10 floors ✅; boss floors are 5 and 10 ✅; floor 10 boss has >2x HP of floor 5 ✅; Abyss floor 5 boss XP > main floor 15 boss XP ✅.
+
+**Tests:** 1478 + 3 passed, 0 failed.
+
+---
+
 | Phase | Version | Level | Content |
 |---|---|---|---|
 | Phase 0 | **v0.1** | Pre-release | Security and latent breakage |
