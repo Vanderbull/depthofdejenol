@@ -11,7 +11,7 @@ QString ReleaseInfo::versionString() {
 }
 
 QString ReleaseInfo::releaseDate() {
-    return "2026-10-07";
+    return "2026-10-11";
 }
 
 QStringList ReleaseInfo::releaseNotes() {
@@ -29,8 +29,13 @@ QStringList ReleaseInfo::releaseNotes() {
 
 QStringList ReleaseInfo::changes() {
     return {
+        "Combat is tactical: pick targets, see each monster, use front/back rows",
+        "Level-ups grant spendable stat points; the pool persists",
+        "The main quest chain advances from play and grants its rewards",
+        "Play time is tracked and the Hall of Records sorts by it",
+        "Saves are versioned, migrated, and newer saves are refused",
+        "Combat gives visual feedback on hits and deaths",
         "Core loop wired end to end: fight, loot, equip, level, descend",
-        "Combat starts on encounter; flee removes the monster from the map",
         "Monster spellcasting, status effects (poison, blind, confusion, fire)",
         "Loot drops start unidentified; identify/uncurse at the General Store",
         "Bestiary unlocks a monster only once you have met it",
@@ -62,6 +67,7 @@ QString ReleaseInfo::banner() {
 
 QList<QPair<QString, QString>> ReleaseInfo::versionHistory() {
     return {
+        {"3.0.0", "2026-10-11 — Tactical combat and character growth: all 9 v3.0.0 slices wired (target selection, per-monster display, front/back row, stat allocation, quest chain driver, play time, save versioning, combat visual feedback, repo hygiene)"},
         {"2.0.0", "2026-10-10 — Core loop complete: all 14 v2.0.0 slices wired (combat, equipment, XP, loot, death, persistence, monster spells, status effects, town, item ID, bestiary, journal, gold sinks, aging)"},
         {"1.0.0", "2026-10-10 — First finishable release: victory sequence, Hall of Records, New Game Plus, and the six orphaned systems wired in"},
         {"0.1.0", "2026-10-10 — Phase 0: security hardening and latent breakage fixes"},
