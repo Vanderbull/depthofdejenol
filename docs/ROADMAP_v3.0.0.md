@@ -233,17 +233,19 @@ flashCombatFx is a no-op when disabled ✅. Non-vacuous: disabling fx fails [160
 
 ---
 
-### 3.9 Release hygiene: stop tracking build artifacts `S`
+### 3.9 Release hygiene: stop tracking build artifacts `S` — ✅ DONE
 
-**Why:** `FIXLIST.md` #20 is marked FIXED but the artifacts are still tracked (verified:
-`git ls-files` lists `Makefile`, `blacklands` and `qrc_resources.cpp`). Every commit in
+**Why:** `FIXLIST.md` #20 is marked FIXED but the artifacts were still tracked (verified:
+`git ls-files` listed `Makefile`, `blacklands` and `qrc_resources.cpp`). Every commit in
 v2.0.0 carried binary churn — a rebuilt `blacklands` and a regenerated `Makefile` — which
 makes diffs unreadable and invites merge conflicts. A release version should not ship them.
 
-**Do:**
-- `git rm --cached Makefile blacklands qrc_resources.cpp`
-- Extend `.gitignore` to cover them and any other generated artifact.
-- Confirm a clean build still works from a fresh clone (qmake regenerates `Makefile`).
+**Done:**
+- `git rm --cached` removed `Makefile`, `blacklands`, `qrc_resources.cpp`, `.qmake.stash`,
+  `bankpane/moc_BankPane.cpp`, `bankpane/moc_predefs.h`, `data/saves/autosave.json`
+- `.gitignore` extended to cover them
+- Verified: `qmake6 -o Makefile blacklands.pro && make` works from a clean checkout,
+  `make check` green, `git status` clean after build
 
 **Files:** `.gitignore`, git index
 
@@ -280,9 +282,9 @@ v3.0.0 is ready when:
 - [ ] Level-ups grant spendable stat points; the pool persists
 - [x] The main quest chain advances from play and grants its rewards
 - [x] Play time is tracked and the Hall of Records sorts by it
-- [ ] Saves are versioned, migrated, and newer saves are refused
+- [x] Saves are versioned, migrated, and newer saves are refused
 - [x] Combat gives visual feedback on hits and deaths
-- [ ] `Makefile`, `blacklands` and `qrc_resources.cpp` are untracked; a clean build works
+- [x] `Makefile`, `blacklands` and `qrc_resources.cpp` are untracked; a clean build works
 - [ ] All tests pass (target: 1500+ — carried over from v2.0.0, which ended at 1323)
 - [ ] `RELEASE_NOTES.md` and `ReleaseInfo::versionHistory()` are updated
 - [ ] Manual playthrough: create party → descend → beat a group fight with targeting →

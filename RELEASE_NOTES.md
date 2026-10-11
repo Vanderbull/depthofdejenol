@@ -138,6 +138,20 @@ flashCombatFx is a no-op when disabled ✅. Non-vacuous: disabling fx fails [160
 
 **Tests:** 1448 + 3 passed, 0 failed (stable over 3 runs).
 
+## Slice 3.9 — Release hygiene
+
+**Problem:** `FIXLIST.md` #20 was marked FIXED but the build artifacts were still tracked.
+Every commit in v2.0.0 carried binary churn — a rebuilt `blacklands` and a regenerated
+`Makefile` — making diffs unreadable and inviting merge conflicts.
+
+**Fix:**
+- `git rm --cached` removed `Makefile`, `blacklands`, `qrc_resources.cpp`, `.qmake.stash`,
+  `bankpane/moc_BankPane.cpp`, `bankpane/moc_predefs.h`, `data/saves/autosave.json`
+- `.gitignore` extended to cover them
+
+**Verified:** `qmake6 -o Makefile blacklands.pro && make` works from a clean checkout,
+`make check` green, `git status` clean after build.
+
 ---
 
 | Phase | Version | Level | Content |
