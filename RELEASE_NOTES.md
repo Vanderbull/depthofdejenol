@@ -189,6 +189,21 @@ Every commit in v2.0.0 carried binary churn — a rebuilt `blacklands` and a reg
 
 **Tests:** 1478 + 3 passed, 0 failed.
 
+## Slice 4.3 — Arena / challenge mode
+
+**Problem:** combat is now tactical, but there is no way to test your build against increasing difficulty outside the main quest.
+
+**Fix:**
+- `Arena` — 10 waves of monsters, each harder than the last
+- Score based on speed, damage taken, and waves cleared
+- Leaderboard stored in game state (`ArenaRecords`)
+- `ArenaDialog` — full combat UI with attack/defend/spell/flee
+- Arena button in `theCity` (accessible from town)
+
+**Verified:** tests [171]-[176] — monster count scales with wave ✅; monster level scales with wave and NG+ ✅; wave score rewards speed and low damage ✅; total score sums wave scores ✅; leaderboard sorts by score descending ✅; arena is accessible from town ✅.
+
+**Tests:** 1494 + 3 passed, 0 failed.
+
 ---
 
 | Phase | Version | Level | Content |

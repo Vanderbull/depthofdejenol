@@ -54,22 +54,22 @@ mega-dungeon gives players a reason to keep playing.
 
 **Verify:** tests [167]-[170] — Abyss has 10 floors ✅; boss floors are 5 and 10 ✅; floor 10 boss has >2x HP of floor 5 ✅; Abyss floor 5 boss XP > main floor 15 boss XP ✅.
 
-### 4.3 Arena / challenge mode `M`
+### 4.3 Arena / challenge mode `M` — ✅ DONE
 
 **Why:** combat is now tactical, but there is no way to test your build against
 increasing difficulty outside the main quest. An arena gives players a reason to
 keep fighting after victory.
 
-**Do:**
-- Add an arena mode: 10 waves of monsters, each harder than the last.
-- Score is based on speed, damage taken, and waves cleared.
-- Leaderboard stored in the Hall of Records.
-- Accessible from town (not just the dungeon).
+**Done:**
+- `Arena` — 10 waves of monsters, each harder than the last
+- Score based on speed, damage taken, and waves cleared
+- Leaderboard stored in game state (`ArenaRecords`)
+- `ArenaDialog` — full combat UI with attack/defend/spell/flee
+- Arena button in `theCity` (accessible from town)
 
-**Files:** `src/dungeon_dialog/DungeonDialog.cpp`, `src/core/Endgame.cpp`, `src/combat/EncounterBuilder.cpp`
+**Files:** `src/core/Arena.h` / `.cpp`, `src/arena_dialog/ArenaDialog.h` / `.cpp`, `theCity.h` / `.cpp`
 
-**Verify:** the arena is accessible from town; the waves get harder; the score
-is recorded; the leaderboard sorts correctly.
+**Verify:** tests [171]-[176] — monster count scales with wave ✅; monster level scales with wave and NG+ ✅; wave score rewards speed and low damage ✅; total score sums wave scores ✅; leaderboard sorts by score descending ✅; arena is accessible from town ✅.
 
 ### 4.4 Achievements `M`
 
@@ -154,7 +154,7 @@ release notes are complete.
 
 - [x] New Game Plus carries the party and scales difficulty
 - [x] Endgame dungeon is accessible and beatable
-- [ ] Arena mode is accessible and scored
+- [x] Arena mode is accessible and scored
 - [ ] Achievements unlock and persist
 - [ ] Full playthrough is winnable in 10–15 hours
 - [ ] Old roadmaps are archived
