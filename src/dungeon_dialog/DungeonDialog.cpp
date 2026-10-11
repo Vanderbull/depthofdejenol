@@ -332,6 +332,8 @@ void DungeonDialog::movePlayer(int dx, int dy, int dz=0)
             }
         }
     }
+    // Announce the first step into the low-hunger band (once per crossing).
+    announceHungerWarnings();
 
     revealAroundPlayer(newX, newY);
     updateLocation(QString("Dungeon Level %1, (%2, %3)").arg(currentZ).arg(newX).arg(newY));
@@ -1939,25 +1941,74 @@ void DungeonDialog::updatePartyPanel()
 
     gameStateManager* gsm = gameStateManager::instance();
     auto& members = gsm->getPartyMembers();
-    for (const Character& c : members) {
-        QString status;
-        if (!c.isAlive || c.hp <= 0) {
-            status = "DEAD";
-        } else {
-            int pct = (c.maxHp > 0) ? (c.hp * 100 / c.maxHp) : 0;
-            status = QString("%1/%2 HP (%3%)").arg(c.hp).arg(c.maxHp).arg(pct);
-        }
-        QListWidgetItem* item = new QListWidgetItem(
-            QString("%1 (Lv %2) — %3").arg(c.name).arg(c.level).arg(status));
-        if (!c.isAlive || c.hp <= 0) {
-            item->setForeground(Qt::red);
-        } else if (c.hp * 100 / qMax(1, c.maxHp) < 30) {
-            item->setForeground(Qt::yellow);
-        } else {
-            item->setForeground(Qt::green);
-        }
+    for (int i = 0; i < members.size(); ++i) {
+        const Character& c = members[i];
+        QListWidgetItem* item = new QListWidgetItem(partyMemberStatusText(c));
+        item->setForeground(partyMemberColor(c));
         m_partyStatusList->addItem(item);
     }
+}
+
+// --- v5.0.0 slice 5.1: hunger is visible ---
+
+QString DungeonDialog::partyMemberStatusText(const Character& c)
+{
+    QString status;
+    if (!c.isAlive || c.hp <= 0) {
+        status = "DEAD";
+    } else {
+        int pct = (c.maxHp > 0) ? (c.hp * 100 / c.maxHp) : 0;
+        status = QString("%1/%2 HP (%3%)").arg(c.hp).arg(c.maxHp).arg(pct);
+    }
+    // Hunger rides alongside HP so the drain is visible before it kills.
+    return QString("%1 (Lv %2) — %3 — Hunger %4/%5")
+        .arg(c.name).arg(c.level).arg(status).arg(c.hunger).arg(c.maxHunger);
+}
+
+QColor DungeonDialog::partyMemberColor(const Character& c)
+{
+    if (!c.isAlive || c.hp <= 0 || c.isStarving()) {
+        return QColor(Qt::red);
+    }
+    if (c.isHungerLow() || c.hp * 100 / qMax(1, c.maxHp) < 30) {
+        return QColor(Qt::yellow);
+    }
+    return QColor(Qt::green);
+}
+
+QString DungeonDialog::hungerWarningMessage(const Character& c)
+{
+    if (!c.isHungerLow()) return QString();
+    return QString("<font color='orange'>%1 is getting hungry.</font>").arg(c.name);
+}
+
+int DungeonDialog::announceHungerWarnings()
+{
+    gameStateManager* gsm = gameStateManager::instance();
+    auto& members = gsm->getPartyMembers();
+
+    // Drop warnings for members that no longer exist (party shrank).
+    for (auto it = m_hungerWarned.begin(); it != m_hungerWarned.end(); ) {
+        if (*it >= members.size()) it = m_hungerWarned.erase(it);
+        else ++it;
+    }
+
+    int announced = 0;
+    for (int i = 0; i < members.size(); ++i) {
+        const Character& c = members[i];
+        if (c.isHungerLow()) {
+            // Warn once per crossing: only when this member was not already low.
+            if (!m_hungerWarned.contains(i)) {
+                logMessage(hungerWarningMessage(c));
+                m_hungerWarned.insert(i);
+                ++announced;
+            }
+        } else {
+            // Back above the band: arm the warning for the next crossing.
+            m_hungerWarned.remove(i);
+        }
+    }
+    return announced;
 }
 
 void DungeonDialog::on_backtrackButton_clicked()

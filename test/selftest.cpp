@@ -66,6 +66,7 @@
 #include <QPushButton>
 #include <QTableWidget>
 #include <QThread>
+#include <QColor>
 
 #include <cstdio>
 
@@ -9522,6 +9523,187 @@ int runSelfTest()
                 }
             }
         }
+    }
+
+    // ---------------------------------------------- v5.0.0 slice 5.1: hunger visible
+    section("[189] v5.0.0 slice 5.1: hunger helpers report the drain");
+    {
+        Character c;
+        c.hunger = 100; c.maxHunger = 100;
+        check(c.hungerPercent() == 100, "full hunger reads 100%",
+              QString::number(c.hungerPercent()));
+        check(!c.isHungerLow(), "full hunger is not in the warning band");
+
+        c.hunger = 19;
+        check(c.hungerPercent() == 19, "hunger percent tracks the value",
+              QString::number(c.hungerPercent()));
+        check(c.isHungerLow(), "hunger below 20% is in the warning band");
+        check(!c.isStarving(), "19 hunger is low but not starving");
+
+        c.hunger = 0;
+        check(c.isStarving(), "zero hunger is starving");
+        check(!c.isHungerLow(), "starving is not merely low");
+
+        c.maxHunger = 0; c.hunger = 0;
+        check(c.hungerPercent() == 0, "zero max hunger does not divide by zero");
+    }
+
+    section("[190] v5.0.0 slice 5.1: the party panel shows hunger and warns");
+    {
+        Character c;
+        c.name = "Borin"; c.level = 3; c.hp = 12; c.maxHp = 20;
+        c.hunger = 15; c.maxHunger = 100; c.isAlive = true;
+
+        const QString text = DungeonDialog::partyMemberStatusText(c);
+        check(text.contains("12/20"), "panel row still shows HP", text);
+        check(text.contains("Hunger 15/100"), "panel row shows hunger", text);
+
+        // Low hunger must warn even when HP is healthy.
+        check(DungeonDialog::partyMemberColor(c) == QColor(Qt::yellow),
+              "low hunger colours the row as a warning");
+
+        Character full = c; full.hunger = 100;
+        check(DungeonDialog::partyMemberColor(full) == QColor(Qt::green),
+              "a full, healthy member reads green");
+
+        Character dead = c; dead.isAlive = false;
+        check(DungeonDialog::partyMemberColor(dead) == QColor(Qt::red),
+              "a dead member reads red");
+
+        Character starving = c; starving.hunger = 0;
+        check(DungeonDialog::partyMemberColor(starving) == QColor(Qt::red),
+              "a starving member reads red");
+    }
+
+    section("[191] v5.0.0 slice 5.1: the low-hunger warning fires once per crossing");
+    {
+        gameStateManager* gsm = gameStateManager::instance();
+        auto& members = gsm->getPartyMembers();
+        members.clear();
+        Character c;
+        c.name = "Hungry Test"; c.level = 1; c.hp = 10; c.maxHp = 10;
+        c.hunger = 25; c.maxHunger = 100; c.isAlive = true;
+        members.append(c);
+
+        DungeonDialog dlg;
+        // At 25% the member is not yet low: nothing to announce.
+        check(dlg.announceHungerWarnings() == 0,
+              "no warning while hunger is above the band");
+
+        // Cross into the band: exactly one warning.
+        members[0].hunger = 15;
+        check(dlg.announceHungerWarnings() == 1, "crossing into the band warns once");
+        check(dlg.announceHungerWarnings() == 0,
+              "staying low does not repeat the warning");
+
+        // Recovering and crossing again warns again.
+        members[0].hunger = 80;
+        check(dlg.announceHungerWarnings() == 0, "recovering emits nothing");
+        members[0].hunger = 10;
+        check(dlg.announceHungerWarnings() == 1, "a second crossing warns again");
+
+        // The message names the member, and a non-low member has none.
+        members[0].hunger = 15;
+        const QString msg = DungeonDialog::hungerWarningMessage(members[0]);
+        check(msg.contains("Hungry Test"), "warning names the member", msg);
+        check(DungeonDialog::hungerWarningMessage(Character()).isEmpty(),
+              "a non-low member has no warning");
+
+        members.clear();
+    }
+
+    section("[192] v5.0.0 slice 5.1: the character sheet shows a hunger row");
+    {
+        gameStateManager* gsm = gameStateManager::instance();
+        auto& members = gsm->getPartyMembers();
+        members.clear();
+        Character c;
+        c.name = "Sheet Test"; c.level = 2; c.hp = 10; c.maxHp = 10;
+        c.hunger = 42; c.maxHunger = 100;
+        members.append(c);
+
+        CharacterSheetDialog sheet;
+        bool found = false;
+        for (QLabel* l : sheet.findChildren<QLabel*>()) {
+            if (l->text().contains("Hunger") && l->text().contains("42")) {
+                found = true; break;
+            }
+        }
+        check(found, "character sheet shows the member's hunger");
+
+        members.clear();
+    }
+
+    section("[193] v5.0.0 slice 5.1: a real move updates the panel and warns");
+    {
+        gameStateManager* gsm = gameStateManager::instance();
+        auto& members = gsm->getPartyMembers();
+        members.clear();
+        Character c;
+        c.name = "Walker"; c.level = 1; c.hp = 10; c.maxHp = 10;
+        // Start just above the warning band (20%) so one step crosses into it.
+        c.hunger = 21; c.maxHunger = 100; c.isAlive = true;
+        members.append(c);
+
+        DungeonDialog dlg;
+        dlg.resize(1280, 800);
+        dlg.show();
+        for (int i = 0; i < 10; ++i) QApplication::processEvents();
+
+        // Find a walkable tile with a walkable neighbour, so movePlayer actually
+        // moves (a walled-in start tile blocks every step and drains nothing).
+        int startX = -1, startY = -1, dx = 0, dy = 0;
+        for (int x = 1; x < MAP_SIZE - 1 && startX < 0; ++x) {
+            for (int y = 1; y < MAP_SIZE - 1 && startX < 0; ++y) {
+                if (dlg.m_obstaclePositions.contains({x, y})) continue;
+                const int dirs[4][2] = {{0,-1},{0,1},{-1,0},{1,0}};
+                for (auto& d : dirs) {
+                    if (!dlg.m_obstaclePositions.contains({x + d[0], y + d[1]})) {
+                        startX = x; startY = y; dx = d[0]; dy = d[1];
+                        break;
+                    }
+                }
+            }
+        }
+        check(startX >= 0, "found a walkable tile with a walkable neighbour");
+        if (startX >= 0) {
+            gsm->setGameValue("DungeonX", startX);
+            gsm->setGameValue("DungeonY", startY);
+
+            const int hungerBefore = members[0].hunger;
+            const int logBefore = dlg.m_messageLog ? dlg.m_messageLog->count() : 0;
+            dlg.movePlayer(dx, dy, 0);   // the real movement entry point
+
+            check(members[0].hunger == hungerBefore - 1,
+                  "a real step costs one hunger",
+                  QString("%1 -> %2").arg(hungerBefore).arg(members[0].hunger));
+
+            // The step crossed into the low-hunger band: the move itself must
+            // have logged the warning (proves the wiring, not just the helper).
+            bool warned = false;
+            if (dlg.m_messageLog) {
+                for (int i = logBefore; i < dlg.m_messageLog->count(); ++i) {
+                    QWidget* w = dlg.m_messageLog->itemWidget(dlg.m_messageLog->item(i));
+                    QLabel* lbl = qobject_cast<QLabel*>(w);
+                    if (lbl && lbl->text().contains("Walker") &&
+                        lbl->text().contains("hungry")) {
+                        warned = true; break;
+                    }
+                }
+            }
+            check(warned, "the move itself announced the low-hunger crossing");
+
+            // The party panel must have been refreshed through the real path.
+            check(dlg.m_partyStatusList != nullptr &&
+                      dlg.m_partyStatusList->count() == members.size(),
+                  "the party panel was repopulated after the move");
+            if (dlg.m_partyStatusList && dlg.m_partyStatusList->count() > 0) {
+                const QString row = dlg.m_partyStatusList->item(0)->text();
+                check(row.contains("Hunger"), "the panel row shows hunger", row);
+            }
+        }
+
+        members.clear();
     }
 
     // -------------------------------------------------------------- cleanup

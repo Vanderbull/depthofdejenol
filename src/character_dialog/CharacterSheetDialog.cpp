@@ -37,6 +37,7 @@ void CharacterSheetDialog::setupUi() {
     m_xpLabel = new QLabel;
     m_hpLabel = new QLabel;
     m_manaLabel = new QLabel;
+    m_hungerLabel = new QLabel;
     m_goldLabel = new QLabel;
     m_playTimeLabel = new QLabel;
     mainLayout->addWidget(m_raceLabel);
@@ -45,6 +46,7 @@ void CharacterSheetDialog::setupUi() {
     mainLayout->addWidget(m_xpLabel);
     mainLayout->addWidget(m_hpLabel);
     mainLayout->addWidget(m_manaLabel);
+    mainLayout->addWidget(m_hungerLabel);
     mainLayout->addWidget(m_goldLabel);
     mainLayout->addWidget(m_playTimeLabel);
     m_statPointsLabel = new QLabel;
@@ -137,6 +139,12 @@ void CharacterSheetDialog::refreshSheet() {
     m_xpLabel->setText(tr("Experience: %1").arg(c.experience));
     m_hpLabel->setText(tr("HP: %1 / %2").arg(c.hp).arg(c.maxHp));
     m_manaLabel->setText(tr("Mana: %1 / %2").arg(c.mana).arg(c.maxMana));
+    m_hungerLabel->setText(tr("Hunger: %1 / %2 (%3%)")
+                           .arg(c.hunger).arg(c.maxHunger).arg(c.hungerPercent()));
+    // Warn in colour when the member is running low, so the sheet agrees with
+    // the dungeon party panel.
+    m_hungerLabel->setStyleSheet(c.isHungerLow() ? "color: #b8860b; font-weight: bold;"
+                                                 : QString());
     m_goldLabel->setText(tr("Gold: %1").arg(c.gold));
 
     // Play time — show elapsed time for this run (HH:MM:SS).

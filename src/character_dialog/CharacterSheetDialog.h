@@ -37,6 +37,7 @@ private:
     QLabel *m_xpLabel = nullptr;
     QLabel *m_hpLabel = nullptr;
     QLabel *m_manaLabel = nullptr;
+    QLabel *m_hungerLabel = nullptr;
     QLabel *m_goldLabel = nullptr;
     QLabel *m_statPointsLabel = nullptr;
     QLabel *m_playTimeLabel = nullptr;

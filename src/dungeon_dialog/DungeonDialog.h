@@ -14,6 +14,7 @@
 #include <QRandomGenerator>
 #include <QHash>
 #include <QVector>
+#include <QColor>
 
 #include "src/inventory_dialog/inventorydialog.h"
 #include "src/partyinfo_dialog/partyinfodialog.h"
@@ -238,12 +239,30 @@ public:
     // Current stylesheet of the combat group (for testing flash effects).
     QString combatGroupStyleSheet() const;
 
+    // --- v5.0.0 slice 5.1: hunger is visible ---
+    // One party-panel row's text: name, level, HP and hunger.
+    // Static and free of UI state so the self-tests can check it directly.
+    static QString partyMemberStatusText(const Character& c);
+    // The colour a party-panel row is drawn in: red for dead/starving, yellow
+    // for low HP or low hunger, green when healthy.
+    static QColor partyMemberColor(const Character& c);
+    // The message shown when a member crosses into the low-hunger band.
+    // Empty when the member is not low.
+    static QString hungerWarningMessage(const Character& c);
+    // Announce any member that has just crossed into the low-hunger band.
+    // Fires once per crossing (not every step) and returns how many were
+    // announced. Called after each move.
+    int announceHungerWarnings();
+
     // --- Phase 3: Movement & UI ---
     // Integrated minimap (in the main layout, not a popup)
     QGraphicsView* m_miniMapViewIntegrated = nullptr;
     // Party status panel
     QListWidget* m_partyStatusList = nullptr;
     void updatePartyPanel();
+    // v5.0.0 slice 5.1: indices of members already warned about low hunger,
+    // so the crossing is announced once rather than every step.
+    QSet<int> m_hungerWarned;
     // Auto-backtrack
     void on_backtrackButton_clicked();
     QPushButton* m_backtrackButton = nullptr;

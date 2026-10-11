@@ -13,6 +13,34 @@ Semantic versioning with game-studio conventions:
 
 ---
 
+# v5.0.0 — Survival: make hunger real 🚧 IN PROGRESS
+
+**Goal:** the hunger/starvation system exists in code but the player can never see
+it, never manage it, and its deaths the game does not treat as deaths. The user's
+report — *"starving did not kill"* — is the symptom of a mechanic that is
+unreachable rather than absent. This version makes survival real, and adds the
+ability to load a whole party.
+
+## What landed
+
+### Slice 5.1 — Hunger is visible
+- `Character::hungerPercent()` and `isHungerLow()` (warning band at ≤20%)
+- `DungeonDialog::partyMemberStatusText()` / `partyMemberColor()` drive the party
+  panel: the row now reads "Name (Lv N) — HP — Hunger N/M", coloured red for
+  dead/starving, yellow for low HP **or** low hunger, green when healthy
+- `announceHungerWarnings()` logs the crossing into the warning band once per
+  member (re-armed when hunger recovers), called from `movePlayer()`
+- `CharacterSheetDialog` shows a "Hunger: N / M (P%)" row that turns amber when low
+
+**Verified:** tests [189]–[193] (1617 passed, 0 failed; +23 checks).
+Non-vacuous, all three reverts observed to fail:
+- removing the `announceHungerWarnings()` call from `movePlayer()` →
+  "the move itself announced the low-hunger crossing" FAILS
+- omitting hunger from the panel row → both panel row tests FAIL
+- not setting the sheet's hunger text → "character sheet shows the member's hunger" FAILS
+
+---
+
 # v4.0.0 — Endgame depth and replayability ✅ RELEASED
 
 **Goal:** give the finished game real endgame depth — replayability after victory,

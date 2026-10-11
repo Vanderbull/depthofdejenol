@@ -251,6 +251,16 @@ struct Character {
     // True when hunger has hit zero and the character is taking starvation
     // damage each turn.
     bool isStarving() const { return hunger <= 0; }
+    // Hunger as a percentage of the maximum (0 when maxHunger is 0).
+    int hungerPercent() const {
+        return (maxHunger > 0) ? (hunger * 100 / maxHunger) : 0;
+    }
+    // True when hunger is running low but has not yet hit zero. This is the
+    // band the UI warns on, so the player sees the danger before starving.
+    static const int HUNGER_LOW_PERCENT = 20;
+    bool isHungerLow() const {
+        return !isStarving() && hungerPercent() <= HUNGER_LOW_PERCENT;
+    }
     // Eat a food item from the inventory. Returns true on success.
     bool eatFood(int inventoryIndex, QString& effectDescription);
 

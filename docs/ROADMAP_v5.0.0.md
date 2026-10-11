@@ -133,7 +133,7 @@ committed fixtures removed.
 
 ## Slices
 
-### 5.1 Hunger is visible `M`
+### 5.1 Hunger is visible `M` ✅ DONE
 
 **Why:** a survival stat the player cannot see is not a mechanic. Right now hunger
 drains invisibly, so the first feedback is a death the player never saw coming.
@@ -150,6 +150,16 @@ drains invisibly, so the first feedback is a death the player never saw coming.
 **Verify:** tests — the party panel string contains the member's hunger; the warning
 colour appears below the threshold; the low-hunger message fires once on the
 crossing. Non-vacuous: removing the display fails the panel test.
+
+**Landed:** `Character::hungerPercent()` / `isHungerLow()` (band at ≤20%);
+`DungeonDialog::partyMemberStatusText()` / `partyMemberColor()` (red dead/starving,
+yellow low HP *or* low hunger, green healthy) now drive `updatePartyPanel()`;
+`announceHungerWarnings()` logs the crossing once per member (re-armed on recovery)
+and is called from `movePlayer()`; `CharacterSheetDialog` shows a "Hunger: N/M (P%)"
+row that turns amber when low. Tests [189]–[193]; +23 checks (1590 → 1617).
+Non-vacuous: removing the `announceHungerWarnings()` call fails "the move itself
+announced the low-hunger crossing"; omitting hunger from the row fails both panel
+tests; not setting the sheet text fails the sheet test.
 
 ### 5.2 Food exists and can be eaten `M`
 
