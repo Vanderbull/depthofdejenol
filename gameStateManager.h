@@ -122,10 +122,17 @@ public:
     // New Game Plus cycle count (0 = base game, 1 = NG+1, etc.)
     int getNgPlusLevel() const { return m_gameStateData.value("NGPlusLevel", 0).toInt(); }
     void setNgPlusLevel(int level) { setGameValue("NGPlusLevel", level); }
+
     void checkSettingsFile();
     void initializeResources();
     QPixmap getFontSpriteSheet() const { return m_fontSpriteSheet; }
 
+signals:
+    // Emitted when loadFullGameState refuses a save: newer version than this
+    // build supports. Carries a user-facing reason string.
+    void saveLoadRefused(const QString& saveName, const QString& reason);
+
+public:
     void addItemToInventory(const HeldItem& item);
 
     // --- Drop / remove ---

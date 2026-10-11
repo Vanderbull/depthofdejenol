@@ -60,6 +60,28 @@ Semantic versioning with game-studio conventions:
 
 **Tests:** 1368 + 3 passed, 0 failed (stable over 3 runs).
 
+## Slice 3.7 — Save versioning and migration
+
+**Problem:** `SaveVersion` was written but never read. v3.0.0 adds fields (row, stat points,
+play time) — exactly when a silent mismatch starts corrupting saves.
+
+**Fix:**
+- `src/core/savegameVersion.h` / `.cpp` — `CURRENT_SAVE_VERSION` (2), `MAX_LOADABLE_VERSION`,
+  `versionOf()`, `isLoadable()`, `migrate()`
+- `loadFullGameState()` reads the version, refuses newer saves with a `saveLoadRefused` signal
+  and a Swedish user-facing message, then migrates older saves in order
+- `migrateFrom1()` fills `StatPoints`, `PlayTimeSeconds`, `row` with safe defaults
+  (matching `Character::toMap()`'s lowercase `"row"` so it survives a round-trip)
+- `VERSIONING.md` created — documents the policy, the version table, and how to add a version
+- `packStateForSaving()` writes `CURRENT_SAVE_VERSION` instead of hardcoded `1`
+
+**Verified:** tests [138]-[141] + [139b] — SaveVersion written on save ✅; v1 save migrates
+to current with defaults ✅; legacy save (no SaveVersion) migrates ✅; future-version save
+is refused with a message ✅; in-memory version is current after migration ✅. Non-vacuous:
+disabling migration fails [139b]; bumping MAX_LOADABLE_VERSION fails [141].
+
+**Tests:** 1385 + 3 passed, 0 failed (stable over 3 runs).
+
 ---
 
 | Phase | Version | Level | Content |

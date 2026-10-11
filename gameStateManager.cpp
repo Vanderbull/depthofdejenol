@@ -1,6 +1,7 @@
 #include "gameStateManager.h"
 #include "src/partymanager/PartyManager.h"
 #include "src/core/savegameUtils.h"
+#include "src/core/savegameVersion.h"
 #include "src/core/DungeonLevelState.h"
 #include "src/core/AgingRules.h"
 #include "src/journal_dialog/JournalDialog.h"
@@ -2335,6 +2336,27 @@ bool gameStateManager::loadFullGameState(const QString& saveName) {
         return false;
     }
 
+    // Refuse a save written by a newer build. Loading it would silently
+    // truncate fields this build does not know about.
+    const int saveVer = SavegameVersion::versionOf(loaded);
+    if (!SavegameVersion::isLoadable(saveVer)) {
+        qWarning() << "Refusing to load save" << saveName << ": version"
+                   << saveVer << "is newer than this build (max"
+                   << SavegameVersion::MAX_LOADABLE_VERSION << ")";
+        emit saveLoadRefused(saveName,
+            QString("Sparfilen är skapad av en nyare version (v%1). "
+                    "Uppgradera spelet för att ladda den.")
+                .arg(saveVer));
+        return false;
+    }
+
+    // Migrate older saves to the current schema before unpacking.
+    if (saveVer < SavegameVersion::CURRENT_SAVE_VERSION) {
+        SavegameVersion::migrate(loaded);
+        qDebug() << "Migrated save" << saveName << "from v" << saveVer
+                 << "to v" << SavegameVersion::CURRENT_SAVE_VERSION;
+    }
+
     m_gameStateData = loaded;
 
     // unpackStateAfterLoading() restores the Party from m_gameStateData; doing
@@ -2361,7 +2383,7 @@ void gameStateManager::packStateForSaving() {
     m_gameStateData["DungeonLevels"] = DungeonLevelRegistry::instance().toMap();
 
     // 5. Version for save schema compatibility.
-    m_gameStateData["SaveVersion"] = 1;
+    m_gameStateData["SaveVersion"] = SavegameVersion::CURRENT_SAVE_VERSION;
 
     // 6. Persist Hall of Records (game records from completed runs).
     QVariantList hallRecords;

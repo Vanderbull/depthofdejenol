@@ -180,24 +180,29 @@ one; the time survives save/load.
 
 ---
 
-### 3.7 Save versioning and migration `M`
+### 3.7 Save versioning and migration `M` — ✅ DONE
 
-**Why:** `VERSIONING.md` documents a migration policy ("Check `SaveVersion` against the
-current version. If older, run migrations. If newer, refuse to load.") but the code only
-ever *writes* it: `m_gameStateData["SaveVersion"] = 1;` (`gameStateManager.cpp:2364`) is the
-sole occurrence. Nothing reads it on load. v3.0.0 adds fields (row, stat points, play time),
+**Why:** `VERSIONING.md` documented a migration policy but the code only ever *wrote*
+`SaveVersion` — nothing read it on load. v3.0.0 adds fields (row, stat points, play time),
 which is exactly when a silent mismatch starts corrupting saves.
 
-**Do:**
-- Read `SaveVersion` on load; treat a missing field as version 0.
-- Migrate older saves: fill new fields with safe defaults.
-- Refuse to load a save newer than the running build, with a clear message.
-- Add a test that loads a hand-written v1 save and gets correct defaults.
+**Done:**
+- `src/core/savegameVersion.h` / `.cpp` — `CURRENT_SAVE_VERSION` (2), `MAX_LOADABLE_VERSION`,
+  `versionOf()`, `isLoadable()`, `migrate()`
+- `loadFullGameState()` reads the version, refuses newer saves with a `saveLoadRefused` signal
+  and a Swedish user-facing message, then migrates older saves in order
+- `migrateFrom1()` fills `StatPoints`, `PlayTimeSeconds`, `row` with safe defaults
+  (matching `Character::toMap()`'s lowercase `"row"` so it survives a round-trip)
+- `VERSIONING.md` created — documents the policy, the version table, and how to add a version
+- `packStateForSaving()` writes `CURRENT_SAVE_VERSION` instead of hardcoded `1`
 
-**Files:** `gameStateManager.cpp`, `src/core/savegameUtils.*`, `character.cpp`
+**Files:** `src/core/savegameVersion.h` / `.cpp`, `gameStateManager.cpp` / `.h`,
+`VERSIONING.md`, `test/selftest.cpp`
 
-**Verify:** a save without `StatPoints`/`row`/`playTime` loads with sane defaults; a save
-with `SaveVersion` above the current build is refused with a message.
+**Verify:** tests [138]-[141] + [139b] — SaveVersion written on save ✅; v1 save migrates
+to current with defaults ✅; legacy save (no SaveVersion) migrates ✅; future-version save
+is refused with a message ✅; in-memory version is current after migration ✅. Non-vacuous:
+disabling migration fails [139b]; bumping MAX_LOADABLE_VERSION fails [141].
 
 ---
 
@@ -245,7 +250,7 @@ make` works from a fresh checkout.
                        └─ 3.3 Front/back row
 3.4 Stat allocation (independent)
 3.5 Quest chain driver ── 3.6 Play time (records need a completion)
-3.7 Save versioning (must land before 3.4/3.6 persist new fields)
+- [x] Save versioning (must land before 3.4/3.6 persist new fields)
 3.8 Visual feedback (independent)
 3.9 Repo hygiene (independent)
 ```

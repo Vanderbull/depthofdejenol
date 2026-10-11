@@ -26,6 +26,7 @@
 #include "src/core/GoldSinks.h"
 #include "src/core/DeathRecovery.h"
 #include "src/core/ReleaseInfo.h"
+#include "src/core/savegameVersion.h"
 #include "src/core/AlignmentSystem.h"
 #include "src/npc_dialog/NPCDialog.h"
 #include "src/shortcut_help/ShortcutHelp.h"
@@ -2825,15 +2826,12 @@ int runSelfTest()
         c.charisma = 10;
         c.dexterity = 10;
 
-        int totalStatsBefore = c.strength + c.intelligence + c.wisdom +
-                              c.constitution + c.charisma + c.dexterity;
+        const int pointsBefore = c.statPoints;
         pm.applyLevelUpGains(c);
-        int totalStatsAfter = c.strength + c.intelligence + c.wisdom +
-                             c.constitution + c.charisma + c.dexterity;
 
-        check(totalStatsAfter == totalStatsBefore + 1,
-              "stat point granted on even level",
-              QString("before=%1 after=%2").arg(totalStatsBefore).arg(totalStatsAfter));
+        check(c.statPoints == pointsBefore + 2,
+              "even level grants two stat points",
+              QString("before=%1 after=%2").arg(pointsBefore).arg(c.statPoints));
     }
     {
         // No stat point on odd level.
@@ -2853,15 +2851,12 @@ int runSelfTest()
         c.charisma = 10;
         c.dexterity = 10;
 
-        int totalStatsBefore = c.strength + c.intelligence + c.wisdom +
-                              c.constitution + c.charisma + c.dexterity;
+        const int pointsBefore = c.statPoints;
         pm.applyLevelUpGains(c);
-        int totalStatsAfter = c.strength + c.intelligence + c.wisdom +
-                             c.constitution + c.charisma + c.dexterity;
 
-        check(totalStatsAfter == totalStatsBefore,
-              "no stat point on odd level",
-              QString("before=%1 after=%2").arg(totalStatsBefore).arg(totalStatsAfter));
+        check(c.statPoints == pointsBefore + 1,
+              "odd level grants one stat point",
+              QString("before=%1 after=%2").arg(pointsBefore).arg(c.statPoints));
     }
     {
         // addExperienceToCharacter uses LevelTable.
@@ -8304,6 +8299,175 @@ int runSelfTest()
         dlg.m_monsterPositions.remove(pos);
         dlg.m_MonsterAttitude.remove("Test Show Goblin");
         dlg.m_inCombat = false;
+    }
+
+    // ------------------------------------------- v3.0.0 — slice 3.7: save versioning
+    section("[138] v3.0.0 slice 3.7: SaveVersion written on save");
+    {
+        gameStateManager* gsm = gameStateManager::instance();
+        gsm->saveFullGameState(kTestSave);
+        const QJsonObject s = readSaveFile();
+        const int ver = s.contains("SaveVersion") ? s.value("SaveVersion").toInt() : -1;
+        check(ver == SavegameVersion::CURRENT_SAVE_VERSION,
+              "SaveVersion matches CURRENT_SAVE_VERSION",
+              QString("got %1 want %2").arg(ver).arg(SavegameVersion::CURRENT_SAVE_VERSION));
+        check(s.contains("SaveVersion"), "SaveVersion key present in saved file");
+    }
+
+    section("[139] v3.0.0 slice 3.7: v1 save migrates to current with defaults");
+    {
+        // Hand-write a v1 save file on disk, then load it.
+        QFile f(savePath());
+        if (f.open(QIODevice::WriteOnly | QIODevice::Truncate)) {
+            QJsonObject party;
+            QJsonObject member;
+            member["Name"] = "Migrated Hero";
+            member["Level"] = 3;
+            member["HP"] = 80;
+            member["MaxHP"] = 80;
+            // No StatPoints / PlayTimeSeconds / Row — v1 did not have them.
+            QJsonArray members;
+            members.append(member);
+            party["Members"] = members;
+            party["SharedGold"] = 500;
+
+            QJsonObject root;
+            root["SaveVersion"] = 1;
+            root["Party"] = party;
+            root["lastSaved"] = "2025-01-01";
+            f.write(QJsonDocument(root).toJson());
+            f.close();
+        } else {
+            check(false, "hand-written v1 save file can be created");
+        }
+
+        // Load it — should succeed because migration runs.
+        check(gameStateManager::instance()->loadFullGameState(kTestSave),
+              "v1 save loads (migrated)");
+
+        // Save again so the migrated data lands on disk.
+        gameStateManager::instance()->saveFullGameState(kTestSave);
+
+        // The migrated save must now have v2.
+        const QJsonObject after = readSaveFile();
+        check(after.value("SaveVersion").toInt() == SavegameVersion::CURRENT_SAVE_VERSION,
+              "SaveVersion bumped to current after load");
+
+        // Party member should have default StatPoints.
+        const QJsonObject partyAfter = after.value("Party").toObject();
+        const QJsonArray membersAfter = partyAfter.value("Members").toArray();
+        check(membersAfter.size() == 1, "party member survived migration");
+        if (!membersAfter.isEmpty()) {
+            const QJsonObject m = membersAfter.at(0).toObject();
+            check(m.contains("StatPoints"), "StatPoints default present after migration");
+            check(m.value("StatPoints").toInt() == 0, "StatPoints defaults to 0");
+            check(m.contains("PlayTimeSeconds"), "PlayTimeSeconds default present");
+            check(m.value("PlayTimeSeconds").toInt() == 0, "PlayTimeSeconds defaults to 0");
+            check(m.contains("row"), "Row default present after migration");
+            check(m.value("row").toInt() == 0, "Row defaults to 0 (Front)");
+        }
+    }
+
+    section("[139b] v3.0.0 slice 3.7: migration bumps version in memory");
+    {
+        // Write a v1 save, load it, and check the in-memory version *before*
+        // saving. This is the only way to verify migration actually ran —
+        // Character::toMap() always includes StatPoints, so checking the file
+        // after a save cannot distinguish migrated from non-migrated.
+        QFile f(savePath());
+        if (f.open(QIODevice::WriteOnly | QIODevice::Truncate)) {
+            QJsonObject party;
+            QJsonObject member;
+            member["Name"] = "Version Check";
+            member["Level"] = 1;
+            member["HP"] = 50;
+            member["MaxHP"] = 50;
+            QJsonArray members;
+            members.append(member);
+            party["Members"] = members;
+            party["SharedGold"] = 0;
+
+            QJsonObject root;
+            root["SaveVersion"] = 1;
+            root["Party"] = party;
+            f.write(QJsonDocument(root).toJson());
+            f.close();
+        }
+
+        gameStateManager* gsm = gameStateManager::instance();
+        gsm->loadFullGameState(kTestSave);
+
+        // The in-memory game state must reflect the migrated version.
+        const int memVer = gsm->getGameValue("SaveVersion").toInt();
+        check(memVer == SavegameVersion::CURRENT_SAVE_VERSION,
+              "in-memory SaveVersion is current after migration",
+              QString("got %1 want %2").arg(memVer).arg(SavegameVersion::CURRENT_SAVE_VERSION));
+    }
+
+    section("[140] v3.0.0 slice 3.7: legacy save (no SaveVersion) migrates");
+    {
+        // v0: no SaveVersion field at all.
+        QFile f(savePath());
+        if (f.open(QIODevice::WriteOnly | QIODevice::Truncate)) {
+            QJsonObject party;
+            QJsonObject member;
+            member["Name"] = "Legacy Hero";
+            member["Level"] = 1;
+            member["HP"] = 50;
+            member["MaxHP"] = 50;
+            QJsonArray members;
+            members.append(member);
+            party["Members"] = members;
+            party["SharedGold"] = 0;
+
+            QJsonObject root;
+            // No SaveVersion key.
+            root["Party"] = party;
+            root["lastSaved"] = "2024-01-01";
+            f.write(QJsonDocument(root).toJson());
+            f.close();
+        } else {
+            check(false, "legacy save file can be created");
+        }
+
+        check(gameStateManager::instance()->loadFullGameState(kTestSave),
+              "legacy save loads (migrated to current)");
+
+        // Save again so the migrated data lands on disk.
+        gameStateManager::instance()->saveFullGameState(kTestSave);
+
+        const QJsonObject after = readSaveFile();
+        check(after.value("SaveVersion").toInt() == SavegameVersion::CURRENT_SAVE_VERSION,
+              "legacy save has current version after migration");
+    }
+
+    section("[141] v3.0.0 slice 3.7: newer save is refused with a message");
+    {
+        // Write a save with SaveVersion above the current build.
+        QFile f(savePath());
+        if (f.open(QIODevice::WriteOnly | QIODevice::Truncate)) {
+            QJsonObject root;
+            root["SaveVersion"] = SavegameVersion::MAX_LOADABLE_VERSION + 1;
+            root["Party"] = QJsonObject();
+            root["lastSaved"] = "2027-01-01";
+            f.write(QJsonDocument(root).toJson());
+            f.close();
+        } else {
+            check(false, "future-version save file can be created");
+        }
+
+        bool refused = false;
+        QString reason;
+        QObject::connect(gameStateManager::instance(), &gameStateManager::saveLoadRefused,
+                         [&](const QString&, const QString& r) { refused = true; reason = r; });
+
+        check(!gameStateManager::instance()->loadFullGameState(kTestSave),
+              "future-version save is refused");
+        check(refused, "saveLoadRefused signal emitted");
+        check(!reason.isEmpty(), "refusal carries a user-facing message", reason);
+
+        QObject::disconnect(gameStateManager::instance(), &gameStateManager::saveLoadRefused,
+                            nullptr, nullptr);
     }
 
     // -------------------------------------------------------------- cleanup
