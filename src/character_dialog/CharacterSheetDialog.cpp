@@ -38,6 +38,7 @@ void CharacterSheetDialog::setupUi() {
     m_hpLabel = new QLabel;
     m_manaLabel = new QLabel;
     m_goldLabel = new QLabel;
+    m_playTimeLabel = new QLabel;
     mainLayout->addWidget(m_raceLabel);
     mainLayout->addWidget(m_classLabel);
     mainLayout->addWidget(m_levelLabel);
@@ -45,6 +46,7 @@ void CharacterSheetDialog::setupUi() {
     mainLayout->addWidget(m_hpLabel);
     mainLayout->addWidget(m_manaLabel);
     mainLayout->addWidget(m_goldLabel);
+    mainLayout->addWidget(m_playTimeLabel);
     m_statPointsLabel = new QLabel;
     m_statPointsLabel->setStyleSheet("font-weight: bold; color: #2c5f2d;");
     mainLayout->addWidget(m_statPointsLabel);
@@ -136,6 +138,16 @@ void CharacterSheetDialog::refreshSheet() {
     m_hpLabel->setText(tr("HP: %1 / %2").arg(c.hp).arg(c.maxHp));
     m_manaLabel->setText(tr("Mana: %1 / %2").arg(c.mana).arg(c.maxMana));
     m_goldLabel->setText(tr("Gold: %1").arg(c.gold));
+
+    // Play time — show elapsed time for this run (HH:MM:SS).
+    const qint64 secs = gsm->playTimeSeconds();
+    const qint64 h = secs / 3600;
+    const qint64 m = (secs % 3600) / 60;
+    const qint64 s = secs % 60;
+    m_playTimeLabel->setText(tr("Play Time: %1:%2:%3")
+        .arg(h, 2, 10, QChar('0'))
+        .arg(m, 2, 10, QChar('0'))
+        .arg(s, 2, 10, QChar('0')));
 
     // Stat point pool — the player must see what they have to spend.
     m_statPointsLabel->setText(tr("Stat Points: %1").arg(c.statPoints));

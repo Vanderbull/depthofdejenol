@@ -39,6 +39,7 @@ private:
     QLabel *m_manaLabel = nullptr;
     QLabel *m_goldLabel = nullptr;
     QLabel *m_statPointsLabel = nullptr;
+    QLabel *m_playTimeLabel = nullptr;
     QTableWidget *m_statsTable = nullptr;
     QTableWidget *m_equipTable = nullptr;
     QTableWidget *m_guildTable = nullptr;
