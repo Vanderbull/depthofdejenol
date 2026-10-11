@@ -67,6 +67,7 @@ QString ReleaseInfo::banner() {
 
 QList<QPair<QString, QString>> ReleaseInfo::versionHistory() {
     return {
+        {"4.0.0", "2026-10-11 — Endgame depth and replayability: New Game Plus carries the party and scales rewards, the Abyss mega-dungeon and Arena are wired, 25 achievements unlock and persist, and a balance pass fixes monster AC and dexterity so a full run is winnable in 10–15 hours (all 7 slices 4.1–4.6)"},
         {"3.0.0", "2026-10-11 — Tactical combat and character growth: all 9 v3.0.0 slices wired (target selection, per-monster display, front/back row, stat allocation, quest chain driver, play time, save versioning, combat visual feedback, repo hygiene)"},
         {"2.0.0", "2026-10-10 — Core loop complete: all 14 v2.0.0 slices wired (combat, equipment, XP, loot, death, persistence, monster spells, status effects, town, item ID, bestiary, journal, gold sinks, aging)"},
         {"1.0.0", "2026-10-10 — First finishable release: victory sequence, Hall of Records, New Game Plus, and the six orphaned systems wired in"},

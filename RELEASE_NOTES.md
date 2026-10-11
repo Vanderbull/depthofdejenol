@@ -13,7 +13,74 @@ Semantic versioning with game-studio conventions:
 
 ---
 
-# v3.0.0 — Tactical combat and character growth — IN PROGRESS
+# v4.0.0 — Endgame depth and replayability ✅ RELEASED
+
+**Goal:** give the finished game real endgame depth — replayability after victory,
+a reward loop that scales with each cycle, and a difficulty curve that a full run can
+actually complete.
+
+## What landed
+
+### Slice 4.1 — New Game Plus
+- `startNewGamePlus()` carries the party (level, stats, inventory, gold) into a new run
+- `ngPlusLevel` persisted in game state (`NGPlusLevel`), save version bumped to 3
+- Monsters scale +50% HP/damage per cycle; gold rewards scale with the cycle
+- Hall of Records shows the NG+ cycle
+
+### Slice 4.2 — Endgame dungeon: the Abyss
+- 10-floor mega-dungeon unlocked after victory, with its own themes and boss floors (5, 10)
+- `AbyssThemes`, `BossEncounter::buildAbyssBoss` (multiplicative tier × depth scaling)
+- `Endgame::victoryTitle()` / `victoryParagraphs()` drive the victory screen
+
+### Slice 4.3 — Arena mode
+- 10 waves of escalating encounters (`Arena::monsterCountForWave`, `monsterLevelForWave`)
+- Full combat UI in `ArenaDialog` (attack/defend/spell/flee), leaderboard persisted in game state
+- Wired into the city via `theCity.h` arena button
+
+### Slice 4.4 — Achievements
+- 25 achievements across combat, depth, NG+, gold, death, level, arena, abyss
+- `AchievementSystem` with `unlock()` / `isUnlocked()` / `checkAndUnlock()`, gold rewards
+- Persisted as `UnlockedAchievements` in game state; Achievements button in Hall of Records
+
+### Slice 4.5 — Balance pass
+- **Core to-hit fix:** raw monster `def` (up to 312) was used as AC → floor 15 AC 749,
+  impossible to hit (needed 744 on d20). Now `targetArmorClass()` compresses def to a
+  bounded band: `10 + level/2 + qBound(0, def/12, 8)` (max +8).
+- **Monster dex fix:** all 401 MDATA5 monsters have `StatDex = 0` → dead initiative.
+  `EncounterBuilder` now derives `baseDex = 8 + 2 * baseLevel` when the CSV value is 0.
+- **NG+ gold fix:** `calculateGold()` was called without `ngPlusLevel` → reward multiplier
+  never applied. Now `DungeonDialog` passes `gsm->getNgPlusLevel()`.
+- `MonsterBalance::floorHint()` shows recommended level + difficulty label on entering a floor
+- `estimatedMinutesForFloor()` → full run ≈ 10–15 hours
+
+### Slice 4.6 — Repo and docs cleanup
+- Completed roadmaps (v0.1 → v3.0.0) and pre-1.0 analysis docs moved to `docs/archive/`
+- Deleted generated file-listing dumps and the tracked `trash/` directory
+- README links the current roadmap, test badge fixed (840 → 1590)
+- FIXLIST: items 1, 4, 12, 15, 16 marked fixed after verifying in live code
+
+## Test suite
+
+| Version | Tests |
+|---|---|
+| v3.0.0 | 1522 + 3 |
+| v4.0.0 (final) | 1590 + 3 |
+
+## Non-vacuous verification
+
+- **4.3:** disabling wave scaling (`return 1` in `monsterCountForWave`) fails 5 tests
+- **4.4:** disabling `unlock()` (`if(true) return false`) fails 12 tests
+- **4.5:** restoring the raw AC formula gives 8/200 hits (4%) and fails test [188];
+  disabling monster dex derivation fails test [188]
+
+## Known limitations
+
+- Multiplayer is basic (city chat only); no multiplayer combat
+- FIXLIST items 10 (SIGNAL/SLOT macros) and 21 (commented dead code) remain open
+
+---
+
+# v3.0.0 — Tactical combat and character growth
 
 ## Slice 3.1 — Combat target selection
 

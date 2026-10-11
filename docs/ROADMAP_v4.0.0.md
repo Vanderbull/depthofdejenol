@@ -130,20 +130,23 @@ should be prominent.
 `docs/archive/` ✅; `FIXLIST.md` is up to date ✅; no source or build file
 references a moved doc ✅.
 
-### 4.7 Release `S`
+### 4.7 Release `S` — ✅ DONE
 
 **Why:** v4.0.0 needs a proper release with notes and a version bump.
 
-**Do:**
-- Bump `SEMANTIC_VERSION` to `4.0.0`.
-- Update `RELEASE_NOTES.md` with all v4.0.0 changes.
-- Tag the release in git.
-- Update `ReleaseInfo::versionHistory()` and `releaseDate()`.
+**Done:**
+- `SEMANTIC_VERSION` confirmed as `4.0.0` in `blacklands.pro` (already set).
+- `ReleaseInfo::versionHistory()` updated with a v4.0.0 entry at the top.
+- `releaseDate()` returns `2026-10-11`.
+- Test [56] updated: `history[0].first == "4.0.0"` (was `"3.0.0"`).
+- `RELEASE_NOTES.md` has a full v4.0.0 section with all slices, test counts, and
+  non-vacuous verification.
+- Git tag `v4.0.0` created.
 
-**Files:** `src/core/GameConstants.h`, `RELEASE_NOTES.md`, `src/core/ReleaseInfo.cpp`
+**Files:** `blacklands.pro`, `src/core/ReleaseInfo.cpp`, `test/selftest.cpp`, `RELEASE_NOTES.md`
 
-**Verify:** `make check` is green; the version is 4.0.0 in the about dialog; the
-release notes are complete.
+**Verify:** `make check` green ✅; version is 4.0.0 in the about dialog ✅;
+release notes complete ✅.
 
 ## Dependency Graph
 
@@ -169,10 +172,10 @@ release notes are complete.
 - [x] Achievements unlock and persist
 - [x] Full playthrough is winnable in 10–15 hours
 - [x] Old roadmaps are archived
-- [ ] `SEMANTIC_VERSION` is `4.0.0`
-- [ ] `RELEASE_NOTES.md` is updated
-- [ ] All tests pass (target: 1500+)
-- [ ] `make check` is green
+- [x] `SEMANTIC_VERSION` is `4.0.0`
+- [x] `RELEASE_NOTES.md` is updated
+- [x] All tests pass (target: 1500+)
+- [x] `make check` is green
 
 ## Slice Sizes
 

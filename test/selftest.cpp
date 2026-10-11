@@ -5089,7 +5089,7 @@ int runSelfTest()
         QList<QPair<QString, QString>> history = ReleaseInfo::versionHistory();
         check(history.size() >= 5, "at least 5 versions in history",
               QString::number(history.size()));
-        check(history[0].first == "3.0.0", "latest version is 3.0.0");
+        check(history[0].first == "4.0.0", "latest version is 4.0.0");
     }
 
     // ------------------------------------------- Status flag integrity
