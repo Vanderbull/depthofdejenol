@@ -226,9 +226,14 @@ gameStateManager::gameStateManager(QObject *parent)
     // Push the build version to Lua. FULL_VERSION already carries its own "v"
     // prefix (e.g. "v642"), so do not add another.
     QString versionStr = QString::fromLatin1(GameConstants::FULL_VERSION);
-    
+
     lua_pushstring(m_L, versionStr.toUtf8().constData());
     lua_setglobal(m_L, "GameVersion");
+
+    // The human-readable release version (e.g. "2.0.0"), without the build
+    // counter. Scripts that show a version to the player use this one.
+    lua_pushstring(m_L, QString::fromLatin1(GameConstants::SEMANTIC_VERSION).toUtf8().constData());
+    lua_setglobal(m_L, "GameReleaseVersion");
 
 
     loadLuaScript("data/scripts/about_info.lua");
