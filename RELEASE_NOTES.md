@@ -218,6 +218,23 @@ Every commit in v2.0.0 carried binary churn — a rebuilt `blacklands` and a reg
 
 **Tests:** 1522 + 3 passed, 0 failed.
 
+## Slice 4.5 — Balance pass
+
+**Problem:** the full run had never been playtested end to end. Two real bugs fell out of modelling it:
+
+1. **Deep floors were literally impossible to hit.** The to-hit formula used the raw monster `def` column directly as armor class. That column runs past 300 (312 on floor 15), so a floor-15 monster had AC 749 — a party would need a **744 on a d20** to land a blow. The reverse was just as broken: every one of the 401 monster rows has Dexterity `0`, so monsters had a dead to-hit and initiative stat and could never hit back.
+2. **New Game Plus was all cost and no reward.** `handleVictory()` called `calculateGold()` without the NG+ cycle, so the reward multiplier never applied while monsters still got +50% per cycle.
+
+**Fix:**
+- `CombatActions::attackerSkill()` / `targetArmorClass()` — both sides of the to-hit roll compressed into a bounded d20 band (level as the backbone, capped dex/def bonuses). Calibrated to a ~55-85% hit rate at every depth, exposed as testable helpers.
+- `EncounterBuilder` — derives a monster Dexterity from its level (the table has none), so monsters act and land blows.
+- `MonsterBalance` — `floorHint()` (recommended level + difficulty), a winnability model (`isFloorWinnable`/`isRunWinnable`), and a run-length estimate (`estimatedRunMinutes`, `isRunLengthInTarget`).
+- `DungeonDialog` — shows the recommended-level hint on entering a floor, and passes the NG+ cycle to `calculateGold()`.
+
+**Verified:** tests [182]-[188] — floor hints name the right level ✅; every floor is winnable at its recommended level ✅; a badly under-leveled party is not (non-vacuous) ✅; difficulty rises monotonically with depth ✅; the estimated run lands in the 10-15 hour band ✅; a level-15 hero hits a floor-15 monster ≥30% of the time (was 4%) ✅. Reverting either fix fails the suite.
+
+**Tests:** 1590 + 3 passed, 0 failed.
+
 ---
 
 | Phase | Version | Level | Content |

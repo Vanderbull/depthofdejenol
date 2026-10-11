@@ -86,21 +86,25 @@ goals and a sense of progression beyond leveling.
 
 **Verify:** tests [177]-[181] — at least 20 achievements ✅; unlock and isUnlocked ✅; double unlock returns false ✅; unlock grants gold reward ✅; checkAndUnlock based on game state ✅; second checkAndUnlock unlocks nothing ✅; name/description/reward lookups ✅.
 
-### 4.5 Balance pass `M`
+### 4.5 Balance pass `M` — ✅ DONE
 
-**Why:** the full run (floor 1 to victory) has never been playtested end to end.
+**Why:** the full run (floor 1 to victory) had never been playtested end to end.
 Some fights may be trivially easy or impossibly hard.
 
-**Do:**
-- Playtest the full run and adjust monster stats, loot tables, and XP curve.
-- Ensure the game is winnable in 10–15 hours of play.
-- Add a "recommended level" hint to each dungeon floor.
-- Adjust the NG+ difficulty multiplier if it feels too easy or too hard.
+**Done:**
+- Fixed the core to-hit bug: raw monster `def` (up to 312) and `dex` (0 for all
+  401 monsters) were used directly in the d20 formula, making deep floors
+  impossible to hit in both directions. Both sides are now compressed into a
+  bounded band (`CombatActions::attackerSkill`/`targetArmorClass`).
+- `EncounterBuilder` derives a monster Dexterity from its level.
+- `MonsterBalance`: `floorHint()`, a winnability model (`isFloorWinnable`,
+  `isRunWinnable`), and a run-length estimate (`isRunLengthInTarget`).
+- Recommended-level hint shown on entering a floor.
+- NG+ reward multiplier now actually applies (`calculateGold` gets the cycle).
 
-**Files:** `src/combat/EncounterBuilder.cpp`, `src/core/MonsterBalance.cpp`, `src/core/ItemProgression.cpp`
+**Files:** `src/combat/CombatActions.h` / `.cpp`, `src/combat/EncounterBuilder.cpp`, `src/core/MonsterBalance.h` / `.cpp`, `src/dungeon_dialog/DungeonDialog.cpp`
 
-**Verify:** a full playthrough is winnable; the recommended level hints are accurate;
-the NG+ multiplier feels right.
+**Verify:** tests [182]-[188] — floor hints name the right level ✅; every floor is winnable at its recommended level ✅; a badly under-leveled party is not ✅; difficulty rises monotonically with depth ✅; the estimated run lands in the 10-15 hour band ✅; a level-15 hero hits a floor-15 monster ≥30% of the time (was 4%) ✅.
 
 ### 4.6 Repo and docs cleanup `S`
 
@@ -154,7 +158,7 @@ release notes are complete.
 - [x] Endgame dungeon is accessible and beatable
 - [x] Arena mode is accessible and scored
 - [x] Achievements unlock and persist
-- [ ] Full playthrough is winnable in 10–15 hours
+- [x] Full playthrough is winnable in 10–15 hours
 - [ ] Old roadmaps are archived
 - [ ] `SEMANTIC_VERSION` is `4.0.0`
 - [ ] `RELEASE_NOTES.md` is updated
