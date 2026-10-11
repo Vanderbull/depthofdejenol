@@ -122,6 +122,8 @@ HEADERS += src/core/DoorAndSearch.h
 SOURCES += src/core/DoorAndSearch.cpp
 HEADERS += src/core/BossEncounter.h
 SOURCES += src/core/BossEncounter.cpp
+HEADERS += src/core/AbyssThemes.h
+SOURCES += src/core/AbyssThemes.cpp
 HEADERS += src/core/DeathRecovery.h
 SOURCES += src/core/DeathRecovery.cpp
 HEADERS += src/core/QuestChain.h
@@ -308,7 +310,7 @@ lessThan(VERSION_INT, 0): VERSION_INT = 0
 # Semantic version: v<major>.<minor>.<patch>
 # Bump MAJOR for the first finishable release or a fundamental rework.
 # Bump MINOR for new features/mechanics. Bump PATCH for fixes/balance/polish.
-SEMVER_MAJOR = 2
+SEMVER_MAJOR = 4
 SEMVER_MINOR = 0
 SEMVER_PATCH = 0
 SEMVER = \"$${SEMVER_MAJOR}.$${SEMVER_MINOR}.$${SEMVER_PATCH}\"

@@ -29,6 +29,17 @@ public:
 
     // XP awarded for defeating the boss (much larger than a normal monster).
     static int bossXp(int level);
+
+    // --- Abyss bosses (v4.0.0 slice 4.2) ---
+    // Build an Abyss boss as a CombatParticipant-ready map.
+    // Abyss floors are 1-10, boss floors are 5 and 10.
+    static QVariantMap buildAbyssBoss(int level);
+
+    // The Abyss boss's name.
+    static QString abyssBossName(int level);
+
+    // XP awarded for defeating an Abyss boss.
+    static int abyssBossXp(int level);
 };
 
 #endif // BOSSENCOUNTER_H

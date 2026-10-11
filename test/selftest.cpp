@@ -16,6 +16,7 @@
 #include "src/core/DungeonThemes.h"
 #include "src/core/DoorAndSearch.h"
 #include "src/core/BossEncounter.h"
+#include "src/core/AbyssThemes.h"
 #include "src/core/DeathRecovery.h"
 #include "src/core/QuestChain.h"
 #include "src/core/Endgame.h"
@@ -5061,12 +5062,12 @@ int runSelfTest()
     // ------------------------------------------- Release packaging (8.5)
     section("[56] Release packaging");
     {
-        check(ReleaseInfo::version() == "2.0.0", "version is 2.0.0");
-        check(ReleaseInfo::versionString() == "v2.0.0", "version string");
+        check(ReleaseInfo::version() == "4.0.0", "version is 4.0.0");
+        check(ReleaseInfo::versionString() == "v4.0.0", "version string");
         check(!ReleaseInfo::releaseDate().isEmpty(), "release date exists");
         check(!ReleaseInfo::systemRequirements().isEmpty(), "system requirements exist");
-        check(ReleaseInfo::installerName().contains("2.0.0"), "installer name");
-        check(ReleaseInfo::banner().contains("2.0.0"), "banner");
+        check(ReleaseInfo::installerName().contains("4.0.0"), "installer name");
+        check(ReleaseInfo::banner().contains("4.0.0"), "banner");
     }
     {
         // Release notes.
@@ -9100,6 +9101,70 @@ int runSelfTest()
         SavegameVersion::migrate(save);
         check(save.value("NGPlusLevel", -1).toInt() == 0, "NGPlusLevel defaults to 0",
               QString::number(save.value("NGPlusLevel", -1).toInt()));
+    }
+
+    // ------------------------------------------- v4.0.0 — slice 4.2: Endgame dungeon
+    section("[167] v4.0.0 slice 4.2: AbyssThemes has 10 floors");
+    {
+        QList<FloorTheme> themes = AbyssThemes::all();
+        check(themes.size() == 10, "Abyss has 10 floors",
+              QString::number(themes.size()));
+        check(AbyssThemes::forLevel(1).name == "The Outer Rim", "floor 1 is The Outer Rim",
+              AbyssThemes::forLevel(1).name);
+        check(AbyssThemes::forLevel(10).name == "The Abyssal Heart", "floor 10 is The Abyssal Heart",
+              AbyssThemes::forLevel(10).name);
+    }
+
+    section("[168] v4.0.0 slice 4.2: Abyss boss floors are 5 and 10");
+    {
+        check(AbyssThemes::isBossFloor(5), "floor 5 is a boss floor");
+        check(AbyssThemes::isBossFloor(10), "floor 10 is a boss floor");
+        check(!AbyssThemes::isBossFloor(1), "floor 1 is not a boss floor");
+        check(!AbyssThemes::isBossFloor(7), "floor 7 is not a boss floor");
+        check(AbyssThemes::bossNameForLevel(5) == "Abyssal Maw", "floor 5 boss name",
+              AbyssThemes::bossNameForLevel(5));
+        check(AbyssThemes::bossNameForLevel(10) == "The Abyssal Heart", "floor 10 boss name",
+              AbyssThemes::bossNameForLevel(10));
+        check(AbyssThemes::bossNameForLevel(1).isEmpty(), "floor 1 has no boss");
+    }
+
+    section("[169] v4.0.0 slice 4.2: Abyss boss stats scale with depth");
+    {
+        QVariantMap boss5 = BossEncounter::buildAbyssBoss(5);
+        QVariantMap boss10 = BossEncounter::buildAbyssBoss(10);
+
+        check(boss5["name"].toString() == "Abyssal Maw", "floor 5 boss name",
+              boss5["name"].toString());
+        check(boss10["name"].toString() == "The Abyssal Heart", "floor 10 boss name",
+              boss10["name"].toString());
+
+        // Floor 10 boss must be significantly harder than floor 5
+        int hp5 = boss5["hp"].toInt();
+        int hp10 = boss10["hp"].toInt();
+        check(hp10 > hp5 * 2, "floor 10 boss has more than 2x HP of floor 5",
+              QString("%1 vs %2").arg(hp10).arg(hp5));
+
+        int att5 = boss5["att"].toInt();
+        int att10 = boss10["att"].toInt();
+        check(att10 > att5 * 1.5, "floor 10 boss has significantly more attack",
+              QString("%1 vs %2").arg(att10).arg(att5));
+
+        check(boss5["damageMod"].toInt() == 250, "floor 5 damageMod is 250",
+              QString::number(boss5["damageMod"].toInt()));
+        check(boss10["damageMod"].toInt() == 250, "floor 10 damageMod is 250",
+              QString::number(boss10["damageMod"].toInt()));
+    }
+
+    section("[170] v4.0.0 slice 4.2: Abyss boss XP is much higher than main dungeon");
+    {
+        int abyss5 = BossEncounter::abyssBossXp(5);
+        int abyss10 = BossEncounter::abyssBossXp(10);
+        int main15 = BossEncounter::bossXp(15);
+
+        check(abyss5 > main15, "Abyss floor 5 boss XP > main floor 15 boss XP",
+              QString("%1 vs %2").arg(abyss5).arg(main15));
+        check(abyss10 > abyss5 * 2, "Abyss floor 10 boss XP > 2x floor 5",
+              QString("%1 vs %2").arg(abyss10).arg(abyss5));
     }
 
     // -------------------------------------------------------------- cleanup
