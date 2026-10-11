@@ -82,6 +82,25 @@ disabling migration fails [139b]; bumping MAX_LOADABLE_VERSION fails [141].
 
 **Tests:** 1385 + 3 passed, 0 failed (stable over 3 runs).
 
+## Slice 3.5 — Main quest chain driver
+
+**Problem:** `QuestChain` computed steps and rewards but nothing advanced the chain or granted
+rewards. The "main quest line" was a read-only screen.
+
+**Fix:**
+- `gameStateManager::setDungeonLevel()` tracks `DeepestFloor` live (never decreases)
+- `src/core/QuestChainDriver.h` / `.cpp` — reads live state, grants rewards for newly
+  completed steps, writes journal entries
+- `handleVictory()` calls `QuestChainDriver::advance()` after every boss kill
+- Victory gated on `questResult.chainJustCompleted` instead of hardcoded `level == 15`
+- Rewards tracked via `QuestRewardGiven_<stepId>` keys to prevent double-granting
+
+**Verified:** tests [148]-[153] — DeepestFloor tracks ✅; advance grants rewards ✅; no
+double-grant ✅; chain not complete without Prince ✅; advance reports completion ✅;
+progressText shows current step ✅. Non-vacuous: disabling reward granting fails [149]/[150].
+
+**Tests:** 1422 + 3 passed, 0 failed (stable over 3 runs).
+
 ---
 
 | Phase | Version | Level | Content |

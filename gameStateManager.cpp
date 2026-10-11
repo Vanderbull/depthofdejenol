@@ -457,6 +457,15 @@ void gameStateManager::setGameValue(const QString& key, const QVariant& value)
     emit gameValueChanged(key, value);
 }
 
+void gameStateManager::setDungeonLevel(int level) {
+    setGameValue("DungeonLevel", level);
+    // Track deepest floor reached — the quest chain reads this live.
+    const int current = getGameValue("DeepestFloor").toInt();
+    if (level > current) {
+        setGameValue("DeepestFloor", level);
+    }
+}
+
 QVariant gameStateManager::getGameValue(const QString& key) const
 {
     if (key == "HallOfRecords") {

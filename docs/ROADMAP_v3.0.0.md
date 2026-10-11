@@ -136,27 +136,27 @@ decrements the pool; the pool persists through save/load.
 
 ---
 
-### 3.5 Main quest chain driver `L`
+### 3.5 Main quest chain driver `L` — ✅ DONE
 
-**Why:** `QuestChain` computes steps, completion and rewards
-(`QuestChain::isStepComplete/nextStepIndex/isChainComplete`), but the only caller is
-`QuestChainDialog` — the display. Nothing in the game *advances* the chain, grants a step's
-`rewardGold`/`rewardXp`, or gates victory on it (verified: no `QuestChain::` call outside
-the dialog and `src/core/QuestChain.cpp`). The "main quest line" is a read-only screen.
+**Why:** `QuestChain` computed steps, completion and rewards, but the only caller was
+`QuestChainDialog` — the display. Nothing in the game *advanced* the chain, granted a step's
+`rewardGold`/`rewardXp`, or gated victory on it. The "main quest line" was a read-only screen.
 
-**Do:**
-- On boss defeat (`handleVictory()` already sets `bossDefeated` on the level snapshot),
-  advance the chain and grant the step's reward.
-- Track `deepestFloorReached` and `itemsHeld` from live game state, not from the dialog.
-- On chain completion, trigger the victory sequence (the Prince of Devils step) instead of
-  the current hardcoded `level == 15` check.
-- Record progress in the journal (the journal wiring from 2.12 is the natural place).
+**Done:**
+- `gameStateManager::setDungeonLevel()` tracks `DeepestFloor` live (never decreases)
+- `src/core/QuestChainDriver.h` / `.cpp` — reads live state (DeepestFloor, DungeonLevelRegistry,
+  party inventory), grants rewards for newly completed steps, writes journal entries
+- `handleVictory()` calls `QuestChainDriver::advance()` after every boss kill
+- Victory is now gated on `questResult.chainJustCompleted` instead of hardcoded `level == 15`
+- Rewards are tracked via `QuestRewardGiven_<stepId>` game-state keys to prevent double-granting
 
-**Files:** `src/core/QuestChain.cpp`, `src/dungeon_dialog/DungeonDialog.cpp`,
-`gameStateManager.cpp`, `src/journal_dialog/JournalDialog.cpp`
+**Files:** `src/core/QuestChainDriver.h` / `.cpp`, `gameStateManager.cpp` / `.h`,
+`src/dungeon_dialog/DungeonDialog.cpp`, `test/selftest.cpp`
 
-**Verify:** defeating the floor-3 boss completes step 1 and grants its reward; the chain
-cannot complete before its boss steps are done; killing the Prince completes the chain.
+**Verify:** tests [148]-[153] — DeepestFloor tracks via setDungeonLevel ✅; advance grants
+rewards for new steps ✅; no double-grant on second advance ✅; chain not complete without
+Prince ✅; advance reports chain completion after Prince defeat ✅; progressText shows current
+step ✅. Non-vacuous: disabling reward granting fails [149] and [150].
 
 ---
 
@@ -269,7 +269,7 @@ v3.0.0 is ready when:
 - [x] Each monster in a group shows its own HP and status
 - [x] Front/back row changes who melee can reach
 - [ ] Level-ups grant spendable stat points; the pool persists
-- [ ] The main quest chain advances from play and grants its rewards
+- [x] The main quest chain advances from play and grants its rewards
 - [ ] Play time is tracked and the Hall of Records sorts by it
 - [ ] Saves are versioned, migrated, and newer saves are refused
 - [ ] Combat gives visual feedback on hits and deaths

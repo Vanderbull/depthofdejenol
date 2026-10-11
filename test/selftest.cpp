@@ -27,6 +27,7 @@
 #include "src/core/DeathRecovery.h"
 #include "src/core/ReleaseInfo.h"
 #include "src/core/savegameVersion.h"
+#include "src/core/QuestChainDriver.h"
 #include "src/core/AlignmentSystem.h"
 #include "src/npc_dialog/NPCDialog.h"
 #include "src/shortcut_help/ShortcutHelp.h"
@@ -8634,6 +8635,168 @@ int runSelfTest()
 
         QObject::disconnect(gameStateManager::instance(), &gameStateManager::saveLoadRefused,
                             nullptr, nullptr);
+    }
+
+    // ------------------------------------------- v3.0.0 — slice 3.5: quest chain driver
+    section("[148] v3.0.0 slice 3.5: DeepestFloor tracks via setDungeonLevel");
+    {
+        gameStateManager* gsm = gameStateManager::instance();
+        gsm->setDungeonLevel(1);
+        check(gsm->getGameValue("DeepestFloor").toInt() == 1,
+              "DeepestFloor starts at 1");
+        gsm->setDungeonLevel(3);
+        check(gsm->getGameValue("DeepestFloor").toInt() == 3,
+              "DeepestFloor updates to 3");
+        gsm->setDungeonLevel(2);
+        check(gsm->getGameValue("DeepestFloor").toInt() == 3,
+              "DeepestFloor does not decrease");
+        gsm->setDungeonLevel(7);
+        check(gsm->getGameValue("DeepestFloor").toInt() == 7,
+              "DeepestFloor updates to 7");
+    }
+
+    section("[149] v3.0.0 slice 3.5: QuestChainDriver::advance grants rewards for new steps");
+    {
+        gameStateManager* gsm = gameStateManager::instance();
+
+        // Reset quest state
+        for (int i = 0; i < QuestChain::stepCount(); ++i) {
+            gsm->setGameValue(QString("QuestRewardGiven_%1").arg(QuestChain::step(i).id), false);
+        }
+
+        // Set up: deepest floor = 5, boss on floor 5 defeated
+        gsm->setGameValue("DeepestFloor", 5);
+        DungeonLevelRegistry::instance().levelForEdit(5).generated = true;
+        DungeonLevelRegistry::instance().levelForEdit(5).bossDefeated = true;
+
+        int goldBefore = gsm->getPartyGold();
+        int xpBefore = gsm->getPartyMembers().isEmpty() ? 0 : gsm->getPartyMembers()[0].experience;
+
+        QuestChainDriver::AdvanceResult result = QuestChainDriver::advance();
+
+        // Step 0 (first_descent, requiresDepth=1) should be complete -> reward
+        // Step 1 (grotto_warden, bossFloor=5) should be complete -> reward
+        check(result.grantedRewards.size() >= 2,
+              "at least two steps rewarded",
+              QString::number(result.grantedRewards.size()));
+
+        // Check gold was added
+        check(gsm->getPartyGold() > goldBefore,
+              "quest gold reward granted",
+              QString("%1 -> %2").arg(goldBefore).arg(gsm->getPartyGold()));
+
+        // Check QuestRewardGiven flags were set
+        check(gsm->getGameValue("QuestRewardGiven_first_descent").toBool(),
+              "first_descent reward marked given");
+        check(gsm->getGameValue("QuestRewardGiven_grotto_warden").toBool(),
+              "grotto_warden reward marked given");
+
+        // Clean up
+        DungeonLevelRegistry::instance().levelForEdit(5).bossDefeated = false;
+    }
+
+    section("[150] v3.0.0 slice 3.5: QuestChainDriver::advance does not double-grant");
+    {
+        gameStateManager* gsm = gameStateManager::instance();
+
+        // Reset quest state
+        for (int i = 0; i < QuestChain::stepCount(); ++i) {
+            gsm->setGameValue(QString("QuestRewardGiven_%1").arg(QuestChain::step(i).id), false);
+        }
+
+        // Set up: deepest floor = 5, boss on floor 5 defeated
+        gsm->setGameValue("DeepestFloor", 5);
+        DungeonLevelRegistry::instance().levelForEdit(5).generated = true;
+        DungeonLevelRegistry::instance().levelForEdit(5).bossDefeated = true;
+
+        // First advance — should grant
+        QuestChainDriver::AdvanceResult r1 = QuestChainDriver::advance();
+        int grantsAfterFirst = r1.grantedRewards.size();
+        int goldAfterFirst = gsm->getPartyGold();
+
+        // Second advance — should NOT grant again
+        QuestChainDriver::AdvanceResult r2 = QuestChainDriver::advance();
+        check(r2.grantedRewards.isEmpty(),
+              "no double-grant on second advance",
+              QString::number(r2.grantedRewards.size()));
+        check(gsm->getPartyGold() == goldAfterFirst,
+              "gold unchanged on second advance");
+
+        // Clean up
+        DungeonLevelRegistry::instance().levelForEdit(5).bossDefeated = false;
+    }
+
+    section("[151] v3.0.0 slice 3.5: QuestChainDriver::isChainComplete false before Prince");
+    {
+        gameStateManager* gsm = gameStateManager::instance();
+
+        // Reset
+        gsm->setGameValue("DeepestFloor", 10);
+        for (int i = 1; i <= 15; ++i) {
+            if (DungeonLevelRegistry::instance().hasLevel(i)) {
+                DungeonLevelRegistry::instance().levelForEdit(i).bossDefeated = false;
+            }
+        }
+        // Only floor 5 boss defeated
+        DungeonLevelRegistry::instance().levelForEdit(5).generated = true;
+        DungeonLevelRegistry::instance().levelForEdit(5).bossDefeated = true;
+
+        check(!QuestChainDriver::isChainComplete(),
+              "chain not complete without Prince of Devils");
+
+        // Now defeat floor 10 and floor 15 bosses
+        DungeonLevelRegistry::instance().levelForEdit(10).generated = true;
+        DungeonLevelRegistry::instance().levelForEdit(10).bossDefeated = true;
+        DungeonLevelRegistry::instance().levelForEdit(15).generated = true;
+        DungeonLevelRegistry::instance().levelForEdit(15).bossDefeated = true;
+        gsm->setGameValue("DeepestFloor", 15);
+
+        check(QuestChainDriver::isChainComplete(),
+              "chain complete after Prince defeated");
+    }
+
+    section("[152] v3.0.0 slice 3.5: QuestChainDriver::advance reports chain completion");
+    {
+        gameStateManager* gsm = gameStateManager::instance();
+
+        // Reset quest state
+        for (int i = 0; i < QuestChain::stepCount(); ++i) {
+            gsm->setGameValue(QString("QuestRewardGiven_%1").arg(QuestChain::step(i).id), false);
+        }
+
+        // Set up: everything done except Prince
+        gsm->setGameValue("DeepestFloor", 15);
+        for (int i = 1; i <= 15; ++i) {
+            DungeonLevelRegistry::instance().levelForEdit(i).generated = true;
+        }
+        for (int i = 1; i <= 14; ++i) {
+            DungeonLevelRegistry::instance().levelForEdit(i).bossDefeated = true;
+        }
+        DungeonLevelRegistry::instance().levelForEdit(15).bossDefeated = false;
+
+        check(!QuestChainDriver::isChainComplete(), "not complete before Prince");
+
+        // Defeat Prince
+        DungeonLevelRegistry::instance().levelForEdit(15).bossDefeated = true;
+
+        QuestChainDriver::AdvanceResult result = QuestChainDriver::advance();
+        check(result.chainJustCompleted,
+              "advance reports chain completion after Prince defeat");
+    }
+
+    section("[153] v3.0.0 slice 3.5: progressText shows current step");
+    {
+        gameStateManager* gsm = gameStateManager::instance();
+        gsm->setGameValue("DeepestFloor", 3);
+        for (int i = 1; i <= 15; ++i) {
+            if (DungeonLevelRegistry::instance().hasLevel(i)) {
+                DungeonLevelRegistry::instance().levelForEdit(i).bossDefeated = false;
+            }
+        }
+
+        QString text = QuestChainDriver::progressText();
+        check(!text.isEmpty(), "progress text not empty", text);
+        check(!text.contains("complete"), "text does not say complete", text);
     }
 
     // -------------------------------------------------------------- cleanup

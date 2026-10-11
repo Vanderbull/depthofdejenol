@@ -7,6 +7,7 @@
 #include "src/core/DungeonThemes.h"
 #include "src/core/DungeonLevelState.h"
 #include "src/core/BossEncounter.h"
+#include "src/core/QuestChainDriver.h"
 #include "src/core/DoorAndSearch.h"
 #include "src/traps_calculations.h"
 #include "src/core/SoundEffects.h"
@@ -769,7 +770,7 @@ DungeonDialog::DungeonDialog(QWidget *parent)
         // Initialize party gold to 1500 for a new game
         gameStateManager::instance()->addPartyGold(1500);
         // Save initial defaults to GameState
-        gsm->setGameValue("DungeonLevel", initialLevel);
+        gsm->setDungeonLevel(initialLevel);
         gsm->setGameValue("DungeonX", initialX);
         gsm->setGameValue("DungeonY", initialY);
     }
@@ -1123,7 +1124,7 @@ void DungeonDialog::enterLevel(int level, bool movingUp)
         m_monsterPositions = registry.level(level)->monsterPositions;
 
         QPair<int, int> landing = movingUp ? m_stairsDownPosition : m_stairsUpPosition;
-        gsm->setGameValue("DungeonLevel", level);
+        gsm->setDungeonLevel(level);
         gsm->setGameValue("DungeonX", landing.first);
         gsm->setGameValue("DungeonY", landing.second);
         revealAroundPlayer(landing.first, landing.second);
@@ -1181,7 +1182,7 @@ void DungeonDialog::enterLevel(int level, bool movingUp)
     registry.store(snap);
 
     // 6. Update Game State and UI
-    gsm->setGameValue("DungeonLevel", level);
+    gsm->setDungeonLevel(level);
     gsm->setGameValue("DungeonX", landingPos.first);
     gsm->setGameValue("DungeonY", landingPos.second);
     revealAroundPlayer(landingPos.first, landingPos.second);
@@ -1788,32 +1789,36 @@ void DungeonDialog::handleVictory()
         DungeonLevelRegistry::instance().levelForEdit(level).bossDefeated = true;
     }
 
+    // Advance the main quest chain. This grants any newly earned quest rewards
+    // and reports whether the chain just completed.
+    QuestChainDriver::AdvanceResult questResult = QuestChainDriver::advance();
+    for (const auto& reward : questResult.grantedRewards) {
+        logMessage(QString("<font color='gold'>📜 Quest reward: +%1 gold, +%2 XP (%3)</font>")
+                       .arg(reward.gold).arg(reward.xp).arg(reward.stepTitle));
+    }
+
     m_inCombat = false;
     m_combatGroup->setVisible(false);
 
-    // Check for final victory: the Prince of Devils is the floor-15 boss.
-    // When he falls, the game is won.
-    if (m_combatIsBoss && level == 15) {
-        bool won = true;  // isVictory() checks for floor-15 boss defeat
-        if (won) {
-            QString title = Endgame::victoryTitle();
-            QStringList paragraphs = Endgame::victoryParagraphs();
-            VictoryDialog* dlg = new VictoryDialog(title, paragraphs, true, this);
-            dlg->setAttribute(Qt::WA_DeleteOnClose);
-            connect(dlg, &VictoryDialog::startNewGamePlus, gsm, [gsm]() {
-                gsm->setNgPlusLevel(gsm->getNgPlusLevel() + 1);
-            });
-            // Record the run for the Hall of Records.
-            GameRecord rec;
-            rec.heroName = gsm->getPartyMembers().isEmpty() ? "Unknown" : gsm->getPartyMembers()[0].name;
-            rec.highestLevel = gsm->getPartyMembers().isEmpty() ? 1 : gsm->getPartyMembers()[0].level;
-            rec.mostGold = gsm->getPartyGold();
-            rec.deepestFloor = level;
-            rec.completionTimeSeconds = 0;  // TODO: track actual play time
-            rec.won = true;
-            gsm->addGameRecord(rec);
-            dlg->exec();
-        }
+    // Check for final victory: the quest chain is complete (Prince of Devils dead).
+    if (questResult.chainJustCompleted) {
+        QString title = Endgame::victoryTitle();
+        QStringList paragraphs = Endgame::victoryParagraphs();
+        VictoryDialog* dlg = new VictoryDialog(title, paragraphs, true, this);
+        dlg->setAttribute(Qt::WA_DeleteOnClose);
+        connect(dlg, &VictoryDialog::startNewGamePlus, gsm, [gsm]() {
+            gsm->setNgPlusLevel(gsm->getNgPlusLevel() + 1);
+        });
+        // Record the run for the Hall of Records.
+        GameRecord rec;
+        rec.heroName = gsm->getPartyMembers().isEmpty() ? "Unknown" : gsm->getPartyMembers()[0].name;
+        rec.highestLevel = gsm->getPartyMembers().isEmpty() ? 1 : gsm->getPartyMembers()[0].level;
+        rec.mostGold = gsm->getPartyGold();
+        rec.deepestFloor = level;
+        rec.completionTimeSeconds = 0;  // TODO: track actual play time
+        rec.won = true;
+        gsm->addGameRecord(rec);
+        dlg->exec();
     }
 
     drawMinimap();

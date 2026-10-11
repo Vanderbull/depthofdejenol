@@ -297,6 +297,10 @@ public:
     // --- Global Values System ---
     void setGameValue(const QString& key, const QVariant& value);
     QVariant getGameValue(const QString& key) const;
+
+    // Set dungeon level and track the deepest floor reached. DeepestFloor is
+    // what the quest chain reads, so it must update live — not only on save.
+    void setDungeonLevel(int level);
     void logGuildAction(const QString& actionDescription);
     // --- Status Flags ---
     // For World Events: setGlobalStatus("WorldOnFire", true);
