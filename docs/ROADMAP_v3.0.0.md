@@ -82,27 +82,36 @@ summary and several existing tests read it.
 
 ---
 
-### 3.3 Front and back row `L`
+### 3.3 Front and back row `L` — ✅ DONE
 
 **Why:** planned in `docs/ROADMAP_v1.1.0.md` (slice 2.2) and never done.
-`CombatParticipant` has no row field (verified). `MonsterAI::chooseTarget()` already rolls
-"60% front row (first living player), 25% weakest, 15% random" (`MonsterAI.cpp:52`) — but
-"front row" is just "whoever is first in the list", so the tactic is cosmetic. Casters
-cannot be protected.
+`CombatParticipant` had no row field. `MonsterAI::chooseTarget()` already rolled
+"60% front row (first living player), 25% weakest, 15% random" — but "front row" was just
+"whoever is first in the list", so the tactic was cosmetic and casters could not be
+protected.
 
-**Do:**
-- Add `row` (front/back) to `CombatParticipant`.
-- Let the player set a party member's row in combat (or from the party panel).
-- Melee reaches only the front row; ranged attacks and spells reach both. Monster melee
-  follows the same rule.
-- `MonsterAI::chooseTarget()` targets the front row by default and only reaches the back
-  row with ranged/spell attacks.
+**Done:**
+- `enum class CombatRow { Front, Back }` plus `row` and `ranged` on `CombatParticipant`
+- `CombatState::reachablePlayerIndices(bool ranged)` — the single rule: melee sees the front
+  row only, ranged (spells, breath) sees everyone
+- `MonsterAI::chooseTarget()` uses it, so a melee monster can no longer pick a back-row
+  target even when it is the weakest
+- `EncounterBuilder` marks spellcasters and fire-breathers `ranged`; everything else is melee
+- Party members default to front (first two) and back (the rest); the new **Row** button
+  toggles the acting member via `togglePlayerRow()`
+- The party line shows each member's row: `Name [front]: hp/maxHp`
 
-**Files:** `src/combat/CombatState.h`, `src/combat/CombatActions.cpp`,
-`src/combat/MonsterAI.cpp`, `src/dungeon_dialog/DungeonDialog.cpp`
+**Files:** `src/combat/CombatState.h` / `.cpp`, `src/combat/MonsterAI.cpp`,
+`src/combat/EncounterBuilder.cpp`, `src/dungeon_dialog/DungeonDialog.cpp` / `.h`
 
-**Verify:** a back-row member takes no melee damage while a front-row member stands;
-putting everyone in the back row makes melee unable to reach anyone; spells still reach both.
+**Verify:** tests [132]-[137] — melee reaches the front row only while ranged reaches both
+✅; an all-back-row party blocks melee entirely ✅; a melee monster never targets the back
+row over 200 decisions ✅; a ranged monster does ✅; the Row button toggles a player and
+refuses monsters/invalid indices ✅; the party line shows rows ✅. Non-vacuous: making
+reachability ignore the row fails four tests.
+
+**Note:** rows protect players as targets. Monster melee is blocked by an empty front line,
+which is the tactical point — put the fighter up front and the caster behind.
 
 ---
 
@@ -253,7 +262,7 @@ v3.0.0 is ready when:
 
 - [x] The player can choose which monster to attack, and the choice is visible
 - [x] Each monster in a group shows its own HP and status
-- [ ] Front/back row changes who melee can reach
+- [x] Front/back row changes who melee can reach
 - [ ] Level-ups grant spendable stat points; the pool persists
 - [ ] The main quest chain advances from play and grants its rewards
 - [ ] Play time is tracked and the Hall of Records sorts by it

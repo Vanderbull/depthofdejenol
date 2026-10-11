@@ -8084,6 +8084,228 @@ int runSelfTest()
         check(!Character::isConsumable(junk), "an unknown item is not consumable");
     }
 
+    // ------------------------------------------- v3.0.0 — slice 3.3: front/back row
+    section("[132] v3.0.0 slice 3.3: melee reaches the front row only");
+    {
+        CombatState state;
+        CombatParticipant front;
+        front.name = "Front Hero";
+        front.isPlayer = true;
+        front.isAlive = true;
+        front.row = CombatRow::Front;
+        state.addParticipant(front);
+
+        CombatParticipant back;
+        back.name = "Back Mage";
+        back.isPlayer = true;
+        back.isAlive = true;
+        back.row = CombatRow::Back;
+        state.addParticipant(back);
+
+        // Melee sees only the front row.
+        const QList<int> meleeTargets = state.reachablePlayerIndices(false);
+        check(meleeTargets.size() == 1, "melee sees one reachable player",
+              QString::number(meleeTargets.size()));
+        check(meleeTargets.contains(0), "melee reaches the front-row member");
+        check(!meleeTargets.contains(1), "melee cannot reach the back-row member");
+
+        // Ranged (spells, breath) reaches both.
+        const QList<int> rangedTargets = state.reachablePlayerIndices(true);
+        check(rangedTargets.size() == 2, "ranged sees both players",
+              QString::number(rangedTargets.size()));
+        check(rangedTargets.contains(0) && rangedTargets.contains(1),
+              "ranged reaches front and back");
+    }
+
+    section("[133] v3.0.0 slice 3.3: everyone in the back row blocks melee");
+    {
+        CombatState state;
+        for (int i = 0; i < 2; ++i) {
+            CombatParticipant p;
+            p.name = QString("Back Hero %1").arg(i + 1);
+            p.isPlayer = true;
+            p.isAlive = true;
+            p.row = CombatRow::Back;
+            state.addParticipant(p);
+        }
+
+        check(state.reachablePlayerIndices(false).isEmpty(),
+              "no front row means melee reaches nobody");
+        check(state.reachablePlayerIndices(true).size() == 2,
+              "ranged still reaches both");
+    }
+
+    section("[134] v3.0.0 slice 3.3: monster melee is blocked by an empty front row");
+    {
+        // Drive the real AI: a melee monster must not pick a back-row target.
+        CombatState state;
+        CombatParticipant front;
+        front.name = "Shield Wall";
+        front.isPlayer = true;
+        front.isAlive = true;
+        front.hp = 100; front.maxHp = 100;
+        front.row = CombatRow::Front;
+        front.speed = 0;
+        state.addParticipant(front);
+
+        CombatParticipant back;
+        back.name = "Squishy Mage";
+        back.isPlayer = true;
+        back.isAlive = true;
+        back.hp = 30; back.maxHp = 30;
+        back.row = CombatRow::Back;
+        back.speed = 0;
+        state.addParticipant(back);
+
+        CombatParticipant meleeMonster;
+        meleeMonster.name = "Melee Orc";
+        meleeMonster.isPlayer = false;
+        meleeMonster.isAlive = true;
+        meleeMonster.hp = 50; meleeMonster.maxHp = 50;
+        meleeMonster.speed = 100;
+        meleeMonster.ranged = false;
+        state.addParticipant(meleeMonster);
+
+        TurnEngine engine;
+        engine.setCombatState(&state);
+        CombatActions actions(&state, &engine);
+        MonsterAI ai(&state, &engine, &actions);
+
+        state.rollInitiative();
+        engine.startRound();
+        for (int i = 0; i < 20 && !ai.isMonsterTurn(); ++i) engine.nextTurn();
+        check(ai.isMonsterTurn(), "the monster has the turn");
+
+        // Run many decisions: a melee monster must NEVER pick the back row,
+        // even though it is the weakest target (25% of rolls aim at weakest).
+        bool everHitBack = false;
+        for (int i = 0; i < 200; ++i) {
+            if (ai.chooseTarget() == 1) everHitBack = true;
+        }
+        check(!everHitBack, "melee monster never targets the back row");
+    }
+
+    section("[135] v3.0.0 slice 3.3: a ranged monster can reach the back row");
+    {
+        CombatState state;
+        CombatParticipant back;
+        back.name = "Only Mage";
+        back.isPlayer = true;
+        back.isAlive = true;
+        back.hp = 30; back.maxHp = 30;
+        back.row = CombatRow::Back;
+        back.speed = 0;
+        state.addParticipant(back);
+
+        CombatParticipant caster;
+        caster.name = "Casting Shaman";
+        caster.isPlayer = false;
+        caster.isAlive = true;
+        caster.hp = 50; caster.maxHp = 50;
+        caster.speed = 100;
+        caster.ranged = true;
+        caster.canCastSpells = true;
+        state.addParticipant(caster);
+
+        TurnEngine engine;
+        engine.setCombatState(&state);
+        CombatActions actions(&state, &engine);
+        MonsterAI ai(&state, &engine, &actions);
+
+        state.rollInitiative();
+        engine.startRound();
+        for (int i = 0; i < 20 && !ai.isMonsterTurn(); ++i) engine.nextTurn();
+
+        check(ai.chooseTarget() == 0, "a ranged monster reaches the back row");
+    }
+
+    section("[136] v3.0.0 slice 3.3: togglePlayerRow moves a member between rows");
+    {
+        DungeonDialog dlg;
+        dlg.resize(1280, 800);
+        dlg.show();
+        for (int i = 0; i < 20; ++i) QApplication::processEvents();
+
+        gameStateManager* gsm = gameStateManager::instance();
+        gsm->getPartyMembers().clear();
+        gsm->addCharacterToParty([]{
+            Character c;
+            c.name = "Row Toggler";
+            c.level = 5;
+            c.hp = 100; c.maxHp = 100;
+            c.isAlive = true;
+            return c;
+        }());
+
+        QPair<int, int> pos = {9, 9};
+        dlg.m_monsterPositions[pos] = "Test Row Toggle Goblin";
+        dlg.m_MonsterAttitude["Test Row Toggle Goblin"] = "Hostile";
+        gsm->setGameValue("DungeonX", 9);
+        gsm->setGameValue("DungeonY", 9);
+        DungeonHandlers::handleEncounters(&dlg, 9, 9);
+
+        // Find the player's participant index.
+        int playerIdx = -1;
+        for (int i = 0; i < dlg.m_combatState->participantCount(); ++i) {
+            if (dlg.m_combatState->participant(i).isPlayer) { playerIdx = i; break; }
+        }
+        check(playerIdx >= 0, "player is in the combat state");
+
+        const CombatRow before = dlg.m_combatState->participant(playerIdx).row;
+        check(dlg.togglePlayerRow(playerIdx), "togglePlayerRow succeeded");
+        const CombatRow after = dlg.m_combatState->participant(playerIdx).row;
+        check(after != before, "the row changed");
+
+        // Toggling a monster must be refused: rows are a player position.
+        int monsterIdx = -1;
+        for (int i = 0; i < dlg.m_combatState->participantCount(); ++i) {
+            if (!dlg.m_combatState->participant(i).isPlayer) { monsterIdx = i; break; }
+        }
+        if (monsterIdx >= 0) {
+            check(!dlg.togglePlayerRow(monsterIdx), "a monster's row cannot be toggled");
+        }
+        check(!dlg.togglePlayerRow(-1), "an invalid index is refused");
+
+        dlg.m_monsterPositions.remove(pos);
+        dlg.m_MonsterAttitude.remove("Test Row Toggle Goblin");
+        dlg.m_inCombat = false;
+    }
+
+    section("[137] v3.0.0 slice 3.3: party display shows each member's row");
+    {
+        DungeonDialog dlg;
+        dlg.resize(1280, 800);
+        dlg.show();
+        for (int i = 0; i < 20; ++i) QApplication::processEvents();
+
+        gameStateManager* gsm = gameStateManager::instance();
+        gsm->getPartyMembers().clear();
+        gsm->addCharacterToParty([]{
+            Character c;
+            c.name = "Shown Hero";
+            c.level = 5;
+            c.hp = 100; c.maxHp = 100;
+            c.isAlive = true;
+            return c;
+        }());
+
+        QPair<int, int> pos = {10, 10};
+        dlg.m_monsterPositions[pos] = "Test Show Goblin";
+        dlg.m_MonsterAttitude["Test Show Goblin"] = "Hostile";
+        gsm->setGameValue("DungeonX", 10);
+        gsm->setGameValue("DungeonY", 10);
+        DungeonHandlers::handleEncounters(&dlg, 10, 10);
+
+        dlg.updateCombatUI();
+        const QString text = dlg.m_combatPartyHpLabel->text();
+        check(text.contains("front") || text.contains("back"),
+              "the party line shows the row", text);
+
+        dlg.m_monsterPositions.remove(pos);
+        dlg.m_MonsterAttitude.remove("Test Show Goblin");
+        dlg.m_inCombat = false;
+    }
+
     // -------------------------------------------------------------- cleanup
     QFile::remove(savePath());
 

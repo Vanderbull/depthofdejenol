@@ -111,6 +111,17 @@ QList<int> CombatState::livingMonsterIndices() const {
     return result;
 }
 
+QList<int> CombatState::reachablePlayerIndices(bool ranged) const {
+    QList<int> result;
+    for (int i = 0; i < m_participants.size(); ++i) {
+        const CombatParticipant& p = m_participants[i];
+        if (!p.isPlayer || !p.isAlive) continue;
+        // Ranged (spells, breath) reaches everyone; melee only the front row.
+        if (ranged || p.row == CombatRow::Front) result.append(i);
+    }
+    return result;
+}
+
 void CombatState::markActed(int index) {
     if (index >= 0 && index < m_participants.size()) {
         m_participants[index].hasActed = true;

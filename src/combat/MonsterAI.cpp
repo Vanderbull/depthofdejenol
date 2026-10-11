@@ -54,13 +54,16 @@ int MonsterAI::chooseTarget() const {
     int monsterIdx = m_engine->currentParticipantIndex();
     if (monsterIdx < 0) return -1;
 
-    QList<int> livingPlayers = m_state->livingPlayerIndices();
+    // A monster's melee only reaches the front row; a spellcaster (ranged) can
+    // pick a back-row target. reachablePlayerIndices() is the single rule.
+    const CombatParticipant& monster = m_state->participant(monsterIdx);
+    QList<int> livingPlayers = m_state->reachablePlayerIndices(monster.ranged);
     if (livingPlayers.isEmpty()) return -1;
 
-    // Strategy: 60% front row (first living player), 25% weakest, 15% random
+    // Strategy: 60% front row (first reachable player), 25% weakest, 15% random
     int roll = QRandomGenerator::global()->bounded(100);
     if (roll < 60) {
-        // Front row: first living player
+        // Front of the reachable line
         return livingPlayers.first();
     } else if (roll < 85) {
         // Weakest: lowest HP

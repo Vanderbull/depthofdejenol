@@ -161,6 +161,10 @@ QList<CombatParticipant> EncounterBuilder::buildEncounter(
             p.canCastSpells = true;
         }
 
+        // Ranged: a spellcaster or a fire-breather can strike the back row.
+        // Everything else is melee and can only reach the front.
+        p.ranged = p.canCastSpells || p.canBreathFire;
+
         result.append(p);
     }
 

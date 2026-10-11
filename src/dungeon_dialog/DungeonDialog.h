@@ -202,6 +202,7 @@ public:
     QPushButton* m_combatFleeBtn = nullptr;
     QPushButton* m_combatUseItemBtn = nullptr;
     QPushButton* m_combatSpellBtn = nullptr;
+    QPushButton* m_combatRowBtn = nullptr;   // v3.0.0 slice 3.3: front/back toggle
     QLabel* m_combatMonsterHpLabel = nullptr;
     QLabel* m_combatPartyHpLabel = nullptr;
     QGroupBox* m_combatGroup = nullptr;
@@ -222,6 +223,11 @@ public:
     // "blind", "stunned", "slowed". Empty when the participant is clean.
     // Static and free of UI state so the self-tests can check it directly.
     static QString combatStatusText(const CombatParticipant& p);
+
+    // v3.0.0 slice 3.3: move a party member between the front and back row.
+    // Melee only reaches the front, so this is how a caster is protected.
+    // Returns the member's new row, or false when the index is not a player.
+    bool togglePlayerRow(int participantIndex);
 
     // --- Phase 3: Movement & UI ---
     // Integrated minimap (in the main layout, not a popup)

@@ -44,6 +44,22 @@ Semantic versioning with game-studio conventions:
 
 **Tests:** 1352 + 3 passed, 0 failed (stable over 3 runs).
 
+## Slice 3.3 — Front and back row
+
+**Problem:** `CombatParticipant` had no row field, so `MonsterAI::chooseTarget()`'s "60% front row" was just "whoever is first in the list". The tactic was cosmetic and a caster could not be protected.
+
+**Fix:**
+- `enum class CombatRow { Front, Back }`, plus `row` and `ranged` on `CombatParticipant`
+- `CombatState::reachablePlayerIndices(bool ranged)` is the single rule: melee sees the front row only, ranged sees everyone
+- `MonsterAI::chooseTarget()` uses it — a melee monster can no longer pick the back row even when it is the weakest
+- `EncounterBuilder` marks spellcasters and fire-breathers `ranged`
+- Party members default to front (first two) / back (rest); the new **Row** button toggles the acting member
+- The party line shows each member's row
+
+**Verified:** tests [132]-[137] — melee reaches front only, ranged reaches both ✅; an all-back party blocks melee ✅; a melee monster never targets the back row over 200 decisions ✅; a ranged one does ✅; the Row button refuses monsters/invalid indices ✅; the party line shows rows ✅. Non-vacuous: ignoring the row in reachability fails four tests.
+
+**Tests:** 1368 + 3 passed, 0 failed (stable over 3 runs).
+
 ---
 
 | Phase | Version | Level | Content |

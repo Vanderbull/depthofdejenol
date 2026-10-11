@@ -1032,18 +1032,23 @@ DungeonDialog::DungeonDialog(QWidget *parent)
     m_combatFleeBtn = new QPushButton("Flee", m_combatGroup);
     m_combatUseItemBtn = new QPushButton("Item", m_combatGroup);
     m_combatSpellBtn = new QPushButton("Spell", m_combatGroup);
+    m_combatRowBtn = new QPushButton("Row", m_combatGroup);
+    m_combatRowBtn->setToolTip("Move the current character between the front and back row.\n"
+                               "Melee only reaches the front row.");
 
     m_combatAttackBtn->setFocusPolicy(Qt::NoFocus);
     m_combatDefendBtn->setFocusPolicy(Qt::NoFocus);
     m_combatFleeBtn->setFocusPolicy(Qt::NoFocus);
     m_combatUseItemBtn->setFocusPolicy(Qt::NoFocus);
     m_combatSpellBtn->setFocusPolicy(Qt::NoFocus);
+    m_combatRowBtn->setFocusPolicy(Qt::NoFocus);
 
     combatBtnLayout->addWidget(m_combatAttackBtn);
     combatBtnLayout->addWidget(m_combatDefendBtn);
     combatBtnLayout->addWidget(m_combatFleeBtn);
     combatBtnLayout->addWidget(m_combatUseItemBtn);
     combatBtnLayout->addWidget(m_combatSpellBtn);
+    combatBtnLayout->addWidget(m_combatRowBtn);
     combatLayout->addLayout(combatBtnLayout);
 
     m_combatGroup->setVisible(false);
@@ -1055,6 +1060,22 @@ DungeonDialog::DungeonDialog(QWidget *parent)
     connect(m_combatFleeBtn, &QPushButton::clicked, this, &DungeonDialog::on_combatFleeButton_clicked);
     connect(m_combatUseItemBtn, &QPushButton::clicked, this, &DungeonDialog::on_combatUseItemButton_clicked);
     connect(m_combatSpellBtn, &QPushButton::clicked, this, &DungeonDialog::on_combatSpellButton_clicked);
+    connect(m_combatRowBtn, &QPushButton::clicked, this, [this]() {
+        // Move the character whose turn it is. During their turn the acting
+        // participant is the one the player controls.
+        if (!m_inCombat || !m_combatState || !m_turnEngine) return;
+        const int idx = m_turnEngine->currentParticipantIndex();
+        if (idx < 0) return;
+        const CombatParticipant& p = m_combatState->participant(idx);
+        if (!p.isPlayer) return;
+
+        togglePlayerRow(idx);
+        logMessage(QString("%1 moves to the %2 row.")
+                       .arg(p.name)
+                       .arg(m_combatState->participant(idx).row == CombatRow::Front
+                                ? "front" : "back"));
+        updateCombatUI();
+    });
 }
 
 void DungeonDialog::updateExperienceLabel()
@@ -1336,6 +1357,13 @@ bool DungeonDialog::startCombatAt(const QPair<int, int>& pos)
         p.mana = c.mana;
         p.maxMana = c.maxMana;
 
+        // Default position: the first two members form the front line, the rest
+        // stand behind them. The player can move anyone with the Row button.
+        p.row = (i < 2) ? CombatRow::Front : CombatRow::Back;
+        // A member holding a bow or casting is not modelled as ranged here;
+        // player melee reaches the front line of the enemy, which is everyone
+        // (monsters have no row to hide behind), so players stay non-ranged.
+
         // Add weapon bonus
         for (const HeldItem& item : c.equipped) {
             if (const ItemDef* def = ItemDatabase::instance().byName(item.name)) {
@@ -1576,7 +1604,11 @@ void DungeonDialog::updateCombatUI()
     for (int i = 0; i < m_combatState->participantCount(); ++i) {
         const auto& p = m_combatState->participant(i);
         if (p.isPlayer) {
-            hpList << QString("%1: %2/%3").arg(p.name).arg(p.hp).arg(p.maxHp);
+            // Show the row so the player can see who is exposed to melee.
+            hpList << QString("%1 [%2]: %3/%4")
+                          .arg(p.name)
+                          .arg(p.row == CombatRow::Front ? "front" : "back")
+                          .arg(p.hp).arg(p.maxHp);
         }
     }
     m_combatPartyHpLabel->setText("Party: " + hpList.join(" | "));
@@ -1593,6 +1625,18 @@ int DungeonDialog::selectedMonsterIndex() const
     const auto& p = m_combatState->participant(idx);
     if (p.isPlayer || !p.isAlive) return -1;
     return idx;
+}
+
+bool DungeonDialog::togglePlayerRow(int participantIndex)
+{
+    if (!m_combatState) return false;
+    if (participantIndex < 0 || participantIndex >= m_combatState->participantCount()) return false;
+
+    CombatParticipant& p = m_combatState->participant(participantIndex);
+    if (!p.isPlayer) return false;
+
+    p.row = (p.row == CombatRow::Front) ? CombatRow::Back : CombatRow::Front;
+    return true;
 }
 
 QString DungeonDialog::combatStatusText(const CombatParticipant& p)

@@ -5,6 +5,10 @@
 #include <QList>
 #include <QMetaType>
 
+// Which line a combatant stands in. Melee reaches only the front row, so a
+// back-row caster is protected while a front-row fighter still stands.
+enum class CombatRow { Front, Back };
+
 // A single combat participant (party member or monster).
 struct CombatParticipant {
     QString name;
@@ -20,6 +24,12 @@ struct CombatParticipant {
     bool isDefending = false;  // true after Defend; halves incoming damage this round
     bool hasFled = false;      // true once this monster has fled the fight
     bool deathAnnounced = false;  // true once the death message has been emitted
+
+    // Position: melee only reaches the front row; ranged attacks and spells
+    // reach either. Monsters default to the front (they have no line to hide in).
+    CombatRow row = CombatRow::Front;
+    // Can this participant strike the back row? Spells and breath are ranged.
+    bool ranged = false;
 
     // Monster-specific
     int level = 1;
@@ -80,6 +90,11 @@ public:
     int livingMonsterCount() const;
     QList<int> livingPlayerIndices() const;
     QList<int> livingMonsterIndices() const;
+
+    // Living players a melee attack can reach: the front row only. When
+    // `ranged` is true (a spell or breath weapon) every living player is in
+    // reach. Used by MonsterAI so a back-row caster is protected.
+    QList<int> reachablePlayerIndices(bool ranged) const;
 
     // Direct access for combat resolution
     CombatParticipant& participant(int index) { return m_participants[index]; }
