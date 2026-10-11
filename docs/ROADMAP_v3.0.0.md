@@ -24,7 +24,7 @@ a button, and characters become builds, not a random walk.
 
 ## Slices
 
-### 3.1 Combat target selection `M`
+### 3.1 Combat target selection `M` — ✅ DONE
 
 **Why:** `on_combatAttackButton_clicked()` scans participants and takes the first living
 monster (`DungeonDialog.cpp:1394`). `EncounterBuilder::buildEncounter()` adds every monster
@@ -32,16 +32,23 @@ of a group as its own `CombatParticipant` (`DungeonDialog.cpp:1367`), so a 3-mon
 gives the player no way to focus one down. `CombatActions::attack(int targetIndex, ...)`
 already takes a target — only the UI refuses to pass one.
 
-**Do:**
-- Add a monster selection list to the combat panel; each row is one living monster.
-- `on_combatAttackButton_clicked()` attacks the *selected* monster, falling back to the
-  first living one when nothing is selected (so keyboard-only play still works).
-- The same selection feeds spell and item targeting.
+**Done:**
+- `m_combatTargetList` — a `QListWidget` in the combat panel, one row per living monster,
+  each carrying its participant index in `Qt::UserRole`
+- `selectedMonsterIndex()` / `selectFirstLivingMonster()` on `DungeonDialog`
+- `on_combatAttackButton_clicked()` attacks the selected monster, falling back to the first
+  living one (so keyboard-only play still works)
+- The spell path in `on_spellButton_clicked()` casts at the selected monster too
+- `updateCombatUI()` rebuilds the list, preserves the player's choice, and moves the
+  selection to a survivor when the chosen monster dies
+- `on_combatAttackButton_clicked()` and `updateCombatUI()` made public for tests
 
-**Files:** `src/dungeon_dialog/DungeonDialog.cpp` / `.h`, `src/combat/CombatActions.cpp`
+**Files:** `src/dungeon_dialog/DungeonDialog.cpp` / `.h`
 
-**Verify:** in a 3-monster fight, attacking the third monster damages the third, not the
-first; killing the selected monster moves selection to the next living one.
+**Verify:** tests [126]-[128] — in a 3-monster fight, attacking the third damages the third
+and leaves the first untouched ✅; killing the selected monster moves the selection to a
+survivor ✅; with nothing selected the fallback finds the first living monster ✅.
+Non-vacuous: restoring "take the first living monster" fails the targeting test.
 
 ---
 
@@ -237,7 +244,7 @@ the migration path exists from the first save that contains them.
 
 v3.0.0 is ready when:
 
-- [ ] The player can choose which monster to attack, and the choice is visible
+- [x] The player can choose which monster to attack, and the choice is visible
 - [ ] Each monster in a group shows its own HP and status
 - [ ] Front/back row changes who melee can reach
 - [ ] Level-ups grant spendable stat points; the pool persists

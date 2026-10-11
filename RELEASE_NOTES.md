@@ -11,6 +11,27 @@ Semantic versioning with game-studio conventions:
 - **Minor (X.Y.0)** — new features, mechanics, areas; backwards-compatible.
 - **Patch (X.Y.Z)** — bug fixes, balance, text, polish; no new features.
 
+---
+
+# v3.0.0 — Tactical combat and character growth — IN PROGRESS
+
+## Slice 3.1 — Combat target selection
+
+**Problem:** `on_combatAttackButton_clicked()` always attacked the *first* living monster. `EncounterBuilder` produces real monster groups, and `CombatActions::attack(int targetIndex, ...)` already accepted a target — but the UI never passed one, so a 3-monster fight gave no way to focus a target down.
+
+**Fix:**
+- `m_combatTargetList` — a `QListWidget` in the combat panel, one row per living monster, each carrying its participant index in `Qt::UserRole`
+- `selectedMonsterIndex()` / `selectFirstLivingMonster()` on `DungeonDialog`
+- Attack uses the selected monster, falling back to the first living one so keyboard-only play still works
+- The spell path casts at the selected monster too
+- `updateCombatUI()` preserves the player's choice and moves the selection to a survivor when the chosen monster dies
+
+**Verified:** tests [126]-[128] — attacking the third of three monsters damages the third and leaves the first untouched ✅; killing the selected monster moves the selection ✅; the no-selection fallback finds the first living monster ✅. Non-vacuous: restoring "take the first living monster" fails the targeting test.
+
+**Tests:** 1333 + 3 passed, 0 failed (stable over 3 runs).
+
+---
+
 | Phase | Version | Level | Content |
 |---|---|---|---|
 | Phase 0 | **v0.1** | Pre-release | Security and latent breakage |

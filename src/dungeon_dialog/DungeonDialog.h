@@ -111,11 +111,9 @@ private slots:
     void togglePartyInfo();
 
     // --- Combat Slots ---
-    void on_combatAttackButton_clicked();
     void on_combatDefendButton_clicked();
     void on_combatUseItemButton_clicked();
     void on_combatSpellButton_clicked();
-    void updateCombatUI();
     void handlePartyWipe();
     void syncCombatToGameState();
     QStringList getThematicMonsters(int level) const;
@@ -129,6 +127,8 @@ public:
     bool fleeCombat(); // public: true if the party escaped
     void advanceCombat(); // public for tests
     void handleVictory(); // public for tests
+    void on_combatAttackButton_clicked(); // public for tests
+    void updateCombatUI(); // public for tests
 
 private:
     void awardBattleLoot();
@@ -205,6 +205,18 @@ public:
     QLabel* m_combatMonsterHpLabel = nullptr;
     QLabel* m_combatPartyHpLabel = nullptr;
     QGroupBox* m_combatGroup = nullptr;
+
+    // --- v3.0.0 slice 3.1: target selection ---
+    // The player chooses which monster to hit; group encounters add one row per
+    // monster. Rows carry the participant index in Qt::UserRole.
+    QListWidget* m_combatTargetList = nullptr;
+
+    // Index of the monster the player has selected, or -1 when none is chosen.
+    // Reads the selection list, so it is the same value the Attack button uses.
+    int selectedMonsterIndex() const;
+    // Select the first living monster (used when nothing is selected, and after
+    // the selected monster dies so keyboard-only play keeps working).
+    int selectFirstLivingMonster();
 
     // --- Phase 3: Movement & UI ---
     // Integrated minimap (in the main layout, not a popup)

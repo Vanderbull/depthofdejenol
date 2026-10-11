@@ -7710,6 +7710,236 @@ int runSelfTest()
         }
     }
 
+    // ------------------------------------------- v3.0.0 — slice 3.1: target selection
+    section("[126] v3.0.0 slice 3.1: attack hits the selected monster, not the first");
+    {
+        DungeonDialog dlg;
+        dlg.resize(1280, 800);
+        dlg.show();
+        for (int i = 0; i < 20; ++i) QApplication::processEvents();
+
+        gameStateManager* gsm = gameStateManager::instance();
+        gsm->getPartyMembers().clear();
+        gsm->addCharacterToParty([]{
+            Character c;
+            c.name = "Target Hero";
+            c.level = 5;
+            c.hp = 100; c.maxHp = 100;
+            c.isAlive = true;
+            return c;
+        }());
+
+        QPair<int, int> pos = {5, 5};
+        dlg.m_monsterPositions[pos] = "Test Target Goblin";
+        dlg.m_MonsterAttitude["Test Target Goblin"] = "Hostile";
+        gsm->setGameValue("DungeonX", 5);
+        gsm->setGameValue("DungeonY", 5);
+
+        DungeonHandlers::handleEncounters(&dlg, 5, 5);
+        check(dlg.m_inCombat, "combat started");
+
+        // Build a deterministic 3-monster fight on top of the real participants.
+        dlg.m_combatState->clear();
+        CombatParticipant hero;
+        hero.name = "Target Hero";
+        hero.isPlayer = true;
+        hero.isAlive = true;
+        hero.hp = 100; hero.maxHp = 100;
+        hero.att = 30; hero.dex = 50; hero.level = 5;
+        hero.speed = 100;
+        dlg.m_combatState->addParticipant(hero);
+
+        for (int m = 0; m < 3; ++m) {
+            CombatParticipant mon;
+            mon.name = QString("Goblin %1").arg(m + 1);
+            mon.isPlayer = false;
+            mon.isAlive = true;
+            mon.hp = 500; mon.maxHp = 500;   // survive one hit
+            mon.def = -50;                    // guarantee hits
+            mon.level = 1;
+            mon.speed = 0;
+            dlg.m_combatState->addParticipant(mon);
+        }
+
+        // Give the hero the turn.
+        dlg.m_combatState->rollInitiative();
+        dlg.m_turnEngine->startRound();
+        for (int i = 0; i < 100 && !dlg.m_combatActions->isPlayerTurn(); ++i) {
+            dlg.advanceCombat();
+        }
+        check(dlg.m_combatActions->isPlayerTurn(), "player has the turn");
+
+        dlg.updateCombatUI();
+        check(dlg.m_combatTargetList && dlg.m_combatTargetList->count() == 3,
+              "target list has one row per living monster",
+              QString::number(dlg.m_combatTargetList ? dlg.m_combatTargetList->count() : -1));
+
+        // Select the THIRD monster and attack.
+        const int thirdIdx = 3;   // hero=0, goblins=1,2,3
+        dlg.m_combatTargetList->setCurrentRow(2);
+        check(dlg.selectedMonsterIndex() == thirdIdx, "third monster is selected",
+              QString::number(dlg.selectedMonsterIndex()));
+
+        int firstHp = dlg.m_combatState->participant(1).hp;
+        int thirdHp = dlg.m_combatState->participant(thirdIdx).hp;
+
+        // A natural 1 always fumbles, so a single attack can miss. Attack until
+        // one lands (re-taking the turn each round), then check WHERE it landed:
+        // the first monster must be untouched throughout.
+        bool thirdDamaged = false;
+        for (int attempt = 0; attempt < 50 && !thirdDamaged; ++attempt) {
+            for (int i = 0; i < 100 && !dlg.m_combatActions->isPlayerTurn(); ++i) {
+                dlg.advanceCombat();
+            }
+            if (!dlg.m_combatActions->isPlayerTurn()) break;
+
+            dlg.updateCombatUI();
+            for (int row = 0; row < dlg.m_combatTargetList->count(); ++row) {
+                if (dlg.m_combatTargetList->item(row)->data(Qt::UserRole).toInt() == thirdIdx) {
+                    dlg.m_combatTargetList->setCurrentRow(row);
+                    break;
+                }
+            }
+            dlg.on_combatAttackButton_clicked();
+
+            if (dlg.m_combatState->participant(thirdIdx).hp < thirdHp) thirdDamaged = true;
+        }
+
+        check(thirdDamaged, "the selected (third) monster took the damage",
+              QString::number(dlg.m_combatState->participant(thirdIdx).hp));
+        check(dlg.m_combatState->participant(1).hp == firstHp,
+              "the first monster was NOT hit",
+              QString::number(dlg.m_combatState->participant(1).hp));
+
+        dlg.m_monsterPositions.remove(pos);
+        dlg.m_MonsterAttitude.remove("Test Target Goblin");
+        dlg.m_inCombat = false;
+    }
+
+    section("[127] v3.0.0 slice 3.1: selection moves on when the target dies");
+    {
+        DungeonDialog dlg;
+        dlg.resize(1280, 800);
+        dlg.show();
+        for (int i = 0; i < 20; ++i) QApplication::processEvents();
+
+        gameStateManager* gsm = gameStateManager::instance();
+        gsm->getPartyMembers().clear();
+        gsm->addCharacterToParty([]{
+            Character c;
+            c.name = "Mover Hero";
+            c.level = 5;
+            c.hp = 100; c.maxHp = 100;
+            c.isAlive = true;
+            return c;
+        }());
+
+        QPair<int, int> pos = {6, 6};
+        dlg.m_monsterPositions[pos] = "Test Move Goblin";
+        dlg.m_MonsterAttitude["Test Move Goblin"] = "Hostile";
+        gsm->setGameValue("DungeonX", 6);
+        gsm->setGameValue("DungeonY", 6);
+        DungeonHandlers::handleEncounters(&dlg, 6, 6);
+
+        dlg.m_combatState->clear();
+        CombatParticipant hero;
+        hero.name = "Mover Hero";
+        hero.isPlayer = true;
+        hero.isAlive = true;
+        hero.hp = 100; hero.maxHp = 100;
+        hero.speed = 100;
+        dlg.m_combatState->addParticipant(hero);
+
+        for (int m = 0; m < 2; ++m) {
+            CombatParticipant mon;
+            mon.name = QString("Weak Goblin %1").arg(m + 1);
+            mon.isPlayer = false;
+            mon.isAlive = true;
+            mon.hp = 1; mon.maxHp = 1;   // one hit kills
+            mon.def = -50;
+            mon.speed = 0;
+            dlg.m_combatState->addParticipant(mon);
+        }
+
+        dlg.updateCombatUI();
+        check(dlg.m_combatTargetList->count() == 2, "two monsters listed");
+
+        // Select the first monster and kill it.
+        dlg.m_combatTargetList->setCurrentRow(0);
+        check(dlg.selectedMonsterIndex() == 1, "first monster selected");
+
+        // Kill it directly, then refresh: selection must move to the survivor.
+        dlg.m_combatState->participant(1).hp = 0;
+        dlg.m_combatState->participant(1).isAlive = false;
+        dlg.updateCombatUI();
+
+        check(dlg.m_combatTargetList->count() == 1, "dead monster dropped from the list");
+        check(dlg.selectedMonsterIndex() == 2,
+              "selection moved to the surviving monster",
+              QString::number(dlg.selectedMonsterIndex()));
+
+        dlg.m_monsterPositions.remove(pos);
+        dlg.m_MonsterAttitude.remove("Test Move Goblin");
+        dlg.m_inCombat = false;
+    }
+
+    section("[128] v3.0.0 slice 3.1: no selection falls back to the first living monster");
+    {
+        DungeonDialog dlg;
+        dlg.resize(1280, 800);
+        dlg.show();
+        for (int i = 0; i < 20; ++i) QApplication::processEvents();
+
+        gameStateManager* gsm = gameStateManager::instance();
+        gsm->getPartyMembers().clear();
+        gsm->addCharacterToParty([]{
+            Character c;
+            c.name = "Fallback Hero";
+            c.level = 5;
+            c.hp = 100; c.maxHp = 100;
+            c.isAlive = true;
+            return c;
+        }());
+
+        QPair<int, int> pos = {7, 7};
+        dlg.m_monsterPositions[pos] = "Test Fallback Goblin";
+        dlg.m_MonsterAttitude["Test Fallback Goblin"] = "Hostile";
+        gsm->setGameValue("DungeonX", 7);
+        gsm->setGameValue("DungeonY", 7);
+        DungeonHandlers::handleEncounters(&dlg, 7, 7);
+
+        dlg.m_combatState->clear();
+        CombatParticipant hero;
+        hero.name = "Fallback Hero";
+        hero.isPlayer = true;
+        hero.isAlive = true;
+        hero.hp = 100; hero.maxHp = 100;
+        hero.speed = 100;
+        dlg.m_combatState->addParticipant(hero);
+
+        CombatParticipant mon;
+        mon.name = "Lonely Goblin";
+        mon.isPlayer = false;
+        mon.isAlive = true;
+        mon.hp = 50; mon.maxHp = 50;
+        mon.def = -50;
+        mon.speed = 0;
+        dlg.m_combatState->addParticipant(mon);
+
+        // Clear any selection: the fallback must find the living monster.
+        dlg.m_combatTargetList->clear();
+        check(dlg.selectedMonsterIndex() == -1, "nothing selected");
+
+        const int found = dlg.selectFirstLivingMonster();
+        check(found == 1, "fallback found the living monster",
+              QString::number(found));
+        check(dlg.selectedMonsterIndex() == 1, "fallback selected it");
+
+        dlg.m_monsterPositions.remove(pos);
+        dlg.m_MonsterAttitude.remove("Test Fallback Goblin");
+        dlg.m_inCombat = false;
+    }
+
     // -------------------------------------------------------------- cleanup
     QFile::remove(savePath());
 

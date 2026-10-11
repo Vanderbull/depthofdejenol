@@ -1013,6 +1013,14 @@ DungeonDialog::DungeonDialog(QWidget *parent)
     m_combatMonsterHpLabel->setStyleSheet("font-weight: bold; color: red;");
     combatLayout->addWidget(m_combatMonsterHpLabel);
 
+    // v3.0.0 slice 3.1: pick the target. One row per living monster; group
+    // encounters otherwise collapse into the single label above.
+    m_combatTargetList = new QListWidget(m_combatGroup);
+    m_combatTargetList->setMaximumHeight(90);
+    m_combatTargetList->setFocusPolicy(Qt::NoFocus);
+    m_combatTargetList->setToolTip("Select the monster to attack, cast at, or use an item on.");
+    combatLayout->addWidget(m_combatTargetList);
+
     m_combatPartyHpLabel = new QLabel("Party: -", m_combatGroup);
     m_combatPartyHpLabel->setStyleSheet("font-weight: bold; color: green;");
     combatLayout->addWidget(m_combatPartyHpLabel);
@@ -1396,14 +1404,10 @@ void DungeonDialog::on_combatAttackButton_clicked()
     if (!m_inCombat || !m_combatActions || !m_turnEngine->hasCurrentParticipant()) return;
     if (!m_combatActions->isPlayerTurn()) return;
 
-    // Find first living monster
-    int targetIdx = -1;
-    for (int i = 0; i < m_combatState->participantCount(); ++i) {
-        if (!m_combatState->participant(i).isPlayer && m_combatState->participant(i).isAlive) {
-            targetIdx = i;
-            break;
-        }
-    }
+    // Attack the monster the player selected. Fall back to the first living
+    // monster when nothing is selected, so keyboard-only play still works.
+    int targetIdx = selectedMonsterIndex();
+    if (targetIdx < 0) targetIdx = selectFirstLivingMonster();
     if (targetIdx < 0) return;
 
     QString result;
@@ -1515,6 +1519,30 @@ void DungeonDialog::updateCombatUI()
     }
     m_combatMonsterHpLabel->setText("Monster: " + (monsterHp.isEmpty() ? "None" : monsterHp.join(", ")));
 
+    // Target list: one row per living monster, carrying its participant index.
+    // The player's choice survives a refresh; if the chosen monster is gone the
+    // selection moves to the first living one so play never stalls.
+    if (m_combatTargetList) {
+        const int previous = selectedMonsterIndex();
+        m_combatTargetList->blockSignals(true);
+        m_combatTargetList->clear();
+        for (int i = 0; i < m_combatState->participantCount(); ++i) {
+            const auto& p = m_combatState->participant(i);
+            if (p.isPlayer || !p.isAlive) continue;
+            auto* item = new QListWidgetItem(
+                QString("%1  %2/%3").arg(p.name).arg(p.hp).arg(p.maxHp),
+                m_combatTargetList);
+            item->setData(Qt::UserRole, i);
+            if (i == previous) item->setSelected(true);
+        }
+        m_combatTargetList->blockSignals(false);
+
+        // Nothing selected (first round, or the target died): pick the first.
+        if (selectedMonsterIndex() < 0 && m_combatTargetList->count() > 0) {
+            m_combatTargetList->setCurrentRow(0);
+        }
+    }
+
     // Party HP
     QStringList hpList;
     for (int i = 0; i < m_combatState->participantCount(); ++i) {
@@ -1524,6 +1552,48 @@ void DungeonDialog::updateCombatUI()
         }
     }
     m_combatPartyHpLabel->setText("Party: " + hpList.join(" | "));
+}
+
+int DungeonDialog::selectedMonsterIndex() const
+{
+    if (!m_combatTargetList || !m_combatState) return -1;
+    const QListWidgetItem* item = m_combatTargetList->currentItem();
+    if (!item) return -1;
+
+    const int idx = item->data(Qt::UserRole).toInt();
+    if (idx < 0 || idx >= m_combatState->participantCount()) return -1;
+    const auto& p = m_combatState->participant(idx);
+    if (p.isPlayer || !p.isAlive) return -1;
+    return idx;
+}
+
+int DungeonDialog::selectFirstLivingMonster()
+{
+    if (!m_combatState || !m_combatTargetList) return -1;
+
+    // The list may not have been built yet (or was cleared). Rebuild it from
+    // the combat state so the fallback never depends on the caller's ordering.
+    if (m_combatTargetList->count() == 0) {
+        updateCombatUI();
+        // updateCombatUI() auto-selects the first monster when it can.
+        const int autoPicked = selectedMonsterIndex();
+        if (autoPicked >= 0) return autoPicked;
+    }
+
+    for (int i = 0; i < m_combatState->participantCount(); ++i) {
+        const auto& p = m_combatState->participant(i);
+        if (p.isPlayer || !p.isAlive) continue;
+
+        // Select the row that carries this index.
+        for (int row = 0; row < m_combatTargetList->count(); ++row) {
+            QListWidgetItem* item = m_combatTargetList->item(row);
+            if (item && item->data(Qt::UserRole).toInt() == i) {
+                m_combatTargetList->setCurrentRow(row);
+                return i;
+            }
+        }
+    }
+    return -1;
 }
 
 void DungeonDialog::advanceCombat()
@@ -2736,14 +2806,10 @@ void DungeonDialog::on_spellButton_clicked()
         // Route through CombatActions so death bookkeeping and the defensive
         // stance are respected, instead of poking participant HP directly.
         if (result.damageDealt > 0 && m_inCombat && m_combatState && m_combatActions) {
-            // Find first living monster
-            int targetIdx = -1;
-            for (int i = 0; i < m_combatState->participantCount(); ++i) {
-                if (!m_combatState->participant(i).isPlayer && m_combatState->participant(i).isAlive) {
-                    targetIdx = i;
-                    break;
-                }
-            }
+            // Cast at the monster the player selected (falls back to the first
+            // living one), not always the first in the participant list.
+            int targetIdx = selectedMonsterIndex();
+            if (targetIdx < 0) targetIdx = selectFirstLivingMonster();
             if (targetIdx >= 0) {
                 QString dmgResult;
                 // Route through the school-aware path so fire splashes, cold
