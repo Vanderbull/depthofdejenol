@@ -18,6 +18,7 @@ public:
 
 private slots:
     void refresh();
+    void on_achievementsButton_clicked();
 
 private:
     void buildRankedSection(QVBoxLayout* parentLayout, const QString& header,

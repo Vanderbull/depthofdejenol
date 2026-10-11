@@ -18,6 +18,7 @@
 #include "src/core/BossEncounter.h"
 #include "src/core/AbyssThemes.h"
 #include "src/core/Arena.h"
+#include "src/core/AchievementSystem.h"
 #include "src/core/DeathRecovery.h"
 #include "src/core/QuestChain.h"
 #include "src/core/Endgame.h"
@@ -9265,6 +9266,112 @@ int runSelfTest()
         check(Arena::isAccessible(), "arena is accessible");
         check(Arena::arenaName() == "The Arena", "arena name is 'The Arena'",
               Arena::arenaName());
+    }
+
+    // ------------------------------------------- v4.0.0 — slice 4.4: Achievements
+    section("[177] v4.0.0 slice 4.4: AchievementSystem has achievements");
+    {
+        int total = AchievementSystem::totalCount();
+        check(total >= 20, "at least 20 achievements",
+              QString::number(total));
+
+        // Spot-check a few
+        check(AchievementSystem::nameForId("first_blood") == "First Blood",
+              "first_blood name", AchievementSystem::nameForId("first_blood"));
+        check(AchievementSystem::nameForId("boss_15") == "Devil's Bane",
+              "boss_15 name", AchievementSystem::nameForId("boss_15"));
+        check(AchievementSystem::nameForId("arena_10") == "Arena Champion",
+              "arena_10 name", AchievementSystem::nameForId("arena_10"));
+        check(AchievementSystem::nameForId("abyss_10") == "Heart Destroyer",
+              "abyss_10 name", AchievementSystem::nameForId("abyss_10"));
+    }
+
+    section("[178] v4.0.0 slice 4.4: unlock and isUnlocked");
+    {
+        AchievementSystem::reset();
+        check(AchievementSystem::unlockedCount() == 0, "no achievements after reset",
+              QString::number(AchievementSystem::unlockedCount()));
+
+        check(AchievementSystem::unlock("first_blood"), "unlock first_blood succeeds");
+        check(AchievementSystem::isUnlocked("first_blood"), "first_blood is unlocked");
+        check(!AchievementSystem::unlock("first_blood"), "double unlock returns false");
+        check(AchievementSystem::unlock("boss_15"), "unlock boss_15 succeeds");
+        check(AchievementSystem::unlockedCount() == 2, "two achievements unlocked",
+              QString::number(AchievementSystem::unlockedCount()));
+
+        // Unknown achievement
+        check(!AchievementSystem::unlock("nonexistent"), "unknown achievement returns false");
+
+        AchievementSystem::reset();
+    }
+
+    section("[179] v4.0.0 slice 4.4: unlock grants gold reward");
+    {
+        AchievementSystem::reset();
+        gameStateManager* gsm = gameStateManager::instance();
+        int goldBefore = gsm->getPartyGold();
+
+        AchievementSystem::unlock("first_blood");  // 100 gold
+        int goldAfter = gsm->getPartyGold();
+        check(goldAfter == goldBefore + 100, "first_blood grants 100 gold",
+              QString("%1 → %2").arg(goldBefore).arg(goldAfter));
+
+        AchievementSystem::unlock("boss_15");  // 5000 gold
+        check(gsm->getPartyGold() == goldAfter + 5000, "boss_15 grants 5000 gold",
+              QString::number(gsm->getPartyGold() - goldAfter));
+
+        AchievementSystem::reset();
+    }
+
+    section("[180] v4.0.0 slice 4.4: checkAndUnlock based on game state");
+    {
+        AchievementSystem::reset();
+        gameStateManager* gsm = gameStateManager::instance();
+
+        // Set up state: 5 kills, floor 10, 20000 gold
+        gsm->setGameValue("TotalKills", 5);
+        gsm->setGameValue("DeepestFloor", 10);
+        gsm->setGameValue("TotalDeaths", 0);
+        gsm->setGameValue("ArenaWavesCleared", 0);
+        gsm->setGameValue("AbyssFloor", 0);
+        gsm->setGameValue("NGPlusLevel", 0);
+        gsm->setGameValue("PartyGold", 20000);
+
+        // Party at level 15
+        gsm->getPartyMembers().clear();
+        gsm->addCharacterToParty([]{ Character c; c.name="Test"; c.race="Human"; c.level=15; c.hp=50; c.maxHp=50; c.mana=30; c.maxMana=30; c.gold=0; c.isAlive=true; return c; }());
+
+        int newCount = AchievementSystem::checkAndUnlock();
+        check(newCount > 0, "checkAndUnlock unlocked some achievements",
+              QString::number(newCount));
+        check(AchievementSystem::isUnlocked("first_blood"), "first_blood unlocked");
+        check(AchievementSystem::isUnlocked("floor_5"), "floor_5 unlocked");
+        check(AchievementSystem::isUnlocked("floor_10"), "floor_10 unlocked");
+        check(AchievementSystem::isUnlocked("gold_10000"), "gold_10000 unlocked");
+        check(AchievementSystem::isUnlocked("level_10"), "level_10 unlocked");
+
+        // Second call should not re-unlock
+        int secondCount = AchievementSystem::checkAndUnlock();
+        check(secondCount == 0, "second checkAndUnlock unlocks nothing",
+              QString::number(secondCount));
+
+        AchievementSystem::reset();
+    }
+
+    section("[181] v4.0.0 slice 4.4: achievement name/description/reward lookups");
+    {
+        check(AchievementSystem::nameForId("first_blood") == "First Blood",
+              "first_blood name", AchievementSystem::nameForId("first_blood"));
+        check(AchievementSystem::descriptionForId("first_blood") == "Kill your first monster",
+              "first_blood description", AchievementSystem::descriptionForId("first_blood"));
+        check(AchievementSystem::goldRewardForId("first_blood") == 100,
+              "first_blood gold reward", QString::number(AchievementSystem::goldRewardForId("first_blood")));
+        check(AchievementSystem::goldRewardForId("boss_15") == 5000,
+              "boss_15 gold reward", QString::number(AchievementSystem::goldRewardForId("boss_15")));
+        check(AchievementSystem::goldRewardForId("abyss_10") == 10000,
+              "abyss_10 gold reward", QString::number(AchievementSystem::goldRewardForId("abyss_10")));
+        check(AchievementSystem::nameForId("nonexistent").isEmpty(), "unknown name is empty");
+        check(AchievementSystem::goldRewardForId("nonexistent") == 0, "unknown reward is 0");
     }
 
     // -------------------------------------------------------------- cleanup

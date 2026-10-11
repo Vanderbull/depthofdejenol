@@ -1,5 +1,7 @@
 #include "hallofrecordsdialog.h"
 #include "gameStateManager.h"
+#include "src/core/AchievementSystem.h"
+#include <QMessageBox>
 
 #include <QVBoxLayout>
 #include <QHBoxLayout>
@@ -107,6 +109,17 @@ HallOfRecordsDialog::HallOfRecordsDialog(QWidget *parent) : QDialog(parent)
     rootLayout->addLayout(btnLayout);
 
     connect(exitButton, &QPushButton::clicked, this, &QDialog::accept);
+
+    // --- Achievements button ---
+    auto *achievementsButton = new QPushButton(tr("Achievements"), this);
+    achievementsButton->setFixedSize(160, 40);
+    auto *achBtnLayout = new QHBoxLayout();
+    achBtnLayout->addStretch();
+    achBtnLayout->addWidget(achievementsButton);
+    achBtnLayout->addStretch();
+    rootLayout->addLayout(achBtnLayout);
+
+    connect(achievementsButton, &QPushButton::clicked, this, &HallOfRecordsDialog::on_achievementsButton_clicked);
 }
 
 HallOfRecordsDialog::~HallOfRecordsDialog() = default;
@@ -162,4 +175,12 @@ void HallOfRecordsDialog::refresh()
 {
     // Rebuild the dialog content. For now, just close and reopen.
     accept();
+}
+
+void HallOfRecordsDialog::on_achievementsButton_clicked()
+{
+    int unlocked = AchievementSystem::unlockedCount();
+    int total = AchievementSystem::totalCount();
+    QMessageBox::information(this, tr("Achievements"),
+        tr("Unlocked: %1 / %2").arg(unlocked).arg(total));
 }
