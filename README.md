@@ -3,7 +3,7 @@
 ![Debian](https://img.shields.io/badge/OS-Debian%2013-A81D33?style=for-the-badge&logo=debian&logoColor=white)
 ![C++](https://img.shields.io/badge/Language-C%2B%2B%2020-blueviolet?style=for-the-badge&logo=c%2B%2B)
 ![Qt6](https://img.shields.io/badge/Engine-Qt%206-green?style=for-the-badge&logo=qt&logoColor=white)
-![Tests](https://img.shields.io/badge/Tests-840%20Passing-brightgreen?style=for-the-badge&logo=github-actions)
+![Tests](https://img.shields.io/badge/Tests-1590%20Passing-brightgreen?style=for-the-badge&logo=github-actions)
 ![License](https://img.shields.io/badge/License-MIT-yellow?style=for-the-badge)
 
 </div>
@@ -31,8 +31,16 @@
 | **Dungeon** | Tile-based movement, automap, multiple levels |
 | **Characters** | Creation, leveling, guild membership, party management |
 | **Facilities** | General Store, Guilds, Bank, Seer, Tavern |
+| **Endgame** | New Game Plus, the Abyss mega-dungeon, an Arena, and 25 achievements |
 | **Multiplayer** | Basic city server/client with chat |
 | **Editors** | Monster Editor, Spellbook Editor, Map Editor |
+
+---
+
+## Roadmap
+
+The current plan is [docs/ROADMAP_v4.0.0.md](docs/ROADMAP_v4.0.0.md) — endgame depth
+and replayability. Older roadmaps live in [docs/archive/](docs/archive/).
 
 ---
 
@@ -83,7 +91,7 @@ The binary lands at `build/bin/blacklands`.
 
 ## Testing
 
-The project ships with a self-contained test suite (840 tests):
+The project ships with a self-contained test suite (1590 tests):
 
 ```bash
 make check

@@ -79,20 +79,27 @@ When a version is ready to ship:
 | v0.1 | 2026-10-10 | Pre-release | Security hardening + latent breakage fixes |
 | v1.0.0 | 2026-10-10 | Major | First finishable release |
 | v2.0.0 | 2026-10-10 | Major | Core loop: all 14 slices wired |
-| v3.0.0 | — | Major | Tactical combat and character growth (planned) |
+| v3.0.0 | 2026-10-11 | Major | Tactical combat and character growth |
+| v4.0.0 | — | Major | Endgame depth and replayability (planned) |
 
 ## Per-version roadmaps
 
-Each version has its own roadmap file in `docs/`:
+Each version has its own roadmap file in `docs/`. Completed roadmaps are moved to
+`docs/archive/` when the next version's roadmap lands; only the current one stays
+in `docs/`.
 
-- `docs/ROADMAP_v0.1.md` — Security and latent breakage (✅ done)
-- `docs/ROADMAP_v1.0.0.md` — Connect the orphaned systems (✅ done)
-- `docs/ROADMAP_v1.1.0.md` — Combat reachability and depth (superseded by v2.0.0)
-- `docs/ROADMAP_v1.1.1.md` — Debt and hygiene
-- `docs/ROADMAP_v2.0.0.md` — Core loop: wire the orphaned systems (✅ done)
-- `docs/ROADMAP_v3.0.0.md` — Tactical combat and character growth (next)
+- `docs/ROADMAP_v4.0.0.md` — Endgame depth and replayability (current)
 
-The old `docs/ROADMAP_V1.1.md` is kept for git history but is superseded by these.
+Archived in `docs/archive/`:
+
+- `docs/archive/ROADMAP_v0.1.md` — Security and latent breakage (✅ done)
+- `docs/archive/ROADMAP_v1.0.0.md` — Connect the orphaned systems (✅ done)
+- `docs/archive/ROADMAP_v1.1.0.md` — Combat reachability and depth (superseded by v2.0.0)
+- `docs/archive/ROADMAP_v1.1.1.md` — Debt and hygiene
+- `docs/archive/ROADMAP_v2.0.0.md` — Core loop: wire the orphaned systems (✅ done)
+- `docs/archive/ROADMAP_v3.0.0.md` — Tactical combat and character growth (✅ done)
+
+The old `docs/archive/ROADMAP_V1.1.md` is kept for git history but is superseded by these.
 
 ## Build number
 

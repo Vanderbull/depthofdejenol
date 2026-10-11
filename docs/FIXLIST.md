@@ -3,10 +3,11 @@ Ordered by severity and impact. Each item includes location, what's wrong, and t
 
 ---
 
-## 1. Remote Code Execution via Lua Socket
+## 1. Remote Code Execution via Lua Socket ( FIXED )
 **File:** `GameStateManager.cpp:1609`
 **Problem:** `onServerDataReceived()` takes raw bytes from a TCP socket and passes them directly to `luaL_dostring(m_L, data.constData())`. Any process that can connect to `127.0.0.1:12345` can execute arbitrary Lua — and Lua has `os.execute()`, `io.open()`, etc. This is a full RCE vulnerability.
 **Fix:** Remove the `luaL_dostring` call entirely. Instead, parse the server message as structured data (e.g., JSON or a fixed command set) and dispatch known actions only. If you need remote Lua scripting for development, gate it behind a `#ifdef DEBUG` and disable in release builds. At minimum, sandbox the Lua state by removing `os` and `io` libs before opening the socket.
+**Status:** Done. `onServerDataReceived()` now parses a fixed JSON message set and never executes anything; the Lua state also has `os`/`io` removed before the socket opens.
 
 ---
 
@@ -39,7 +40,7 @@ if (character.name != "Empty Slot" &&
 
 ---
 
-## 4. `initializeParty()` Dead Code and Emit Spam ( ONGOING )
+## 4. `initializeParty()` Dead Code and Emit Spam ( FIXED )
 **File:** `GameStateManager.cpp:1274-1314`
 **Problem:** Inside the loop:
 - Line 1305: `emit gameValueChanged(...)` fires on every iteration (4 signals instead of 1).
@@ -63,6 +64,7 @@ void GameStateManager::initializeParty() {
     emit gameValueChanged("party_data", m_currentParty.toMap());
 }
 ```
+**Status:** Done. The emit is outside the loop and the commented-out dead code is gone.
 
 ---
 
@@ -147,10 +149,11 @@ connect(dialog, &CreateCharacterDialog::characterCreated,
 
 ---
 
-## 12. `readyBodyForResurrection` Declared but Never Defined
+## 12. `readyBodyForResurrection` Declared but Never Defined ( FIXED )
 **File:** `GameStateManager.h:169`
 **Problem:** `bool readyBodyForResurrection(const QString& characterName);` is declared but has no implementation in the .cpp file. Any call will cause a linker error.
 **Fix:** Either implement the function or remove the declaration if it's not needed yet.
+**Status:** Done. The stale declaration is gone from the live header.
 
 ---
 
@@ -178,14 +181,15 @@ inline const QString CAT_RACES = "Races";
 
 ---
 
-## 15. Duplicate Teleport Tile Sets
+## 15. Duplicate Teleport Tile Sets ( FIXED )
 **File:** `DungeonDialog.h:179, 181`
 **Problem:** Two nearly-identical members: `m_teleportPositions` and `m_teleporterPositions`. `generateSpecialTiles()` populates `m_teleporterPositions`, but other code may read from `m_teleportPositions` (or vice versa), causing invisible teleporters.
 **Fix:** Pick one name (e.g., `m_teleporterPositions`), remove the other, and update all references.
+**Status:** Done. Only `m_teleporterPositions` remains.
 
 ---
 
-## 16. `PartyHP` Initialization is Wrong
+## 16. `PartyHP` Initialization is Wrong ( FIXED )
 **File:** `GameStateManager.cpp:1313`
 **Problem:** `m_gameStateData["PartyHP"] = QVariantList({50, 40, 30})` has only 3 values for a 4-member party, and the values (50, 40, 30) don't match the HP=0 set for each "Empty Slot" character.
 **Fix:** Either remove this line (since HP is already stored per-character in the Party struct) or generate it from the actual party data:
@@ -194,6 +198,7 @@ QVariantList hpList;
 for (const auto& c : m_currentParty.members) hpList.append(c.hp);
 m_gameStateData["PartyHP"] = hpList;
 ```
+**Status:** Done. The bogus three-value line is gone; HP is stored per-character in the Party struct.
 
 ---
 
@@ -235,11 +240,12 @@ Then remove them from tracking: `git rm --cached blacklands qrc_resources.cpp` a
 
 ---
 
-## 21. Massive Commented-Out Dead Code
+## 21. Massive Commented-Out Dead Code ( ONGOING )
 **File:** Primarily `GameStateManager.cpp`
 **Problem:** Hundreds of lines of commented-out `m_PC`-era code throughout the file (e.g., old `refreshUI`, old `loadCharacterFromFile`, old `setCharacterInventory`, etc.). This makes the file hard to read and maintain.
 **Fix:** Delete all commented-out old implementations. They're preserved in git history if ever needed. This is a cleanup pass best done after the functional bugs above are fixed.
+**Status:** Ongoing — ~350 commented lines remain in `gameStateManager.cpp`.
 
 ---
 
-*Generated: 2026-03-12*
+*Generated: 2026-03-12. Last reviewed: 2026-10-11 (v4.0.0 slice 4.6).*

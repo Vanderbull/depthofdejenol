@@ -561,7 +561,7 @@ alongside `data/` and `resources/`.
 # v0.1 — 2026-10-10 ✅ RELEASED
 
 **Phase 0 — security and latent breakage.** Small, independent fixes for real defects that
-were already in the tree. Scope: `docs/ROADMAP_v0.1.md`.
+were already in the tree. Scope: `docs/archive/ROADMAP_v0.1.md`.
 
 **Test suite before:** 954 passed, 0 failed.
 **Test suite after:** 983 passed, 0 failed.
@@ -892,7 +892,7 @@ progression, dungeon depth, death, the endgame, the town, and balance.
 Version history in `src/core/ReleaseInfo.cpp`.
 
 **Known at release** — and what the next release addresses: large parts of Phases 3–8
-shipped as tested logic that nothing calls. The audit in `docs/ROADMAP_V1.1.md` found six
+shipped as tested logic that nothing calls. The audit in `docs/archive/ROADMAP_V1.1.md` found six
 such systems (`Endgame`, `MonsterBalance`, `GoldSinks`, `AgingRules`, `ItemProgression`,
 `SpellMechanics`), each with zero callers outside its own translation unit. Phase 0 and
 Phase 1 of the current roadmap exist to close that gap.
@@ -903,10 +903,10 @@ Phase 1 of the current roadmap exist to close that gap.
 
 Pre-1.0 work is in the git history and in `docs/`:
 
-- `docs/ROADMAP_V1.md` — the eight-phase plan to v1.0, with per-slice *Why* / *Done* / *Verify*.
+- `docs/archive/ROADMAP_V1.md` — the eight-phase plan to v1.0, with per-slice *Why* / *Done* / *Verify*.
 - `docs/FIXLIST.md` — 21 defects found by audit, with locations and fixes.
-- `docs/GAME_COMPLETENESS_ANALYSIS.md` — what the game has and what it was missing.
-- `docs/COMPLETE_REFACTOR_REPORT.md` — the refactor that preceded the roadmap.
+- `docs/archive/GAME_COMPLETENESS_ANALYSIS.md` — what the game has and what it was missing.
+- `docs/archive/COMPLETE_REFACTOR_REPORT.md` — the refactor that preceded the roadmap.
 
 Notable commits:
 
