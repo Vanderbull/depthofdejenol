@@ -23,6 +23,7 @@ public:
 private slots:
     void onMemberChanged(int index);
     void onExitClicked();
+    void onSpendStatPoint(int statIndex);
 
 private:
     void setupUi();
@@ -37,11 +38,14 @@ private:
     QLabel *m_hpLabel = nullptr;
     QLabel *m_manaLabel = nullptr;
     QLabel *m_goldLabel = nullptr;
+    QLabel *m_statPointsLabel = nullptr;
     QTableWidget *m_statsTable = nullptr;
     QTableWidget *m_equipTable = nullptr;
     QTableWidget *m_guildTable = nullptr;
     QTextEdit *m_spellsText = nullptr;
     QPushButton *m_exitBtn = nullptr;
+    // v3.0.0 slice 3.4: per-stat spend buttons, one per stats-table row
+    QList<QPushButton*> m_spendButtons;
 };
 
 #endif // CHARACTERSHEETDIALOG_H

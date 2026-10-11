@@ -2858,6 +2858,139 @@ int runSelfTest()
               "odd level grants one stat point",
               QString("before=%1 after=%2").arg(pointsBefore).arg(c.statPoints));
     }
+
+    // ------------------------------------------- v3.0.0 — slice 3.4: stat allocation
+    section("[142] v3.0.0 slice 3.4: spendStatPoint raises base stat and decrements pool");
+    {
+        Character c;
+        c.name = "Spender";
+        c.race = "Human";
+        c.strength = 10;
+        c.statPoints = 3;
+
+        check(c.baseStat("Strength") == 10, "base strength starts at 10");
+        check(c.spendStatPoint("Strength", 17), "spend a point on Strength");
+        check(c.baseStat("Strength") == 11, "base strength raised to 11",
+              QString::number(c.baseStat("Strength")));
+        check(c.statPoints == 2, "pool decremented to 2",
+              QString::number(c.statPoints));
+    }
+
+    section("[143] v3.0.0 slice 3.4: spendStatPoint refuses when pool is empty");
+    {
+        Character c;
+        c.name = "Broke";
+        c.race = "Human";
+        c.strength = 10;
+        c.statPoints = 0;
+
+        check(!c.spendStatPoint("Strength", 17), "cannot spend with 0 points");
+        check(c.baseStat("Strength") == 10, "stat unchanged after refused spend");
+    }
+
+    section("[144] v3.0.0 slice 3.4: spendStatPoint refuses at race cap");
+    {
+        Character c;
+        c.name = "Capped";
+        c.race = "Human";
+        c.strength = 17;  // Human STR max
+        c.statPoints = 5;
+
+        check(c.raceCapForStat("Strength") == 17, "Human STR cap is 17",
+              QString::number(c.raceCapForStat("Strength")));
+        check(!c.spendStatPoint("Strength", 17), "cannot spend past race cap");
+        check(c.baseStat("Strength") == 17, "stat unchanged at cap");
+        check(c.statPoints == 5, "pool unchanged after refused spend");
+    }
+
+    section("[145] v3.0.0 slice 3.4: raceCapForStat returns correct caps per race");
+    {
+        Character human;
+        human.race = "Human";
+        check(human.raceCapForStat("Strength") == 17, "Human STR cap 17");
+        check(human.raceCapForStat("Intelligence") == 18, "Human INT cap 18");
+
+        Character elf;
+        elf.race = "Elf";
+        check(elf.raceCapForStat("Strength") == 15, "Elf STR cap 15");
+        check(elf.raceCapForStat("Intelligence") == 20, "Elf INT cap 20");
+
+        Character giant;
+        giant.race = "Giant";
+        check(giant.raceCapForStat("Strength") == 25, "Giant STR cap 25");
+        check(giant.raceCapForStat("Constitution") == 19, "Giant CON cap 19");
+
+        Character unknown;
+        unknown.race = "Unknown";
+        check(unknown.raceCapForStat("Strength") == 0, "unknown race returns 0");
+    }
+
+    section("[146] v3.0.0 slice 3.4: statPoints persists through save/load");
+    {
+        Character c;
+        c.name = "Persist";
+        c.race = "Human";
+        c.level = 5;
+        c.statPoints = 7;
+        c.strength = 12;
+
+        QVariantMap m = c.toMap();
+        check(m.value("StatPoints").toInt() == 7, "StatPoints serialized");
+
+        Character c2;
+        c2.loadFromMap(m);
+        check(c2.statPoints == 7, "StatPoints deserialized",
+              QString::number(c2.statPoints));
+        check(c2.strength == 12, "strength also deserialized");
+    }
+
+    section("[147] v3.0.0 slice 3.4: character sheet shows stat points label");
+    {
+        gameStateManager* gsm = gameStateManager::instance();
+        auto& members = gsm->getPartyMembers();
+        members.clear();
+        members.append([]{
+            Character c;
+            c.name = "UI Test";
+            c.race = "Human";
+            c.level = 3;
+            c.statPoints = 4;
+            c.strength = 10;
+            c.intelligence = 10;
+            c.wisdom = 10;
+            c.constitution = 10;
+            c.charisma = 10;
+            c.dexterity = 10;
+            return c;
+        }());
+
+        CharacterSheetDialog sheet;
+
+        bool foundPoolLabel = false;
+        bool foundSpendButtons = false;
+        for (QLabel* l : sheet.findChildren<QLabel*>()) {
+            if (l->text().contains("Stat Points")) { foundPoolLabel = true; break; }
+        }
+        check(foundPoolLabel, "character sheet shows stat points pool label");
+
+        // Each stats row should have a spend button in column 2
+        QTableWidget* stats = nullptr;
+        for (QTableWidget* t : sheet.findChildren<QTableWidget*>()) {
+            if (t->columnCount() == 3 && t->rowCount() == 6) { stats = t; break; }
+        }
+        check(stats != nullptr, "character sheet has 3-column stats table");
+        if (stats) {
+            int buttonCount = 0;
+            for (int r = 0; r < stats->rowCount(); ++r) {
+                if (stats->cellWidget(r, 2) != nullptr) buttonCount++;
+            }
+            check(buttonCount == 6, "every stat row has a spend button",
+                  QString::number(buttonCount));
+            foundSpendButtons = true;
+        }
+
+        members.clear();
+    }
     {
         // addExperienceToCharacter uses LevelTable.
         LevelTable::instance().load("data/levels.json");
@@ -4013,6 +4146,20 @@ int runSelfTest()
         auto *gsm = gameStateManager::instance();
         auto& members = gsm->getPartyMembers();
 
+        // Ensure there is a member to work with — earlier sections may have cleared it.
+        if (members.isEmpty()) {
+            members.append([]{
+                Character c;
+                c.name = "Tavern Test";
+                c.race = "Human";
+                c.level = 5;
+                c.hp = 5; c.maxHp = 30;
+                c.mana = 10; c.maxMana = 50;
+                c.isAlive = true;
+                return c;
+            }());
+        }
+
         // Set up a damaged party
         members[0].hp = 5;
         members[0].maxHp = 30;
@@ -4060,7 +4207,20 @@ int runSelfTest()
         // the member a real name first.
         auto *gsm = gameStateManager::instance();
         auto& members = gsm->getPartyMembers();
-        if (!members.isEmpty() && members[0].name == "Empty Slot") {
+        if (members.isEmpty()) {
+            members.append([]{
+                Character c;
+                c.name = "Aging Test";
+                c.race = "Human";
+                c.level = 5;
+                c.age = 18;
+                c.hp = 30; c.maxHp = 30;
+                c.mana = 50; c.maxMana = 50;
+                c.isAlive = true;
+                return c;
+            }());
+        }
+        if (members[0].name == "Empty Slot") {
             members[0].name = "Aging Test";
         }
         int ageBefore = members[0].age;
@@ -4164,7 +4324,7 @@ int runSelfTest()
         // is the visible symptom of refreshSheet() bailing out early.
         QTableWidget *stats = nullptr;
         for (QTableWidget *t : sheet.findChildren<QTableWidget*>()) {
-            if (t->columnCount() == 2 && t->rowCount() == 6) { stats = t; break; }
+            if (t->columnCount() == 3 && t->rowCount() == 6) { stats = t; break; }
         }
         check(stats != nullptr, "character sheet has a six-row stats table");
         if (stats) {
@@ -8316,6 +8476,12 @@ int runSelfTest()
 
     section("[139] v3.0.0 slice 3.7: v1 save migrates to current with defaults");
     {
+        // Ensure the party is non-empty so later member[0] access is safe.
+        gameStateManager* gsm0 = gameStateManager::instance();
+        if (gsm0->getPartyMembers().isEmpty()) {
+            gsm0->addCharacterToParty([]{ Character c; c.name="Migrate Test"; c.race="Human"; c.level=1; c.hp=50; c.maxHp=50; c.isAlive=true; return c; }());
+        }
+
         // Hand-write a v1 save file on disk, then load it.
         QFile f(savePath());
         if (f.open(QIODevice::WriteOnly | QIODevice::Truncate)) {

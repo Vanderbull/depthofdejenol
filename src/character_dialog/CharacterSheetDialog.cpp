@@ -45,14 +45,17 @@ void CharacterSheetDialog::setupUi() {
     mainLayout->addWidget(m_hpLabel);
     mainLayout->addWidget(m_manaLabel);
     mainLayout->addWidget(m_goldLabel);
+    m_statPointsLabel = new QLabel;
+    m_statPointsLabel->setStyleSheet("font-weight: bold; color: #2c5f2d;");
+    mainLayout->addWidget(m_statPointsLabel);
 
     mainLayout->addSpacing(10);
 
-    // Stats table
+    // Stats table — 3 columns: name, value, spend button
     auto *statsGroup = new QGroupBox(tr("Effective Stats"));
     auto *statsLayout = new QVBoxLayout(statsGroup);
-    m_statsTable = new QTableWidget(6, 2);
-    m_statsTable->setHorizontalHeaderLabels({tr("Stat"), tr("Value")});
+    m_statsTable = new QTableWidget(6, 3);
+    m_statsTable->setHorizontalHeaderLabels({tr("Stat"), tr("Value"), tr("Spend")});
     m_statsTable->setEditTriggers(QAbstractItemView::NoEditTriggers);
     m_statsTable->setMaximumHeight(150);
     statsLayout->addWidget(m_statsTable);
@@ -134,14 +137,33 @@ void CharacterSheetDialog::refreshSheet() {
     m_manaLabel->setText(tr("Mana: %1 / %2").arg(c.mana).arg(c.maxMana));
     m_goldLabel->setText(tr("Gold: %1").arg(c.gold));
 
-    // Effective stats
+    // Stat point pool — the player must see what they have to spend.
+    m_statPointsLabel->setText(tr("Stat Points: %1").arg(c.statPoints));
+
+    // Effective stats — with per-stat spend buttons (v3.0.0 slice 3.4)
     QStringList statNames = {tr("Strength"), tr("Intelligence"), tr("Wisdom"),
                              tr("Constitution"), tr("Charisma"), tr("Dexterity")};
     m_statsTable->setRowCount(statNames.size());
+    m_spendButtons.clear();
     for (int i = 0; i < statNames.size(); ++i) {
         m_statsTable->setItem(i, 0, new QTableWidgetItem(statNames[i]));
         m_statsTable->setItem(i, 1, new QTableWidgetItem(QString::number(c.effectiveStat(statNames[i]))));
+
+        // Each row gets a spend button. Disabled when the pool is empty or the
+        // stat is at its race cap — the player can see exactly what is left.
+        const int cap = c.raceCapForStat(statNames[i]);
+        const bool canSpend = c.statPoints > 0 && (cap <= 0 || c.baseStat(statNames[i]) < cap);
+        auto* btn = new QPushButton(canSpend ? tr("+") : tr("Max"));
+        btn->setEnabled(canSpend);
+        btn->setMaximumWidth(40);
+        btn->setProperty("statIndex", i);
+        connect(btn, &QPushButton::clicked, this, [this, btn]() {
+            onSpendStatPoint(btn->property("statIndex").toInt());
+        });
+        m_spendButtons.append(btn);
+        m_statsTable->setCellWidget(i, 2, btn);
     }
+    m_statsTable->setColumnWidth(2, 45);
 
     // Equipped items — look up slot from ItemDatabase via item ID
     m_equipTable->setRowCount(0);
@@ -200,6 +222,39 @@ void CharacterSheetDialog::refreshSheet() {
 
 void CharacterSheetDialog::onMemberChanged(int index) {
     Q_UNUSED(index)
+    refreshSheet();
+}
+
+void CharacterSheetDialog::onSpendStatPoint(int statIndex) {
+    auto *gsm = gameStateManager::instance();
+    auto& members = gsm->getPartyMembers();
+    if (members.isEmpty()) return;
+
+    int idx = m_memberCombo->currentIndex();
+    if (idx < 0 || idx >= members.size()) idx = 0;
+
+    const QStringList statNames = {tr("Strength"), tr("Intelligence"), tr("Wisdom"),
+                                   tr("Constitution"), tr("Charisma"), tr("Dexterity")};
+    if (statIndex < 0 || statIndex >= statNames.size()) return;
+
+    const QString& statName = statNames[statIndex];
+    Character& c = members[idx];
+    const int cap = c.raceCapForStat(statName);
+
+    if (c.spendStatPoint(statName, cap)) {
+        QMessageBox::information(this, tr("Stat Increased"),
+            tr("%1 increased to %2 (%3 points left)")
+                .arg(statName)
+                .arg(c.effectiveStat(statName))
+                .arg(c.statPoints));
+    } else {
+        QString reason;
+        if (c.statPoints <= 0) reason = tr("No stat points left — level up to earn more.");
+        else if (cap > 0 && c.baseStat(statName) >= cap)
+            reason = tr("%1 has reached its race cap of %2.").arg(statName).arg(cap);
+        else reason = tr("Cannot increase %1.").arg(statName);
+        QMessageBox::warning(this, tr("Cannot Increase"), reason);
+    }
     refreshSheet();
 }
 

@@ -1,6 +1,7 @@
 #include "character.h"
 #include "src/items/ItemDatabase.h"
 #include "src/core/LevelTable.h"
+#include "src/race_data/RaceData.h"
 
 // --- Character Implementation ---
 
@@ -84,6 +85,8 @@ QVariantMap Character::toMap() const {
     map["Constitution"] = constitution;
     map["Charisma"]     = charisma;
     map["Dexterity"]    = dexterity;
+    map["StatPoints"]   = statPoints;
+    map["PlayTimeSeconds"] = playTimeSeconds;
     map["Mana"]         = mana;
     map["MaxMana"]      = maxMana;
     map["Hunger"]       = hunger;
@@ -148,6 +151,9 @@ void Character::loadFromMap(const QVariantMap &map) {
     constitution = map.value("Constitution").toInt();
     charisma     = map.value("Charisma").toInt();
     dexterity    = map.value("Dexterity").toInt();
+    // Default 0: saves written before stat points existed simply have none.
+    statPoints   = map.value("StatPoints", 0).toInt();
+    playTimeSeconds = map.value("PlayTimeSeconds", 0).toInt();
 
     mana         = map.value("Mana", 0).toInt();
     maxMana      = map.value("MaxMana", 0).toInt();
@@ -389,6 +395,54 @@ int Character::effectiveStat(const QString& statName) const {
     if (s == "charisma")     return effectiveCharisma();
     if (s == "dexterity")    return effectiveDexterity();
     return 0;
+}
+
+int Character::baseStat(const QString& statName) const {
+    const QString s = statName.trimmed().toLower();
+    if (s == "strength")     return strength;
+    if (s == "intelligence") return intelligence;
+    if (s == "wisdom")       return wisdom;
+    if (s == "constitution") return constitution;
+    if (s == "charisma")     return charisma;
+    if (s == "dexterity")    return dexterity;
+    return 0;
+}
+
+int Character::raceCapForStat(const QString& statName) const {
+    const QString s = statName.trimmed().toLower();
+    const QVector<RaceStats> races = loadRaceData();
+    for (const RaceStats& r : races) {
+        if (r.raceName.compare(race, Qt::CaseInsensitive) != 0) continue;
+        if (s == "strength")     return r.strength.max;
+        if (s == "intelligence") return r.intelligence.max;
+        if (s == "wisdom")       return r.wisdom.max;
+        if (s == "constitution") return r.constitution.max;
+        if (s == "charisma")     return r.charisma.max;
+        if (s == "dexterity")    return r.dexterity.max;
+    }
+    return 0;  // race or stat not found — "no cap known"
+}
+
+bool Character::spendStatPoint(const QString& statName, int cap) {
+    if (statPoints <= 0) return false;
+
+    const QString s = statName.trimmed().toLower();
+    int* target = nullptr;
+    if (s == "strength")          target = &strength;
+    else if (s == "intelligence") target = &intelligence;
+    else if (s == "wisdom")       target = &wisdom;
+    else if (s == "constitution") target = &constitution;
+    else if (s == "charisma")     target = &charisma;
+    else if (s == "dexterity")    target = &dexterity;
+    if (!target) return false;
+
+    // A cap of 0 or less means "no cap known" — still allow the spend rather
+    // than silently blocking progress.
+    if (cap > 0 && *target >= cap) return false;
+
+    *target += 1;
+    statPoints -= 1;
+    return true;
 }
 
 // --- Consumables ---

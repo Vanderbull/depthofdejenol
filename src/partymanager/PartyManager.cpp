@@ -101,18 +101,12 @@ void PartyManager::applyLevelUpGains(Character& c) {
         c.mana = c.maxMana;  // Full restore on level up
     }
 
-    // Stat point: +1 to a random stat every 2 levels
-    if (c.level % 2 == 0) {
-        int statRoll = QRandomGenerator::global()->bounded(6);
-        switch (statRoll) {
-        case 0: c.strength++; break;
-        case 1: c.intelligence++; break;
-        case 2: c.wisdom++; break;
-        case 3: c.constitution++; break;
-        case 4: c.charisma++; break;
-        case 5: c.dexterity++; break;
-        }
-    }
+    // Stat points: the player chooses where they go (v3.0.0 slice 3.4). This
+    // replaces a random stat roll — a build is now a decision, not a dice throw.
+    // One point per level, plus an extra on even levels.
+    int points = 1;
+    if (c.level % 2 == 0) points += 1;
+    c.statPoints += points;
 
     // Guild-based stat bonuses: Warriors get +1 STR, Mages get +1 INT
     if (c.guildLevel("Warrior") > 0 && c.level % 3 == 0) {

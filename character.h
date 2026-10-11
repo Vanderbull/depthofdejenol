@@ -88,6 +88,15 @@ struct Character {
     int charisma = 8;
     int dexterity = 8;
 
+    // v3.0.0 slice 3.4: unspent stat points. Level-ups add to this pool and the
+    // player spends it on the character sheet, so a build is a choice rather
+    // than a random roll.
+    int statPoints = 0;
+
+    // v3.0.0 slice 3.6: total play time in seconds. Persisted so the Hall of
+    // Records can sort by it.
+    int playTimeSeconds = 0;
+
     // --- Resource Pools ---
     int mana = 50;
     int maxMana = 50;
@@ -210,6 +219,19 @@ struct Character {
     int effectiveCharisma() const;
     int effectiveDexterity() const;
     int effectiveStat(const QString& statName) const;
+
+    // --- Stat allocation (v3.0.0 slice 3.4) ---
+    // Spend one unspent point on a stat. Refuses when the pool is empty, the
+    // stat name is unknown, or the stat is already at `cap`. Returns true when
+    // a point was spent.
+    bool spendStatPoint(const QString& statName, int cap);
+
+    // The race-imposed cap for a stat by display name (e.g. "Strength").
+    // Returns 0 when the race or stat is unknown, meaning "no cap known".
+    int raceCapForStat(const QString& statName) const;
+    // The base value of a stat by name (0 when unknown). Not the effective
+    // value: spending a point must raise the base, not the equipment bonus.
+    int baseStat(const QString& statName) const;
 
     // --- Consumables ---
     // Use a consumable item. Returns true on success.
