@@ -16,6 +16,18 @@ bool CombatActions::isPlayerTurn() const {
     return m_state->participant(idx).isPlayer;
 }
 
+int CombatActions::attackerSkill(const CombatParticipant& attacker) {
+    // Level is the backbone; dexterity adds up to +6, then a hard ceiling so a
+    // runaway dex cannot make every attack auto-hit.
+    return attacker.level + qBound(0, attacker.dex / 3, 6);
+}
+
+int CombatActions::targetArmorClass(const CombatParticipant& target) {
+    // Level is the backbone; raw defense is compressed (monster def runs past
+    // 300) and capped at +8, so AC stays inside the d20 band at every depth.
+    return 10 + target.level / 2 + qBound(0, target.def / 12, 8);
+}
+
 int CombatActions::attack(int targetIndex, QString& result) {
     if (!m_state || !m_engine) { result = "No combat"; return -1; }
     int attackerIdx = m_engine->currentParticipantIndex();
@@ -57,12 +69,19 @@ int CombatActions::attack(int targetIndex, QString& result) {
         }
     }
 
-    // To-hit roll: d20 + attacker.dex/2 + attacker.level vs 10 + target.def + target.level
-    // Blind reduces to-hit by 5
+    // To-hit. Att/Def in this game's data live on wildly different scales: a
+    // monster's raw `def` column runs past 300 while a character's armor
+    // defense tops out near 50, and monster rows carry no usable Dexterity at
+    // all. A raw `10 + def + level` AC therefore made deep floors impossible to
+    // hit in EITHER direction (floor 15 needed a 744 on a d20). Both sides are
+    // compressed into a bounded band instead: skill grows with level and
+    // dexterity, AC with level and defense. Calibrated to a ~55-85% hit rate at
+    // every depth — see the balance tests.
+    // Blind reduces to-hit by 5.
     int roll = QRandomGenerator::global()->bounded(1, 21);
     int blindPenalty = (attacker.statusFlags & GameConstants::Blinded) ? 5 : 0;
-    int toHit = roll + attacker.dex / 2 + attacker.level - blindPenalty;
-    int targetAC = 10 + target.def + target.level;
+    int toHit = roll + attackerSkill(attacker) - blindPenalty;
+    int targetAC = targetArmorClass(target);
 
     if (roll == 1) {
         result = QString("%1 fumbles the attack!").arg(attacker.name);

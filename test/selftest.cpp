@@ -9374,6 +9374,156 @@ int runSelfTest()
         check(AchievementSystem::goldRewardForId("nonexistent") == 0, "unknown reward is 0");
     }
 
+    // ------------------------------------------------- v4.0.0 — slice 4.5: Balance pass
+    section("[182] v4.0.0 slice 4.5: floor hint names the recommended level");
+    {
+        QString h1 = MonsterBalance::floorHint(1);
+        check(h1.contains("Recommended level 1"), "floor 1 hint names level 1", h1);
+        check(h1.contains("Easy"), "floor 1 hint says Easy", h1);
+
+        QString h15 = MonsterBalance::floorHint(15);
+        check(h15.contains("Recommended level 15"), "floor 15 hint names level 15", h15);
+        check(h15.contains("Deadly"), "floor 15 hint says Deadly", h15);
+
+        check(MonsterBalance::floorHint(0).isEmpty(), "floor 0 has no hint");
+    }
+
+    section("[183] v4.0.0 slice 4.5: every floor is winnable at its recommended level");
+    {
+        // The core winnability claim: a party at the recommended level can
+        // clear the floor without a wipe. This is what "the run is winnable"
+        // means, made checkable.
+        for (int floor = 1; floor <= 15; ++floor) {
+            check(MonsterBalance::isFloorWinnable(floor, MonsterBalance::recommendedLevel(floor)),
+                  QString("floor %1 winnable at recommended level").arg(floor),
+                  QString("floor=%1 level=%2").arg(floor).arg(MonsterBalance::recommendedLevel(floor)));
+        }
+        check(MonsterBalance::isRunWinnable(), "the full run is winnable");
+    }
+
+    section("[184] v4.0.0 slice 4.5: a badly under-leveled party is not winnable");
+    {
+        // Non-vacuous: the winnability check must actually fail somewhere, or
+        // it proves nothing. A level-1 party on floor 15 must not be "ready".
+        check(!MonsterBalance::isFloorWinnable(15, 1),
+              "level 1 party cannot clear floor 15");
+        check(!MonsterBalance::isFloorWinnable(10, 1),
+              "level 1 party cannot clear floor 10");
+        check(!MonsterBalance::isFloorWinnable(0, 5), "floor 0 is never winnable");
+        check(!MonsterBalance::isFloorWinnable(5, 0), "level 0 is never winnable");
+    }
+
+    section("[185] v4.0.0 slice 4.5: difficulty rises with depth");
+    {
+        // Monsters get tougher monotonically; the model never dips.
+        for (int floor = 2; floor <= 15; ++floor) {
+            check(MonsterBalance::representativeMonsterHp(floor) >
+                  MonsterBalance::representativeMonsterHp(floor - 1),
+                  QString("floor %1 monster HP > floor %2").arg(floor).arg(floor - 1));
+            check(MonsterBalance::representativeMonsterAtt(floor) >=
+                  MonsterBalance::representativeMonsterAtt(floor - 1),
+                  QString("floor %1 monster attack >= floor %2").arg(floor).arg(floor - 1));
+        }
+    }
+
+    section("[186] v4.0.0 slice 4.5: the full run lands in the 10-15 hour band");
+    {
+        int minutes = MonsterBalance::estimatedRunMinutes();
+        double hours = minutes / 60.0;
+        check(minutes > 0, "run length is positive", QString::number(minutes));
+        check(MonsterBalance::isRunLengthInTarget(),
+              "estimated run is 10-15 hours",
+              QString("%1 min = %2 h").arg(minutes).arg(MonsterBalance::estimatedRunHours()));
+        check(hours >= 10.0 && hours <= 15.0, "run hours in band",
+              QString::number(hours, 'f', 2));
+
+        // A boss floor takes longer than a normal one.
+        check(MonsterBalance::estimatedMinutesForFloor(15) >
+              MonsterBalance::estimatedMinutesForFloor(14),
+              "the final boss floor costs more time");
+    }
+
+    section("[187] v4.0.0 slice 4.5: floor table carries the balance columns");
+    {
+        QList<QVariantMap> table = MonsterBalance::floorTable();
+        check(table.size() == 15, "floor table has 15 rows",
+              QString::number(table.size()));
+        const QVariantMap& first = table.first();
+        check(first.contains("hint"), "floor table row has a hint");
+        check(first.contains("winnable"), "floor table row has winnable");
+        check(first.contains("minutes"), "floor table row has minutes");
+        check(first["winnable"].toBool(), "floor 1 is winnable in the table");
+    }
+
+    section("[188] v4.0.0 slice 4.5: deep-floor monsters can be hit and can hit back");
+    {
+        // The old to-hit formula made floor 15 impossible in both directions:
+        // raw `def` 312 gave AC 749 on a d20, and monsters had dex 0. The fix
+        // must let a real floor-15 encounter resolve. Drive actual combat with
+        // the real monster table and require that both sides connect.
+        gameStateManager* gsm = gameStateManager::instance();
+        const QList<QVariantMap>& monsters = gsm->getMonsterData();
+        if (!monsters.isEmpty()) {
+            // Pick a floor-15 monster from the real table.
+            QVariantMap chosen;
+            for (const QVariantMap& m : monsters) {
+                if (m.value("levelFound").toInt() == 15 && m.value("hits").toInt() > 0) {
+                    chosen = m;
+                    break;
+                }
+            }
+            if (!chosen.isEmpty()) {
+                QList<CombatParticipant> group =
+                    EncounterBuilder::buildEncounter(chosen["name"].toString(), monsters, 0, 15);
+                check(!group.isEmpty(), "floor 15 encounter built");
+                if (!group.isEmpty()) {
+                    const CombatParticipant& mon = group.first();
+                    check(mon.dex > 0, "deep-floor monster has a usable dexterity",
+                          QString::number(mon.dex));
+                    // The raw def column is untouched in the participant; the
+                    // compression happens in the to-hit maths, so check the
+                    // resulting armor class instead.
+                    check(CombatActions::targetArmorClass(mon) < 30,
+                          "floor-15 monster AC is on a d20 scale",
+                          QString::number(CombatActions::targetArmorClass(mon)));
+                    check(CombatActions::targetArmorClass(mon) > 10,
+                          "floor-15 monster AC is above the floor",
+                          QString::number(CombatActions::targetArmorClass(mon)));
+
+                    // A level-15 hero attacks the monster many times: it must land.
+                    CombatState cs;
+                    CombatParticipant hero;
+                    hero.name = "Hero"; hero.isPlayer = true;
+                    hero.hp = 200; hero.maxHp = 200;
+                    hero.att = 40; hero.dex = 35; hero.level = 15; hero.speed = 100;
+                    cs.addParticipant(hero);
+                    CombatParticipant target = mon;
+                    target.hp = 100000; target.maxHp = 100000;
+                    target.speed = 0; target.dex = 1;
+                    cs.addParticipant(target);
+
+                    TurnEngine te;
+                    te.setCombatState(&cs);
+                    CombatActions ca(&cs, &te);
+                    te.startRound();
+                    te.nextTurn();
+
+                    int hits = 0;
+                    for (int i = 0; i < 200; ++i) {
+                        cs.participant(1).hp = 100000;
+                        QString r;
+                        if (ca.attack(1, r) > 0) hits++;
+                    }
+                    check(hits > 0, "a level-15 hero can hit a floor-15 monster",
+                          QString("%1/200 hits").arg(hits));
+                    // It should be a real fight, not a coin flip: at least 30%.
+                    check(hits >= 60, "floor-15 hit rate is at least 30%",
+                          QString("%1/200 hits").arg(hits));
+                }
+            }
+        }
+    }
+
     // -------------------------------------------------------------- cleanup
     QFile::remove(savePath());
 

@@ -16,6 +16,14 @@ public:
     // Returns damage dealt, or -1 on miss/failure.
     int attack(int targetIndex, QString& result);
 
+    // To-hit maths, exposed so the balance curve is testable and tunable in
+    // one place. Att/Def in the raw data are on very different scales (a
+    // monster's `def` runs past 300, a character's armor def is ~50, and
+    // monster rows have no usable Dexterity), so both sides are compressed
+    // into a bounded d20 band rather than used raw.
+    static int attackerSkill(const CombatParticipant& attacker);
+    static int targetArmorClass(const CombatParticipant& target);
+
     // Defend: current participant defends (halves damage taken this round).
     void defend(QString& result);
 

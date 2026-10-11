@@ -103,6 +103,13 @@ QList<CombatParticipant> EncounterBuilder::buildEncounter(
     int baseDex = baseSpeed;
     int baseLevel = readInt(monsterInfo, "levelFound", "level", 1);
     if (baseLevel < 1) baseLevel = 1;
+    // The MDATA5 table carries no usable Dexterity (every row is 0), which
+    // left monsters with a dead initiative and to-hit stat. Derive one from the
+    // monster's level so it can act and land blows: floor 1 ≈ 10, floor 15 ≈ 38.
+    if (baseDex <= 0) {
+        baseDex = 8 + 2 * baseLevel;
+        baseSpeed = baseDex;
+    }
     int baseDamageMod = monsterInfo["damageMod"].toInt();
     if (baseDamageMod <= 0) baseDamageMod = 100;
     // Attacks per round. Only an explicit "swings" column sets this; "hits" is

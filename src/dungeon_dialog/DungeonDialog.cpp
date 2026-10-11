@@ -6,6 +6,7 @@
 #include "src/items/ItemDatabase.h"
 #include "src/core/DungeonThemes.h"
 #include "src/core/DungeonLevelState.h"
+#include "src/core/MonsterBalance.h"
 #include "src/core/BossEncounter.h"
 #include "src/core/QuestChainDriver.h"
 #include "src/core/DoorAndSearch.h"
@@ -1202,6 +1203,10 @@ void DungeonDialog::enterLevel(int level, bool movingUp)
                    .arg(level).arg(theme.name).arg(landingPos.first).arg(landingPos.second));
     drawMinimap();
     logMessage(QString("You have entered **%1** (Dungeon Level %2).").arg(theme.name).arg(level));
+    // Recommended level hint (v4.0.0 slice 4.5): tell the player how deep they
+    // are relative to their party, so a wall is a warning and not a surprise.
+    logMessage(QString("<font color='#8fa'>%1</font>")
+               .arg(MonsterBalance::floorHint(level)));
     if (!theme.description.isEmpty()) {
         logMessage(QString("<font color='gray'>%1</font>").arg(theme.description));
     }
@@ -1774,7 +1779,9 @@ void DungeonDialog::handleVictory()
     // Calculate rewards from the same monster table the encounter came from.
     const QList<QVariantMap>& monsters = gsm->getMonsterData();
     int xp = VictoryReward::calculateXp(m_combatMonsterName, monsters);
-    int gold = VictoryReward::calculateGold(m_combatMonsterName, monsters);
+    // Pass the NG+ cycle so the reward multiplier actually applies: without it
+    // New Game Plus was all cost and no reward.
+    int gold = VictoryReward::calculateGold(m_combatMonsterName, monsters, gsm->getNgPlusLevel());
     QStringList loot = VictoryReward::calculateLoot(m_combatMonsterName, monsters, level);
 
     // Boss bonus
