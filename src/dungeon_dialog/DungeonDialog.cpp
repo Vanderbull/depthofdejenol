@@ -1856,7 +1856,7 @@ void DungeonDialog::handleVictory()
         VictoryDialog* dlg = new VictoryDialog(title, paragraphs, true, this);
         dlg->setAttribute(Qt::WA_DeleteOnClose);
         connect(dlg, &VictoryDialog::startNewGamePlus, gsm, [gsm]() {
-            gsm->setNgPlusLevel(gsm->getNgPlusLevel() + 1);
+            gsm->startNewGamePlus();
         });
         // Record the run for the Hall of Records.
         GameRecord rec;

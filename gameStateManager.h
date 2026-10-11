@@ -140,6 +140,10 @@ public:
     int getNgPlusLevel() const { return m_gameStateData.value("NGPlusLevel", 0).toInt(); }
     void setNgPlusLevel(int level) { setGameValue("NGPlusLevel", level); }
 
+    // Start a New Game Plus run: keep the party (level, stats, equipment, gold),
+    // reset the dungeon, quest chain and play time, and increase NG+ level.
+    void startNewGamePlus();
+
     void checkSettingsFile();
     void initializeResources();
     QPixmap getFontSpriteSheet() const { return m_fontSpriteSheet; }
