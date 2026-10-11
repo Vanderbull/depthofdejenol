@@ -77,18 +77,20 @@ When a version is ready to ship:
 |---|---|---|---|
 | v0.0 | 2026-10-07 | Pre-release | Game systems built (8 phases) |
 | v0.1 | 2026-10-10 | Pre-release | Security hardening + latent breakage fixes |
-| v1.0.0 | — | Major | First finishable release (planned) |
-| v1.1.0 | — | Minor | Combat depth (planned) |
-| v1.1.1 | — | Patch | Polish and debt (planned) |
+| v1.0.0 | 2026-10-10 | Major | First finishable release |
+| v2.0.0 | 2026-10-10 | Major | Core loop: all 14 slices wired |
+| v3.0.0 | — | Major | Tactical combat and character growth (planned) |
 
 ## Per-version roadmaps
 
 Each version has its own roadmap file in `docs/`:
 
 - `docs/ROADMAP_v0.1.md` — Security and latent breakage (✅ done)
-- `docs/ROADMAP_v1.0.0.md` — Connect the orphaned systems (next)
-- `docs/ROADMAP_v1.1.0.md` — Combat reachability and depth
+- `docs/ROADMAP_v1.0.0.md` — Connect the orphaned systems (✅ done)
+- `docs/ROADMAP_v1.1.0.md` — Combat reachability and depth (superseded by v2.0.0)
 - `docs/ROADMAP_v1.1.1.md` — Debt and hygiene
+- `docs/ROADMAP_v2.0.0.md` — Core loop: wire the orphaned systems (✅ done)
+- `docs/ROADMAP_v3.0.0.md` — Tactical combat and character growth (next)
 
 The old `docs/ROADMAP_V1.1.md` is kept for git history but is superseded by these.
 
