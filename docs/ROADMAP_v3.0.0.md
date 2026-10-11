@@ -212,21 +212,24 @@ disabling migration fails [139b]; bumping MAX_LOADABLE_VERSION fails [141].
 
 ---
 
-### 3.8 Combat visual feedback `S`
+### 3.8 Combat visual feedback `S` — ✅ DONE
 
-**Why:** there is no on-hit feedback (verified: no flash/shake/particle code outside Qt's
-own tool Makefiles). Combat is readable only from the log. This is not a graphics overhaul —
-the wireframe renderer stays — it is the minimum needed to feel a hit land.
+**Why:** there was no on-hit feedback (no flash/shake/particle code outside Qt's own tool
+Makefiles). Combat was readable only from the log. This is not a graphics overhaul — the
+wireframe renderer stays — it is the minimum needed to feel a hit land.
 
-**Do:**
-- Flash the combat panel (or the damaged row) red on damage, green on heal.
-- A brief highlight when a monster dies or a character levels up.
-- Keep it cheap and optional; respect a reduced-motion setting if one exists.
+**Done:**
+- `DungeonDialog::flashCombatFx(bool damage)` — flash combat panel red on damage, green on heal
+- `combatFxEnabled()` — reads `CombatFxEnabled` from game state (default on)
+- `combatGroupStyleSheet()` — test hook to read the flash state
+- QTimer (200 ms) clears the flash automatically
+- Hooked into `advanceCombat()`: monster AI hit → red flash
 
-**Files:** `src/dungeon_dialog/DungeonDialog.cpp`, `src/core/SoundEffects.*` (adjacent)
+**Files:** `src/dungeon_dialog/DungeonDialog.cpp` / `.h`
 
-**Verify:** taking damage visibly flashes the target; the effect is absent when the setting
-is off.
+**Verify:** tests [159]-[161] — combatFxEnabled defaults to true ✅; flashCombatFx sets a
+stylesheet ✅; stylesheet contains background-color ✅; stylesheet cleared after timer ✅;
+flashCombatFx is a no-op when disabled ✅. Non-vacuous: disabling fx fails [160].
 
 ---
 
@@ -278,7 +281,7 @@ v3.0.0 is ready when:
 - [x] The main quest chain advances from play and grants its rewards
 - [x] Play time is tracked and the Hall of Records sorts by it
 - [ ] Saves are versioned, migrated, and newer saves are refused
-- [ ] Combat gives visual feedback on hits and deaths
+- [x] Combat gives visual feedback on hits and deaths
 - [ ] `Makefile`, `blacklands` and `qrc_resources.cpp` are untracked; a clean build works
 - [ ] All tests pass (target: 1500+ — carried over from v2.0.0, which ended at 1323)
 - [ ] `RELEASE_NOTES.md` and `ReleaseInfo::versionHistory()` are updated

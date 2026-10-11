@@ -8941,6 +8941,83 @@ int runSelfTest()
         check(afterLoad >= 0, "playTimeSeconds after load", QString::number(afterLoad));
     }
 
+    // ------------------------------------------- v3.0.0 — slice 3.8: combat visual feedback
+    section("[159] v3.0.0 slice 3.8: combatFxEnabled defaults to true");
+    {
+        gameStateManager* gsm = gameStateManager::instance();
+        gsm->setGameValue("CombatFxEnabled", QVariant());  // clear the key
+        check(DungeonDialog::combatFxEnabled(), "combatFxEnabled defaults to true");
+
+        gsm->setGameValue("CombatFxEnabled", true);
+        check(DungeonDialog::combatFxEnabled(), "combatFxEnabled is true when set");
+
+        gsm->setGameValue("CombatFxEnabled", false);
+        check(!DungeonDialog::combatFxEnabled(), "combatFxEnabled is false when disabled");
+
+        // Restore default
+        gsm->setGameValue("CombatFxEnabled", true);
+    }
+
+    section("[160] v3.0.0 slice 3.8: flashCombatFx sets stylesheet and clears after timeout");
+    {
+        DungeonDialog dlg;
+        dlg.resize(1280, 800);
+        dlg.show();
+        for (int i = 0; i < 20; ++i) QApplication::processEvents();
+
+        // Enter combat so m_combatGroup is not null
+        gameStateManager* gsm = gameStateManager::instance();
+        gsm->getPartyMembers().clear();
+        gsm->addCharacterToParty([]{ Character c; c.name="Fx Test"; c.race="Human"; c.level=5; c.hp=30; c.maxHp=30; c.mana=50; c.maxMana=50; c.isAlive=true; return c; }());
+        QPair<int,int> pos = {7,7};
+        dlg.m_monsterPositions[pos] = "Fx Goblin";
+        dlg.m_MonsterAttitude["Fx Goblin"] = "Hostile";
+        gsm->setGameValue("DungeonX", 7);
+        gsm->setGameValue("DungeonY", 7);
+        DungeonHandlers::handleEncounters(&dlg, 7, 7);
+
+        // Trigger a flash (damage = red)
+        const QString before = dlg.combatGroupStyleSheet();
+        dlg.flashCombatFx(true);
+        const QString after = dlg.combatGroupStyleSheet();
+        check(after != before, "flashCombatFx sets a stylesheet",
+              QString("before='%1' after='%2'").arg(before).arg(after));
+        check(after.contains("background-color"), "stylesheet contains background-color", after);
+
+        // Disable fx and verify no-op
+        gameStateManager::instance()->setGameValue("CombatFxEnabled", false);
+        dlg.flashCombatFx(true);
+        const QString noFx = dlg.combatGroupStyleSheet();
+        check(noFx == after, "flashCombatFx is a no-op when disabled");
+
+        // Re-enable
+        gameStateManager::instance()->setGameValue("CombatFxEnabled", true);
+
+        // Let the flash timer fire while the dialog is still alive
+        QThread::msleep(300);
+        QApplication::processEvents();
+        const QString cleared = dlg.combatGroupStyleSheet();
+        check(cleared != after, "stylesheet cleared after timer", cleared);
+
+        dlg.m_monsterPositions.remove(pos);
+        dlg.m_MonsterAttitude.remove("Fx Goblin");
+        dlg.m_inCombat = false;
+    }
+
+    section("[161] v3.0.0 slice 3.8: flashCombatFx does not crash without combat group");
+    {
+        // Create a dialog but don't enter combat — m_combatGroup is null
+        // until combat starts. flashCombatFx should handle this gracefully.
+        DungeonDialog dlg;
+        dlg.resize(1280, 800);
+        dlg.show();
+        for (int i = 0; i < 20; ++i) QApplication::processEvents();
+
+        // m_combatGroup is null — should be a no-op
+        dlg.flashCombatFx(true);
+        dlg.flashCombatFx(false);
+    }
+
     // -------------------------------------------------------------- cleanup
     QFile::remove(savePath());
 

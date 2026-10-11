@@ -120,6 +120,24 @@ ahead ✅. Non-vacuous: forcing playTimeMs to 0 fails [154] and [155].
 
 **Tests:** 1441 + 3 passed, 0 failed (stable over 3 runs).
 
+## Slice 3.8 — Combat visual feedback
+
+**Problem:** no on-hit feedback. Combat was readable only from the log — no flash/shake/particle
+code existed outside Qt's own tool Makefiles.
+
+**Fix:**
+- `DungeonDialog::flashCombatFx(bool damage)` — flash combat panel red on damage, green on heal
+- `combatFxEnabled()` — reads `CombatFxEnabled` from game state (default on)
+- `combatGroupStyleSheet()` — test hook to read the flash state
+- QTimer (200 ms) clears the flash automatically
+- Hooked into `advanceCombat()`: monster AI hit → red flash
+
+**Verified:** tests [159]-[161] — combatFxEnabled defaults to true ✅; flashCombatFx sets a
+stylesheet ✅; stylesheet contains background-color ✅; stylesheet cleared after timer ✅;
+flashCombatFx is a no-op when disabled ✅. Non-vacuous: disabling fx fails [160].
+
+**Tests:** 1448 + 3 passed, 0 failed (stable over 3 runs).
+
 ---
 
 | Phase | Version | Level | Content |

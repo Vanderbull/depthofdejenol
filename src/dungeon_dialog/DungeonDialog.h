@@ -211,6 +211,7 @@ public:
     // The player chooses which monster to hit; group encounters add one row per
     // monster. Rows carry the participant index in Qt::UserRole.
     QListWidget* m_combatTargetList = nullptr;
+    QTimer* m_combatFxTimer = nullptr;   // v3.0.0 slice 3.8: clears flash effect
 
     // Index of the monster the player has selected, or -1 when none is chosen.
     // Reads the selection list, so it is the same value the Attack button uses.
@@ -228,6 +229,14 @@ public:
     // Melee only reaches the front, so this is how a caster is protected.
     // Returns the member's new row, or false when the index is not a player.
     bool togglePlayerRow(int participantIndex);
+
+    // v3.0.0 slice 3.8: flash the combat panel red on damage, green on heal.
+    // `true` = damage (red), `false` = heal (green). No-op when combatFxEnabled is false.
+    void flashCombatFx(bool damage);
+    // Is combat visual feedback enabled? Reads game state (default on).
+    static bool combatFxEnabled();
+    // Current stylesheet of the combat group (for testing flash effects).
+    QString combatGroupStyleSheet() const;
 
     // --- Phase 3: Movement & UI ---
     // Integrated minimap (in the main layout, not a popup)

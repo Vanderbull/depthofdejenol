@@ -769,6 +769,8 @@ DungeonDialog::DungeonDialog(QWidget *parent)
         initialY = MAP_SIZE / 2;
         // Initialize party gold to 1500 for a new game
         gameStateManager::instance()->addPartyGold(1500);
+        // Start play-time tracking for this run.
+        gameStateManager::instance()->startPlayTime();
         // Save initial defaults to GameState
         gsm->setDungeonLevel(initialLevel);
         gsm->setGameValue("DungeonX", initialX);
@@ -1018,6 +1020,15 @@ DungeonDialog::DungeonDialog(QWidget *parent)
     // v3.0.0 slice 3.1: pick the target. One row per living monster; group
     // encounters otherwise collapse into the single label above.
     m_combatTargetList = new QListWidget(m_combatGroup);
+
+    // v3.0.0 slice 3.8: combat visual feedback timer
+    m_combatFxTimer = new QTimer(this);
+    m_combatFxTimer->setSingleShot(true);
+    connect(m_combatFxTimer, &QTimer::timeout, this, [this]() {
+        if (m_combatGroup) {
+            m_combatGroup->setStyleSheet("");
+        }
+    });
     m_combatTargetList->setMaximumHeight(90);
     m_combatTargetList->setFocusPolicy(Qt::NoFocus);
     m_combatTargetList->setToolTip("Select the monster to attack, cast at, or use an item on.");
@@ -1444,6 +1455,12 @@ void DungeonDialog::on_combatAttackButton_clicked()
     m_combatActions->attack(targetIdx, result);
     logMessage(result);
 
+    // Flash red if the player took damage (monster hits back), green on kill
+    // We detect this by checking if any player HP dropped — but simpler: flash
+    // red when the attack misses or the monster survives (player took damage)
+    // and green when the monster dies. For now, flash red on any player damage.
+    // The monster's counterattack happens in advanceCombat, so we flash there.
+
     // Process deaths
     QStringList deaths = m_deathHandler->processDeaths();
     for (const QString& d : deaths) logMessage(d);
@@ -1640,6 +1657,34 @@ bool DungeonDialog::togglePlayerRow(int participantIndex)
     return true;
 }
 
+// v3.0.0 slice 3.8: combat visual feedback
+bool DungeonDialog::combatFxEnabled()
+{
+    // Read from game state; default to enabled when the key is absent or empty.
+    const QVariant v = gameStateManager::instance()->getGameValue("CombatFxEnabled");
+    if (!v.isValid() || v.isNull()) return true;
+    return v.toBool();
+}
+
+void DungeonDialog::flashCombatFx(bool damage)
+{
+    if (!combatFxEnabled()) return;
+    if (!m_combatGroup) return;
+
+    // Flash red on damage, green on heal. The timer clears it after 200ms.
+    const QString color = damage ? "rgba(255,0,0,0.3)" : "rgba(0,255,0,0.3)";
+    m_combatGroup->setStyleSheet(
+        QString("QGroupBox { background-color: %1; }").arg(color));
+    if (m_combatFxTimer) {
+        m_combatFxTimer->start(200);
+    }
+}
+
+QString DungeonDialog::combatGroupStyleSheet() const
+{
+    return m_combatGroup ? m_combatGroup->styleSheet() : QString();
+}
+
 QString DungeonDialog::combatStatusText(const CombatParticipant& p)
 {
     QStringList parts;
@@ -1709,6 +1754,10 @@ void DungeonDialog::advanceCombat()
     if (m_turnEngine->hasCurrentParticipant() && !m_combatActions->isPlayerTurn()) {
         QString aiResult = m_monsterAI->takeTurn();
         logMessage(aiResult);
+        // Flash red if the monster hit a player (damage feedback)
+        if (aiResult.contains("damage") || aiResult.contains("slain")) {
+            flashCombatFx(true);
+        }
         QStringList deaths = m_deathHandler->processDeaths();
         for (const QString& d : deaths) logMessage(d);
         syncCombatToGameState();
@@ -1815,7 +1864,10 @@ void DungeonDialog::handleVictory()
         rec.highestLevel = gsm->getPartyMembers().isEmpty() ? 1 : gsm->getPartyMembers()[0].level;
         rec.mostGold = gsm->getPartyGold();
         rec.deepestFloor = level;
-        rec.completionTimeSeconds = 0;  // TODO: track actual play time
+        // Record actual play time for the Hall of Records. This was
+        // previously hardcoded to 0, which made the fastest-completion
+        // category impossible to set.
+        rec.completionTimeSeconds = gsm->playTimeSeconds();
         rec.won = true;
         gsm->addGameRecord(rec);
         dlg->exec();
