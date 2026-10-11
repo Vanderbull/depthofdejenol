@@ -204,6 +204,20 @@ Every commit in v2.0.0 carried binary churn — a rebuilt `blacklands` and a reg
 
 **Tests:** 1494 + 3 passed, 0 failed.
 
+## Slice 4.4 — AchievementSystem
+
+**Problem:** there were no persistent milestones. Achievements give players long-term goals and a sense of progression beyond leveling.
+
+**Fix:**
+- 25 achievements across combat, depth, NG+, gold, death, level, arena, abyss
+- `unlock()` / `isUnlocked()` / `checkAndUnlock()` with gold rewards
+- Persisted in game state (`UnlockedAchievements`)
+- Achievements button in Hall of Records Dialog
+
+**Verified:** tests [177]-[181] — at least 20 achievements ✅; unlock and isUnlocked ✅; double unlock returns false ✅; unlock grants gold reward ✅; checkAndUnlock based on game state ✅; second checkAndUnlock unlocks nothing ✅; name/description/reward lookups ✅.
+
+**Tests:** 1522 + 3 passed, 0 failed.
+
 ---
 
 | Phase | Version | Level | Content |

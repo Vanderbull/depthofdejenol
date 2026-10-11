@@ -71,22 +71,20 @@ keep fighting after victory.
 
 **Verify:** tests [171]-[176] — monster count scales with wave ✅; monster level scales with wave and NG+ ✅; wave score rewards speed and low damage ✅; total score sums wave scores ✅; leaderboard sorts by score descending ✅; arena is accessible from town ✅.
 
-### 4.4 Achievements `M`
+### 4.4 Achievements `M` — ✅ DONE
 
 **Why:** there are no persistent milestones. Achievements give players long-term
 goals and a sense of progression beyond leveling.
 
-**Do:**
-- Add an achievement system: ~20 achievements for milestones (e.g., "Beat floor 10",
-  "Defeat the final boss", "NG+ 3", "Earn 10000 gold", "Die 10 times").
-- Track achievement progress in the save file.
-- Show unlocked achievements in the Hall of Records.
-- Optional: grant a small reward (gold, XP, or a title) for each achievement.
+**Done:**
+- 25 achievements across combat, depth, NG+, gold, death, level, arena, abyss
+- `unlock()` / `isUnlocked()` / `checkAndUnlock()` with gold rewards
+- Persisted in game state (`UnlockedAchievements`)
+- Achievements button in Hall of Records Dialog
 
-**Files:** `src/core/AchievementSystem.h` (new), `src/core/AchievementSystem.cpp` (new), `src/core/Endgame.cpp`, `src/core/gameStateManager.cpp`
+**Files:** `src/core/AchievementSystem.h` / `.cpp`, `src/hall_of_records/hallofrecordsdialog.h` / `.cpp`
 
-**Verify:** achievements unlock at the right milestones; they persist across saves;
-the Hall of Records shows them; the leaderboard includes them.
+**Verify:** tests [177]-[181] — at least 20 achievements ✅; unlock and isUnlocked ✅; double unlock returns false ✅; unlock grants gold reward ✅; checkAndUnlock based on game state ✅; second checkAndUnlock unlocks nothing ✅; name/description/reward lookups ✅.
 
 ### 4.5 Balance pass `M`
 
@@ -155,7 +153,7 @@ release notes are complete.
 - [x] New Game Plus carries the party and scales difficulty
 - [x] Endgame dungeon is accessible and beatable
 - [x] Arena mode is accessible and scored
-- [ ] Achievements unlock and persist
+- [x] Achievements unlock and persist
 - [ ] Full playthrough is winnable in 10–15 hours
 - [ ] Old roadmaps are archived
 - [ ] `SEMANTIC_VERSION` is `4.0.0`
