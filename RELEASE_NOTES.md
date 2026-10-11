@@ -235,6 +235,21 @@ Every commit in v2.0.0 carried binary churn — a rebuilt `blacklands` and a reg
 
 **Tests:** 1590 + 3 passed, 0 failed.
 
+## Slice 4.6 — Repo and docs cleanup
+
+**Problem:** the repo had accumulated a decade of roadmaps and analysis docs. `docs/` mixed the current plan with v0.1-era reports, four generated file-listing dumps, and a tracked `trash/` directory holding stale `GameStateManager` copies.
+
+**Fix:**
+- Completed roadmaps (v0.1 → v3.0.0) and pre-1.0 analysis docs moved to `docs/archive/`; only the current roadmap stays in `docs/`.
+- Deleted the generated file-listing dumps and the tracked `trash/` directory.
+- README now links the current roadmap, the test badge says 1590 (was 840), and the endgame systems are in the feature table.
+- `FIXLIST.md`: items 1 (Lua RCE), 4, 12, 15, 16 marked fixed after verifying them in the live code; 10 and 21 kept open; review date refreshed.
+- `VERSIONING.md`: completed roadmaps moved under `docs/archive/`, v3.0.0 and v4.0.0 added to the version history.
+
+**Verified:** README links the latest roadmap ✅; old roadmaps are in `docs/archive/` ✅; `FIXLIST.md` reflects live code ✅; no source or build file references a moved doc ✅; build and all tests still green ✅.
+
+**Tests:** 1590 + 3 passed, 0 failed.
+
 ---
 
 | Phase | Version | Level | Content |

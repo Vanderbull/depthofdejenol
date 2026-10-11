@@ -106,20 +106,29 @@ Some fights may be trivially easy or impossibly hard.
 
 **Verify:** tests [182]-[188] — floor hints name the right level ✅; every floor is winnable at its recommended level ✅; a badly under-leveled party is not ✅; difficulty rises monotonically with depth ✅; the estimated run lands in the 10-15 hour band ✅; a level-15 hero hits a floor-15 monster ≥30% of the time (was 4%) ✅.
 
-### 4.6 Repo and docs cleanup `S`
+### 4.6 Repo and docs cleanup `S` — ✅ DONE
 
-**Why:** the repo has accumulated a lot of old roadmaps and docs. Only the latest
+**Why:** the repo had accumulated a lot of old roadmaps and docs. Only the latest
 should be prominent.
 
-**Do:**
-- Move old roadmaps (v0.1 through v3.0.0) to a `docs/archive/` subdirectory.
-- Update the README to link only to the latest roadmap.
-- Update `FIXLIST.md` to mark resolved items.
+**Done:**
+- Moved completed roadmaps (v0.1 through v3.0.0) and pre-1.0 analysis docs to
+  `docs/archive/`; only `docs/ROADMAP_v4.0.0.md` stays in `docs/`.
+- Deleted generated file-listing dumps (`all_h_files.txt`, `all_src_files.txt`,
+  `files_with_classes.txt`, `h_files_with_classes.txt`).
+- Removed the tracked `trash/` directory (stale `GameStateManager` copies).
+- README: links the current roadmap, test badge fixed (840 → 1590), endgame
+  systems added to the feature table.
+- FIXLIST: items 1, 4, 12, 15, 16 marked fixed (verified in live code); 10 and
+  21 kept open; review date refreshed.
+- VERSIONING: completed roadmaps moved under `docs/archive/`, v3.0.0 and v4.0.0
+  added to the version history.
 
-**Files:** `docs/`, `README.md`, `FIXLIST.md`
+**Files:** `docs/`, `docs/archive/`, `README.md`, `docs/FIXLIST.md`, `docs/VERSIONING.md`
 
-**Verify:** the README links to the latest roadmap; the old roadmaps are in
-`docs/archive/`; `FIXLIST.md` is up to date.
+**Verify:** the README links to the latest roadmap ✅; the old roadmaps are in
+`docs/archive/` ✅; `FIXLIST.md` is up to date ✅; no source or build file
+references a moved doc ✅.
 
 ### 4.7 Release `S`
 
@@ -159,7 +168,7 @@ release notes are complete.
 - [x] Arena mode is accessible and scored
 - [x] Achievements unlock and persist
 - [x] Full playthrough is winnable in 10–15 hours
-- [ ] Old roadmaps are archived
+- [x] Old roadmaps are archived
 - [ ] `SEMANTIC_VERSION` is `4.0.0`
 - [ ] `RELEASE_NOTES.md` is updated
 - [ ] All tests pass (target: 1500+)
