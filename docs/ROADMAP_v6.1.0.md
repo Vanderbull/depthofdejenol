@@ -1,6 +1,6 @@
 # v6.1.0 — Spell Wiring & Loot Integrity
 
-## Status: PLANNED
+## Status: DONE (released 2026-10-12, tagged v6.1.0)
 
 Audit run after v6.0.0 (2026-10-12). v6.0.0 fixed *balance numbers*; this
 release fixes *plumbing* — effects that are described in data but never
