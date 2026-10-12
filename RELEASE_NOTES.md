@@ -2,7 +2,16 @@
 
 **Latest:** v5.5.0 — Wire & Cleanup (in progress)
 
-## v5.5.0 — Wire & Cleanup
+## v5.6.0 — Wire & Cleanup Round 2
+
+### Slice 6.0a — Remove dead DungeonMap
+- `src/dungeonmap/dungeonmap.{cpp,h}` removed — never included or instantiated
+- DungeonMinimap and AutomapDialog handle their own rendering
+
+### Slice 6.0b — Helplesson dwarf image
+- Label was "Dwarf Image\nPlaceholder" — no image resource ever loaded
+- Label hidden instead of showing placeholder
+- Non-vacuous: restoring the placeholder fails the test
 
 ### Slice 5.1 — Arena status effects
 - ArenaDialog::advanceCombat now calls tickStatusEffects at round end

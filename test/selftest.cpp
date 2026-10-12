@@ -13,6 +13,7 @@
 #include "src/combat/CombatDeathHandler.h"
 #include "src/arena_dialog/ArenaDialog.h"
 #include "src/race_data/RaceData.h"
+#include "src/helplesson/helplesson.h"
 #include "theCity.h"
 #include "src/core/LevelTable.h"
 #include "src/core/AgingRules.h"
@@ -10957,6 +10958,31 @@ int runSelfTest()
         for (int i = 0; i < 10; ++i) QApplication::processEvents();
 
         check(true, "ArenaDialog constructs without crash");
+        dlg.close();
+    }
+
+    section("[286] v5.6.0 slice 6.0b: helplesson dwarf image label hidden");
+    {
+        // The HelpLessonDialog used to show "Dwarf Image\nPlaceholder"
+        // because no image resource was ever loaded. The label is now
+        // hidden instead of showing a placeholder stub.
+        HelpLessonDialog dlg;
+        dlg.show();
+        QCoreApplication::processEvents();
+        QLabel* label = dlg.findChild<QLabel*>();
+        // Find the dwarf image label by checking all QLabels
+        bool foundDwarfLabel = false;
+        bool dwarfLabelHidden = false;
+        for (QLabel* l : dlg.findChildren<QLabel*>()) {
+            if (l->text().contains("Dwarf") && l->text().contains("Placeholder")) {
+                foundDwarfLabel = true;
+                dwarfLabelHidden = !l->isVisible();
+                break;
+            }
+        }
+        // The label should either not exist (removed) or be hidden
+        check(!foundDwarfLabel || dwarfLabelHidden,
+              "dwarf image label is hidden, not showing placeholder");
         dlg.close();
     }
 

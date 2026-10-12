@@ -54,13 +54,8 @@ QWidget* HelpLessonDialog::createContentArea()
     // --- Implementation for m_dwarfImageLabel ---
     // Ensure 'this' (the dialog) is not the parent of inner widgets if 'container' is the intended parent.
     // Giving 'container' as parent ensures automatic deletion when 'container' is deleted.
-    m_dwarfImageLabel = new QLabel(container); 
-    m_dwarfImageLabel->setStyleSheet("background-color: #333333; color: white; border: 1px solid black;");
-    m_dwarfImageLabel->setText(tr("Dwarf Image\nPlaceholder"));
-    m_dwarfImageLabel->setAlignment(Qt::AlignCenter);
-    m_dwarfImageLabel->setFixedWidth(150);
-    
-    hLayout->addWidget(m_dwarfImageLabel);
+    m_dwarfImageLabel = new QLabel(container);
+    m_dwarfImageLabel->hide();
     // ----------------------------------------------------------------------    
     m_textEdit = new QTextBrowser(container); // Use 'container' as parent
     m_textEdit->setReadOnly(true);
