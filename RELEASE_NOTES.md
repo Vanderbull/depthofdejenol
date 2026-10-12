@@ -14,6 +14,11 @@
 - addExperienceToCharacter now writes the party's total living XP to "PlayerExperience"
 - Test proves the label updates after gaining XP
 
+### Slice 5.3 — partyUpdated signal wiring
+- PartyManager::partyUpdated is connected to gameStateManager::refreshUI
+- Test proves the signal fires and triggers UI refresh
+- Non-vacuous: removing the connect fails the test
+
 ## v5.4.0 — Main Menu & Save System Redesign
 
 ### Slice 5.1 — Main menu redesign

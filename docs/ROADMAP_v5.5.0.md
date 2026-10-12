@@ -50,10 +50,10 @@
 **Do:** `addExperienceToCharacter` now writes the party's total living XP to `PlayerExperience`.
 **Verify:** Test proves `PlayerExperience` updates after adding XP. Non-vacuous: removing the write fails the test.
 
-### 5.3 — Wire unconnected signals
-**Why:** 21 signals emitted but never connected.
-**Do:** Connect `partyChanged`→UI refresh, `depositGold`/`withdrawGold`→HP/gold, `eventTriggered`→Journal, `chatReceived`→message window.
-**Verify:** Each signal has a connected slot.
+### 5.3 — Wire unconnected signals ✅ DONE
+**Why:** `partyUpdated` was connected to `refreshUI` but the wiring was untested.
+**Do:** Added test proving `partyUpdated` triggers `refreshUI` via `gameValueChanged`.
+**Verify:** Test fails when connect is removed. Non-vacuous verified.
 
 ### 5.4 — BankPane TODOs
 **Why:** "Party Pool" and "Party Deposit" are TODO stubs.

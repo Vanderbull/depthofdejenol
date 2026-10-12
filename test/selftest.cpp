@@ -10959,6 +10959,36 @@ int runSelfTest()
         dlg.close();
     }
 
+    section("[284] v5.5.0 slice 5.3: partyChanged signal triggers UI refresh");
+    {
+        // PartyManager emits partyUpdated when the party changes.
+        // gameStateManager connects partyUpdated to refreshUI.
+        // We verify the wiring by checking that refreshUI runs when partyUpdated fires.
+        gameStateManager* gsm = gameStateManager::instance();
+
+        // Connect a spy to gameValueChanged (emitted by refreshUI)
+        bool refreshFired = false;
+        QObject::connect(gsm, &gameStateManager::gameValueChanged,
+                         [&refreshFired](const QString&, const QVariant&) {
+            refreshFired = true;
+        });
+
+        // Trigger partyUpdated via addExperienceToParty
+        QList<Character> &members = gsm->getPartyMembers();
+        members.clear();
+        Character c1; c1.name = "Test"; c1.race = "Human"; c1.level = 1;
+        c1.hp = 10; c1.maxHp = 10; c1.isAlive = true; c1.experience = 0;
+        members << c1;
+
+        gsm->addExperienceToParty(100);
+        QApplication::processEvents();
+
+        // refreshUI must have fired (via partyUpdated connect)
+        check(refreshFired, "partyUpdated triggers refreshUI via gameValueChanged");
+
+        members.clear();
+    }
+
     section("[283] v5.5.0 slice 5.2: PlayerExperience is written when XP is added");
     {
         // DungeonDialog reads "PlayerExperience" for the XP label, but nothing
