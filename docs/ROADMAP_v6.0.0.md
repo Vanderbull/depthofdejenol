@@ -66,10 +66,10 @@
 **Do**: Changed to `qMax(50, casterLevel * 3)` massive damage. Insanity/Exorcism/Vampire Slayer/Banish now deal 50+ damage instead of instant kill.
 **Verify**: Non-vacuous: removing the handler returns 0 damage.
 
-### 6.0f — Fix monster XP
-**Why**: Values are 1000x too high.
-**Do**: Scale XP to match level curve.
-**Verify**: Test proves monster XP is reasonable.
+### 6.0f — Fix monster XP ✅ DONE
+**Why**: Values are 1000x too high (100 XP per monster level vs 30*n^1.2 curve).
+**Do**: Changed `VictoryReward::calculateXp` from `level * 100` to `round(30 * level^1.2)` — same curve as LevelTable.
+**Verify**: Non-vacuous: reverting to `level * 100` fails 3 tests.
 
 ### 6.1 — Release
 **Why**: Final verification.

@@ -2437,12 +2437,13 @@ int runSelfTest()
         dragon["goldFactor"] = 500;
         monsterData.append(dragon);
 
-        check(VictoryReward::calculateXp("Orc", monsterData) == 300,
-              "Orc XP = 300");
-        check(VictoryReward::calculateXp("Dragon", monsterData) == 1000,
-              "Dragon XP = 1000");
-        check(VictoryReward::calculateXp("Unknown", monsterData) == 100,
-              "Unknown monster XP = 100 (default level 1)");
+        // XP formula: round(30 * level^1.2) — same curve as LevelTable
+        check(VictoryReward::calculateXp("Orc", monsterData) == 112,
+              "Orc XP = 112 (round(30 * 3^1.2))");
+        check(VictoryReward::calculateXp("Dragon", monsterData) == 475,
+              "Dragon XP = 475 (round(30 * 10^1.2))");
+        check(VictoryReward::calculateXp("Unknown", monsterData) == 30,
+              "Unknown monster XP = 30 (default level 1)");
     }
     {
         // Gold reward: goldFactor * random(1, 10)

@@ -4,6 +4,7 @@
 #include "src/core/SoundEffects.h"
 #include "src/core/Endgame.h"
 #include <QRandomGenerator>
+#include <cmath>
 
 namespace {
 
@@ -31,7 +32,9 @@ int VictoryReward::calculateXp(const QString& monsterName,
                                const QList<QVariantMap>& monsterData)
 {
     int level = getMonsterLevel(monsterName, monsterData);
-    return level * 100;
+    // Use the same XP curve as LevelTable: round(30 * level^1.2)
+    // This keeps monster XP proportional to the level curve.
+    return qRound(30.0 * std::pow(level, 1.2));
 }
 
 int VictoryReward::calculateGold(const QString& monsterName,

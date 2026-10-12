@@ -27,6 +27,11 @@
 - Changed from 9999 one-shot to qMax(50, casterLevel * 3) massive damage
 - Non-vacuous: removing the handler returns 0 damage
 
+### Slice 6.0f — Fix monster XP
+- Changed VictoryReward::calculateXp from `level * 100` to `round(30 * level^1.2)`
+- Now uses the same XP curve as LevelTable
+- Non-vacuous: reverting to old formula fails 3 tests
+
 ## v5.9.0 — Dead Code Removal
 
 ### Slice 9.0a — Remove dead code files
