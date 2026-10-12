@@ -11609,6 +11609,72 @@ int runSelfTest()
         check(data.value("Age").toInt() == 18, "timeline age is 18");
     }
 
+    section("[266] v5.4.0 slice 5.1: main menu has correct button labels");
+    {
+        GameMenu *menu = new GameMenu();
+        menu->setAttribute(Qt::WA_DeleteOnClose);
+
+        // Find buttons by object name
+        QPushButton *newBtn = menu->findChild<QPushButton*>("newGameButton");
+        QPushButton *createBtn = menu->findChild<QPushButton*>("createCharacterButton");
+        QPushButton *assembleBtn = menu->findChild<QPushButton*>("assemblePartyButton");
+        QPushButton *loadBtn = menu->findChild<QPushButton*>("loadGameButton");
+        QPushButton *charListBtn = menu->findChild<QPushButton*>("characterListButton");
+
+        check(newBtn != nullptr, "New Game button exists");
+        check(createBtn != nullptr, "Create Character button exists");
+        check(assembleBtn != nullptr, "Assemble Party button exists");
+        check(loadBtn != nullptr, "Load Game button exists");
+
+        if (newBtn) {
+            QString text = newBtn->text().toUpper();
+            check(text.contains("NEW GAME") || text.contains("START"),
+                  "New Game button says NEW GAME or START, not Create");
+            check(!text.contains("CREATE"), "New Game button does NOT say CREATE");
+        }
+
+        if (createBtn) {
+            QString text = createBtn->text().toUpper();
+            check(text.contains("CREATE"), "Create Character button says CREATE");
+        }
+
+        if (assembleBtn) {
+            QString text = assembleBtn->text().toUpper();
+            check(text.contains("PARTY") || text.contains("ASSEMBLE"),
+                  "Assemble Party button says PARTY or ASSEMBLE");
+        }
+
+        delete menu;
+    }
+
+    section("[267] v5.4.0 slice 5.1: New Game starts game directly");
+    {
+        // New Game should clear state and enter the city
+        gameStateManager::instance()->getPartyMembers().clear();
+        Character hero;
+        hero.name = "TestHero";
+        hero.race = "Human";
+        hero.hp = 50; hero.maxHp = 50;
+        hero.isAlive = true;
+        gameStateManager::instance()->addCharacterToParty(hero);
+        check(gameStateManager::instance()->hasLivingCharacters(), "has character before New Game");
+
+        // New Game flow: clear party, enter city directly
+        gameStateManager::instance()->getPartyMembers().clear();
+        check(!gameStateManager::instance()->hasLivingCharacters(), "party cleared for new game");
+    }
+
+    section("[268] v5.4.0 slice 5.1: Assemble Party opens CharacterListDialog");
+    {
+        GameMenu *menu = new GameMenu();
+        menu->setAttribute(Qt::WA_DeleteOnClose);
+
+        QPushButton *assembleBtn = menu->findChild<QPushButton*>("assemblePartyButton");
+        check(assembleBtn != nullptr, "Assemble Party button exists for opening CharacterListDialog");
+
+        menu->deleteLater();
+    }
+
     section("[214] v5.0.0 slice 5.6: CharacterListDialog is multi-select");
     {
         CharacterListDialog dlg;

@@ -114,7 +114,7 @@ void GameMenu::setupUI() {
 
     mainLayout->addSpacing(10);
 
-    // --- Main Actions (2x2 grid) ---
+    // --- Main Actions (2x3 grid) ---
     QGridLayout *actionsGrid = new QGridLayout();
     actionsGrid->setSpacing(10);
 
@@ -127,11 +127,23 @@ void GameMenu::setupUI() {
     m_newButton->setFont(actionFont);
     actionsGrid->addWidget(m_newButton, 0, 0);
 
+    m_createCharacterButton = new QPushButton(tr("Create Character"), this);
+    m_createCharacterButton->setObjectName("createCharacterButton");
+    m_createCharacterButton->setMinimumHeight(45);
+    m_createCharacterButton->setFont(actionFont);
+    actionsGrid->addWidget(m_createCharacterButton, 0, 1);
+
+    m_assemblePartyButton = new QPushButton(tr("Assemble Party"), this);
+    m_assemblePartyButton->setObjectName("assemblePartyButton");
+    m_assemblePartyButton->setMinimumHeight(45);
+    m_assemblePartyButton->setFont(actionFont);
+    actionsGrid->addWidget(m_assemblePartyButton, 0, 2);
+
     m_loadButton = new QPushButton(tr("Load Game"), this);
     m_loadButton->setObjectName("loadGameButton");
     m_loadButton->setMinimumHeight(45);
     m_loadButton->setFont(actionFont);
-    actionsGrid->addWidget(m_loadButton, 0, 1);
+    actionsGrid->addWidget(m_loadButton, 1, 0);
 
     m_characterListButton = new QPushButton(tr("Character List"), this);
     m_characterListButton->setObjectName("characterListButton");
@@ -139,13 +151,13 @@ void GameMenu::setupUI() {
     QFont secondaryFont = m_characterListButton->font();
     secondaryFont.setPointSize(11);
     m_characterListButton->setFont(secondaryFont);
-    actionsGrid->addWidget(m_characterListButton, 1, 0);
+    actionsGrid->addWidget(m_characterListButton, 1, 1);
 
     m_recordsButton = new QPushButton(tr("Hall of Records"), this);
     m_recordsButton->setObjectName("recordsButton");
     m_recordsButton->setMinimumHeight(40);
     m_recordsButton->setFont(secondaryFont);
-    actionsGrid->addWidget(m_recordsButton, 1, 1);
+    actionsGrid->addWidget(m_recordsButton, 1, 2);
 
     mainLayout->addLayout(actionsGrid);
 
@@ -189,6 +201,8 @@ void GameMenu::setupConnections() {
     // Button Signals
     connect(m_continueButton, &QPushButton::clicked, this, &GameMenu::onContinueClicked);
     connect(m_newButton, &QPushButton::clicked, this, &GameMenu::startNewGame);
+    connect(m_createCharacterButton, &QPushButton::clicked, this, &GameMenu::onCreateCharacterClicked);
+    connect(m_assemblePartyButton, &QPushButton::clicked, this, &GameMenu::onAssemblePartyClicked);
     connect(m_loadButton, &QPushButton::clicked, this, &GameMenu::loadGame);
     connect(m_helpButton, &QPushButton::clicked, this, &GameMenu::onHelpClicked);
     connect(m_recordsButton, &QPushButton::clicked, this, &GameMenu::showRecords);
@@ -432,8 +446,21 @@ void GameMenu::startNewGame() {
     // a fresh start never inherits stale floors or items.
     DungeonLevelRegistry::instance().clear();
 
+    // Start fresh: clear party and enter the city directly.
+    gameStateManager::instance()->getPartyMembers().clear();
+    gameStateManager::instance()->startAutosave(10000);
+    enterCity();
+}
+
+void GameMenu::onCreateCharacterClicked() {
     auto *dialog = new CreateCharacterDialog(loadRaceData(), loadGuildData(), this);
     connect(dialog, &CreateCharacterDialog::characterCreated, this, &GameMenu::onCharacterCreated);
+    dialog->setAttribute(Qt::WA_DeleteOnClose);
+    dialog->show();
+}
+
+void GameMenu::onAssemblePartyClicked() {
+    auto *dialog = new CharacterListDialog(this);
     dialog->setAttribute(Qt::WA_DeleteOnClose);
     dialog->show();
 }

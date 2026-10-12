@@ -41,6 +41,8 @@ private slots:
     void enterCity();
     void onEventTriggered(const GameEvent& event);
     void onCharacterCreated(const QString &characterName);
+    void onCreateCharacterClicked();
+    void onAssemblePartyClicked();
 
 private:
     void setupUI();
@@ -55,6 +57,8 @@ private:
     QLabel *m_partyPreviewLabel = nullptr;
     QPushButton *m_continueButton = nullptr;
     QPushButton *m_newButton = nullptr;
+    QPushButton *m_createCharacterButton = nullptr;
+    QPushButton *m_assemblePartyButton = nullptr;
     QPushButton *m_loadButton = nullptr;
     QPushButton *m_characterListButton = nullptr;
     QPushButton *m_recordsButton = nullptr;
