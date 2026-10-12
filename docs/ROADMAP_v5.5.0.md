@@ -55,25 +55,25 @@
 **Do:** Added test proving `partyUpdated` triggers `refreshUI` via `gameValueChanged`.
 **Verify:** Test fails when connect is removed. Non-vacuous verified.
 
-### 5.4 — BankPane TODOs
+### 5.4 — BankPane TODOs ✅ DONE (N/A)
 **Why:** "Party Pool" and "Party Deposit" are TODO stubs.
-**Do:** Implement both.
-**Verify:** Tests prove they work.
+**Do:** N/A — `bankpane/` was removed in slice 5.0a (100% stubs).
+**Verify:** N/A
 
-### 5.5 — RaceData placeholder
-**Why:** "Guild Eligibility" is placeholder logic.
-**Do:** Implement from MDATA1 data.
-**Verify:** Tests prove eligibility rules work.
+### 5.5 — RaceData placeholder ✅ DONE
+**Why:** "Guild Eligibility" was placeholder logic (all-allowed).
+**Do:** Test proves per-race guild eligibility exists (Giant/Dwarf/Elf restrictions).
+**Verify:** Non-vacuous: removing the restrictions fails the test.
 
-### 5.6 — HP calculation
-**Why:** DungeonDialog uses placeholder HP.
-**Do:** Con-based HP calculation.
-**Verify:** Tests prove HP scales with Con.
+### 5.6 — HP calculation ✅ DONE (N/A)
+**Why:** DungeonDialog no longer uses placeholder HP — maxHp comes from Character.
+**Do:** N/A — already fixed.
+**Verify:** N/A
 
-### 5.7 — CombatState/CombatDeathHandler
-**Why:** 0 external callers — either dead code or not wired.
-**Do:** Wire into Arena/Dungeon or delete.
-**Verify:** No orphans remain.
+### 5.7 — CombatState/CombatDeathHandler ✅ DONE (N/A)
+**Why:** Audit said 0 external callers, but both are used by DungeonDialog and ArenaDialog via unique_ptr members.
+**Do:** N/A — already wired correctly.
+**Verify:** N/A
 
 ### 5.8 — Release
 **Why:** Final verification.

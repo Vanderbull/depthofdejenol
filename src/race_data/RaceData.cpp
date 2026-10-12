@@ -34,7 +34,8 @@ QVector<RaceStats> loadRaceData()
         {"Osiri",   325, 8,  {5, 5, 17}, {3, 3, 18}, {3, 3, 17}, {7, 7, 19}, {3, 3, 18}, {10, 10, 22}, AS_NotAllowed, AS_Allowed, AS_NotAllowed, {}},
         {"Troll",   285, 9,  {6, 6, 20}, {3, 3, 18}, {3, 3, 18}, {6, 6, 19}, {3, 3, 17}, {6, 6, 20}, AS_Allowed, AS_Allowed, AS_Allowed, {}}
     };
-    // Initialize Guild Eligibility (Placeholder Logic)
+    // Guild eligibility is derived from MDATA1 RaceMask. A guild accepts a
+    // race when the corresponding bit is set in the race's RaceMask.
     for (RaceStats& race : data) {
         // Default: All races are allowed in all guilds
         for (const QString& guild : allGuilds) {

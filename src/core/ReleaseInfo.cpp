@@ -67,6 +67,7 @@ QString ReleaseInfo::banner() {
 
 QList<QPair<QString, QString>> ReleaseInfo::versionHistory() {
     return {
+        {"5.5.0", "2026-10-12 — Wire & Cleanup: arena status effects tick, PlayerExperience wiring, partyUpdated signal test, RaceData guild eligibility test, removed dead code (bankpane/, legacy PartyManager)"},
         {"5.4.0", "2026-10-12 — Main Menu & Save System redesign: New Game requires a character, Load/Save complete game state, Assemble Party dialog replaces Character List"},
         {"5.3.0", "2026-10-12 — Aging & Lifecycle: characters age over time with race-specific decay and max age, coming-of-age ceremony at 18, marriage system with spouse tracking, children and family lineage, descendant inheritance, retirement eligibility at 70, all lifecycle data persists in JSON saves"},
         {"5.2.0", "2026-10-12 — Savegame revamp: autosave uses PartyManager as single source of truth, party building from individual character files (1–4 members with their own inventory/equipment/hunger/guild data), CharacterListDialog preview with party size and clear selection, LoadPartyDialog with party preview showing members and levels, JSON-only save format (legacy .lua/.txt removed)"},

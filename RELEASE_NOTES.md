@@ -19,6 +19,18 @@
 - Test proves the signal fires and triggers UI refresh
 - Non-vacuous: removing the connect fails the test
 
+### Slice 5.5 — RaceData guild eligibility
+- RaceData has per-race guild eligibility (Giant/Dwarf/Elf restrictions)
+- Test proves the eligibility map is not all-allowed
+- Non-vacuous: removing the restrictions fails the test
+
+### Slice 5.6 — HP calculation (N/A)
+- DungeonDialog no longer uses placeholder HP — maxHp comes from Character
+
+### Slice 5.7 — CombatState/CombatDeathHandler (N/A)
+- Audit said 0 external callers, but both are used by DungeonDialog and
+  ArenaDialog via unique_ptr members — already wired correctly
+
 ## v5.4.0 — Main Menu & Save System Redesign
 
 ### Slice 5.1 — Main menu redesign

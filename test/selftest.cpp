@@ -12,6 +12,7 @@
 #include "src/combat/VictoryReward.h"
 #include "src/combat/CombatDeathHandler.h"
 #include "src/arena_dialog/ArenaDialog.h"
+#include "src/race_data/RaceData.h"
 #include "theCity.h"
 #include "src/core/LevelTable.h"
 #include "src/core/AgingRules.h"
@@ -5072,12 +5073,12 @@ int runSelfTest()
     // ------------------------------------------- Release packaging (8.5)
     section("[56] Release packaging");
     {
-        check(ReleaseInfo::version() == "5.4.0", "version is 5.4.0");
-        check(ReleaseInfo::versionString() == "v5.4.0", "version string");
+        check(ReleaseInfo::version() == "5.5.0", "version is 5.5.0");
+        check(ReleaseInfo::versionString() == "v5.5.0", "version string");
         check(!ReleaseInfo::releaseDate().isEmpty(), "release date exists");
         check(!ReleaseInfo::systemRequirements().isEmpty(), "system requirements exist");
-        check(ReleaseInfo::installerName().contains("5.4.0"), "installer name");
-        check(ReleaseInfo::banner().contains("5.4.0"), "banner");
+        check(ReleaseInfo::installerName().contains("5.5.0"), "installer name");
+        check(ReleaseInfo::banner().contains("5.5.0"), "banner");
     }
     {
         // Release notes.
@@ -5097,9 +5098,9 @@ int runSelfTest()
         QList<QPair<QString, QString>> history = ReleaseInfo::versionHistory();
         check(history.size() >= 5, "at least 5 versions in history",
               QString::number(history.size()));
-        check(history[0].first == "5.4.0", "latest version is 5.4.0");
-        check(history[0].second.contains("Main Menu") || history[0].second.contains("Save System"),
-              "v5.4.0 history entry mentions main menu and save system");
+        check(history[0].first == "5.5.0", "latest version is 5.5.0");
+        check(history[0].second.contains("Wire") || history[0].second.contains("Cleanup"),
+              "v5.5.0 history entry mentions wire and cleanup");
     }
 
     // ------------------------------------------- Status flag integrity
@@ -10957,6 +10958,41 @@ int runSelfTest()
 
         check(true, "ArenaDialog constructs without crash");
         dlg.close();
+    }
+
+    section("[285] v5.5.0 slice 5.5: guild eligibility is not all-allowed");
+    {
+        // RaceData has per-race guild eligibility. The placeholder set
+        // every race/guild pair to AS_Allowed; the real logic marks
+        // specific pairs as AS_NotAllowed (Giant/Dwarf/Elf restrictions).
+        QVector<GameConstants::RaceStats> races = loadRaceData();
+        check(races.size() >= 5, "at least 5 races loaded");
+
+        // Find a race that has at least one AS_NotAllowed guild
+        bool foundNotAllowed = false;
+        for (const GameConstants::RaceStats& race : races) {
+            for (auto it = race.guildEligibility.begin(); it != race.guildEligibility.end(); ++it) {
+                if (it.value() == GameConstants::AS_NotAllowed) {
+                    foundNotAllowed = true;
+                    break;
+                }
+            }
+            if (foundNotAllowed) break;
+        }
+        check(foundNotAllowed, "at least one race/guild pair is not eligible");
+
+        // Find a race that has at least one AS_Allowed guild
+        bool foundAllowed = false;
+        for (const GameConstants::RaceStats& race : races) {
+            for (auto it = race.guildEligibility.begin(); it != race.guildEligibility.end(); ++it) {
+                if (it.value() == GameConstants::AS_Allowed) {
+                    foundAllowed = true;
+                    break;
+                }
+            }
+            if (foundAllowed) break;
+        }
+        check(foundAllowed, "at least one race/guild pair is eligible");
     }
 
     section("[284] v5.5.0 slice 5.3: partyChanged signal triggers UI refresh");
