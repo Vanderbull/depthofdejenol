@@ -276,8 +276,58 @@ void ArenaDialog::on_spellButton_clicked() {
 }
 
 void ArenaDialog::on_useItemButton_clicked() {
-    // Simplified: use a healing potion if available
-    logMessage("No usable items in the arena.");
+    if (!m_inCombat || !m_combatState || !m_combatActions) return;
+    if (!m_combatActions->isPlayerTurn()) return;
+
+    // Find the current player in the combat participants
+    int playerIdx = -1;
+    int currentIdx = m_combatState->initiativeOrder()[m_combatState->currentTurnIndex()];
+    if (m_combatState->participant(currentIdx).isPlayer) {
+        playerIdx = currentIdx;
+    }
+    if (playerIdx < 0) return;
+
+    // Find the corresponding party member index
+    // (monsters are added first in startWave, so player index = party member index + monsterCount)
+    int partyIdx = -1;
+    int monsterCount = 0;
+    for (int i = 0; i < m_combatState->participantCount(); ++i) {
+        if (!m_combatState->participant(i).isPlayer) monsterCount++;
+    }
+    partyIdx = currentIdx - monsterCount;
+    if (partyIdx < 0 || partyIdx >= gameStateManager::instance()->getPartyMembers().size()) return;
+
+    Character &hero = gameStateManager::instance()->getPartyMembers()[partyIdx];
+    if (hero.inventory.isEmpty()) {
+        logMessage(QString("%1 has no items.").arg(hero.name));
+        return;
+    }
+
+    // Find a healing item (simple heuristic: name contains "Potion" or "Heal")
+    int itemIdx = -1;
+    for (int i = 0; i < hero.inventory.size(); ++i) {
+        const QString &name = hero.inventory[i].name;
+        if (name.contains("Potion") || name.contains("Heal") || name.contains("Bandage")) {
+            itemIdx = i;
+            break;
+        }
+    }
+    if (itemIdx < 0) {
+        logMessage(QString("%1 has no usable items.").arg(hero.name));
+        return;
+    }
+
+    QString result;
+    bool used = m_combatActions->useItem(itemIdx, hero, result);
+    if (used) {
+        logMessage(QString("%1 uses %2.").arg(hero.name, hero.inventory.value(itemIdx).name));
+    } else {
+        logMessage(result);
+    }
+
+    // Using an item consumes the turn
+    m_combatState->markActed(currentIdx);
+    advanceCombat();
 }
 
 void ArenaDialog::on_fleeButton_clicked() {
@@ -501,7 +551,7 @@ void ArenaDialog::updateUI() {
     m_attackBtn->setEnabled(m_inCombat && m_combatActions && m_combatActions->isPlayerTurn());
     m_defendBtn->setEnabled(m_inCombat && m_combatActions && m_combatActions->isPlayerTurn());
     m_spellBtn->setEnabled(m_inCombat && m_combatActions && m_combatActions->isPlayerTurn());
-    m_useItemBtn->setEnabled(false);  // Not implemented yet
+    m_useItemBtn->setEnabled(m_inCombat && m_combatActions && m_combatActions->isPlayerTurn());
     m_fleeBtn->setEnabled(m_inCombat);
     m_nextWaveBtn->setEnabled(!m_inCombat && m_currentWave > 0 && m_currentWave < 10 && !m_waveResults.isEmpty());
     m_exitBtn->setEnabled(true);
