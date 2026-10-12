@@ -40,7 +40,7 @@
 **Do:** Delete `src/PartyManager.h`. Update `.pro`.
 **Verify:** Build succeeds, tests pass.
 
-### 5.1 — Status effects in combat
+### 5.1 — Status effects in combat ✅ DONE
 **Why:** `CharacterPoisoned`, `CharacterBlinded`, `CharacterOnFire`, `CharacterDiseased` are set but never read.
 **Do:** Wire them into combat: poison → damage/round, blinded → miss chance, onFire → damage+spread, diseased → max HP reduction.
 **Verify:** Tests prove each effect changes combat outcome.
