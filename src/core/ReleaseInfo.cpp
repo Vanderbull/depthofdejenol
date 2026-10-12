@@ -67,6 +67,7 @@ QString ReleaseInfo::banner() {
 
 QList<QPair<QString, QString>> ReleaseInfo::versionHistory() {
     return {
+        {"5.9.0", "2026-10-12 — Dead Code Removal: removed 17 standalone prototype files from src/"},
         {"5.8.0", "2026-10-12 — Wire & Cleanup Round 4: removed dead SenderWindow class"},
         {"5.7.0", "2026-10-12 — Wire & Cleanup Round 3: removed dead ShortcutHelp class"},
         {"5.6.0", "2026-10-12 — Wire & Cleanup Round 2: removed dead DungeonMap, hid helplesson dwarf image placeholder, options backup timestamp updates"},

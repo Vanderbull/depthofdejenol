@@ -1,6 +1,18 @@
 # Release Notes
 
-**Latest:** v5.8.0 — Wire & Cleanup Round 4
+**Latest:** v5.9.0 — Dead Code Removal
+
+## v5.9.0 — Dead Code Removal
+
+### Slice 9.0a — Remove dead code files
+- 17 .cpp/.h files removed from src/ — never in build, never included
+- Removed: compass, map_dialog, map_widget, server, wav_manager prototypes
+- All were standalone apps with their own main(), never integrated
+
+### Slice 9.0b — Release
+- Version bumped to 5.9.0
+- ReleaseInfo updated
+- Clean build, 1752 tests pass, game runs clean
 
 ## v5.8.0 — Wire & Cleanup Round 4
 
