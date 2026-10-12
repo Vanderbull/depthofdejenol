@@ -5071,12 +5071,12 @@ int runSelfTest()
     // ------------------------------------------- Release packaging (8.5)
     section("[56] Release packaging");
     {
-        check(ReleaseInfo::version() == "5.2.0", "version is 5.2.0");
-        check(ReleaseInfo::versionString() == "v5.2.0", "version string");
+        check(ReleaseInfo::version() == "5.3.0", "version is 5.3.0");
+        check(ReleaseInfo::versionString() == "v5.3.0", "version string");
         check(!ReleaseInfo::releaseDate().isEmpty(), "release date exists");
         check(!ReleaseInfo::systemRequirements().isEmpty(), "system requirements exist");
-        check(ReleaseInfo::installerName().contains("5.2.0"), "installer name");
-        check(ReleaseInfo::banner().contains("5.2.0"), "banner");
+        check(ReleaseInfo::installerName().contains("5.3.0"), "installer name");
+        check(ReleaseInfo::banner().contains("5.3.0"), "banner");
     }
     {
         // Release notes.
@@ -5096,9 +5096,9 @@ int runSelfTest()
         QList<QPair<QString, QString>> history = ReleaseInfo::versionHistory();
         check(history.size() >= 5, "at least 5 versions in history",
               QString::number(history.size()));
-        check(history[0].first == "5.2.0", "latest version is 5.2.0");
-        check(history[0].second.contains("Savegame") || history[0].second.contains("party") || history[0].second.contains("JSON"),
-              "v5.2.0 history entry mentions the savegame revamp");
+        check(history[0].first == "5.3.0", "latest version is 5.3.0");
+        check(history[0].second.contains("Aging") || history[0].second.contains("Lifecycle") || history[0].second.contains("marriage"),
+              "v5.3.0 history entry mentions aging and lifecycle");
     }
 
     // ------------------------------------------- Status flag integrity
@@ -11393,6 +11393,220 @@ int runSelfTest()
 
         check(!young.canRetire(), "a 30-year-old cannot retire");
         check(old.canRetire(), "an 80-year-old can retire");
+    }
+
+    section("[257] v5.3.0 slice 5.3: family tree tracking");
+    {
+        Character parent;
+        parent.name = "Parent";
+        parent.race = "Human";
+        parent.age = 25;
+        parent.hp = 30; parent.maxHp = 30;
+        parent.isAlive = true;
+        parent.addChild("Kid1");
+        parent.addChild("Kid2");
+
+        QVariantMap saved = parent.toMap();
+        Character loaded;
+        loaded.loadFromMap(saved);
+
+        check(loaded.children.size() == 2, "children survive save/load");
+        check(loaded.children.contains("Kid1"), "child 1 in family tree");
+        check(loaded.children.contains("Kid2"), "child 2 in family tree");
+    }
+
+    section("[258] v5.3.0 slice 5.3: descendant inheritance");
+    {
+        Character ancestor;
+        ancestor.name = "Ancestor";
+        ancestor.race = "Human";
+        ancestor.age = 50;
+        ancestor.hp = 100; ancestor.maxHp = 100;
+        ancestor.strength = 15;
+        ancestor.gold = 5000;
+        ancestor.isAlive = true;
+
+        // Create a descendant
+        Character descendant;
+        descendant.name = "Descendant";
+        descendant.race = "Human";
+        descendant.age = 18;
+        descendant.hp = 30; descendant.maxHp = 30;
+        descendant.isAlive = true;
+
+        // Inherit stats and gold from ancestor
+        descendant.inheritFrom(ancestor);
+
+        check(descendant.strength >= 8, "inherited strength boost");
+        check(descendant.gold > 0, "inherited gold");
+    }
+
+    section("[259] v5.3.0 slice 5.3: genealogy UI data");
+    {
+        Character hero;
+        hero.name = "Hero";
+        hero.race = "Human";
+        hero.age = 30;
+        hero.hp = 30; hero.maxHp = 30;
+        hero.isAlive = true;
+        hero.spouse = "Spouse";
+        hero.addChild("Child1");
+
+        QVariantMap data = hero.toMap();
+        check(data.contains("Spouse"), "genealogy data includes spouse");
+        check(data.contains("Children"), "genealogy data includes children");
+    }
+
+    section("[260] v5.3.0 slice 5.4: aging data persists in save/load round-trip");
+    {
+        Character hero;
+        hero.name = "PersistHero";
+        hero.race = "Human";
+        hero.age = 45;
+        hero.hp = 80; hero.maxHp = 80;
+        hero.strength = 14;
+        hero.gold = 3000;
+        hero.spouse = "Spouse";
+        hero.addChild("Kid1");
+        hero.addChild("Kid2");
+
+        QVariantMap saved = hero.toMap();
+        Character loaded;
+        loaded.loadFromMap(saved);
+
+        check(loaded.age == 45, "age persists");
+        check(loaded.strength == 14, "strength persists");
+        check(loaded.gold == 3000, "gold persists");
+        check(loaded.spouse == "Spouse", "spouse persists");
+        check(loaded.children.size() == 2, "children persist");
+        check(loaded.children.contains("Kid1"), "child 1 persists");
+    }
+
+    section("[261] v5.3.0 slice 5.4: v5.2.0 saves load with lifecycle defaults");
+    {
+        // Simulate a v5.2.0 save without lifecycle fields
+        QJsonObject oldSave;
+        oldSave["Name"] = "OldSave";
+        oldSave["Race"] = "Human";
+        oldSave["Level"] = 5;
+        oldSave["HP"] = 50;
+        oldSave["MaxHP"] = 50;
+        oldSave["isAlive"] = true;
+        // No Spouse, no Children, no Age (defaults to 18)
+
+        QString path = "data/characters/OldSave.json";
+        QFile file(path);
+        file.open(QIODevice::WriteOnly);
+        file.write(QJsonDocument(oldSave).toJson());
+        file.close();
+
+        bool ok = gameStateManager::instance()->loadCharacterFromFile(path);
+        check(ok, "v5.2.0 save loads successfully");
+
+        auto& members = gameStateManager::instance()->getPartyMembers();
+        check(members.size() == 1, "party has 1 member");
+        if (members.size() == 1) {
+            check(members[0].name == "OldSave", "name preserved");
+            check(members[0].age == 18, "age defaults to 18");
+            check(members[0].spouse.isEmpty(), "spouse defaults to empty");
+            check(members[0].children.isEmpty(), "children default to empty");
+        }
+
+        QFile::remove(path);
+    }
+
+    section("[262] v5.3.0 slice 5.4: party save/load with lifecycle data");
+    {
+        auto& members = gameStateManager::instance()->getPartyMembers();
+        members.clear();
+
+        Character c1;
+        c1.name = "Hero1";
+        c1.race = "Human";
+        c1.age = 30;
+        c1.hp = 50; c1.maxHp = 50;
+        c1.isAlive = true;
+        c1.spouse = "Hero2";
+        c1.addChild("Kid1");
+
+        Character c2;
+        c2.name = "Hero2";
+        c2.race = "Elf";
+        c2.age = 28;
+        c2.hp = 40; c2.maxHp = 40;
+        c2.isAlive = true;
+        c2.spouse = "Hero1";
+
+        members.append(c1);
+        members.append(c2);
+
+        QString savePath = "./data/saves/lifecycle_party.json";
+        QDir savesDir("./data/saves");
+        if (!savesDir.exists()) savesDir.mkpath(".");
+        gameStateManager::instance()->savePartyToFile(savePath);
+
+        members.clear();
+        bool ok = gameStateManager::instance()->loadPartyFromFile(savePath);
+        check(ok, "party loads successfully");
+        check(members.size() == 2, "two members loaded");
+        if (members.size() == 2) {
+            check(members[0].spouse == "Hero2", "member 1 spouse preserved");
+            check(members[1].spouse == "Hero1", "member 2 spouse preserved");
+            check(members[0].children.size() == 1, "member 1 children preserved");
+            check(members[0].children.contains("Kid1"), "child name preserved");
+        }
+
+        QFile::remove(savePath);
+    }
+
+    section("[263] v5.3.0 slice 5.5: character sheet shows age and lifecycle stage");
+    {
+        Character hero;
+        hero.name = "SheetHero";
+        hero.race = "Human";
+        hero.age = 25;
+        hero.hp = 50; hero.maxHp = 50;
+        hero.isAlive = true;
+        hero.spouse = "Spouse";
+        hero.addChild("Kid1");
+
+        QVariantMap data = hero.toMap();
+        check(data.contains("Age"), "character sheet data includes age");
+        check(data.contains("Spouse"), "character sheet data includes spouse");
+        check(data.contains("Children"), "character sheet data includes children");
+    }
+
+    section("[264] v5.3.0 slice 5.5: family tree view data");
+    {
+        Character parent;
+        parent.name = "Parent";
+        parent.race = "Human";
+        parent.age = 30;
+        parent.hp = 50; parent.maxHp = 50;
+        parent.isAlive = true;
+        parent.spouse = "Spouse";
+        parent.addChild("Kid1");
+        parent.addChild("Kid2");
+
+        QVariantMap data = parent.toMap();
+        QStringList children = data.value("Children").toStringList();
+        check(children.size() == 2, "family tree has 2 children");
+        check(children.contains("Kid1"), "family tree includes Kid1");
+        check(children.contains("Kid2"), "family tree includes Kid2");
+    }
+
+    section("[265] v5.3.0 slice 5.5: life event timeline data");
+    {
+        Character hero;
+        hero.name = "TimelineHero";
+        hero.race = "Human";
+        hero.age = 18;
+        hero.hp = 50; hero.maxHp = 50;
+        hero.isAlive = true;
+
+        QVariantMap data = hero.toMap();
+        check(data.contains("Age"), "timeline data includes age");
+        check(data.value("Age").toInt() == 18, "timeline age is 18");
     }
 
     section("[214] v5.0.0 slice 5.6: CharacterListDialog is multi-select");

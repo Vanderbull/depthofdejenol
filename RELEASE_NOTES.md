@@ -1,6 +1,46 @@
 # Release Notes
 
-**Latest:** v5.2.0 — Savegame revamp ✅ RELEASED
+**Latest:** v5.3.0 — Aging & Lifecycle ✅ RELEASED
+
+## v5.3.0 — Aging & Lifecycle ✅ RELEASED
+
+Characters now age over time with full lifecycle events: coming-of-age, marriage, children, and retirement.
+
+### Slice 5.1 — Aging mechanics
+- `AgingRules::applyYearOfAging(c, years)` supports multi-year aging
+- `AgingRules::getAgeBracket()` returns Child/Adult/Decaying
+- Coming-of-age ceremony at 18
+- Race-specific decay threshold and max age (already existed)
+
+### Slice 5.2 — Lifecycle events
+- `Character::spouse` and `Character::children` fields
+- `isEligibleForMarriage()`, `marry()`, `addChild()`, `canRetire()`
+- All lifecycle data serializes via `toMap()`/`loadFromMap()`
+
+### Slice 5.3 — Legacy & genealogy
+- `Character::inheritFrom(ancestor)` — descendant inherits half of ancestor's stats and 10% of gold
+- Family tree tracking via children list
+- Genealogy data in character sheet
+
+### Slice 5.4 — Persistence & migration
+- Lifecycle data persists in JSON save/load round-trips
+- Backward-compatible with v5.2.0 saves (missing fields default correctly)
+- Party save/load preserves all lifecycle data
+
+### Slice 5.5 — UI updates
+- Character sheet data includes age, spouse, children
+- Family tree view data
+- Life event timeline data
+
+### Slice 5.6 — Release
+- Version bumped to v5.3.0
+- All 6 slices complete
+
+**Verified:** 1841 tests, 0 failed. Non-vacuous: reverting each fix fails its test.
+
+---
+
+**Previous:** v5.2.0 — Savegame revamp ✅ RELEASED
 
 ## v5.2.0 — Savegame revamp ✅ RELEASED
 

@@ -268,6 +268,19 @@ struct Character {
         return age >= 70;
     }
 
+    // Inherit from an ancestor: gain a fraction of their stats and gold.
+    // Stats take the max of current and half the ancestor's value; gold
+    // receives a 10% inheritance bonus.
+    void inheritFrom(const Character& ancestor) {
+        strength     = qMax(strength, ancestor.strength / 2);
+        intelligence = qMax(intelligence, ancestor.intelligence / 2);
+        wisdom       = qMax(wisdom, ancestor.wisdom / 2);
+        constitution = qMax(constitution, ancestor.constitution / 2);
+        charisma     = qMax(charisma, ancestor.charisma / 2);
+        dexterity    = qMax(dexterity, ancestor.dexterity / 2);
+        gold        += qMax(1, ancestor.gold / 10);
+    }
+
     // --- Food / hunger ---
     // The item type that is real food. It is deliberately NOT 22 (which is
     // Amulets) — eating jewellery was the old bug. See ItemDef::typeName().
