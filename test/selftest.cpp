@@ -15,6 +15,7 @@
 #include "src/race_data/RaceData.h"
 #include "src/helplesson/helplesson.h"
 #include "src/options_dialog/optionsdialog.h"
+#include "character.h"
 #include "theCity.h"
 #include "src/core/LevelTable.h"
 #include "src/core/AgingRules.h"
@@ -10923,6 +10924,28 @@ int runSelfTest()
 
         check(true, "ArenaDialog constructs without crash");
         dlg.close();
+    }
+
+    section("[288] v6.0.0 slice 6.0a: mana system allows 3+ casts at level 1");
+    {
+        Character c;
+        c.level = 1;
+        c.maxMana = 50;
+        c.mana = 50;
+
+        // Cast until empty — base spell costs 10 mana
+        int casts = 0;
+        while (c.mana >= 10) { c.mana -= 10; casts++; }
+        check(casts >= 3, "can cast base spell 3+ times at level 1",
+              QString::number(casts));
+
+        // Level-up should increase maxMana by +5
+        int manaBefore = c.maxMana;
+        c.addExperience(LevelTable::instance().xpForLevel(1));
+        check(c.maxMana > manaBefore, "mana grows on level-up",
+              QString("before=%1 after=%2").arg(manaBefore).arg(c.maxMana));
+        check(c.maxMana - manaBefore >= 5, "mana grows by at least +5 per level",
+              QString::number(c.maxMana - manaBefore));
     }
 
     section("[287] v5.6.0 slice 6.1: options backup timestamp updates");

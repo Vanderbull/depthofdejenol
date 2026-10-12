@@ -630,7 +630,7 @@ void Character::addExperience(int amount) {
         // Boost stats on level up
         maxHp += 5;
         hp = maxHp; // Heal on level up
-        maxMana += 2;
+        maxMana += 5;
         mana = maxMana;
     }
 }

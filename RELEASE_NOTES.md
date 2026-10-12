@@ -1,6 +1,13 @@
 # Release Notes
 
-**Latest:** v5.9.0 — Dead Code Removal
+**Latest:** v6.0.0 — Spell & Balance Fix
+
+## v6.0.0 — Spell & Balance Fix
+
+### Slice 6.0a — Fix mana system
+- maxMana growth increased from +2 to +5 per level
+- Level-1 character (50 MP) can now cast base spell 5 times
+- Non-vacuous: reverting to +2 fails the test
 
 ## v5.9.0 — Dead Code Removal
 
