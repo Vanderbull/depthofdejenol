@@ -111,6 +111,7 @@ QString ItemDef::typeName() const
     case 32: return QStringLiteral("Object");
     case 33: return QStringLiteral("Curio");
     case 34: return QStringLiteral("Crest");
+    case 35: return QStringLiteral("Food");
     default: return QStringLiteral("Item");
     }
 }

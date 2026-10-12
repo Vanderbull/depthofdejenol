@@ -64,6 +64,7 @@ void DungeonDialog::setupControls() {
     // Define the buttons and their corresponding slots
     QMap<QString, const char*> buttonConfigs = {
         {"Fight",   SLOT(on_fightButton_clicked())},
+        {"Eat",     SLOT(on_eatButton_clicked())},
         {"Spell",   SLOT(on_spellButton_clicked())},
         {"Rest",    SLOT(on_restButton_clicked())},
         {"Talk",    SLOT(on_talkButton_clicked())},
@@ -334,7 +335,6 @@ void DungeonDialog::movePlayer(int dx, int dy, int dz=0)
     }
     // Announce the first step into the low-hunger band (once per crossing).
     announceHungerWarnings();
-
     revealAroundPlayer(newX, newY);
     updateLocation(QString("Dungeon Level %1, (%2, %3)").arg(currentZ).arg(newX).arg(newY));
     m_visitedTiles.insert({newX, newY});
@@ -798,7 +798,7 @@ DungeonDialog::DungeonDialog(QWidget *parent)
     actionLayout->setSpacing(4);
     actionLayout->setContentsMargins(0, 0, 0, 0);
 
-    QStringList actions = {"Fight", "Spell", "Rest", "Talk", "Search", "Pickup", "Drop", "Open", "Map", "Chest", "Teleport", "Exit", "Stairs Up", "Stairs Down"};
+    QStringList actions = {"Fight", "Spell", "Rest", "Eat", "Talk", "Search", "Pickup", "Drop", "Open", "Map", "Chest", "Teleport", "Exit", "Stairs Up", "Stairs Down"};
     int row = 0, col = 0;
     for (const QString& name : actions) {
         if (m_controls.contains(name)) {
@@ -2011,6 +2011,51 @@ int DungeonDialog::announceHungerWarnings()
     return announced;
 }
 
+// --- v5.0.0 slice 5.2: eating ---
+
+int DungeonDialog::firstFoodIndex(const Character& c)
+{
+    const QList<int> idx = Character::foodIndices(c.inventory);
+    return idx.isEmpty() ? -1 : idx.first();
+}
+
+int DungeonDialog::foodInventoryIndex(int memberIndex) const
+{
+    gameStateManager* gsm = gameStateManager::instance();
+    auto& members = gsm->getPartyMembers();
+    if (memberIndex < 0 || memberIndex >= members.size()) return -1;
+    return firstFoodIndex(members[memberIndex]);
+}
+
+bool DungeonDialog::eatFromInventory()
+{
+    gameStateManager* gsm = gameStateManager::instance();
+    const int idx = gsm->getCurrentCharacterIndex();
+    auto& members = gsm->getPartyMembers();
+    if (idx < 0 || idx >= members.size()) return false;
+
+    Character& c = members[idx];
+    const int foodSlot = firstFoodIndex(c);
+    if (foodSlot < 0) {
+        logMessage(QString("<font color='orange'>%1 has no food to eat.</font>").arg(c.name));
+        return false;
+    }
+
+    QString effect;
+    if (!c.eatFood(foodSlot, effect)) {
+        logMessage(QString("<font color='red'>%1</font>").arg(effect));
+        return false;
+    }
+    logMessage(QString("<font color='green'>%1</font>").arg(effect));
+    updatePartyPanel();
+    return true;
+}
+
+void DungeonDialog::on_eatButton_clicked()
+{
+    eatFromInventory();
+}
+
 void DungeonDialog::on_backtrackButton_clicked()
 {
     if (m_breadcrumbPath.isEmpty()) {
@@ -2268,6 +2313,11 @@ void DungeonDialog::keyPressEvent(QKeyEvent *event)
         case Qt::Key_R:
             on_restButton_clicked();
             break;
+        case Qt::Key_H: {
+            // 'H' is Eat (Hunger). F stays Fight, as before.
+            eatFromInventory();
+            break;
+        }
         case Qt::Key_S:
             on_spellButton_clicked();
             break;

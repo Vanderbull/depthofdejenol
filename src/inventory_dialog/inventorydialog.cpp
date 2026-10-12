@@ -250,8 +250,21 @@ void InventoryDialog::onUseButtonClicked()
     int activeIdx = gameStateManager::instance()->getCurrentCharacterIndex();
     int invRow = inventoryList->currentRow();
     QString effect;
-    if (gameStateManager::instance()->useConsumable(activeIdx, invRow, effect)) {
-        QMessageBox::information(this, "Use Item", effect);
+
+    // Food is used by eating it; potions/scrolls/tomes by useConsumable().
+    // Both live on the character, so the "Use" button routes to whichever
+    // applies instead of failing on food.
+    auto& members = gameStateManager::instance()->getPartyMembers();
+    const bool isFoodSlot = (activeIdx >= 0 && activeIdx < members.size() &&
+                             invRow >= 0 && invRow < members[activeIdx].inventory.size() &&
+                             Character::isFood(members[activeIdx].inventory[invRow]));
+
+    const bool ok = isFoodSlot
+        ? members[activeIdx].eatFood(invRow, effect)
+        : gameStateManager::instance()->useConsumable(activeIdx, invRow, effect);
+
+    if (ok) {
+        QMessageBox::information(this, isFoodSlot ? "Eat Food" : "Use Item", effect);
         loadInventoryData();
     } else {
         QMessageBox::warning(this, "Cannot Use", effect);

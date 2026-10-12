@@ -17,8 +17,13 @@ static HeldItem makeHeldItem(const QString& name, bool identified = true) {
     HeldItem item;
     item.name = name;
     item.identified = identified;
+    // A fresh item carries a full stack of charges. Without this a bought item
+    // has M4ED4 == 0, and the first use/eat decrements it below zero and removes
+    // the item immediately (one portion, not a stack).
+    item.M4ED4 = 1;
     if (const ItemDef* def = ItemDatabase::instance().byName(name)) {
         item.M4E97 = static_cast<int16_t>(def->id);
+        if (def->charges > 0) item.M4ED4 = static_cast<int16_t>(def->charges);
     }
     return item;
 }
@@ -208,10 +213,18 @@ void GeneralStore::updateCharacterHeader()
         }
     }
 
-    int age = gameStateManager::instance()->getGameStates().first().toMap()
-            .value("Party").toMap()
-            .value("Members").toList().at(0).toMap()
-            .value("Age").toInt();
+    // Read the age defensively: the party list can be empty (a fresh store
+    // opened with no party, or a test), and .first()/.at(0) on an empty list is
+    // undefined behaviour — this crashed the store.
+    int age = 0;
+    const QVariantList states = gameStateManager::instance()->getGameStates();
+    if (!states.isEmpty()) {
+        const QVariantList members = states.first().toMap()
+            .value("Party").toMap().value("Members").toList();
+        if (!members.isEmpty()) {
+            age = members.at(0).toMap().value("Age").toInt();
+        }
+    }
 
     qDebug() << "Age is:" << age;
 

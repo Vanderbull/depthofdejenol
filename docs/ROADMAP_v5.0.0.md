@@ -161,7 +161,7 @@ Non-vacuous: removing the `announceHungerWarnings()` call fails "the move itself
 announced the low-hunger crossing"; omitting hunger from the row fails both panel
 tests; not setting the sheet text fails the sheet test.
 
-### 5.2 Food exists and can be eaten `M`
+### 5.2 Food exists and can be eaten `M` ✅ DONE
 
 **Why:** hunger can only go down. `eatFood()` exists with zero callers, and the
 type it accepts (22) is amulets, not food. There is nothing to eat.
@@ -185,6 +185,18 @@ type it accepts (22) is amulets, not food. There is nothing to eat.
 **Verify:** tests — a real food item restores hunger and is consumed; a non-food item
 is rejected; the eat picker lists only food; the store stocks food. Non-vacuous:
 reverting the food-type fix makes the amulet-acceptance test fail.
+
+**Landed:** type **35 = Food** (`ItemDef::typeName()`); four real rows in MDATA3
+(Rations 12g, Waybread 25g, Dried Meat 40g, Elven Lembas 120g); `Character::FOOD_TYPE`
+/ `isFood()` / `foodIndices()` / `hasFood()`; `eatFood()` now gates on real food
+(was type 22 = Amulets) and restores 10 + spellLvl×5; an **Eat** button + `H` key in
+the dungeon via `DungeonDialog::eatFromInventory()`; the inventory "Use" button eats
+food instead of refusing it; `GeneralStore::makeHeldItem()` seeds `M4ED4` from the
+item's charges (bought items had 0 charges and vanished on first use). Also fixed a
+real crash: `GeneralStore::updateCharacterHeader()` indexed `.first()/.at(0)` on a
+possibly empty party (segfault). Tests [194]–[198]; +38 checks (1617 → 1655).
+Non-vacuous: reverting `FOOD_TYPE` to 22 (the old amulet type) fails 13 checks;
+unregistering the Eat button fails "the dungeon has an Eat button".
 
 ### 5.3 Starvation death is a real death `M`
 

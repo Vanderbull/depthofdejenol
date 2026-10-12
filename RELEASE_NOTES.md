@@ -39,6 +39,26 @@ Non-vacuous, all three reverts observed to fail:
 - omitting hunger from the panel row → both panel row tests FAIL
 - not setting the sheet's hunger text → "character sheet shows the member's hunger" FAILS
 
+### Slice 5.2 — Food exists and can be eaten
+- **Type 35 = Food** is a real item type (was: `eatFood()` gated on type 22, which is
+  Amulets — it ate jewellery and no food item existed)
+- Four real food rows in MDATA3: Rations (12g), Waybread (25g), Dried Meat (40g),
+  Elven Lembas (120g)
+- `Character::FOOD_TYPE` / `isFood()` / `foodIndices()` / `hasFood()`; `eatFood()`
+  restores 10 + spellLvl×5 hunger
+- **Eat** button + `H` key in the dungeon (`DungeonDialog::eatFromInventory()`); the
+  inventory "Use" button eats food instead of refusing it
+- `GeneralStore::makeHeldItem()` seeds charges so a bought item is a stack, not a
+  single portion that vanishes
+- **Fixed a real crash:** `GeneralStore::updateCharacterHeader()` indexed
+  `.first()/.at(0)` on a possibly empty party → segfault
+
+**Verified:** tests [194]–[198] (1655 passed, 0 failed; +38 checks).
+Non-vacuous:
+- reverting `FOOD_TYPE` to 22 (the old amulet type) fails 13 checks — including
+  "eating an amulet is refused" and "the amulet was not eaten"
+- unregistering the Eat button fails "the dungeon has an Eat button"
+
 ---
 
 # v4.0.0 — Endgame depth and replayability ✅ RELEASED

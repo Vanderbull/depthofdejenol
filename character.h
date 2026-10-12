@@ -243,6 +243,17 @@ struct Character {
     static bool isConsumable(const HeldItem& item);
 
     // --- Food / hunger ---
+    // The item type that is real food. It is deliberately NOT 22 (which is
+    // Amulets) — eating jewellery was the old bug. See ItemDef::typeName().
+    static const int FOOD_TYPE = 35;
+    // True when this inventory slot holds food that can be eaten.
+    static bool isFood(const HeldItem& item);
+    // Inventory indices of every food item in `inventory`, so the eat picker
+    // offers exactly what eatFood() accepts.
+    static QList<int> foodIndices(const QList<HeldItem>& inventory);
+    // True when the inventory holds at least one food item.
+    static bool hasFood(const QList<HeldItem>& inventory);
+
     // Decrease hunger by `amount` (clamped to 0). Starvation damage is
     // applied separately by the caller so it can route through combat state.
     void consumeHunger(int amount);

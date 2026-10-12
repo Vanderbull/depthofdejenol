@@ -455,6 +455,29 @@ bool Character::isConsumable(const HeldItem& item) {
     return def->type == 23 || def->type == 24 || def->type == 25;
 }
 
+bool Character::isFood(const HeldItem& item) {
+    const ItemDef* def = ItemDatabase::instance().byName(item.name);
+    if (!def) return false;
+    // Food is its own type (35). Type 22 is Amulets — the old eatFood() ate
+    // jewellery because it gated on 22, and no real food item existed.
+    return def->type == FOOD_TYPE;
+}
+
+QList<int> Character::foodIndices(const QList<HeldItem>& inventory) {
+    QList<int> indices;
+    for (int i = 0; i < inventory.size(); ++i) {
+        if (isFood(inventory[i])) indices.append(i);
+    }
+    return indices;
+}
+
+bool Character::hasFood(const QList<HeldItem>& inventory) {
+    for (const HeldItem& item : inventory) {
+        if (isFood(item)) return true;
+    }
+    return false;
+}
+
 bool Character::useConsumable(int inventoryIndex, QString& effectDescription) {
     if (inventoryIndex < 0 || inventoryIndex >= inventory.size()) {
         effectDescription = "Invalid inventory index.";
@@ -542,14 +565,15 @@ bool Character::eatFood(int inventoryIndex, QString& effectDescription) {
         return false;
     }
 
-    // Only food items (type 22) can be eaten.
-    if (def->type != 22) {
+    // Only real food (type 35) can be eaten. The old check used type 22, which
+    // is Amulets — so it accepted jewellery and rejected every actual meal.
+    if (!isFood(item)) {
         effectDescription = QString("%1 is not food.").arg(item.name);
         return false;
     }
 
-    // Food restores hunger based on spellLvl (5 + spellLvl*3, min 5).
-    int restoreAmount = qMax(5, 5 + def->spellLvl * 3);
+    // Food restores hunger based on spellLvl (10 + spellLvl*5, min 10).
+    int restoreAmount = qMax(10, 10 + def->spellLvl * 5);
     restoreHunger(restoreAmount);
     effectDescription = QString("You eat the %1. (+%2 hunger)")
                             .arg(item.name).arg(restoreAmount);

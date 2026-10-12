@@ -74,6 +74,9 @@ signals:
     void teleporterUsed();
 
     void exitedDungeonToCity();
+public slots:
+    void on_eatButton_clicked();
+
 private slots:
     void on_fightButton_clicked();
     // --- NEW MOVEMENT SLOTS ---
@@ -253,6 +256,16 @@ public:
     // Fires once per crossing (not every step) and returns how many were
     // announced. Called after each move.
     int announceHungerWarnings();
+
+    // --- v5.0.0 slice 5.2: eating ---
+    // Inventory index of the first food item a party member holds, or -1.
+    // Static and UI-free so the self-tests can check it directly.
+    static int firstFoodIndex(const Character& c);
+    // The active member's first food slot (-1 when none). Public for tests.
+    int foodInventoryIndex(int memberIndex) const;
+    // Eat the active member's first food item. Returns true when a meal was
+    // eaten. Public for tests; also bound to the Eat action and the 'F' key.
+    bool eatFromInventory();
 
     // --- Phase 3: Movement & UI ---
     // Integrated minimap (in the main layout, not a popup)

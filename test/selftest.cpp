@@ -50,6 +50,7 @@
 #include "src/automap/automap_dialog.h"
 #include "src/dungeon_dialog/DungeonDialog.h"
 #include "src/dungeon_dialog/DungeonHandlers.h"
+#include "src/general_store/GeneralStore.h"
 #include "version.h"
 #include "src/traps_calculations.h"
 #include "audioManager.h"
@@ -136,8 +137,8 @@ int runSelfTest()
 
     // ---------------------------------------------------------------- data
     section("[2] Game data");
-    check(gsm->itemData().size() == 366,
-          "366 items loaded", QString::number(gsm->itemData().size()));
+    check(gsm->itemData().size() == 370,
+          "370 items loaded", QString::number(gsm->itemData().size()));
     check(gsm->monsterData().size() == 401,
           "401 monsters loaded", QString::number(gsm->monsterData().size()));
     check(!gsm->spellData().isEmpty(),
@@ -237,8 +238,8 @@ int runSelfTest()
     section("[7] Item database");
     ItemDatabase& db = ItemDatabase::instance();
     check(db.isLoaded(), "database is loaded");
-    check(db.count() == 366,
-          "366 items in the database", QString::number(db.count()));
+    check(db.count() == 370,
+          "370 items in the database", QString::number(db.count()));
 
     // Spot-check real MDATA3 values so a parser regression is caught.
     if (const ItemDef* hands = db.byId(0)) {
@@ -5197,10 +5198,10 @@ int runSelfTest()
         c.hunger = 20;
         c.maxHunger = 100;
 
-        // Find a food item (type 22) in the database.
+        // Find a real food item (type 35) in the database.
         const ItemDef* foodDef = nullptr;
         for (const ItemDef& def : ItemDatabase::instance().all()) {
-            if (def.type == 22) {
+            if (def.type == Character::FOOD_TYPE) {
                 foodDef = &def;
                 break;
             }
@@ -5747,7 +5748,7 @@ int runSelfTest()
 
             if (!sidebar) continue;
 
-            const QStringList actionNames = {"Fight", "Spell", "Rest", "Talk",
+            const QStringList actionNames = {"Fight", "Spell", "Rest", "Eat", "Talk",
                 "Search", "Pickup", "Drop", "Open", "Map", "Chest",
                 "Teleport", "Exit", "Stairs Up", "Stairs Down"};
 
@@ -9702,6 +9703,174 @@ int runSelfTest()
                 check(row.contains("Hunger"), "the panel row shows hunger", row);
             }
         }
+
+        members.clear();
+    }
+
+    // ------------------------------------------- v5.0.0 slice 5.2: food exists
+    section("[194] v5.0.0 slice 5.2: food is a real item type");
+    {
+        ItemDatabase& db = ItemDatabase::instance();
+
+        // Type 35 is food — it must not collide with the amulet type (22).
+        const ItemDef* rations = db.byName("Rations");
+        check(rations != nullptr, "Rations exists in the item database");
+        if (rations) {
+            check(rations->type == 35, "Rations is food (type 35), not an amulet",
+                  QString::number(rations->type));
+            check(rations->typeName() == "Food", "food typeName is Food",
+                  rations->typeName());
+            check(!rations->equippable(), "food is not equippable");
+        }
+
+        // Every real food row shares the food type.
+        int foodCount = 0;
+        for (const ItemDef& def : db.all()) {
+            if (def.type == 35) ++foodCount;
+        }
+        check(foodCount >= 3, "at least three food items ship",
+              QString::number(foodCount));
+
+        // The amulet type must remain an amulet — the old code ate jewellery.
+        const ItemDef* amulet = db.byName("Amulet of Life");
+        check(amulet != nullptr && amulet->type == 22, "amulets are still type 22");
+        check(amulet == nullptr || amulet->typeName() == "Amulet",
+              "amulet typeName is still Amulet");
+    }
+
+    section("[195] v5.0.0 slice 5.2: eatFood restores hunger and rejects non-food");
+    {
+        ItemDatabase& db = ItemDatabase::instance();
+        const ItemDef* rations = db.byName("Rations");
+
+        // A real food item restores hunger and is consumed.
+        Character c;
+        c.hunger = 40; c.maxHunger = 100;
+        HeldItem food;
+        food.name = "Rations";
+        food.M4ED4 = 1;   // one portion
+        if (rations) food.M4E97 = static_cast<int16_t>(rations->id);
+        c.inventory.append(food);
+
+        QString effect;
+        bool ok = c.eatFood(0, effect);
+        check(ok, "eating a real food item succeeds", effect);
+        check(c.hunger > 40, "hunger was restored", QString::number(c.hunger));
+        check(c.inventory.isEmpty(), "the food was consumed",
+              QString::number(c.inventory.size()));
+        check(effect.contains("hunger", Qt::CaseInsensitive),
+              "effect mentions hunger", effect);
+
+        // A non-food item is refused — an amulet is not food.
+        Character d;
+        d.hunger = 10;
+        HeldItem amulet;
+        amulet.name = "Amulet of Life";
+        d.inventory.append(amulet);
+        QString amuletEffect;
+        bool amuletOk = d.eatFood(0, amuletEffect);
+        check(!amuletOk, "eating an amulet is refused");
+        check(d.hunger == 10, "a refused meal does not change hunger");
+        check(!d.inventory.isEmpty(), "a refused meal is not consumed");
+
+        // A weapon is refused too.
+        Character w;
+        w.hunger = 10;
+        HeldItem sword; sword.name = "Bronze Sword";
+        w.inventory.append(sword);
+        QString swordEffect;
+        check(!w.eatFood(0, swordEffect), "eating a sword is refused");
+    }
+
+    section("[196] v5.0.0 slice 5.2: the food picker lists only food");
+    {
+        Character c;
+        c.hunger = 20;
+        HeldItem food; food.name = "Rations"; food.M4ED4 = 2;
+        HeldItem amulet; amulet.name = "Amulet of Life";
+        HeldItem potion; potion.name = "Potion of Healing"; potion.M4ED4 = 1;
+        c.inventory << food << amulet << potion;
+
+        const QList<int> idx = Character::foodIndices(c.inventory);
+        check(idx.size() == 1, "only the food item is listed",
+              QString::number(idx.size()));
+        check(idx.contains(0), "the food's inventory index is listed");
+        check(!idx.contains(1), "the amulet is not offered as food");
+        check(!idx.contains(2), "the potion is not offered as food");
+        check(Character::hasFood(c.inventory), "hasFood sees the ration");
+        check(!Character::hasFood({amulet}), "hasFood is false for jewellery");
+    }
+
+    section("[197] v5.0.0 slice 5.2: the store stocks food");
+    {
+        GeneralStore store;
+        const QList<QVariantMap> stock = store.availableShopItems();
+        bool foodOnSale = false;
+        for (const QVariantMap& it : stock) {
+            if (it.value("name").toString() == "Rations") { foodOnSale = true; break; }
+        }
+        check(!stock.isEmpty(), "the store has stock",
+              QString::number(stock.size()));
+        check(foodOnSale, "the store sells Rations");
+    }
+
+    section("[198] v5.0.0 slice 5.2: the dungeon eat action is wired");
+    {
+        gameStateManager* gsm = gameStateManager::instance();
+        auto& members = gsm->getPartyMembers();
+        members.clear();
+        Character c;
+        c.name = "Eater"; c.level = 1; c.hp = 10; c.maxHp = 10;
+        c.hunger = 15; c.maxHunger = 100; c.isAlive = true;
+        HeldItem food; food.name = "Rations"; food.M4ED4 = 1;
+        if (const ItemDef* def = ItemDatabase::instance().byName("Rations"))
+            food.M4E97 = static_cast<int16_t>(def->id);
+        HeldItem amulet; amulet.name = "Amulet of Life";   // must not be offered
+        c.inventory << food << amulet;
+        members.append(c);
+
+        DungeonDialog dlg;
+        dlg.resize(1280, 800);
+        dlg.show();
+        for (int i = 0; i < 10; ++i) QApplication::processEvents();
+
+        // The picker helper must offer exactly the food slot.
+        check(dlg.foodInventoryIndex(0) == 0, "the dungeon finds the food slot",
+              QString::number(dlg.foodInventoryIndex(0)));
+
+        // The Eat action must be reachable as a button, not only as a method.
+        QPushButton* eatBtn = nullptr;
+        for (QPushButton* b : dlg.findChildren<QPushButton*>()) {
+            if (b->text() == "Eat") { eatBtn = b; break; }
+        }
+        check(eatBtn != nullptr, "the dungeon has an Eat button");
+        check(eatBtn == nullptr || eatBtn->isEnabled(), "the Eat button is enabled");
+
+        const int logBefore = dlg.m_messageLog ? dlg.m_messageLog->count() : 0;
+        const bool ate = dlg.eatFromInventory();
+        check(ate, "eating from the dungeon succeeds");
+        check(members[0].hunger > 15, "the dungeon eat restored hunger",
+              QString::number(members[0].hunger));
+        check(members[0].inventory.size() == 1,
+              "only the food was consumed, the amulet remains",
+              QString::number(members[0].inventory.size()));
+        check(members[0].inventory[0].name == "Amulet of Life",
+              "the amulet was not eaten");
+
+        // The action must have logged something (proves the wiring, not the helper).
+        bool logged = false;
+        if (dlg.m_messageLog) {
+            for (int i = logBefore; i < dlg.m_messageLog->count(); ++i) {
+                QLabel* lbl = qobject_cast<QLabel*>(
+                    dlg.m_messageLog->itemWidget(dlg.m_messageLog->item(i)));
+                if (lbl && lbl->text().contains("Rations")) { logged = true; break; }
+            }
+        }
+        check(logged, "the dungeon eat action was announced in the log");
+
+        // With no food left, the action refuses.
+        members[0].inventory.clear();
+        check(!dlg.eatFromInventory(), "eating with no food is refused");
 
         members.clear();
     }

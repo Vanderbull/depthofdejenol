@@ -24,6 +24,10 @@ public:
     explicit GeneralStore(QWidget *parent = nullptr);
     ~GeneralStore() override = default;
 
+    // The stock the shop is currently offering (public for tests). Each entry
+    // mirrors MDATA3 plus a resolved `typeName`.
+    const QList<QVariantMap>& availableShopItems() const { return m_availableShopItems; }
+
 private slots:
     void updateFrame();
     void onShopSelectionChanged();
