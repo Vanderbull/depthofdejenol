@@ -115,8 +115,10 @@ void SeerDialog::on_characterButton_clicked()
         bool isAlive = true; // Default to true
         // 4. Parse the save
         if (file.open(QIODevice::ReadOnly)) {
-            QVariantMap c = QJsonDocument::fromJson(file.readAll()).toVariant().toMap();
+            QJsonDocument doc = QJsonDocument::fromJson(file.readAll());
             file.close();
+            if (doc.isNull() || !doc.isObject()) return;
+            QVariantMap c = doc.toVariant().toMap();
             name   = c.value("Name").toString();
             level  = QString::number(c.value("Level").toInt());
             // A character can belong to several guilds; show them all.

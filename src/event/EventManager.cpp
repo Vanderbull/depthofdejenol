@@ -28,6 +28,12 @@ void EventManager::loadEvents(const QString& filename)
         return;
     }
     QJsonDocument doc = QJsonDocument::fromJson(file.readAll());
+    file.close();
+    if (doc.isNull() || !doc.isArray()) {
+        qWarning() << "Invalid or empty events file:" << filename;
+        return;
+    }
+
     for (const auto& ev : doc.array()) {
         QJsonObject o = ev.toObject();
         GameEvent event;

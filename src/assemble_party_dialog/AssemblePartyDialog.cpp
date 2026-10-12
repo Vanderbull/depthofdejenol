@@ -124,8 +124,10 @@ void AssemblePartyDialog::loadAvailableCharacters()
     for (const QFileInfo &fi : files) {
         QFile f(fi.absoluteFilePath());
         if (!f.open(QIODevice::ReadOnly)) continue;
-        QJsonObject obj = QJsonDocument::fromJson(f.readAll()).object();
+        QJsonDocument doc = QJsonDocument::fromJson(f.readAll());
         f.close();
+        if (doc.isNull() || !doc.isObject()) continue;
+        QJsonObject obj = doc.object();
 
         QString name = obj.value("Name").toString();
         QString race = obj.value("Race").toString();
@@ -182,8 +184,13 @@ void AssemblePartyDialog::onAddClicked()
         QMessageBox::warning(this, tr("Error"), tr("Cannot read character file."));
         return;
     }
-    QJsonObject obj = QJsonDocument::fromJson(f.readAll()).object();
+    QJsonDocument doc = QJsonDocument::fromJson(f.readAll());
     f.close();
+    if (doc.isNull() || !doc.isObject()) {
+        QMessageBox::warning(this, tr("Error"), tr("Invalid character file."));
+        return;
+    }
+    QJsonObject obj = doc.object();
 
     Character c;
     c.loadFromMap(obj.toVariantMap());
