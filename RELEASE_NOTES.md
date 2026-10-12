@@ -1,5 +1,71 @@
 # Release Notes
 
+**Latest:** v5.0.0 — Survival: make hunger real ✅
+
+## v5.0.0 — Survival: make hunger real ✅ RELEASED
+
+A hunger/starvation system existed in code but was invisible, unfixable, and its
+deaths were unhandled. This version made survival real and added party loading.
+
+### Slice 5.1 — Hunger is visible
+- Party panel shows hunger with a warning colour below 20%
+- Character sheet shows "Hunger: N/M (P%)"
+- A log message fires once when a member crosses into the low band
+- **Verified:** 1617 tests, +23 checks. Non-vacuous: removing the announce call,
+  omitting hunger from the row, and not setting the sheet text all fail
+
+### Slice 5.2 — Food exists and can be eaten
+- Type 35 = Food (was: type 22 = Amulets — `eatFood()` ate jewellery)
+- Four MDATA3 rows: Rations, Waybread, Dried Meat, Elven Lembas
+- Eat button + `H` key in the dungeon; inventory Use button eats food
+- `GeneralStore::makeHeldItem()` seeds charges (bought items vanished on use)
+- Fixed a crash: `GeneralStore::updateCharacterHeader()` indexed `.first()` on
+  an empty party
+- **Verified:** 1655 tests, +38 checks. Non-vacuous: reverting to type 22 fails
+  13 checks; unregistering the Eat button fails the button test
+
+### Slice 5.3 — Starvation death is a real death
+- `DeathRecovery::killCharacter()` records body location (was: `setDead()` → body
+  at (0,0,0), no journal entry)
+- Journal entry on starvation death
+- Party-wipe check after each step → `handlePartyWipe()`
+- **Verified:** 1664 tests, +9 checks. Non-vacuous: reverting to `setDead()` fails
+  4 checks; removing the wipe check fails the journal test
+
+### Slice 5.4 — One HP source of truth
+- `updatePartyMemberHealth()` writes the live member, not `CurrentCharacterHP`
+- Rest and spell healing write the live member
+- Removed `CurrentCharacter*` special-casing in `setGameValue()`
+- **Verified:** 1672 tests, +8 checks. Non-vacuous: reverting to
+  `CurrentCharacterHP` fails 3 checks
+
+### Slice 5.5 — Town resupply loop
+- Tavern rest restores hunger (hours × 25)
+- `addStartingFoodToParty()` gives every member a Rations stack
+- **Verified:** 1675 tests, +3 checks. Non-vacuous: removing each feature fails
+  its test
+
+### Slice 5.6 — Load a whole party
+- `CharacterListDialog` is `ExtendedSelection` with a real Select handler
+- Save Party / Load Party buttons (JSON via `savePartyToFile`/`loadPartyFromFile`)
+- `addCharacterToParty()` enforces `MAX_PARTY_SIZE`
+- **Verified:** 1689 tests, +14 checks. Non-vacuous: reverting to `SingleSelection`
+  and removing the guard each fail
+
+### Slice 5.7 — Repo hygiene
+- Removed `TheCity.*`, `FontManager.h`, `StoryDialog.h`, `DataRegistry.h`
+- Removed `src/core/BattleEngine/` (8 build artefacts)
+- Added `data/characters/` to `.gitignore`
+- **Verified:** 1700 tests, +10 checks. Non-vacuous: restoring a dead file fails
+
+### Slice 5.8 — Release
+- `SEMVER_MAJOR` bumped to 5
+- v5.0.0 added to `ReleaseInfo::versionHistory()`
+- **Verified:** 1701 tests, +1 check. Non-vacuous: reverting to 4 fails 4 checks
+
+**Test progression:** 1590 → 1701 (+111 checks across 8 slices)
+**All non-vacuous probes observed failing, then restored.**
+
 Every change to this project is recorded here, newest release first.
 Format: what changed, why it mattered, and how it was verified.
 

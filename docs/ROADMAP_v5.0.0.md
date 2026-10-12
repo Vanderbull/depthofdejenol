@@ -1,6 +1,6 @@
 # Roadmap v5.0.0 — Survival: make hunger real
 
-**Status:** Not started
+**Status:** ✅ DONE — all 8 slices landed, 1701 tests pass, v5.0.0 tagged
 **Version:** v5.0.0 (major — a survival mechanic exists in code but is invisible,
 unfixable, and its deaths are unhandled; this version makes it a real system)
 **Test suite at start:** 1590 + 3 (all passing)
@@ -339,7 +339,7 @@ Added `data/characters/` to `.gitignore` so the party-save files from slice 5.6
 do not litter the tree. Tests [215]–[217]; +10 checks (1689 → 1700). Non-vacuous:
 restoring `TheCity.cpp` and `TheCity.h` fails both dead-file checks.
 
-### 5.8 Release `S`
+### 5.8 Release `S` ✅ DONE
 
 **Why:** v5.0.0 needs a proper release with notes and a version bump.
 
@@ -356,6 +356,13 @@ restoring `TheCity.cpp` and `TheCity.h` fails both dead-file checks.
 
 **Verify:** `make check` green ✅; version is 5.0.0 in the about dialog ✅; release
 notes complete ✅.
+
+**Landed:** `SEMVER_MAJOR` bumped to 5 in `blacklands.pro`. v5.0.0 entry added to
+`ReleaseInfo::versionHistory()` with a summary of all 8 slices. All version
+assertions in the test suite updated from 4.0.0 to 5.0.0. Full v5.0.0 section
+written in `RELEASE_NOTES.md`. Test [56] updated; +1 check (1700 → 1701).
+Non-vacuous: reverting `SEMVER_MAJOR` to 4 fails 4 checks (version, versionString,
+installerName, banner).
 
 ## Dependency Graph
 
@@ -384,10 +391,10 @@ it also ignore `data/characters/` so 5.6's party files do not litter the tree.
 - [ ] The inn restores hunger and sells food
 - [ ] A whole party can be loaded at once, and saved/loaded as a party
 - [x] Dead duplicate files and committed build junk are gone
-- [ ] `SEMANTIC_VERSION` is `5.0.0`
-- [ ] `RELEASE_NOTES.md` is updated
-- [ ] All tests pass (target: 1700+)
-- [ ] `make check` is green
+- [x] `SEMANTIC_VERSION` is `5.0.0`
+- [x] `RELEASE_NOTES.md` is updated
+- [x] All tests pass (target: 1700+) — **1701 passed**
+- [x] `make check` is green
 
 ## Slice Sizes
 
