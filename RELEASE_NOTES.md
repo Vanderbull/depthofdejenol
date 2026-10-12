@@ -1,6 +1,13 @@
 # Release Notes
 
-**Latest:** v5.4.0 — Main Menu & Save System Redesign (in progress)
+**Latest:** v5.5.0 — Wire & Cleanup (in progress)
+
+## v5.5.0 — Wire & Cleanup
+
+### Slice 5.1 — Arena status effects
+- ArenaDialog::advanceCombat now calls tickStatusEffects at round end
+- Also ticks on player turn so poison/fire/blind work in the arena
+- Test proves poison deals damage via advanceCombat
 
 ## v5.4.0 — Main Menu & Save System Redesign
 

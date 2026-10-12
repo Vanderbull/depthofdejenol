@@ -21,7 +21,7 @@ public:
     explicit ArenaDialog(QWidget *parent = nullptr);
 
 private slots:
-    void on_startButton_clicked();
+    // on_startButton_clicked is public for tests
     void on_fightButton_clicked();
     void on_fleeButton_clicked();
     void on_attackButton_clicked();
@@ -31,13 +31,18 @@ private slots:
     void on_nextWaveButton_clicked();
     void on_exitButton_clicked();
 
+public:
+    void advanceCombat(); // public for tests
+    void on_startButton_clicked(); // public for tests
+    CombatState* combatState() const { return m_combatState.get(); } // public for tests
+    CombatActions* combatActions() const { return m_combatActions.get(); } // public for tests
+
 private:
     void setupUi();
     void startWave(int wave);
     void updateUI();
     void logMessage(const QString& msg);
     void clearCombat();
-    void advanceCombat();
     void handleVictory();
     void handleDefeat();
     void recordScore();

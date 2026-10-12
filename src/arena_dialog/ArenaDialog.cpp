@@ -397,15 +397,19 @@ void ArenaDialog::advanceCombat() {
 
         // Advance turn
         if (!m_combatState->nextTurn()) {
-            // Round over
+            // Round over — tick status effects (poison, fire, blind, etc.)
             m_combatState->startRound();
             waveRounds++;
+            QStringList statusMsgs = m_combatActions->tickStatusEffects();
+            for (const QString& msg : statusMsgs) logMessage(msg);
         }
         updateUI();
         return;
     }
 
-    // Player turn
+    // Player turn — also tick status effects so poison/fire/blind work
+    QStringList statusMsgs = m_combatActions->tickStatusEffects();
+    for (const QString& msg : statusMsgs) logMessage(msg);
     updateUI();
 }
 

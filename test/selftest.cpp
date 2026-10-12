@@ -10959,6 +10959,73 @@ int runSelfTest()
         dlg.close();
     }
 
+    section("[282] v5.5.0 slice 5.1: arena status effects tick in advanceCombat");
+    {
+        // ArenaDialog must tick status effects at round end, just like
+        // DungeonDialog does. Without this, poison/fire/blind never deal
+        // damage in the arena — they are set but never read.
+        ArenaDialog dlg;
+        dlg.resize(600, 500);
+        for (int i = 0; i < 10; ++i) QApplication::processEvents();
+
+        // Set up a known party so startWave has player participants
+        {
+            QList<Character> &members = gameStateManager::instance()->getPartyMembers();
+            members.clear();
+            Character c1; c1.name = "Fighter"; c1.race = "Human"; c1.level = 5; c1.hp = 50; c1.maxHp = 50; c1.isAlive = true;
+            members << c1;
+        }
+
+        // Start wave 1 to populate combat participants
+        dlg.on_startButton_clicked();
+        QApplication::processEvents();
+
+        CombatState* cs = dlg.combatState();
+        CombatActions* ca = dlg.combatActions();
+        check(cs != nullptr, "arena has combat state");
+        check(ca != nullptr, "arena has combat actions");
+        if (!cs || !ca) { dlg.close(); }
+
+        // Find first monster (non-player)
+        int monsterIdx = -1;
+        for (int i = 0; i < cs->participantCount(); ++i) {
+            if (!cs->participant(i).isPlayer) { monsterIdx = i; break; }
+        }
+        check(monsterIdx >= 0, "arena has a monster");
+
+        // Apply poison to the monster
+        QString result;
+        ca->applyStatus(monsterIdx, GameConstants::Poisoned, 5, result);
+        check(ca->isPoisoned(monsterIdx), "monster is poisoned");
+
+        int hpBefore = cs->participant(monsterIdx).hp;
+        check(hpBefore > 0, "monster has HP");
+
+        // Advance combat until the monster loses HP or combat ends.
+        bool poisonWorked = false;
+        for (int i = 0; i < 100; ++i) {
+            dlg.advanceCombat();
+            QApplication::processEvents();
+            if (cs->participant(monsterIdx).hp < hpBefore || !cs->participant(monsterIdx).isAlive) {
+                poisonWorked = true;
+                break;
+            }
+            // Break if all players are dead (combat over)
+            bool anyPlayerAlive = false;
+            for (int j = 0; j < cs->participantCount(); ++j) {
+                if (cs->participant(j).isPlayer && cs->participant(j).isAlive) {
+                    anyPlayerAlive = true;
+                    break;
+                }
+            }
+            if (!anyPlayerAlive) break;
+        }
+
+        check(poisonWorked, "poison deals damage via advanceCombat");
+
+        dlg.close();
+    }
+
     section("[279] v5.4.0 slice 5.4: arena spell casting");
     {
         // Verify CombatActions has spell casting methods
