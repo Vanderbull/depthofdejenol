@@ -1,6 +1,27 @@
 # Release Notes
 
-**Latest:** v5.1.0 — Main Menu redesign ✅
+**Latest:** v5.2.0 — Savegame revamp (IN PROGRESS)
+
+## v5.2.0 — Savegame revamp
+
+The savegame system had three critical bugs: autosave silently failed, party building only kept the last selected character, and `saveCharacterToFile()` didn't save inventory, equipped items, hunger, or guild data.
+
+### Slice 5.1 — Autosave fix
+- `handleAutosave()` now calls `saveFullGameState("autosave")` instead of `saveCharacterToFile(0)`
+- `handleAutosave()` is now public (was private)
+- Fixed: `saveCharacterToFile()` reads from `PartyManager` (single source of truth) instead of stale `m_gameStateData["Party"]`
+
+### Slice 5.2 — Party building from individual characters
+- New `addCharacterFromFile()` method — loads a character and ADDS to the party (doesn't replace)
+- `CharacterListDialog::onSelectClicked()` now uses `addCharacterFromFile()` instead of `loadCharacterFromFile()`
+- `saveCharacterToFile()` now saves: hunger, gold, mana, playTimeSeconds, experience, inventory (JSON), equipped (JSON), bankInventory (JSON)
+- `loadCharacterFromFile()` for .txt files now parses the same fields
+
+**Verified:** 1861 tests, 0 failed (+112 checks). Non-vacuous: reverting each fix fails its test.
+
+---
+
+**Previous:** v5.1.0 — Main Menu redesign ✅
 
 ## v5.1.0 — Main Menu redesign ✅ RELEASED
 

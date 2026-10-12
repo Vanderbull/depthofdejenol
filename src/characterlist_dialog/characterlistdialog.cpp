@@ -87,7 +87,7 @@ void CharacterListDialog::onSelectClicked()
     for (auto* item : selectedItems) {
         QString characterName = item->text();
         QString filePath = "./data/characters/" + characterName + ".txt";
-        if (gsm->loadCharacterFromFile(filePath)) {
+        if (gsm->addCharacterFromFile(filePath)) {
             loaded++;
         } else {
             qWarning() << "Failed to load character:" << filePath;

@@ -202,6 +202,7 @@ public:
     void setCurrentCharacterIndex(int index) { m_currentCharacterIndex = index; }
     bool savePartyToFile(const QString& filePath);
     bool loadPartyFromFile(const QString& filePath);
+    bool addCharacterFromFile(const QString& filePath);
     void addCharacterToParty(const Character& character);
     // Give every living member a starting ration bundle so the first descent
     // is not a guaranteed slow death (slice 5.5).
@@ -371,8 +372,10 @@ signals:
     // Text from the multiplayer server, already parsed and never executed.
     void systemMessage(const QString& sender, const QString& message);
 
-private slots:
+public:
     void handleAutosave();
+
+private slots:
     void onLuaTimerTick();
     void onServerDataReceived();
 
