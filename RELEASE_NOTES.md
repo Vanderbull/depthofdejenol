@@ -1,6 +1,6 @@
 # Release Notes
 
-**Latest:** v5.5.0 — Wire & Cleanup (in progress)
+**Latest:** v5.6.0 — Wire & Cleanup Round 2
 
 ## v5.6.0 — Wire & Cleanup Round 2
 
@@ -17,6 +17,12 @@
 - `lastBackupLabel` was never updated after backup/restore
 - Now shows actual date after both operations
 - Non-vacuous: removing the update fails the test
+
+### Slice 6.2 — Release
+- Version bumped to 5.6.0
+- ReleaseInfo updated
+- backup/ untracked from git
+- Clean build, 1762 tests pass, game runs clean
 
 ### Slice 5.1 — Arena status effects
 - ArenaDialog::advanceCombat now calls tickStatusEffects at round end

@@ -17,7 +17,7 @@
 **Do:** Update label with actual timestamp after backup and restore.
 **Verify:** Non-vacuous: removing the update fails the test.
 
-### 6.2 — Release ✅
+### 6.2 — Release ✅ DONE
 **Why:** Final verification.
 **Do:** Clean build, run tests, tag v5.6.0.
-**Verify:** All tests pass.
+**Verify:** 1762 tests pass, game runs clean.
