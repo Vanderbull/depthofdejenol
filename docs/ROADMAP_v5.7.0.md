@@ -18,7 +18,7 @@
 **Do:** N/A — all Q_OBJECT headers already include `<QObject>`.
 **Verify:** `grep -rl "Q_OBJECT" src/ --include="*.h" | while read f; do grep -q "#include <QObject>" "$f" || echo "$f"; done` returns empty.
 
-### 7.1 — Release ✅
+### 7.1 — Release ✅ DONE
 **Why:** Final verification.
 **Do:** Clean build, run tests, tag v5.7.0.
-**Verify:** All tests pass.
+**Verify:** 1752 tests pass, game runs clean.

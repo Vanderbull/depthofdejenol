@@ -1,6 +1,12 @@
 # Release Notes
 
-**Latest:** v5.7.0 — Wire & Cleanup Round 3
+**Latest:** v5.8.0 — Wire & Cleanup Round 4
+
+## v5.8.0 — Wire & Cleanup Round 4
+
+### Slice 8.0a — Remove dead SenderWindow
+- SenderWindow had 0 external callers — fully dead code
+- Removed from src/ and blacklands.pro
 
 ## v5.7.0 — Wire & Cleanup Round 3
 

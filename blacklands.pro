@@ -58,7 +58,6 @@ SOURCES += \
     src/about_dialog/AboutDialog.cpp \
     src/assemble_party_dialog/AssemblePartyDialog.cpp \
     src/loadingscreen/LoadingScreen.cpp \
-    src/sender_window/SenderWindow.cpp \
     src/race_data/RaceData.cpp \
     src/inventory_dialog/inventorydialog.cpp \
     src/options_dialog/optionsdialog.cpp \
@@ -210,7 +209,6 @@ HEADERS += \
     src/about_dialog/AboutDialog.h \
     src/assemble_party_dialog/AssemblePartyDialog.h \
     src/loadingscreen/LoadingScreen.h \
-    src/sender_window/SenderWindow.h \
     src/core/game_resources.h \
     src/dungeon_dialog/DungeonHandlers.h \
     src/event/EventManager.h \
