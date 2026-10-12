@@ -14,6 +14,9 @@
 #include "src/helplesson/helplesson.h"
 #include "src/loadingscreen/LoadingScreen.h"
 #include "src/load_party_dialog/LoadPartyDialog.h"
+#include "src/assemble_party_dialog/AssemblePartyDialog.h"
+#include <QInputDialog>
+#include <QRegularExpression>
 #include "src/race_data/RaceData.h"
 #include "src/core/DungeonLevelState.h"
 #include "test/selftest.h"
@@ -139,11 +142,17 @@ void GameMenu::setupUI() {
     m_assemblePartyButton->setFont(actionFont);
     actionsGrid->addWidget(m_assemblePartyButton, 0, 2);
 
+    m_saveButton = new QPushButton(tr("Save Game"), this);
+    m_saveButton->setObjectName("saveGameButton");
+    m_saveButton->setMinimumHeight(45);
+    m_saveButton->setFont(actionFont);
+    actionsGrid->addWidget(m_saveButton, 1, 0);
+
     m_loadButton = new QPushButton(tr("Load Game"), this);
     m_loadButton->setObjectName("loadGameButton");
     m_loadButton->setMinimumHeight(45);
     m_loadButton->setFont(actionFont);
-    actionsGrid->addWidget(m_loadButton, 1, 0);
+    actionsGrid->addWidget(m_loadButton, 1, 1);
 
     m_characterListButton = new QPushButton(tr("Character List"), this);
     m_characterListButton->setObjectName("characterListButton");
@@ -203,6 +212,7 @@ void GameMenu::setupConnections() {
     connect(m_newButton, &QPushButton::clicked, this, &GameMenu::startNewGame);
     connect(m_createCharacterButton, &QPushButton::clicked, this, &GameMenu::onCreateCharacterClicked);
     connect(m_assemblePartyButton, &QPushButton::clicked, this, &GameMenu::onAssemblePartyClicked);
+    connect(m_saveButton, &QPushButton::clicked, this, &GameMenu::saveGame);
     connect(m_loadButton, &QPushButton::clicked, this, &GameMenu::loadGame);
     connect(m_helpButton, &QPushButton::clicked, this, &GameMenu::onHelpClicked);
     connect(m_recordsButton, &QPushButton::clicked, this, &GameMenu::showRecords);
@@ -390,28 +400,53 @@ void GameMenu::loadGame() {
         return;
     }
 
-    QString fileName = dlg.selectedPartyPath();
-    if (fileName.isEmpty()) {
+    QString filePath = dlg.selectedPartyPath();
+    if (filePath.isEmpty()) {
         return;
     }
 
-    if (gameStateManager::instance()->loadCharacterFromFile(fileName)) {
+    // Extract the save name from the path (e.g. "data/saves/autosave.json" → "autosave")
+    QFileInfo fi(filePath);
+    QString saveName = fi.completeBaseName();
+
+    if (gameStateManager::instance()->loadFullGameState(saveName)) {
         if (gameStateManager::instance()->hasLivingCharacters()) {
-            emit logMessageTriggered(tr("Party loaded successfully."));
+            emit logMessageTriggered(tr("Game loaded successfully."));
             enterCity();
         } else {
             QMessageBox::warning(this, tr("Load Error"),
-                                 tr("All characters are deceased or invalid."));
+                                 tr("The saved party is deceased."));
         }
+    } else {
+        QMessageBox::warning(this, tr("Load Error"),
+                             tr("Failed to load the save file."));
+    }
+}
+
+void GameMenu::saveGame() {
+    bool ok;
+    QString name = QInputDialog::getText(this, tr("Save Game"),
+        tr("Save name:"), QLineEdit::Normal, tr("save"), &ok);
+    if (!ok || name.isEmpty()) return;
+
+    // Sanitize: no path separators, no ..
+    name = name.replace(QRegularExpression("[^a-zA-Z0-9_\\-]"), "_");
+
+    if (gameStateManager::instance()->saveFullGameState(name)) {
+        QMessageBox::information(this, tr("Save Game"),
+            tr("Game saved as '%1'.").arg(name));
+    } else {
+        QMessageBox::critical(this, tr("Save Error"),
+            tr("Failed to save the game."));
     }
 }
 
 void GameMenu::onCharacterCreated(const QString &characterName) {
-    if (gameStateManager::instance()->saveCharacterToFile(0)) {
-        emit logMessageTriggered(QString("Character %1 saved.").arg(characterName));
-        gameStateManager::instance()->startAutosave(10000); // 10s intervals
-        enterCity();
-    }
+    // CreateCharacterDialog already saved the character to data/characters/
+    // and added it to the party. Just enter the city.
+    emit logMessageTriggered(QString("Character %1 created.").arg(characterName));
+    gameStateManager::instance()->startAutosave(10000); // 10s intervals
+    enterCity();
 }
 
 void GameMenu::quitGame() {
@@ -446,10 +481,21 @@ void GameMenu::startNewGame() {
     // a fresh start never inherits stale floors or items.
     DungeonLevelRegistry::instance().clear();
 
-    // Start fresh: clear party and enter the city directly.
+    // Start with an empty party.
     gameStateManager::instance()->getPartyMembers().clear();
-    gameStateManager::instance()->startAutosave(10000);
-    enterCity();
+
+    // A new game requires at least one character. Open the character creation
+    // dialog — if the user cancels, no game is started.
+    auto *dialog = new CreateCharacterDialog(loadRaceData(), loadGuildData(), this);
+    dialog->setAttribute(Qt::WA_DeleteOnClose);
+    connect(dialog, &CreateCharacterDialog::characterCreated, this, [this](const QString &name) {
+        emit logMessageTriggered(QString("Character %1 created.").arg(name));
+        // Write the initial game state so Continue works.
+        gameStateManager::instance()->saveFullGameState("autosave");
+        gameStateManager::instance()->startAutosave(10000);
+        enterCity();
+    });
+    dialog->show();
 }
 
 void GameMenu::onCreateCharacterClicked() {
@@ -460,9 +506,9 @@ void GameMenu::onCreateCharacterClicked() {
 }
 
 void GameMenu::onAssemblePartyClicked() {
-    auto *dialog = new CharacterListDialog(this);
+    auto *dialog = new AssemblePartyDialog(this);
     dialog->setAttribute(Qt::WA_DeleteOnClose);
-    dialog->show();
+    dialog->exec();
 }
 
 void GameMenu::onEventTriggered(const GameEvent& event) {

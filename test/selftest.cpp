@@ -11813,6 +11813,132 @@ int runSelfTest()
         }
     }
 
+    section("[272] v5.4.0 slice 5.5: Save Game creates a named save file");
+    {
+        // Clean up any old save
+        QFile::remove("data/saves/testsave.json");
+
+        // Save the current state
+        check(gameStateManager::instance()->saveFullGameState("testsave"),
+              "saveFullGameState returns true");
+
+        // The file must exist
+        QFile f("data/saves/testsave.json");
+        check(f.exists(), "save file exists on disk");
+
+        // The file must contain the party
+        f.open(QIODevice::ReadOnly);
+        QJsonObject root = QJsonDocument::fromJson(f.readAll()).object();
+        f.close();
+        check(root.contains("Party"), "save contains Party");
+        check(root.contains("SaveVersion"), "save contains SaveVersion");
+
+        // Clean up
+        QFile::remove("data/saves/testsave.json");
+    }
+
+    section("[273] v5.4.0 slice 5.5: Load Game restores complete gamestate");
+    {
+        // Set up a known state
+        QList<Character> &members = gameStateManager::instance()->getPartyMembers();
+        members.clear();
+        Character c;
+        c.name = "LoadTestHero";
+        c.race = "Human";
+        c.level = 5;
+        c.hp = 30;
+        c.maxHp = 40;
+        c.isAlive = true;
+        c.experience = 400;
+        members.append(c);
+
+        // Save it
+        gameStateManager::instance()->saveFullGameState("loadtest");
+
+        // Clear the live state
+        members.clear();
+        check(members.isEmpty(), "party cleared for load test");
+
+        // Load it back
+        check(gameStateManager::instance()->loadFullGameState("loadtest"),
+              "loadFullGameState returns true");
+
+        // The party must be restored
+        check(!members.isEmpty(), "party restored after load");
+        if (!members.isEmpty()) {
+            check(members[0].name == "LoadTestHero", "name restored");
+            check(members[0].race == "Human", "race restored");
+            check(members[0].level == 5, "level restored");
+            check(members[0].hp == 30, "HP restored");
+            check(members[0].maxHp == 40, "MaxHP restored");
+            check(members[0].experience == 400, "experience restored");
+        }
+
+        // Clean up
+        members.clear();
+        QFile::remove("data/saves/loadtest.json");
+    }
+
+    section("[274] v5.4.0 slice 5.5: Assemble Party adds and removes members");
+    {
+        QList<Character> &members = gameStateManager::instance()->getPartyMembers();
+        members.clear();
+
+        // Add a character
+        Character c1;
+        c1.name = "AssembleAdd";
+        c1.race = "Elf";
+        c1.level = 3;
+        c1.isAlive = true;
+        gameStateManager::instance()->addCharacterToParty(c1);
+
+        check(members.size() == 1, "one member after add");
+
+        // Add another
+        Character c2;
+        c2.name = "AssembleRemove";
+        c2.race = "Dwarf";
+        c2.level = 2;
+        c2.isAlive = true;
+        gameStateManager::instance()->addCharacterToParty(c2);
+
+        check(members.size() == 2, "two members after second add");
+
+        // Remove the second
+        members.removeAt(1);
+        check(members.size() == 1, "one member after remove");
+        check(members[0].name == "AssembleAdd", "correct member remains");
+
+        // Clean up
+        members.clear();
+    }
+
+    section("[275] v5.4.0 slice 5.5: Assemble Party save persists modified party");
+    {
+        QList<Character> &members = gameStateManager::instance()->getPartyMembers();
+        members.clear();
+
+        // Add a character and save
+        Character c;
+        c.name = "AssembleSave";
+        c.race = "Hobbit";
+        c.level = 4;
+        c.isAlive = true;
+        gameStateManager::instance()->addCharacterToParty(c);
+        gameStateManager::instance()->saveFullGameState("assemblesave");
+
+        // Clear and load back
+        members.clear();
+        gameStateManager::instance()->loadFullGameState("assemblesave");
+
+        check(members.size() == 1, "party size restored");
+        check(members[0].name == "AssembleSave", "name restored after save/load");
+
+        // Clean up
+        members.clear();
+        QFile::remove("data/saves/assemblesave.json");
+    }
+
     section("[214] v5.0.0 slice 5.6: CharacterListDialog is multi-select");
     {
         CharacterListDialog dlg;

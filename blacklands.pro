@@ -50,6 +50,7 @@ SOURCES += \
     src/game_controller/game_controller.cpp \
     src/characterlist_dialog/characterlistdialog.cpp \
     src/load_party_dialog/LoadPartyDialog.cpp \
+    src/assemble_party_dialog/AssemblePartyDialog.cpp \
     src/helplesson/helplesson.cpp \
     src/mordorstatistics/mordorstatistics.cpp \
     src/loadingscreen/LoadingScreen.cpp \
@@ -199,6 +200,7 @@ HEADERS += \
     src/game_controller/game_controller.h \
     src/characterlist_dialog/characterlistdialog.h \
     src/load_party_dialog/LoadPartyDialog.h \
+    src/assemble_party_dialog/AssemblePartyDialog.h \
     src/helplesson/helplesson.h \
     src/mordorstatistics/mordorstatistics.h \
     src/loadingscreen/LoadingScreen.h \
@@ -317,7 +319,7 @@ lessThan(VERSION_INT, 0): VERSION_INT = 0
 # Bump MAJOR for the first finishable release or a fundamental rework.
 # Bump MINOR for new features/mechanics. Bump PATCH for fixes/balance/polish.
 SEMVER_MAJOR = 5
-SEMVER_MINOR = 3
+SEMVER_MINOR = "4"
 SEMVER_PATCH = 0
 SEMVER = \"$${SEMVER_MAJOR}.$${SEMVER_MINOR}.$${SEMVER_PATCH}\"
 

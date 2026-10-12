@@ -25,6 +25,7 @@ protected:
 private slots:
     void startNewGame();
     void loadGame();
+    void saveGame();
     void showRecords();
 //    void showCredits();
     void quitGame();
@@ -59,6 +60,7 @@ private:
     QPushButton *m_newButton = nullptr;
     QPushButton *m_createCharacterButton = nullptr;
     QPushButton *m_assemblePartyButton = nullptr;
+    QPushButton *m_saveButton = nullptr;
     QPushButton *m_loadButton = nullptr;
     QPushButton *m_characterListButton = nullptr;
     QPushButton *m_recordsButton = nullptr;

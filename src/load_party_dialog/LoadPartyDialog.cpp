@@ -61,25 +61,17 @@ void LoadPartyDialog::loadPartyList()
     m_partyList->clear();
     m_selectedPath.clear();
 
-    // List all .json files in data/saves/ and data/character/
+    // List saved game states from data/saves/ only.
+    // Individual character files in data/characters/ are not game states —
+    // they are managed by Assemble Party / Create Character.
     QStringList filters;
     filters << "*.json";
     QDir savesDir("data/saves");
-    QDir charactersDir("data/characters");
 
     if (savesDir.exists()) {
         QFileInfoList saves = savesDir.entryInfoList(filters, QDir::Files, QDir::Time);
         for (const QFileInfo &fi : saves) {
-            QListWidgetItem *item = new QListWidgetItem(fi.fileName());
-            item->setData(Qt::UserRole, fi.absoluteFilePath());
-            m_partyList->addItem(item);
-        }
-    }
-
-    if (charactersDir.exists()) {
-        QFileInfoList chars = charactersDir.entryInfoList(filters, QDir::Files, QDir::Time);
-        for (const QFileInfo &fi : chars) {
-            QListWidgetItem *item = new QListWidgetItem(fi.fileName());
+            QListWidgetItem *item = new QListWidgetItem(fi.completeBaseName());
             item->setData(Qt::UserRole, fi.absoluteFilePath());
             m_partyList->addItem(item);
         }

@@ -1,6 +1,36 @@
 # Release Notes
 
-**Latest:** v5.3.0 — Aging & Lifecycle ✅ RELEASED
+**Latest:** v5.4.0 — Main Menu & Save System Redesign (in progress)
+
+## v5.4.0 — Main Menu & Save System Redesign
+
+### Slice 5.1 — Main menu redesign
+- New Game now requires at least one character (opens Create Character first)
+- Load Game loads complete game state (not just one character)
+- Added Save Game button (named save slots)
+- Assemble Party now modifies the current game state and saves it
+- Create Character unchanged (saves JSON to data/characters/, adds to party)
+
+### Slice 5.2 — Legacy .lua character migration
+- Auto-converts .lua character files to JSON on startup
+- Idempotent (won't overwrite existing JSON)
+- Test added for migration
+
+### Slice 5.3 — HP repair for legacy saves
+- Characters with missing HP in old saves now get default HP (10) instead of loading as dead
+
+### Slice 5.4 — Remove all legacy .txt/.lua character code
+- Removed saveCharacterToLua, loadCharacterFromLua, migrateLegacyCharacterFiles
+- Removed src/core/savegameUtils (was .txt-only)
+- All dialogs (theCity, Seer, Morgue, CreateCharacter) now use JSON exclusively
+- 4 seed test characters (Aria, Borin, Cael, Dara) checked into git
+- Tests that wiped data/characters/ now stash/restore
+
+### Slice 5.5 — Save/load complete gamestate
+- Load Game now uses loadFullGameState (party + dungeon + records)
+- Save Game creates named save files in data/saves/
+- Assemble Party modifies and saves the current party
+- Tests: save, load, assemble, persistence
 
 ## v5.3.0 — Aging & Lifecycle ✅ RELEASED
 
