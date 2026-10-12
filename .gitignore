@@ -81,5 +81,6 @@ data/characters/*
 /blacklands
 /qrc_resources.cpp
 /.qmake.stash
+/backup/
 bankpane/moc_*.cpp
 bankpane/moc_predefs.h
