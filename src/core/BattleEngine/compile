@@ -1,4 +1,0 @@
-make clean
-/usr/bin/qmake6 -o Makefile blacklands.pro
-make
-./HommBattle

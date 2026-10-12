@@ -1,5 +1,0 @@
-<RCC>
-    <qresource prefix="/">
-        <file>BattleView.qml</file>
-    </qresource>
-</RCC>

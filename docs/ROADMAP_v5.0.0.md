@@ -315,7 +315,7 @@ multi-select to single-select fails the "loads three members" test; removing the
 
 **Landed:** `CharacterListDialog` is now `ExtendedSelection` with a real Select handler that loads every selected character. Added Save/Load Party buttons using the existing `savePartyToFile`/`loadPartyFromFile` JSON wrappers. `addCharacterToParty()` now enforces `MAX_PARTY_SIZE`. Tests [210]–[214]; +14 checks (1675 → 1689). Non-vacuous: reverting to `SingleSelection` fails "the character list allows multi-select"; removing the `MAX_PARTY_SIZE` guard fails "the party size does not exceed MAX_PARTY_SIZE".
 
-### 5.7 Repo hygiene: dead duplicates and build junk `S`
+### 5.7 Repo hygiene: dead duplicates and build junk `S` ✅ DONE
 
 **Why:** the tree carries dead duplicates and committed build output that confuse
 navigation and the build.
@@ -331,6 +331,13 @@ navigation and the build.
 
 **Verify:** no source or `.pro` file references a removed file ✅; build green ✅;
 suite green ✅.
+
+**Landed:** removed `TheCity.cpp/.h/.qss`, `FontManager.h`, `StoryDialog.h`,
+`DataRegistry.h`, and the entire `src/core/BattleEngine/` directory (8 tracked
+files including `HommBattle` binary, `main.o`, `Makefile`, and moc files).
+Added `data/characters/` to `.gitignore` so the party-save files from slice 5.6
+do not litter the tree. Tests [215]–[217]; +10 checks (1689 → 1700). Non-vacuous:
+restoring `TheCity.cpp` and `TheCity.h` fails both dead-file checks.
 
 ### 5.8 Release `S`
 
@@ -376,7 +383,7 @@ it also ignore `data/characters/` so 5.6's party files do not litter the tree.
 - [ ] One HP source of truth: trap/rest damage and the party panel agree
 - [ ] The inn restores hunger and sells food
 - [ ] A whole party can be loaded at once, and saved/loaded as a party
-- [ ] Dead duplicate files and committed build junk are gone
+- [x] Dead duplicate files and committed build junk are gone
 - [ ] `SEMANTIC_VERSION` is `5.0.0`
 - [ ] `RELEASE_NOTES.md` is updated
 - [ ] All tests pass (target: 1700+)

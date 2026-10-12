@@ -109,6 +109,17 @@ Non-vacuous: reverting to `SingleSelection` fails "the character list allows
 multi-select"; removing the `MAX_PARTY_SIZE` guard fails "the party size does
 not exceed MAX_PARTY_SIZE".
 
+### Slice 5.7 — Repo hygiene
+- Removed `TheCity.cpp/.h/.qss`, `FontManager.h`, `StoryDialog.h`,
+  `DataRegistry.h` (all referenced by 0 files)
+- Removed `src/core/BattleEngine/` — 8 committed build artefacts (binary,
+  `main.o`, `Makefile`, moc files, `.pro`, `main.cpp`)
+- Added `data/characters/` to `.gitignore` so party-save files from slice 5.6
+  do not litter the tree
+
+**Verified:** tests [215]–[217] (1700 passed, 0 failed; +10 checks).
+Non-vacuous: restoring `TheCity.cpp`/`.h` fails both dead-file checks.
+
 ---
 
 # v4.0.0 — Endgame depth and replayability ✅ RELEASED

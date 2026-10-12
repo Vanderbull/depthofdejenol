@@ -10229,6 +10229,36 @@ int runSelfTest()
         check(hasFood, "a new party starts with food");
     }
 
+    section("[215] v5.0.0 slice 5.7: dead files are gone");
+    {
+        check(!QFile::exists("TheCity.cpp"), "TheCity.cpp removed");
+        check(!QFile::exists("TheCity.h"), "TheCity.h removed");
+        check(!QFile::exists("FontManager.h"), "FontManager.h removed");
+        check(!QFile::exists("StoryDialog.h"), "StoryDialog.h removed");
+        check(!QFile::exists("DataRegistry.h"), "DataRegistry.h removed");
+    }
+
+    section("[216] v5.0.0 slice 5.7: BattleEngine build junk is gone");
+    {
+        check(!QFile::exists("src/core/BattleEngine/Makefile"), "BattleEngine Makefile removed");
+        check(!QFile::exists("src/core/BattleEngine/main.o"), "BattleEngine main.o removed");
+        check(!QFile::exists("src/core/BattleEngine/HommBattle"), "BattleEngine binary removed");
+        check(!QFile::exists("src/core/BattleEngine/moc_BattleEngine.cpp"), "BattleEngine moc removed");
+    }
+
+    section("[217] v5.0.0 slice 5.7: data/characters is gitignored");
+    {
+        QFile gitignore(".gitignore");
+        check(gitignore.open(QIODevice::ReadOnly | QIODevice::Text),
+              ".gitignore is readable");
+        if (gitignore.isOpen()) {
+            QString content = gitignore.readAll();
+            check(content.contains("data/characters"),
+                  "data/characters is in .gitignore");
+            gitignore.close();
+        }
+    }
+
     // ------------------------------------------- v5.0.0 slice 5.6: load a party
     section("[210] v5.0.0 slice 5.6: a saved party round-trips");
     {
