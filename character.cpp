@@ -171,6 +171,12 @@ void Character::loadFromMap(const QVariantMap &map) {
     statusFlags  = map.value("StatusFlags", StatusFlag::None).toUInt();
     // Default true so saves written before this field existed still load as alive.
     isAlive      = map.value("isAlive", true).toBool();
+
+    // Repair incomplete HP from legacy saves. MaxHP is never legitimately 0, and
+    // the pre-JSON .lua loader ignored HP entirely — so a 0/0 character used to
+    // come up playable. Without this an old save loads as permanently dead.
+    if (maxHp <= 0) maxHp = 10;
+    if (isAlive && hp <= 0) hp = maxHp;
     
     dungeonLevel = map.value("DungeonLevel", 0).toInt();
     dungeonX     = map.value("DungeonX", 0).toInt();

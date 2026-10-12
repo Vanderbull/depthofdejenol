@@ -11754,6 +11754,55 @@ int runSelfTest()
         QDir(tmpDir).removeRecursively();
     }
 
+    section("[270] v5.4.0 slice 5.3: incomplete HP in legacy saves is repaired");
+    {
+        // A legacy save with no usable HP (MaxHP 0/absent) must not load as an
+        // unplayable 0/0 character. The pre-JSON .lua loader ignored HP
+        // entirely, so such characters always came up with a sane baseline.
+        QVariantMap legacy;
+        legacy["Name"] = "NoHpHero";
+        legacy["Race"] = "Human";
+        legacy["Level"] = 1;
+        legacy["MaxHP"] = 0;
+        legacy["HP"] = 0;
+        legacy["isAlive"] = true;
+
+        Character c;
+        c.loadFromMap(legacy);
+        check(c.maxHp > 0, "missing MaxHP falls back to a playable value");
+        check(c.hp > 0, "alive character with 0 HP is restored to full");
+        check(c.hp == c.maxHp, "restored HP equals MaxHP");
+
+        // A genuinely dead character must stay dead.
+        QVariantMap dead;
+        dead["Name"] = "DeadHero";
+        dead["Race"] = "Human";
+        dead["Level"] = 3;
+        dead["MaxHP"] = 40;
+        dead["HP"] = 0;
+        dead["isAlive"] = false;
+
+        Character d;
+        d.loadFromMap(dead);
+        check(d.hp == 0, "dead character stays at 0 HP");
+        check(d.isAlive == false, "dead character stays dead");
+        check(d.maxHp == 40, "dead character keeps its MaxHP");
+
+        // A wounded but living character must keep its exact HP.
+        QVariantMap wounded;
+        wounded["Name"] = "Wounded";
+        wounded["Race"] = "Human";
+        wounded["Level"] = 2;
+        wounded["MaxHP"] = 50;
+        wounded["HP"] = 7;
+        wounded["isAlive"] = true;
+
+        Character w;
+        w.loadFromMap(wounded);
+        check(w.hp == 7, "wounded character keeps exact HP");
+        check(w.maxHp == 50, "wounded character keeps MaxHP");
+    }
+
     section("[214] v5.0.0 slice 5.6: CharacterListDialog is multi-select");
     {
         CharacterListDialog dlg;

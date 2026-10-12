@@ -24,5 +24,5 @@ SaveData = {
     Strength = 9,
     Wisdom = 4,
     isAlive = true,
-}
     inCity = true,
+}
