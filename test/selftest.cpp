@@ -5038,12 +5038,12 @@ int runSelfTest()
     // ------------------------------------------- Release packaging (8.5)
     section("[56] Release packaging");
     {
-        check(ReleaseInfo::version() == "5.6.0", "version is 5.6.0");
-        check(ReleaseInfo::versionString() == "v5.6.0", "version string");
+        check(ReleaseInfo::version() == "5.7.0", "version is 5.7.0");
+        check(ReleaseInfo::versionString() == "v5.7.0", "version string");
         check(!ReleaseInfo::releaseDate().isEmpty(), "release date exists");
         check(!ReleaseInfo::systemRequirements().isEmpty(), "system requirements exist");
-        check(ReleaseInfo::installerName().contains("5.6.0"), "installer name");
-        check(ReleaseInfo::banner().contains("5.6.0"), "banner");
+        check(ReleaseInfo::installerName().contains("5.7.0"), "installer name");
+        check(ReleaseInfo::banner().contains("5.7.0"), "banner");
     }
     {
         // Release notes.
@@ -5063,9 +5063,9 @@ int runSelfTest()
         QList<QPair<QString, QString>> history = ReleaseInfo::versionHistory();
         check(history.size() >= 5, "at least 5 versions in history",
               QString::number(history.size()));
-        check(history[0].first == "5.6.0", "latest version is 5.6.0");
+        check(history[0].first == "5.7.0", "latest version is 5.7.0");
         check(history[0].second.contains("Wire") || history[0].second.contains("Cleanup"),
-              "v5.6.0 history entry mentions wire and cleanup");
+              "v5.7.0 history entry mentions wire and cleanup");
     }
 
     // ------------------------------------------- Status flag integrity

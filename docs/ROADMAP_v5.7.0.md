@@ -13,10 +13,10 @@
 **Do:** Delete all 5 dialog source directories and remove from `blacklands.pro`.
 **Verify:** Build succeeds, tests pass.
 
-### 7.0b — Fix missing QObject includes ✅
-**Why:** `build/moc/moc_AboutDialog.cpp` shows `#error "The header file 'AboutDialog.h' doesn't include <QObject>"` — same likely for other headers.
-**Do:** Add `#include <QObject>` to all Q_OBJECT headers that lack it.
-**Verify:** moc generates without errors.
+### 7.0b — Fix missing QObject includes ✅ DONE (N/A)
+**Why:** `build/moc/moc_AboutDialog.cpp` showed `#error "The header file 'AboutDialog.h' doesn't include <QObject>"`.
+**Do:** N/A — all Q_OBJECT headers already include `<QObject>`.
+**Verify:** `grep -rl "Q_OBJECT" src/ --include="*.h" | while read f; do grep -q "#include <QObject>" "$f" || echo "$f"; done` returns empty.
 
 ### 7.1 — Release ✅
 **Why:** Final verification.

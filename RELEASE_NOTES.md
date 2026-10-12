@@ -1,6 +1,15 @@
 # Release Notes
 
-**Latest:** v5.6.0 — Wire & Cleanup Round 2
+**Latest:** v5.7.0 — Wire & Cleanup Round 3
+
+## v5.7.0 — Wire & Cleanup Round 3
+
+### Slice 7.0a — Remove dead ShortcutHelp
+- ShortcutHelp was never used by production code, only by its own test
+- After removing the test, the class is fully dead
+
+### Slice 7.0b — QObject includes (N/A)
+- All Q_OBJECT headers already include `<QObject>`
 
 ## v5.6.0 — Wire & Cleanup Round 2
 

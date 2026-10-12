@@ -67,6 +67,7 @@ QString ReleaseInfo::banner() {
 
 QList<QPair<QString, QString>> ReleaseInfo::versionHistory() {
     return {
+        {"5.7.0", "2026-10-12 — Wire & Cleanup Round 3: removed dead ShortcutHelp class"},
         {"5.6.0", "2026-10-12 — Wire & Cleanup Round 2: removed dead DungeonMap, hid helplesson dwarf image placeholder, options backup timestamp updates"},
         {"5.5.0", "2026-10-12 — Wire & Cleanup: arena status effects tick, PlayerExperience wiring, partyUpdated signal test, RaceData guild eligibility test, removed dead code (bankpane/, legacy PartyManager)"},
         {"5.4.0", "2026-10-12 — Main Menu & Save System redesign: New Game requires a character, Load/Save complete game state, Assemble Party dialog replaces Character List"},
