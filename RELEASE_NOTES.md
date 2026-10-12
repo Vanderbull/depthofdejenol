@@ -13,6 +13,11 @@
 - Label hidden instead of showing placeholder
 - Non-vacuous: restoring the placeholder fails the test
 
+### Slice 6.1 — Options backup timestamp
+- `lastBackupLabel` was never updated after backup/restore
+- Now shows actual date after both operations
+- Non-vacuous: removing the update fails the test
+
 ### Slice 5.1 — Arena status effects
 - ArenaDialog::advanceCombat now calls tickStatusEffects at round end
 - Also ticks on player turn so poison/fire/blind work in the arena

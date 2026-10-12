@@ -320,6 +320,7 @@ void OptionsDialog::onBackupClicked() {
 void OptionsDialog::onRestoreClicked() {
     qDebug() << "--- Starting Restore ---";
     if (restoreFilesFromDateSubfolder(".")) {
+        lastBackupLabel->setText("Last Backup: " + QDate::currentDate().toString("yyyy-MM-dd"));
         qDebug() << "Restore complete.";
     }
 }

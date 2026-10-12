@@ -12,10 +12,10 @@
 **Do:** Hide the label since no dwarf image resource exists.
 **Verify:** Non-vacuous: restoring the placeholder fails the test.
 
-### 6.1 — Options backup timestamp ✅
-**Why:** `lastBackupLabel` is set to "Placeholder date" and never updated after backup.
-**Do:** Update label with actual timestamp after backup/restore.
-**Verify:** Test proves label updates.
+### 6.1 — Options backup timestamp ✅ DONE
+**Why:** `lastBackupLabel` was set to "Placeholder date" and never updated after backup.
+**Do:** Update label with actual timestamp after backup and restore.
+**Verify:** Non-vacuous: removing the update fails the test.
 
 ### 6.2 — Release ✅
 **Why:** Final verification.

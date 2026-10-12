@@ -1,0 +1,682 @@
+
+#include "theCity.h"
+#include "src/core/game_resources.h"
+#include "src/network_manager/NetworkManager.h"
+#include "src/partyinfo_dialog/partyinfodialog.h"
+#include "src/general_store/GeneralStore.h"
+#include "src/temple_dialog/TempleDialog.h"
+#include "src/guilds_dialog/GuildsDialog.h"
+#include "src/morgue_dialog/MorgueDialog.h"
+#include "src/seer_dialog/SeerDialog.h"
+#include "src/confinement_dialog/ConfinementDialog.h"
+#include "src/bank_dialog/BankDialog.h"
+#include "src/dungeon_dialog/DungeonDialog.h"
+#include "src/tavern_dialog/TavernDialog.h"
+#include "src/character_dialog/CharacterSheetDialog.h"
+#include "src/library_dialog/BestiaryDialog.h"
+#include "src/library_dialog/library_dialog.h"
+#include "src/journal_dialog/JournalDialog.h"
+#include "src/quest_board/QuestBoardDialog.h"
+#include "src/quest_chain_dialog/QuestChainDialog.h"
+#include "src/npc_dialog/NPCDialog.h"
+#include "src/arena_dialog/ArenaDialog.h"
+#include "src/core/AlignmentSystem.h"
+#include <QDebug>
+#include <QDateTime>
+#include <QScrollBar>
+
+
+void theCity::processLocation(GameConstants::CityLocation location) {
+    // Refresh gold values whenever entering a location so the UI always shows
+    // the latest party gold and bank gold (updated by other dialogs).
+    gameStateManager::instance()->refreshUI();
+
+    switch (location) {
+        case GameConstants::CityLocation::GeneralStore:
+            titleLabel->setText("General Store - 'Supplies for the Brave'");
+            break;
+        case GameConstants::CityLocation::Bank:
+            titleLabel->setText("The Royal Bank - 'The gold is safe'");
+            break;
+        case GameConstants::CityLocation::Tavern:
+            titleLabel->setText("Tavern - 'Have a beer'");
+            break;
+        case GameConstants::CityLocation::Library:
+            titleLabel->setText("Library - 'Knowledge is power'");
+            break;
+        case GameConstants::CityLocation::Temple:
+            titleLabel->setText("Temple - 'Pray you will win'");
+            {
+                TempleDialog *temple = new TempleDialog(this);
+                temple->setAttribute(Qt::WA_DeleteOnClose);
+                temple->show();
+            }
+            break;
+        case GameConstants::CityLocation::Guild:
+            titleLabel->setText("Guild - 'Where heros go'");
+            // Access character bank and party management
+            break;
+        case GameConstants::CityLocation::Street:
+        default:
+            titleLabel->setText("The City Square");
+            // Return to the main city hub
+            break;
+    }
+}
+
+theCity::theCity(QWidget *parent) :
+    QDialog(parent)
+{
+    //gameStateManager::instance()->playMusic("resources/waves/city.wav");
+
+    setWindowTitle("The City - Online");
+    setMinimumSize(1000, 800); // Larger default and minimum size
+    resize(1000, 800);
+    
+    setupUi();
+    loadButtonIcons();
+    setupStyling();
+    setupMultiplayerConnections();
+
+    // 1. Set up a timeout (e.g., 3 seconds)
+    QTimer *connectionTimer = new QTimer(this);
+    connectionTimer->setSingleShot(true);
+
+    connect(connectionTimer, &QTimer::timeout, this, [this]() {
+        if (NetworkManager::instance()->state() != QAbstractSocket::ConnectedState) {
+            qDebug() << "Server not found. Switching to Offline Mode.";
+            startOfflineMode();
+        }
+    });
+
+    // 2. Handle successful connection
+    connect(NetworkManager::instance(), &NetworkManager::connected, this, [this, connectionTimer]() {
+        connectionTimer->stop(); // Stop the "Offline" timer
+        isOfflineMode = false;
+        setWindowTitle("The City - Online");
+        
+        // Register with server
+        quint32 randomId = QRandomGenerator::global()->bounded(1000);
+        NetworkManager::instance()->sendAction("enter_zone", {
+            {"zone", "theCity"}, 
+            {"username", "Hero_" + QString::number(randomId)}
+        });
+    });
+
+    // 3. Try to connect
+    NetworkManager::instance()->connectToServer("127.0.0.1", 12345);
+    connectionTimer->start(3000); // Wait 3 seconds for server
+}
+
+void theCity::setupUi()
+{
+    QVBoxLayout *mainLayout = new QVBoxLayout(this);
+    mainLayout->setContentsMargins(10, 10, 10, 10);
+    mainLayout->setSpacing(10);
+
+    titleLabel = new QLabel("The City", this);
+    titleLabel->setObjectName("titleLabel");
+    titleLabel->setAlignment(Qt::AlignCenter);
+    mainLayout->addWidget(titleLabel);
+
+    // --- Middle Section: Sidebar + Grid ---
+    QHBoxLayout *midLayout = new QHBoxLayout();
+    
+    playerList = new QListWidget(this);
+    playerList->setFixedWidth(150);
+    playerList->setObjectName("playerList");
+    midLayout->addWidget(playerList);
+
+    QGridLayout *gridLayout = new QGridLayout();
+    gridLayout->setSpacing(10);
+
+    generalStoreButton = new QToolButton(this);
+    morgueButton = new QToolButton(this);
+    guildsButton = new QToolButton(this);
+    dungeonButton = new QToolButton(this);
+    confinementButton = new QToolButton(this);
+    seerButton = new QToolButton(this);
+    bankButton = new QToolButton(this);
+    tavernButton = new QToolButton(this);
+    libraryButton = new QToolButton(this);
+    questBoardButton = new QToolButton(this);
+    questChainButton = new QToolButton(this);
+    characterSheetButton = new QToolButton(this);
+    bestiaryButton = new QToolButton(this);
+    journalButton = new QToolButton(this);
+    npcButton = new QToolButton(this);
+    exitButton = new QToolButton(this);
+    arenaButton = new QToolButton(this);
+    arenaButton->setObjectName("arenaButton");
+
+    gridLayout->addWidget(generalStoreButton,   0, 0);
+    gridLayout->addWidget(morgueButton,        0, 1);
+    gridLayout->addWidget(guildsButton,        0, 2);
+    gridLayout->addWidget(dungeonButton,       0, 3);
+    gridLayout->addWidget(confinementButton,   1, 0);
+    gridLayout->addWidget(seerButton,          1, 1);
+    gridLayout->addWidget(bankButton,          1, 2);
+    gridLayout->addWidget(tavernButton,        1, 3);
+    gridLayout->addWidget(libraryButton,       2, 0);
+    gridLayout->addWidget(questBoardButton,    2, 1);
+    gridLayout->addWidget(questChainButton,    3, 3);
+    gridLayout->addWidget(characterSheetButton,2, 2);
+    gridLayout->addWidget(bestiaryButton,      2, 3);
+    gridLayout->addWidget(journalButton,       3, 0);
+    gridLayout->addWidget(npcButton,           3, 1);
+    gridLayout->addWidget(exitButton,          3, 2);
+    gridLayout->addWidget(arenaButton,         4, 0);
+    
+    midLayout->addLayout(gridLayout);
+    mainLayout->addLayout(midLayout);
+
+    // --- Bottom Section: Chat ---
+    chatDisplay = new QTextEdit(this);
+    chatDisplay->setReadOnly(true);
+    chatDisplay->setObjectName("chatDisplay");
+    mainLayout->addWidget(chatDisplay);
+
+    QHBoxLayout *chatInputLayout = new QHBoxLayout();
+    chatInput = new QLineEdit(this);
+    sendButton = new QPushButton("Send", this);
+    chatInputLayout->addWidget(chatInput);
+    chatInputLayout->addWidget(sendButton);
+    mainLayout->addLayout(chatInputLayout);
+
+    // Basic Signal Connections
+    connect(generalStoreButton,    &QToolButton::clicked, this, &theCity::handleLocationClick);
+    connect(morgueButton,         &QToolButton::clicked, this, &theCity::handleLocationClick);
+    connect(guildsButton,         &QToolButton::clicked, this, &theCity::handleLocationClick);
+    connect(dungeonButton,        &QToolButton::clicked, this, &theCity::handleLocationClick);
+    connect(confinementButton,    &QToolButton::clicked, this, &theCity::handleLocationClick);
+    connect(seerButton,           &QToolButton::clicked, this, &theCity::handleLocationClick);
+    connect(bankButton,           &QToolButton::clicked, this, &theCity::handleLocationClick);
+    connect(tavernButton,         &QToolButton::clicked, this, &theCity::handleLocationClick);
+    connect(libraryButton,        &QToolButton::clicked, this, &theCity::handleLocationClick);
+    connect(questBoardButton,     &QToolButton::clicked, this, &theCity::handleLocationClick);
+    connect(questChainButton,     &QToolButton::clicked, this, &theCity::handleLocationClick);
+    connect(characterSheetButton, &QToolButton::clicked, this, &theCity::handleLocationClick);
+    connect(bestiaryButton,       &QToolButton::clicked, this, &theCity::handleLocationClick);
+    connect(journalButton,        &QToolButton::clicked, this, &theCity::handleLocationClick);
+    connect(npcButton,            &QToolButton::clicked, this, &theCity::handleLocationClick);
+    connect(exitButton,           &QToolButton::clicked, this, &theCity::handleLocationClick);
+    connect(arenaButton,          &QToolButton::clicked, this, &theCity::on_arenaButton_clicked);
+
+    connect(sendButton,        &QPushButton::clicked, this, &theCity::sendChatMessage);
+    connect(chatInput,         &QLineEdit::returnPressed, this, &theCity::sendChatMessage);
+/*
+    connect(generalStoreButton, &QToolButton::clicked, this, &theCity::on_generalStoreButton_clicked);
+    connect(morgueButton,      &QToolButton::clicked, this, &theCity::on_morgueButton_clicked);
+    connect(guildsButton,      &QToolButton::clicked, this, &theCity::on_guildsButton_clicked);
+    connect(dungeonButton,     &QToolButton::clicked, this, &theCity::on_dungeonButton_clicked);
+    connect(confinementButton, &QToolButton::clicked, this, &theCity::on_confinementButton_clicked);
+    connect(seerButton,        &QToolButton::clicked, this, &theCity::on_seerButton_clicked);
+    connect(bankButton,        &QToolButton::clicked, this, &theCity::on_bankButton_clicked);
+    connect(exitButton,        &QToolButton::clicked, this, &theCity::on_exitButton_clicked);
+    connect(sendButton,        &QPushButton::clicked, this, &theCity::sendChatMessage);
+    connect(chatInput,         &QLineEdit::returnPressed, this, &theCity::sendChatMessage);
+*/
+}
+
+void theCity::setupMultiplayerConnections()
+{
+    connect(NetworkManager::instance(), &NetworkManager::playerJoined, this, &theCity::handlePlayerJoined);
+    connect(NetworkManager::instance(), &NetworkManager::playerLeft, this, &theCity::handlePlayerLeft);
+    connect(NetworkManager::instance(), &NetworkManager::chatReceived, this, &theCity::handleChatReceived);
+}
+
+void theCity::handlePlayerJoined(QString name) {
+    playerList->addItem(name);
+    chatDisplay->append(QString("<i style='color:gray;'>%1 has arrived.</i>").arg(name));
+}
+
+void theCity::handlePlayerLeft(QString name) {
+    QList<QListWidgetItem*> items = playerList->findItems(name, Qt::MatchExactly);
+    for(auto item : items) delete playerList->takeItem(playerList->row(item));
+    chatDisplay->append(QString("<i style='color:gray;'>%1 has departed.</i>").arg(name));
+}
+
+void theCity::handleChatReceived(QString from, QString message) {
+    QString time = QDateTime::currentDateTime().toString("hh:mm");
+    chatDisplay->append(QString("[%1] <b>%2:</b> %3").arg(time, from, message));
+    chatDisplay->verticalScrollBar()->setValue(chatDisplay->verticalScrollBar()->maximum());
+}
+
+void theCity::sendChatMessage() {
+    if (isOfflineMode) {
+        chatDisplay->append("<b>You (Offline):</b> " + chatInput->text());
+        chatInput->clear();
+        return;
+    }
+
+    QString msg = chatInput->text().trimmed();
+    if (!msg.isEmpty()) {
+        NetworkManager::instance()->sendAction("chat", {{"message", msg}});
+        chatInput->clear();
+    }
+}
+
+void theCity::loadButtonIcons()
+{
+    const QSize iconSize(200, 150); 
+    generalStoreButton->setIcon(QIcon(GameResources::getPixmap("general_store")));
+    generalStoreButton->setIconSize(iconSize);
+    generalStoreButton->setToolTip("General Store");
+
+    morgueButton->setIcon(QIcon(GameResources::getPixmap("morgue")));
+    morgueButton->setIconSize(iconSize);
+    morgueButton->setToolTip("Morgue");
+
+    guildsButton->setIcon(QIcon(GameResources::getPixmap("guilds")));
+    guildsButton->setIconSize(iconSize);
+    guildsButton->setToolTip("Guilds");
+
+    dungeonButton->setIcon(QIcon(GameResources::getPixmap("dungeon")));
+    dungeonButton->setIconSize(iconSize);
+    dungeonButton->setToolTip("Dungeon");
+
+    confinementButton->setIcon(QIcon(GameResources::getPixmap("confinement")));
+    confinementButton->setIconSize(iconSize);
+    confinementButton->setToolTip("Confinement");
+
+    seerButton->setIcon(QIcon(GameResources::getPixmap("seer")));
+    seerButton->setIconSize(iconSize);
+    seerButton->setToolTip("Seer");
+
+    bankButton->setIcon(QIcon(GameResources::getPixmap("bank")));
+    bankButton->setIconSize(iconSize);
+    bankButton->setToolTip("Bank");
+
+    tavernButton->setIcon(QIcon(GameResources::getPixmap("tavern")));
+    tavernButton->setIconSize(iconSize);
+    tavernButton->setToolTip("Tavern");
+
+    libraryButton->setIcon(QIcon(GameResources::getPixmap("library")));
+    libraryButton->setIconSize(iconSize);
+    libraryButton->setToolTip("Library");
+
+    questBoardButton->setIcon(QIcon(GameResources::getPixmap("quest_board")));
+    questBoardButton->setIconSize(iconSize);
+    questBoardButton->setToolTip("Quest Board");
+
+    questChainButton->setIcon(QIcon(GameResources::getPixmap("quest_board")));
+    questChainButton->setIconSize(iconSize);
+    questChainButton->setToolTip("Main Quest");
+
+    characterSheetButton->setIcon(QIcon(GameResources::getPixmap("character_sheet")));
+    characterSheetButton->setIconSize(iconSize);
+    characterSheetButton->setToolTip("Character Sheet");
+
+    bestiaryButton->setIcon(QIcon(GameResources::getPixmap("bestiary")));
+    bestiaryButton->setIconSize(iconSize);
+    bestiaryButton->setToolTip("Bestiary");
+
+    journalButton->setIcon(QIcon(GameResources::getPixmap("journal")));
+    journalButton->setIconSize(iconSize);
+    journalButton->setToolTip("Journal");
+
+    npcButton->setIcon(QIcon(GameResources::getPixmap("npc")));
+    npcButton->setIconSize(iconSize);
+    npcButton->setToolTip("Talk to NPCs");
+
+    exitButton->setIcon(QIcon(GameResources::getPixmap("exit_icon")));
+    exitButton->setIconSize(iconSize);
+    exitButton->setToolTip("Exit to main menu");
+
+    arenaButton->setIcon(QIcon(GameResources::getPixmap("npc")));
+    arenaButton->setIconSize(iconSize);
+    arenaButton->setToolTip("Arena");
+}
+
+void theCity::setupStyling()
+{
+    QFile styleFile("theCity.qss");
+    if (styleFile.open(QFile::ReadOnly | QFile::Text)) {
+        this->setStyleSheet(QLatin1String(styleFile.readAll()));
+        styleFile.close();
+    }
+    titleLabel->setStyleSheet("font-size: 20px; color: #CCCCCC; background-color: #444444; padding: 5px; border: 1px solid #777777;");
+}
+
+void theCity::on_generalStoreButton_clicked() {
+    NetworkManager::instance()->sendAction("enter_location", {{"location", "GeneralStore"}});
+    // 1. Update the Global State
+    gameStateManager::instance()->enterLocation(GameConstants::CityLocation::GeneralStore);
+    // 2. Trigger local processing (music, text updates, etc.)
+    processLocation(GameConstants::CityLocation::GeneralStore);
+    // 3. Open the Dialog
+    GeneralStore *store = new GeneralStore(nullptr);
+    store->setAttribute(Qt::WA_DeleteOnClose);
+
+    store->setWindowFlags(Qt::Dialog | Qt::WindowStaysOnTopHint);
+
+    // When the store closes, reset the title to "The City"
+    connect(store, &QDialog::finished, this, [this](){
+        this->processLocation(GameConstants::CityLocation::Street);
+    });
+
+    store->exec();
+}
+
+void theCity::on_morgueButton_clicked() {
+    MorgueDialog *m = new MorgueDialog(nullptr);
+    m->setAttribute(Qt::WA_DeleteOnClose);
+    m->show();
+}
+
+void theCity::on_guildsButton_clicked() {
+    GuildsDialog *g = new GuildsDialog(nullptr);
+    g->setAttribute(Qt::WA_DeleteOnClose);
+    g->show();
+}
+
+void theCity::on_dungeonButton_clicked() {
+    DungeonDialog *d = new DungeonDialog(this); 
+    d->setAttribute(Qt::WA_DeleteOnClose);    
+    connect(d, &DungeonDialog::exitedDungeonToCity, this, &theCity::show);
+    d->show();
+    d->raise();
+    d->activateWindow();
+    d->setFocus();
+    this->hide();
+}
+
+void theCity::on_confinementButton_clicked() {
+    ConfinementAndHoldingDialog *c = new ConfinementAndHoldingDialog(nullptr);
+    c->setAttribute(Qt::WA_DeleteOnClose);
+    c->show();
+}
+
+void theCity::on_seerButton_clicked() {
+    // Alignment gate: evil barred from holy places.
+    QString alignmentName = gameStateManager::instance()->getGameValue("CurrentCharacterAlignment").toString();
+    auto alignment = AlignmentSystem::alignmentFromName(alignmentName);
+    if (!AlignmentSystem::canEnterLocation(alignment, "Temple")) {
+        QStringList barred = AlignmentSystem::barredLocations(alignment);
+        QMessageBox::warning(this, "Barred by Alignment",
+            QString("Your %1 alignment bars you from the Temple.\n\nBarred locations: %2")
+                .arg(alignmentName, barred.join(", ")));
+        return;
+    }
+
+    SeerDialog *s = new SeerDialog(nullptr);
+    s->setAttribute(Qt::WA_DeleteOnClose);
+    s->show();
+}
+
+void theCity::on_bankButton_clicked() {
+    gameStateManager::instance()->enterLocation(GameConstants::CityLocation::Bank);
+    processLocation(GameConstants::CityLocation::Bank);
+
+    BankDialog *bank = new BankDialog(this);
+    bank->setAttribute(Qt::WA_DeleteOnClose);
+
+    // When the store closes, reset the title to "The City"
+    connect(bank, &QDialog::finished, this, [this](){
+        this->processLocation(GameConstants::CityLocation::Street);
+    });
+
+    bank->exec();
+
+    //BankDialog *b = new BankDialog(this);
+    //b->setAttribute(Qt::WA_DeleteOnClose);
+    //b->show();
+}
+
+void theCity::on_tavernButton_clicked() {
+    gameStateManager::instance()->enterLocation(GameConstants::CityLocation::Tavern);
+    processLocation(GameConstants::CityLocation::Tavern);
+
+    TavernDialog *tavern = new TavernDialog(this);
+    tavern->setAttribute(Qt::WA_DeleteOnClose);
+
+    connect(tavern, &QDialog::finished, this, [this]() {
+        processLocation(GameConstants::CityLocation::Street);
+    });
+
+    tavern->exec();
+}
+
+void theCity::on_libraryButton_clicked() {
+    gameStateManager::instance()->enterLocation(GameConstants::CityLocation::Library);
+    processLocation(GameConstants::CityLocation::Library);
+
+    LibraryDialog *lib = new LibraryDialog(this);
+    lib->setAttribute(Qt::WA_DeleteOnClose);
+
+    connect(lib, &QDialog::finished, this, [this]() {
+        processLocation(GameConstants::CityLocation::Street);
+    });
+
+    lib->exec();
+}
+
+void theCity::on_questBoardButton_clicked() {
+    QuestBoardDialog *qb = new QuestBoardDialog(this);
+    qb->setAttribute(Qt::WA_DeleteOnClose);
+    qb->exec();
+}
+
+void theCity::on_questChainButton_clicked() {
+    QuestChainDialog *qc = new QuestChainDialog(this);
+    qc->setAttribute(Qt::WA_DeleteOnClose);
+    qc->exec();
+}
+
+void theCity::on_characterSheetButton_clicked() {
+    CharacterSheetDialog *cs = new CharacterSheetDialog(this);
+    cs->setAttribute(Qt::WA_DeleteOnClose);
+    cs->exec();
+}
+
+void theCity::on_bestiaryButton_clicked() {
+    BestiaryDialog *b = new BestiaryDialog(this);
+    b->setAttribute(Qt::WA_DeleteOnClose);
+    b->exec();
+}
+
+void theCity::on_journalButton_clicked() {
+    JournalDialog *j = new JournalDialog(this);
+    j->setAttribute(Qt::WA_DeleteOnClose);
+    j->exec();
+}
+
+void theCity::on_npcButton_clicked() {
+    NPCDialog *n = new NPCDialog(this);
+    n->setAttribute(Qt::WA_DeleteOnClose);
+    n->exec();
+}
+
+void theCity::on_arenaButton_clicked() {
+    titleLabel->setText(Arena::arenaName());
+    gameStateManager::instance()->enterLocation(GameConstants::CityLocation::Street);
+    // Arena dialog opens; when it closes, the title resets via the finished signal.
+    ArenaDialog *arena = new ArenaDialog(this);
+    arena->setAttribute(Qt::WA_DeleteOnClose);
+    connect(arena, &QDialog::finished, this, [this]() {
+        processLocation(GameConstants::CityLocation::Street);
+    });
+    arena->exec();
+}
+
+void theCity::on_exitButton_clicked() {
+    NetworkManager::instance()->sendAction("leave_zone", {{"zone", "theCity"}});
+    accept(); 
+}
+
+void theCity::keyPressEvent(QKeyEvent *event) {
+    switch (event->key()) {
+    case Qt::Key_I:
+        { InventoryDialog *inv = new InventoryDialog(this);
+          inv->setAttribute(Qt::WA_DeleteOnClose);
+          inv->exec(); }
+        break;
+    case Qt::Key_1:
+        { PartyInfoDialog *partyInfo = new PartyInfoDialog(this);
+          partyInfo->setAttribute(Qt::WA_DeleteOnClose);
+          partyInfo->show(); }
+        break;
+    case Qt::Key_F:
+        on_generalStoreButton_clicked();
+        break;
+    case Qt::Key_S:
+        on_seerButton_clicked();
+        break;
+    case Qt::Key_R:
+        on_tavernButton_clicked();
+        break;
+    case Qt::Key_C:
+        on_characterSheetButton_clicked();
+        break;
+    case Qt::Key_B:
+        on_bestiaryButton_clicked();
+        break;
+    case Qt::Key_J:
+        on_journalButton_clicked();
+        break;
+    case Qt::Key_N:
+        on_npcButton_clicked();
+        break;
+    case Qt::Key_P:
+        on_questBoardButton_clicked();
+        break;
+    default:
+        QDialog::keyPressEvent(event);
+        break;
+    }
+}
+
+void theCity::startOfflineMode() {
+    isOfflineMode = true;
+    setWindowTitle("The City - Offline Mode");
+    
+    playerList->clear();
+
+    // 1. ADD THE CURRENT ACTIVE PLAYER (IF IN CITY)
+    int curX = gameStateManager::instance()->getGameValue("DungeonX").toInt();
+    int curY = gameStateManager::instance()->getGameValue("DungeonY").toInt();
+    int curLvl = gameStateManager::instance()->getGameValue("DungeonLevel").toInt();
+
+    // Check if current player is at entrance (1, 17, 12)
+    if (curLvl == 1 && curX == 17 && curY == 12) {
+        QListWidgetItem* selfItem = new QListWidgetItem(
+            gameStateManager::instance()->getGameValue("CurrentCharacterName").toString() + " (You)"
+        );
+        selfItem->setForeground(Qt::blue);
+        playerList->addItem(selfItem);
+    }
+
+    // 2. SCAN FOR OTHER SAVED CHARACTERS
+    QDir charDir("data/characters/");
+    if (charDir.exists()) {
+        QStringList saveFiles = charDir.entryList({"*.json"}, QDir::Files);
+        QString currentHero = gameStateManager::instance()->getGameValue("CurrentCharacterName").toString();
+
+        for (const QString& fileName : saveFiles) {
+            QString charName = fileName.left(fileName.lastIndexOf('.'));
+
+            // Skip the character we are currently playing
+            if (charName == currentHero) continue;
+
+            // Peek into the save to check position.
+            QFile file(charDir.absoluteFilePath(fileName));
+            if (!file.open(QIODevice::ReadOnly)) continue;
+            QJsonDocument doc = QJsonDocument::fromJson(file.readAll());
+            file.close();
+            if (!doc.isObject()) continue;
+
+            QVariantMap c = doc.toVariant().toMap();
+            int x   = c.value("DungeonX").toInt();
+            int y   = c.value("DungeonY").toInt();
+            int lvl = c.value("DungeonLevel").toInt();
+
+            // Only add if they are at the City Entrance coordinates
+            if (lvl == 1 && x == 17 && y == 12) {
+                playerList->addItem(charName);
+            }
+        }
+    }
+    
+    chatDisplay->append("<i style='color:gray;'>Offline mode: Local heroes at the entrance are visible.</i>");
+}
+
+void theCity::handleLocationClick() {
+    QObject* binder = sender(); // Identify which button was pressed
+    QDialog* subDialog = nullptr;
+
+    if (binder == generalStoreButton) {
+        processLocation(GameConstants::CityLocation::GeneralStore);
+        subDialog = new GeneralStore(this);
+    } 
+    else if (binder == bankButton) {
+        processLocation(GameConstants::CityLocation::Bank);
+        subDialog = new BankDialog(this);
+    }
+    else if (binder == seerButton) {
+        processLocation(GameConstants::CityLocation::Temple);
+        subDialog = new SeerDialog(this);
+    }
+    else if (binder == morgueButton) {
+        processLocation(GameConstants::CityLocation::None);
+        subDialog = new MorgueDialog(this);
+    }
+    else if (binder == guildsButton) {
+        processLocation(GameConstants::CityLocation::Guild);
+        subDialog = new GuildsDialog(this);
+    }
+    else if (binder == tavernButton) {
+        processLocation(GameConstants::CityLocation::Tavern);
+        subDialog = new TavernDialog(this);
+    }
+    else if (binder == libraryButton) {
+        processLocation(GameConstants::CityLocation::Library);
+        subDialog = new LibraryDialog(this);
+    }
+    else if (binder == questBoardButton) {
+        processLocation(GameConstants::CityLocation::Street);
+        subDialog = new QuestBoardDialog(this);
+    }
+    else if (binder == characterSheetButton) {
+        processLocation(GameConstants::CityLocation::Street);
+        subDialog = new CharacterSheetDialog(this);
+    }
+    else if (binder == bestiaryButton) {
+        processLocation(GameConstants::CityLocation::Library);
+        subDialog = new BestiaryDialog(this);
+    }
+    else if (binder == journalButton) {
+        processLocation(GameConstants::CityLocation::Street);
+        subDialog = new JournalDialog(this);
+    }
+    else if (binder == npcButton) {
+        processLocation(GameConstants::CityLocation::Street);
+        subDialog = new NPCDialog(this);
+    }
+    else if (binder == confinementButton) {
+        processLocation(GameConstants::CityLocation::None);
+        subDialog = new ConfinementAndHoldingDialog(this);
+    }
+    else if (binder == dungeonButton) {
+        on_dungeonButton_clicked();
+        return;
+    }
+    else if (binder == exitButton) {
+        on_exitButton_clicked();
+        return;
+    }
+    // Add Tavern, Temple, or Morgue here easily...
+
+    if (subDialog) {
+        subDialog->setAttribute(Qt::WA_DeleteOnClose);
+        
+        // Reset title when closing
+        connect(subDialog, &QDialog::finished, this, [this]() {
+            processLocation(GameConstants::CityLocation::Street);
+        });
+
+        subDialog->exec(); 
+    }
+}
+
+theCity::~theCity() {}
+

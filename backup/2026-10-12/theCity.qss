@@ -1,0 +1,144 @@
+/*
+ * theCity.qss - Stylesheet for the City dialog
+ * The Depths of Dejenol: Black Lands
+ */
+QDialog#theCity {
+    background-color: #1a1a2e;
+    color: #e0e0e0;
+    border: 2px solid #4a4a6a;
+}
+
+QLabel#titleLabel {
+    color: #f0c040;
+    font-size: 18pt;
+    font-weight: bold;
+    padding: 10px;
+    background-color: #16213e;
+    border-bottom: 1px solid #4a4a6a;
+}
+
+QToolButton {
+    background-color: #2a2a4a;
+    color: #d0d0e0;
+    border: 1px solid #5a5a7a;
+    border-radius: 4px;
+    padding: 8px 16px;
+    font-size: 11pt;
+    min-width: 100px;
+}
+
+QToolButton:hover {
+    background-color: #3a3a5a;
+    border-color: #7a7a9a;
+    color: #ffffff;
+}
+
+QToolButton:pressed {
+    background-color: #1a1a3a;
+    border-color: #9a9aba;
+}
+
+QToolButton#generalStoreButton {
+    background-color: #2a4a2a;
+    border-color: #4a7a4a;
+}
+QToolButton#generalStoreButton:hover {
+    background-color: #3a5a3a;
+}
+
+QToolButton#morgueButton {
+    background-color: #4a2a2a;
+    border-color: #7a4a4a;
+}
+QToolButton#morgueButton:hover {
+    background-color: #5a3a3a;
+}
+
+QToolButton#guildsButton {
+    background-color: #2a2a4a;
+    border-color: #4a4a7a;
+}
+QToolButton#guildsButton:hover {
+    background-color: #3a3a5a;
+}
+
+QToolButton#dungeonButton {
+    background-color: #4a3a1a;
+    border-color: #7a5a3a;
+}
+QToolButton#dungeonButton:hover {
+    background-color: #5a4a2a;
+}
+
+QToolButton#confinementButton {
+    background-color: #3a2a3a;
+    border-color: #6a3a6a;
+}
+QToolButton#confinementButton:hover {
+    background-color: #4a3a4a;
+}
+
+QToolButton#seerButton {
+    background-color: #2a3a4a;
+    border-color: #4a6a8a;
+}
+QToolButton#seerButton:hover {
+    background-color: #3a4a5a;
+}
+
+QToolButton#bankButton {
+    background-color: #2a3a2a;
+    border-color: #4a6a4a;
+}
+QToolButton#bankButton:hover {
+    background-color: #3a4a3a;
+}
+
+QToolButton#exitButton {
+    background-color: #4a2a2a;
+    border-color: #7a3a3a;
+    color: #ff6060;
+}
+QToolButton#exitButton:hover {
+    background-color: #5a3a3a;
+    color: #ff8080;
+}
+
+/* Multiplayer section */
+QListWidget#playerList {
+    background-color: #1a1a2e;
+    color: #c0c0d0;
+    border: 1px solid #4a4a6a;
+    border-radius: 4px;
+    selection-background-color: #4a4a7a;
+}
+
+QTextEdit#chatDisplay {
+    background-color: #0e0e1e;
+    color: #b0b0c0;
+    border: 1px solid #3a3a5a;
+    border-radius: 4px;
+    font-family: "Courier New", monospace;
+    font-size: 9pt;
+}
+
+QLineEdit#chatInput {
+    background-color: #2a2a3e;
+    color: #e0e0f0;
+    border: 1px solid #5a5a7a;
+    border-radius: 4px;
+    padding: 4px 8px;
+}
+
+QPushButton#sendButton {
+    background-color: #3a5a3a;
+    color: #ffffff;
+    border: 1px solid #5a7a5a;
+    border-radius: 4px;
+    padding: 4px 12px;
+    font-size: 9pt;
+}
+
+QPushButton#sendButton:hover {
+    background-color: #4a6a4a;
+}

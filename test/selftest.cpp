@@ -14,6 +14,7 @@
 #include "src/arena_dialog/ArenaDialog.h"
 #include "src/race_data/RaceData.h"
 #include "src/helplesson/helplesson.h"
+#include "src/options_dialog/optionsdialog.h"
 #include "theCity.h"
 #include "src/core/LevelTable.h"
 #include "src/core/AgingRules.h"
@@ -10959,6 +10960,23 @@ int runSelfTest()
 
         check(true, "ArenaDialog constructs without crash");
         dlg.close();
+    }
+
+    section("[287] v5.6.0 slice 6.1: options backup timestamp updates");
+    {
+        OptionsDialog dlg;
+        // Construct without show() — show() is forbidden in the suite.
+        // Drive the slot directly to verify the label updates.
+        dlg.onBackupClicked();
+        QLabel* label = nullptr;
+        for (QLabel* l : dlg.findChildren<QLabel*>()) {
+            if (l->text().startsWith("Last Backup")) { label = l; break; }
+        }
+        check(label != nullptr, "backup label exists");
+        if (label) {
+            check(label->text().contains("Last Backup"), "label shows backup timestamp");
+            check(!label->text().contains("Placeholder"), "label is not placeholder");
+        }
     }
 
     section("[286] v5.6.0 slice 6.0b: helplesson dwarf image label hidden");

@@ -29,10 +29,12 @@ private slots:
     void onCancelClicked();
     void onDefaultClicked();
     void onNoMusicToggled(bool checked);
-    void onBackupClicked();
-    void onRestoreClicked();
     void onSelectProportionalFont();
     void onSelectFixedFont();
+
+public:
+    void onBackupClicked();
+    void onRestoreClicked();
 
 private:
     void setupUi();

@@ -1,0 +1,101 @@
+#ifndef theCity_H
+#define theCity_H
+
+#include "src/inventory_dialog/inventorydialog.h"
+#include <QDialog>
+#include <QToolButton>
+#include <QLabel>
+#include <QGridLayout>
+#include <QVBoxLayout>
+#include <QHBoxLayout>
+#include <QKeyEvent>
+#include <QListWidget>
+#include <QTextEdit>
+#include <QLineEdit>
+#include <QPushButton>
+#include <QMediaPlayer>
+#include <QAudioOutput>
+
+class TempleDialog;
+
+class theCity : public QDialog
+{
+    Q_OBJECT
+
+public:
+    explicit theCity(QWidget *parent = nullptr);
+    ~theCity();
+
+    void processLocation(GameConstants::CityLocation location);
+
+private slots:
+    void handleLocationClick();
+    // Existing Action Slots
+    void on_arenaButton_clicked();
+    void on_generalStoreButton_clicked();
+    void on_morgueButton_clicked();
+    void on_guildsButton_clicked();
+    void on_dungeonButton_clicked();
+    void on_confinementButton_clicked();
+    void on_seerButton_clicked();
+    void on_bankButton_clicked();
+    void on_tavernButton_clicked();
+    void on_libraryButton_clicked();
+    void on_questBoardButton_clicked();
+    void on_questChainButton_clicked();
+    void on_characterSheetButton_clicked();
+    void on_bestiaryButton_clicked();
+    void on_journalButton_clicked();
+    void on_npcButton_clicked();
+    void on_exitButton_clicked();
+
+    // Multiplayer Slots
+    void sendChatMessage();
+    void handlePlayerJoined(QString name);
+    void handlePlayerLeft(QString name);
+    void handleChatReceived(QString from, QString message);
+
+private:
+    QMediaPlayer *m_cityPlayer;
+    QAudioOutput *m_cityAudioOutput;
+    // UI Elements - Header & Grid
+    QLabel *titleLabel;
+    QToolButton *generalStoreButton;
+    QToolButton *morgueButton;
+    QToolButton *guildsButton;
+    QToolButton *dungeonButton;
+    QToolButton *confinementButton;
+    QToolButton *seerButton;
+    QToolButton *bankButton;
+    QToolButton *tavernButton;
+    QToolButton *libraryButton;
+    QToolButton *questBoardButton;
+    QToolButton *questChainButton;
+    QToolButton *characterSheetButton;
+    QToolButton *bestiaryButton;
+    QToolButton *journalButton;
+    QToolButton *npcButton;
+    QToolButton *exitButton;
+    QToolButton *arenaButton;
+
+    // UI Elements - Multiplayer
+    QListWidget *playerList;
+    QTextEdit *chatDisplay;
+    QLineEdit *chatInput;
+    QPushButton *sendButton;
+
+    // Helper Functions
+    void setupUi();
+    void setupStyling();
+    void loadButtonIcons();
+    void setupMultiplayerConnections();
+
+    // Standalone
+    bool isOfflineMode = false;
+    void startOfflineMode();
+
+protected:
+    void keyPressEvent(QKeyEvent *event) override;
+};
+
+#endif // theCity_H
