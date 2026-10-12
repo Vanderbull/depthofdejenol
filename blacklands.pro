@@ -64,7 +64,6 @@ SOURCES += \
     src/options_dialog/optionsdialog.cpp \
     src/dungeon_dialog/DungeonDialog.cpp \
     src/partyinfo_dialog/partyinfodialog.cpp \
-    src/dungeonmap/dungeonmap.cpp \
     src/bank_dialog/TradeDialog.cpp \
     src/game_resources.cpp \
     src/dungeon_dialog/DungeonMinimap.cpp \
@@ -213,7 +212,6 @@ HEADERS += \
     src/options_dialog/optionsdialog.h \
     src/dungeon_dialog/DungeonDialog.h \
     src/partyinfo_dialog/partyinfodialog.h \
-    src/dungeonmap/dungeonmap.h \
     src/bank_dialog/TradeDialog.h \
     src/core/game_resources.h \
     src/dungeon_dialog/DungeonHandlers.h \
