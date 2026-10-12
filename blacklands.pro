@@ -41,24 +41,24 @@ SOURCES += \
     src/network_manager/NetworkManager.cpp \
     src/hall_of_records/hallofrecordsdialog.cpp \
     src/create_character/createcharacterdialog.cpp \
-    src/about_dialog/AboutDialog.cpp \
     src/character_dialog/CharacterDialog.cpp \
     src/message_window/MessageWindow.cpp \
-    src/sender_window/SenderWindow.cpp \
     src/library_dialog/library_dialog.cpp \
     src/automap/automap_dialog.cpp \
     src/game_controller/game_controller.cpp \
     src/load_party_dialog/LoadPartyDialog.cpp \
-    src/assemble_party_dialog/AssemblePartyDialog.cpp \
     src/helplesson/helplesson.cpp \
     src/mordorstatistics/mordorstatistics.cpp \
-    src/loadingscreen/LoadingScreen.cpp \
     src/guilds_dialog/GuildsDialog.cpp \
     src/general_store/GeneralStore.cpp \
     src/morgue_dialog/MorgueDialog.cpp \
     src/seer_dialog/SeerDialog.cpp \
     src/confinement_dialog/ConfinementDialog.cpp \
     src/bank_dialog/BankDialog.cpp \
+    src/about_dialog/AboutDialog.cpp \
+    src/assemble_party_dialog/AssemblePartyDialog.cpp \
+    src/loadingscreen/LoadingScreen.cpp \
+    src/sender_window/SenderWindow.cpp \
     src/race_data/RaceData.cpp \
     src/inventory_dialog/inventorydialog.cpp \
     src/options_dialog/optionsdialog.cpp \
@@ -145,8 +145,6 @@ HEADERS += src/core/SoundEffects.h
 SOURCES += src/core/SoundEffects.cpp
 HEADERS += src/core/AlignmentSystem.h
 SOURCES += src/core/AlignmentSystem.cpp
-HEADERS += src/shortcut_help/ShortcutHelp.h
-SOURCES += src/shortcut_help/ShortcutHelp.cpp
 HEADERS += src/tutorial/Tutorial.h
 SOURCES += src/tutorial/Tutorial.cpp
 HEADERS += src/npc_dialog/NPCDialog.h
@@ -189,18 +187,14 @@ HEADERS += \
     src/network_manager/NetworkManager.h \
     src/hall_of_records/hallofrecordsdialog.h \
     src/create_character/createcharacterdialog.h \
-    src/about_dialog/AboutDialog.h \
     src/character_dialog/CharacterDialog.h \
     src/message_window/MessageWindow.h \
-    src/sender_window/SenderWindow.h \
     src/library_dialog/library_dialog.h \
     src/automap/automap_dialog.h \
     src/game_controller/game_controller.h \
     src/load_party_dialog/LoadPartyDialog.h \
-    src/assemble_party_dialog/AssemblePartyDialog.h \
     src/helplesson/helplesson.h \
     src/mordorstatistics/mordorstatistics.h \
-    src/loadingscreen/LoadingScreen.h \
     src/guilds_dialog/GuildsDialog.h \
     src/general_store/GeneralStore.h \
     src/morgue_dialog/MorgueDialog.h \
@@ -213,6 +207,10 @@ HEADERS += \
     src/dungeon_dialog/DungeonDialog.h \
     src/partyinfo_dialog/partyinfodialog.h \
     src/bank_dialog/TradeDialog.h \
+    src/about_dialog/AboutDialog.h \
+    src/assemble_party_dialog/AssemblePartyDialog.h \
+    src/loadingscreen/LoadingScreen.h \
+    src/sender_window/SenderWindow.h \
     src/core/game_resources.h \
     src/dungeon_dialog/DungeonHandlers.h \
     src/event/EventManager.h \

@@ -40,7 +40,7 @@
 #include "src/core/QuestChainDriver.h"
 #include "src/core/AlignmentSystem.h"
 #include "src/npc_dialog/NPCDialog.h"
-#include "src/shortcut_help/ShortcutHelp.h"
+
 #include "src/tutorial/Tutorial.h"
 #include "src/quest_board/QuestBoardDialog.h"
 #include "src/journal_dialog/JournalDialog.h"
@@ -4711,43 +4711,6 @@ int runSelfTest()
         check(locations.contains("Library"), "Library NPC exists");
         check(locations.contains("Royal Bank"), "Bank NPC exists");
         check(locations.contains("Morgue"), "Morgue NPC exists");
-    }
-
-    // ------------------------------------------- Keyboard shortcuts (7.9)
-    section("[46] Keyboard shortcut help");
-    {
-        QList<ShortcutEntry> all = ShortcutHelp::allShortcuts();
-        check(all.size() >= 20, "at least 20 shortcuts registered",
-              QString::number(all.size()));
-
-        // Dungeon shortcuts exist.
-        QList<ShortcutEntry> dungeon = ShortcutHelp::shortcutsFor("Dungeon");
-        check(dungeon.size() >= 15, "dungeon has at least 15 shortcuts",
-              QString::number(dungeon.size()));
-
-        // Global shortcuts exist.
-        QList<ShortcutEntry> global = ShortcutHelp::shortcutsFor("Global");
-        check(global.size() >= 3, "global has at least 3 shortcuts",
-              QString::number(global.size()));
-
-        // Contexts are registered.
-        QStringList ctxs = ShortcutHelp::contexts();
-        check(ctxs.contains("Dungeon"), "Dungeon context exists");
-        check(ctxs.contains("Global"), "Global context exists");
-
-        // Find a specific shortcut.
-        ShortcutEntry fight = ShortcutHelp::find("F", "Dungeon");
-        check(!fight.key.isEmpty(), "F shortcut found in Dungeon");
-        check(fight.action == "Fight", "F is Fight", fight.action);
-
-        // Unknown shortcut is invalid.
-        ShortcutEntry unknown = ShortcutHelp::find("X", "Dungeon");
-        check(unknown.key.isEmpty(), "unknown shortcut is invalid");
-
-        // Format produces readable text.
-        QString formatted = ShortcutHelp::format(fight);
-        check(formatted.contains("F"), "format includes key", formatted);
-        check(formatted.contains("Fight"), "format includes action", formatted);
     }
 
     // ------------------------------------------- Tutorial (7.10)
