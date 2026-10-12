@@ -48,8 +48,8 @@ int LevelTable::xpForLevel(int n) const {
     if (n < m_xpTable.size()) {
         return m_xpTable[n];
     }
-    // Fallback: 100 * n^1.5
-    return static_cast<int>(100.0 * std::pow(n, 1.5));
+    // Fallback: round(30 * n^1.2) — matches levels.json formula
+    return static_cast<int>(std::round(30.0 * std::pow(n, 1.2)));
 }
 
 int LevelTable::totalXpForLevel(int n) const {

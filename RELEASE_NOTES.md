@@ -9,6 +9,13 @@
 - Level-1 character (50 MP) can now cast base spell 5 times
 - Non-vacuous: reverting to +2 fails the test
 
+### Slice 6.0b — Fix XP curve
+- Formula changed from `100 * n^1.5` to `30 * n^1.2`
+- Total XP for level 20: 31,200 → 10,480 (66% reduction)
+- Level 1→2 now requires 30 XP (was 100)
+- Updated levels.json and all test assertions
+- Non-vacuous: removing round() fails test (206 ≠ 207)
+
 ## v5.9.0 — Dead Code Removal
 
 ### Slice 9.0a — Remove dead code files

@@ -2739,36 +2739,42 @@ int runSelfTest()
         check(lt.xpForLevel(5) < lt.xpForLevel(10), "XP increases with level (5<10)");
         check(lt.xpForLevel(10) < lt.xpForLevel(20), "XP increases with level (10<20)");
 
-        // Specific values from the table
-        check(lt.xpForLevel(1) == 100, "xpForLevel(1) = 100");
-        check(lt.xpForLevel(2) == 283, "xpForLevel(2) = 283");
-        check(lt.xpForLevel(5) == 1118, "xpForLevel(5) = 1118");
-        check(lt.xpForLevel(10) == 3155, "xpForLevel(10) = 3155");
-        check(lt.xpForLevel(20) == 8708, "xpForLevel(20) = 8708");
+        // Specific values from the table (new formula: round(30 * n^1.2))
+        check(lt.xpForLevel(1) == 30, "xpForLevel(1) = 30");
+        check(lt.xpForLevel(2) == 69, "xpForLevel(2) = 69");
+        check(lt.xpForLevel(5) == 207, "xpForLevel(5) = 207");
+        check(lt.xpForLevel(10) == 475, "xpForLevel(10) = 475");
+        check(lt.xpForLevel(20) == 1092, "xpForLevel(20) = 1092");
+
+        // Total XP should be reasonable (~10K for level 20, not 31K)
+        int totalXp = lt.totalXpForLevel(20);
+        check(totalXp > 5000 && totalXp < 20000,
+              "total XP for level 20 is reasonable (5K-20K)",
+              QString::number(totalXp));
 
         // totalXpForLevel
         check(lt.totalXpForLevel(1) == 0, "totalXpForLevel(1) = 0");
-        check(lt.totalXpForLevel(2) == 100, "totalXpForLevel(2) = 100");
-        check(lt.totalXpForLevel(3) == 383, "totalXpForLevel(3) = 383");
+        check(lt.totalXpForLevel(2) == 30, "totalXpForLevel(2) = 30");
+        check(lt.totalXpForLevel(3) == 99, "totalXpForLevel(3) = 99");
 
         // levelForXp
         check(lt.levelForXp(0) == 1, "levelForXp(0) = 1");
-        check(lt.levelForXp(99) == 1, "levelForXp(99) = 1");
-        check(lt.levelForXp(100) == 2, "levelForXp(100) = 2");
-        check(lt.levelForXp(382) == 2, "levelForXp(382) = 2");
-        check(lt.levelForXp(383) == 3, "levelForXp(383) = 3");
+        check(lt.levelForXp(29) == 1, "levelForXp(29) = 1");
+        check(lt.levelForXp(30) == 2, "levelForXp(30) = 2");
+        check(lt.levelForXp(98) == 2, "levelForXp(98) = 2");
+        check(lt.levelForXp(99) == 3, "levelForXp(99) = 3");
 
         // xpProgress
         QPair<int, int> progress = lt.xpProgress(150);
-        check(progress.first == 50, "xpProgress(150).first = 50",
+        check(progress.first == 51, "xpProgress(150).first = 51",
               QString::number(progress.first));
-        check(progress.second == 283, "xpProgress(150).second = 283",
+        check(progress.second == 112, "xpProgress(150).second = 112",
               QString::number(progress.second));
 
         // Fallback for unloaded table
         LevelTable fallback;
-        check(fallback.xpForLevel(1) == 100, "fallback xpForLevel(1) = 100");
-        check(fallback.xpForLevel(5) == 1118, "fallback xpForLevel(5) = 1118");
+        check(fallback.xpForLevel(1) == 30, "fallback xpForLevel(1) = 30");
+        check(fallback.xpForLevel(5) == 207, "fallback xpForLevel(5) = 207");
     }
 
     // ------------------------------------------- Level-up stat gains (3.2)
@@ -3029,8 +3035,8 @@ int runSelfTest()
         c.dexterity = 10;
         pm.currentParty().members.append(c);
 
-        // Give enough XP to level up (level 1→2 needs 100 XP)
-        pm.addExperienceToCharacter(0, 100);
+        // Give enough XP to level up (level 1→2 needs 30 XP)
+        pm.addExperienceToCharacter(0, 30);
 
         check(pm.currentParty().members[0].level == 2, "level up via LevelTable",
               QString::number(pm.currentParty().members[0].level));
@@ -3051,18 +3057,18 @@ int runSelfTest()
         c.joinGuild("Mages Guild");
         check(c.guildLevel("Mages Guild") == 1, "join starts at level 1");
 
-        // Level 1 -> 2 costs 100 XP
-        bool leveled = c.addGuildExperience("Mages Guild", 99);
-        check(!leveled, "99 XP does not level");
+        // Level 1 -> 2 costs 30 XP
+        bool leveled = c.addGuildExperience("Mages Guild", 29);
+        check(!leveled, "29 XP does not level");
         check(c.guildLevel("Mages Guild") == 1, "still level 1");
 
         leveled = c.addGuildExperience("Mages Guild", 1);
-        check(leveled, "100 XP levels up");
+        check(leveled, "30 XP levels up");
         check(c.guildLevel("Mages Guild") == 2, "now level 2");
 
-        // Level 2 -> 3 costs 283
-        leveled = c.addGuildExperience("Mages Guild", 283);
-        check(leveled, "283 XP levels up again");
+        // Level 2 -> 3 costs 69
+        leveled = c.addGuildExperience("Mages Guild", 69);
+        check(leveled, "69 XP levels up again");
         check(c.guildLevel("Mages Guild") == 3, "now level 3");
 
         // Increment directly
@@ -3089,8 +3095,8 @@ int runSelfTest()
         Character c;
         c.name = "Mage";
         c.joinGuild("Mages Guild");
-        c.addGuildExperience("Mages Guild", 100);  // -> 2
-        c.addGuildExperience("Mages Guild", 283);  // -> 3
+        c.addGuildExperience("Mages Guild", 30);  // -> 2
+        c.addGuildExperience("Mages Guild", 69);  // -> 3
 
         QVariantMap map = c.toMap();
         Character loaded;
@@ -3131,7 +3137,7 @@ int runSelfTest()
         check(!hasFireball, "level-1 mage does not know Fireball");
 
         // Level the mage's guild to 3 -> Fireball appears.
-        mage.addGuildExperience("Mages Guild", 100 + 283);  // -> level 3
+        mage.addGuildExperience("Mages Guild", 30 + 69);  // -> level 3
         check(mage.guildLevel("Mages Guild") == 3, "mage is guild level 3");
 
         known = sb.spellsFor(mage);
@@ -6502,8 +6508,8 @@ int runSelfTest()
         int hpBefore = hero.maxHp;
         int manaBefore = hero.maxMana;
 
-        // Award enough XP to level up (level 1→2 needs 100 XP)
-        hero.addExperience(100);
+        // Award enough XP to level up (level 1→2 needs 30 XP)
+        hero.addExperience(30);
 
         check(hero.level == 2, "level increased to 2");
         check(hero.maxHp > hpBefore, "MaxHP increased on level-up");

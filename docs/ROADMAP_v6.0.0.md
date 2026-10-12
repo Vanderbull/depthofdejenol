@@ -46,10 +46,10 @@
 **Do**: Increase maxMana growth from +2 to +5 per level.
 **Verify**: Non-vacuous: +2 fails test, +5 passes.
 
-### 6.0b — Fix XP curve
-**Why**: Leveling is too slow at high levels.
-**Do**: Change formula to `round(80 * n^1.3)` or similar.
-**Verify**: Test proves level 20 is reachable in reasonable play time.
+### 6.0b — Fix XP curve ✅ DONE
+**Why**: Leveling is too slow at high levels (31,200 total XP for level 20).
+**Do**: Change formula to `round(30 * n^1.2)` (10,480 total XP — 66% reduction). Update levels.json and all test assertions.
+**Verify**: Non-vacuous: removing round() fails test (206 ≠ 207).
 
 ### 6.0c — Wire Mind spells into combat
 **Why**: Mind Blast, Confusion, Fear, Insanity do nothing.
