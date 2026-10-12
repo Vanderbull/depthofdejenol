@@ -84,6 +84,9 @@ void DungeonDialog::setupUi() {
     QPushButton *switchButton = new QPushButton("Switch To");
     QPushButton *optionsButton = new QPushButton("Options");
     QPushButton *leaveButton = new QPushButton("Leave");
+    connect(switchButton, &QPushButton::clicked, this, &DungeonDialog::switchCharacter);
+    connect(optionsButton, &QPushButton::clicked, this, &DungeonDialog::openOptionsDialog);
+    connect(leaveButton, &QPushButton::clicked, this, &DungeonDialog::close);
     controlsLayout->addWidget(switchButton);
     controlsLayout->addWidget(optionsButton);
     controlsLayout->addWidget(leaveButton);
@@ -105,4 +108,14 @@ void DungeonDialog::showPartyInfoDialog() {
     qDebug() << "Show Party Info button clicked";
     PartyInfoDialog *dialog = new PartyInfoDialog(this);
     dialog->show();
+}
+
+void DungeonDialog::openOptionsDialog() {
+    qDebug() << "Options button clicked";
+    emit switchToOptions();
+}
+
+void DungeonDialog::switchCharacter() {
+    qDebug() << "Switch To button clicked";
+    emit switchToNextCharacter();
 }

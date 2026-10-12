@@ -13,6 +13,8 @@ public:
 
 private slots:
     void showPartyInfoDialog();
+    void openOptionsDialog();
+    void switchCharacter();
 
 private:
     void setupUi();
