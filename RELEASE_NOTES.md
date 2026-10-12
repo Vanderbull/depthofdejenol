@@ -2,7 +2,13 @@
 
 **Latest:** v6.0.0 — Spell & Balance Fix
 
-## v6.0.0 — Spell & Balance Fix
+## v6.0.0 — Spell & Balance Fix (2026-10-12)
+
+- Mana: +5 per level (was +2) — spells now usable
+- XP curve: 30*n^1.2 (was 100*n^1.5) — 66% reduction
+- Thunderclap (L4) and Storm (L8) added to Electrical school
+- Instant Kill spells: massive damage instead of 9999 one-shot
+- Monster XP: same curve as LevelTable (was level*100)
 
 ### Slice 6.0a — Fix mana system
 - maxMana growth increased from +2 to +5 per level

@@ -5046,12 +5046,12 @@ int runSelfTest()
     // ------------------------------------------- Release packaging (8.5)
     section("[56] Release packaging");
     {
-        check(ReleaseInfo::version() == "5.9.0", "version is 5.9.0");
-        check(ReleaseInfo::versionString() == "v5.9.0", "version string");
+        check(ReleaseInfo::version() == "6.0.0", "version is 6.0.0");
+        check(ReleaseInfo::versionString() == "v6.0.0", "version string");
         check(!ReleaseInfo::releaseDate().isEmpty(), "release date exists");
         check(!ReleaseInfo::systemRequirements().isEmpty(), "system requirements exist");
-        check(ReleaseInfo::installerName().contains("5.9.0"), "installer name");
-        check(ReleaseInfo::banner().contains("5.9.0"), "banner");
+        check(ReleaseInfo::installerName().contains("6.0.0"), "installer name");
+        check(ReleaseInfo::banner().contains("6.0.0"), "banner");
     }
     {
         // Release notes.
@@ -5071,9 +5071,9 @@ int runSelfTest()
         QList<QPair<QString, QString>> history = ReleaseInfo::versionHistory();
         check(history.size() >= 5, "at least 5 versions in history",
               QString::number(history.size()));
-        check(history[0].first == "5.9.0", "latest version is 5.9.0");
-        check(history[0].second.contains("Dead Code") || history[0].second.contains("Removal"),
-              "v5.9.0 history entry mentions dead code removal");
+        check(history[0].first == "6.0.0", "latest version is 6.0.0");
+        check(history[0].second.contains("Spell") || history[0].second.contains("Balance"),
+              "v6.0.0 history entry mentions spell & balance fix");
     }
 
     // ------------------------------------------- Status flag integrity

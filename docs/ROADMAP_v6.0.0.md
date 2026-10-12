@@ -71,7 +71,7 @@
 **Do**: Changed `VictoryReward::calculateXp` from `level * 100` to `round(30 * level^1.2)` — same curve as LevelTable.
 **Verify**: Non-vacuous: reverting to `level * 100` fails 3 tests.
 
-### 6.1 — Release
+### 6.1 — Release ✅ DONE
 **Why**: Final verification.
-**Do**: Clean build, run tests, tag v6.0.0.
+**Do**: Clean build, 1768 tests pass, tagged v6.0.0.
 **Verify**: All tests pass.
