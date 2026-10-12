@@ -1127,7 +1127,9 @@ void gameStateManager::processAgingConsequences() {
         if (pc.name == "Empty Slot") continue;
         if (!pc.isAlive) continue;
 
-        const QStringList events = AgingRules::applyYearOfAging(pc);
+        // incrementPartyAge already advanced the age; here we only apply the
+        // consequences (decay / death) without aging again.
+        const QStringList events = AgingRules::applyYearOfAging(pc, 0);
         if (!events.isEmpty()) {
             changed = true;
             messages += events;

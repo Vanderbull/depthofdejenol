@@ -24,8 +24,22 @@ bool AgingRules::isDecaying(const Character& c) {
     return c.age >= decayThresholdForRace(c.race);
 }
 
-QStringList AgingRules::applyYearOfAging(Character& c) {
+QString AgingRules::getAgeBracket(const Character& c) {
+    if (isDecaying(c)) {
+        return QStringLiteral("Decaying");
+    }
+    if (c.age < 18) {
+        return QStringLiteral("Child");
+    }
+    return QStringLiteral("Adult");
+}
+
+QStringList AgingRules::applyYearOfAging(Character& c, int years) {
     QStringList messages;
+
+    if (years > 0) {
+        c.age += years;
+    }
 
     // Death at max age takes precedence over decay.
     if (isPastMaxAge(c)) {
@@ -37,7 +51,7 @@ QStringList AgingRules::applyYearOfAging(Character& c) {
     }
 
     // Past the decay threshold, a small chance each year to lose a point.
-    if (isDecaying(c)) {
+    if (isDecaying(c) && years > 0) {
         if (QRandomGenerator::global()->bounded(100) < 10) {
             c.strength     = qMax(3, c.strength - 1);
             c.constitution = qMax(3, c.constitution - 1);

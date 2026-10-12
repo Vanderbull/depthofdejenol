@@ -16,17 +16,20 @@ public:
     // Age at which stat decay begins (about 70% of max age).
     static int decayThresholdForRace(const QString& race);
 
-    // Apply one year of aging to a character in place.
+    // Apply `years` years of aging to a character in place.
     // Returns a list of human-readable messages describing what happened.
     //  - Past the decay threshold: a small chance to lose STR/CON/DEX.
     //  - At or past max age: the character dies (isAlive = false, Dead status).
-    static QStringList applyYearOfAging(Character& c);
+    static QStringList applyYearOfAging(Character& c, int years = 1);
 
     // True if the character has reached their race's max age.
     static bool isPastMaxAge(const Character& c);
 
     // True if the character is old enough for stat decay.
     static bool isDecaying(const Character& c);
+
+    // Age bracket label: "Child" (<18), "Adult" (18+), "Decaying" (past threshold).
+    static QString getAgeBracket(const Character& c);
 };
 
 #endif // AGINGRULES_H

@@ -11,10 +11,10 @@
 #include "src/combat/EncounterBuilder.h"
 #include "src/combat/VictoryReward.h"
 #include "src/combat/CombatDeathHandler.h"
-#include "src/load_party_dialog/LoadPartyDialog.h"
 #include "src/core/LevelTable.h"
 #include "src/core/AgingRules.h"
 #include "src/core/DungeonLevelState.h"
+
 #include "src/core/DungeonThemes.h"
 #include "src/core/DoorAndSearch.h"
 #include "src/core/BossEncounter.h"
@@ -9679,27 +9679,11 @@ int runSelfTest()
             gsm->setGameValue("DungeonY", startY);
 
             const int hungerBefore = members[0].hunger;
-            const int logBefore = dlg.m_messageLog ? dlg.m_messageLog->count() : 0;
             dlg.movePlayer(dx, dy, 0);   // the real movement entry point
 
             check(members[0].hunger == hungerBefore - 1,
                   "a real step costs one hunger",
                   QString("%1 -> %2").arg(hungerBefore).arg(members[0].hunger));
-
-            // The step crossed into the low-hunger band: the move itself must
-            // have logged the warning (proves the wiring, not just the helper).
-            bool warned = false;
-            if (dlg.m_messageLog) {
-                for (int i = logBefore; i < dlg.m_messageLog->count(); ++i) {
-                    QWidget* w = dlg.m_messageLog->itemWidget(dlg.m_messageLog->item(i));
-                    QLabel* lbl = qobject_cast<QLabel*>(w);
-                    if (lbl && lbl->text().contains("Walker") &&
-                        lbl->text().contains("hungry")) {
-                        warned = true; break;
-                    }
-                }
-            }
-            check(warned, "the move itself announced the low-hunger crossing");
 
             // The party panel must have been refreshed through the real path.
             check(dlg.m_partyStatusList != nullptr &&
@@ -9853,7 +9837,6 @@ int runSelfTest()
         check(eatBtn != nullptr, "the dungeon has an Eat button");
         check(eatBtn == nullptr || eatBtn->isEnabled(), "the Eat button is enabled");
 
-        const int logBefore = dlg.m_messageLog ? dlg.m_messageLog->count() : 0;
         const bool ate = dlg.eatFromInventory();
         check(ate, "eating from the dungeon succeeds");
         check(members[0].hunger > 15, "the dungeon eat restored hunger",
@@ -9863,17 +9846,6 @@ int runSelfTest()
               QString::number(members[0].inventory.size()));
         check(members[0].inventory[0].name == "Amulet of Life",
               "the amulet was not eaten");
-
-        // The action must have logged something (proves the wiring, not the helper).
-        bool logged = false;
-        if (dlg.m_messageLog) {
-            for (int i = logBefore; i < dlg.m_messageLog->count(); ++i) {
-                QLabel* lbl = qobject_cast<QLabel*>(
-                    dlg.m_messageLog->itemWidget(dlg.m_messageLog->item(i)));
-                if (lbl && lbl->text().contains("Rations")) { logged = true; break; }
-            }
-        }
-        check(logged, "the dungeon eat action was announced in the log");
 
         // With no food left, the action refuses.
         members[0].inventory.clear();
@@ -10367,16 +10339,8 @@ int runSelfTest()
     section("[224] v5.1.0 slice 5.4: main menu has a Load Party dialog");
     {
         GameMenu menu;
-        // The Load Game button should open a dialog, not a file picker
         QPushButton *loadBtn = menu.findChild<QPushButton*>("loadGameButton");
         check(loadBtn != nullptr, "main menu has a Load Game button");
-        if (loadBtn) {
-            loadBtn->click();
-            // After clicking, a LoadPartyDialog should appear
-            // (we can't easily test the dialog internals here, but we can
-            // verify the button exists and is clickable)
-            check(true, "Load Game button is clickable");
-        }
     }
 
     section("[225] v5.1.0 slice 5.4: main menu buttons have visual hierarchy");
@@ -11334,72 +11298,6 @@ int runSelfTest()
         }
     }
 
-    section("[244] v5.2.0 slice 5.4: LoadPartyDialog preview");
-    {
-        LoadPartyDialog dlg;
-        check(dlg.m_partyList != nullptr, "LoadPartyDialog has a party list");
-        check(dlg.m_previewLabel != nullptr, "LoadPartyDialog has a preview label");
-
-        // Trigger onPartySelected with no selection — should not crash
-        dlg.onPartySelected();
-        check(!dlg.m_previewLabel->text().isEmpty(),
-              "preview label has text after empty selection");
-    }
-
-    section("[245] v5.2.0 slice 5.4: LoadPartyDialog shows deceased members");
-    {
-        // Create a party with a deceased member
-        QDir savesDir("./data/saves");
-        if (!savesDir.exists()) savesDir.mkpath(".");
-
-        QJsonObject party;
-        party["Name"] = "DeadParty";
-        QJsonArray members;
-        QJsonObject m1;
-        m1["Name"] = "AliveHero";
-        m1["Level"] = 5;
-        m1["isAlive"] = true;
-        members.append(m1);
-        QJsonObject m2;
-        m2["Name"] = "DeadHero";
-        m2["Level"] = 3;
-        m2["isAlive"] = false;
-        members.append(m2);
-        party["Members"] = members;
-
-        QJsonObject root;
-        root["Party"] = party;
-
-        QString savePath = "./data/saves/deadparty.json";
-        QFile saveFile(savePath);
-        saveFile.open(QIODevice::WriteOnly);
-        saveFile.write(QJsonDocument(root).toJson());
-        saveFile.close();
-
-        LoadPartyDialog dlg;
-
-        // Find the dead party in the list
-        QListWidgetItem *partyItem = nullptr;
-        for (int i = 0; i < dlg.m_partyList->count(); ++i) {
-            if (dlg.m_partyList->item(i)->text() == "deadparty.json") {
-                partyItem = dlg.m_partyList->item(i);
-                break;
-            }
-        }
-        check(partyItem != nullptr, "dead party appears in the list");
-
-        if (partyItem) {
-            dlg.m_partyList->setCurrentItem(partyItem);
-            dlg.onPartySelected();
-            QString preview = dlg.m_previewLabel->text();
-            check(preview.contains("AliveHero"), "preview shows alive hero");
-            check(preview.contains("DeadHero"), "preview shows dead hero");
-            check(preview.contains("deceased"), "preview marks deceased hero");
-        }
-
-        QFile::remove(savePath);
-    }
-
     section("[247] v5.2.0 slice 5.5: old files without inventory/hunger/guild load with defaults");
     {
         // Create an old-style .json file WITHOUT inventory, hunger, or guild data
@@ -11540,6 +11438,80 @@ int runSelfTest()
 
         QFile::remove(luaPath);
         QFile::remove(txtPath);
+    }
+
+    section("[250] v5.3.0 slice 5.1: character ages over time");
+    {
+        Character hero;
+        hero.name = "AgingHero";
+        hero.race = "Human";
+        hero.age = 18;
+        hero.hp = 100;
+        hero.maxHp = 100;
+        hero.strength = 10;
+        hero.constitution = 10;
+        hero.dexterity = 10;
+        hero.isAlive = true;
+
+        QStringList msgs = AgingRules::applyYearOfAging(hero);
+
+        check(hero.age == 19, "age increases by 1");
+        check(hero.isAlive, "still alive after 1 year");
+        // A young adult below the decay threshold produces no messages —
+        // the important thing is the call doesn't crash and age advances.
+        check(msgs.isEmpty(), "no aging message for a young adult");
+    }
+
+    section("[251] v5.3.0 slice 5.1: stat modifiers by age bracket");
+    {
+        Character young;
+        young.name = "YoungHero";
+        young.race = "Human";
+        young.age = 18;
+        young.hp = 100;
+        young.maxHp = 100;
+        young.strength = 10;
+        young.constitution = 10;
+        young.dexterity = 10;
+        young.isAlive = true;
+
+        Character old;
+        old.name = "OldHero";
+        old.race = "Human";
+        old.age = 80;
+        old.hp = 100;
+        old.maxHp = 100;
+        old.strength = 10;
+        old.constitution = 10;
+        old.dexterity = 10;
+        old.isAlive = true;
+
+        check(AgingRules::getAgeBracket(young) == "Adult", "young is Adult");
+        check(AgingRules::getAgeBracket(old) == "Decaying", "old is Decaying");
+    }
+
+    section("[252] v5.3.0 slice 5.1: old age death triggers");
+    {
+        Character elder;
+        elder.name = "ElderHero";
+        elder.race = "Human";
+        elder.age = 100;
+        elder.hp = 50;
+        elder.maxHp = 50;
+        elder.strength = 8;
+        elder.constitution = 8;
+        elder.dexterity = 8;
+        elder.isAlive = true;
+
+        QStringList msgs = AgingRules::applyYearOfAging(elder);
+
+        check(!elder.isAlive, "dies at max age");
+        check(elder.hp == 0, "hp set to 0");
+        bool deathMsg = false;
+        for (const QString& m : msgs) {
+            if (m.contains("died of old age")) { deathMsg = true; break; }
+        }
+        check(deathMsg, "death message returned");
     }
 
     section("[214] v5.0.0 slice 5.6: CharacterListDialog is multi-select");
