@@ -160,7 +160,7 @@ void CharacterListDialog::onDeleteClicked()
                                       QMessageBox::Yes|QMessageBox::No);
         if (reply == QMessageBox::Yes) {
             // Try removing the actual file
-            QString filePath = "characters/" + characterName + ".txt";
+            QString filePath = "./data/characters/" + characterName + ".txt";
             if (QFile::remove(filePath)) {
                 // Remove from UI if file removed
                 delete characterListWidget->takeItem(characterListWidget->currentRow());
