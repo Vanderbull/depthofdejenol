@@ -10932,6 +10932,60 @@ int runSelfTest()
         dlg.close();
     }
 
+    section("[290] v6.0.0 slice 6.0e: instant kill spells deal massive damage");
+    {
+        // Insanity (Mind, L8, "Instant Kill") and Exorcism (Kill, L6,
+        // "Instant Kill") should deal 3× caster level, not 9999.
+        SpellBook::instance().load("data/spells.json");
+
+        CombatState state;
+        CombatParticipant caster; caster.name = "Mage"; caster.isPlayer = true;
+        caster.level = 10; caster.hp = 100; caster.maxHp = 100;
+        caster.mana = 100; caster.maxMana = 100; caster.speed = 100;
+        state.addParticipant(caster);
+        CombatParticipant monster; monster.name = "Dragon"; monster.isPlayer = false;
+        monster.hp = 500; monster.maxHp = 500; monster.level = 8; monster.speed = 1;
+        state.addParticipant(monster);
+
+        TurnEngine engine; engine.setCombatState(&state);
+        CombatActions actions(&state, &engine);
+        state.rollInitiative();
+        engine.startRound();
+        engine.nextTurn();
+
+        QString result;
+        int dmg = actions.castSpellBySchool(1, "Insanity", result);
+        check(dmg > 0 && dmg < 9999,
+              "Insanity deals massive damage, not one-shot",
+              QString::number(dmg));
+        check(dmg == 50, "Insanity deals max(50, 3× caster level) = 50",
+              QString::number(dmg));
+
+        // Exorcism (Kill school, "Instant Kill")
+        CombatState state2;
+        CombatParticipant caster2; caster2.name = "Paladin"; caster2.isPlayer = true;
+        caster2.level = 5; caster2.hp = 100; caster2.maxHp = 100;
+        caster2.mana = 100; caster2.maxMana = 100; caster2.speed = 100;
+        state2.addParticipant(caster2);
+        CombatParticipant undead; undead.name = "Skeleton"; undead.isPlayer = false;
+        undead.hp = 200; undead.maxHp = 200; undead.level = 5; undead.speed = 1;
+        state2.addParticipant(undead);
+
+        TurnEngine engine2; engine2.setCombatState(&state2);
+        CombatActions actions2(&state2, &engine2);
+        state2.rollInitiative();
+        engine2.startRound();
+        engine2.nextTurn();
+
+        QString result2;
+        int dmg2 = actions2.castSpellBySchool(1, "Exorcism", result2);
+        check(dmg2 > 0 && dmg2 < 9999,
+              "Exorcism deals massive damage, not one-shot",
+              QString::number(dmg2));
+        check(dmg2 == 50, "Exorcism deals max(50, 3× caster level) = 50",
+              QString::number(dmg2));
+    }
+
     section("[289] v6.0.0 slice 6.0d: electrical school has 4+ spells");
     {
         SpellBook& sb = SpellBook::instance();

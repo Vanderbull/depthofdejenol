@@ -61,10 +61,10 @@
 **Do**: Added Thunderclap (L4, 1 chain) and Storm (L8, 3 chains). Updated SpellMechanics chain logic. Test [27] updated to 49 spells.
 **Verify**: Non-vacuous: Thunderclap/Storm return correct chain counts.
 
-### 6.0e — Fix Instant Kill spells
-**Why**: No counterplay.
-**Do**: Change to "damage = 3x caster level" instead of instant kill.
-**Verify**: Test proves spells deal damage, not instant kill.
+### 6.0e — Fix Instant Kill spells ✅ DONE
+**Why**: No counterplay — 9999 one-shot damage.
+**Do**: Changed to `qMax(50, casterLevel * 3)` massive damage. Insanity/Exorcism/Vampire Slayer/Banish now deal 50+ damage instead of instant kill.
+**Verify**: Non-vacuous: removing the handler returns 0 damage.
 
 ### 6.0f — Fix monster XP
 **Why**: Values are 1000x too high.

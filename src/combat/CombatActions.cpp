@@ -301,6 +301,19 @@ int CombatActions::applySpellDamageBySchool(int targetIndex, const QString& spel
     const SpellMechanics::School school = SpellMechanics::schoolFor(spell->category);
     const bool targetIsPlayer = m_state->participant(targetIndex).isPlayer;
 
+    // Instant Kill/Banish spells: deal massive damage instead of 9999 one-shot.
+    if (spell->damage == "Instant Kill" || spell->damage == "Instant Banish") {
+        const int casterIdx = m_engine->currentParticipantIndex();
+        const int casterLevel = m_state->participant(casterIdx).level;
+        const int massiveDmg = qMax(50, casterLevel * 3);
+        CombatParticipant& target = m_state->participant(targetIndex);
+        target.hp -= massiveDmg;
+        if (target.hp <= 0) { target.hp = 0; target.isAlive = false; }
+        result = QString("%1 hits %2 for %3 damage!")
+            .arg(spellName).arg(target.name).arg(massiveDmg);
+        return massiveDmg;
+    }
+
     // --- Fire: area of effect, +10% damage per extra target ---
     if (school == SpellMechanics::School::Fire && SpellMechanics::isAoe(*spell)) {
         const int targets = SpellMechanics::fireTargets(*spell);

@@ -16,6 +16,17 @@
 - Updated levels.json and all test assertions
 - Non-vacuous: removing round() fails test (206 ≠ 207)
 
+### Slice 6.0c — Wire Mind spells into combat (N/A)
+- Mind was already handled in CombatActions::castSpell and applySpellDamageBySchool
+
+### Slice 6.0d — Add Electrical spells
+- Thunderclap (L4, 1 chain) and Storm (L8, 3 chains) added
+- SpellMechanics::lightningChainTargets updated
+
+### Slice 6.0e — Fix Instant Kill spells
+- Changed from 9999 one-shot to qMax(50, casterLevel * 3) massive damage
+- Non-vacuous: removing the handler returns 0 damage
+
 ## v5.9.0 — Dead Code Removal
 
 ### Slice 9.0a — Remove dead code files
