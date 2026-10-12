@@ -9,6 +9,7 @@
 
 class QLabel;
 class QPushButton;
+class QListWidget;
 
 class GameMenu : public QWidget {
     Q_OBJECT
@@ -36,29 +37,31 @@ private slots:
     void onCharacterListClicked();
     void onHelpClicked();
   //  void onShowStatisticsClicked();
-    void onRunClicked();
+    void onContinueClicked();
+    void enterCity();
     void onEventTriggered(const GameEvent& event);
     void onCharacterCreated(const QString &characterName);
-    void toggleMenuState(bool characterIsLoaded);
 
 private:
     void setupUI();
     void setupConnections();
     void loadStyleSheet();
     void loadBackgroundImage();
+    void refreshContinueState();
+    QString partyPreviewText() const;
 
-    //QLabel *m_titleLabel = nullptr;
-    //QLabel *m_subTitleLabel = nullptr;
+    QLabel *m_titleLabel = nullptr;
+    QLabel *m_versionLabel = nullptr;
+    QLabel *m_partyPreviewLabel = nullptr;
+    QPushButton *m_continueButton = nullptr;
     QPushButton *m_newButton = nullptr;
-    QPushButton *m_exitButton = nullptr;
-    QPushButton *m_helpButton = nullptr;
     QPushButton *m_loadButton = nullptr;
+    QPushButton *m_characterListButton = nullptr;
     QPushButton *m_recordsButton = nullptr;
+    QPushButton *m_helpButton = nullptr;
     QPushButton *m_optionsButton = nullptr;
     QPushButton *m_aboutButton = nullptr;
-    QPushButton *m_characterListButton = nullptr;
-    QPushButton *m_runButton = nullptr;
-    // Member variables for state/config
+    QPushButton *m_exitButton = nullptr;
     QSettings m_settings;
     QString m_subfolderName;
     QPixmap m_backgroundPixmap;

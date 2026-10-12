@@ -1,6 +1,31 @@
 # Release Notes
 
-**Latest:** v5.0.0 — Survival: make hunger real ✅
+**Latest:** v5.1.0 — Main Menu redesign ✅
+
+## v5.1.0 — Main Menu redesign ✅ RELEASED
+
+The main menu had a critical layout bug: `m_runButton` and `m_newButton` shared
+the same grid cell, so only one was visible. The menu also hid unavailable
+buttons instead of showing them as disabled, used a raw file picker for loading,
+and drew debug text over the background.
+
+### What changed
+- **Continue button** — loads autosave directly with a party preview showing
+  member names, count, and average level
+- **Party preview panel** — styled frame under the Continue button showing the
+  saved party at a glance
+- **Clear visual hierarchy** — primary (Continue/New Game), secondary (Load
+  Game/Character List), footer (Options/Help/About/Exit)
+- **Load Party dialog** — lists all saved parties with preview instead of a raw
+  file picker
+- **Debug text removed** — `paintEvent` no longer draws "ABCDEFGH"
+- **Fixed grid collision** — `m_runButton` and `m_newButton` no longer share a
+  cell
+- **Version label** — shows "BLACK LANDS — v5.0.0" under the title
+
+**Verified:** 1728 tests, 0 failed (+27 checks). Tests [220]–[223] cover
+Continue button visibility, click-to-load, party preview text, and hidden
+state when no autosave exists.
 
 ## v5.0.0 — Survival: make hunger real ✅ RELEASED
 

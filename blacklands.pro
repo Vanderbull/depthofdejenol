@@ -50,6 +50,7 @@ SOURCES += \
     src/automap/automap_dialog.cpp \
     src/game_controller/game_controller.cpp \
     src/characterlist_dialog/characterlistdialog.cpp \
+    src/load_party_dialog/LoadPartyDialog.cpp \
     src/helplesson/helplesson.cpp \
     src/mordorstatistics/mordorstatistics.cpp \
     src/loadingscreen/LoadingScreen.cpp \
@@ -199,6 +200,7 @@ HEADERS += \
     src/automap/automap_dialog.h \
     src/game_controller/game_controller.h \
     src/characterlist_dialog/characterlistdialog.h \
+    src/load_party_dialog/LoadPartyDialog.h \
     src/helplesson/helplesson.h \
     src/mordorstatistics/mordorstatistics.h \
     src/loadingscreen/LoadingScreen.h \

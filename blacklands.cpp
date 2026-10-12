@@ -13,6 +13,7 @@
 #include "src/message_window/MessageWindow.h"
 #include "src/helplesson/helplesson.h"
 #include "src/loadingscreen/LoadingScreen.h"
+#include "src/load_party_dialog/LoadPartyDialog.h"
 #include "src/race_data/RaceData.h"
 #include "src/core/DungeonLevelState.h"
 #include "test/selftest.h"
@@ -21,6 +22,7 @@
 
 // Qt Includes
 #include <QVBoxLayout>
+#include <QHBoxLayout>
 #include <QGridLayout>
 #include <QApplication>
 #include <QScreen>
@@ -30,25 +32,30 @@
 #include <QTextStream>
 #include <QFileDialog>
 #include <QDir>
+#include <QJsonDocument>
+#include <QJsonObject>
+#include <QJsonArray>
+#include <QFileInfo>
+#include <QDateTime>
 #include <algorithm>
 #include <QPainter>
 
 GameMenu::GameMenu(QWidget *parent)
     : QWidget(parent)
     , m_settings("MyCompany", "MyApp")
-    , m_subfolderName(m_settings.value("Paths/SubfolderName", "data/characters").toString()) 
+    , m_subfolderName(m_settings.value("Paths/SubfolderName", "data/characters").toString())
 {
     // 1. Core Engine Initialization
     gameStateManager::instance()->loadFontSprite("resources/images/font_spritesheet_transparent.png");
     gameStateManager::instance()->incrementPartyAge(1);
     EventManager::instance()->loadEvents("./data/events-json");
-    
+
     // 2. Window Styling and Palette
     QPalette pal = this->palette();
     pal.setColor(QPalette::Window, Qt::black);
     setPalette(pal);
     setAutoFillBackground(true);
-    setWindowFlags(Qt::Window | Qt::WindowTitleHint | Qt::WindowSystemMenuHint | 
+    setWindowFlags(Qt::Window | Qt::WindowTitleHint | Qt::WindowSystemMenuHint |
                    Qt::WindowCloseButtonHint | Qt::WindowMinimizeButtonHint);
     setWindowTitle("The Depths of Dejenol: Black Lands");
 
@@ -57,51 +64,130 @@ GameMenu::GameMenu(QWidget *parent)
     setupConnections();
     loadStyleSheet();
     loadBackgroundImage();
-    
+
     // 4. Initial State
-    toggleMenuState(false); 
+    refreshContinueState();
     EventManager::instance()->update("GAME_START");
     emit logMessageTriggered("GameMenu has successfully initialized.");
 }
 
 void GameMenu::setupUI() {
-    QGridLayout *gridLayout = new QGridLayout(this);
-    gridLayout->setContentsMargins(50, 50, 50, 50);
-    gridLayout->setSpacing(20);
+    QVBoxLayout *mainLayout = new QVBoxLayout(this);
+    mainLayout->setContentsMargins(40, 30, 40, 30);
+    mainLayout->setSpacing(12);
 
-    // Initialize Buttons
-    m_runButton = new QPushButton("Run Character");
-    m_newButton = new QPushButton("Create a Character");
-    m_loadButton = new QPushButton("Load Character");
-    m_helpButton = new QPushButton("Help/Lesson");
-    m_recordsButton = new QPushButton("Hall of Records");
-    m_characterListButton = new QPushButton("Character List");
-    m_optionsButton = new QPushButton("Options...");
-    m_exitButton = new QPushButton("Exit");
-    m_aboutButton = new QPushButton("About");
+    // --- Title Section ---
+    m_titleLabel = new QLabel(tr("THE DEPTHS OF DEJENOL"), this);
+    QFont titleFont = m_titleLabel->font();
+    titleFont.setPointSize(28);
+    titleFont.setBold(true);
+    m_titleLabel->setFont(titleFont);
+    m_titleLabel->setAlignment(Qt::AlignCenter);
+    mainLayout->addWidget(m_titleLabel);
 
-    // Grid Layout Mapping
-    gridLayout->addWidget(m_runButton, 1, 1, 1, 2, Qt::AlignBottom | Qt::AlignCenter);
-    gridLayout->addWidget(m_newButton, 1, 1, 1, 2, Qt::AlignBottom | Qt::AlignCenter);
-    gridLayout->addWidget(m_loadButton, 2, 1, 1, 2, Qt::AlignTop | Qt::AlignCenter);
-    gridLayout->addWidget(m_characterListButton, 2, 0);
-    gridLayout->addWidget(m_recordsButton, 2, 3);
-    gridLayout->addWidget(m_helpButton, 3, 1);
-    gridLayout->addWidget(m_optionsButton, 3, 2);
-    gridLayout->addWidget(m_aboutButton, 4, 2);
-    gridLayout->addWidget(m_exitButton, 4, 1);
+    m_versionLabel = new QLabel(tr("BLACK LANDS — v5.0.0"), this);
+    QFont versionFont = m_versionLabel->font();
+    versionFont.setPointSize(12);
+    m_versionLabel->setFont(versionFont);
+    m_versionLabel->setAlignment(Qt::AlignCenter);
+    mainLayout->addWidget(m_versionLabel);
+
+    mainLayout->addSpacing(20);
+
+    // --- Continue Section (primary, only when autosave exists) ---
+    m_continueButton = new QPushButton(tr("CONTINUE"), this);
+    m_continueButton->setObjectName("continueButton");
+    m_continueButton->setMinimumHeight(50);
+    QFont continueFont = m_continueButton->font();
+    continueFont.setPointSize(16);
+    continueFont.setBold(true);
+    m_continueButton->setFont(continueFont);
+    mainLayout->addWidget(m_continueButton);
+
+    m_partyPreviewLabel = new QLabel(tr("No saved game"), this);
+    m_partyPreviewLabel->setObjectName("partyPreviewLabel");
+    m_partyPreviewLabel->setWordWrap(true);
+    m_partyPreviewLabel->setAlignment(Qt::AlignCenter);
+    m_partyPreviewLabel->setFrameStyle(QFrame::StyledPanel | QFrame::Sunken);
+    m_partyPreviewLabel->setMinimumHeight(40);
+    mainLayout->addWidget(m_partyPreviewLabel);
+
+    mainLayout->addSpacing(10);
+
+    // --- Main Actions (2x2 grid) ---
+    QGridLayout *actionsGrid = new QGridLayout();
+    actionsGrid->setSpacing(10);
+
+    m_newButton = new QPushButton(tr("New Game"), this);
+    m_newButton->setObjectName("newGameButton");
+    m_newButton->setMinimumHeight(45);
+    QFont actionFont = m_newButton->font();
+    actionFont.setPointSize(13);
+    actionFont.setBold(true);
+    m_newButton->setFont(actionFont);
+    actionsGrid->addWidget(m_newButton, 0, 0);
+
+    m_loadButton = new QPushButton(tr("Load Game"), this);
+    m_loadButton->setObjectName("loadGameButton");
+    m_loadButton->setMinimumHeight(45);
+    m_loadButton->setFont(actionFont);
+    actionsGrid->addWidget(m_loadButton, 0, 1);
+
+    m_characterListButton = new QPushButton(tr("Character List"), this);
+    m_characterListButton->setObjectName("characterListButton");
+    m_characterListButton->setMinimumHeight(40);
+    QFont secondaryFont = m_characterListButton->font();
+    secondaryFont.setPointSize(11);
+    m_characterListButton->setFont(secondaryFont);
+    actionsGrid->addWidget(m_characterListButton, 1, 0);
+
+    m_recordsButton = new QPushButton(tr("Hall of Records"), this);
+    m_recordsButton->setObjectName("recordsButton");
+    m_recordsButton->setMinimumHeight(40);
+    m_recordsButton->setFont(secondaryFont);
+    actionsGrid->addWidget(m_recordsButton, 1, 1);
+
+    mainLayout->addLayout(actionsGrid);
+
+    mainLayout->addStretch();
+
+    // --- Footer ---
+    QHBoxLayout *footerLayout = new QHBoxLayout();
+    footerLayout->setSpacing(8);
+
+    m_optionsButton = new QPushButton(tr("Options"), this);
+    m_optionsButton->setObjectName("optionsButton");
+    m_optionsButton->setMinimumHeight(35);
+    footerLayout->addWidget(m_optionsButton);
+
+    m_helpButton = new QPushButton(tr("Help"), this);
+    m_helpButton->setObjectName("helpButton");
+    m_helpButton->setMinimumHeight(35);
+    footerLayout->addWidget(m_helpButton);
+
+    m_aboutButton = new QPushButton(tr("About"), this);
+    m_aboutButton->setObjectName("aboutButton");
+    m_aboutButton->setMinimumHeight(35);
+    footerLayout->addWidget(m_aboutButton);
+
+    m_exitButton = new QPushButton(tr("Exit"), this);
+    m_exitButton->setObjectName("exitButton");
+    m_exitButton->setMinimumHeight(35);
+    footerLayout->addWidget(m_exitButton);
+
+    mainLayout->addLayout(footerLayout);
 
     // Screen-based Resizing
-    setMinimumSize(800, 600);
+    setMinimumSize(600, 500);
     QScreen *screen = QGuiApplication::primaryScreen();
     if (screen) {
-        resize(screen->geometry().width() * 0.7, screen->geometry().height() * 0.65);
+        resize(screen->geometry().width() * 0.5, screen->geometry().height() * 0.75);
     }
 }
 
 void GameMenu::setupConnections() {
     // Button Signals
-    connect(m_runButton, &QPushButton::clicked, this, &GameMenu::onRunClicked);
+    connect(m_continueButton, &QPushButton::clicked, this, &GameMenu::onContinueClicked);
     connect(m_newButton, &QPushButton::clicked, this, &GameMenu::startNewGame);
     connect(m_loadButton, &QPushButton::clicked, this, &GameMenu::loadGame);
     connect(m_helpButton, &QPushButton::clicked, this, &GameMenu::onHelpClicked);
@@ -113,9 +199,9 @@ void GameMenu::setupConnections() {
 
     // Engine Signals
     connect(EventManager::instance(), &EventManager::eventTriggered, this, &GameMenu::onEventTriggered);
-    
+
     // Logging Window Setup
-    MessagesWindow *loggerWindow = new MessagesWindow(); 
+    MessagesWindow *loggerWindow = new MessagesWindow();
     connect(this, &GameMenu::logMessageTriggered, loggerWindow, &MessagesWindow::logMessage);
     loggerWindow->show();
 }
@@ -134,7 +220,7 @@ void GameMenu::loadBackgroundImage() {
     QString imagePath = QDir::cleanPath(qApp->applicationDirPath() + "/introtitle.png");
     if (m_backgroundPixmap.load(imagePath)) {
         resizeEvent(nullptr); // Force initial scale
-        gameStateManager::instance()->setGameValue("ResourcesLoaded", true); 
+        gameStateManager::instance()->setGameValue("ResourcesLoaded", true);
     } else {
         qDebug() << "FATAL: Could not load background image from:" << imagePath;
     }
@@ -142,55 +228,166 @@ void GameMenu::loadBackgroundImage() {
 
 void GameMenu::paintEvent(QPaintEvent *event) {
     QWidget::paintEvent(event);
-    QPainter painter(this);
-    // Draw branding or version text using custom sprite font
-    gameStateManager::instance()->drawCustomText(&painter, "ABCDEFGH", QPoint(0, 0));
+    // Background is drawn via palette brush in resizeEvent — no debug text.
 }
 
 void GameMenu::resizeEvent(QResizeEvent *event) {
     if (!m_backgroundPixmap.isNull()) {
         QPalette palette;
-        palette.setBrush(QPalette::Window, m_backgroundPixmap.scaled(size(), 
+        palette.setBrush(QPalette::Window, m_backgroundPixmap.scaled(size(),
                          Qt::IgnoreAspectRatio, Qt::SmoothTransformation));
         setPalette(palette);
     }
     QWidget::resizeEvent(event);
 }
 
-void GameMenu::toggleMenuState(bool characterIsLoaded) {
-    // Toggle visibility based on whether a character is loaded
-    m_runButton->setVisible(characterIsLoaded);
-    m_loadButton->setVisible(!characterIsLoaded);
-    m_newButton->setVisible(!characterIsLoaded);
+void GameMenu::refreshContinueState() {
+    QString autosavePath = "data/saves/autosave.json";
+    QFile autosaveFile(autosavePath);
+
+    if (!autosaveFile.exists()) {
+        m_continueButton->setVisible(false);
+        m_partyPreviewLabel->setVisible(false);
+        return;
+    }
+
+    // Check if autosave is valid JSON with a living party
+    if (!autosaveFile.open(QIODevice::ReadOnly)) {
+        m_continueButton->setVisible(false);
+        m_partyPreviewLabel->setVisible(false);
+        return;
+    }
+
+    QJsonDocument doc = QJsonDocument::fromJson(autosaveFile.readAll());
+    autosaveFile.close();
+
+    if (doc.isNull() || doc.isEmpty() || !doc.isObject()) {
+        m_continueButton->setVisible(false);
+        m_partyPreviewLabel->setVisible(false);
+        return;
+    }
+
+    QJsonObject root = doc.object();
+    bool hasLiving = false;
+    if (root.contains("Party") && root["Party"].isObject()) {
+        QJsonObject party = root["Party"].toObject();
+        QJsonArray members = party.value("Members").toArray();
+        for (const QJsonValue &v : members) {
+            QJsonObject member = v.toObject();
+            QString name = member.value("Name").toString();
+            bool alive = member.value("isAlive").toBool(true);
+            int hp = member.value("HP").toInt(0);
+            if (name != "Empty Slot" && !name.isEmpty() && alive && hp > 0) {
+                hasLiving = true;
+                break;
+            }
+        }
+    }
+
+    if (!hasLiving) {
+        m_continueButton->setVisible(false);
+        m_partyPreviewLabel->setVisible(false);
+        return;
+    }
+
+    m_continueButton->setVisible(true);
+    m_continueButton->setEnabled(true);
+    m_partyPreviewLabel->setVisible(true);
+    m_partyPreviewLabel->setText(partyPreviewText());
 }
 
-void GameMenu::onRunClicked() {
+QString GameMenu::partyPreviewText() const {
+    QString autosavePath = "data/saves/autosave.json";
+    QFile file(autosavePath);
+    if (!file.open(QIODevice::ReadOnly)) {
+        return tr("Cannot read save");
+    }
+
+    QJsonDocument doc = QJsonDocument::fromJson(file.readAll());
+    file.close();
+
+    if (doc.isNull() || !doc.isObject()) {
+        return tr("Invalid save");
+    }
+
+    QJsonObject root = doc.object();
+    QStringList memberNames;
+    int totalLevel = 0;
+    int memberCount = 0;
+
+    if (root.contains("Party") && root["Party"].isObject()) {
+        QJsonObject party = root["Party"].toObject();
+        QJsonArray members = party.value("Members").toArray();
+        for (const QJsonValue &v : members) {
+            QJsonObject member = v.toObject();
+            QString name = member.value("Name").toString();
+            int level = member.value("Level").toInt(1);
+            bool alive = member.value("isAlive").toBool(true);
+            if (name != "Empty Slot" && !name.isEmpty()) {
+                memberNames.append(name + (alive ? "" : " (deceased)"));
+                totalLevel += level;
+                memberCount++;
+            }
+        }
+    }
+
+    if (memberCount == 0) {
+        return tr("No party members");
+    }
+
+    return tr("Party: %1 — %2 members — avg level %3")
+        .arg(memberNames.join(", "))
+        .arg(memberCount)
+        .arg(totalLevel / memberCount);
+}
+
+void GameMenu::onContinueClicked() {
     audioManager::instance()->stopAllAudio();
-    theCity *cityDialog = new theCity(this);  
-    cityDialog->setAttribute(Qt::WA_DeleteOnClose);    
-    hide(); 
-    
-    // Handle return from theCity
+    if (gameStateManager::instance()->loadFullGameState("autosave")) {
+        if (gameStateManager::instance()->hasLivingCharacters()) {
+            emit logMessageTriggered(tr("Autosave loaded."));
+            enterCity();
+        } else {
+            QMessageBox::warning(this, tr("Load Error"),
+                                 tr("The autosave party is deceased."));
+        }
+    } else {
+        QMessageBox::warning(this, tr("Load Error"),
+                             tr("Failed to load autosave."));
+    }
+}
+
+void GameMenu::enterCity() {
+    audioManager::instance()->stopAllAudio();
+    theCity *cityDialog = new theCity(this);
+    cityDialog->setAttribute(Qt::WA_DeleteOnClose);
+    hide();
+
     connect(cityDialog, &QDialog::finished, this, [this](int){
-        bool isLoaded = gameStateManager::instance()->getGameValue("ResourcesLoaded").toBool();
-        this->toggleMenuState(isLoaded); 
+        this->refreshContinueState();
         this->show();
     });
     cityDialog->show();
 }
 
 void GameMenu::loadGame() {
-    QString fileName = QFileDialog::getOpenFileName(this, tr("Open Character"), 
-                                                    "data/characters", 
-                                                    tr("Character Files (*.json *.lua)"));
-    if (fileName.isEmpty()) return;
+    LoadPartyDialog dlg(this);
+    if (dlg.exec() != QDialog::Accepted) {
+        return;
+    }
+
+    QString fileName = dlg.selectedPartyPath();
+    if (fileName.isEmpty()) {
+        return;
+    }
 
     if (gameStateManager::instance()->loadCharacterFromFile(fileName)) {
         if (gameStateManager::instance()->hasLivingCharacters()) {
-            toggleMenuState(true); 
-            emit logMessageTriggered("Character loaded successfully.");
+            emit logMessageTriggered(tr("Party loaded successfully."));
+            enterCity();
         } else {
-            QMessageBox::warning(this, tr("Load Error"), tr("Character is deceased or invalid."));
+            QMessageBox::warning(this, tr("Load Error"),
+                                 tr("All characters are deceased or invalid."));
         }
     }
 }
@@ -198,33 +395,33 @@ void GameMenu::loadGame() {
 void GameMenu::onCharacterCreated(const QString &characterName) {
     if (gameStateManager::instance()->saveCharacterToFile(0)) {
         emit logMessageTriggered(QString("Character %1 saved.").arg(characterName));
-        toggleMenuState(true);
         gameStateManager::instance()->startAutosave(10000); // 10s intervals
+        enterCity();
     }
 }
 
-void GameMenu::quitGame() { 
+void GameMenu::quitGame() {
     qApp->quit();
 }
 
 // Dialog Launchers
-void GameMenu::showRecords() { 
+void GameMenu::showRecords() {
     (new HallOfRecordsDialog(this))->show();
 }
 
-void GameMenu::onCharacterListClicked() { 
+void GameMenu::onCharacterListClicked() {
     (new CharacterListDialog(this))->show();
 }
 
-void GameMenu::onOptionsClicked() { 
+void GameMenu::onOptionsClicked() {
     (new OptionsDialog(this))->show();
 }
 
-void GameMenu::onAboutClicked() { 
+void GameMenu::onAboutClicked() {
     (new AboutDialog(this))->show();
 }
 
-void GameMenu::onHelpClicked() { 
+void GameMenu::onHelpClicked() {
     (new HelpLessonDialog(this))->show();
 }
 
@@ -245,7 +442,7 @@ void GameMenu::onEventTriggered(const GameEvent& event) {
     qDebug() << "Triggered event:" << event.id << event.description;
 }
 
-GameMenu::~GameMenu() { 
+GameMenu::~GameMenu() {
     qDebug() << "GameMenu Destructor.";
 }
 
@@ -352,13 +549,13 @@ int main(int argc, char *argv[]) {
                 << "size:" << probe.size();
         w.grab().save("/tmp/menu_probe.png");
         qInfo() << "saved grab to /tmp/menu_probe.png";
-        qInfo() << "=== END PROBE ===";
+        qInfo() << "=== END MENU PROBE ===";
         return 0;
     }
 
     // Initial sequence
-    LoadingScreen loadingScreen; 
-    loadingScreen.exec(); 
+    LoadingScreen loadingScreen;
+    loadingScreen.exec();
 
     storyDialog story;
     story.exec();

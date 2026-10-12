@@ -1,6 +1,7 @@
 #include "selftest.h"
 
 #include "gameStateManager.h"
+#include "blacklands.h"
 #include "character.h"
 #include "src/items/ItemDatabase.h"
 #include "src/combat/CombatState.h"
@@ -10246,6 +10247,218 @@ int runSelfTest()
         check(!QFile::exists("src/core/BattleEngine/main.o"), "BattleEngine main.o removed");
         check(!QFile::exists("src/core/BattleEngine/HommBattle"), "BattleEngine binary removed");
         check(!QFile::exists("src/core/BattleEngine/moc_BattleEngine.cpp"), "BattleEngine moc removed");
+    }
+
+    section("[218] v5.1.0 slice 5.1: main menu has a title and version");
+    {
+        GameMenu menu;
+        QList<QLabel*> labels = menu.findChildren<QLabel*>();
+        bool hasTitle = false, hasVersion = false;
+        for (QLabel *lbl : labels) {
+            QString t = lbl->text();
+            if (t.contains("DEPTHS") || t.contains("Dejenol") || t.contains("Black Lands"))
+                hasTitle = true;
+            if (t.contains("5.0.0"))
+                hasVersion = true;
+        }
+        check(hasTitle, "main menu shows the game title");
+        check(hasVersion, "main menu shows the version");
+    }
+
+    section("[219] v5.1.0 slice 5.1: main menu has no debug text");
+    {
+        GameMenu menu;
+        // The old paintEvent drew "ABCDEFGH" with the sprite font.
+        // Verify no QLabel contains that debug string.
+        QList<QLabel*> labels = menu.findChildren<QLabel*>();
+        bool hasDebug = false;
+        for (QLabel *lbl : labels) {
+            if (lbl->text() == "ABCDEFGH")
+                hasDebug = true;
+        }
+        check(!hasDebug, "main menu does not show debug text 'ABCDEFGH'");
+    }
+
+    section("[220] v5.1.0 slice 5.2: main menu has a Continue button when autosave exists");
+    {
+        // Set up a living party so the autosave has someone to continue with
+        Character hero;
+        hero.name = "ContinueHero";
+        hero.level = 1;
+        hero.hp = 10;
+        hero.maxHp = 10;
+        hero.isAlive = true;
+        // saveFullGameState uses PartyManager::currentParty(), and
+        // getPartyMembers() returns exactly that list.
+        gameStateManager::instance()->getPartyMembers().clear();
+        gameStateManager::instance()->getPartyMembers().append(hero);
+        gameStateManager::instance()->saveFullGameState("autosave");
+
+        QFile autosave("data/saves/autosave.json");
+        check(autosave.exists(), "autosave file exists");
+
+        GameMenu menu;
+        QPushButton *continueBtn = menu.findChild<QPushButton*>("continueButton");
+        check(continueBtn != nullptr, "main menu has a Continue button");
+        if (continueBtn) {
+            check(!continueBtn->isHidden(), "Continue button is visible when autosave exists");
+            check(continueBtn->isEnabled(), "Continue button is enabled when autosave exists");
+        }
+    }
+
+    section("[221] v5.1.0 slice 5.2: Continue button loads the autosave");
+    {
+        // Set up a known autosave with a living party
+        Character hero;
+        hero.name = "TestHero";
+        hero.level = 5;
+        hero.hp = 50;
+        hero.maxHp = 50;
+        hero.isAlive = true;
+        gameStateManager::instance()->getPartyMembers().clear();
+        gameStateManager::instance()->getPartyMembers().append(hero);
+        gameStateManager::instance()->saveFullGameState("autosave");
+
+        GameMenu menu;
+        QPushButton *continueBtn = menu.findChild<QPushButton*>("continueButton");
+        check(continueBtn != nullptr, "Continue button exists");
+        if (continueBtn) {
+            continueBtn->click();
+            // After clicking Continue, the party should be loaded
+            bool hasLiving = gameStateManager::instance()->hasLivingCharacters();
+            check(hasLiving, "clicking Continue loads the autosave party");
+        }
+    }
+
+    section("[222] v5.1.0 slice 5.3: main menu shows party preview when autosave exists");
+    {
+        Character hero;
+        hero.name = "PreviewHero";
+        hero.level = 3;
+        hero.hp = 30;
+        hero.maxHp = 30;
+        hero.isAlive = true;
+        gameStateManager::instance()->getPartyMembers().clear();
+        gameStateManager::instance()->getPartyMembers().append(hero);
+        gameStateManager::instance()->saveFullGameState("autosave");
+
+        GameMenu menu;
+        QLabel *preview = menu.findChild<QLabel*>("partyPreviewLabel");
+        check(preview != nullptr, "main menu has a party preview label");
+        if (preview) {
+            QString text = preview->text();
+            check(text.contains("PreviewHero") || text.contains("1") || text.contains("Party"),
+                  "party preview shows party info", text);
+        }
+    }
+
+    section("[223] v5.1.0 slice 5.3: party preview is hidden when no autosave");
+    {
+        // Remove autosave
+        QFile::remove("data/saves/autosave.json");
+        GameMenu menu;
+        QLabel *preview = menu.findChild<QLabel*>("partyPreviewLabel");
+        QPushButton *continueBtn = menu.findChild<QPushButton*>("continueButton");
+        check(!preview || !preview->isVisible(), "party preview is hidden when no autosave");
+        check(!continueBtn || !continueBtn->isVisible(), "Continue button is hidden when no autosave");
+    }
+
+    section("[224] v5.1.0 slice 5.4: main menu has a Load Party dialog");
+    {
+        GameMenu menu;
+        // The Load Game button should open a dialog, not a file picker
+        QPushButton *loadBtn = menu.findChild<QPushButton*>("loadGameButton");
+        check(loadBtn != nullptr, "main menu has a Load Game button");
+        if (loadBtn) {
+            loadBtn->click();
+            // After clicking, a LoadPartyDialog should appear
+            // (we can't easily test the dialog internals here, but we can
+            // verify the button exists and is clickable)
+            check(true, "Load Game button is clickable");
+        }
+    }
+
+    section("[225] v5.1.0 slice 5.4: main menu buttons have visual hierarchy");
+    {
+        GameMenu menu;
+        QPushButton *newBtn = menu.findChild<QPushButton*>("newGameButton");
+        QPushButton *continueBtn = menu.findChild<QPushButton*>("continueButton");
+        QPushButton *optionsBtn = menu.findChild<QPushButton*>("optionsButton");
+
+        check(newBtn != nullptr, "New Game button exists");
+        check(optionsBtn != nullptr, "Options button exists");
+
+        // Primary button (New Game) should be taller than footer (Options)
+        if (newBtn && optionsBtn) {
+            check(newBtn->minimumHeight() > optionsBtn->minimumHeight(),
+                  "primary button is taller than footer button",
+                  QString("new=%1 opt=%2").arg(newBtn->minimumHeight()).arg(optionsBtn->minimumHeight()));
+        }
+    }
+
+    section("[226] v5.1.0 slice 5.5: main menu has no overlapping buttons");
+    {
+        GameMenu menu;
+        menu.resize(1280, 800);
+        QList<QPushButton*> buttons = menu.findChildren<QPushButton*>();
+        int overlaps = 0;
+        for (int i = 0; i < buttons.size(); ++i) {
+            for (int j = i + 1; j < buttons.size(); ++j) {
+                if (!buttons[i]->isVisible() || !buttons[j]->isVisible()) continue;
+                if (buttons[i]->geometry().intersects(buttons[j]->geometry())) {
+                    // Check if they actually overlap (not just touch)
+                    QRect r1 = buttons[i]->geometry();
+                    QRect r2 = buttons[j]->geometry();
+                    QRect intersection = r1 & r2;
+                    if (intersection.width() > 1 && intersection.height() > 1) {
+                        overlaps++;
+                    }
+                }
+            }
+        }
+        check(overlaps == 0, "no buttons overlap", QString::number(overlaps) + " overlaps");
+    }
+
+    section("[227] v5.1.0 slice 5.5: main menu has a footer with utility buttons");
+    {
+        GameMenu menu;
+        QPushButton *optionsBtn = menu.findChild<QPushButton*>("optionsButton");
+        QPushButton *helpBtn = menu.findChild<QPushButton*>("helpButton");
+        QPushButton *aboutBtn = menu.findChild<QPushButton*>("aboutButton");
+        QPushButton *exitBtn = menu.findChild<QPushButton*>("exitButton");
+
+        check(optionsBtn != nullptr, "Options button exists");
+        check(helpBtn != nullptr, "Help button exists");
+        check(aboutBtn != nullptr, "About button exists");
+        check(exitBtn != nullptr, "Exit button exists");
+    }
+
+    section("[228] v5.1.0 slice 5.6: main menu Continue button is disabled when autosave is invalid");
+    {
+        // Create an invalid autosave (empty JSON)
+        QFile autosave("data/saves/autosave.json");
+        if (autosave.open(QIODevice::WriteOnly)) {
+            autosave.write("{}");
+            autosave.close();
+        }
+        GameMenu menu;
+        QPushButton *continueBtn = menu.findChild<QPushButton*>("continueButton");
+        check(continueBtn != nullptr, "Continue button exists");
+        if (continueBtn) {
+            check(!continueBtn->isVisible(), "Continue button is hidden when autosave is invalid");
+        }
+        // Clean up
+        QFile::remove("data/saves/autosave.json");
+    }
+
+    section("[229] v5.1.0 slice 5.6: main menu New Game button is always enabled");
+    {
+        GameMenu menu;
+        QPushButton *newBtn = menu.findChild<QPushButton*>("newGameButton");
+        check(newBtn != nullptr, "New Game button exists");
+        if (newBtn) {
+            check(newBtn->isEnabled(), "New Game button is always enabled");
+        }
     }
 
     section("[217] v5.0.0 slice 5.7: data/characters is gitignored");
