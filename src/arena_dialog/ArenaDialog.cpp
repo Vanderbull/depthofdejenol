@@ -425,6 +425,13 @@ void ArenaDialog::handleVictory() {
     m_totalDamageTaken += waveDamageTaken;
     m_totalRounds += waveRounds;
 
+    // Update ArenaWavesCleared so achievements can trigger
+    int clearedWaves = 0;
+    for (const Arena::WaveResult &r : m_waveResults) {
+        if (r.cleared) clearedWaves++;
+    }
+    gameStateManager::instance()->setGameValue("ArenaWavesCleared", clearedWaves);
+
     logMessage(QString("Wave %1 cleared! Kills: %2, Damage taken: %3, Rounds: %4")
                .arg(m_currentWave).arg(waveKills).arg(waveDamageTaken).arg(waveRounds));
 

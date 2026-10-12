@@ -32,6 +32,14 @@
 - Assemble Party modifies and saves the current party
 - Tests: save, load, assemble, persistence
 
+### Slice 5.6 — Arena fixes
+- Arena button was wired to handleLocationClick (no arena case) — now wired to on_arenaButton_clicked
+- Combat state converted from global pointers to unique_ptr members (no leaks)
+- Spell button now uses castSpellBySchool (Fireball) instead of attack()
+- Item button now uses useItem() with healing item detection
+- ArenaWavesCleared updated in game state so achievements trigger
+- Tests: 1746 passed, 0 failed
+
 ## v5.3.0 — Aging & Lifecycle ✅ RELEASED
 
 Characters now age over time with full lifecycle events: coming-of-age, marriage, children, and retirement.
