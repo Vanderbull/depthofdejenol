@@ -59,6 +59,20 @@ Non-vacuous:
   "eating an amulet is refused" and "the amulet was not eaten"
 - unregistering the Eat button fails "the dungeon has an Eat button"
 
+### Slice 5.3 — Starvation death is a real death
+- A starved member now goes through `DeathRecovery::killCharacter()` instead of
+  `setDead()` — body location (`dungeonLevel/x/y`) is recorded, so the Morgue can
+  find and resurrect the body
+- A journal entry is written on a starvation death, matching a combat death
+- `movePlayer()` checks `DeathRecovery::isPartyWiped()` after each step and routes
+  to `handlePartyWipe()` — starving the whole party ends the run (sets `isAlive=0`,
+  journals the wipe, saves bodies, closes the dungeon, returns to town)
+
+**Verified:** tests [199]–[201] (1664 passed, 0 failed; +9 checks).
+Non-vacuous:
+- reverting to `setDead()` fails 4 checks — body X/Y/level + journal entry
+- removing the wipe check fails "the party wipe was journaled"
+
 ---
 
 # v4.0.0 — Endgame depth and replayability ✅ RELEASED

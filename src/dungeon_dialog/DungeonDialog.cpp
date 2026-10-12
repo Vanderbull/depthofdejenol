@@ -319,19 +319,34 @@ void DungeonDialog::movePlayer(int dx, int dy, int dz=0)
     gsm->setGameValue("DungeonY", newY);
 
     // Hunger: each step costs 1 hunger. At 0, starvation deals 1 damage per step.
+    // A starvation death is a real death: route it through DeathRecovery so the
+    // body location is recorded and a journal entry is written, exactly like a
+    // combat death. (Previously this called setDead(), which left the body at
+    // (0,0,0) and wrote no journal entry — the "starving did not kill" bug.)
     auto& members = gsm->getPartyMembers();
+    const int level = gsm->getGameValue("DungeonLevel").toInt();
+    const int posX = gsm->getGameValue("DungeonX").toInt();
+    const int posY = gsm->getGameValue("DungeonY").toInt();
     for (int i = 0; i < members.size(); ++i) {
         if (!members[i].isAlive) continue;
         members[i].consumeHunger(1);
         if (members[i].isStarving()) {
             members[i].hp = qMax(0, members[i].hp - 1);
             if (members[i].hp == 0) {
-                members[i].setDead();
+                DeathRecovery::killCharacter(members[i], level, posX, posY);
                 logMessage(QString("<font color='red'>%1 has starved to death!</font>").arg(members[i].name));
+                JournalDialog::addEntry(QStringLiteral("Combat"),
+                    QStringLiteral("%1 starved to death on floor %2 (%3,%4).")
+                        .arg(members[i].name).arg(level).arg(posX).arg(posY));
             } else {
                 logMessage(QString("<font color='orange'>%1 is starving!</font>").arg(members[i].name));
             }
         }
+    }
+    // If the whole party starved, the run is over — handle it like a combat wipe.
+    if (DeathRecovery::isPartyWiped(members)) {
+        handlePartyWipe();
+        return;
     }
     // Announce the first step into the low-hunger band (once per crossing).
     announceHungerWarnings();

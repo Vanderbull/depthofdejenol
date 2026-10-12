@@ -9875,6 +9875,161 @@ int runSelfTest()
         members.clear();
     }
 
+    // ------------------------------------------- v5.0.0 slice 5.3: starvation death
+    section("[199] v5.0.0 slice 5.3: starvation death records a body location");
+    {
+        gameStateManager* gsm = gameStateManager::instance();
+        auto& members = gsm->getPartyMembers();
+        members.clear();
+        Character c;
+        c.name = "Starver"; c.level = 1; c.hp = 1; c.maxHp = 10;
+        c.hunger = 0; c.maxHunger = 100; c.isAlive = true;
+        members.append(c);
+
+        DungeonDialog dlg;
+        dlg.resize(1280, 800);
+        dlg.show();
+        for (int i = 0; i < 10; ++i) QApplication::processEvents();
+
+        int startX = -1, startY = -1, dx = 0, dy = 0;
+        for (int x = 1; x < MAP_SIZE - 1 && startX < 0; ++x) {
+            for (int y = 1; y < MAP_SIZE - 1 && startX < 0; ++y) {
+                if (dlg.m_obstaclePositions.contains({x, y})) continue;
+                const int dirs[4][2] = {{0,-1},{0,1},{-1,0},{1,0}};
+                for (auto& d : dirs) {
+                    if (!dlg.m_obstaclePositions.contains({x + d[0], y + d[1]})) {
+                        startX = x; startY = y; dx = d[0]; dy = d[1];
+                        break;
+                    }
+                }
+            }
+        }
+        check(startX >= 0, "found a walkable tile");
+        if (startX >= 0) {
+            gsm->setGameValue("DungeonX", startX);
+            gsm->setGameValue("DungeonY", startY);
+            gsm->setGameValue("DungeonLevel", 3);
+
+            dlg.movePlayer(dx, dy, 0);
+
+            check(!members[0].isAlive, "the starved member is dead");
+            check(members[0].dungeonLevel == 3, "body dungeon level recorded",
+                  QString::number(members[0].dungeonLevel));
+            check(members[0].dungeonX == startX + dx, "body X recorded",
+                  QString::number(members[0].dungeonX));
+            check(members[0].dungeonY == startY + dy, "body Y recorded",
+                  QString::number(members[0].dungeonY));
+        }
+
+        members.clear();
+    }
+
+    section("[200] v5.0.0 slice 5.3: starvation death writes a journal entry");
+    {
+        JournalDialog::clearAll();
+        gameStateManager* gsm = gameStateManager::instance();
+        auto& members = gsm->getPartyMembers();
+        members.clear();
+        Character c;
+        c.name = "JournalStarver"; c.level = 1; c.hp = 1; c.maxHp = 10;
+        c.hunger = 0; c.maxHunger = 100; c.isAlive = true;
+        members.append(c);
+
+        DungeonDialog dlg;
+        dlg.resize(1280, 800);
+        dlg.show();
+        for (int i = 0; i < 10; ++i) QApplication::processEvents();
+
+        int startX = -1, startY = -1, dx = 0, dy = 0;
+        for (int x = 1; x < MAP_SIZE - 1 && startX < 0; ++x) {
+            for (int y = 1; y < MAP_SIZE - 1 && startX < 0; ++y) {
+                if (dlg.m_obstaclePositions.contains({x, y})) continue;
+                const int dirs[4][2] = {{0,-1},{0,1},{-1,0},{1,0}};
+                for (auto& d : dirs) {
+                    if (!dlg.m_obstaclePositions.contains({x + d[0], y + d[1]})) {
+                        startX = x; startY = y; dx = d[0]; dy = d[1];
+                        break;
+                    }
+                }
+            }
+        }
+        if (startX >= 0) {
+            gsm->setGameValue("DungeonX", startX);
+            gsm->setGameValue("DungeonY", startY);
+            gsm->setGameValue("DungeonLevel", 2);
+
+            dlg.movePlayer(dx, dy, 0);
+
+            auto entries = JournalDialog::allEntries();
+            bool found = false;
+            for (const auto& e : entries) {
+                if (e.text.contains("JournalStarver") && e.text.contains("starv")) {
+                    found = true; break;
+                }
+            }
+            check(found, "a journal entry records the starvation death");
+        }
+
+        members.clear();
+        JournalDialog::clearAll();
+    }
+
+    section("[201] v5.0.0 slice 5.3: starving the whole party triggers a wipe");
+    {
+        JournalDialog::clearAll();
+        gameStateManager* gsm = gameStateManager::instance();
+        auto& members = gsm->getPartyMembers();
+        members.clear();
+        Character c1; c1.name = "Wipe1"; c1.level = 1; c1.hp = 1; c1.maxHp = 10;
+        c1.hunger = 0; c1.maxHunger = 100; c1.isAlive = true;
+        Character c2; c2.name = "Wipe2"; c2.level = 1; c2.hp = 1; c2.maxHp = 10;
+        c2.hunger = 0; c2.maxHunger = 100; c2.isAlive = true;
+        members << c1 << c2;
+
+        DungeonDialog dlg;
+        dlg.resize(1280, 800);
+        dlg.show();
+        for (int i = 0; i < 10; ++i) QApplication::processEvents();
+
+        int startX = -1, startY = -1, dx = 0, dy = 0;
+        for (int x = 1; x < MAP_SIZE - 1 && startX < 0; ++x) {
+            for (int y = 1; y < MAP_SIZE - 1 && startX < 0; ++y) {
+                if (dlg.m_obstaclePositions.contains({x, y})) continue;
+                const int dirs[4][2] = {{0,-1},{0,1},{-1,0},{1,0}};
+                for (auto& d : dirs) {
+                    if (!dlg.m_obstaclePositions.contains({x + d[0], y + d[1]})) {
+                        startX = x; startY = y; dx = d[0]; dy = d[1];
+                        break;
+                    }
+                }
+            }
+        }
+        if (startX >= 0) {
+            gsm->setGameValue("DungeonX", startX);
+            gsm->setGameValue("DungeonY", startY);
+            gsm->setGameValue("DungeonLevel", 1);
+
+            dlg.movePlayer(dx, dy, 0);
+
+            check(!members[0].isAlive && !members[1].isAlive,
+                  "both members starved");
+            check(gsm->getGameValue("isAlive").toInt() == 0,
+                  "the party wipe was detected");
+
+            auto entries = JournalDialog::allEntries();
+            bool found = false;
+            for (const auto& e : entries) {
+                if (e.text.contains("wiped") || e.text.contains("defeated")) {
+                    found = true; break;
+                }
+            }
+            check(found, "the party wipe was journaled");
+        }
+
+        members.clear();
+        JournalDialog::clearAll();
+    }
+
     // -------------------------------------------------------------- cleanup
     QFile::remove(savePath());
 

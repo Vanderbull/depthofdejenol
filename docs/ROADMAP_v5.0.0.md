@@ -198,7 +198,7 @@ possibly empty party (segfault). Tests [194]–[198]; +38 checks (1617 → 1655)
 Non-vacuous: reverting `FOOD_TYPE` to 22 (the old amulet type) fails 13 checks;
 unregistering the Eat button fails "the dungeon has an Eat button".
 
-### 5.3 Starvation death is a real death `M`
+### 5.3 Starvation death is a real death `M` ✅ DONE
 
 **Why:** a starved member is flagged dead but no body is recorded, no journal entry
 is written, and the party-wipe check never runs outside combat. The death is real in
@@ -219,6 +219,14 @@ memory and invisible in the game.
 entry is added; a party that starves to zero triggers the wipe path. Non-vacuous:
 reverting to `setDead()` fails the body-location test (this exact probe failed
 during the audit: `bodyLoc=(L0,0,0)`).
+
+**Landed:** `movePlayer()` now calls `DeathRecovery::killCharacter()` instead of
+`setDead()`, so a starved member records `dungeonLevel/x/y` and gets a journal entry
+matching a combat death. A `DeathRecovery::isPartyWiped()` check after each step
+routes to `handlePartyWipe()` (sets `isAlive=0`, journals the wipe, saves bodies,
+closes the dungeon, returns to town). Tests [199]–[201]; +9 checks (1655 → 1664).
+Non-vacuous: reverting to `setDead()` fails 4 checks (body X/Y/level + journal);
+removing the wipe check fails "the party wipe was journaled".
 
 ### 5.4 One HP source of truth `M`
 
