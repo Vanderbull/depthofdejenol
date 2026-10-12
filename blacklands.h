@@ -35,7 +35,6 @@ private slots:
     void onAboutClicked();
   //  void onEditMonsterClicked();
   //  void onEditSpellbookClicked();
-    void onCharacterListClicked();
     void onHelpClicked();
   //  void onShowStatisticsClicked();
     void onContinueClicked();
@@ -62,7 +61,6 @@ private:
     QPushButton *m_assemblePartyButton = nullptr;
     QPushButton *m_saveButton = nullptr;
     QPushButton *m_loadButton = nullptr;
-    QPushButton *m_characterListButton = nullptr;
     QPushButton *m_recordsButton = nullptr;
     QPushButton *m_helpButton = nullptr;
     QPushButton *m_optionsButton = nullptr;

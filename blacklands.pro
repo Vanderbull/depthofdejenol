@@ -48,7 +48,6 @@ SOURCES += \
     src/library_dialog/library_dialog.cpp \
     src/automap/automap_dialog.cpp \
     src/game_controller/game_controller.cpp \
-    src/characterlist_dialog/characterlistdialog.cpp \
     src/load_party_dialog/LoadPartyDialog.cpp \
     src/assemble_party_dialog/AssemblePartyDialog.cpp \
     src/helplesson/helplesson.cpp \
@@ -198,7 +197,6 @@ HEADERS += \
     src/library_dialog/library_dialog.h \
     src/automap/automap_dialog.h \
     src/game_controller/game_controller.h \
-    src/characterlist_dialog/characterlistdialog.h \
     src/load_party_dialog/LoadPartyDialog.h \
     src/assemble_party_dialog/AssemblePartyDialog.h \
     src/helplesson/helplesson.h \

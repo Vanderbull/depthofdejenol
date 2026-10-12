@@ -5,7 +5,6 @@
 #include "storyDialog.h"
 
 // Dialog and UI Includes
-#include "src/characterlist_dialog/characterlistdialog.h"
 #include "src/hall_of_records/hallofrecordsdialog.h"
 #include "src/create_character/createcharacterdialog.h"
 #include "src/options_dialog/optionsdialog.h"
@@ -154,17 +153,11 @@ void GameMenu::setupUI() {
     m_loadButton->setFont(actionFont);
     actionsGrid->addWidget(m_loadButton, 1, 1);
 
-    m_characterListButton = new QPushButton(tr("Character List"), this);
-    m_characterListButton->setObjectName("characterListButton");
-    m_characterListButton->setMinimumHeight(40);
-    QFont secondaryFont = m_characterListButton->font();
-    secondaryFont.setPointSize(11);
-    m_characterListButton->setFont(secondaryFont);
-    actionsGrid->addWidget(m_characterListButton, 1, 1);
-
     m_recordsButton = new QPushButton(tr("Hall of Records"), this);
     m_recordsButton->setObjectName("recordsButton");
     m_recordsButton->setMinimumHeight(40);
+    QFont secondaryFont = m_recordsButton->font();
+    secondaryFont.setPointSize(11);
     m_recordsButton->setFont(secondaryFont);
     actionsGrid->addWidget(m_recordsButton, 1, 2);
 
@@ -216,7 +209,6 @@ void GameMenu::setupConnections() {
     connect(m_loadButton, &QPushButton::clicked, this, &GameMenu::loadGame);
     connect(m_helpButton, &QPushButton::clicked, this, &GameMenu::onHelpClicked);
     connect(m_recordsButton, &QPushButton::clicked, this, &GameMenu::showRecords);
-    connect(m_characterListButton, &QPushButton::clicked, this, &GameMenu::onCharacterListClicked);
     connect(m_optionsButton, &QPushButton::clicked, this, &GameMenu::onOptionsClicked);
     connect(m_aboutButton, &QPushButton::clicked, this, &GameMenu::onAboutClicked);
     connect(m_exitButton, &QPushButton::clicked, this, &GameMenu::quitGame);
@@ -456,10 +448,6 @@ void GameMenu::quitGame() {
 // Dialog Launchers
 void GameMenu::showRecords() {
     (new HallOfRecordsDialog(this))->show();
-}
-
-void GameMenu::onCharacterListClicked() {
-    (new CharacterListDialog(this))->show();
 }
 
 void GameMenu::onOptionsClicked() {
