@@ -15,30 +15,18 @@
 
 // Combat state members (same pattern as DungeonDialog)
 namespace {
-    CombatState* combatState = nullptr;
-    TurnEngine* turnEngine = nullptr;
-    CombatActions* combatActions = nullptr;
-    MonsterAI* monsterAI = nullptr;
-    CombatDeathHandler* deathHandler = nullptr;
     int selectedMonsterIdx = -1;
     int waveDamageTaken = 0;
     int waveRounds = 0;
     int waveKills = 0;
-    bool arenaInitialized = false;
-
-    void ensureArenaInit() {
-        if (!arenaInitialized) {
-            combatState = new CombatState();
-            turnEngine = new TurnEngine();
-            combatActions = new CombatActions(combatState, turnEngine);
-            monsterAI = new MonsterAI(combatState, turnEngine, combatActions);
-            deathHandler = new CombatDeathHandler(combatState, turnEngine, combatActions);
-            arenaInitialized = true;
-        }
-    }
 }
 
 ArenaDialog::ArenaDialog(QWidget *parent) : QDialog(parent) {
+    m_combatState = std::make_unique<CombatState>();
+    m_turnEngine = std::make_unique<TurnEngine>();
+    m_combatActions = std::make_unique<CombatActions>(m_combatState.get(), m_turnEngine.get());
+    m_monsterAI = std::make_unique<MonsterAI>(m_combatState.get(), m_turnEngine.get(), m_combatActions.get());
+    m_deathHandler = std::make_unique<CombatDeathHandler>(m_combatState.get(), m_turnEngine.get(), m_combatActions.get());
     setupUi();
     updateUI();
 }
@@ -135,7 +123,6 @@ void ArenaDialog::on_startButton_clicked() {
 }
 
 void ArenaDialog::startWave(int wave) {
-    ensureArenaInit();
     m_currentWave = wave;
     m_inCombat = true;
     waveDamageTaken = 0;
@@ -144,7 +131,7 @@ void ArenaDialog::startWave(int wave) {
     selectedMonsterIdx = -1;
 
     // Clear previous combat
-    if (combatState) combatState->clear();
+    if (m_combatState) m_combatState->clear();
 
     // Build monsters for this wave
     gameStateManager* gsm = gameStateManager::instance();
@@ -168,7 +155,7 @@ void ArenaDialog::startWave(int wave) {
         p.swings = 1;
         p.levelScale = monsterLevel / 2;
         p.ranged = false;
-        combatState->addParticipant(p);
+        m_combatState->addParticipant(p);
     }
 
     // Add party members
@@ -192,12 +179,12 @@ void ArenaDialog::startWave(int wave) {
         p.maxMana = c.maxMana;
         p.ranged = false;
         p.row = (i < 2) ? CombatRow::Front : CombatRow::Back;
-        combatState->addParticipant(p);
+        m_combatState->addParticipant(p);
     }
 
     // Roll initiative
-    combatState->rollInitiative();
-    combatState->startRound();
+    m_combatState->rollInitiative();
+    m_combatState->startRound();
 
     logMessage(QString("Wave %1 begins! %2 monsters approach.").arg(wave).arg(monsterCount));
     updateUI();
@@ -210,12 +197,12 @@ void ArenaDialog::on_fightButton_clicked() {
 }
 
 void ArenaDialog::on_attackButton_clicked() {
-    if (!m_inCombat || !combatState) return;
+    if (!m_inCombat || !m_combatState) return;
 
     // Find first living monster if none selected
-    if (selectedMonsterIdx < 0 || !combatState->participant(selectedMonsterIdx).isAlive) {
-        for (int i = 0; i < combatState->participantCount(); ++i) {
-            if (!combatState->participant(i).isPlayer && combatState->participant(i).isAlive) {
+    if (selectedMonsterIdx < 0 || !m_combatState->participant(selectedMonsterIdx).isAlive) {
+        for (int i = 0; i < m_combatState->participantCount(); ++i) {
+            if (!m_combatState->participant(i).isPlayer && m_combatState->participant(i).isAlive) {
                 selectedMonsterIdx = i;
                 break;
             }
@@ -225,40 +212,40 @@ void ArenaDialog::on_attackButton_clicked() {
     if (selectedMonsterIdx < 0) return;
 
     QString result;
-    combatActions->attack(selectedMonsterIdx, result);
+    m_combatActions->attack(selectedMonsterIdx, result);
     logMessage(result);
 
     // Check if monster died
-    if (!combatState->participant(selectedMonsterIdx).isAlive) {
+    if (!m_combatState->participant(selectedMonsterIdx).isAlive) {
         waveKills++;
         logMessage(QString("Monster killed! (%1 total)").arg(waveKills));
         selectedMonsterIdx = -1;  // Select next on next attack
     }
 
     // Process deaths
-    // (deathHandler->processDeaths() would emit signals we don't have here)
+    // (m_deathHandler->processDeaths() would emit signals we don't have here)
 
     // Mark current as acted
-    int currentIdx = combatState->initiativeOrder()[combatState->currentTurnIndex()];
-    combatState->markActed(currentIdx);
+    int currentIdx = m_combatState->initiativeOrder()[m_combatState->currentTurnIndex()];
+    m_combatState->markActed(currentIdx);
 
     // Advance combat
     advanceCombat();
 }
 
 void ArenaDialog::on_defendButton_clicked() {
-    if (!m_inCombat || !combatState) return;
-    int currentIdx = combatState->initiativeOrder()[combatState->currentTurnIndex()];
-    combatState->participant(currentIdx).isDefending = true;
+    if (!m_inCombat || !m_combatState) return;
+    int currentIdx = m_combatState->initiativeOrder()[m_combatState->currentTurnIndex()];
+    m_combatState->participant(currentIdx).isDefending = true;
     logMessage("You brace for impact.");
     advanceCombat();
 }
 
 void ArenaDialog::on_spellButton_clicked() {
-    if (!m_inCombat || !combatState) return;
+    if (!m_inCombat || !m_combatState) return;
     if (selectedMonsterIdx < 0) {
-        for (int i = 0; i < combatState->participantCount(); ++i) {
-            if (!combatState->participant(i).isPlayer && combatState->participant(i).isAlive) {
+        for (int i = 0; i < m_combatState->participantCount(); ++i) {
+            if (!m_combatState->participant(i).isPlayer && m_combatState->participant(i).isAlive) {
                 selectedMonsterIdx = i;
                 break;
             }
@@ -268,11 +255,11 @@ void ArenaDialog::on_spellButton_clicked() {
 
     QString result;
     // Use a basic attack if spell system not fully wired
-    combatActions->attack(selectedMonsterIdx, result);
+    m_combatActions->attack(selectedMonsterIdx, result);
     logMessage(result);
 
-    int currentIdx = combatState->initiativeOrder()[combatState->currentTurnIndex()];
-    combatState->markActed(currentIdx);
+    int currentIdx = m_combatState->initiativeOrder()[m_combatState->currentTurnIndex()];
+    m_combatState->markActed(currentIdx);
     advanceCombat();
 }
 
@@ -302,12 +289,12 @@ void ArenaDialog::on_exitButton_clicked() {
 }
 
 void ArenaDialog::advanceCombat() {
-    if (!m_inCombat || !combatState) return;
+    if (!m_inCombat || !m_combatState) return;
 
     // Check if all monsters are dead
     bool allMonstersDead = true;
-    for (int i = 0; i < combatState->participantCount(); ++i) {
-        if (!combatState->participant(i).isPlayer && combatState->participant(i).isAlive) {
+    for (int i = 0; i < m_combatState->participantCount(); ++i) {
+        if (!m_combatState->participant(i).isPlayer && m_combatState->participant(i).isAlive) {
             allMonstersDead = false;
             break;
         }
@@ -320,8 +307,8 @@ void ArenaDialog::advanceCombat() {
 
     // Check if all players are dead
     bool allPlayersDead = true;
-    for (int i = 0; i < combatState->participantCount(); ++i) {
-        if (combatState->participant(i).isPlayer && combatState->participant(i).isAlive) {
+    for (int i = 0; i < m_combatState->participantCount(); ++i) {
+        if (m_combatState->participant(i).isPlayer && m_combatState->participant(i).isAlive) {
             allPlayersDead = false;
             break;
         }
@@ -333,23 +320,23 @@ void ArenaDialog::advanceCombat() {
     }
 
     // Process monster turns
-    if (!combatActions->isPlayerTurn()) {
-        QString aiResult = monsterAI->takeTurn();
+    if (!m_combatActions->isPlayerTurn()) {
+        QString aiResult = m_monsterAI->takeTurn();
         logMessage(aiResult);
 
         // Track damage taken
-        for (int i = 0; i < combatState->participantCount(); ++i) {
-            if (combatState->participant(i).isPlayer) {
+        for (int i = 0; i < m_combatState->participantCount(); ++i) {
+            if (m_combatState->participant(i).isPlayer) {
                 Character& c = gameStateManager::instance()->getPartyMembers()[i];
-                int damage = c.hp - combatState->participant(i).hp;
+                int damage = c.hp - m_combatState->participant(i).hp;
                 if (damage > 0) waveDamageTaken += damage;
             }
         }
 
         // Advance turn
-        if (!combatState->nextTurn()) {
+        if (!m_combatState->nextTurn()) {
             // Round over
-            combatState->startRound();
+            m_combatState->startRound();
             waveRounds++;
         }
         updateUI();
@@ -460,10 +447,10 @@ void ArenaDialog::updateUI() {
                           .arg(currentScore).arg(m_totalKills).arg(m_totalDamageTaken));
 
     // Party HP
-    if (combatState && m_inCombat) {
+    if (m_combatState && m_inCombat) {
         QStringList hpParts;
-        for (int i = 0; i < combatState->participantCount(); ++i) {
-            const CombatParticipant& p = combatState->participant(i);
+        for (int i = 0; i < m_combatState->participantCount(); ++i) {
+            const CombatParticipant& p = m_combatState->participant(i);
             if (p.isPlayer && p.isAlive) {
                 hpParts << QString("%1: %2/%3").arg(p.name).arg(p.hp).arg(p.maxHp);
             }
@@ -472,8 +459,8 @@ void ArenaDialog::updateUI() {
 
         // Monster HP
         QStringList monsterParts;
-        for (int i = 0; i < combatState->participantCount(); ++i) {
-            const CombatParticipant& p = combatState->participant(i);
+        for (int i = 0; i < m_combatState->participantCount(); ++i) {
+            const CombatParticipant& p = m_combatState->participant(i);
             if (!p.isPlayer && p.isAlive) {
                 monsterParts << QString("%1: %2/%3").arg(p.name).arg(p.hp).arg(p.maxHp);
             }
@@ -482,8 +469,8 @@ void ArenaDialog::updateUI() {
 
         // Target list
         m_targetList->clear();
-        for (int i = 0; i < combatState->participantCount(); ++i) {
-            const CombatParticipant& p = combatState->participant(i);
+        for (int i = 0; i < m_combatState->participantCount(); ++i) {
+            const CombatParticipant& p = m_combatState->participant(i);
             if (!p.isPlayer && p.isAlive) {
                 QString label = QString("%1 (%2/%3)").arg(p.name).arg(p.hp).arg(p.maxHp);
                 QListWidgetItem* item = new QListWidgetItem(label, m_targetList);
@@ -498,10 +485,10 @@ void ArenaDialog::updateUI() {
 
     // Button states
     m_startBtn->setEnabled(!m_inCombat && !m_arenaComplete);
-    m_fightBtn->setEnabled(m_inCombat && combatActions && combatActions->isPlayerTurn());
-    m_attackBtn->setEnabled(m_inCombat && combatActions && combatActions->isPlayerTurn());
-    m_defendBtn->setEnabled(m_inCombat && combatActions && combatActions->isPlayerTurn());
-    m_spellBtn->setEnabled(m_inCombat && combatActions && combatActions->isPlayerTurn());
+    m_fightBtn->setEnabled(m_inCombat && m_combatActions && m_combatActions->isPlayerTurn());
+    m_attackBtn->setEnabled(m_inCombat && m_combatActions && m_combatActions->isPlayerTurn());
+    m_defendBtn->setEnabled(m_inCombat && m_combatActions && m_combatActions->isPlayerTurn());
+    m_spellBtn->setEnabled(m_inCombat && m_combatActions && m_combatActions->isPlayerTurn());
     m_useItemBtn->setEnabled(false);  // Not implemented yet
     m_fleeBtn->setEnabled(m_inCombat);
     m_nextWaveBtn->setEnabled(!m_inCombat && m_currentWave > 0 && m_currentWave < 10 && !m_waveResults.isEmpty());
@@ -514,7 +501,7 @@ void ArenaDialog::logMessage(const QString& msg) {
 }
 
 void ArenaDialog::clearCombat() {
-    if (combatState) combatState->clear();
+    if (m_combatState) m_combatState->clear();
     selectedMonsterIdx = -1;
 }
 

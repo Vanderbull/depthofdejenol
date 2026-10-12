@@ -147,6 +147,7 @@ void theCity::setupUi()
     npcButton = new QToolButton(this);
     exitButton = new QToolButton(this);
     arenaButton = new QToolButton(this);
+    arenaButton->setObjectName("arenaButton");
 
     gridLayout->addWidget(generalStoreButton,   0, 0);
     gridLayout->addWidget(morgueButton,        0, 1);
@@ -199,7 +200,7 @@ void theCity::setupUi()
     connect(journalButton,        &QToolButton::clicked, this, &theCity::handleLocationClick);
     connect(npcButton,            &QToolButton::clicked, this, &theCity::handleLocationClick);
     connect(exitButton,           &QToolButton::clicked, this, &theCity::handleLocationClick);
-    connect(arenaButton,          &QToolButton::clicked, this, &theCity::handleLocationClick);
+    connect(arenaButton,          &QToolButton::clicked, this, &theCity::on_arenaButton_clicked);
 
     connect(sendButton,        &QPushButton::clicked, this, &theCity::sendChatMessage);
     connect(chatInput,         &QLineEdit::returnPressed, this, &theCity::sendChatMessage);

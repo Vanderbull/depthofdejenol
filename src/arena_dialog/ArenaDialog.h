@@ -7,7 +7,13 @@
 #include <QPushButton>
 #include <QListWidget>
 #include <QVBoxLayout>
+#include <memory>
 #include "src/core/Arena.h"
+#include "src/combat/CombatActions.h"
+#include "src/combat/CombatDeathHandler.h"
+#include "src/combat/CombatState.h"
+#include "src/combat/MonsterAI.h"
+#include "src/combat/TurnEngine.h"
 
 class ArenaDialog : public QDialog {
     Q_OBJECT
@@ -55,6 +61,11 @@ private:
     QPushButton* m_exitBtn = nullptr;
 
     // Combat state
+    std::unique_ptr<CombatState> m_combatState;
+    std::unique_ptr<TurnEngine> m_turnEngine;
+    std::unique_ptr<CombatActions> m_combatActions;
+    std::unique_ptr<MonsterAI> m_monsterAI;
+    std::unique_ptr<CombatDeathHandler> m_deathHandler;
     int m_currentWave = 0;
     int m_totalScore = 0;
     int m_totalKills = 0;
