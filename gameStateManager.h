@@ -315,6 +315,10 @@ public:
     // --- Persistence ---
     bool loadCharacterFromFile(const QString& characterName);
     bool saveCharacterToFile(int partyIndex);
+    // One-time migration: convert legacy .lua character saves in `dir` to the
+    // JSON format. Existing .json files are never overwritten; malformed .lua
+    // files are skipped. Returns the number of files converted.
+    int migrateLegacyCharacterFiles(const QString& dir);
     //bool verifySaveGame(const QString& characterName);
     //bool repairSaveGame(const QString& characterName);
     void startAutosave(int intervalms = 10000);

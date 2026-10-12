@@ -11675,6 +11675,85 @@ int runSelfTest()
         menu->deleteLater();
     }
 
+    section("[269] v5.4.0 slice 5.2: legacy .lua characters migrate to .json");
+    {
+        // Isolated temp dir so the test never touches real character files.
+        QString tmpDir = "./data/characters/_migration_test";
+        QDir().mkpath(tmpDir);
+
+        // A well-formed legacy .lua character.
+        QString luaPath = tmpDir + "/LegacyHero.lua";
+        QFile lua(luaPath);
+        lua.open(QIODevice::WriteOnly | QIODevice::Text);
+        QTextStream out(&lua);
+        out << "-- Blacklands Character Save\n";
+        out << "SaveData = {\n";
+        out << "    Name = \"LegacyHero\",\n";
+        out << "    Race = \"Human\",\n";
+        out << "    Age = 22,\n";
+        out << "    Level = 4,\n";
+        out << "    HP = 42,\n";
+        out << "    MaxHP = 50,\n";
+        out << "    Gold = 777,\n";
+        out << "    Strength = 13,\n";
+        out << "    Intelligence = 9,\n";
+        out << "    Wisdom = 7,\n";
+        out << "    Constitution = 11,\n";
+        out << "    Charisma = 6,\n";
+        out << "    Dexterity = 10,\n";
+        out << "    isAlive = true,\n";
+        out << "}\n";
+        lua.close();
+
+        int migrated = gameStateManager::instance()->migrateLegacyCharacterFiles(tmpDir);
+        check(migrated >= 1, "at least one legacy file migrated");
+
+        QString jsonPath = tmpDir + "/LegacyHero.json";
+        check(QFile::exists(jsonPath), "LegacyHero.json was created");
+
+        QFile jf(jsonPath);
+        jf.open(QIODevice::ReadOnly);
+        QJsonDocument doc = QJsonDocument::fromJson(jf.readAll());
+        jf.close();
+        check(doc.isObject(), "migrated file is valid JSON");
+
+        QVariantMap m = doc.toVariant().toMap();
+        check(m.value("Name").toString() == "LegacyHero", "name preserved");
+        check(m.value("Race").toString() == "Human", "race preserved");
+        check(m.value("Level").toInt() == 4, "level preserved");
+        check(m.value("HP").toInt() == 42, "hp preserved");
+        check(m.value("MaxHP").toInt() == 50, "maxhp preserved");
+        check(m.value("Gold").toInt() == 777, "gold preserved");
+        check(m.value("Strength").toInt() == 13, "strength preserved");
+        check(m.value("isAlive").toBool() == true, "isAlive preserved");
+
+        // A malformed .lua must not crash the migration and must be skipped.
+        QString badPath = tmpDir + "/Broken.lua";
+        QFile bad(badPath);
+        bad.open(QIODevice::WriteOnly | QIODevice::Text);
+        bad.write("SaveData = { Name = \"Broken\", \n  inCity = true,\n");
+        bad.close();
+
+        int migrated2 = gameStateManager::instance()->migrateLegacyCharacterFiles(tmpDir);
+        check(!QFile::exists(tmpDir + "/Broken.json"), "malformed .lua is skipped, no crash");
+
+        // Re-running migration must not duplicate or overwrite an existing .json.
+        QFile jf2(jsonPath);
+        jf2.open(QIODevice::WriteOnly);
+        jf2.write("{\"Name\":\"Sentinel\",\"Level\":99}");
+        jf2.close();
+        gameStateManager::instance()->migrateLegacyCharacterFiles(tmpDir);
+        QFile jf3(jsonPath);
+        jf3.open(QIODevice::ReadOnly);
+        QVariantMap sentinel = QJsonDocument::fromJson(jf3.readAll()).toVariant().toMap();
+        jf3.close();
+        check(sentinel.value("Name").toString() == "Sentinel",
+              "existing .json is never overwritten by migration");
+
+        // Cleanup
+        QDir(tmpDir).removeRecursively();
+    }
+
     section("[214] v5.0.0 slice 5.6: CharacterListDialog is multi-select");
     {
         CharacterListDialog dlg;

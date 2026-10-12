@@ -1959,6 +1959,59 @@ bool gameStateManager::loadPartyFromFile(const QString& filePath) {
     return true;
 }
 
+int gameStateManager::migrateLegacyCharacterFiles(const QString& dir) {
+    QDir d(dir);
+    if (!d.exists()) return 0;
+
+    QFileInfoList luaFiles = d.entryInfoList(QStringList() << "*.lua",
+                                             QDir::Files | QDir::NoDotAndDotDot);
+    int converted = 0;
+
+    for (const QFileInfo& fi : luaFiles) {
+        QString base = fi.completeBaseName();
+
+        // Never overwrite an existing JSON save.
+        QString jsonPath = d.filePath(base + ".json");
+        if (QFile::exists(jsonPath)) continue;
+
+        // Parse the legacy Lua save. loadLuaTable returns an empty map on any
+        // syntax error, so malformed files are skipped rather than crashing.
+        QVariantMap outer = loadLuaTable(fi.absoluteFilePath(), "SaveData");
+        if (!outer.contains("SaveData")) {
+            qWarning() << "Migration: skipping malformed legacy save" << fi.fileName();
+            continue;
+        }
+        QVariantMap data = outer.value("SaveData").toMap();
+        if (data.isEmpty()) {
+            qWarning() << "Migration: skipping empty legacy save" << fi.fileName();
+            continue;
+        }
+
+        // Normalise a few legacy spellings so the JSON loader sees its keys.
+        if (!data.contains("Name") && data.contains("name"))
+            data["Name"] = data.value("name");
+        if (!data.contains("Race") && data.contains("race"))
+            data["Race"] = data.value("race");
+
+        Character c;
+        c.loadFromMap(data);
+
+        QJsonDocument doc(QJsonObject::fromVariantMap(c.toMap()));
+        QFile out(jsonPath);
+        if (!out.open(QIODevice::WriteOnly | QIODevice::Text)) {
+            qWarning() << "Migration: could not write" << jsonPath;
+            continue;
+        }
+        out.write(doc.toJson(QJsonDocument::Indented));
+        out.close();
+
+        qDebug() << "Migration: converted" << fi.fileName() << "->" << base + ".json";
+        ++converted;
+    }
+
+    return converted;
+}
+
 bool gameStateManager::addCharacterFromFile(const QString& filePath) {
     if (!filePath.endsWith(".json")) {
         qWarning() << "Only .json character files are supported:" << filePath;

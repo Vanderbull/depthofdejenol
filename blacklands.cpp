@@ -47,6 +47,9 @@ GameMenu::GameMenu(QWidget *parent)
 {
     // 1. Core Engine Initialization
     gameStateManager::instance()->loadFontSprite("resources/images/font_spritesheet_transparent.png");
+    // One-time migration of any legacy .lua character saves so they show up in
+    // the (JSON-only) character list instead of silently disappearing.
+    gameStateManager::instance()->migrateLegacyCharacterFiles("./data/characters");
     gameStateManager::instance()->incrementPartyAge(1);
     EventManager::instance()->loadEvents("./data/events-json");
 
