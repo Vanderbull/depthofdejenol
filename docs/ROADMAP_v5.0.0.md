@@ -228,7 +228,7 @@ closes the dungeon, returns to town). Tests [199]–[201]; +9 checks (1655 → 1
 Non-vacuous: reverting to `setDead()` fails 4 checks (body X/Y/level + journal);
 removing the wipe check fails "the party wipe was journaled".
 
-### 5.4 One HP source of truth `M`
+### 5.4 One HP source of truth `M` ✅ DONE
 
 **Why:** trap, pit, fall and dungeon-rest damage write the dead `CurrentCharacterHP`
 key; the party panel and combat read `Character::hp`. Damage is lost and "healing"
@@ -250,6 +250,8 @@ is invisible.
 **Verify:** tests — trap/pit/fall damage reduces the live member's HP and the panel
 reflects it; dungeon rest heals the live member; the party panel and the damage path
 agree. Non-vacuous: reverting to `CurrentCharacterHP` fails the agreement test.
+
+**Landed:** `updatePartyMemberHealth()` now writes the live member (`getPartyMembers()[row].hp`) instead of the dead `CurrentCharacterHP` key; on death it routes through `DeathRecovery::killCharacter()` (body location + journal) and checks `isPartyWiped()`. `on_restButton_clicked()` and `SpellCastingDialog::castHealingSpell()` read/write the live member. The `CurrentCharacter*` special-casing in `setGameValue()` was removed — it patched `m_gameStateData["Party"][0]`, a list shape the live party never uses. Tests [202]–[206]; +8 checks (1664 → 1672). Non-vacuous: reverting `updatePartyMemberHealth` to `CurrentCharacterHP` fails 3 checks (live HP reduced, panel shows reduced HP, source of truth).
 
 ### 5.5 Town resupply loop `S`
 

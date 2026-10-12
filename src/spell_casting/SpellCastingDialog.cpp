@@ -400,8 +400,7 @@ SpellResult SpellCastingDialog::castHealingSpell(const QJsonObject& spell)
     
     gameStateManager* gsm = gameStateManager::instance();
     int wisdom = gsm->getGameValue("CurrentCharacterWisdom").toInt();
-    int currentHP = gsm->getGameValue("CurrentCharacterHP").toInt();
-    int maxHP = gsm->getGameValue("MaxCharacterHP").toInt();
+    // (HP is now read from the live member, not CurrentCharacterHP.)
     
     // Determine healing amount based on spell
     int healing = 0;
@@ -432,10 +431,13 @@ SpellResult SpellCastingDialog::castHealingSpell(const QJsonObject& spell)
         healing = 15 + (wisdom / 3);
     }
     
-    // Apply healing
-    int newHP = qMin(currentHP + healing, maxHP);
-    int actualHealing = newHP - currentHP;
-    gsm->setGameValue("CurrentCharacterHP", newHP);
+    // Apply healing to the live member, not the dead CurrentCharacterHP key.
+    auto& members = gsm->getPartyMembers();
+    if (members.isEmpty()) return result;
+    Character& c = members[0];
+    int newHP = qMin(c.maxHp, c.hp + healing);
+    int actualHealing = newHP - c.hp;
+    c.hp = newHP;
     
     result.success = true;
     result.healingDone = actualHealing;

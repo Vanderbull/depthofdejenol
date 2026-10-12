@@ -76,6 +76,7 @@ signals:
     void exitedDungeonToCity();
 public slots:
     void on_eatButton_clicked();
+    void on_restButton_clicked();
 
 private slots:
     void on_fightButton_clicked();
@@ -98,7 +99,6 @@ private slots:
     void on_exitButton_clicked();
     void on_searchButton_clicked();
     void on_disarmButton_clicked();
-    void on_restButton_clicked();
     void on_talkButton_clicked();
     void on_stairsDownButton_clicked();
     void on_stairsUpButton_clicked();

@@ -57,7 +57,10 @@ private:
     
     // Spell effect implementations
     SpellResult castDamageSpell(const QJsonObject& spell);
+public:
     SpellResult castHealingSpell(const QJsonObject& spell);
+
+private:
     SpellResult castBuffSpell(const QJsonObject& spell);
     SpellResult castUtilitySpell(const QJsonObject& spell);
     

@@ -242,22 +242,37 @@ void DungeonDialog::updateGoldLabel()
 // --- Party Management Helper Function ---
 void DungeonDialog::updatePartyMemberHealth(int row, int damage)
 {
-    gameStateManager* gsm = gameStateManager::instance();   
-    
+    gameStateManager* gsm = gameStateManager::instance();
+    auto& members = gsm->getPartyMembers();
+
     // Defense is handled in combat via CombatActions::defend().
     int finalDamage = damage;
 
-    if (row == 0) {
-        int currentHp = gsm->getGameValue("CurrentCharacterHP").toInt();
-        int newHp = qMax(0, currentHp - finalDamage);
-        gsm->setGameValue("CurrentCharacterHP", newHp);
+    if (row >= 0 && row < members.size()) {
+        Character& c = members[row];
+        c.hp = qMax(0, c.hp - finalDamage);
 
-        if (newHp <= 0) {
+        if (c.hp <= 0 && c.isAlive) {
+            DeathRecovery::killCharacter(c, gsm->getGameValue("DungeonLevel").toInt(),
+                                         gsm->getGameValue("DungeonX").toInt(),
+                                         gsm->getGameValue("DungeonY").toInt());
+            JournalDialog::addEntry(QStringLiteral("Combat"),
+                QStringLiteral("%1 was defeated on floor %2 (%3,%4).")
+                    .arg(c.name).arg(gsm->getGameValue("DungeonLevel").toInt())
+                    .arg(gsm->getGameValue("DungeonX").toInt())
+                    .arg(gsm->getGameValue("DungeonY").toInt()));
             logMessage("You have been defeated!");
-            gsm->setGameValue("isAlive", 0);
-            this->close(); 
-            emit exitedDungeonToCity(); 
+            if (DeathRecovery::isPartyWiped(members)) {
+                handlePartyWipe();
+                return;
+            }
+            if (row == 0) {
+                gsm->setGameValue("isAlive", 0);
+                this->close();
+                emit exitedDungeonToCity();
+            }
         }
+        updatePartyPanel();
     }
 }
 // --- Dungeon Management (Movement, Drawing, Encounters) ---
@@ -2381,16 +2396,18 @@ void DungeonDialog::spawnMonsters(const QString& , int )
 {
 }
 
-void DungeonDialog::on_restButton_clicked() 
+void DungeonDialog::on_restButton_clicked()
 {
     gameStateManager* gsm = gameStateManager::instance();
-    int constitution = gsm->getGameValue("CurrentCharacterConstitution").toInt();
-    int healAmount = qMax(1, constitution / 2);    
-    int currentHp = gsm->getGameValue("CurrentCharacterHP").toInt();
-    int maxHp = gsm->getGameValue("MaxCharacterHP").toInt();
-    int newHp = qMin(maxHp, currentHp + healAmount);
-    gsm->setGameValue("CurrentCharacterHP", newHp);
-    logMessage(QString("You rest and recover %1 HP.").arg(newHp - currentHp));
+    auto& members = gsm->getPartyMembers();
+    if (members.isEmpty()) return;
+    Character& c = members[0];
+    int healAmount = qMax(1, c.constitution / 2);
+    int oldHp = c.hp;
+    int newHp = qMin(c.maxHp, oldHp + healAmount);
+    c.hp = newHp;
+    logMessage(QString("You rest and recover %1 HP.").arg(newHp - oldHp));
+    updatePartyPanel();
     // Resting also relights the torch.
     restForTorch();
     SoundEffects::instance()->play(SoundEffects::Type::Rest);

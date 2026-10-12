@@ -428,31 +428,10 @@ void gameStateManager::setGameValue(const QString& key, const QVariant& value)
 {
     m_gameStateData[key] = value;
 
-    // If we update a specific "CurrentCharacter" key, we must update the Party[0] slot
-    if (key.startsWith("CurrentCharacter") || key == "isAlive" || key == "MaxCharacterHP") {
-        QVariantList partyList = m_gameStateData["Party"].toList();
-        if (!partyList.isEmpty()) {
-            QVariantMap character = partyList[0].toMap();
-            
-            if (key == "CurrentCharacterName") character["Name"] = value;
-            else if (key == "CurrentCharacterLevel") character["Level"] = value;
-            else if (key == "CurrentCharacterHP") character["HP"] = value;
-            else if (key == "MaxCharacterHP") character["MaxHP"] = value;
-            else if (key == "isAlive") character["isAlive"] = value.toInt();
-            
-            // Check for stats (CurrentCharacterStrength, etc)
-            QString statName = key;
-            statName.remove("CurrentCharacter");
-            if (GameConstants::STAT_NAMES.contains(statName)) {
-                character[statName] = value;
-            }
-            //if (statNames().contains(statName)) {
-            //    character[statName] = value;
-            //}
-            partyList[0] = character;
-            m_gameStateData["Party"] = partyList;
-        }
-    }
+    // NOTE: the CurrentCharacter* special-casing was removed in slice 5.4.
+    // The live party (getPartyMembers()) is now the single HP source of truth;
+    // the CurrentCharacter* keys are no longer written or read by damage,
+    // rest, or spell paths.
     
     emit gameValueChanged(key, value);
 }

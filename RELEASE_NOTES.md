@@ -73,6 +73,20 @@ Non-vacuous:
 - reverting to `setDead()` fails 4 checks — body X/Y/level + journal entry
 - removing the wipe check fails "the party wipe was journaled"
 
+### Slice 5.4 — One HP source of truth
+- `updatePartyMemberHealth()` writes the live member (`getPartyMembers()[row].hp`)
+  instead of the dead `CurrentCharacterHP` key; trap/pit/fall damage now reduces
+  the HP the party panel actually shows
+- On death: `DeathRecovery::killCharacter()` (body location + journal) and
+  `isPartyWiped()` check — a trap that kills the last member ends the run
+- `on_restButton_clicked()` and `castHealingSpell()` read/write the live member
+- Removed the `CurrentCharacter*` special-casing in `setGameValue()` — it patched
+  `m_gameStateData["Party"][0]`, a list shape the live party never uses
+
+**Verified:** tests [202]–[206] (1672 passed, 0 failed; +8 checks).
+Non-vacuous: reverting `updatePartyMemberHealth` to `CurrentCharacterHP` fails
+3 checks (live HP reduced, panel shows reduced HP, source of truth).
+
 ---
 
 # v4.0.0 — Endgame depth and replayability ✅ RELEASED

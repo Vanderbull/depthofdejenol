@@ -49,6 +49,7 @@
 
 #include "src/automap/automap_dialog.h"
 #include "src/dungeon_dialog/DungeonDialog.h"
+#include "src/spell_casting/SpellCastingDialog.h"
 #include "src/dungeon_dialog/DungeonHandlers.h"
 #include "src/general_store/GeneralStore.h"
 #include "version.h"
@@ -10028,6 +10029,136 @@ int runSelfTest()
 
         members.clear();
         JournalDialog::clearAll();
+    }
+
+    // ------------------------------------------- v5.0.0 slice 5.4: one HP source
+    section("[202] v5.0.0 slice 5.4: trap damage reduces the live member's HP");
+    {
+        gameStateManager* gsm = gameStateManager::instance();
+        auto& members = gsm->getPartyMembers();
+        members.clear();
+        Character c;
+        c.name = "TrapTarget"; c.level = 1; c.hp = 10; c.maxHp = 10;
+        c.hunger = 100; c.maxHunger = 100; c.isAlive = true;
+        members.append(c);
+
+        DungeonDialog dlg;
+        dlg.resize(1280, 800);
+        dlg.show();
+        for (int i = 0; i < 10; ++i) QApplication::processEvents();
+
+        // Call the real damage path (what DungeonHandlers calls).
+        dlg.updatePartyMemberHealth(0, 3);
+
+        check(members[0].hp == 7, "the live member's HP was reduced",
+              QString::number(members[0].hp));
+        check(gsm->getGameValue("CurrentCharacterHP").toInt() == 0,
+              "CurrentCharacterHP is no longer the write target");
+
+        members.clear();
+    }
+
+    section("[203] v5.0.0 slice 5.4: dungeon rest heals the live member");
+    {
+        gameStateManager* gsm = gameStateManager::instance();
+        auto& members = gsm->getPartyMembers();
+        members.clear();
+        Character c;
+        c.name = "RestHealer"; c.level = 1; c.hp = 3; c.maxHp = 10;
+        c.hunger = 100; c.maxHunger = 100; c.isAlive = true;
+        c.constitution = 10; // healAmount = max(1, 10/2) = 5
+        members.append(c);
+
+        DungeonDialog dlg;
+        dlg.resize(1280, 800);
+        dlg.show();
+        for (int i = 0; i < 10; ++i) QApplication::processEvents();
+
+        dlg.on_restButton_clicked();
+
+        check(members[0].hp > 3, "the live member's HP was restored",
+              QString::number(members[0].hp));
+        check(members[0].hp <= 10, "healing does not exceed max HP",
+              QString::number(members[0].hp));
+
+        members.clear();
+    }
+
+    section("[204] v5.0.0 slice 5.4: spell healing increases the live member's HP");
+    {
+        gameStateManager* gsm = gameStateManager::instance();
+        auto& members = gsm->getPartyMembers();
+        members.clear();
+        Character c;
+        c.name = "SpellHealer"; c.level = 1; c.hp = 5; c.maxHp = 20;
+        c.hunger = 100; c.maxHunger = 100; c.isAlive = true;
+        c.wisdom = 10;
+        members.append(c);
+
+        // Call the real spell healing path.
+        QJsonObject spell;
+        spell["name"] = "Cure Wounds";
+        SpellCastingDialog spellDlg;
+        spellDlg.castHealingSpell(spell);
+
+        check(members[0].hp > 5, "the live member's HP was restored by the spell",
+              QString::number(members[0].hp));
+
+        members.clear();
+    }
+
+    section("[205] v5.0.0 slice 5.4: the party panel reflects trap damage");
+    {
+        gameStateManager* gsm = gameStateManager::instance();
+        auto& members = gsm->getPartyMembers();
+        members.clear();
+        Character c;
+        c.name = "PanelCheck"; c.level = 1; c.hp = 10; c.maxHp = 10;
+        c.hunger = 100; c.maxHunger = 100; c.isAlive = true;
+        members.append(c);
+
+        DungeonDialog dlg;
+        dlg.resize(1280, 800);
+        dlg.show();
+        for (int i = 0; i < 10; ++i) QApplication::processEvents();
+
+        dlg.updatePartyMemberHealth(0, 4);
+        dlg.updatePartyPanel();
+
+        check(dlg.m_partyStatusList && dlg.m_partyStatusList->count() > 0,
+              "the party panel has a row");
+        if (dlg.m_partyStatusList && dlg.m_partyStatusList->count() > 0) {
+            const QString row = dlg.m_partyStatusList->item(0)->text();
+            check(row.contains("6"), "the panel shows the reduced HP",
+                  row);
+        }
+
+        members.clear();
+    }
+
+    section("[206] v5.0.0 slice 5.4: CurrentCharacterHP is not a write target");
+    {
+        gameStateManager* gsm = gameStateManager::instance();
+        auto& members = gsm->getPartyMembers();
+        members.clear();
+        Character c;
+        c.name = "WriteTarget"; c.level = 1; c.hp = 10; c.maxHp = 10;
+        c.hunger = 100; c.maxHunger = 100; c.isAlive = true;
+        members.append(c);
+
+        DungeonDialog dlg;
+        dlg.resize(1280, 800);
+        dlg.show();
+        for (int i = 0; i < 10; ++i) QApplication::processEvents();
+
+        dlg.updatePartyMemberHealth(0, 2);
+
+        // CurrentCharacterHP may exist as a mirror, but the live member's HP
+        // must be the one that changed.
+        check(members[0].hp == 8, "the live member HP is the source of truth",
+              QString::number(members[0].hp));
+
+        members.clear();
     }
 
     // -------------------------------------------------------------- cleanup
