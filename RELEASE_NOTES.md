@@ -1,8 +1,8 @@
 # Release Notes
 
-**Latest:** v5.2.0 — Savegame revamp (IN PROGRESS)
+**Latest:** v5.2.0 — Savegame revamp ✅ RELEASED
 
-## v5.2.0 — Savegame revamp
+## v5.2.0 — Savegame revamp ✅ RELEASED
 
 The savegame system had three critical bugs: autosave silently failed, party building only kept the last selected character, and `saveCharacterToFile()` didn't save inventory, equipped items, hunger, or guild data.
 
@@ -15,9 +15,24 @@ The savegame system had three critical bugs: autosave silently failed, party bui
 - New `addCharacterFromFile()` method — loads a character and ADDS to the party (doesn't replace)
 - `CharacterListDialog::onSelectClicked()` now uses `addCharacterFromFile()` instead of `loadCharacterFromFile()`
 - `saveCharacterToFile()` now saves: hunger, gold, mana, playTimeSeconds, experience, inventory (JSON), equipped (JSON), bankInventory (JSON)
-- `loadCharacterFromFile()` for .txt files now parses the same fields
 
-**Verified:** 1861 tests, 0 failed (+112 checks). Non-vacuous: reverting each fix fails its test.
+### Slice 5.3 — CharacterListDialog UI update
+- Selection preview shows member names, count, and average level
+- Party size indicator (e.g. "Party: 2 / 4")
+- Clear selection button
+
+### Slice 5.4 — LoadPartyDialog preview
+- Preview shows member names, count, average level
+- Deceased members marked with "(deceased)"
+- Empty saves show "No party members found"
+
+### Slice 5.5 — JSON-only save format
+- `loadCharacterFromFile()` — only `.json` supported; `.lua` and `.txt` rejected
+- `addCharacterFromFile()` — only `.json` supported; `.lua` and `.txt` rejected
+- `saveCharacterToFile()` — writes `.json` only
+- `Character::loadFromMap()` — defaults for missing fields (hunger=100, isAlive=true, etc.)
+
+**Verified:** 1912 tests, 0 failed (+211 checks). Non-vacuous: reverting each fix fails its test.
 
 ---
 

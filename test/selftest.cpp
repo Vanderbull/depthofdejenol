@@ -5071,12 +5071,12 @@ int runSelfTest()
     // ------------------------------------------- Release packaging (8.5)
     section("[56] Release packaging");
     {
-        check(ReleaseInfo::version() == "5.1.0", "version is 5.1.0");
-        check(ReleaseInfo::versionString() == "v5.1.0", "version string");
+        check(ReleaseInfo::version() == "5.2.0", "version is 5.2.0");
+        check(ReleaseInfo::versionString() == "v5.2.0", "version string");
         check(!ReleaseInfo::releaseDate().isEmpty(), "release date exists");
         check(!ReleaseInfo::systemRequirements().isEmpty(), "system requirements exist");
-        check(ReleaseInfo::installerName().contains("5.1.0"), "installer name");
-        check(ReleaseInfo::banner().contains("5.1.0"), "banner");
+        check(ReleaseInfo::installerName().contains("5.2.0"), "installer name");
+        check(ReleaseInfo::banner().contains("5.2.0"), "banner");
     }
     {
         // Release notes.
@@ -5096,9 +5096,9 @@ int runSelfTest()
         QList<QPair<QString, QString>> history = ReleaseInfo::versionHistory();
         check(history.size() >= 5, "at least 5 versions in history",
               QString::number(history.size()));
-        check(history[0].first == "5.1.0", "latest version is 5.1.0");
-        check(history[0].second.contains("Main Menu") || history[0].second.contains("Continue") || history[0].second.contains("party preview"),
-              "v5.1.0 history entry mentions the menu redesign");
+        check(history[0].first == "5.2.0", "latest version is 5.2.0");
+        check(history[0].second.contains("Savegame") || history[0].second.contains("party") || history[0].second.contains("JSON"),
+              "v5.2.0 history entry mentions the savegame revamp");
     }
 
     // ------------------------------------------- Status flag integrity
@@ -11507,11 +11507,16 @@ int runSelfTest()
 
     section("[249] v5.2.0 slice 5.5: .lua and .txt files are rejected");
     {
-        // Only .json is supported — .lua and .txt must be rejected
+        // Only .json is supported — .lua and .txt must be rejected.
+        // Use VALID JSON content with a wrong extension so the test is
+        // non-vacuous: if the extension guard is removed, the file would
+        // load and the check(!ok) assertions below would fail.
+        QString jsonContent = "{\"Name\": \"BadHero\", \"Level\": 9, \"HP\": 50, \"MaxHP\": 50, \"isAlive\": true}";
+
         QString luaPath = "data/characters/RejectLua.lua";
         QFile luaFile(luaPath);
         luaFile.open(QIODevice::WriteOnly);
-        luaFile.write("SaveData = { Name = 'LuaHero', Level = 1 }\n");
+        luaFile.write(jsonContent.toUtf8());
         luaFile.close();
 
         bool luaOk = gameStateManager::instance()->loadCharacterFromFile(luaPath);
@@ -11520,8 +11525,7 @@ int runSelfTest()
         QString txtPath = "data/characters/RejectTxt.txt";
         QFile txtFile(txtPath);
         txtFile.open(QIODevice::WriteOnly);
-        txtFile.write("Name: TxtHero\n");
-        txtFile.write("Level: 4\n");
+        txtFile.write(jsonContent.toUtf8());
         txtFile.close();
 
         bool txtOk = gameStateManager::instance()->loadCharacterFromFile(txtPath);

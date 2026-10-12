@@ -1,7 +1,7 @@
 # Roadmap v5.2.0 — Savegame revamp
 
-**Status:** IN PROGRESS — slices 5.1–5.2 done
-**Version:** v5.2.0 (minor — party building from individual characters, autosave fix, inventory preservation)
+**Status:** ✅ RELEASED
+**Version:** v5.2.0 (minor — party building from individual characters, autosave fix, inventory preservation, JSON-only save format)
 
 ## Goal
 
@@ -70,11 +70,17 @@ This version fixes all three and adds proper party building from individual char
 
 **Verified:** tests [247]–[249] — old files load with defaults, new files load fully, `.lua`/`.txt` rejected.
 
-### 5.6 Release `S`
+### 5.6 Release `S` ✅ DONE
 
-**Files:** `blacklands.pro`, `src/core/ReleaseInfo.cpp`, `RELEASE_NOTES.md`
+**Files:** `blacklands.pro`, `src/core/ReleaseInfo.cpp`, `RELEASE_NOTES.md`, `docs/ROADMAP_V5.2.0.md`
 
-**Verify:** SEMVER_MINOR bumped to 2, version history updated, release notes written.
+**What changed:**
+- SEMVER_MINOR bumped to 2 (v5.2.0)
+- v5.2.0 entry added to versionHistory()
+- RELEASE_NOTES.md updated with all 6 slices
+- Test version asserts updated to 5.2.0
+
+**Verified:** 1912 tests, 0 failed.
 
 ## Dependency Graph
 
@@ -84,8 +90,11 @@ This version fixes all three and adds proper party building from individual char
 
 ## Release Criteria
 
-- [ ] Autosave saves party with inventory (test [232])
-- [ ] Party building from individual characters works (test [237])
-- [ ] All tests pass (target: 1861+)
-- [ ] `make check` is green
-- [ ] Non-vacuous verification for every fix
+- [x] Autosave saves party with inventory (test [232])
+- [x] Party building from individual characters works (test [237])
+- [x] All tests pass (1912 passed, 0 failed)
+- [x] `make check` is green
+- [x] Non-vacuous verification for every fix
+- [x] JSON-only save format (no .lua/.txt support)
+- [x] CharacterListDialog UI with preview, party size, clear selection
+- [x] LoadPartyDialog preview with members, levels, deceased marking
