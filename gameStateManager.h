@@ -213,8 +213,6 @@ public:
     // after luaL_openlibs; safe to call twice.
     static void sandboxLua(lua_State* L);
     QString getLuaString(const QString& variableName);
-    void saveCharacterToLua(const Character& character, const QString& filePath);
-    Character loadCharacterFromLua(const QString& filePath);
     static gameStateManager* instance();
     bool loadGameConfig(const QString& filePath);
     void refreshUI();
@@ -315,10 +313,6 @@ public:
     // --- Persistence ---
     bool loadCharacterFromFile(const QString& characterName);
     bool saveCharacterToFile(int partyIndex);
-    // One-time migration: convert legacy .lua character saves in `dir` to the
-    // JSON format. Existing .json files are never overwritten; malformed .lua
-    // files are skipped. Returns the number of files converted.
-    int migrateLegacyCharacterFiles(const QString& dir);
     //bool verifySaveGame(const QString& characterName);
     //bool repairSaveGame(const QString& characterName);
     void startAutosave(int intervalms = 10000);

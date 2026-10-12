@@ -6,7 +6,9 @@
 #include <QSettings>
 #include <QDir>
 #include <QFile>
-#include <QTextStream>
+#include <QJsonDocument>
+#include <QJsonObject>
+#include <QVariantMap>
 
 MorgueDialog::MorgueDialog(QWidget *parent) : QDialog(parent)
 {
@@ -48,36 +50,22 @@ void MorgueDialog::setupUi()
 QList<DeadCharacterInfo> MorgueDialog::fetchDeadCharacterData() const
 {
     QDir dir("data/characters");
-    QStringList allFiles = dir.entryList({"*.txt", "*.lua"}, QDir::Files);
+    QStringList allFiles = dir.entryList({"*.json"}, QDir::Files);
     QList<DeadCharacterInfo> deadList;
 
     for (const QString &fileName : allFiles) {
         QFile file(dir.absoluteFilePath(fileName));
-        if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-            QTextStream in(&file);
-            DeadCharacterInfo info = {fileName, false, 0};
-            bool isDead = false;
-            while (!in.atEnd()) {
-                QString line = in.readLine().trimmed();
-                if (line.contains("isAlive") && (line.contains("0") || line.contains("false"))) {
-                    isDead = true;
-                }
-                if (line.contains("inCity") && (line.contains("1") || line.contains("true"))) {
-                    info.inCity = true;
-                }
-                if (line.contains("DungeonLevel")) {
-                    int colonIdx = line.indexOf(':');
-                    if (colonIdx == -1) colonIdx = line.indexOf('=');
-                    if (colonIdx != -1) {
-                        QString valStr = line.mid(colonIdx + 1).trimmed();
-                        valStr.remove(',');
-                        info.dungeonLevel = valStr.toInt();
-                    }
-                }
-            }
-            if (isDead) deadList.append(info);
-            file.close();
-        }
+        if (!file.open(QIODevice::ReadOnly)) continue;
+        QJsonDocument doc = QJsonDocument::fromJson(file.readAll());
+        file.close();
+        if (!doc.isObject()) continue;
+
+        QVariantMap c = doc.toVariant().toMap();
+        DeadCharacterInfo info = {fileName, false, 0};
+        info.inCity = c.value("inCity", false).toBool();
+        info.dungeonLevel = c.value("DungeonLevel").toInt();
+
+        if (!c.value("isAlive", true).toBool()) deadList.append(info);
     }
     return deadList;
 }
@@ -86,54 +74,24 @@ bool MorgueDialog::moveBodyToCityInFile(const QString &fileName)
 {
     QString filePath = "data/characters/" + fileName;
     QFile file(filePath);
-    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) return false;
+    if (!file.open(QIODevice::ReadOnly)) return false;
 
-    QStringList lines;
-    QTextStream in(&file);
-    bool foundInCity = false;
-    bool foundIsAlive = false;
-    bool foundDungeonLevel = false;
-
-    while (!in.atEnd()) {
-        QString line = in.readLine();
-        if (line.contains("inCity")) {
-            foundInCity = true;
-            if (line.contains('='))
-                line = "    inCity = true,";
-            else
-                line = "inCity: 1";
-        }
-        else if (line.contains("isAlive")) {
-            foundIsAlive = true;
-            if (line.contains('='))
-                line = "    isAlive = true,";
-            else
-                line = "isAlive: 1";
-        }
-        else if (line.contains("DungeonLevel")) {
-            foundDungeonLevel = true;
-            if (line.contains('='))
-                line = "    DungeonLevel = 0,";
-            else
-                line = "DungeonLevel: 0";
-        }
-        else if (line.contains("DungeonX")) {
-            if (line.contains('=')) line = "    DungeonX = 17,";
-        }
-        else if (line.contains("DungeonY")) {
-            if (line.contains('=')) line = "    DungeonY = 12,";
-        }
-        lines.append(line);
-    }
+    QJsonDocument doc = QJsonDocument::fromJson(file.readAll());
     file.close();
+    if (!doc.isObject()) return false;
 
-    if (!foundInCity) lines.append("    inCity = true,");
-    if (!foundIsAlive) lines.append("    isAlive = true,");
-    if (!foundDungeonLevel) lines.append("    DungeonLevel = 0,");
+    QVariantMap c = doc.toVariant().toMap();
+    c["inCity"] = true;
+    c["isAlive"] = true;
+    c["DungeonLevel"] = 0;
+    c["DungeonX"] = 17;
+    c["DungeonY"] = 12;
+    // A revived character must not stay at 0 HP, or it loads as dead again.
+    if (c.value("MaxHP").toInt() <= 0) c["MaxHP"] = 10;
+    if (c.value("HP").toInt() <= 0) c["HP"] = c.value("MaxHP");
 
-    if (!file.open(QIODevice::WriteOnly | QIODevice::Truncate | QIODevice::Text)) return false;
-    QTextStream out(&file);
-    for (const QString &l : lines) out << l << "\n";
+    if (!file.open(QIODevice::WriteOnly | QIODevice::Truncate)) return false;
+    file.write(QJsonDocument(QJsonObject::fromVariantMap(c)).toJson(QJsonDocument::Indented));
     file.close();
     return true;
 }
@@ -200,8 +158,7 @@ void MorgueDialog::onActionClicked()
         }
 
         QString nameOnly = selected;
-        if (nameOnly.endsWith(".txt")) nameOnly.chop(4);
-        if (nameOnly.endsWith(".lua")) nameOnly.chop(4);
+        if (nameOnly.endsWith(".json")) nameOnly.chop(5);
 
         if (gsm->loadCharacterFromFile(nameOnly)) {
             QMessageBox::information(this, tr("Success"), tr("%1 has been brought to the city, revived, and placed on the altar.").arg(nameOnly));
@@ -209,7 +166,7 @@ void MorgueDialog::onActionClicked()
     }
     else if (action == tr("Raise Character")) {
         QString activeName = gsm->getPC().at(0).name;
-        if (activeName + ".txt" != selected && activeName + ".lua" != selected) {
+        if (activeName + ".json" != selected) {
             QMessageBox::warning(this, tr("Not Ready"), tr("You must 'Grab Body' for %1 first.").arg(selected));
             return;
         }
@@ -236,8 +193,7 @@ void MorgueDialog::onActionClicked()
 
         if (updateCharacterFile(selected)) {
             QString nameOnly = selected;
-            if (nameOnly.endsWith(".txt")) nameOnly.chop(4);
-            if (nameOnly.endsWith(".lua")) nameOnly.chop(4);
+            if (nameOnly.endsWith(".json")) nameOnly.chop(5);
             gsm->loadCharacterFromFile(nameOnly);
             QMessageBox::information(this, tr("Success"), tr("%1 has returned to life!").arg(nameOnly));
         }

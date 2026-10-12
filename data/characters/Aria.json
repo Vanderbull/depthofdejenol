@@ -1,0 +1,49 @@
+{
+    "Age": 21,
+    "Alignment": "Neutral",
+    "BankInventory": [],
+    "Charisma": 10,
+    "Children": [],
+    "Constitution": 12,
+    "Dexterity": 11,
+    "DungeonLevel": 1,
+    "DungeonX": 17,
+    "DungeonY": 12,
+    "Equipped": [],
+    "Experience": 0,
+    "Gold": 150,
+    "GuildExperience": {
+        "Warriors Guild": 0
+    },
+    "GuildLevels": {
+        "Warriors Guild": 1
+    },
+    "HP": 24,
+    "Hunger": 100,
+    "Intelligence": 9,
+    "Inventory": [
+        {
+            "id": 366,
+            "name": "Rations",
+            "charges": 0,
+            "equipped": false,
+            "identified": true
+        }
+    ],
+    "Level": 1,
+    "Mana": 16,
+    "MaxHP": 24,
+    "MaxHunger": 100,
+    "MaxMana": 16,
+    "Name": "Aria",
+    "PlayTimeSeconds": 0,
+    "Race": "Human",
+    "Spouse": "",
+    "StatPoints": 0,
+    "StatusFlags": 0,
+    "Strength": 12,
+    "Wisdom": 8,
+    "isAlive": true,
+    "inCity": true,
+    "row": 0
+}

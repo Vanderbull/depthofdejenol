@@ -2,11 +2,12 @@
 #include <QMessageBox>
 #include <QRandomGenerator>
 #include <QFile>
-#include <QTextStream>
-#include <QFile>
+#include <QJsonDocument>
+#include <QJsonObject>
+#include <QVariantMap>
+#include <QStringList>
 #include <QCoreApplication>
 #include <QDir>
-#include <QTextStream>
 
 void loadStyleSheet(QWidget* widget, const QString& sheetName) 
 {
@@ -98,7 +99,7 @@ void SeerDialog::on_characterButton_clicked()
     }
     // 1. Access the character save directory
     QDir charDir("data/characters/");
-    QStringList files = charDir.entryList(QStringList() << "*.txt", QDir::Files);
+    QStringList files = charDir.entryList(QStringList() << "*.json", QDir::Files);
 
     if (files.isEmpty()) {
         QMessageBox::information(this, "The Seer", "The archives are empty. No souls reside in this realm yet.");
@@ -112,24 +113,23 @@ void SeerDialog::on_characterButton_clicked()
         QFile file(charDir.absoluteFilePath(files.at(randomIndex)));
         QString name, level, guild, dX, dY, dLevel;
         bool isAlive = true; // Default to true
-        // 4. Parse the file
-        if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-            QTextStream in(&file);
-            while (!in.atEnd()) {
-                QString line = in.readLine().trimmed();
-                if (line.startsWith("Name: ")) name = line.mid(6).trimmed();
-                if (line.startsWith("Level: ")) level = line.mid(7).trimmed();
-                if (line.startsWith("Guild: ")) guild = line.mid(7).trimmed();
-                if (line.startsWith("DungeonX: ")) dX = line.mid(10).trimmed();
-                if (line.startsWith("DungeonY: ")) dY = line.mid(10).trimmed();
-                if (line.startsWith("DungeonLevel: ")) dLevel = line.mid(14).trimmed();
-                
-                // Check for the isAlive flag
-                if (line.startsWith("isAlive: ")) {
-                    isAlive = (line.mid(9).trimmed() == "1" || line.mid(9).toLower() == "true");
-                }
-            }
+        // 4. Parse the save
+        if (file.open(QIODevice::ReadOnly)) {
+            QVariantMap c = QJsonDocument::fromJson(file.readAll()).toVariant().toMap();
             file.close();
+            name   = c.value("Name").toString();
+            level  = QString::number(c.value("Level").toInt());
+            // A character can belong to several guilds; show them all.
+            QStringList guildNames;
+            const QVariantMap guilds = c.value("GuildLevels").toMap();
+            for (auto it = guilds.constBegin(); it != guilds.constEnd(); ++it) {
+                if (it.value().toInt() > 0) guildNames << it.key();
+            }
+            guild  = guildNames.isEmpty() ? QString("None") : guildNames.join(", ");
+            dX     = QString::number(c.value("DungeonX").toInt());
+            dY     = QString::number(c.value("DungeonY").toInt());
+            dLevel = QString::number(c.value("DungeonLevel").toInt());
+            isAlive = c.value("isAlive", true).toBool();
         }
         // 5. Build the vision description based on status
         QString statusText = isAlive ? "<b style='color:green;'>Living</b>" : "<b style='color:red;'>Deceased (Ghost)</b>";

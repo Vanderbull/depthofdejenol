@@ -1,0 +1,52 @@
+{
+    "Age": 39,
+    "Alignment": "Neutral",
+    "BankInventory": [],
+    "Charisma": 12,
+    "Children": [
+        "Elowen",
+        "Fenn"
+    ],
+    "Constitution": 9,
+    "Dexterity": 15,
+    "DungeonLevel": 1,
+    "DungeonX": 17,
+    "DungeonY": 12,
+    "Equipped": [],
+    "Experience": 600,
+    "Gold": 3400,
+    "GuildExperience": {
+        "Mages Guild": 600
+    },
+    "GuildLevels": {
+        "Mages Guild": 6
+    },
+    "HP": 30,
+    "Hunger": 100,
+    "Intelligence": 17,
+    "Inventory": [
+        {
+            "id": 366,
+            "name": "Rations",
+            "charges": 0,
+            "equipped": false,
+            "identified": true
+        }
+    ],
+    "Level": 7,
+    "Mana": 32,
+    "MaxHP": 44,
+    "MaxHunger": 100,
+    "MaxMana": 32,
+    "Name": "Cael",
+    "PlayTimeSeconds": 0,
+    "Race": "Elf",
+    "Spouse": "Dara",
+    "StatPoints": 0,
+    "StatusFlags": 0,
+    "Strength": 8,
+    "Wisdom": 16,
+    "isAlive": true,
+    "inCity": false,
+    "row": 0
+}

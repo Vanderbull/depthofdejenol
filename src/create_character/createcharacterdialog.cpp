@@ -6,6 +6,8 @@
 #include <QGuiApplication>
 #include <QMessageBox>
 #include <QFile>
+#include <QJsonDocument>
+#include <QJsonObject>
 #include <QTextStream>
 #include <QListWidget>
 #include <QVBoxLayout>
@@ -349,38 +351,53 @@ void CreateCharacterDialog::onSaveCharacterClicked()
         }
     }
     gsm->setGameValue("CurrentCharacterStatPointsLeft", this->statPoints);
-    // Ensure the data/characters directory exists
-    QString saveDirPath = QCoreApplication::applicationDirPath() + "/data/characters";
-    QDir dir(saveDirPath);
-    if (!dir.exists()) {
-        dir.mkpath("."); // Creates the full path including parent folders if necessary
-    }
-    // Combine path and filename
-    QString filename = dir.filePath(characterName + ".txt");
-    QFile file(filename);
-    if (file.open(QIODevice::WriteOnly | QIODevice::Text)) {
-        QTextStream out(&file);
-        out << "CHARACTER_FILE_VERSION: 1.0\n";
-        out << "Name: " << characterName << "\n";
-        out << "Race: " << raceBox->currentText() << "\n";
-        out << "Sex: " << sexBox->currentText() << "\n";
-        out << "Alignment: " << alignmentBox->currentText() << "\n\n--- STATS ---\n";
-	// Add the isAlive status to the file output
-        bool isAlive = gsm->getGameValue("CurrentCharacterIsAlive").toBool();
-        out << "isAlive: " << isAlive << "\n\n--- STATS ---\n";
+    // Build a real Character so the save is a complete JSON savegame.
+    Character c;
+    c.name = characterName;
+    c.race = raceBox->currentText();
+    c.age = 18;
+    c.level = 1;
+    c.isAlive = true;
     for (const QString& statName : GameConstants::STAT_NAMES) {
         QSpinBox* spin = statSpinBoxes.value(statName);
-        if (spin) {
-            out << statName << ": " << spin->value() << "\n";
-        }
+        if (!spin) continue;
+        const int v = spin->value();
+        if      (statName == "Strength")     c.strength     = v;
+        else if (statName == "Intelligence") c.intelligence = v;
+        else if (statName == "Wisdom")       c.wisdom       = v;
+        else if (statName == "Constitution") c.constitution = v;
+        else if (statName == "Charisma")     c.charisma     = v;
+        else if (statName == "Dexterity")    c.dexterity    = v;
     }
+    if (selectedGuild != "None") c.joinGuild(selectedGuild);
+    // Starting HP/Mana are derived from the build; a new character must not be
+    // saved at 0 HP or it would load as dead.
+    c.maxHp = qMax(10, c.constitution * 2);
+    c.hp = c.maxHp;
+    c.maxMana = qMax(10, c.wisdom + c.intelligence);
+    c.mana = c.maxMana;
 
-        out << "\n--- GUILD ---\nGuild: " << selectedGuild << "\n";
-        file.close();
-        QMessageBox::information(this, "Save Character", QString("Character **%1** saved successfully.").arg(characterName));
-        emit characterCreated(characterName);
-        QDialog::accept();
+    // Save under the path the game reads characters from. The working directory
+    // is where the game was launched, so this is always relative to it.
+    QDir dir("data/characters/");
+    if (!dir.exists()) dir.mkpath(".");
+
+    QString filename = dir.filePath(characterName + ".json");
+    QFile file(filename);
+    if (!file.open(QIODevice::WriteOnly | QIODevice::Truncate)) {
+        QMessageBox::critical(this, "Save Error",
+                              QString("Could not write the character to:\n%1").arg(filename));
+        return;
     }
+    file.write(QJsonDocument(QJsonObject::fromVariantMap(c.toMap())).toJson(QJsonDocument::Indented));
+    file.close();
+
+    // Put the new character into the party so New Game / the city can use it.
+    gameStateManager::instance()->addCharacterToParty(c);
+
+    QMessageBox::information(this, "Save Character", QString("Character **%1** saved successfully.").arg(characterName));
+    emit characterCreated(characterName);
+    QDialog::accept();
 }
 
 void CreateCharacterDialog::onTutorialClicked() 

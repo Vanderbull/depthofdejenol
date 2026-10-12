@@ -1,0 +1,44 @@
+{
+    "Age": 27,
+    "Alignment": "Neutral",
+    "BankInventory": [],
+    "Charisma": 14,
+    "Children": [
+        "Elowen",
+        "Fenn"
+    ],
+    "Constitution": 10,
+    "Dexterity": 16,
+    "DungeonLevel": 1,
+    "DungeonX": 17,
+    "DungeonY": 12,
+    "Equipped": [],
+    "Experience": 200,
+    "Gold": 75,
+    "GuildExperience": {
+        "Thieves Guild": 200
+    },
+    "GuildLevels": {
+        "Thieves Guild": 2
+    },
+    "HP": 0,
+    "Hunger": 100,
+    "Intelligence": 11,
+    "Inventory": [],
+    "Level": 3,
+    "Mana": 26,
+    "MaxHP": 36,
+    "MaxHunger": 100,
+    "MaxMana": 26,
+    "Name": "Dara",
+    "PlayTimeSeconds": 0,
+    "Race": "Hobbit",
+    "Spouse": "Cael",
+    "StatPoints": 0,
+    "StatusFlags": 0,
+    "Strength": 9,
+    "Wisdom": 13,
+    "isAlive": false,
+    "inCity": false,
+    "row": 0
+}

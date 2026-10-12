@@ -1,0 +1,56 @@
+{
+    "Age": 33,
+    "Alignment": "Neutral",
+    "BankInventory": [],
+    "Charisma": 6,
+    "Children": [],
+    "Constitution": 15,
+    "Dexterity": 10,
+    "DungeonLevel": 3,
+    "DungeonX": 8,
+    "DungeonY": 4,
+    "Equipped": [],
+    "Experience": 400,
+    "Gold": 1200,
+    "GuildExperience": {
+        "Warriors Guild": 400
+    },
+    "GuildLevels": {
+        "Warriors Guild": 4
+    },
+    "HP": 48,
+    "Hunger": 100,
+    "Intelligence": 7,
+    "Inventory": [
+        {
+            "id": 366,
+            "name": "Rations",
+            "charges": 0,
+            "equipped": false,
+            "identified": true
+        },
+        {
+            "id": 1,
+            "name": "Gnarled Hands",
+            "charges": 0,
+            "equipped": false,
+            "identified": true
+        }
+    ],
+    "Level": 5,
+    "Mana": 18,
+    "MaxHP": 60,
+    "MaxHunger": 100,
+    "MaxMana": 18,
+    "Name": "Borin",
+    "PlayTimeSeconds": 0,
+    "Race": "Dwarf",
+    "Spouse": "",
+    "StatPoints": 0,
+    "StatusFlags": 0,
+    "Strength": 16,
+    "Wisdom": 9,
+    "isAlive": true,
+    "inCity": false,
+    "row": 0
+}

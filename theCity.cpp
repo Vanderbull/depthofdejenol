@@ -21,7 +21,6 @@
 #include "src/npc_dialog/NPCDialog.h"
 #include "src/arena_dialog/ArenaDialog.h"
 #include "src/core/AlignmentSystem.h"
-#include "src/core/savegameUtils.h"
 #include <QDebug>
 #include <QDateTime>
 #include <QScrollBar>
@@ -569,7 +568,7 @@ void theCity::startOfflineMode() {
     // 2. SCAN FOR OTHER SAVED CHARACTERS
     QDir charDir("data/characters/");
     if (charDir.exists()) {
-        QStringList saveFiles = charDir.entryList({"*.txt"}, QDir::Files);
+        QStringList saveFiles = charDir.entryList({"*.json"}, QDir::Files);
         QString currentHero = gameStateManager::instance()->getGameValue("CurrentCharacterName").toString();
 
         for (const QString& fileName : saveFiles) {
@@ -577,32 +576,22 @@ void theCity::startOfflineMode() {
 
             // Skip the character we are currently playing
             if (charName == currentHero) continue;
-            
-        // If verification fails, try to repair it
-            if (!SavegameUtils::verifySaveGame(charName)) {
-                qDebug() << "Attempting to repair broken savegame:" << charName;
-                if (!SavegameUtils::repairSaveGame(charName)) {
-                    continue; // Skip if repair also fails
-                }
-            }
-            // Peek into the file to check position
+
+            // Peek into the save to check position.
             QFile file(charDir.absoluteFilePath(fileName));
-            if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-                QTextStream in(&file);
-                int x = -1, y = -1, lvl = -1;
+            if (!file.open(QIODevice::ReadOnly)) continue;
+            QJsonDocument doc = QJsonDocument::fromJson(file.readAll());
+            file.close();
+            if (!doc.isObject()) continue;
 
-                while (!in.atEnd()) {
-                    QString line = in.readLine();
-                    if (line.startsWith("DungeonX:")) x = line.split(": ")[1].toInt();
-                    else if (line.startsWith("DungeonY:")) y = line.split(": ")[1].toInt();
-                    else if (line.startsWith("DungeonLevel:")) lvl = line.split(": ")[1].toInt();
-                }
+            QVariantMap c = doc.toVariant().toMap();
+            int x   = c.value("DungeonX").toInt();
+            int y   = c.value("DungeonY").toInt();
+            int lvl = c.value("DungeonLevel").toInt();
 
-                // Only add if they are at the City Entrance coordinates
-                if (lvl == 1 && x == 17 && y == 12) {
-                    playerList->addItem(charName);
-                }
-                file.close();
+            // Only add if they are at the City Entrance coordinates
+            if (lvl == 1 && x == 17 && y == 12) {
+                playerList->addItem(charName);
             }
         }
     }

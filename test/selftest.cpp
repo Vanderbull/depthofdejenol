@@ -9704,6 +9704,8 @@ int runSelfTest()
         }
 
         members.clear();
+        // The autosave wrote Starver.json; drop it so the seed characters stay put.
+        QFile::remove("data/characters/Starver.json");
     }
 
     section("[200] v5.0.0 slice 5.3: starvation death writes a journal entry");
@@ -9753,6 +9755,7 @@ int runSelfTest()
 
         members.clear();
         JournalDialog::clearAll();
+        QFile::remove("data/characters/JournalStarver.json");
     }
 
     section("[201] v5.0.0 slice 5.3: starving the whole party triggers a wipe");
@@ -9808,6 +9811,8 @@ int runSelfTest()
 
         members.clear();
         JournalDialog::clearAll();
+        QFile::remove("data/characters/Wipe1.json");
+        QFile::remove("data/characters/Wipe2.json");
     }
 
     // ------------------------------------------- v5.0.0 slice 5.4: one HP source
@@ -10940,12 +10945,15 @@ int runSelfTest()
 
     section("[241] v5.2.0 slice 5.3: CharacterListDialog shows party size indicator");
     {
-        // Clean up old files so selectAll() only selects our 2
+        // Move existing saves aside so selectAll() only selects our 2, then
+        // restore them — this test must not destroy the seed characters.
         QDir charsDir("./data/characters");
+        QStringList stashed;
         if (charsDir.exists()) {
             QStringList oldFiles = charsDir.entryList(QStringList() << "*.json", QDir::Files);
             for (const QString& f : oldFiles) {
-                QFile::remove("./data/characters/" + f);
+                if (QFile::rename("./data/characters/" + f, "./data/characters_stash_" + f))
+                    stashed << f;
             }
         }
 
@@ -10990,17 +10998,23 @@ int runSelfTest()
         for (int i = 0; i < 2; ++i) {
             QFile::remove(QString("data/characters/SizeHero%1.json").arg(i + 1));
         }
+        for (const QString& f : stashed) {
+            QFile::rename("./data/characters_stash_" + f, "./data/characters/" + f);
+        }
         gameStateManager::instance()->getPartyMembers().clear();
     }
 
     section("[242] v5.2.0 slice 5.3: CharacterListDialog has a clear selection button");
     {
-        // Clean up old files so selectAll() only selects our 2
+        // Move existing saves aside so selectAll() only selects our 2, then
+        // restore them — this test must not destroy the seed characters.
         QDir charsDir2("./data/characters");
+        QStringList stashed2;
         if (charsDir2.exists()) {
             QStringList oldFiles = charsDir2.entryList(QStringList() << "*.json", QDir::Files);
             for (const QString& f : oldFiles) {
-                QFile::remove("./data/characters/" + f);
+                if (QFile::rename("./data/characters/" + f, "./data/characters_stash_" + f))
+                    stashed2 << f;
             }
         }
 
@@ -11046,26 +11060,38 @@ int runSelfTest()
         for (int i = 0; i < 2; ++i) {
             QFile::remove(QString("data/characters/ClearHero%1.json").arg(i + 1));
         }
+        for (const QString& f : stashed2) {
+            QFile::rename("./data/characters_stash_" + f, "./data/characters/" + f);
+        }
         gameStateManager::instance()->getPartyMembers().clear();
     }
 
     section("[243] v5.2.0 slice 5.4: game works without any savefiles");
     {
-        // Remove all character savefiles
+        // Move any existing character savefiles aside, then restore them at the
+        // end — this test must not destroy the checked-in test characters.
         QDir charsDir("./data/characters");
+        QStringList stashed;
         if (charsDir.exists()) {
             QStringList oldFiles = charsDir.entryList(
-                QStringList() << "*.json" << "*.txt", QDir::Files);
+                QStringList() << "*.json", QDir::Files);
             for (const QString& f : oldFiles) {
-                QFile::remove("./data/characters/" + f);
+                QString tmp = "./data/characters_stash_" + f;
+                if (QFile::rename("./data/characters/" + f, tmp)) {
+                    stashed << f;
+                }
             }
         }
         QDir savesDir("./data/saves");
+        QStringList stashedSaves;
         if (savesDir.exists()) {
             QStringList oldSaves = savesDir.entryList(
                 QStringList() << "*.json", QDir::Files);
             for (const QString& f : oldSaves) {
-                QFile::remove("./data/saves/" + f);
+                QString tmp = "./data/saves_stash_" + f;
+                if (QFile::rename("./data/saves/" + f, tmp)) {
+                    stashedSaves << f;
+                }
             }
         }
 
@@ -11090,6 +11116,14 @@ int runSelfTest()
         if (continueBtn) {
             check(continueBtn->isHidden(),
                   "Continue is hidden without an autosave");
+        }
+
+        // Restore everything we stashed.
+        for (const QString& f : stashed) {
+            QFile::rename("./data/characters_stash_" + f, "./data/characters/" + f);
+        }
+        for (const QString& f : stashedSaves) {
+            QFile::rename("./data/saves_stash_" + f, "./data/saves/" + f);
         }
     }
 
@@ -11675,90 +11709,10 @@ int runSelfTest()
         menu->deleteLater();
     }
 
-    section("[269] v5.4.0 slice 5.2: legacy .lua characters migrate to .json");
-    {
-        // Isolated temp dir so the test never touches real character files.
-        QString tmpDir = "./data/characters/_migration_test";
-        QDir().mkpath(tmpDir);
-
-        // A well-formed legacy .lua character.
-        QString luaPath = tmpDir + "/LegacyHero.lua";
-        QFile lua(luaPath);
-        lua.open(QIODevice::WriteOnly | QIODevice::Text);
-        QTextStream out(&lua);
-        out << "-- Blacklands Character Save\n";
-        out << "SaveData = {\n";
-        out << "    Name = \"LegacyHero\",\n";
-        out << "    Race = \"Human\",\n";
-        out << "    Age = 22,\n";
-        out << "    Level = 4,\n";
-        out << "    HP = 42,\n";
-        out << "    MaxHP = 50,\n";
-        out << "    Gold = 777,\n";
-        out << "    Strength = 13,\n";
-        out << "    Intelligence = 9,\n";
-        out << "    Wisdom = 7,\n";
-        out << "    Constitution = 11,\n";
-        out << "    Charisma = 6,\n";
-        out << "    Dexterity = 10,\n";
-        out << "    isAlive = true,\n";
-        out << "}\n";
-        lua.close();
-
-        int migrated = gameStateManager::instance()->migrateLegacyCharacterFiles(tmpDir);
-        check(migrated >= 1, "at least one legacy file migrated");
-
-        QString jsonPath = tmpDir + "/LegacyHero.json";
-        check(QFile::exists(jsonPath), "LegacyHero.json was created");
-
-        QFile jf(jsonPath);
-        jf.open(QIODevice::ReadOnly);
-        QJsonDocument doc = QJsonDocument::fromJson(jf.readAll());
-        jf.close();
-        check(doc.isObject(), "migrated file is valid JSON");
-
-        QVariantMap m = doc.toVariant().toMap();
-        check(m.value("Name").toString() == "LegacyHero", "name preserved");
-        check(m.value("Race").toString() == "Human", "race preserved");
-        check(m.value("Level").toInt() == 4, "level preserved");
-        check(m.value("HP").toInt() == 42, "hp preserved");
-        check(m.value("MaxHP").toInt() == 50, "maxhp preserved");
-        check(m.value("Gold").toInt() == 777, "gold preserved");
-        check(m.value("Strength").toInt() == 13, "strength preserved");
-        check(m.value("isAlive").toBool() == true, "isAlive preserved");
-
-        // A malformed .lua must not crash the migration and must be skipped.
-        QString badPath = tmpDir + "/Broken.lua";
-        QFile bad(badPath);
-        bad.open(QIODevice::WriteOnly | QIODevice::Text);
-        bad.write("SaveData = { Name = \"Broken\", \n  inCity = true,\n");
-        bad.close();
-
-        int migrated2 = gameStateManager::instance()->migrateLegacyCharacterFiles(tmpDir);
-        check(!QFile::exists(tmpDir + "/Broken.json"), "malformed .lua is skipped, no crash");
-
-        // Re-running migration must not duplicate or overwrite an existing .json.
-        QFile jf2(jsonPath);
-        jf2.open(QIODevice::WriteOnly);
-        jf2.write("{\"Name\":\"Sentinel\",\"Level\":99}");
-        jf2.close();
-        gameStateManager::instance()->migrateLegacyCharacterFiles(tmpDir);
-        QFile jf3(jsonPath);
-        jf3.open(QIODevice::ReadOnly);
-        QVariantMap sentinel = QJsonDocument::fromJson(jf3.readAll()).toVariant().toMap();
-        jf3.close();
-        check(sentinel.value("Name").toString() == "Sentinel",
-              "existing .json is never overwritten by migration");
-
-        // Cleanup
-        QDir(tmpDir).removeRecursively();
-    }
-
     section("[270] v5.4.0 slice 5.3: incomplete HP in legacy saves is repaired");
     {
-        // A legacy save with no usable HP (MaxHP 0/absent) must not load as an
-        // unplayable 0/0 character. The pre-JSON .lua loader ignored HP
-        // entirely, so such characters always came up with a sane baseline.
+        // A save with no usable HP (MaxHP 0/absent) must not load as an
+        // unplayable 0/0 character.
         QVariantMap legacy;
         legacy["Name"] = "NoHpHero";
         legacy["Race"] = "Human";
@@ -11801,6 +11755,62 @@ int runSelfTest()
         w.loadFromMap(wounded);
         check(w.hp == 7, "wounded character keeps exact HP");
         check(w.maxHp == 50, "wounded character keeps MaxHP");
+    }
+
+    section("[271] v5.4.0 slice 5.4: the four seed characters are present and loadable");
+    {
+        // These are checked into the repo so a fresh clone has a party to test
+        // with. They must always be present after a test run.
+        const QStringList names = {"Aria", "Borin", "Cael", "Dara"};
+        for (const QString& n : names) {
+            QString path = QString("data/characters/%1.json").arg(n);
+            check(QFile::exists(path), QString("seed character %1 exists").arg(n));
+        }
+
+        // Each must parse as a real Character with usable HP and a race.
+        for (const QString& n : names) {
+            QString path = QString("data/characters/%1.json").arg(n);
+            QFile f(path);
+            if (!f.open(QIODevice::ReadOnly)) continue;
+            QVariantMap m = QJsonDocument::fromJson(f.readAll()).toVariant().toMap();
+            f.close();
+            Character c;
+            c.loadFromMap(m);
+            check(c.name == n, QString("%1 keeps its name").arg(n));
+            check(!c.race.isEmpty(), QString("%1 has a race").arg(n));
+            check(c.maxHp > 0, QString("%1 has usable MaxHP").arg(n));
+        }
+
+        // Aria is the healthy starter; Dara is the corpse for the Morgue path.
+        {
+            QFile f("data/characters/Aria.json");
+            f.open(QIODevice::ReadOnly);
+            Character a;
+            a.loadFromMap(QJsonDocument::fromJson(f.readAll()).toVariant().toMap());
+            f.close();
+            check(a.isAlive, "Aria is alive");
+            check(a.hp > 0, "Aria has HP");
+            check(a.hp == a.maxHp, "Aria starts at full HP");
+        }
+        {
+            QFile f("data/characters/Dara.json");
+            f.open(QIODevice::ReadOnly);
+            Character d;
+            d.loadFromMap(QJsonDocument::fromJson(f.readAll()).toVariant().toMap());
+            f.close();
+            check(!d.isAlive, "Dara is dead");
+            check(d.hp == 0, "Dara has 0 HP");
+        }
+        {
+            // Cael carries the lifecycle fields (spouse + children).
+            QFile f("data/characters/Cael.json");
+            f.open(QIODevice::ReadOnly);
+            Character c;
+            c.loadFromMap(QJsonDocument::fromJson(f.readAll()).toVariant().toMap());
+            f.close();
+            check(c.spouse == "Dara", "Cael's spouse is preserved");
+            check(c.children.size() == 2, "Cael has 2 children");
+        }
     }
 
     section("[214] v5.0.0 slice 5.6: CharacterListDialog is multi-select");

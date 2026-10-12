@@ -39,7 +39,7 @@ private slots:
     void updateSelectionPreview();
 private:
     /**
-     * @brief Dynamically loads character names from .txt files in the "characters" folder.
+     * @brief Dynamically loads character names from .json files in the "characters" folder.
      */
     void loadCharactersFromFiles();
     // UI elements

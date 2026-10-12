@@ -32,7 +32,6 @@ INCLUDEPATH += _PRO_FILE_PWD_/include
 # Source Files
 #--------------------------------------------------
 SOURCES += \
-    src/core/savegameUtils.cpp \
     src/core/savegameVersion.cpp \
     gameStateManager.cpp \
     src/partymanager/PartyManager.cpp \
@@ -180,7 +179,6 @@ SOURCES += src/spell_casting/SpellBook.cpp
 # Header Files
 #--------------------------------------------------
 HEADERS += \
-    src/core/savegameUtils.h \
     src/core/savegameVersion.h \
     gameStateManager.h \
     src/partymanager/PartyManager.h \
