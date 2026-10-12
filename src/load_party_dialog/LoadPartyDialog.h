@@ -15,16 +15,20 @@ public:
 
     QString selectedPartyPath() const;
 
-private slots:
+public slots:
     void onPartySelected();
+
+private slots:
     void onLoadClicked();
     void onCancelClicked();
+
+public:
+    QListWidget *m_partyList = nullptr;
+    QLabel *m_previewLabel = nullptr;
 
 private:
     void loadPartyList();
 
-    QListWidget *m_partyList = nullptr;
-    QLabel *m_previewLabel = nullptr;
     QPushButton *m_loadButton = nullptr;
     QPushButton *m_cancelButton = nullptr;
     QString m_selectedPath;

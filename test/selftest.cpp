@@ -11,6 +11,7 @@
 #include "src/combat/EncounterBuilder.h"
 #include "src/combat/VictoryReward.h"
 #include "src/combat/CombatDeathHandler.h"
+#include "src/load_party_dialog/LoadPartyDialog.h"
 #include "src/core/LevelTable.h"
 #include "src/core/AgingRules.h"
 #include "src/core/DungeonLevelState.h"
@@ -11331,6 +11332,72 @@ int runSelfTest()
             check(continueBtn->isHidden(),
                   "Continue is hidden without an autosave");
         }
+    }
+
+    section("[244] v5.2.0 slice 5.4: LoadPartyDialog preview");
+    {
+        LoadPartyDialog dlg;
+        check(dlg.m_partyList != nullptr, "LoadPartyDialog has a party list");
+        check(dlg.m_previewLabel != nullptr, "LoadPartyDialog has a preview label");
+
+        // Trigger onPartySelected with no selection — should not crash
+        dlg.onPartySelected();
+        check(!dlg.m_previewLabel->text().isEmpty(),
+              "preview label has text after empty selection");
+    }
+
+    section("[245] v5.2.0 slice 5.4: LoadPartyDialog shows deceased members");
+    {
+        // Create a party with a deceased member
+        QDir savesDir("./data/saves");
+        if (!savesDir.exists()) savesDir.mkpath(".");
+
+        QJsonObject party;
+        party["Name"] = "DeadParty";
+        QJsonArray members;
+        QJsonObject m1;
+        m1["Name"] = "AliveHero";
+        m1["Level"] = 5;
+        m1["isAlive"] = true;
+        members.append(m1);
+        QJsonObject m2;
+        m2["Name"] = "DeadHero";
+        m2["Level"] = 3;
+        m2["isAlive"] = false;
+        members.append(m2);
+        party["Members"] = members;
+
+        QJsonObject root;
+        root["Party"] = party;
+
+        QString savePath = "./data/saves/deadparty.json";
+        QFile saveFile(savePath);
+        saveFile.open(QIODevice::WriteOnly);
+        saveFile.write(QJsonDocument(root).toJson());
+        saveFile.close();
+
+        LoadPartyDialog dlg;
+
+        // Find the dead party in the list
+        QListWidgetItem *partyItem = nullptr;
+        for (int i = 0; i < dlg.m_partyList->count(); ++i) {
+            if (dlg.m_partyList->item(i)->text() == "deadparty.json") {
+                partyItem = dlg.m_partyList->item(i);
+                break;
+            }
+        }
+        check(partyItem != nullptr, "dead party appears in the list");
+
+        if (partyItem) {
+            dlg.m_partyList->setCurrentItem(partyItem);
+            dlg.onPartySelected();
+            QString preview = dlg.m_previewLabel->text();
+            check(preview.contains("AliveHero"), "preview shows alive hero");
+            check(preview.contains("DeadHero"), "preview shows dead hero");
+            check(preview.contains("deceased"), "preview marks deceased hero");
+        }
+
+        QFile::remove(savePath);
     }
 
     section("[214] v5.0.0 slice 5.6: CharacterListDialog is multi-select");

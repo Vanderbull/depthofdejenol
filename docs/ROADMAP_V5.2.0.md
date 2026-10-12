@@ -44,11 +44,18 @@ This version fixes all three and adds proper party building from individual char
 
 **Verify:** dialog shows selected characters with preview, party size indicator, clear selection button.
 
-### 5.4 LoadPartyDialog preview `S`
+### 5.4 LoadPartyDialog preview `S` ✅ DONE
 
 **Files:** `src/load_party_dialog/LoadPartyDialog.cpp`, `src/load_party_dialog/LoadPartyDialog.h`, `test/selftest.cpp`
 
-**Verify:** dialog shows party preview with member names, levels, inventory count.
+**What changed:**
+- `m_partyList` and `m_previewLabel` made public for testability
+- `onPartySelected()` made public slot for direct testing
+- Preview shows member names, count, and average level
+- Deceased members marked with "(deceased)"
+- Empty saves show "No party members found"
+
+**Verified:** tests [244]–[245] — preview with empty selection, deceased members marked.
 
 ### 5.5 Save format migration `S`
 
