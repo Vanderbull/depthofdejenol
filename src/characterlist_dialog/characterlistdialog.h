@@ -35,6 +35,8 @@ private slots:
      * @brief Slot called when the "Delete" button is clicked.
      */
     void onDeleteClicked();
+    void onClearSelectionClicked();
+    void updateSelectionPreview();
 private:
     /**
      * @brief Dynamically loads character names from .txt files in the "characters" folder.
@@ -50,6 +52,9 @@ private:
     QPushButton *closeButton;
     QPushButton *savePartyButton;
     QPushButton *loadPartyButton;
+    QPushButton *clearSelectionButton;
+    QLabel *selectionPreviewLabel;
+    QLabel *partySizeLabel;
     QVBoxLayout *mainLayout;
 };
 

@@ -5924,7 +5924,7 @@ int runSelfTest()
             c.isAlive = savedAlive;
             c.hp = savedHp;
             c.race = savedRace;
-            QFile::remove("data/characters/AgingProbe.txt");
+            QFile::remove("data/characters/AgingProbe.json");
         }
     }
     {
@@ -7834,7 +7834,7 @@ int runSelfTest()
             c.isAlive = savedAlive;
             c.hp = savedHp;
             c.race = savedRace;
-            QFile::remove("data/characters/OldAgeJournal.txt");
+            QFile::remove("data/characters/OldAgeJournal.json");
         }
     }
 
@@ -7858,14 +7858,14 @@ int runSelfTest()
             gsm->processAgingConsequences();
 
             // The Morgue finds bodies by reading character files that are dead.
-            const QString path = "data/characters/OldAgeBody.txt";
+            const QString path = "data/characters/OldAgeBody.json";
             check(QFile::exists(path), "dead character was saved to file");
 
             QFile f(path);
             if (f.open(QIODevice::ReadOnly | QIODevice::Text)) {
                 const QString content = QString::fromUtf8(f.readAll());
                 f.close();
-                check(content.contains("isAlive: 0"),
+                check(content.contains("\"isAlive\": false") || content.contains("\"isAlive\":false"),
                       "saved body is marked dead");
             }
 
@@ -11048,7 +11048,7 @@ int runSelfTest()
 
         // Use the real addCharacterFromFile to build a party from 3 files
         for (int i = 0; i < 3; ++i) {
-            QString path = QString("data/characters/BuildHero%1.txt").arg(i + 1);
+            QString path = QString("data/characters/BuildHero%1.json").arg(i + 1);
             check(gameStateManager::instance()->addCharacterFromFile(path),
                   QString("add BuildHero%1 to party").arg(i + 1));
         }
@@ -11068,7 +11068,7 @@ int runSelfTest()
 
         // Cleanup
         for (int i = 0; i < 4; ++i) {
-            QFile::remove(QString("data/characters/BuildHero%1.txt").arg(i + 1));
+            QFile::remove(QString("data/characters/BuildHero%1.json").arg(i + 1));
         }
         gameStateManager::instance()->getPartyMembers().clear();
     }
@@ -11130,6 +11130,207 @@ int runSelfTest()
         check(members[1].inventory.size() == 1, "second member still has 1 item");
 
         members.clear();
+    }
+
+    section("[240] v5.2.0 slice 5.3: CharacterListDialog shows selected characters preview");
+    {
+        // Create 3 character files
+        for (int i = 0; i < 3; ++i) {
+            Character c;
+            c.name = QString("PreviewHero%1").arg(i + 1);
+            c.level = 5 + i;
+            c.hp = 30 + i * 10;
+            c.maxHp = 50 + i * 10;
+            c.isAlive = true;
+
+            HeldItem item;
+            item.name = QString("Item%1").arg(i + 1);
+            c.inventory.append(item);
+
+            gameStateManager::instance()->getPartyMembers().clear();
+            gameStateManager::instance()->getPartyMembers().append(c);
+            gameStateManager::instance()->saveCharacterToFile(0);
+        }
+
+        CharacterListDialog dlg;
+
+        // Find the preview label
+        QLabel *preview = dlg.findChild<QLabel*>("selectionPreviewLabel");
+        check(preview != nullptr, "dialog has a selection preview label");
+
+        // Select 2 items
+        dlg.characterListWidget->setCurrentRow(0);
+        dlg.characterListWidget->setCurrentRow(1, QItemSelectionModel::Select);
+
+        // Trigger selection change by selecting (signal fires automatically)
+        dlg.characterListWidget->selectAll();
+
+        if (preview) {
+            QString text = preview->text();
+            check(text.contains("PreviewHero1") || text.contains("PreviewHero2"),
+                  "preview shows selected characters", text);
+        }
+
+        // Cleanup
+        for (int i = 0; i < 3; ++i) {
+            QFile::remove(QString("data/characters/PreviewHero%1.json").arg(i + 1));
+        }
+        gameStateManager::instance()->getPartyMembers().clear();
+    }
+
+    section("[241] v5.2.0 slice 5.3: CharacterListDialog shows party size indicator");
+    {
+        // Clean up old files so selectAll() only selects our 2
+        QDir charsDir("./data/characters");
+        if (charsDir.exists()) {
+            QStringList oldFiles = charsDir.entryList(QStringList() << "*.json", QDir::Files);
+            for (const QString& f : oldFiles) {
+                QFile::remove("./data/characters/" + f);
+            }
+        }
+
+        // Create 2 character files
+        for (int i = 0; i < 2; ++i) {
+            Character c;
+            c.name = QString("SizeHero%1").arg(i + 1);
+            c.level = 1;
+            c.hp = 10;
+            c.maxHp = 10;
+            c.isAlive = true;
+
+            gameStateManager::instance()->getPartyMembers().clear();
+            gameStateManager::instance()->getPartyMembers().append(c);
+            gameStateManager::instance()->saveCharacterToFile(0);
+        }
+
+        CharacterListDialog dlg;
+
+        QLabel *sizeLabel = dlg.findChild<QLabel*>("partySizeLabel");
+        check(sizeLabel != nullptr, "dialog has a party size label");
+
+        if (sizeLabel) {
+            QString text = sizeLabel->text();
+            check(text.contains("0"), "party size starts at 0", text);
+        }
+
+        // Select 1 item
+        dlg.characterListWidget->selectAll();
+
+        if (sizeLabel) {
+            QString text = sizeLabel->text();
+            check(text.contains("2"), "party size shows 2 after selectAll", text);
+        }
+
+        if (sizeLabel) {
+            QString text = sizeLabel->text();
+            check(text.contains("2"), "party size shows 2 after second selection", text);
+        }
+
+        // Cleanup
+        for (int i = 0; i < 2; ++i) {
+            QFile::remove(QString("data/characters/SizeHero%1.json").arg(i + 1));
+        }
+        gameStateManager::instance()->getPartyMembers().clear();
+    }
+
+    section("[242] v5.2.0 slice 5.3: CharacterListDialog has a clear selection button");
+    {
+        // Clean up old files so selectAll() only selects our 2
+        QDir charsDir2("./data/characters");
+        if (charsDir2.exists()) {
+            QStringList oldFiles = charsDir2.entryList(QStringList() << "*.json", QDir::Files);
+            for (const QString& f : oldFiles) {
+                QFile::remove("./data/characters/" + f);
+            }
+        }
+
+        // Create 2 character files
+        for (int i = 0; i < 2; ++i) {
+            Character c;
+            c.name = QString("ClearHero%1").arg(i + 1);
+            c.level = 1;
+            c.hp = 10;
+            c.maxHp = 10;
+            c.isAlive = true;
+
+            gameStateManager::instance()->getPartyMembers().clear();
+            gameStateManager::instance()->getPartyMembers().append(c);
+            gameStateManager::instance()->saveCharacterToFile(0);
+        }
+
+        CharacterListDialog dlg;
+
+        QPushButton *clearBtn = dlg.findChild<QPushButton*>("clearSelectionButton");
+        check(clearBtn != nullptr, "dialog has a clear selection button");
+        if (clearBtn) {
+            check(!clearBtn->isHidden(), "clear selection button is visible");
+        }
+
+        // Select items
+        dlg.characterListWidget->selectAll();
+
+        int selectedCount = dlg.characterListWidget->selectedItems().size();
+        check(selectedCount == 2, "2 items selected before clear",
+              QString::number(selectedCount));
+
+        // Click clear
+        if (clearBtn) {
+            clearBtn->click();
+        }
+
+        selectedCount = dlg.characterListWidget->selectedItems().size();
+        check(selectedCount == 0, "0 items selected after clear",
+              QString::number(selectedCount));
+
+        // Cleanup
+        for (int i = 0; i < 2; ++i) {
+            QFile::remove(QString("data/characters/ClearHero%1.json").arg(i + 1));
+        }
+        gameStateManager::instance()->getPartyMembers().clear();
+    }
+
+    section("[243] v5.2.0 slice 5.4: game works without any savefiles");
+    {
+        // Remove all character savefiles
+        QDir charsDir("./data/characters");
+        if (charsDir.exists()) {
+            QStringList oldFiles = charsDir.entryList(
+                QStringList() << "*.json" << "*.txt", QDir::Files);
+            for (const QString& f : oldFiles) {
+                QFile::remove("./data/characters/" + f);
+            }
+        }
+        QDir savesDir("./data/saves");
+        if (savesDir.exists()) {
+            QStringList oldSaves = savesDir.entryList(
+                QStringList() << "*.json", QDir::Files);
+            for (const QString& f : oldSaves) {
+                QFile::remove("./data/saves/" + f);
+            }
+        }
+
+        // Game should start cleanly without any savefiles
+        auto& members = gameStateManager::instance()->getPartyMembers();
+        members.clear();
+        check(members.isEmpty(), "party starts empty without savefiles");
+
+        check(!gameStateManager::instance()->hasLivingCharacters(),
+              "no living characters without savefiles");
+
+        // CharacterListDialog should open with an empty list (no crash)
+        CharacterListDialog dlg;
+        check(dlg.characterListWidget->count() == 0,
+              "character list is empty without savefiles",
+              QString::number(dlg.characterListWidget->count()));
+
+        // Main menu should open with Continue hidden
+        GameMenu menu;
+        QPushButton *continueBtn = menu.findChild<QPushButton*>("continueButton");
+        check(continueBtn != nullptr, "main menu has a Continue button");
+        if (continueBtn) {
+            check(continueBtn->isHidden(),
+                  "Continue is hidden without an autosave");
+        }
     }
 
     section("[214] v5.0.0 slice 5.6: CharacterListDialog is multi-select");

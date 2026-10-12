@@ -712,8 +712,47 @@ bool gameStateManager::loadCharacterFromFile(const QString& filePath) {
         //m_currentParty.members.append(newChar);
         members.append(newChar);
     } 
+    else if (filePath.endsWith(".json")) {
+        // --- JSON format ---
+        QFile file(filePath);
+        if (!file.open(QIODevice::ReadOnly)) {
+            qWarning() << "Could not open character file:" << filePath;
+            return false;
+        }
+
+        QByteArray data = file.readAll();
+        QJsonDocument doc = QJsonDocument::fromJson(data);
+        file.close();
+
+        if (doc.isNull() || !doc.isObject()) {
+            qWarning() << "Character file is corrupted or not valid JSON:" << filePath;
+            return false;
+        }
+
+        QVariantMap characterMap = doc.toVariant().toMap();
+        if (characterMap.isEmpty()) {
+            qWarning() << "Character file is empty:" << filePath;
+            return false;
+        }
+
+        auto& members = m_partyManager->currentParty().members;
+        members.clear();
+
+        Character newChar;
+        newChar.loadFromMap(characterMap);
+        if (newChar.inventory.isEmpty()) {
+            HeldItem rations;
+            rations.name = "Rations";
+            if (const ItemDef* def = ItemDatabase::instance().byName("Rations")) {
+                rations.M4E97 = static_cast<int16_t>(def->id);
+            }
+            newChar.inventory.append(rations);
+        }
+        newChar.status = GameConstants::Normal;
+        members.append(newChar);
+    }
     else if (filePath.endsWith(".txt")) {
-        // --- .txt format (legacy saveCharacterToFile) ---
+        // --- Legacy .txt format (still supported for old saves) ---
         QFile file(filePath);
         if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
             qWarning() << "Could not open character file:" << filePath;
@@ -784,43 +823,9 @@ bool gameStateManager::loadCharacterFromFile(const QString& filePath) {
         members.append(newChar);
     }
     else {
-        // --- JSON format ---
-        QFile file(filePath);
-        if (!file.open(QIODevice::ReadOnly)) {
-            qWarning() << "Could not open file:" << filePath;
-            return false;
-        }
-
-        QByteArray data = file.readAll();
-        QJsonDocument doc = QJsonDocument::fromJson(data);
-        file.close();
-
-        if (doc.isNull() || !doc.isObject()) {
-            qWarning() << "Character file is corrupted or not valid JSON:" << filePath;
-            return false;
-        }
-
-        QVariantMap characterMap = doc.toVariant().toMap();
-        if (characterMap.isEmpty()) {
-            qWarning() << "Character file is empty:" << filePath;
-            return false;
-        }
-
-        auto& members = m_partyManager->currentParty().members;
-        members.clear();
-
-        Character newChar;
-        newChar.loadFromMap(characterMap);
-        if (newChar.inventory.isEmpty()) {
-            HeldItem rations;
-            rations.name = "Rations";
-            if (const ItemDef* def = ItemDatabase::instance().byName("Rations")) {
-                rations.M4E97 = static_cast<int16_t>(def->id);
-            }
-            newChar.inventory.append(rations);
-        }
-        newChar.status = GameConstants::Normal;
-        members.append(newChar);
+        // --- Unknown format ---
+        qWarning() << "Unknown character file format:" << filePath;
+        return false;
     }
 
     setCurrentCharacterIndex(0);
@@ -1004,64 +1009,12 @@ bool gameStateManager::saveCharacterToFile(int partyIndex)
         dir.mkpath("data/characters/");
     }
 
-    QString filename = QString("data/characters/%1.txt").arg(characterName);
+    QString filename = QString("data/characters/%1.json").arg(characterName);
     QFile file(filename);
-    if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) return false;
+    if (!file.open(QIODevice::WriteOnly)) return false;
 
-    QTextStream out(&file);
-    out << "CHARACTER_FILE_VERSION: 1.0\n";
-    out << "Name: " << characterName << "\n";
-    out << "Race: " << character["Race"].toString() << "\n"; // Updated
-    out << "Age: " << character["Age"].toInt() << "\n";      // Updated
-    out << "DungeonX: " << getGameValue("DungeonX").toInt() << "\n";
-    out << "DungeonY: " << getGameValue("DungeonY").toInt() << "\n";
-    out << "DungeonLevel: " << getGameValue("DungeonLevel").toInt() << "\n";
-    out << "Guild: " << character["Guild"].toString() << "\n";
-    out << "Level: " << character["Level"].toInt() << "\n";
-    out << "HP: " << character["HP"].toInt() << "\n";
-    out << "MaxHP: " << character["MaxHP"].toInt() << "\n";
-    out << "CurrentCharacterGold: " << static_cast<qulonglong>(m_partyManager->currentParty().sharedGold) << "\n";
-    out << "Experience: " << character["Experience"].toULongLong() << "\n";
-    out << "isAlive: " << (character["isAlive"].toBool() ? 1 : 0) << "\n";
-    out << "inCity: " << (getGameValue("inCity").toBool() ? 1 : 0) << "\n";
-    out << "Hunger: " << character["Hunger"].toInt() << "\n";
-    out << "MaxHunger: " << character["MaxHunger"].toInt() << "\n";
-    out << "Gold: " << character["Gold"].toULongLong() << "\n";
-    out << "Strength: " << character["Strength"].toInt() << "\n";
-    out << "Intelligence: " << character["Intelligence"].toInt() << "\n";
-    out << "Wisdom: " << character["Wisdom"].toInt() << "\n";
-    out << "Constitution: " << character["Constitution"].toInt() << "\n";
-    out << "Charisma: " << character["Charisma"].toInt() << "\n";
-    out << "Dexterity: " << character["Dexterity"].toInt() << "\n";
-    out << "Mana: " << character["Mana"].toInt() << "\n";
-    out << "MaxMana: " << character["MaxMana"].toInt() << "\n";
-    out << "PlayTimeSeconds: " << character["PlayTimeSeconds"].toInt() << "\n";
-    out << "Experience: " << character["Experience"].toULongLong() << "\n";
-
-    // Save Inventory as JSON (comma-separated list loses item data)
-    QVariantList invList = character["Inventory"].toList();
-    QJsonArray invArray;
-    for (const QVariant& v : invList) {
-        invArray.append(QJsonObject::fromVariantMap(v.toMap()));
-    }
-    out << "Inventory: " << QJsonDocument(invArray).toJson(QJsonDocument::Compact) << "\n";
-
-    // Save Equipped items
-    QVariantList eqList = character["Equipped"].toList();
-    QJsonArray eqArray;
-    for (const QVariant& v : eqList) {
-        eqArray.append(QJsonObject::fromVariantMap(v.toMap()));
-    }
-    out << "Equipped: " << QJsonDocument(eqArray).toJson(QJsonDocument::Compact) << "\n";
-
-    // Save Bank Inventory
-    QVariantList bankList = character["BankInventory"].toList();
-    QJsonArray bankArray;
-    for (const QVariant& v : bankList) {
-        bankArray.append(QJsonObject::fromVariantMap(v.toMap()));
-    }
-    out << "BankInventory: " << QJsonDocument(bankArray).toJson(QJsonDocument::Compact) << "\n";
-
+    QJsonDocument doc(QJsonObject::fromVariantMap(character));
+    file.write(doc.toJson(QJsonDocument::Indented));
     file.close();
     qDebug() << "Successfully saved character:" << characterName;
     return true;
@@ -2122,8 +2075,13 @@ bool gameStateManager::addCharacterFromFile(const QString& filePath) {
 
     QVariantMap characterMap;
 
-    if (filePath.endsWith(".txt")) {
-        // Parse .txt format
+    if (filePath.endsWith(".json")) {
+        // --- JSON format ---
+        QJsonDocument doc = QJsonDocument::fromJson(data);
+        if (!doc.isObject()) return false;
+        characterMap = doc.toVariant().toMap();
+    } else if (filePath.endsWith(".txt")) {
+        // Parse legacy .txt format
         QTextStream in(data);
         while (!in.atEnd()) {
             QString line = in.readLine().trimmed();
@@ -2161,10 +2119,6 @@ bool gameStateManager::addCharacterFromFile(const QString& filePath) {
                 }
             }
         }
-    } else if (filePath.endsWith(".json")) {
-        QJsonDocument doc = QJsonDocument::fromJson(data);
-        if (!doc.isObject()) return false;
-        characterMap = doc.toVariant().toMap();
     } else if (filePath.endsWith(".lua")) {
         if (!m_L) return false;
         if (luaL_dofile(m_L, filePath.toUtf8().constData()) != LUA_OK) {
