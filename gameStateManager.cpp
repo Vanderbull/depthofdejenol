@@ -1743,11 +1743,19 @@ void gameStateManager::addExperienceToParty(int totalXp) {
 
 void gameStateManager::addExperienceToCharacter(int index, int amount) {
     auto& members = m_partyManager->currentParty().members;
-    
+
     if (index < 0 || index >= members.size()) return;
 
     // Update the struct via the manager's data
     members[index].experience += amount;
+
+    // Keep "PlayerExperience" (read by DungeonDialog's XP label) in sync with
+    // the party's living members' total experience.
+    quint64 totalXp = 0;
+    for (const Character& c : members) {
+        if (c.isAlive) totalXp += static_cast<quint64>(c.experience);
+    }
+    setGameValue("PlayerExperience", totalXp);
 
     // Level Up Check
     int nextLevelThreshold = members[index].level * 1000;

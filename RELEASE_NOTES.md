@@ -9,6 +9,11 @@
 - Also ticks on player turn so poison/fire/blind work in the arena
 - Test proves poison deals damage via advanceCombat
 
+### Slice 5.2 — PlayerExperience wiring
+- DungeonDialog reads "PlayerExperience" for the XP label, but it was never written
+- addExperienceToCharacter now writes the party's total living XP to "PlayerExperience"
+- Test proves the label updates after gaining XP
+
 ## v5.4.0 — Main Menu & Save System Redesign
 
 ### Slice 5.1 — Main menu redesign

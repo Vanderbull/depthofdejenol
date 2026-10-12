@@ -10959,6 +10959,31 @@ int runSelfTest()
         dlg.close();
     }
 
+    section("[283] v5.5.0 slice 5.2: PlayerExperience is written when XP is added");
+    {
+        // DungeonDialog reads "PlayerExperience" for the XP label, but nothing
+        // ever writes it — it stays 0 forever. This test proves the wiring.
+        gameStateManager* gsm = gameStateManager::instance();
+        QList<Character> &members = gsm->getPartyMembers();
+        members.clear();
+        Character c1; c1.name = "Fighter"; c1.race = "Human"; c1.level = 1;
+        c1.hp = 30; c1.maxHp = 30; c1.isAlive = true; c1.experience = 0;
+        members << c1;
+
+        // Initially zero
+        check(gsm->getGameValue("PlayerExperience").toULongLong() == 0,
+              "PlayerExperience starts at 0");
+
+        // Add XP
+        gsm->addExperienceToCharacter(0, 500);
+
+        // PlayerExperience must now reflect the party's total XP
+        check(gsm->getGameValue("PlayerExperience").toULongLong() == 500,
+              "PlayerExperience written after addExperienceToCharacter");
+
+        members.clear();
+    }
+
     section("[282] v5.5.0 slice 5.1: arena status effects tick in advanceCombat");
     {
         // ArenaDialog must tick status effects at round end, just like

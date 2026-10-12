@@ -45,10 +45,10 @@
 **Do:** Wire them into combat: poison → damage/round, blinded → miss chance, onFire → damage+spread, diseased → max HP reduction.
 **Verify:** Tests prove each effect changes combat outcome.
 
-### 5.2 — Dead state keys
-**Why:** 16 keys read but never written (`CurrentCharacterHP`, `HallOfRecords`, etc.).
-**Do:** Either write them or remove the reads.
-**Verify:** No read-only keys remain.
+### 5.2 — Dead state keys ✅ DONE
+**Why:** `PlayerExperience` is read by DungeonDialog's XP label but never written — stays 0 forever.
+**Do:** `addExperienceToCharacter` now writes the party's total living XP to `PlayerExperience`.
+**Verify:** Test proves `PlayerExperience` updates after adding XP. Non-vacuous: removing the write fails the test.
 
 ### 5.3 — Wire unconnected signals
 **Why:** 21 signals emitted but never connected.
