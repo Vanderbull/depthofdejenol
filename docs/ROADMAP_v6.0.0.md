@@ -51,15 +51,15 @@
 **Do**: Change formula to `round(30 * n^1.2)` (10,480 total XP — 66% reduction). Update levels.json and all test assertions.
 **Verify**: Non-vacuous: removing round() fails test (206 ≠ 207).
 
-### 6.0c — Wire Mind spells into combat
-**Why**: Mind Blast, Confusion, Fear, Insanity do nothing.
-**Do**: Add Mind school to CombatActions::castSpell.
-**Verify**: Test proves Mind spells apply effects.
+### 6.0c — Wire Mind spells into combat ✅ DONE (N/A)
+**Why**: Audit claimed Mind spells were not wired in combat.
+**Do**: N/A — Mind is already handled in both `castSpell` (rad 384-394) and `applySpellDamageBySchool`. Mind Blast (L1, damage 5-10) applies damage + stun/confuse. Confusion/Fear/Insanity are control-only and go through `castSpellBySchool`.
+**Verify**: N/A
 
-### 6.0d — Add Electrical spells
+### 6.0d — Add Electrical spells ✅ DONE
 **Why**: Only 2 spells vs 4 for Fire/Cold/Mind.
-**Do**: Add Thunderclap (L4) and Storm (L8).
-**Verify**: Test proves 4+ electrical spells exist.
+**Do**: Added Thunderclap (L4, 1 chain) and Storm (L8, 3 chains). Updated SpellMechanics chain logic. Test [27] updated to 49 spells.
+**Verify**: Non-vacuous: Thunderclap/Storm return correct chain counts.
 
 ### 6.0e — Fix Instant Kill spells
 **Why**: No counterplay.

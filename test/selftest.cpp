@@ -3113,7 +3113,7 @@ int runSelfTest()
         SpellBook& sb = SpellBook::instance();
         check(sb.load("data/spells.json"), "spells.json loads");
         check(sb.isLoaded(), "SpellBook is loaded");
-        check(sb.spellCount() == 47, "47 spells loaded",
+        check(sb.spellCount() == 49, "49 spells loaded (47 + Thunderclap + Storm)",
               QString::number(sb.spellCount()));
 
         // A level-1 Mage knows Flame Bolt (base_level 1, int 10).
@@ -10930,6 +10930,38 @@ int runSelfTest()
 
         check(true, "ArenaDialog constructs without crash");
         dlg.close();
+    }
+
+    section("[289] v6.0.0 slice 6.0d: electrical school has 4+ spells");
+    {
+        SpellBook& sb = SpellBook::instance();
+        check(sb.load("data/spells.json"), "spells.json loads");
+        check(sb.isLoaded(), "SpellBook is loaded");
+        check(sb.spellCount() >= 49, "at least 49 spells loaded (was 47 + 2 new)",
+              QString::number(sb.spellCount()));
+
+        QList<SpellDef> electrical = SpellMechanics::spellsInSchool(
+            sb.all(), SpellMechanics::School::Lightning);
+        check(electrical.size() >= 4, "Electrical school has 4+ spells",
+              QString::number(electrical.size()));
+
+        // Thunderclap exists and arcs to 1 additional target
+        const SpellDef* thunderclap = sb.byName("Thunderclap");
+        check(thunderclap != nullptr, "Thunderclap exists");
+        if (thunderclap) {
+            check(SpellMechanics::lightningChainTargets(*thunderclap) == 1,
+                  "Thunderclap chains to 1 target",
+                  QString::number(SpellMechanics::lightningChainTargets(*thunderclap)));
+        }
+
+        // Storm exists and arcs to 3 additional targets
+        const SpellDef* storm = sb.byName("Storm");
+        check(storm != nullptr, "Storm exists");
+        if (storm) {
+            check(SpellMechanics::lightningChainTargets(*storm) == 3,
+                  "Storm chains to 3 targets",
+                  QString::number(SpellMechanics::lightningChainTargets(*storm)));
+        }
     }
 
     section("[288] v6.0.0 slice 6.0a: mana system allows 3+ casts at level 1");

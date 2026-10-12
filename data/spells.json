@@ -94,8 +94,28 @@
         "required_stats": { "intelligence": 12 },
         "is_combat_spell": true,
         "damage": "10-20"
-      },
-      {
+        },
+        {
+        "name": "Thunderclap",
+        "mana": 20,
+        "description": "A thunderous strike that hits one target and arcs to one more.",
+        "base_level": 4,
+        "guilds": ["Mages Guild", "Sorcerers Guild"],
+        "required_stats": { "intelligence": 18 },
+        "is_combat_spell": true,
+        "damage": "15-25"
+        },
+        {
+        "name": "Storm",
+        "mana": 50,
+        "description": "A devastating electrical storm that arcs between up to 4 targets.",
+        "base_level": 8,
+        "guilds": ["Wizards Guild"],
+        "required_stats": { "intelligence": 28 },
+        "is_combat_spell": true,
+        "damage": "30-45"
+        },
+        {
         "name": "Chain Lightning",
         "mana": 35,
         "description": "A bolt of lightning that will cause damage to a creature and then arc to another creature. It can arc up to 5 times.",

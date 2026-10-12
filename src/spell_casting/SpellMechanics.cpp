@@ -47,6 +47,10 @@ int SpellMechanics::coldSlowPercent(const SpellDef& spell) {
 int SpellMechanics::lightningChainTargets(const SpellDef& spell) {
     // Chain Lightning arcs to up to 5 additional targets.
     if (spell.name.contains("Chain", Qt::CaseInsensitive)) return 5;
+    // Storm arcs to 3 additional targets.
+    if (spell.name.contains("Storm", Qt::CaseInsensitive)) return 3;
+    // Thunderclap arcs to 1 additional target.
+    if (spell.name.contains("Thunderclap", Qt::CaseInsensitive)) return 1;
     return 0;
 }
 
