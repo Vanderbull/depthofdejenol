@@ -203,6 +203,9 @@ public:
     bool savePartyToFile(const QString& filePath);
     bool loadPartyFromFile(const QString& filePath);
     void addCharacterToParty(const Character& character);
+    // Give every living member a starting ration bundle so the first descent
+    // is not a guaranteed slow death (slice 5.5).
+    void addStartingFoodToParty();
     bool loadLuaScript(const QString& filePath);
     // Strips every Lua capability that can touch the host system (io, package,
     // debug, dofile/loadfile/require, and os.* except date/time). Call once

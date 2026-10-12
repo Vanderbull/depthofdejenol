@@ -87,6 +87,16 @@ Non-vacuous:
 Non-vacuous: reverting `updatePartyMemberHealth` to `CurrentCharacterHP` fails
 3 checks (live HP reduced, panel shows reduced HP, source of truth).
 
+### Slice 5.5 — Town resupply loop
+- Tavern rest restores hunger (hours × 25) alongside HP and mana
+- `gameStateManager::addStartingFoodToParty()` gives every living member a
+  Rations stack so the first descent is not a guaranteed slow death
+- General Store already stocks food (MDATA3 rows from slice 5.2)
+
+**Verified:** tests [207]–[209] (1675 passed, 0 failed; +3 checks).
+Non-vacuous: removing hunger restore fails "tavern rest restored hunger";
+removing starting food fails "a new party starts with food".
+
 ---
 
 # v4.0.0 — Endgame depth and replayability ✅ RELEASED

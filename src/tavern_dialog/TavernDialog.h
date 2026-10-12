@@ -25,11 +25,14 @@ public:
     static int restCost(int hours, int livingMembers);
     static int cureCost(bool poison, bool blindness);
 
-private slots:
+public:
     void onRestClicked();
     void onCureClicked();
     void onAdvanceTimeClicked();
     void onExitClicked();
+
+    QSpinBox *m_hoursSpin = nullptr;
+    QTextEdit *m_log = nullptr;
 
 private:
     void setupUi();
@@ -39,14 +42,12 @@ private:
     QLabel *m_hpLabel = nullptr;
     QLabel *m_manaLabel = nullptr;
     QLabel *m_statusLabel = nullptr;
-    QSpinBox *m_hoursSpin = nullptr;
     QCheckBox *m_curePoisonCheck = nullptr;
     QCheckBox *m_cureBlindCheck = nullptr;
     QPushButton *m_restBtn = nullptr;
     QPushButton *m_cureBtn = nullptr;
     QPushButton *m_advanceBtn = nullptr;
     QPushButton *m_exitBtn = nullptr;
-    QTextEdit *m_log = nullptr;
 };
 
 #endif // TAVERNDIALOG_H

@@ -125,15 +125,18 @@ void TavernDialog::onRestClicked() {
         return;
     }
 
-    // Restore HP and mana for all living members
+    // Restore HP, mana and hunger for all living members. Resting at the
+    // inn is where survival is paid for — hunger is a resource decision,
+    // not an unpayable tax (slice 5.5).
     auto& mutableMembers = gsm->getPartyMembers();
     for (auto& c : mutableMembers) {
         if (!c.isAlive) continue;
         c.hp = c.maxHp;
         c.mana = c.maxMana;
+        c.restoreHunger(hours * 25);
     }
 
-    m_log->append(tr("Rested %1 hours. Restored HP and mana for %2 members. (-%3 gold)")
+    m_log->append(tr("Rested %1 hours. Restored HP, mana and hunger for %2 members. (-%3 gold)")
                       .arg(hours).arg(livingCount).arg(cost));
     refreshStatus();
 }

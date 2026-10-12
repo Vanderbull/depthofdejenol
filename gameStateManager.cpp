@@ -1936,6 +1936,27 @@ void gameStateManager::addCharacterToParty(const Character& character) {
     qDebug() << "Added" << character.name << "to the party. Total size:" << m_partyManager->currentParty().members.size();
 }
 
+void gameStateManager::addStartingFoodToParty() {
+    // Two rations per living member so the first descent is playable, not a
+    // guaranteed slow death (slice 5.5). Resolve the item ID from the same
+    // database the store uses, and seed charges so each is a real stack.
+    ItemDatabase& db = ItemDatabase::instance();
+    const ItemDef* def = db.byName("Rations");
+    for (auto& c : m_partyManager->currentParty().members) {
+        if (!c.isAlive) continue;
+        HeldItem ration;
+        ration.name = "Rations";
+        ration.identified = true;
+        if (def) {
+            ration.M4E97 = static_cast<int16_t>(def->id);
+            ration.M4ED4 = def->charges > 0 ? static_cast<int16_t>(def->charges) : 1;
+        } else {
+            ration.M4ED4 = 1;
+        }
+        c.inventory << ration;
+    }
+}
+
 bool gameStateManager::savePartyToFile(const QString& filePath) {
     QFile file(filePath);
     if (!file.open(QIODevice::WriteOnly)) return false;

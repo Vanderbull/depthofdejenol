@@ -48,6 +48,7 @@
 #include "src/core/DoorAndSearch.h"
 
 #include "src/automap/automap_dialog.h"
+#include <QSpinBox>
 #include "src/dungeon_dialog/DungeonDialog.h"
 #include "src/spell_casting/SpellCastingDialog.h"
 #include "src/dungeon_dialog/DungeonHandlers.h"
@@ -10159,6 +10160,72 @@ int runSelfTest()
               QString::number(members[0].hp));
 
         members.clear();
+    }
+
+    // ------------------------------------------- v5.0.0 slice 5.5: town resupply
+    section("[207] v5.0.0 slice 5.5: tavern rest restores hunger");
+    {
+        gameStateManager* gsm = gameStateManager::instance();
+        auto& members = gsm->getPartyMembers();
+        members.clear();
+        Character c;
+        c.name = "InnRest"; c.level = 1; c.hp = 10; c.maxHp = 10;
+        c.mana = 5; c.maxMana = 10;
+        c.hunger = 30; c.maxHunger = 100; c.isAlive = true;
+        c.constitution = 10;
+        members.append(c);
+        gsm->getPartyMembers().clear();
+        gsm->addCharacterToParty(c);
+        // Set party gold via the party manager
+        gsm->getParty().sharedGold = 1000;
+
+        TavernDialog dlg;
+        dlg.resize(800, 600);
+        dlg.show();
+        for (int i = 0; i < 10; ++i) QApplication::processEvents();
+
+        QSpinBox* hoursSpin = dlg.findChild<QSpinBox*>();
+        if (hoursSpin) hoursSpin->setValue(2);
+        dlg.onRestClicked();
+
+        check(members[0].hunger > 30, "tavern rest restored hunger",
+              QString::number(members[0].hunger));
+
+        members.clear();
+    }
+
+    section("[208] v5.0.0 slice 5.5: general store sells food");
+    {
+        GeneralStore store;
+        store.resize(1000, 700);
+        store.show();
+        for (int i = 0; i < 10; ++i) QApplication::processEvents();
+
+        bool hasFood = false;
+        for (const auto& item : store.availableShopItems()) {
+            if (item["name"].toString() == "Rations") { hasFood = true; break; }
+        }
+        check(hasFood, "the general store stocks Rations");
+    }
+
+    section("[209] v5.0.0 slice 5.5: a new party starts with food");
+    {
+        gameStateManager* gsm = gameStateManager::instance();
+        auto& members = gsm->getPartyMembers();
+        members.clear();
+
+        Character c;
+        c.name = "Newbie"; c.level = 1; c.hp = 10; c.maxHp = 10;
+        c.hunger = 100; c.maxHunger = 100; c.isAlive = true;
+        members.append(c);
+
+        gsm->addStartingFoodToParty();
+
+        bool hasFood = false;
+        for (const auto& m : members) {
+            if (Character::hasFood(m.inventory)) { hasFood = true; break; }
+        }
+        check(hasFood, "a new party starts with food");
     }
 
     // -------------------------------------------------------------- cleanup

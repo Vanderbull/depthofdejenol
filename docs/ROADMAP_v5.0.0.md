@@ -253,7 +253,7 @@ agree. Non-vacuous: reverting to `CurrentCharacterHP` fails the agreement test.
 
 **Landed:** `updatePartyMemberHealth()` now writes the live member (`getPartyMembers()[row].hp`) instead of the dead `CurrentCharacterHP` key; on death it routes through `DeathRecovery::killCharacter()` (body location + journal) and checks `isPartyWiped()`. `on_restButton_clicked()` and `SpellCastingDialog::castHealingSpell()` read/write the live member. The `CurrentCharacter*` special-casing in `setGameValue()` was removed — it patched `m_gameStateData["Party"][0]`, a list shape the live party never uses. Tests [202]–[206]; +8 checks (1664 → 1672). Non-vacuous: reverting `updatePartyMemberHealth` to `CurrentCharacterHP` fails 3 checks (live HP reduced, panel shows reduced HP, source of truth).
 
-### 5.5 Town resupply loop `S`
+### 5.5 Town resupply loop `S` ✅ DONE
 
 **Why:** once hunger can kill, there must be a fair way to manage it. The inn should
 be where survival is paid for.
@@ -269,6 +269,13 @@ be where survival is paid for.
 
 **Verify:** tests — inn rest restores hunger; food can be bought; a new party starts
 with food. Non-vacuous: removing the hunger restore fails the inn test.
+
+**Landed:** `TavernDialog::onRestClicked()` restores hunger (hours × 25) alongside
+HP/mana. `gameStateManager::addStartingFoodToParty()` gives every living member a
+Rations stack with charges from the item database. General Store already stocks
+food (MDATA3 rows from 5.2). Tests [207]–[209]; +3 checks (1672 → 1675).
+Non-vacuous: removing hunger restore fails "tavern rest restored hunger"; removing
+starting food fails "a new party starts with food".
 
 ### 5.6 Load a whole party `M`
 
