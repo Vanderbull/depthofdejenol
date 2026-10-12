@@ -135,7 +135,6 @@ public:
     void updateCombatUI(); // public for tests
 
 private:
-    void awardBattleLoot();
     void setupControls();
     void handleFalling(); // New method to handle falling through a pit
     QSet<QPair<int, int>> m_bodyPositions;

@@ -3126,29 +3126,6 @@ void DungeonDialog::on_spellButton_clicked()
     spellDialog->exec();
 }
 
-void DungeonDialog::awardBattleLoot() {
-    gameStateManager* gsm = gameStateManager::instance();
-    // Retrieve the full item list loaded into gameStateManager
-    const QList<QVariantMap>& allItems = gsm->itemData();
-    if (allItems.isEmpty()) return;
-
-    // Select a random item from the database
-    int itemIdx = QRandomGenerator::global()->bounded(allItems.size());
-    QString itemName = allItems.at(itemIdx).value("name").toString();
-
-    // Store the item in the character's inventory
-    HeldItem lootItem;
-    lootItem.name = itemName;
-    lootItem.identified = false;  // dungeon loot starts unidentified
-    if (const ItemDef* def = ItemDatabase::instance().byName(itemName)) {
-        lootItem.M4E97 = static_cast<int16_t>(def->id);
-    }
-    gsm->addItemToInventory(lootItem);
-
-    // Show the item to the player in the message log
-    logMessage(QString("<font color='gold'>The monster dropped a %1!</font>").arg(itemName));
-}
-
 QStringList DungeonDialog::getThematicMonsters(int level) const
 {
     // Monsters come from the game's own monster table (MDATA5, loaded by

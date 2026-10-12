@@ -40,6 +40,13 @@ public:
     // Get the monster's drop table (Item0-Item9 as item IDs).
     static QList<int> getDropTable(const QString& monsterName,
                                    const QList<QVariantMap>& monsterData);
+
+    // Build a drop table from the monster's level when the row has no explicit
+    // Item0-Item9 slots (as every data/bestiary.json row is). Picks items whose
+    // tier and floor suit the monster's level, so kills yield usable loot.
+    static QList<int> deriveDropTable(const QString& monsterName,
+                                      const QList<QVariantMap>& monsterData,
+                                      int currentDungeonDepth);
 };
 
 #endif // VICTORYREWARD_H

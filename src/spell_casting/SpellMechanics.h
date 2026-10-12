@@ -49,6 +49,11 @@ public:
     // Is this spell an area-of-effect spell?
     static bool isAoe(const SpellDef& spell);
 
+    // Massive damage dealt by an "Instant Kill"/"Instant Banish" spell instead
+    // of a 9999 one-shot: max(50, casterLevel * 3). Single source of truth for
+    // both the combat path and the player spell dialog.
+    static int instantKillDamage(int casterLevel);
+
     // Is this a crowd-control spell?
     static bool isCrowdControl(const SpellDef& spell);
 

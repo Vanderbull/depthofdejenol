@@ -1,4 +1,5 @@
 #include "SpellCastingDialog.h"
+#include "src/spell_casting/SpellMechanics.h"
 #include "../../gameStateManager.h"
 
 #include <QVBoxLayout>
@@ -313,7 +314,8 @@ void SpellCastingDialog::onCastClicked()
         result = castHealingSpell(m_selectedSpell);
     } 
     else if (category == "Fire" || category == "Cold" || category == "Electrical" || 
-             category == "Mind" || category == "Magical" || category == "Damage") {
+             category == "Mind" || category == "Magical" || category == "Damage" ||
+             category == "Kill" || category == "Banish") {
         result = castDamageSpell(m_selectedSpell);
     } 
     else if (category == "Element" || category == "Resistant" || category == "Protection") {
@@ -375,16 +377,16 @@ SpellResult SpellCastingDialog::castDamageSpell(const QJsonObject& spell)
         result.damageDealt = damage;
         result.message = QString("You cast %1 for %2 damage!").arg(spellName).arg(damage);
     } else if (damageStr == "Instant Kill" || damageStr == "Instant Banish") {
-        // Special instant-kill spells have a chance to work
-        int chance = 30 + intelligence; // 30% base + intelligence
-        if (QRandomGenerator::global()->bounded(100) < chance) {
-            result.success = true;
-            result.damageDealt = 9999;
-            result.message = QString("You cast %1! The creature is destroyed!").arg(spellName);
-        } else {
-            result.success = false;
-            result.message = QString("%1 failed to take effect.").arg(spellName);
-        }
+        // Same rule as CombatActions::applySpellDamageBySchool (slice 6.0e):
+        // massive damage scaled to the caster's level, never a 9999 one-shot.
+        // DungeonDialog routes this value through the school-aware combat path,
+        // so the dialog only decides *how much*, not whether the target dies.
+        int casterLevel = gsm->getGameValue("CurrentCharacterLevel").toInt();
+        if (casterLevel < 1) casterLevel = 1;
+        int massiveDmg = SpellMechanics::instantKillDamage(casterLevel);
+        result.success = true;
+        result.damageDealt = massiveDmg;
+        result.message = QString("You cast %1 for %2 damage!").arg(spellName).arg(massiveDmg);
     } else {
         result.success = false;
         result.message = QString("You cast %1, but it has no effect.").arg(spellName);

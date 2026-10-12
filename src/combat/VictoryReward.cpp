@@ -54,6 +54,14 @@ QStringList VictoryReward::calculateLoot(const QString& monsterName,
     QStringList loot;
     QList<int> dropTable = getDropTable(monsterName, monsterData);
 
+    // data/bestiary.json (the live 401-row monster table) carries no Item0-9
+    // fields, so the explicit drop table is empty for every real monster and
+    // nothing ever dropped. Derive a table from the monster's own level so a
+    // kill can yield a floor-appropriate item.
+    if (dropTable.isEmpty()) {
+        dropTable = deriveDropTable(monsterName, monsterData, currentDungeonDepth);
+    }
+
     for (int itemId : dropTable) {
         if (itemId <= 0) continue;
 
@@ -126,4 +134,40 @@ QList<int> VictoryReward::getDropTable(const QString& monsterName,
         }
     }
     return dropTable;
+}
+
+QList<int> VictoryReward::deriveDropTable(const QString& monsterName,
+                                          const QList<QVariantMap>& monsterData,
+                                          int currentDungeonDepth)
+{
+    // The monster's own level drives which tier of loot it can carry: a
+    // level-N monster maps to the tier of a floor-N chest, clamped to the
+    // current dungeon depth so nothing from below the party's floor appears.
+    const int monsterLvl = getMonsterLevel(monsterName, monsterData);
+    int lootFloor = qMin(monsterLvl, currentDungeonDepth);
+    if (lootFloor < 1) lootFloor = 1;
+
+    const ItemProgression::Tier tier = ItemProgression::tierForFloor(lootFloor);
+    const QString prefix = ItemProgression::tierName(tier);
+
+    QList<int> table;
+    for (const ItemDef& item : ItemDatabase::instance().all()) {
+        if (item.id <= 0) continue;
+        if (item.floor > currentDungeonDepth) continue;
+        // Match the tier by name prefix (Bronze Sword, Iron Axe, ...).
+        if (!item.name.startsWith(prefix, Qt::CaseInsensitive)) continue;
+        table.append(item.id);
+    }
+
+    // Keep the table bounded so a single kill rolls a handful of candidates,
+    // not the whole tier — pick a stable slice keyed on the monster name.
+    if (table.size() > 8) {
+        const int offset = qAbs(qHash(monsterName)) % table.size();
+        QList<int> slice;
+        for (int i = 0; i < 8; ++i) {
+            slice.append(table.at((offset + i) % table.size()));
+        }
+        return slice;
+    }
+    return table;
 }

@@ -5,6 +5,7 @@ SpellMechanics::School SpellMechanics::schoolFor(const QString& category) {
     if (category == "Cold") return School::Cold;
     if (category == "Electrical") return School::Lightning;
     if (category == "Mind") return School::Mind;
+    if (category == "Damage") return School::Damage;
     return School::Magical;
 }
 
@@ -79,6 +80,10 @@ bool SpellMechanics::isAoe(const SpellDef& spell) {
                                  spell.name.contains("Iceball", Qt::CaseInsensitive);
     if (s == School::Lightning) return lightningChainTargets(spell) > 0;
     return false;
+}
+
+int SpellMechanics::instantKillDamage(int casterLevel) {
+    return qMax(50, casterLevel * 3);
 }
 
 bool SpellMechanics::isCrowdControl(const SpellDef& spell) {

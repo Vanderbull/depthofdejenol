@@ -1,6 +1,34 @@
 # Release Notes
 
-**Latest:** v6.0.0 — Spell & Balance Fix
+**Latest:** v6.1.0 — Spell Wiring & Loot Integrity
+
+## v6.1.0 — Spell Wiring & Loot Integrity (2026-10-12)
+
+- Player Cast Spell button no longer one-shots with 9999 damage
+- Kill / Banish schools (Exorcism, Vampire Slayer, Banish Demon/Undead) now work
+- Poison / Wound / Drain Life now apply their damage-over-time
+- Monsters now drop loot (bestiary.json had no drop tables)
+- Removed dead awardBattleLoot()
+
+### Slice 6.1a — Unify spell resolution
+- Added SpellMechanics::instantKillDamage(level) = max(50, level*3) as the single source of truth
+- Both CombatActions and SpellCastingDialog call it; removed the 9999 literal
+
+### Slice 6.1b — Wire Kill and Banish schools into combat
+- Kill and Banish categories now route through castDamageSpell
+- Non-vacuous: Banish Undead deals damage instead of a no-op
+
+### Slice 6.1c — Implement Damage-over-Time spells
+- Poison/Wound set the existing poison DoT; Drain Life deals damage and heals the caster
+- Fixed schoolFor("Damage") which previously fell through to Magical (branch was unreachable)
+- Non-vacuous: disabling the branch leaves poison duration 0
+
+### Slice 6.1d — Monster loot from level + tier
+- Added VictoryReward::deriveDropTable; calculateLoot falls back to it when Item0-9 are absent
+- Non-vacuous: disabling the fallback yields 0 drops in 200 kills
+
+### Slice 6.1e — Remove dead awardBattleLoot()
+- Deleted the method and its declaration; no references remain
 
 ## v6.0.0 — Spell & Balance Fix (2026-10-12)
 

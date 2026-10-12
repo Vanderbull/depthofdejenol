@@ -305,13 +305,43 @@ int CombatActions::applySpellDamageBySchool(int targetIndex, const QString& spel
     if (spell->damage == "Instant Kill" || spell->damage == "Instant Banish") {
         const int casterIdx = m_engine->currentParticipantIndex();
         const int casterLevel = m_state->participant(casterIdx).level;
-        const int massiveDmg = qMax(50, casterLevel * 3);
+        const int massiveDmg = SpellMechanics::instantKillDamage(casterLevel);
         CombatParticipant& target = m_state->participant(targetIndex);
         target.hp -= massiveDmg;
         if (target.hp <= 0) { target.hp = 0; target.isAlive = false; }
         result = QString("%1 hits %2 for %3 damage!")
             .arg(spellName).arg(target.name).arg(massiveDmg);
         return massiveDmg;
+    }
+
+    // --- Damage: Poison/Wound apply a damage-over-time, Drain Life heals ---
+    if (school == SpellMechanics::School::Damage) {
+        CombatParticipant& tgt = m_state->participant(targetIndex);
+        if (spellName == "Drain Life") {
+            // Instant damage, half of it transferred to the caster.
+            int dmg = qMax(1, damage);
+            if (tgt.isDefending) dmg = qMax(1, dmg / 2);
+            tgt.hp -= dmg;
+            if (tgt.hp <= 0) { tgt.hp = 0; tgt.isAlive = false; }
+            int healed = qMax(1, dmg / 2);
+            const int casterIdx = m_engine->currentParticipantIndex();
+            if (casterIdx >= 0 && casterIdx != targetIndex) {
+                CombatParticipant& caster = m_state->participant(casterIdx);
+                caster.hp = qMin(caster.maxHp, caster.hp + healed);
+            }
+            result = QString("%1 drains %2 life from %3 (%4 healed)!")
+                .arg(spellName).arg(dmg).arg(tgt.name).arg(healed);
+            return dmg;
+        }
+
+        // Poison / Wound: apply a poison-style damage-over-time via the
+        // existing status tick, so tickStatusEffects() deals 1-3/round.
+        const int duration = qMax(3, damage > 0 ? damage : 3);
+        tgt.statusFlags |= GameConstants::Poisoned;
+        tgt.poisonDuration = qMax(tgt.poisonDuration, duration);
+        result = QString("%1 infects %2 — taking damage over %3 rounds!")
+            .arg(spellName).arg(tgt.name).arg(duration);
+        return 0;
     }
 
     // --- Fire: area of effect, +10% damage per extra target ---

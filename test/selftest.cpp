@@ -5046,12 +5046,12 @@ int runSelfTest()
     // ------------------------------------------- Release packaging (8.5)
     section("[56] Release packaging");
     {
-        check(ReleaseInfo::version() == "6.0.0", "version is 6.0.0");
-        check(ReleaseInfo::versionString() == "v6.0.0", "version string");
+        check(ReleaseInfo::version() == "6.1.0", "version is 6.1.0");
+        check(ReleaseInfo::versionString() == "v6.1.0", "version string");
         check(!ReleaseInfo::releaseDate().isEmpty(), "release date exists");
         check(!ReleaseInfo::systemRequirements().isEmpty(), "system requirements exist");
-        check(ReleaseInfo::installerName().contains("6.0.0"), "installer name");
-        check(ReleaseInfo::banner().contains("6.0.0"), "banner");
+        check(ReleaseInfo::installerName().contains("6.1.0"), "installer name");
+        check(ReleaseInfo::banner().contains("6.1.0"), "banner");
     }
     {
         // Release notes.
@@ -5071,9 +5071,9 @@ int runSelfTest()
         QList<QPair<QString, QString>> history = ReleaseInfo::versionHistory();
         check(history.size() >= 5, "at least 5 versions in history",
               QString::number(history.size()));
-        check(history[0].first == "6.0.0", "latest version is 6.0.0");
-        check(history[0].second.contains("Spell") || history[0].second.contains("Balance"),
-              "v6.0.0 history entry mentions spell & balance fix");
+        check(history[0].first == "6.1.0", "latest version is 6.1.0");
+        check(history[0].second.contains("Spell") || history[0].second.contains("Loot"),
+              "v6.1.0 history entry mentions spell wiring / loot");
     }
 
     // ------------------------------------------- Status flag integrity
@@ -10931,6 +10931,172 @@ int runSelfTest()
 
         check(true, "ArenaDialog constructs without crash");
         dlg.close();
+    }
+
+    section("[294] v6.1.0 slice 6.1d: monster loot derived from level + tier");
+    {
+        // data/bestiary.json rows carry no Item0-9, so before this fix no
+        // monster ever dropped loot. deriveDropTable must now produce a
+        // floor-appropriate, tier-matched candidate list.
+        QList<QVariantMap> monsters;
+        QVariantMap goblin; goblin["name"] = "Goblie"; goblin["level"] = 1;
+        monsters.append(goblin);
+
+        QList<int> shallow = VictoryReward::deriveDropTable("Goblie", monsters, 1);
+        check(!shallow.isEmpty(), "level-1 monster on floor 1 has a drop table",
+              QString::number(shallow.size()));
+
+        // Every candidate must be a floor-1 item and a Bronze-tier name.
+        bool allBronze = true;
+        bool allFloorOk = true;
+        for (int id : shallow) {
+            const ItemDef* it = ItemDatabase::instance().byId(id);
+            if (!it) { allBronze = false; allFloorOk = false; break; }
+            if (!it->name.startsWith("Bronze", Qt::CaseInsensitive)) allBronze = false;
+            if (it->floor > 1) allFloorOk = false;
+        }
+        check(allBronze, "floor-1 loot is all Bronze tier");
+        check(allFloorOk, "floor-1 loot respects the floor filter");
+
+        // A deep monster must be able to reach a higher tier.
+        QVariantMap dragon; dragon["name"] = "Dragon"; dragon["level"] = 14;
+        monsters.append(dragon);
+        QList<int> deep = VictoryReward::deriveDropTable("Dragon", monsters, 14);
+        bool hasHighTier = false;
+        for (int id : deep) {
+            const ItemDef* it = ItemDatabase::instance().byId(id);
+            if (it && (it->name.startsWith("Adamantite", Qt::CaseInsensitive) ||
+                       it->name.startsWith("Mithril", Qt::CaseInsensitive))) {
+                hasHighTier = true;
+                break;
+            }
+        }
+        check(hasHighTier, "level-14 monster on floor 14 can drop a high tier");
+
+        // End-to-end: a real bestiary-shaped row (no Item0-9) now yields loot
+        // over repeated rolls, where it used to always return an empty list.
+        int drops = 0;
+        for (int i = 0; i < 200; ++i) {
+            if (!VictoryReward::calculateLoot("Goblie", monsters, 1).isEmpty()) drops++;
+        }
+        check(drops > 0, "real monster drops loot over repeated kills",
+              QString("%1/200").arg(drops));
+    }
+
+    section("[293] v6.1.0 slice 6.1c: damage-over-time spells apply their DoT");
+    {
+        // Poison (Damage school) must set a poison DoT that tickStatusEffects
+        // actually damages. Before the fix the "Damage over Time" string parsed
+        // to 0 damage and the spell did nothing.
+        SpellBook::instance().load("data/spells.json");
+
+        CombatState state;
+        CombatParticipant caster; caster.name = "Mage"; caster.isPlayer = true;
+        caster.level = 6; caster.hp = 100; caster.maxHp = 100;
+        caster.mana = 100; caster.maxMana = 100; caster.speed = 100;
+        state.addParticipant(caster);
+        CombatParticipant monster; monster.name = "Ogre"; monster.isPlayer = false;
+        monster.hp = 200; monster.maxHp = 200; monster.level = 5; monster.speed = 1;
+        state.addParticipant(monster);
+
+        TurnEngine engine; engine.setCombatState(&state);
+        CombatActions actions(&state, &engine);
+        state.rollInitiative();
+        engine.startRound();
+        engine.nextTurn();
+
+        QString result;
+        actions.castSpellBySchool(1, "Poison", result);
+        check(state.participant(1).poisonDuration > 0,
+              "Poison sets a poison duration on the target",
+              QString::number(state.participant(1).poisonDuration));
+
+        // The DoT must actually deal damage on the next tick.
+        int hpBefore = state.participant(1).hp;
+        QStringList ticks = actions.tickStatusEffects();
+        check(state.participant(1).hp < hpBefore,
+              "poison DoT deals damage on tick",
+              QString("%1 -> %2").arg(hpBefore).arg(state.participant(1).hp));
+
+        // Drain Life: instant damage, heals the caster.
+        CombatState state2;
+        CombatParticipant c2; c2.name = "Sorcerer"; c2.isPlayer = true;
+        c2.level = 6; c2.hp = 50; c2.maxHp = 100;
+        c2.mana = 100; c2.maxMana = 100; c2.speed = 100;
+        state2.addParticipant(c2);
+        CombatParticipant m2; m2.name = "Troll"; m2.isPlayer = false;
+        m2.hp = 200; m2.maxHp = 200; m2.level = 5; m2.speed = 1;
+        state2.addParticipant(m2);
+
+        TurnEngine e2; e2.setCombatState(&state2);
+        CombatActions a2(&state2, &e2);
+        state2.rollInitiative();
+        e2.startRound();
+        e2.nextTurn();
+
+        int casterHpBefore = state2.participant(0).hp;
+        QString r2;
+        int drainDmg = a2.castSpellBySchool(1, "Drain Life", r2);
+        check(drainDmg > 0, "Drain Life deals instant damage",
+              QString::number(drainDmg));
+        check(state2.participant(0).hp > casterHpBefore,
+              "Drain Life heals the caster",
+              QString("%1 -> %2").arg(casterHpBefore).arg(state2.participant(0).hp));
+    }
+
+    section("[292] v6.1.0 slice 6.1b: Kill and Banish schools resolve in combat");
+    {
+        // Exorcism (Kill) and Banish Undead (Banish) must deal damage through
+        // the school-aware path, not fall through to a no-op.
+        SpellBook::instance().load("data/spells.json");
+
+        CombatState state;
+        CombatParticipant caster; caster.name = "Paladin"; caster.isPlayer = true;
+        caster.level = 8; caster.hp = 100; caster.maxHp = 100;
+        caster.mana = 200; caster.maxMana = 200; caster.speed = 100;
+        state.addParticipant(caster);
+        CombatParticipant undead; undead.name = "Wight"; undead.isPlayer = false;
+        undead.hp = 300; undead.maxHp = 300; undead.level = 6; undead.speed = 1;
+        state.addParticipant(undead);
+
+        TurnEngine engine; engine.setCombatState(&state);
+        CombatActions actions(&state, &engine);
+        state.rollInitiative();
+        engine.startRound();
+        engine.nextTurn();
+
+        QString result;
+        int dmg = actions.castSpellBySchool(1, "Banish Undead", result);
+        check(dmg > 0 && dmg < 9999,
+              "Banish Undead deals massive damage (not a no-op)",
+              QString::number(dmg));
+    }
+
+    section("[291] v6.1.0 slice 6.1a: dialog instant-kill is not 9999");
+    {
+        // The player Cast Spell path must use the same massive-damage rule as
+        // CombatActions (slice 6.0e), never the old 9999 one-shot.
+        SpellBook& sb = SpellBook::instance();
+        sb.load("data/spells.json");
+        const SpellDef* insanity = sb.byName("Insanity");
+        check(insanity != nullptr, "Insanity spell exists");
+        if (insanity) {
+            check(insanity->damage == "Instant Kill",
+                  "Insanity is flagged Instant Kill",
+                  insanity->damage);
+        }
+
+        // Mirror the dialog's rule: qMax(50, level*3), never 9999.
+        int casterLevel = 10;
+        int massiveDmg = SpellMechanics::instantKillDamage(casterLevel);
+        check(massiveDmg < 9999, "dialog instant-kill damage is not 9999",
+              QString::number(massiveDmg));
+        check(massiveDmg == 50, "dialog instant-kill damage = max(50, 3*level)",
+              QString::number(massiveDmg));
+        // The shared helper is the single source of truth for both paths.
+        check(SpellMechanics::instantKillDamage(20) == 60,
+              "instantKillDamage(20) = 60 (3*level above the floor)",
+              QString::number(SpellMechanics::instantKillDamage(20)));
     }
 
     section("[290] v6.0.0 slice 6.0e: instant kill spells deal massive damage");
