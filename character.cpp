@@ -91,6 +91,8 @@ QVariantMap Character::toMap() const {
     map["MaxMana"]      = maxMana;
     map["Hunger"]       = hunger;
     map["MaxHunger"]    = maxHunger;
+    map["Spouse"]       = spouse;
+    map["Children"]     = children;
     map["StatusFlags"] = statusFlags;
     map["isAlive"]      = isAlive;
     map["DungeonLevel"] = dungeonLevel;
@@ -161,6 +163,10 @@ void Character::loadFromMap(const QVariantMap &map) {
     // Default full so saves written before hunger existed do not start starving.
     hunger       = map.value("Hunger", 100).toInt();
     maxHunger    = map.value("MaxHunger", 100).toInt();
+
+    // Lifecycle (v5.3.0 slice 5.2)
+    spouse       = map.value("Spouse").toString();
+    children     = map.value("Children").toStringList();
 
     statusFlags  = map.value("StatusFlags", StatusFlag::None).toUInt();
     // Default true so saves written before this field existed still load as alive.

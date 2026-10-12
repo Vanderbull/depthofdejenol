@@ -103,6 +103,10 @@ struct Character {
     int hunger = 100;       // 0 = starving, 100 = full
     int maxHunger = 100;
 
+    // --- Lifecycle (v5.3.0 slice 5.2) ---
+    QString spouse;         // name of married partner ("" = unmarried)
+    QStringList children;   // names of children
+
     // --- Status Effects ---
     uint statusFlags = 0;
     bool isAlive = true;
@@ -241,6 +245,28 @@ struct Character {
     // (24) and tomes (25) are the usable types; the same rule useConsumable()
     // enforces, exposed so the combat item picker can list exactly those.
     static bool isConsumable(const HeldItem& item);
+
+    // --- Lifecycle (v5.3.0 slice 5.2) ---
+    // Marriage eligibility: must be 18 or older and not already married.
+    bool isEligibleForMarriage() const {
+        return age >= 18 && spouse.isEmpty();
+    }
+    // Marry a partner. Returns false if already married or too young.
+    bool marry(const QString& partnerName) {
+        if (!isEligibleForMarriage()) return false;
+        spouse = partnerName;
+        return true;
+    }
+    // Add a child by name. Rejects duplicates.
+    bool addChild(const QString& childName) {
+        if (children.contains(childName)) return false;
+        children.append(childName);
+        return true;
+    }
+    // Retirement eligibility: 70 or older.
+    bool canRetire() const {
+        return age >= 70;
+    }
 
     // --- Food / hunger ---
     // The item type that is real food. It is deliberately NOT 22 (which is

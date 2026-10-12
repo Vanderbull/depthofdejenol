@@ -37,8 +37,14 @@ QString AgingRules::getAgeBracket(const Character& c) {
 QStringList AgingRules::applyYearOfAging(Character& c, int years) {
     QStringList messages;
 
+    const int ageBefore = c.age;
     if (years > 0) {
         c.age += years;
+    }
+
+    // Coming-of-age ceremony at 18.
+    if (ageBefore < 18 && c.age >= 18 && c.isAlive) {
+        messages.append(QString("%1 is coming of age and is now an adult.").arg(c.name));
     }
 
     // Death at max age takes precedence over decay.

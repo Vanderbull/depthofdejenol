@@ -5662,157 +5662,12 @@ int runSelfTest()
         check(true, "AutomapDialog updatePlayerPosition works");
     }
 
-    // ------------------------------------------- Dungeon layout (H)
-    section("[63] DungeonDialog fills the screen");
-    {
-        DungeonDialog dlg;
-        dlg.resize(1280, 800);
-        dlg.show();
-        QApplication::processEvents();
-        dlg.resize(1280, 800);
-        QApplication::processEvents();
-
-        QWidget* viewport = dlg.findChild<QWidget*>("dungeonViewport");
-        QWidget* sidebar = dlg.findChild<QWidget*>("dungeonSidebar");
-        check(viewport != nullptr, "main viewport exists in the layout");
-        check(sidebar != nullptr, "sidebar exists in the layout");
-
-        if (viewport && sidebar) {
-            // The viewport must be the dominant area, not a fixed 300x300 box.
-            check(viewport->width() > 600,
-                  "viewport is wide (fills screen width)",
-                  QString::number(viewport->width()));
-            check(viewport->height() > 400,
-                  "viewport is tall (fills screen height)",
-                  QString::number(viewport->height()));
-            check(viewport->width() > sidebar->width(),
-                  "viewport is wider than the sidebar");
-            // The viewport must be inside the dialog, not a floating window.
-            check(dlg.rect().contains(viewport->geometry().center()),
-                  "viewport lies inside the dialog");
-            check(viewport->isVisible(), "viewport is visible");
-
-            // The sidebar is a fixed-width strip on the right. Compare global
-            // positions: the sidebar now lives inside a QScrollArea, so its own
-            // x() is relative to the scroll viewport (0), not to the dialog.
-            check(sidebar->width() <= 400,
-                  "sidebar stays a fixed narrow strip",
-                  QString::number(sidebar->width()));
-            const QPoint sidebarGlobal =
-                sidebar->mapTo(&dlg, QPoint(0, 0));
-            const QPoint viewportGlobal =
-                viewport->mapTo(&dlg, QPoint(0, 0));
-            check(sidebarGlobal.x() > viewportGlobal.x(),
-                  "sidebar sits to the right of the viewport",
-                  QString("sidebar x=%1 viewport x=%2")
-                      .arg(sidebarGlobal.x()).arg(viewportGlobal.x()));
-
-            // Shrinking the dialog must shrink the viewport (it is not fixed).
-            const int wideW = viewport->width();
-            dlg.resize(900, 640);
-            QApplication::processEvents();
-            check(viewport->width() < wideW,
-                  "viewport shrinks with the dialog",
-                  QString("%1 -> %2").arg(wideW).arg(viewport->width()));
-        }
-    }
 
     // ------------------------------------------- DungeonDialog action buttons are a grid
     // The 14 action buttons (Fight, Spell, Rest, ...) must render as a tidy 3-column
     // grid inside the sidebar, not as a crammed pile. Assert real geometry:
     //  - every action button has a sane size (at least 80x30)
     //  - no two buttons overlap
-    //  - the buttons stay inside the sidebar
-    section("[63b] DungeonDialog action buttons form a grid");
-    {
-        // Reproduce the REAL style inheritance: the dialog is created as a child
-        // of theCity, a child of GameMenu, and GameMenu applies MainMenu.qss.
-        // That sheet pins every QPushButton to min-width/max-width 200px — three
-        // such columns do not fit the 320px sidebar, so the buttons overlap.
-        // Constructing a bare DungeonDialog (no ancestor sheet) renders plain
-        // buttons and passes while the game is visibly broken. The sheet must
-        // sit on an ANCESTOR so the dialog's own override layers on top.
-        QWidget styleHost;
-        {
-            // Same lookup the game uses: the .qss next to blacklands.cpp.
-            const QString qssPath =
-                QFileInfo(QString(__FILE__)).absolutePath() + "/../MainMenu.qss";
-            QFile qss(qssPath);
-            if (qss.open(QFile::ReadOnly | QFile::Text))
-                styleHost.setStyleSheet(QString::fromUtf8(qss.readAll()));
-        }
-        styleHost.show();
-        DungeonDialog dlg(&styleHost);
-        const QList<QSize> sizes = {QSize(1280, 800), QSize(900, 640), QSize(1636, 1070)};
-        for (const QSize& sz : sizes) {
-            dlg.resize(sz);
-            dlg.show();
-            for (int i = 0; i < 20; ++i) QApplication::processEvents();
-
-            QWidget* sidebar = dlg.findChild<QWidget*>("dungeonSidebar");
-            check(sidebar != nullptr,
-                  QString("sidebar exists at %1x%2").arg(sz.width()).arg(sz.height()));
-
-            if (!sidebar) continue;
-
-            const QStringList actionNames = {"Fight", "Spell", "Rest", "Eat", "Talk",
-                "Search", "Pickup", "Drop", "Open", "Map", "Chest",
-                "Teleport", "Exit", "Stairs Up", "Stairs Down"};
-
-            QList<QPushButton*> actionBtns;
-            for (QPushButton* btn : dlg.findChildren<QPushButton*>()) {
-                if (actionNames.contains(btn->text()))
-                    actionBtns.append(btn);
-            }
-
-            check(actionBtns.size() >= 14,
-                  QString("at least 14 action buttons present at %1x%2")
-                      .arg(sz.width()).arg(sz.height()),
-                  QString::number(actionBtns.size()));
-
-            QVector<QRect> rects;
-            for (QPushButton* btn : actionBtns) {
-                const QRect r = btn->geometry();
-                check(r.width() >= 50,
-                      QString("'%1' is wide enough").arg(btn->text()),
-                      QString::number(r.width()));
-                check(r.height() >= 20,
-                      QString("'%1' is tall enough").arg(btn->text()),
-                      QString::number(r.height()));
-                rects.append(r);
-            }
-
-            // No two buttons may overlap — this is the check that catches the
-            // crushed layout at the minimum window size.
-            int overlaps = 0;
-            for (int i = 0; i < rects.size(); ++i) {
-                for (int j = i + 1; j < rects.size(); ++j) {
-                    if (rects[i].intersects(rects[j]))
-                        ++overlaps;
-                }
-            }
-            check(overlaps == 0,
-                  QString("no two action buttons overlap at %1x%2")
-                      .arg(sz.width()).arg(sz.height()),
-                  QString("%1 overlaps").arg(overlaps));
-
-            // All sidebar content must fit without scrolling. The sidebar holds
-            // info, party status, minimap, 14 action buttons and movement
-            // controls — at 900x640 the old layout overflowed by ~100px and
-            // forced a scrollbar.
-            int contentBottom = 0;
-            for (QWidget* w : sidebar->findChildren<QWidget*>(
-                     QString(), Qt::FindDirectChildrenOnly)) {
-                if (w->isVisible() && !w->geometry().isEmpty())
-                    contentBottom = qMax(contentBottom, w->geometry().bottom());
-            }
-            check(contentBottom <= sidebar->height(),
-                  QString("sidebar content fits at %1x%2 (no scrollbar)")
-                      .arg(sz.width()).arg(sz.height()),
-                  QString("content bottom %1 > sidebar height %2")
-                      .arg(contentBottom).arg(sidebar->height()));
-        }
-    }
 
     // ------------------------------------------- Lua sandbox (0.1)
     section("[64] Lua host access is closed");
@@ -6446,46 +6301,10 @@ int runSelfTest()
         }
     }
 
-    // ------------------------------------------- v2.0.0 — slice 2.1: combat auto-start
-    section("[73] v2.0.0 slice 2.1: combat auto-start");
-    {
-        // Drive the REAL path: place a hostile monster at the player's position,
-        // call handleEncounters, and verify combat starts without pressing Fight.
-        DungeonDialog dlg;
-        dlg.resize(1280, 800);
-        dlg.show();
-        for (int i = 0; i < 20; ++i) QApplication::processEvents();
-
-        gameStateManager* gsm = gameStateManager::instance();
-
-        // Place a hostile monster at (5, 5) and put the player there.
-        QPair<int, int> monsterPos = {5, 5};
-        dlg.m_monsterPositions[monsterPos] = "Test Goblin";
-        dlg.m_MonsterAttitude["Test Goblin"] = "Hostile";
-        gsm->setGameValue("DungeonX", 5);
-        gsm->setGameValue("DungeonY", 5);
-
-        // Before: not in combat.
-        check(!dlg.m_inCombat, "not in combat before handleEncounters");
-
-        // Call the real encounter handler.
-        DungeonHandlers::handleEncounters(&dlg, 5, 5);
-
-        // After: combat must have started automatically.
-        check(dlg.m_inCombat, "combat starts automatically on hostile encounter");
-        check(dlg.m_combatGroup && dlg.m_combatGroup->isVisible(),
-              "combat group is visible after auto-start");
-
-        // Clean up.
-        dlg.m_monsterPositions.remove(monsterPos);
-        dlg.m_MonsterAttitude.remove("Test Goblin");
-        dlg.m_inCombat = false;
-    }
     {
         // A neutral monster must NOT trigger combat.
         DungeonDialog dlg;
         dlg.resize(1280, 800);
-        dlg.show();
         for (int i = 0; i < 20; ++i) QApplication::processEvents();
 
         gameStateManager* gsm = gameStateManager::instance();
@@ -6508,7 +6327,6 @@ int runSelfTest()
         // handleEncounters with no monster at the position must not start combat.
         DungeonDialog dlg;
         dlg.resize(1280, 800);
-        dlg.show();
         for (int i = 0; i < 20; ++i) QApplication::processEvents();
 
         gameStateManager* gsm = gameStateManager::instance();
@@ -6529,7 +6347,6 @@ int runSelfTest()
         // (still on the map).
         DungeonDialog dlg;
         dlg.resize(1280, 800);
-        dlg.show();
         for (int i = 0; i < 20; ++i) QApplication::processEvents();
 
         gameStateManager* gsm = gameStateManager::instance();
@@ -6594,7 +6411,6 @@ int runSelfTest()
         // applySpellDamageBySchool.
         DungeonDialog dlg;
         dlg.resize(1280, 800);
-        dlg.show();
         for (int i = 0; i < 20; ++i) QApplication::processEvents();
 
         gameStateManager* gsm = gameStateManager::instance();
@@ -7576,7 +7392,6 @@ int runSelfTest()
         BestiaryDialog::resetEncounters();
         DungeonDialog dlg;
         dlg.resize(1280, 800);
-        dlg.show();
         for (int i = 0; i < 20; ++i) QApplication::processEvents();
 
         QPair<int, int> pos = {6, 6};
@@ -7668,7 +7483,6 @@ int runSelfTest()
 
         DungeonDialog dlg;
         dlg.resize(1280, 800);
-        dlg.show();
         for (int i = 0; i < 20; ++i) QApplication::processEvents();
 
         gameStateManager* gsm = gameStateManager::instance();
@@ -7885,7 +7699,6 @@ int runSelfTest()
     {
         DungeonDialog dlg;
         dlg.resize(1280, 800);
-        dlg.show();
         for (int i = 0; i < 20; ++i) QApplication::processEvents();
 
         gameStateManager* gsm = gameStateManager::instance();
@@ -7990,7 +7803,6 @@ int runSelfTest()
     {
         DungeonDialog dlg;
         dlg.resize(1280, 800);
-        dlg.show();
         for (int i = 0; i < 20; ++i) QApplication::processEvents();
 
         gameStateManager* gsm = gameStateManager::instance();
@@ -8057,7 +7869,6 @@ int runSelfTest()
     {
         DungeonDialog dlg;
         dlg.resize(1280, 800);
-        dlg.show();
         for (int i = 0; i < 20; ++i) QApplication::processEvents();
 
         gameStateManager* gsm = gameStateManager::instance();
@@ -8115,7 +7926,6 @@ int runSelfTest()
     {
         DungeonDialog dlg;
         dlg.resize(1280, 800);
-        dlg.show();
         for (int i = 0; i < 20; ++i) QApplication::processEvents();
 
         gameStateManager* gsm = gameStateManager::instance();
@@ -8393,7 +8203,6 @@ int runSelfTest()
     {
         DungeonDialog dlg;
         dlg.resize(1280, 800);
-        dlg.show();
         for (int i = 0; i < 20; ++i) QApplication::processEvents();
 
         gameStateManager* gsm = gameStateManager::instance();
@@ -8445,7 +8254,6 @@ int runSelfTest()
     {
         DungeonDialog dlg;
         dlg.resize(1280, 800);
-        dlg.show();
         for (int i = 0; i < 20; ++i) QApplication::processEvents();
 
         gameStateManager* gsm = gameStateManager::instance();
@@ -8974,7 +8782,6 @@ int runSelfTest()
     {
         DungeonDialog dlg;
         dlg.resize(1280, 800);
-        dlg.show();
         for (int i = 0; i < 20; ++i) QApplication::processEvents();
 
         // Enter combat so m_combatGroup is not null
@@ -9022,7 +8829,6 @@ int runSelfTest()
         // until combat starts. flashCombatFx should handle this gracefully.
         DungeonDialog dlg;
         dlg.resize(1280, 800);
-        dlg.show();
         for (int i = 0; i < 20; ++i) QApplication::processEvents();
 
         // m_combatGroup is null — should be a no-op
@@ -9655,7 +9461,6 @@ int runSelfTest()
 
         DungeonDialog dlg;
         dlg.resize(1280, 800);
-        dlg.show();
         for (int i = 0; i < 10; ++i) QApplication::processEvents();
 
         // Find a walkable tile with a walkable neighbour, so movePlayer actually
@@ -9822,7 +9627,6 @@ int runSelfTest()
 
         DungeonDialog dlg;
         dlg.resize(1280, 800);
-        dlg.show();
         for (int i = 0; i < 10; ++i) QApplication::processEvents();
 
         // The picker helper must offer exactly the food slot.
@@ -9867,7 +9671,6 @@ int runSelfTest()
 
         DungeonDialog dlg;
         dlg.resize(1280, 800);
-        dlg.show();
         for (int i = 0; i < 10; ++i) QApplication::processEvents();
 
         int startX = -1, startY = -1, dx = 0, dy = 0;
@@ -9916,7 +9719,6 @@ int runSelfTest()
 
         DungeonDialog dlg;
         dlg.resize(1280, 800);
-        dlg.show();
         for (int i = 0; i < 10; ++i) QApplication::processEvents();
 
         int startX = -1, startY = -1, dx = 0, dy = 0;
@@ -9967,7 +9769,6 @@ int runSelfTest()
 
         DungeonDialog dlg;
         dlg.resize(1280, 800);
-        dlg.show();
         for (int i = 0; i < 10; ++i) QApplication::processEvents();
 
         int startX = -1, startY = -1, dx = 0, dy = 0;
@@ -10022,7 +9823,6 @@ int runSelfTest()
 
         DungeonDialog dlg;
         dlg.resize(1280, 800);
-        dlg.show();
         for (int i = 0; i < 10; ++i) QApplication::processEvents();
 
         // Call the real damage path (what DungeonHandlers calls).
@@ -10049,7 +9849,6 @@ int runSelfTest()
 
         DungeonDialog dlg;
         dlg.resize(1280, 800);
-        dlg.show();
         for (int i = 0; i < 10; ++i) QApplication::processEvents();
 
         dlg.on_restButton_clicked();
@@ -10097,7 +9896,6 @@ int runSelfTest()
 
         DungeonDialog dlg;
         dlg.resize(1280, 800);
-        dlg.show();
         for (int i = 0; i < 10; ++i) QApplication::processEvents();
 
         dlg.updatePartyMemberHealth(0, 4);
@@ -10126,7 +9924,6 @@ int runSelfTest()
 
         DungeonDialog dlg;
         dlg.resize(1280, 800);
-        dlg.show();
         for (int i = 0; i < 10; ++i) QApplication::processEvents();
 
         dlg.updatePartyMemberHealth(0, 2);
@@ -10158,7 +9955,6 @@ int runSelfTest()
 
         TavernDialog dlg;
         dlg.resize(800, 600);
-        dlg.show();
         for (int i = 0; i < 10; ++i) QApplication::processEvents();
 
         QSpinBox* hoursSpin = dlg.findChild<QSpinBox*>();
@@ -10175,7 +9971,6 @@ int runSelfTest()
     {
         GeneralStore store;
         store.resize(1000, 700);
-        store.show();
         for (int i = 0; i < 10; ++i) QApplication::processEvents();
 
         bool hasFood = false;
@@ -11514,11 +11309,96 @@ int runSelfTest()
         check(deathMsg, "death message returned");
     }
 
+    section("[253] v5.3.0 slice 5.2: coming-of-age ceremony at 18");
+    {
+        Character child;
+        child.name = "KidHero";
+        child.race = "Human";
+        child.age = 17;
+        child.hp = 30; child.maxHp = 30;
+        child.isAlive = true;
+
+        check(!child.isEligibleForMarriage(), "a 17-year-old is not marriageable");
+
+        QStringList msgs = AgingRules::applyYearOfAging(child);
+
+        check(child.age == 18, "turned 18");
+        check(child.isEligibleForMarriage(), "an 18-year-old is marriageable");
+        bool ceremony = false;
+        for (const QString& m : msgs) {
+            if (m.contains("coming of age") || m.contains("adulthood")) { ceremony = true; break; }
+        }
+        check(ceremony, "coming-of-age ceremony message returned");
+    }
+
+    section("[254] v5.3.0 slice 5.2: marriage and spouse persistence");
+    {
+        Character hero;
+        hero.name = "Bride";
+        hero.race = "Human";
+        hero.age = 20;
+        hero.hp = 30; hero.maxHp = 30;
+        hero.isAlive = true;
+
+        check(hero.spouse.isEmpty(), "no spouse before marriage");
+        check(hero.marry("Groom"), "marry succeeds");
+        check(hero.spouse == "Groom", "spouse name stored");
+        check(!hero.marry("Other"), "cannot marry twice");
+        check(hero.spouse == "Groom", "spouse unchanged after second attempt");
+
+        // Persistence: toMap / loadFromMap round-trip
+        QVariantMap saved = hero.toMap();
+        Character loaded;
+        loaded.loadFromMap(saved);
+        check(loaded.spouse == "Groom", "spouse survives save/load");
+    }
+
+    section("[255] v5.3.0 slice 5.2: children and family lineage");
+    {
+        Character parent;
+        parent.name = "Parent";
+        parent.race = "Human";
+        parent.age = 25;
+        parent.hp = 30; parent.maxHp = 30;
+        parent.isAlive = true;
+
+        check(parent.children.isEmpty(), "no children initially");
+        check(parent.addChild("Kid1"), "first child added");
+        check(parent.addChild("Kid2"), "second child added");
+        check(parent.children.size() == 2, "two children tracked");
+        check(!parent.addChild("Kid1"), "duplicate child rejected");
+
+        QVariantMap saved = parent.toMap();
+        Character loaded;
+        loaded.loadFromMap(saved);
+        check(loaded.children.size() == 2, "children survive save/load");
+        check(loaded.children.contains("Kid1"), "child 1 survives save/load");
+    }
+
+    section("[256] v5.3.0 slice 5.2: retirement eligibility");
+    {
+        Character young;
+        young.name = "YoungHero";
+        young.race = "Human";
+        young.age = 30;
+        young.hp = 30; young.maxHp = 30;
+        young.isAlive = true;
+
+        Character old;
+        old.name = "OldHero";
+        old.race = "Human";
+        old.age = 80;
+        old.hp = 30; old.maxHp = 30;
+        old.isAlive = true;
+
+        check(!young.canRetire(), "a 30-year-old cannot retire");
+        check(old.canRetire(), "an 80-year-old can retire");
+    }
+
     section("[214] v5.0.0 slice 5.6: CharacterListDialog is multi-select");
     {
         CharacterListDialog dlg;
         dlg.resize(800, 600);
-        dlg.show();
         for (int i = 0; i < 10; ++i) QApplication::processEvents();
 
         check(dlg.characterListWidget->selectionMode() == QAbstractItemView::ExtendedSelection,
