@@ -277,7 +277,7 @@ food (MDATA3 rows from 5.2). Tests [207]–[209]; +3 checks (1672 → 1675).
 Non-vacuous: removing hunger restore fails "tavern rest restored hunger"; removing
 starting food fails "a new party starts with food".
 
-### 5.6 Load a whole party `M`
+### 5.6 Load a whole party `M` ✅ DONE
 
 **Why:** you can save four characters but never load them back together — every
 load path handles exactly one character. The party serializer
@@ -312,6 +312,8 @@ member count, names, and shared gold; loading a party over an existing party rep
 it rather than appending (the double-load test). Non-vacuous: reverting the
 multi-select to single-select fails the "loads three members" test; removing the
 `clear()` in the load path fails the replace test.
+
+**Landed:** `CharacterListDialog` is now `ExtendedSelection` with a real Select handler that loads every selected character. Added Save/Load Party buttons using the existing `savePartyToFile`/`loadPartyFromFile` JSON wrappers. `addCharacterToParty()` now enforces `MAX_PARTY_SIZE`. Tests [210]–[214]; +14 checks (1675 → 1689). Non-vacuous: reverting to `SingleSelection` fails "the character list allows multi-select"; removing the `MAX_PARTY_SIZE` guard fails "the party size does not exceed MAX_PARTY_SIZE".
 
 ### 5.7 Repo hygiene: dead duplicates and build junk `S`
 

@@ -1926,6 +1926,9 @@ bool gameStateManager::loadLuaScript(const QString& filePath) {
 }
 
 void gameStateManager::addCharacterToParty(const Character& character) {
+    // Respect MAX_PARTY_SIZE — a party can never exceed the cap.
+    if (m_partyManager->currentParty().members.size() >= GameConstants::MAX_PARTY_SIZE)
+        return;
     // 1. Add to the internal list
     m_partyManager->currentParty().members.append(character);
     

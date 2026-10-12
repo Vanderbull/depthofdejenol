@@ -97,6 +97,18 @@ Non-vacuous: reverting `updatePartyMemberHealth` to `CurrentCharacterHP` fails
 Non-vacuous: removing hunger restore fails "tavern rest restored hunger";
 removing starting food fails "a new party starts with food".
 
+### Slice 5.6 — Load a whole party
+- `CharacterListDialog` uses `ExtendedSelection` with a real Select handler
+  that loads every selected character (was: single-select with a stub)
+- Save Party / Load Party buttons use the existing
+  `savePartyToFile`/`loadPartyFromFile` JSON wrappers
+- `addCharacterToParty()` enforces `MAX_PARTY_SIZE`
+
+**Verified:** tests [210]–[214] (1689 passed, 0 failed; +14 checks).
+Non-vacuous: reverting to `SingleSelection` fails "the character list allows
+multi-select"; removing the `MAX_PARTY_SIZE` guard fails "the party size does
+not exceed MAX_PARTY_SIZE".
+
 ---
 
 # v4.0.0 — Endgame depth and replayability ✅ RELEASED

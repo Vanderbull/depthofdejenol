@@ -29,6 +29,8 @@ private slots:
      * @brief Slot called when the "Select" button is clicked.
      */
     void onSelectClicked();
+    void onSavePartyClicked();
+    void onLoadPartyClicked();
     /**
      * @brief Slot called when the "Delete" button is clicked.
      */
@@ -40,10 +42,14 @@ private:
     void loadCharactersFromFiles();
     // UI elements
     QLabel *titleLabel;
+public:
     QListWidget *characterListWidget;
+private:
     QPushButton *selectButton;
     QPushButton *deleteButton;
     QPushButton *closeButton;
+    QPushButton *savePartyButton;
+    QPushButton *loadPartyButton;
     QVBoxLayout *mainLayout;
 };
 
