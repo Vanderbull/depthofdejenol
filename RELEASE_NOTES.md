@@ -1,6 +1,46 @@
 # Release Notes
 
-**Latest:** v6.1.0 — Spell Wiring & Loot Integrity
+**Latest:** v6.2.0 — Dungeon Floor Fidelity & Theme Application
+
+## v6.2.0 — Dungeon Floor Fidelity & Theme Application (2026-10-13)
+
+Every floor now reads its own `FloorTheme` design data when generating tiles and placing monsters, and three designed-but-unreachable hazard tile sets are finally placed in the dungeon.
+
+- Floor themes drive tile probabilities: water, fog, pits and anti-magic now use the theme's percentages (via `DungeonThemes::tileMix`) instead of the same flat values on every floor
+- `monsterLevelBonus` from the theme is applied in `EncounterBuilder`, so deep-floor monsters actually outrank shallow ones
+- Fog tiles: stepping on one sets `m_fogTimer` (3 turns of reduced vision)
+- Rotator tiles: stepping on one rotates the party 90° right via `DungeonDialog::rotate`
+- Extinguisher tiles: quench fire and are consumed after use
+- Dead declarations removed: `handleFalling()`, `tryUseStairs(bool)` are gone from `DungeonDialog.h`
+- Verified: hidden-door search already discovers doors via `DoorAndSearch::searchForSecretDoors` and collision respects discovery — added a documenting test
+
+### Slice 6.2a — Theme-driven tile mix
+- `generateSpecialTiles` now consumes `theme->waterChance`, `theme->pitChance`, `theme->fogChance`, `theme->antimagicChance`
+- `DungeonThemes::tileMix()` centralises the roll boundaries and is unit-tested
+- Non-vacuous: reverting to flat percentages fails the tile-mix test
+
+### Slice 6.2b — `monsterLevelBonus` in encounters
+- `EncounterBuilder` adds the theme bonus to the monster's base level before scaling HP, ATT, DEF
+- Non-vacuous: ignoring the bonus leaves a +3 floor at level 10 instead of 13
+
+### Slice 6.2c — Fog tiles and handler
+- Fog tiles are placed using the theme's `fogChance`
+- `handleFog` sets `m_fogTimer = 3`; the movement handler decrements it each step
+
+### Slice 6.2d — Rotator tiles and handler
+- Rotator tiles are placed in rooms only (like chutes and teleporters)
+- `handleRotator` calls `rotate(1)`; `m_lastRotationStep` records the turn for tests
+
+### Slice 6.2e — Extinguisher tiles
+- Extinguisher tiles are placed in rooms alongside rotators
+- `handleExtinguisher` quenches fire and removes the tile so it cannot be reused
+
+### Slice 6.2f — Dead declaration removal
+- `handleFalling()` and `tryUseStairs(bool)` declarations removed from `DungeonDialog.h`
+
+### Slice 6.2g — Hidden-door discovery
+- Verified the search button already discovers hidden doors and that collision respects `m_visitedTiles`
+- Added test [300] documenting the discovery-to-passable flow
 
 ## v6.1.0 — Spell Wiring & Loot Integrity (2026-10-12)
 

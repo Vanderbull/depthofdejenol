@@ -45,6 +45,23 @@ public:
 
     // All themes, for UI listing.
     static QList<FloorTheme> all();
+
+    // Cumulative roll boundaries for the special-tile mix, in the order the
+    // tiles are placed. The four hazard chances come from the theme itself;
+    // monsters, treasures and traps keep the flat shares the original layout
+    // used. `total` is the roll range, so a value of 0 in every hazard chance
+    // still leaves room for monsters/treasure/traps/chutes.
+    struct TileMix {
+        int water = 0;
+        int antiMagic = 0;
+        int fog = 0;
+        int pit = 0;
+        int monster = 0;
+        int treasure = 0;
+        int trap = 0;
+        int total = 0;
+    };
+    static TileMix tileMix(const FloorTheme& theme);
 };
 
 #endif // DUNGEONTHEMES_H

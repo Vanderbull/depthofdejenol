@@ -113,17 +113,35 @@ void DungeonHandlers::handleChute(DungeonDialog* dialog, int x, int y)
     }
 };
 
+void DungeonHandlers::handleRotator(DungeonDialog* dialog, int x, int y)
+{
+    QPair<int, int> pos = {x, y};
+    if (dialog->m_rotatorPositions.contains(pos)) {
+        dialog->rotate(1); // Always turn right
+    }
+}
+
+void DungeonHandlers::handleFog(DungeonDialog* dialog, int x, int y)
+{
+    QPair<int, int> pos = {x, y};
+    if (dialog->m_fogPositions.contains(pos)) {
+        dialog->m_fogTimer = 3;
+        dialog->logMessage("A thick fog surrounds you. Your vision is reduced.");
+    }
+}
+
 void DungeonHandlers::handleExtinguisher(DungeonDialog* dialog, int x, int y)
 {
     QPair<int, int> pos = {x, y};
     if (dialog->m_extinguisherPositions.contains(pos)) {
-        gameStateManager* gsm = gameStateManager::instance();        
+        gameStateManager* gsm = gameStateManager::instance();
         if (gsm->isCharacterOnFire()) {
             gsm->setCharacterOnFire(false);
             dialog->logMessage("Magic waters spray from the ceiling! The flames are extinguished.");
         } else {
             dialog->logMessage("A refreshing mist falls upon you.");
         }
+        dialog->m_extinguisherPositions.remove(pos);
     }
 };
 

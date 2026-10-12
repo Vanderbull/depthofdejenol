@@ -14,6 +14,8 @@ public:
     static void handleTrap(DungeonDialog* dialog, int x, int y);
     static void handleChute(DungeonDialog* dialog, int x, int y);
     static void handleExtinguisher(DungeonDialog* dialog, int x, int y);
+    static void handleFog(DungeonDialog* dialog, int x, int y);
+    static void handleRotator(DungeonDialog* dialog, int x, int y);
     static void handleEncounters(DungeonDialog* dialog, int x, int y);
     static void handleTreasure(DungeonDialog* dialog, int x, int y);
 };

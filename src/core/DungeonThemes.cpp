@@ -108,6 +108,32 @@ bool DungeonThemes::isBossFloor(int level) {
     return level == 5 || level == 10 || level == 15;
 }
 
+DungeonThemes::TileMix DungeonThemes::tileMix(const FloorTheme& theme) {
+    // Hazard chances come straight from the theme. Values are percentages that
+    // should sum to <= 100; whatever is left over is ordinary empty floor.
+    const int water    = qMax(0, theme.waterChance);
+    const int antiMagic = qMax(0, theme.antimagicChance);
+    const int fog      = qMax(0, theme.fogChance);
+    const int pit      = qMax(0, theme.pitChance);
+
+    // Monsters, treasures and traps keep the flat shares the original layout
+    // used, and chutes take any remainder.
+    const int monster  = 15;
+    const int treasure = 15;
+    const int trap     = 10;
+
+    TileMix m;
+    m.water     = water;
+    m.antiMagic = water + antiMagic;
+    m.fog       = m.antiMagic + fog;
+    m.pit       = m.fog + pit;
+    m.monster   = m.pit + monster;
+    m.treasure  = m.monster + treasure;
+    m.trap      = m.treasure + trap;
+    m.total     = qMax(100, m.trap);
+    return m;
+}
+
 QString DungeonThemes::bossNameForLevel(int level) {
     if (!isBossFloor(level)) return QString();
     return forLevel(level).bossName;

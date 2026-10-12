@@ -38,6 +38,7 @@ class QLabel;
 class QPushButton;
 class QListWidget;
 class QTimer;
+struct FloorTheme;
 
 // Define MAP_SIZE here to resolve initialization errors in the class definition
 const int MAP_SIZE = 30; 
@@ -136,7 +137,7 @@ public:
 
 private:
     void setupControls();
-    void handleFalling(); // New method to handle falling through a pit
+
     QSet<QPair<int, int>> m_bodyPositions;
 
 public:
@@ -296,7 +297,7 @@ public:
     QSet<QPair<int, int>> m_obstaclePositions;
     void generateRandomObstacles(int obstacleCount, QRandomGenerator& rng);
     void generateStairs(QRandomGenerator& rng); 
-    void generateSpecialTiles(int tileCount, QRandomGenerator& rng);
+    void generateSpecialTiles(int tileCount, QRandomGenerator& rng, const FloorTheme* theme = nullptr);
     QPair<int, int> m_stairsUpPosition; 
     QPair<int, int> m_stairsDownPosition; 
     // Special Tile Position Sets (Combined list)
@@ -313,6 +314,8 @@ public:
     // Map data
     // In the private section of DungeonDialog class
     QSet<QPair<int, int>> m_visitedTiles; // Tracks which (x, y) coordinates have been seen
+    int m_fogTimer = 0; // Turns remaining with reduced vision (fog tiles)
+    int m_lastRotationStep = 0; // Last rotation applied by a rotator tile (for tests)
     QMap<QPair<int, int>, QString> m_treasurePositions;
     QMap<QPair<int, int>, QString> m_trapPositions;
     QSet<QPair<int, int>> m_lockedChests;      // chests that need a key
@@ -328,7 +331,7 @@ public:
     void handleMovement(int actionIndex);
     void handleSurfaceExit();
     void transitionLevel(StairDirection direction);
-    void tryUseStairs(bool goingUp);
+
     void rotate(int step);
     void movePlayer(int dx, int dy, int dz);
     // Helper functions

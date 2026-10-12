@@ -375,8 +375,11 @@ void DungeonDialog::movePlayer(int dx, int dy, int dz=0)
     DungeonHandlers::handleTrap(this, newX, newY);
     DungeonHandlers::handleChute(this, newX, newY);
     DungeonHandlers::handleExtinguisher(this, newX, newY);
+    DungeonHandlers::handleFog(this, newX, newY);
+    DungeonHandlers::handleRotator(this, newX, newY);
     DungeonHandlers::handleEncounters(this, newX, newY);
     DungeonHandlers::handlePit(this, newX, newY); // Added pit check
+    if (m_fogTimer > 0) --m_fogTimer;
     updateTorchState();
     logMessage(QString("You move to (%1, %2).").arg(newX).arg(newY));
 
@@ -628,7 +631,8 @@ void DungeonDialog::generateStairs(QRandomGenerator& rng)
     m_obstaclePositions.remove(m_stairsDownPosition);
 }
 
-void DungeonDialog::generateSpecialTiles(int tileCount, QRandomGenerator& rng)
+void DungeonDialog::generateSpecialTiles(int tileCount, QRandomGenerator& rng,
+                                          const FloorTheme* theme)
 {
     m_bodyPositions.clear();
     // 1. Reset all containers
@@ -684,10 +688,37 @@ int currentLevel = gsm->getGameValue("DungeonLevel").toInt();
     // 3. General Population Loop
     // Get thematic monsters for this floor's theme
     QStringList thematicMonsters = getThematicMonsters(currentLevel);
+    // Tile mix comes from the floor's theme. With no theme we pass the flat
+    // values the original layout used, so callers that don't know a theme keep
+    // the old behaviour.
+    FloorTheme flatTheme;
+    flatTheme.waterChance = 25;
+    flatTheme.pitChance = 5;
+    flatTheme.antimagicChance = 10;
+    flatTheme.fogChance = 0;
+    const DungeonThemes::TileMix mix =
+        DungeonThemes::tileMix(theme ? *theme : flatTheme);
+    const int rollMax = qMax(1, mix.total);
     for (int i = 0; i < tileCount; ++i) {
-        int roll = rng.bounded(100); // Using 100 for better percentage control
+        int roll = rng.bounded(rollMax); // percentage control
         QPair<int, int> pos;
-        if (roll < 15) { // 15% Monsters
+        if (roll < mix.water) { // Water
+            pos = getAnyFloorTile();
+            if (pos.first != -1) m_waterPositions.insert(pos);
+        }
+        else if (roll < mix.antiMagic) { // Anti-magic / Extinguisher
+            pos = getAnyFloorTile();
+            if (pos.first != -1) m_antimagicPositions.insert(pos);
+        }
+        else if (roll < mix.fog) { // Fog
+            pos = getAnyFloorTile();
+            if (pos.first != -1) m_fogPositions.insert(pos);
+        }
+        else if (roll < mix.pit) { // Pits
+            pos = getAnyFloorTile();
+            if (pos.first != -1) m_pitPositions.insert(pos);
+        }
+        else if (roll < mix.monster) { // Monsters
             pos = getAnyFloorTile();
             if (pos.first != -1) {
                 // Use thematic monster or fallback to "Orc"
@@ -696,28 +727,11 @@ int currentLevel = gsm->getGameValue("DungeonLevel").toInt();
                 m_monsterPositions.insert(pos, monsterName);
             }
         }
-        else if (roll < 30) { // 15% Treasures
+        else if (roll < mix.treasure) { // Treasures
             pos = getAnyFloorTile();
             if (pos.first != -1) m_treasurePositions.insert(pos, "Gold Pouch");
         } 
-        else if (roll < 55) { // 10% Water
-            pos = getAnyFloorTile();
-            if (pos.first != -1) m_waterPositions.insert(pos);
-        }
-        else if (roll < 65) { // 10% Anti-magic/Extinguisher
-            pos = getAnyFloorTile();
-            if (pos.first != -1) m_antimagicPositions.insert(pos);
-        }
-        // Extra Room-Only Chutes/Teleporters via random roll
-        else if (roll < 70) { 
-            pos = getValidRoomTile();
-            if (pos.first != -1) m_chutePositions.insert(pos);
-        }
-        else if (roll < 75) { // 5% Pits
-            pos = getAnyFloorTile();
-            if (pos.first != -1) m_pitPositions.insert(pos);
-        }
-        else if (roll < 85) { // 10% Traps — placed with a type drawn from the floor's danger
+        else if (roll < mix.trap) { // Traps — placed with a type drawn from the floor's danger
             pos = getAnyFloorTile();
             if (pos.first != -1) {
                 const char* trapTypes[] = {"Spike", "Poison Needler", "Dart", "Pit Cover", "Snare"};
@@ -725,7 +739,21 @@ int currentLevel = gsm->getGameValue("DungeonLevel").toInt();
                 m_trapPositions.insert(pos, trapTypes[idx]);
             }
         }
+        // Extra Room-Only Chutes/Teleporters via random roll
+        else {
+            pos = getValidRoomTile();
+            if (pos.first != -1) m_chutePositions.insert(pos);
+        }
     }
+
+    // Rotator and extinguisher tiles — placed in rooms only, like chutes.
+    for (int i = 0; i < 2; ++i) {
+        QPair<int, int> rp = getValidRoomTile();
+        if (rp.first != -1) m_rotatorPositions.insert(rp);
+        QPair<int, int> ep = getValidRoomTile();
+        if (ep.first != -1) m_extinguisherPositions.insert(ep);
+    }
+
     if (currentLevel == 1) {
         QList<QPair<int, int>> wallList = m_obstaclePositions.values();
         bool placed = false;
@@ -1192,7 +1220,7 @@ void DungeonDialog::enterLevel(int level, bool movingUp)
     // These must be called AFTER generateRandomObstacles so they know where the floor is.
     generateStairs(levelRng);
     // Scale the number of special tiles with the theme.
-    generateSpecialTiles(theme.monsterCount + theme.trapCount, levelRng);
+    generateSpecialTiles(theme.monsterCount + theme.trapCount, levelRng, &theme);
 
     // 3. Boss floors get their guardian placed on a room tile.
     if (theme.isBossFloor && !theme.bossName.isEmpty()) {
@@ -1453,7 +1481,8 @@ bool DungeonDialog::startCombatAt(const QPair<int, int>& pos)
         QList<CombatParticipant> monsters = EncounterBuilder::buildEncounter(
             monsterName, gsm->getMonsterData(),
             gsm->getNgPlusLevel(),
-            gsm->getGameValue("DungeonLevel").toInt());
+            gsm->getGameValue("DungeonLevel").toInt(),
+            DungeonThemes::forLevel(gsm->getGameValue("DungeonLevel").toInt()).monsterLevelBonus);
         for (const auto& m : monsters) {
             m_combatState->addParticipant(m);
         }
@@ -2508,10 +2537,11 @@ void DungeonDialog::handleMovement(int actionIndex)
     }
 }
 
-void DungeonDialog::rotate(int step) 
+void DungeonDialog::rotate(int step)
 {
+    m_lastRotationStep = step;
     // List must match the layout of your compass logic
-    static const QStringList dirs = {"North", "East", "South", "West"};    
+    static const QStringList dirs = {"North", "East", "South", "West"};
     // Find current index
     int currentIdx = dirs.indexOf(m_compassLabel->text().mid(7));
     // Calculate new index using modulo to wrap around

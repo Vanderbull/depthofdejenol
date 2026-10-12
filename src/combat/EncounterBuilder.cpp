@@ -32,7 +32,8 @@ QList<CombatParticipant> EncounterBuilder::buildEncounter(
     const QString& monsterName,
     const QList<QVariantMap>& monsterData,
     int ngPlusLevel,
-    int floorLevel)
+    int floorLevel,
+    int monsterLevelBonus)
 {
     QList<CombatParticipant> result;
     const double ngMult = Endgame::ngPlusMonsterMultiplier(ngPlusLevel);
@@ -102,6 +103,7 @@ QList<CombatParticipant> EncounterBuilder::buildEncounter(
     int baseSpeed = readStat(monsterInfo, "StatDex", "Dexterity");
     int baseDex = baseSpeed;
     int baseLevel = readInt(monsterInfo, "levelFound", "level", 1);
+    if (monsterLevelBonus > 0) baseLevel += monsterLevelBonus;
     if (baseLevel < 1) baseLevel = 1;
     // The MDATA5 table carries no usable Dexterity (every row is 0), which
     // left monsters with a dead initiative and to-hit stat. Derive one from the
