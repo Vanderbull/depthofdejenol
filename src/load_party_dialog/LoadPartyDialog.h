@@ -4,6 +4,7 @@
 #include <QDialog>
 #include <QLabel>
 #include <QListWidget>
+#include <QObject>
 #include <QPushButton>
 
 class LoadPartyDialog : public QDialog {

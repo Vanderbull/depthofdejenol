@@ -4,6 +4,7 @@
 #include <QDialog>
 #include <QListWidget>
 #include <QLabel>
+#include <QObject>
 #include <QPushButton>
 
 #include "character.h"

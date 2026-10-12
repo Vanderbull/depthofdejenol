@@ -2,6 +2,7 @@
 #define VICTORYDIALOG_H
 
 #include <QDialog>
+#include <QObject>
 #include <QLabel>
 #include <QPushButton>
 #include <QVBoxLayout>
