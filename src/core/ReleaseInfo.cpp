@@ -67,6 +67,7 @@ QString ReleaseInfo::banner() {
 
 QList<QPair<QString, QString>> ReleaseInfo::versionHistory() {
     return {
+        {"5.1.0", "2026-10-12 — Main Menu redesign: Continue button with party preview, Load Party dialog, clear visual hierarchy, fixed grid collision, removed debug text"},
         {"5.0.0", "2026-10-12 — Survival: hunger is visible, food exists and can be bought and eaten, starvation death is a real death with a body and journal entry, one HP source of truth, a town resupply loop, and a whole party can be loaded at once (all 8 slices 5.1–5.8)"},
         {"4.0.0", "2026-10-11 — Endgame depth and replayability: New Game Plus carries the party and scales rewards, the Abyss mega-dungeon and Arena are wired, 25 achievements unlock and persist, and a balance pass fixes monster AC and dexterity so a full run is winnable in 10–15 hours (all 7 slices 4.1–4.6)"},
         {"3.0.0", "2026-10-11 — Tactical combat and character growth: all 9 v3.0.0 slices wired (target selection, per-monster display, front/back row, stat allocation, quest chain driver, play time, save versioning, combat visual feedback, repo hygiene)"},

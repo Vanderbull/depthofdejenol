@@ -5070,12 +5070,12 @@ int runSelfTest()
     // ------------------------------------------- Release packaging (8.5)
     section("[56] Release packaging");
     {
-        check(ReleaseInfo::version() == "5.0.0", "version is 5.0.0");
-        check(ReleaseInfo::versionString() == "v5.0.0", "version string");
+        check(ReleaseInfo::version() == "5.1.0", "version is 5.1.0");
+        check(ReleaseInfo::versionString() == "v5.1.0", "version string");
         check(!ReleaseInfo::releaseDate().isEmpty(), "release date exists");
         check(!ReleaseInfo::systemRequirements().isEmpty(), "system requirements exist");
-        check(ReleaseInfo::installerName().contains("5.0.0"), "installer name");
-        check(ReleaseInfo::banner().contains("5.0.0"), "banner");
+        check(ReleaseInfo::installerName().contains("5.1.0"), "installer name");
+        check(ReleaseInfo::banner().contains("5.1.0"), "banner");
     }
     {
         // Release notes.
@@ -5095,9 +5095,9 @@ int runSelfTest()
         QList<QPair<QString, QString>> history = ReleaseInfo::versionHistory();
         check(history.size() >= 5, "at least 5 versions in history",
               QString::number(history.size()));
-        check(history[0].first == "5.0.0", "latest version is 5.0.0");
-        check(history[0].second.contains("survival") || history[0].second.contains("hunger") || history[0].second.contains("party"),
-              "v5.0.0 history entry mentions the survival work");
+        check(history[0].first == "5.1.0", "latest version is 5.1.0");
+        check(history[0].second.contains("Main Menu") || history[0].second.contains("Continue") || history[0].second.contains("party preview"),
+              "v5.1.0 history entry mentions the menu redesign");
     }
 
     // ------------------------------------------- Status flag integrity
