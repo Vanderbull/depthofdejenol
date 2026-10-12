@@ -11400,6 +11400,144 @@ int runSelfTest()
         QFile::remove(savePath);
     }
 
+    section("[247] v5.2.0 slice 5.5: old files without inventory/hunger/guild load with defaults");
+    {
+        // Create an old-style .json file WITHOUT inventory, hunger, or guild data
+        QString path = "data/characters/OldStyle.json";
+
+        QJsonObject root;
+        root["Name"] = "OldHero";
+        root["Race"] = "Human";
+        root["Level"] = 3;
+        root["HP"] = 50;
+        root["MaxHP"] = 50;
+        root["isAlive"] = true;
+        // No Inventory, no Hunger, no GuildLevels
+
+        QFile jsonFile(path);
+        jsonFile.open(QIODevice::WriteOnly);
+        jsonFile.write(QJsonDocument(root).toJson());
+        jsonFile.close();
+
+        bool ok = gameStateManager::instance()->loadCharacterFromFile(path);
+        check(ok, "old-style character loads successfully");
+
+        auto& members = gameStateManager::instance()->getPartyMembers();
+        check(members.size() == 1, "party has 1 member after loading old-style save");
+        if (members.size() == 1) {
+            const Character& loaded = members[0];
+            check(loaded.name == "OldHero", "name preserved");
+            check(loaded.level == 3, "level preserved");
+            check(loaded.hp == 50, "hp preserved");
+            // Defaults for missing fields
+            check(loaded.hunger == 100, "hunger defaults to 100");
+            check(loaded.maxHunger == 100, "maxHunger defaults to 100");
+            check(loaded.gold == 0, "gold defaults to 0");
+            check(loaded.mana == 0, "mana defaults to 0");
+            check(loaded.guildLevels.isEmpty(), "guild levels empty for old save");
+            check(loaded.bankInventory.isEmpty(), "bank inventory empty for old save");
+        }
+
+        QFile::remove(path);
+    }
+
+    section("[248] v5.2.0 slice 5.5: new .json files with full data load correctly");
+    {
+        // Create a new-style .json file WITH inventory, hunger, guild data
+        QString path = "data/characters/NewStyle.json";
+
+        QJsonObject root;
+        root["Name"] = "NewHero";
+        root["Race"] = "Elf";
+        root["Level"] = 7;
+        root["HP"] = 120;
+        root["MaxHP"] = 120;
+        root["isAlive"] = true;
+        root["Hunger"] = 75;
+        root["MaxHunger"] = 100;
+        root["Gold"] = 5000;
+        root["Mana"] = 30;
+        root["MaxMana"] = 50;
+
+        QJsonArray inventory;
+        QJsonObject item;
+        item["id"] = 1;
+        item["name"] = "Sword";
+        item["charges"] = 0;
+        item["equipped"] = true;
+        item["identified"] = true;
+        inventory.append(item);
+        root["Inventory"] = inventory;
+
+        QJsonObject guild;
+        guild["Warrior"] = 3;
+        guild["Mage"] = 1;
+        root["GuildLevels"] = guild;
+
+        QFile file(path);
+        file.open(QIODevice::WriteOnly);
+        file.write(QJsonDocument(root).toJson());
+        file.close();
+
+        bool ok = gameStateManager::instance()->loadCharacterFromFile(path);
+        check(ok, "new-style character loads successfully");
+
+        auto& members = gameStateManager::instance()->getPartyMembers();
+        check(members.size() == 1, "party has 1 member after loading new-style save");
+        if (members.size() == 1) {
+            const Character& loaded = members[0];
+            check(loaded.name == "NewHero", "name preserved");
+            check(loaded.level == 7, "level preserved");
+            check(loaded.hp == 120, "hp preserved");
+            check(loaded.hunger == 75, "hunger preserved");
+            check(loaded.maxHunger == 100, "maxHunger preserved");
+            check(loaded.gold == 5000, "gold preserved");
+            check(loaded.mana == 30, "mana preserved");
+            check(loaded.inventory.size() == 1, "inventory preserved");
+            if (loaded.inventory.size() == 1) {
+                check(loaded.inventory[0].name == "Sword", "inventory item name preserved");
+                check(loaded.inventory[0].M5467 == 1, "inventory item equipped flag preserved");
+            }
+            check(loaded.guildLevels["Warrior"] == 3, "guild level preserved");
+            check(loaded.guildLevels["Mage"] == 1, "guild level 2 preserved");
+        }
+
+        QFile::remove(path);
+    }
+
+    section("[249] v5.2.0 slice 5.5: .lua and .txt files are rejected");
+    {
+        // Only .json is supported — .lua and .txt must be rejected
+        QString luaPath = "data/characters/RejectLua.lua";
+        QFile luaFile(luaPath);
+        luaFile.open(QIODevice::WriteOnly);
+        luaFile.write("SaveData = { Name = 'LuaHero', Level = 1 }\n");
+        luaFile.close();
+
+        bool luaOk = gameStateManager::instance()->loadCharacterFromFile(luaPath);
+        check(!luaOk, ".lua character file is rejected");
+
+        QString txtPath = "data/characters/RejectTxt.txt";
+        QFile txtFile(txtPath);
+        txtFile.open(QIODevice::WriteOnly);
+        txtFile.write("Name: TxtHero\n");
+        txtFile.write("Level: 4\n");
+        txtFile.close();
+
+        bool txtOk = gameStateManager::instance()->loadCharacterFromFile(txtPath);
+        check(!txtOk, ".txt character file is rejected");
+
+        // addCharacterFromFile also rejects non-json
+        bool addLuaOk = gameStateManager::instance()->addCharacterFromFile(luaPath);
+        check(!addLuaOk, "addCharacterFromFile rejects .lua");
+
+        bool addTxtOk = gameStateManager::instance()->addCharacterFromFile(txtPath);
+        check(!addTxtOk, "addCharacterFromFile rejects .txt");
+
+        QFile::remove(luaPath);
+        QFile::remove(txtPath);
+    }
+
     section("[214] v5.0.0 slice 5.6: CharacterListDialog is multi-select");
     {
         CharacterListDialog dlg;

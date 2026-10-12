@@ -670,162 +670,53 @@ void gameStateManager::updateCharacterGold(int characterIndex, qulonglong amount
 }
 */
 bool gameStateManager::loadCharacterFromFile(const QString& filePath) {
-    if (filePath.endsWith(".lua")) {
-        if (!m_L) return false;
-
-        // Execute the script to load 'SaveData' into the global Lua environment
-        if (luaL_dofile(m_L, filePath.toUtf8().constData()) != LUA_OK) {
-            qWarning() << "Lua Load Error:" << lua_tostring(m_L, -1);
-            lua_pop(m_L, 1);
-            return false;
-        }
-
-        // IMPORTANT: Your adam.lua uses "SaveData", not "Character"
-        lua_getglobal(m_L, "SaveData"); 
-        
-        QVariantMap characterMap = luaToVariant(m_L, -1).toMap();
-        lua_pop(m_L, 1);
-
-        if (characterMap.isEmpty()) {
-            qWarning() << "Could not find 'SaveData' table in" << filePath;
-            return false;
-        }
-
-        //m_currentParty.members.clear();
-        auto& members = m_partyManager->currentParty().members;
-        members.clear();
-        
-        Character newChar;
-        // This will now map "HP" -> hp, "Name" -> name, etc.
-        newChar.loadFromMap(characterMap);
-        if (newChar.inventory.isEmpty()) {
-                HeldItem rations;
-                rations.name = "Rations";
-                if (const ItemDef* def = ItemDatabase::instance().byName("Rations")) {
-                    rations.M4E97 = static_cast<int16_t>(def->id);
-                }
-                newChar.inventory.append(rations);
-        }
-        // Force status to normal if loading from a fresh save
-        newChar.status = GameConstants::Normal;
-        
-        //m_currentParty.members.append(newChar);
-        members.append(newChar);
-    } 
-    else if (filePath.endsWith(".json")) {
-        // --- JSON format ---
-        QFile file(filePath);
-        if (!file.open(QIODevice::ReadOnly)) {
-            qWarning() << "Could not open character file:" << filePath;
-            return false;
-        }
-
-        QByteArray data = file.readAll();
-        QJsonDocument doc = QJsonDocument::fromJson(data);
-        file.close();
-
-        if (doc.isNull() || !doc.isObject()) {
-            qWarning() << "Character file is corrupted or not valid JSON:" << filePath;
-            return false;
-        }
-
-        QVariantMap characterMap = doc.toVariant().toMap();
-        if (characterMap.isEmpty()) {
-            qWarning() << "Character file is empty:" << filePath;
-            return false;
-        }
-
-        auto& members = m_partyManager->currentParty().members;
-        members.clear();
-
-        Character newChar;
-        newChar.loadFromMap(characterMap);
-        if (newChar.inventory.isEmpty()) {
-            HeldItem rations;
-            rations.name = "Rations";
-            if (const ItemDef* def = ItemDatabase::instance().byName("Rations")) {
-                rations.M4E97 = static_cast<int16_t>(def->id);
-            }
-            newChar.inventory.append(rations);
-        }
-        newChar.status = GameConstants::Normal;
-        members.append(newChar);
-    }
-    else if (filePath.endsWith(".txt")) {
-        // --- Legacy .txt format (still supported for old saves) ---
-        QFile file(filePath);
-        if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-            qWarning() << "Could not open character file:" << filePath;
-            return false;
-        }
-
-        QVariantMap characterMap;
-        QTextStream in(&file);
-        while (!in.atEnd()) {
-            QString line = in.readLine().trimmed();
-            if (line.isEmpty() || line.startsWith("---") || line.contains("VERSION")) continue;
-
-            QStringList parts = line.split(": ");
-            if (parts.size() < 2) continue;
-
-            QString key = parts.at(0).trimmed();
-            QString value = parts.at(1).trimmed();
-
-            if (key == "Name") characterMap["Name"] = value;
-            else if (key == "Race") characterMap["Race"] = value;
-            else if (key == "Age") characterMap["Age"] = value.toInt();
-            else if (key == "HP") characterMap["HP"] = value.toInt();
-            else if (key == "MaxHP") characterMap["MaxHP"] = value.toInt();
-            else if (key == "Level") characterMap["Level"] = value.toInt();
-            else if (key == "CurrentCharacterGold") characterMap["CurrentCharacterGold"] = QVariant::fromValue(value.toULongLong());
-            else if (key == "isAlive") characterMap["isAlive"] = value.toInt();
-            else if (key == "DungeonLevel") characterMap["DungeonLevel"] = value.toInt();
-            else if (key == "DungeonX") characterMap["DungeonX"] = value.toInt();
-            else if (key == "DungeonY") characterMap["DungeonY"] = value.toInt();
-            else if (key == "Hunger") characterMap["Hunger"] = value.toInt();
-            else if (key == "MaxHunger") characterMap["MaxHunger"] = value.toInt();
-            else if (key == "Gold") characterMap["Gold"] = QVariant::fromValue(value.toULongLong());
-            else if (key == "Mana") characterMap["Mana"] = value.toInt();
-            else if (key == "MaxMana") characterMap["MaxMana"] = value.toInt();
-            else if (key == "PlayTimeSeconds") characterMap["PlayTimeSeconds"] = value.toInt();
-            else if (key == "Experience") characterMap["Experience"] = QVariant::fromValue(value.toULongLong());
-            else if (GameConstants::STAT_NAMES.contains(key)) {
-                characterMap[key] = value.toInt();
-            }
-            else if (key == "Inventory" || key == "Equipped" || key == "BankInventory") {
-                QJsonDocument doc = QJsonDocument::fromJson(value.toUtf8());
-                if (doc.isArray()) {
-                    characterMap[key] = doc.array().toVariantList();
-                }
-            }
-        }
-        file.close();
-
-        if (characterMap.isEmpty()) {
-            qWarning() << "Character file is empty or corrupted:" << filePath;
-            return false;
-        }
-
-        auto& members = m_partyManager->currentParty().members;
-        members.clear();
-
-        Character newChar;
-        newChar.loadFromMap(characterMap);
-        if (newChar.inventory.isEmpty()) {
-            HeldItem rations;
-            rations.name = "Rations";
-            if (const ItemDef* def = ItemDatabase::instance().byName("Rations")) {
-                rations.M4E97 = static_cast<int16_t>(def->id);
-            }
-            newChar.inventory.append(rations);
-        }
-        newChar.status = GameConstants::Normal;
-        members.append(newChar);
-    }
-    else {
-        // --- Unknown format ---
-        qWarning() << "Unknown character file format:" << filePath;
+    if (!filePath.endsWith(".json")) {
+        qWarning() << "Only .json character files are supported:" << filePath;
         return false;
+    }
+
+    QFile file(filePath);
+    if (!file.open(QIODevice::ReadOnly)) {
+        qWarning() << "Could not open character file:" << filePath;
+        return false;
+    }
+
+    QByteArray data = file.readAll();
+    QJsonDocument doc = QJsonDocument::fromJson(data);
+    file.close();
+
+    if (doc.isNull() || !doc.isObject()) {
+        qWarning() << "Character file is corrupted or not valid JSON:" << filePath;
+        return false;
+    }
+
+    QVariantMap characterMap = doc.toVariant().toMap();
+    if (characterMap.isEmpty()) {
+        qWarning() << "Character file is empty:" << filePath;
+        return false;
+    }
+
+    auto& members = m_partyManager->currentParty().members;
+    members.clear();
+
+    Character newChar;
+    newChar.loadFromMap(characterMap);
+    if (newChar.inventory.isEmpty()) {
+        HeldItem rations;
+        rations.name = "Rations";
+        if (const ItemDef* def = ItemDatabase::instance().byName("Rations")) {
+            rations.M4E97 = static_cast<int16_t>(def->id);
+        }
+        newChar.inventory.append(rations);
+    }
+    newChar.status = GameConstants::Normal;
+    members.append(newChar);
+
+    // Sync UI bindings
+    if (!members.isEmpty()) {
+        const Character& c = members[0];
+        setGameValue("CurrentCharacterName", c.name);
+        setGameValue("isAlive", c.isAlive ? 1 : 0);
     }
 
     setCurrentCharacterIndex(0);
@@ -2067,70 +1958,21 @@ bool gameStateManager::loadPartyFromFile(const QString& filePath) {
 }
 
 bool gameStateManager::addCharacterFromFile(const QString& filePath) {
+    if (!filePath.endsWith(".json")) {
+        qWarning() << "Only .json character files are supported:" << filePath;
+        return false;
+    }
+
     QFile file(filePath);
     if (!file.open(QIODevice::ReadOnly)) return false;
 
     QByteArray data = file.readAll();
     file.close();
 
-    QVariantMap characterMap;
+    QJsonDocument doc = QJsonDocument::fromJson(data);
+    if (!doc.isObject()) return false;
 
-    if (filePath.endsWith(".json")) {
-        // --- JSON format ---
-        QJsonDocument doc = QJsonDocument::fromJson(data);
-        if (!doc.isObject()) return false;
-        characterMap = doc.toVariant().toMap();
-    } else if (filePath.endsWith(".txt")) {
-        // Parse legacy .txt format
-        QTextStream in(data);
-        while (!in.atEnd()) {
-            QString line = in.readLine().trimmed();
-            if (line.isEmpty() || line.startsWith("---") || line.contains("VERSION")) continue;
-            QStringList parts = line.split(": ");
-            if (parts.size() < 2) continue;
-            QString key = parts.at(0).trimmed();
-            QString value = parts.at(1).trimmed();
-
-            if (key == "Name") characterMap["Name"] = value;
-            else if (key == "Race") characterMap["Race"] = value;
-            else if (key == "Age") characterMap["Age"] = value.toInt();
-            else if (key == "HP") characterMap["HP"] = value.toInt();
-            else if (key == "MaxHP") characterMap["MaxHP"] = value.toInt();
-            else if (key == "Level") characterMap["Level"] = value.toInt();
-            else if (key == "CurrentCharacterGold") characterMap["CurrentCharacterGold"] = QVariant::fromValue(value.toULongLong());
-            else if (key == "isAlive") characterMap["isAlive"] = value.toInt();
-            else if (key == "DungeonLevel") characterMap["DungeonLevel"] = value.toInt();
-            else if (key == "DungeonX") characterMap["DungeonX"] = value.toInt();
-            else if (key == "DungeonY") characterMap["DungeonY"] = value.toInt();
-            else if (key == "Hunger") characterMap["Hunger"] = value.toInt();
-            else if (key == "MaxHunger") characterMap["MaxHunger"] = value.toInt();
-            else if (key == "Gold") characterMap["Gold"] = QVariant::fromValue(value.toULongLong());
-            else if (key == "Mana") characterMap["Mana"] = value.toInt();
-            else if (key == "MaxMana") characterMap["MaxMana"] = value.toInt();
-            else if (key == "PlayTimeSeconds") characterMap["PlayTimeSeconds"] = value.toInt();
-            else if (key == "Experience") characterMap["Experience"] = QVariant::fromValue(value.toULongLong());
-            else if (GameConstants::STAT_NAMES.contains(key)) {
-                characterMap[key] = value.toInt();
-            }
-            else if (key == "Inventory" || key == "Equipped" || key == "BankInventory") {
-                QJsonDocument doc = QJsonDocument::fromJson(value.toUtf8());
-                if (doc.isArray()) {
-                    characterMap[key] = doc.array().toVariantList();
-                }
-            }
-        }
-    } else if (filePath.endsWith(".lua")) {
-        if (!m_L) return false;
-        if (luaL_dofile(m_L, filePath.toUtf8().constData()) != LUA_OK) {
-            qWarning() << "Lua Load Error:" << lua_tostring(m_L, -1);
-            lua_pop(m_L, 1);
-            return false;
-        }
-        lua_getglobal(m_L, "SaveData");
-        characterMap = luaToVariant(m_L, -1).toMap();
-        lua_pop(m_L, 1);
-    }
-
+    QVariantMap characterMap = doc.toVariant().toMap();
     if (characterMap.isEmpty()) return false;
 
     // Don't clear the party — add to it

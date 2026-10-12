@@ -57,11 +57,18 @@ This version fixes all three and adds proper party building from individual char
 
 **Verified:** tests [244]–[245] — preview with empty selection, deceased members marked.
 
-### 5.5 Save format migration `S`
+### 5.5 Save format migration `S` ✅ DONE
 
 **Files:** `gameStateManager.cpp`, `gameStateManager.h`, `test/selftest.cpp`
 
-**Verify:** old .txt files without inventory/hunger/guild data load with defaults, new .txt files with full data load correctly.
+**What changed:**
+- `loadCharacterFromFile()` — only `.json` supported; `.lua` and `.txt` rejected
+- `addCharacterFromFile()` — only `.json` supported; `.lua` and `.txt` rejected
+- `saveCharacterToFile()` — writes `.json` only (already done)
+- `Character::loadFromMap()` — defaults for missing fields (hunger=100, isAlive=true, etc.)
+- Removed all `.lua` and `.txt` parsing branches from savegame code
+
+**Verified:** tests [247]–[249] — old files load with defaults, new files load fully, `.lua`/`.txt` rejected.
 
 ### 5.6 Release `S`
 
