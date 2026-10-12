@@ -8,6 +8,11 @@
 - SenderWindow had 0 external callers — fully dead code
 - Removed from src/ and blacklands.pro
 
+### Slice 8.0b — Release
+- Version bumped to 5.8.0
+- ReleaseInfo updated
+- Clean build, 1752 tests pass, game runs clean
+
 ## v5.7.0 — Wire & Cleanup Round 3
 
 ### Slice 7.0a — Remove dead ShortcutHelp
