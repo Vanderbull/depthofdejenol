@@ -81,6 +81,34 @@ void runDungeonTests()
               "hidden door is visited after discovery");
     }
 
+    section("[301] v6.3.0 slice 6.3a: dungeon action buttons are wired");
+    {
+        DungeonDialog dlg;
+        QPushButton *buttons[] = {
+            dlg.m_fightButton, dlg.m_spellButton, dlg.m_restButton,
+            dlg.m_talkButton, dlg.m_searchButton, dlg.m_pickupButton,
+            dlg.m_dropButton, dlg.m_openButton, dlg.m_mapButton,
+            dlg.m_chestButton, dlg.m_exitButton, dlg.m_teleportButton,
+            dlg.m_stairsUpButton, dlg.m_stairsDownButton
+        };
+        for (QPushButton *button : buttons) {
+            check(button != nullptr, "dungeon action button is constructed");
+            check(button->isEnabled(), "dungeon action button is enabled");
+            check(!button->isHidden(), "dungeon action button is visible");
+        }
+
+        // Click-driven proof that each button's connect() is live. The map
+        // button is the simplest: it toggles m_standaloneMinimap visibility.
+        // With the connect commented out, clicking does nothing and the check
+        // fails. Drive the real production path, not a direct slot call.
+        dlg.m_mapButton->click();
+        check(dlg.m_standaloneMinimap->isVisible(),
+              "map button click shows the standalone minimap");
+        dlg.m_mapButton->click();
+        check(!dlg.m_standaloneMinimap->isVisible(),
+              "map button click again hides the standalone minimap");
+    }
+
     section("[26] Guild leveling");
     {
         // Join a guild, gain XP, level up.

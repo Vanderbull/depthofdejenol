@@ -85,9 +85,24 @@ void DungeonDialog::setupControls() {
     // Loop through and create them automatically
     for (auto it = buttonConfigs.begin(); it != buttonConfigs.end(); ++it) {
         QPushButton* btn = new QPushButton(it.key(), this);
-        connect(btn, SIGNAL(clicked()), this, it.value());
         m_controls.insert(it.key(), btn);
     }
+
+    // Assign member pointers for the buttons that have them
+    if (m_controls.contains("Fight"))        m_fightButton = m_controls["Fight"];
+    if (m_controls.contains("Spell"))        m_spellButton = m_controls["Spell"];
+    if (m_controls.contains("Rest"))         m_restButton = m_controls["Rest"];
+    if (m_controls.contains("Talk"))         m_talkButton = m_controls["Talk"];
+    if (m_controls.contains("Search"))       m_searchButton = m_controls["Search"];
+    if (m_controls.contains("Pickup"))       m_pickupButton = m_controls["Pickup"];
+    if (m_controls.contains("Drop"))         m_dropButton = m_controls["Drop"];
+    if (m_controls.contains("Open"))         m_openButton = m_controls["Open"];
+    if (m_controls.contains("Map"))          m_mapButton = m_controls["Map"];
+    if (m_controls.contains("Chest"))        m_chestButton = m_controls["Chest"];
+    if (m_controls.contains("Exit"))         m_exitButton = m_controls["Exit"];
+    if (m_controls.contains("Teleport"))     m_teleportButton = m_controls["Teleport"];
+    if (m_controls.contains("Stairs Up"))    m_stairsUpButton = m_controls["Stairs Up"];
+    if (m_controls.contains("Stairs Down"))  m_stairsDownButton = m_controls["Stairs Down"];
 }
 
 
@@ -1035,21 +1050,21 @@ DungeonDialog::DungeonDialog(QWidget *parent)
     connect(m_rotateRightButton, &QPushButton::clicked, this, &DungeonDialog::on_rotateRightButton_clicked);
     connect(m_backtrackButton, &QPushButton::clicked, this, &DungeonDialog::on_backtrackButton_clicked);
     // Connections (Actions)
-//    connect(m_fightButton, &QPushButton::clicked, this, &DungeonDialog::on_fightButton_clicked);
-//    connect(m_spellButton, &QPushButton::clicked, this, &DungeonDialog::on_spellButton_clicked);
-//    connect(m_restButton, &QPushButton::clicked, this, &DungeonDialog::on_restButton_clicked);
-//    connect(m_talkButton, &QPushButton::clicked, this, &DungeonDialog::on_talkButton_clicked);
-//    connect(m_searchButton, &QPushButton::clicked, this, &DungeonDialog::on_searchButton_clicked);
-//    connect(m_pickupButton, &QPushButton::clicked, this, &DungeonDialog::on_pickupButton_clicked);
-//    connect(m_dropButton, &QPushButton::clicked, this, &DungeonDialog::on_dropButton_clicked);
-//    connect(m_openButton, &QPushButton::clicked, this, &DungeonDialog::on_openButton_clicked);
-//    connect(m_mapButton, &QPushButton::clicked, this, &DungeonDialog::on_mapButton_clicked);
-//    connect(m_chestButton, &QPushButton::clicked, this, &DungeonDialog::on_chestButton_clicked);
-//    connect(m_exitButton, &QPushButton::clicked, this, &DungeonDialog::on_exitButton_clicked);
-//    connect(m_teleportButton, &QPushButton::clicked, this, &DungeonDialog::on_teleportButton_clicked);
+    connect(m_fightButton, &QPushButton::clicked, this, &DungeonDialog::on_fightButton_clicked);
+    connect(m_spellButton, &QPushButton::clicked, this, &DungeonDialog::on_spellButton_clicked);
+    connect(m_restButton, &QPushButton::clicked, this, &DungeonDialog::on_restButton_clicked);
+    connect(m_talkButton, &QPushButton::clicked, this, &DungeonDialog::on_talkButton_clicked);
+    connect(m_searchButton, &QPushButton::clicked, this, &DungeonDialog::on_searchButton_clicked);
+    connect(m_pickupButton, &QPushButton::clicked, this, &DungeonDialog::on_pickupButton_clicked);
+    connect(m_dropButton, &QPushButton::clicked, this, &DungeonDialog::on_dropButton_clicked);
+    connect(m_openButton, &QPushButton::clicked, this, &DungeonDialog::on_openButton_clicked);
+    connect(m_mapButton, &QPushButton::clicked, this, &DungeonDialog::on_mapButton_clicked);
+    connect(m_chestButton, &QPushButton::clicked, this, &DungeonDialog::on_chestButton_clicked);
+    connect(m_exitButton, &QPushButton::clicked, this, &DungeonDialog::on_exitButton_clicked);
+    connect(m_teleportButton, &QPushButton::clicked, this, &DungeonDialog::on_teleportButton_clicked);
     // Connections (Stairs)
-//    connect(stairsDownButton, &QPushButton::clicked, this, &DungeonDialog::on_stairsDownButton_clicked);
-//    connect(stairsUpButton, &QPushButton::clicked, this, &DungeonDialog::on_stairsUpButton_clicked);
+    connect(m_stairsDownButton, &QPushButton::clicked, this, &DungeonDialog::on_stairsDownButton_clicked);
+    connect(m_stairsUpButton, &QPushButton::clicked, this, &DungeonDialog::on_stairsUpButton_clicked);
     // --- Finalize the viewport ---
     // The wireframe renderer draws into a logical 300x300 coordinate space.
     // Pin the scene rect so the view can scale it up to fill the window.

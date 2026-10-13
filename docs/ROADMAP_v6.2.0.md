@@ -1,6 +1,6 @@
 # v6.2.0 — Dungeon floor fidelity & theme application
 
-## Status: COMPLETE
+## Status: SUPERSEDED by v6.3.0
 
 Audit run after v6.1.0. v6.0.0–v6.1.0 fixed *numeric balance* and *spell
 wiring*; this release fixes the one class of problems that keeps looping back:

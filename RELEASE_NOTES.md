@@ -1,6 +1,15 @@
 # Release Notes
 
-**Latest:** v6.2.0 — Dungeon Floor Fidelity & Theme Application
+**Latest:** v6.3.0 — UI Wiring Repair
+
+## v6.3.0 — UI Wiring Repair (2026-10-13)
+
+Restored UI controls that were implemented but unreachable.
+
+- DungeonDialog: restored 14 commented-out action connects (fight, spell, rest, talk, search, pickup, drop, open, map, chest, exit, teleport, stairs up/down). Added missing member pointer declarations and assigned them from `m_controls`.
+- library_dialog: removed redundant commented-out `bookList` connect (already covered by a `currentItemChanged` lambda).
+- Audited disabled buttons in 5 dialogs — all are intentional and enable under the correct conditions. No changes needed.
+- Verified AgingRules wiring: `applyYearOfAging(pc, 0)` is called after `incrementPartyAge` already advanced the age, so `years=0` correctly avoids double-aging.
 
 ## v6.2.0 — Dungeon Floor Fidelity & Theme Application (2026-10-13)
 

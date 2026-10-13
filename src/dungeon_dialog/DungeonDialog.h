@@ -179,6 +179,18 @@ public:
     QPushButton *m_rotateRightButton;
     QPushButton *m_stairsUpButton;
     QPushButton *m_stairsDownButton;
+    QPushButton *m_fightButton = nullptr;
+    QPushButton *m_spellButton = nullptr;
+    QPushButton *m_restButton = nullptr;
+    QPushButton *m_talkButton = nullptr;
+    QPushButton *m_searchButton = nullptr;
+    QPushButton *m_pickupButton = nullptr;
+    QPushButton *m_dropButton = nullptr;
+    QPushButton *m_openButton = nullptr;
+    QPushButton *m_mapButton = nullptr;
+    QPushButton *m_chestButton = nullptr;
+    QPushButton *m_exitButton = nullptr;
+    QPushButton *m_teleportButton = nullptr;
     // Experience Management Members
     QLabel *m_experienceLabel;
     void updateExperienceLabel();
