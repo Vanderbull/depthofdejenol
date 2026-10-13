@@ -41,7 +41,7 @@ class QTimer;
 struct FloorTheme;
 
 // Define MAP_SIZE here to resolve initialization errors in the class definition
-const int MAP_SIZE = 30; 
+const int MAP_SIZE = 50; 
 struct TilePos {
     int x, y, z;
     bool operator==(const TilePos& other) const {
@@ -103,6 +103,7 @@ private slots:
     void on_talkButton_clicked();
     void on_stairsDownButton_clicked();
     void on_stairsUpButton_clicked();
+    void on_stairsLowerButton_clicked();
     void on_chestButton_clicked();
     void onEventTriggered(const GameEvent& event);
     void initiateFight();
@@ -179,6 +180,7 @@ public:
     QPushButton *m_rotateRightButton;
     QPushButton *m_stairsUpButton;
     QPushButton *m_stairsDownButton;
+    QPushButton *m_stairsLowerButton = nullptr;
     QPushButton *m_fightButton = nullptr;
     QPushButton *m_spellButton = nullptr;
     QPushButton *m_restButton = nullptr;
@@ -307,7 +309,19 @@ public:
     QMap<TilePos, QString> m_monsterPositions3D;
     QMap<TilePos, QString> m_treasurePositions3D;
     QSet<QPair<int, int>> m_obstaclePositions;
-    void generateRandomObstacles(int obstacleCount, QRandomGenerator& rng);
+    QList<QPair<int, int>> m_roomCenters;
+    QVector<QVector<int>> m_zoneMap;
+    QList<QPair<int, int>> m_zoneCenters;
+    QSet<QPair<int, int>> m_lowerLevelTiles;
+    QPair<int, int> m_lowerStairsUpPosition;
+    int m_currentLevel = 1;
+    bool m_onLowerLevel = false;
+    void generateRandomObstacles(int roomCount, QRandomGenerator& rng);
+    void bspSplit(struct BspNode* node, QRandomGenerator& rng, int depth);
+    void bspPlaceRoom(struct BspNode* node, QRandomGenerator& rng);
+    void bspConnect(struct BspNode* node, QRandomGenerator& rng);
+    void assignZones(QRandomGenerator& rng);
+    void generateMultiLevelRooms(QRandomGenerator& rng);
     void generateStairs(QRandomGenerator& rng); 
     void generateSpecialTiles(int tileCount, QRandomGenerator& rng, const FloorTheme* theme = nullptr);
     QPair<int, int> m_stairsUpPosition; 
@@ -356,7 +370,7 @@ public:
     // Main first-person wireframe view (fills the left panel).
     QGraphicsView* m_graphicsView;
     void fitViewport();
-    bool isWallAt(int x, int y);
+    bool isWallAt(int x, int y, int z = 0);
     bool isWallAtSide(int x, int y, const QString& side);
     void renderWireframeView();
     void drawBrickPattern(const QPolygon& wallPoly, int depth);

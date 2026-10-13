@@ -536,78 +536,213 @@ void DungeonDialog::updateLocation(const QString& location)
     m_locationLabel->setText(location);
 }
 
+// BSP (Binary Space Partitioning) node for more natural cavern layouts
+struct BspNode {
+    int x, y, w, h;
+    BspNode* left = nullptr;
+    BspNode* right = nullptr;
+    int roomX = 0, roomY = 0, roomW = 0, roomH = 0;
+    bool hasRoom = false;
+    ~BspNode() { delete left; delete right; }
+};
+
+void DungeonDialog::bspSplit(BspNode* node, QRandomGenerator& rng, int depth)
+{
+    const int MIN_SIZE = 8;
+    if (depth <= 0 || (node->w < MIN_SIZE * 2 && node->h < MIN_SIZE * 2)) return;
+    bool splitH = node->w < node->h ? true : (node->h < node->w ? false : rng.bounded(2) == 0);
+    if (splitH) {
+        int split = rng.bounded(MIN_SIZE, node->h - MIN_SIZE);
+        node->left = new BspNode{node->x, node->y, node->w, split};
+        node->right = new BspNode{node->x, node->y + split, node->w, node->h - split};
+    } else {
+        int split = rng.bounded(MIN_SIZE, node->w - MIN_SIZE);
+        node->left = new BspNode{node->x, node->y, split, node->h};
+        node->right = new BspNode{node->x + split, node->y, node->w - split, node->h};
+    }
+    bspSplit(node->left, rng, depth - 1);
+    bspSplit(node->right, rng, depth - 1);
+}
+
+void DungeonDialog::bspPlaceRoom(BspNode* node, QRandomGenerator& rng)
+{
+    if (!node) return;
+    if (node->left || node->right) {
+        bspPlaceRoom(node->left, rng);
+        bspPlaceRoom(node->right, rng);
+        return;
+    }
+    // Place a room inside this leaf node with 1-tile padding
+    int maxW = node->w - 2, maxH = node->h - 2;
+    if (maxW < 3 || maxH < 3) return;
+    node->roomW = rng.bounded(qMin(6, maxW), qMin(maxW, 10));
+    node->roomH = rng.bounded(qMin(6, maxH), qMin(maxH, 10));
+    node->roomX = node->x + rng.bounded(1, node->w - node->roomW - 1);
+    node->roomY = node->y + rng.bounded(1, node->h - node->roomH - 1);
+    node->hasRoom = true;
+    for (int rx = node->roomX; rx < node->roomX + node->roomW; ++rx)
+        for (int ry = node->roomY; ry < node->roomY + node->roomH; ++ry)
+            m_obstaclePositions.remove({rx, ry});
+    m_roomFloorTiles.insert(QPair<int, int>(node->roomX + node->roomW / 2, node->roomY + node->roomH / 2));
+    // Store room for corridor connections
+    m_roomCenters.append({node->roomX + node->roomW / 2, node->roomY + node->roomH / 2});
+}
+
+void DungeonDialog::bspConnect(BspNode* node, QRandomGenerator& rng)
+{
+    if (!node || !node->left || !node->right) return;
+    bspConnect(node->left, rng);
+    bspConnect(node->right, rng);
+    // Connect left and right subtrees with an L-shaped corridor (2 tiles wide)
+    QList<QPair<int, int>> leftCenters, rightCenters;
+    std::function<void(BspNode*, QList<QPair<int,int>>&)> collect = [&](BspNode* n, QList<QPair<int,int>>& out) {
+        if (!n) return;
+        if (n->hasRoom) out.append({n->roomX + n->roomW/2, n->roomY + n->roomH/2});
+        collect(n->left, out);
+        collect(n->right, out);
+    };
+    collect(node->left, leftCenters);
+    collect(node->right, rightCenters);
+    if (leftCenters.isEmpty() || rightCenters.isEmpty()) return;
+    // Pick a random pair to connect
+    auto a = leftCenters[rng.bounded(leftCenters.size())];
+    auto b = rightCenters[rng.bounded(rightCenters.size())];
+    // L-shaped corridor: horizontal then vertical, 2 tiles wide
+    int midX = (a.first + b.first) / 2;
+    int x1 = qMin(a.first, midX), x2 = qMax(a.first, midX);
+    for (int x = x1; x <= x2; ++x)
+        for (int dy = 0; dy < 2; ++dy)
+            m_obstaclePositions.remove({x, a.second + dy});
+    int y1 = qMin(a.second, b.second), y2 = qMax(a.second, b.second);
+    for (int y = y1; y <= y2; ++y)
+        for (int dx = 0; dx < 2; ++dx)
+            m_obstaclePositions.remove({midX + dx, y});
+    // Also connect via vertical-first for more natural paths
+    int midY = (a.second + b.second) / 2;
+    int vy1 = qMin(a.second, midY), vy2 = qMax(a.second, midY);
+    for (int y = vy1; y <= vy2; ++y)
+        for (int dx = 0; dx < 2; ++dx)
+            m_obstaclePositions.remove({a.first + dx, y});
+    int vx1 = qMin(a.first, b.first), vx2 = qMax(a.first, b.first);
+    for (int x = vx1; x <= vx2; ++x)
+        for (int dy = 0; dy < 2; ++dy)
+            m_obstaclePositions.remove({x, midY + dy});
+}
+
+// Zone types for thematic floor sections
+enum class ZoneType { Cells, Caverns, Temple, Lair };
+
+void DungeonDialog::assignZones(QRandomGenerator& rng)
+{
+    // Divide the map into 3-4 thematic zones based on position.
+    // West = Cells (prison), Center = Caverns (natural), East = Temple (ritual).
+    // Deeper floors add a Lair zone in the far corner.
+    int zoneCount = (m_currentLevel >= 5) ? 4 : 3;
+    m_zoneMap.clear();
+    m_zoneMap.resize(MAP_SIZE, QVector<int>(MAP_SIZE, -1));
+    // Simple zone assignment by x-coordinate bands
+    int bandWidth = MAP_SIZE / zoneCount;
+    for (int x = 0; x < MAP_SIZE; ++x) {
+        int zone = qMin(x / bandWidth, zoneCount - 1);
+        for (int y = 0; y < MAP_SIZE; ++y) {
+            if (!m_obstaclePositions.contains({x, y}))
+                m_zoneMap[x][y] = zone;
+        }
+    }
+    // Store zone centers for monster/treasure placement
+    m_zoneCenters.clear();
+    for (int z = 0; z < zoneCount; ++z) {
+        QList<QPair<int, int>> zoneTiles;
+        for (int x = 0; x < MAP_SIZE; ++x)
+            for (int y = 0; y < MAP_SIZE; ++y)
+                if (m_zoneMap[x][y] == z)
+                    zoneTiles.append({x, y});
+        if (!zoneTiles.isEmpty()) {
+            // Pick a central tile in this zone
+            int midIdx = zoneTiles.size() / 2;
+            m_zoneCenters.append(zoneTiles[midIdx]);
+        }
+    }
+}
+
+void DungeonDialog::generateMultiLevelRooms(QRandomGenerator& rng)
+{
+    // Add multi-level rooms: rooms with z-levels connected by stairs.
+    // These are placed in the largest BSP rooms and add verticality.
+    if (m_roomCenters.size() < 4) return; // Need enough rooms
+    // Pick 1-2 rooms to be multi-level (deeper floors get more)
+    int multiLevelCount = (m_currentLevel >= 8) ? 2 : 1;
+    for (int i = 0; i < multiLevelCount && i < m_roomCenters.size(); ++i) {
+        int idx = rng.bounded(m_roomCenters.size());
+        QPair<int, int> center = m_roomCenters[idx];
+        // Create a lower level (z=-1) room beneath this room
+        int lowerW = rng.bounded(3, 6);
+        int lowerH = rng.bounded(3, 6);
+        int lowerX = center.first - lowerW / 2;
+        int lowerY = center.second - lowerH / 2;
+        // Carve the lower level (stored in m_lowerLevelTiles)
+        for (int rx = lowerX; rx < lowerX + lowerW; ++rx)
+            for (int ry = lowerY; ry < lowerY + lowerH; ++ry)
+                if (rx > 0 && ry > 0 && rx < MAP_SIZE - 1 && ry < MAP_SIZE - 1)
+                    m_lowerLevelTiles.insert(QPair<int, int>(rx, ry));
+        // Place stairs down in the center of the upper room
+        m_stairsDownPosition = center;
+        // Place stairs up in the center of the lower room
+        m_lowerStairsUpPosition = {lowerX + lowerW / 2, lowerY + lowerH / 2};
+    }
+}
+
 void DungeonDialog::generateRandomObstacles(int roomCount, QRandomGenerator& rng)
 {
     m_obstaclePositions.clear();
+    m_roomFloorTiles.clear();
+    m_roomCenters.clear();
     // 1. Fill entire map with rock
     for (int x = 0; x < MAP_SIZE; ++x)
         for (int y = 0; y < MAP_SIZE; ++y)
             m_obstaclePositions.insert({x, y});
     struct Room { int x, y, w, h; };
     QList<Room> rooms;
-    QList<Room> processingQueue;
-    // 2. Start Room in a random corner
-    int startX = rng.bounded(2) == 0 ? 1 : MAP_SIZE - 6;
-    int startY = rng.bounded(2) == 0 ? 1 : MAP_SIZE - 6;
-    Room seed = {startX, startY, rng.bounded(3, 5), rng.bounded(3, 5)};
-    for (int rx = seed.x; rx < seed.x + seed.w; ++rx)
-        for (int ry = seed.y; ry < seed.y + seed.h; ++ry)
-            m_obstaclePositions.remove({rx, ry});
-    rooms.append(seed);
-    processingQueue.append(seed);
-    int roomsCreated = 1;
-    // 3. Sprout until we hit the target count or run out of space
-    while (!processingQueue.isEmpty() && roomsCreated < roomCount) {
-        // Pick a room from the queue (shuffling makes it more "web-like")
-        int idx = rng.bounded(processingQueue.size());
-        Room current = processingQueue.takeAt(idx);
-        // Try to sprout in all 4 directions
-        QList<int> directions = {0, 1, 2, 3};
-        for(int i=0; i<4; ++i) { // Randomize direction order
-            int swapIdx = rng.bounded(4);
-            directions.swapItemsAt(i, swapIdx);
-        }
-        for (int dir : directions) {
-            if (roomsCreated >= roomCount) break;
-            int corridorLen = rng.bounded(2, 5); // Shorter corridors allow more rooms
-            int newW = rng.bounded(3, 6);
-            int newH = rng.bounded(3, 6);
-            int cX = current.x + current.w / 2;
-            int cY = current.y + current.h / 2;
-            int endX = cX, endY = cY;
-            int roomX = 0, roomY = 0;
-            // Direction Logic
-            if (dir == 0) { // North
-                endY = current.y - corridorLen;
-                roomX = endX - newW / 2; roomY = endY - newH;
-            } else if (dir == 1) { // East
-                endX = current.x + current.w + corridorLen;
-                roomY = endY - newH / 2; roomX = endX;
-            } else if (dir == 2) { // South
-                endY = current.y + current.h + corridorLen;
-                roomX = endX - newW / 2; roomY = endY;
-            } else { // West
-                endX = current.x - corridorLen;
-                roomY = endY - newH / 2; roomX = endX - newW;
-            }
-            // Boundary and Overlap Check
-            if (roomX > 0 && roomY > 0 && roomX + newW < MAP_MAX && roomY + newH < MAP_MAX) {
-                bool overlaps = false;
-                for (const auto& r : rooms) {
-                    // Using 1-tile buffer to keep corridors distinct
-                    if (roomX < r.x + r.w + 1 && roomX + newW > r.x - 1 && 
-                        roomY < r.y + r.h + 1 && roomY + newH > r.y - 1) {
-                        overlaps = true; break;
-                    }
+    // 2. BSP-based generation for more natural cavern layouts
+    BspNode* root = new BspNode{1, 1, MAP_SIZE - 2, MAP_SIZE - 2};
+    bspSplit(root, rng, 4);
+    bspPlaceRoom(root, rng);
+    bspConnect(root, rng);
+    // 3. Add a few extra rooms via the sprouting method for variety
+    QList<QPair<int, int>> sproutPoints = m_roomCenters;
+    int extraRooms = roomCount / 3;
+    int roomsCreated = m_roomCenters.size();
+    while (!sproutPoints.isEmpty() && roomsCreated < roomCount) {
+        int idx = rng.bounded(sproutPoints.size());
+        QPair<int, int> current = sproutPoints.takeAt(idx);
+        int corridorLen = rng.bounded(2, 5);
+        int newW = rng.bounded(3, 6);
+        int newH = rng.bounded(3, 6);
+        int cX = current.first, cY = current.second;
+        int endX = cX, endY = cY;
+        int roomX = 0, roomY = 0;
+        int dir = rng.bounded(4);
+        if (dir == 0) { endY = cY - corridorLen; roomX = endX - newW / 2; roomY = endY - newH; }
+        else if (dir == 1) { endX = cX + corridorLen; roomY = endY - newH / 2; roomX = endX; }
+        else if (dir == 2) { endY = cY + corridorLen; roomX = endX - newW / 2; roomY = endY; }
+        else { endX = cX - corridorLen; roomY = endY - newH / 2; roomX = endX - newW; }
+        if (roomX > 0 && roomY > 0 && roomX + newW < MAP_MAX && roomY + newH < MAP_MAX) {
+            bool overlaps = false;
+            for (const auto& r : rooms) {
+                if (roomX < r.x + r.w + 1 && roomX + newW > r.x - 1 &&
+                    roomY < r.y + r.h + 1 && roomY + newH > r.y - 1) {
+                    overlaps = true; break;
                 }
-                if (!overlaps) {
-                    // Carve Corridor
-                    int stepX = cX, stepY = cY;
-                    while (stepX != endX || stepY != endY) {
-                        if (stepX < endX) stepX++; else if (stepX > endX) stepX--;
-                        if (stepY < endY) stepY++; else if (stepY > endY) stepY--;
-                        m_obstaclePositions.remove({stepX, stepY});
-                    }
+            }
+            if (!overlaps) {
+                Room newRoom = {roomX, roomY, newW, newH};
+                rooms.append(newRoom);
+                int stepX = cX, stepY = cY;
+                while (stepX != endX || stepY != endY) {
+                    if (stepX < endX) stepX++; else if (stepX > endX) stepX--;
+                    if (stepY < endY) stepY++; else if (stepY > endY) stepY--;
+                    m_obstaclePositions.remove({stepX, stepY});
+                }
                     // Carve Room
                     Room nextRoom = {roomX, roomY, newW, newH};
                     for (int rx = roomX; rx < roomX + newW; ++rx) {
@@ -617,15 +752,17 @@ void DungeonDialog::generateRandomObstacles(int roomCount, QRandomGenerator& rng
                         }
                     }
                     rooms.append(nextRoom);
-                    processingQueue.append(nextRoom);
+                    m_roomCenters.append({roomX + newW / 2, roomY + newH / 2});
                     roomsCreated++;
                 }
             }
-        }
     }
-    // Start player in the first room created
-    gameStateManager::instance()->setGameValue("DungeonX", rooms[0].x + 1);
-    gameStateManager::instance()->setGameValue("DungeonY", rooms[0].y + 1);
+    delete root;
+    // Start player in the first room center
+    if (!m_roomCenters.isEmpty()) {
+        gameStateManager::instance()->setGameValue("DungeonX", m_roomCenters[0].first);
+        gameStateManager::instance()->setGameValue("DungeonY", m_roomCenters[0].second);
+    }
 }
 
 void DungeonDialog::generateStairs(QRandomGenerator& rng)
@@ -634,14 +771,51 @@ void DungeonDialog::generateStairs(QRandomGenerator& rng)
     int currentX = gsm->getGameValue("DungeonX").toInt();
     int currentY = gsm->getGameValue("DungeonY").toInt();
     QPair<int, int> currentPos = {currentX, currentY};
-    do {
-        m_stairsUpPosition = {rng.bounded(MAP_SIZE), rng.bounded(MAP_SIZE)};
-        //m_stairsUpPosition = {QRandomGenerator::global()->bounded(MAP_SIZE), QRandomGenerator::global()->bounded(MAP_SIZE)};
-    } while (m_stairsUpPosition == currentPos || m_obstaclePositions.contains(m_stairsUpPosition));
-    do {
-        m_stairsDownPosition = {rng.bounded(MAP_SIZE), rng.bounded(MAP_SIZE)};
-        //m_stairsDownPosition = {QRandomGenerator::global()->bounded(MAP_SIZE), QRandomGenerator::global()->bounded(MAP_SIZE)};
-    } while (m_stairsDownPosition == currentPos || m_stairsDownPosition == m_stairsUpPosition || m_obstaclePositions.contains(m_stairsDownPosition));
+
+    // Place stairs in room centers for guaranteed reachability.
+    // Stairs Up goes in the start room (rooms[0]); Stairs Down goes in the
+    // farthest room from the start — the natural "goal" of the floor.
+    if (m_roomFloorTiles.isEmpty()) {
+        // Fallback: random floor tile (should not happen on a generated map)
+        do {
+            m_stairsUpPosition = {rng.bounded(MAP_SIZE), rng.bounded(MAP_SIZE)};
+        } while (m_stairsUpPosition == currentPos || m_obstaclePositions.contains(m_stairsUpPosition));
+        do {
+            m_stairsDownPosition = {rng.bounded(MAP_SIZE), rng.bounded(MAP_SIZE)};
+        } while (m_stairsDownPosition == currentPos || m_stairsDownPosition == m_stairsUpPosition || m_obstaclePositions.contains(m_stairsDownPosition));
+        m_obstaclePositions.remove(m_stairsUpPosition);
+        m_obstaclePositions.remove(m_stairsDownPosition);
+        return;
+    }
+
+    // Find the start room center (closest to currentPos)
+    QPair<int, int> startRoomCenter = currentPos;
+    int minDist = INT_MAX;
+    for (const auto& tile : m_roomFloorTiles.values()) {
+        int dx = tile.first - currentPos.first;
+        int dy = tile.second - currentPos.second;
+        int dist = dx * dx + dy * dy;
+        if (dist < minDist) {
+            minDist = dist;
+            startRoomCenter = tile;
+        }
+    }
+    m_stairsUpPosition = startRoomCenter;
+
+    // Find the farthest room center from the start
+    QPair<int, int> farthestRoomCenter = startRoomCenter;
+    int maxDist = -1;
+    for (const auto& tile : m_roomFloorTiles.values()) {
+        int dx = tile.first - startRoomCenter.first;
+        int dy = tile.second - startRoomCenter.second;
+        int dist = dx * dx + dy * dy;
+        if (dist > maxDist) {
+            maxDist = dist;
+            farthestRoomCenter = tile;
+        }
+    }
+    m_stairsDownPosition = farthestRoomCenter;
+
     m_obstaclePositions.remove(m_stairsUpPosition);
     m_obstaclePositions.remove(m_stairsDownPosition);
 }
@@ -1033,14 +1207,17 @@ DungeonDialog::DungeonDialog(QWidget *parent)
     moveLayout->addWidget(m_backtrackButton, 2, 0, 1, 3);
     rightPanelLayout->addWidget(moveBox);
     // 6. Stairs Buttons
-    //QHBoxLayout *stairsLayout = new QHBoxLayout();
-    //QPushButton *stairsUpButton = new QPushButton("Stairs Up");
-    //QPushButton *stairsDownButton = new QPushButton("Stairs Down");
-    //stairsLayout->addWidget(stairsUpButton);
-    //stairsLayout->addWidget(stairsDownButton);
-    //rightPanelLayout->addLayout(stairsLayout);
-    // 6. Stairs Buttons
-    //QHBoxLayout *stairsLayout = new QHBoxLayout();
+    m_stairsUpButton = new QPushButton("Stairs Up");
+    m_stairsDownButton = new QPushButton("Stairs Down");
+    m_stairsLowerButton = new QPushButton("Stairs Lower");
+    m_stairsUpButton->setToolTip("Ascend to previous floor");
+    m_stairsDownButton->setToolTip("Descend to next floor");
+    m_stairsLowerButton->setToolTip("Descend to lower level (multi-level room)");
+    QHBoxLayout *stairsLayout = new QHBoxLayout();
+    stairsLayout->addWidget(m_stairsUpButton);
+    stairsLayout->addWidget(m_stairsDownButton);
+    stairsLayout->addWidget(m_stairsLowerButton);
+    rightPanelLayout->addLayout(stairsLayout);
     // Connections (Movements)
     connect(m_upButton, &QPushButton::clicked, this, &DungeonDialog::moveForward);
     connect(m_downButton, &QPushButton::clicked, this, &DungeonDialog::moveBackward);
@@ -1065,6 +1242,12 @@ DungeonDialog::DungeonDialog(QWidget *parent)
     // Connections (Stairs)
     connect(m_stairsDownButton, &QPushButton::clicked, this, &DungeonDialog::on_stairsDownButton_clicked);
     connect(m_stairsUpButton, &QPushButton::clicked, this, &DungeonDialog::on_stairsUpButton_clicked);
+    // Multi-level room: stairs to lower level
+    connect(m_stairsLowerButton, &QPushButton::clicked, this, &DungeonDialog::on_stairsLowerButton_clicked);
+    // Place the stairs lower button next to the other stairs buttons
+    m_stairsLowerButton->setToolTip("Descend to lower level (multi-level room)");
+    // Place the stairs lower button next to the other stairs buttons
+    m_stairsLowerButton->setToolTip("Descend to lower level (multi-level room)");
     // --- Finalize the viewport ---
     // The wireframe renderer draws into a logical 300x300 coordinate space.
     // Pin the scene rect so the view can scale it up to fill the window.
@@ -1230,10 +1413,14 @@ void DungeonDialog::enterLevel(int level, bool movingUp)
     QRandomGenerator levelRng(level + 12345);
     populateRandomTreasures(theme.treasureCount);
     // We pass a 'Room Count' instead of 'Obstacle Count'.
-    generateRandomObstacles(40, levelRng);
+    // Scale room count with depth: deeper floors are larger and more complex.
+    int roomCount = qBound(20, 15 + level * 3, 40);
+    generateRandomObstacles(roomCount, levelRng);
     // 2. Place Stairs and Special Tiles
     // These must be called AFTER generateRandomObstacles so they know where the floor is.
     generateStairs(levelRng);
+    assignZones(levelRng);
+    generateMultiLevelRooms(levelRng);
     // Scale the number of special tiles with the theme.
     generateSpecialTiles(theme.monsterCount + theme.trapCount, levelRng, &theme);
 
@@ -2465,17 +2652,39 @@ void DungeonDialog::on_stairsDownButton_clicked()
 void DungeonDialog::on_stairsUpButton_clicked()
 {
     gameStateManager* gsm = gameStateManager::instance();
-    QPair<int, int> currentPos = { 
-        gsm->getGameValue("DungeonX").toInt(), 
-        gsm->getGameValue("DungeonY").toInt() 
+    QPair<int, int> currentPos = {
+                gsm->getGameValue("DungeonX").toInt(),
+        gsm->getGameValue("DungeonY").toInt()
     };
 
     if (currentPos == m_stairsUpPosition) {
         logMessage("Taking shortcut: Climbing up...");
         transitionLevel(StairDirection::Up);
     }
+}
 
-    //transitionLevel(StairDirection::Up);
+void DungeonDialog::on_stairsLowerButton_clicked()
+{
+    gameStateManager* gsm = gameStateManager::instance();
+    QPair<int, int> currentPos = {
+        gsm->getGameValue("DungeonX").toInt(),
+        gsm->getGameValue("DungeonY").toInt()
+    };
+    if (currentPos == m_stairsDownPosition && !m_lowerLevelTiles.isEmpty()) {
+        logMessage("Descending to lower level...");
+        gsm->setGameValue("DungeonX", m_lowerStairsUpPosition.first);
+        gsm->setGameValue("DungeonY", m_lowerStairsUpPosition.second);
+        m_onLowerLevel = true;
+        renderWireframeView();
+        drawMinimap();
+    } else if (m_onLowerLevel) {
+        logMessage("Climbing back up...");
+        gsm->setGameValue("DungeonX", m_stairsDownPosition.first);
+        gsm->setGameValue("DungeonY", m_stairsDownPosition.second);
+        m_onLowerLevel = false;
+        renderWireframeView();
+        drawMinimap();
+    }
 }
 
 void DungeonDialog::on_openButton_clicked()
@@ -2685,10 +2894,14 @@ void DungeonDialog::processTreasureOpening()
         drawMinimap();
     }
 }
-bool DungeonDialog::isWallAt(int x, int y) {
+bool DungeonDialog::isWallAt(int x, int y, int z) {
     // Check if the coordinates are outside the map boundaries
     if (x < 0 || x >= MAP_SIZE || y < 0 || y >= MAP_SIZE) {
-        return true; 
+        return true;
+    }
+    // Multi-level: if on lower level (z=-1), use lower level tile set
+    if (z < 0 && !m_lowerLevelTiles.isEmpty()) {
+        return !m_lowerLevelTiles.contains({x, y});
     }
     // Check if the position is in our obstacle set
     return m_obstaclePositions.contains({x, y});
@@ -2712,7 +2925,7 @@ bool DungeonDialog::isWallAtSide(int x, int y, const QString& side) {
         targetY = (side == "left") ? y + 1 : y - 1;
     }
 
-    return isWallAt(targetX, targetY);
+    return isWallAt(targetX, targetY, m_onLowerLevel ? -1 : 0);
 }
 
 void DungeonDialog::renderWireframeView() {
@@ -2723,6 +2936,14 @@ void DungeonDialog::renderWireframeView() {
     int px = gsm->getGameValue("DungeonX").toInt();
     int py = gsm->getGameValue("DungeonY").toInt();
     QString facing = m_compassLabel->text();
+
+    // Multi-level rendering: if on lower level, show lower level tiles
+    QSet<QPair<int, int>> *activeObstacles = &m_obstaclePositions;
+    QSet<QPair<int, int>> *activeFloor = &m_roomFloorTiles;
+    if (m_onLowerLevel && !m_lowerLevelTiles.isEmpty()) {
+        activeObstacles = &m_lowerLevelTiles;
+        activeFloor = &m_lowerLevelTiles;
+    }
 
     const int w = 300; 
     const int h = 300;
@@ -2749,11 +2970,12 @@ void DungeonDialog::renderWireframeView() {
         int rx = tx - dy, ry = ty + dx; // Right tile relative to facing
 
         // Wall Checks
-        bool wallFront      = isWallAt(tx, ty);
+        int zLevel = gsm->getGameValue("DungeonZ").toInt();
+        bool wallFront      = isWallAt(tx, ty, zLevel);
         bool wallLeftSide   = isWallAtSide(tx, ty, "left");  // The plane parallel to you
         bool wallRightSide  = isWallAtSide(tx, ty, "right"); // The plane parallel to you
-        bool wallInLeftTile = isWallAt(lx, ly);              // The wall inside the side corridor
-        bool wallInRightTile = isWallAt(rx, ry);             // The wall inside the side corridor
+        bool wallInLeftTile = isWallAt(lx, ly, zLevel);      // The wall inside the side corridor
+        bool wallInRightTile = isWallAt(rx, ry, zLevel);     // The wall inside the side corridor
 
         // Screen coordinates for this depth
         int xL = xs[d];     int xR = w - xs[d];

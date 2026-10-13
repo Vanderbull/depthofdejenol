@@ -29,6 +29,13 @@ QStringList ReleaseInfo::releaseNotes() {
 
 QStringList ReleaseInfo::changes() {
     return {
+        "Larger dungeons: 50x50 tiles (was 30x30), more exploration space",
+        "BSP-based map generation for natural cavern layouts",
+        "Corridor network with loops and alternate routes",
+        "Thematic zones: cells, caverns, temple, lair",
+        "Multi-level rooms with lower level (z=-1) and stairs",
+        "Structural stair placement in room centers",
+        "Progressive complexity: room count scales with floor depth",
         "Combat is tactical: pick targets, see each monster, use front/back rows",
         "Level-ups grant spendable stat points; the pool persists",
         "The main quest chain advances from play and grants its rewards",
@@ -67,6 +74,7 @@ QString ReleaseInfo::banner() {
 
 QList<QPair<QString, QString>> ReleaseInfo::versionHistory() {
     return {
+        {"6.4.0", "2026-10-13 — Kartgenerering & nivåsystem: större karta (50x50), BSP-algoritm, korridorsnätverk, zon-indelning, multi-nivås rum, strukturell trapp-placering, progressiv komplexitet"},
         {"6.3.0", "2026-10-13 — UI Wiring Repair: restored 14 DungeonDialog action connects, removed redundant library_dialog connect, audited disabled buttons (all intentional), verified AgingRules wiring"},
         {"6.2.0", "2026-10-13 — Dungeon Floor Fidelity: theme-driven tile mix, monsterLevelBonus, fog/rotator/extinguisher tiles wired, dead declarations removed"},
         {"6.1.0", "2026-10-12 — Spell Wiring & Loot Integrity: unified spell resolution, Kill/Banish schools wired, DoT spells, monster loot from level+tier, removed dead awardBattleLoot"},

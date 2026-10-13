@@ -1,6 +1,26 @@
 # Release Notes
 
-**Latest:** v6.3.0 — UI Wiring Repair
+**Latest:** v6.4.0 — Kartgenerering & nivåsystem
+
+## v6.4.0 — Kartgenerering & nivåsystem (2026-10-13)
+
+Förbättrad kartgenerering och nivåsystem för mer variation och engagemang.
+
+### Fas 1 — Större karta, strukturell trappa, progressiv komplexitet
+- Kartstorlek: 30×30 → 50×50 (2500 tiles, mer utforskningsutrymme)
+- Trappor placeras strukturellt i rumscentraler (inte längre slumpmässigt)
+- Rumsantal skalar med nivådjupet: 18–40 rum (tidigare alltid 40)
+
+### Fas 2 — BSP-algoritm och korridorsnätverk
+- Binary Space Partitioning (BSP) för mer naturliga grottor
+- 2-bredds L-formade korridorer med loopar och alternativa vägar
+- Hybrid-modell: BSP struktur + sprouting för variation
+
+### Fas 3 — Zon-indelning, multi-nivås rum och bättre rendering
+- Tematiska zoner (celler, grottor, tempel, boningar) baserat på x-position
+- Multi-nivås rum med nedre nivå (z=-1) och trappor
+- `isWallAt` stödjer multi-nivås rendering med z-parameter
+- Ny `m_stairsLowerButton` för att navigera mellan nivåer
 
 ## v6.3.0 — UI Wiring Repair (2026-10-13)
 
