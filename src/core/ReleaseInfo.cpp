@@ -29,6 +29,12 @@ QStringList ReleaseInfo::releaseNotes() {
 
 QStringList ReleaseInfo::changes() {
     return {
+        "Options dialog rebuilt around the settings that actually do something: audio, autosave, automap reveal-all, combat speed, fullscreen, fonts, backup/restore",
+        "GameSettings is the single source of truth for player options; applyAll() runs at startup so a choice survives a restart",
+        "Cancel restores a snapshot taken when the dialog opened instead of leaving changes half applied",
+        "Backup/restore targets data/saves and data/characters into data/backup/<date>",
+        "The game's font now comes from Options and nothing else: GameSettings owns the default, gameStateManager no longer hard-codes one, and every stylesheet font rule was removed",
+        "fontManager only updates widgets that were inheriting the app font, so a picked font no longer clobbers a widget's own font",
         "Unified main-menu button sizes: Hall of Records, Options and Quit are now 55px like the action buttons",
         "Renamed the main-menu Exit button to Quit",
         "Removed the About dialog and its main-menu button; the footer is now Options and Exit",
@@ -86,6 +92,7 @@ QString ReleaseInfo::banner() {
 
 QList<QPair<QString, QString>> ReleaseInfo::versionHistory() {
     return {
+        {"6.6.0", "2026-10-14 — Rebuilt the Options dialog around settings that actually work, and made the game's font come from Options and nothing else (GameSettings owns the default, no hard-coded font, no stylesheet font rules); 1954 passed, 0 failed"},
         {"6.5.4", "2026-10-14 — Unified main-menu button sizes (Hall of Records/Options/Quit now 55px like the action buttons); renamed Exit to Quit; 1887→1891 checks, 0 failed"},
         {"6.5.3", "2026-10-14 — Removed the About dialog and the whole update system (UpdateManager/UpdateDialog + test drivers); dead Version.h; 1889→1887 checks, 0 failed"},
         {"6.5.2", "2026-10-14 — Removed the Help dialog and its main-menu button (908 lines); 1891→1889 checks, 0 failed"},

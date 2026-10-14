@@ -1,6 +1,34 @@
 # Release Notes
 
-**Latest:** v6.5.4 — Main-menu button sizes unified
+**Latest:** v6.6.0 — Options dialog rebuilt, font from Options only
+
+## v6.6.0 — Optionsdialogen ombyggd, font enbart från Options (2026-10-14)
+
+Minor: byggde om Options-dialogen kring inställningar som faktiskt gör något,
+och lade spelets font enbart i Options.
+
+### Ändringar
+- **Options-dialogen ombyggd** — bara kontroller som kopplats till ett reellt
+  system: ljud (musik/sfx/volym), autosave, automap reveal-all, stridshastighet,
+  fullscreen, fonter, backup/restore. De 8 döda checkboxarna är borttagna.
+- **`GameSettings`** är den enda källan till spelarens inställningar;
+  `applyAll()` körs vid start så att ett val överlever en omstart.
+- **Cancel** återställer en snapshot tagen när dialogen öppnades.
+- **Backup/restore** riktar in sig på `data/saves` och `data/characters` →
+  `data/backup/<datum>`.
+- **Fonten kommer från Options och inget annat** — `GameSettings` äger
+  standardfonten, `gameStateManager` hårdkodar inte längre någon font, och
+  samtliga font-regler (font-family/font-size/font-weight) är borttagna ur
+  `MainMenu.qss`, `theCity.qss`, `SeerDialog.qss`, `createcharacterdialog.qss`
+  och `style.qss`.
+- **`fontManager`** uppdaterar bara widgets som bara ärvde app-fonten, så att
+  en vald font inte längre klipper en widgets egen font (t.ex. titelns 28pt).
+
+### Tester
+- `[O1]`–`[O14]` nya, icke-vakuösa tests för Options-dialogen och fontflödet
+- Icke-vakuöst bekräftat: pekar man standardfonten på fel värde failar exakt
+  `[O13] Default restores the game's font`
+- Checkar: 1954 passed, 0 failed; `make check` grönt
 
 ## v6.5.4 — Knappstorlekar och Quit (2026-10-14)
 
