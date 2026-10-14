@@ -81,7 +81,7 @@ int runEquipmentTest()
         equipped = hero.equipItem(0, reason);
         check(equipped, "can equip guild-restricted item after joining guild");
     } else {
-        check(true, "no guild-restricted items found (skip)");
+        check(false, "the item database has no guild-restricted item to test with");
     }
 
     // --------------------------------------------------------------- report

@@ -506,25 +506,6 @@ void runCombatTests()
               QString::number(c.inventory.size()));
     }
     {
-        // isPlayerTurn returns false for monster turn.
-        CombatState cs;
-        CombatParticipant goblin; goblin.name = "Goblin"; goblin.isPlayer = false;
-        CombatParticipant warrior; warrior.name = "Warrior"; warrior.isPlayer = true;
-        cs.addParticipant(goblin);
-        cs.addParticipant(warrior);
-
-        TurnEngine te;
-        te.setCombatState(&cs);
-        CombatActions ca(&cs, &te);
-
-        te.startRound();
-        te.nextTurn();
-
-        // First turn could be either — just check it returns a valid bool
-        bool isPlayer = ca.isPlayerTurn();
-        check(isPlayer == true || isPlayer == false, "isPlayerTurn returns valid bool");
-    }
-    {
         // Attack dead target → refused.
         CombatState cs;
         CombatParticipant warrior; warrior.name = "Warrior"; warrior.isPlayer = true;
@@ -1431,42 +1412,6 @@ void runCombatTests()
         check(dropTable.contains(101), "drop table contains item 101");
         check(dropTable.contains(102), "drop table contains item 102");
         check(dropTable.contains(103), "drop table contains item 103");
-    }
-    {
-        // Loot: filtered by dungeon depth
-        QList<QVariantMap> monsterData;
-        QVariantMap orc;
-        orc["name"] = "Orc";
-        orc["levelFound"] = 3;
-        orc["goldFactor"] = 50;
-        orc["Item0"] = 101;
-        orc["Item1"] = 102;
-        monsterData.append(orc);
-
-        // Item data with floor requirements
-        QList<QVariantMap> itemData;
-        QVariantMap item1;
-        item1["id"] = 101;
-        item1["name"] = "Iron Sword";
-        item1["floor"] = 1;
-        item1["rarity"] = 1;
-        itemData.append(item1);
-
-        QVariantMap item2;
-        item2["id"] = 102;
-        item2["name"] = "Dragon Blade";
-        item2["floor"] = 5;
-        item2["rarity"] = 3;
-        itemData.append(item2);
-
-        // At depth 1: only Iron Sword can drop
-        QStringList loot = VictoryReward::calculateLoot("Orc", monsterData, 1);
-        // At depth 5: both can drop
-        QStringList lootDeep = VictoryReward::calculateLoot("Orc", monsterData, 5);
-
-        // Loot is random, but we can check that deep loot has more potential
-        // Just verify the function runs without crashing
-        check(true, "loot calculation runs");
     }
     {
         // Full victory flow: XP + gold + loot

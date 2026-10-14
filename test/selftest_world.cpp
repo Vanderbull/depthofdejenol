@@ -1282,15 +1282,6 @@ void runWorldTests()
         dlg->updatePlayerPosition(15, 25, "EAST");
         delete dlg;
     }
-    {
-        // Map button slot exists and is callable.
-        // We can't easily test the full DungeonDialog, but we can verify
-        // the automap_dialog.h header is included and the class is usable.
-        AutomapDialog dlg;
-        dlg.updatePlayerPosition(5, 5, "SOUTH");
-        check(true, "AutomapDialog updatePlayerPosition works");
-    }
-
 
     // ------------------------------------------- DungeonDialog action buttons are a grid
     // The 14 action buttons (Fight, Spell, Rest, ...) must render as a tidy 3-column
@@ -1951,7 +1942,6 @@ void runWorldTests()
         if (dlg.m_combatActions && monsterIdx >= 0) {
             QString result;
             dlg.m_combatActions->applySpellDamageBySchool(monsterIdx, "Fireball", 50, result);
-            check(true, "applySpellDamageBySchool executed without crash");
         }
 
         // The monster's HP must have changed (or it died).
@@ -2086,55 +2076,6 @@ void runWorldTests()
         int invAfter = gsm->getPartyMember(0).inventory.size();
         check(invAfter > invBefore, "loot item added to inventory");
         check(!gsm->getPartyMember(0).inventory.last().identified, "loot item is unidentified");
-    }
-
-    section("[82] v2.0.0 slice 2.4: VictoryReward returns loot for known monsters");
-    {
-        // VictoryReward::calculateLoot() returns item names for monsters with drop tables.
-        QList<QVariantMap> monsters;
-        QVariantMap goblin;
-        goblin["name"] = "Goblin";
-        goblin["levelFound"] = 1;
-        goblin["Item0"] = 8;  // Bronze Sword
-        goblin["Item1"] = 0;
-        goblin["Item2"] = 0;
-        goblin["Item3"] = 0;
-        goblin["Item4"] = 0;
-        goblin["Item5"] = 0;
-        goblin["Item6"] = 0;
-        goblin["Item7"] = 0;
-        goblin["Item8"] = 0;
-        goblin["Item9"] = 0;
-        monsters.append(goblin);
-
-        QStringList loot = VictoryReward::calculateLoot("Goblin", monsters, 1);
-        // Goblin has a Bronze Sword drop — may or may not drop based on chance
-        // Just verify it doesn't crash and returns a list
-        check(true, "calculateLoot returns without crash");
-    }
-
-    section("[83] v2.0.0 slice 2.4: loot filtered by dungeon depth");
-    {
-        // Items from deeper floors should not drop on floor 1.
-        QList<QVariantMap> monsters;
-        QVariantMap deepMonster;
-        deepMonster["name"] = "Deep Monster";
-        deepMonster["levelFound"] = 10;
-        deepMonster["Item0"] = 8;  // Bronze Sword (floor 1, should drop)
-        deepMonster["Item1"] = 0;
-        deepMonster["Item2"] = 0;
-        deepMonster["Item3"] = 0;
-        deepMonster["Item4"] = 0;
-        deepMonster["Item5"] = 0;
-        deepMonster["Item6"] = 0;
-        deepMonster["Item7"] = 0;
-        deepMonster["Item8"] = 0;
-        deepMonster["Item9"] = 0;
-        monsters.append(deepMonster);
-
-        // On floor 1, Bronze Sword (floor 1) should be available
-        QStringList loot = VictoryReward::calculateLoot("Deep Monster", monsters, 1);
-        check(true, "loot calculation works on floor 1");
     }
 
     // ------------------------------------------- v2.0.0 — slice 2.5: death flow
@@ -2612,77 +2553,6 @@ void runWorldTests()
         check(!actions.hasStatus(0, GameConstants::OnFire), "fire expired");
     }
 
-    section("[102] v2.0.0 slice 2.8: confusion causes friendly fire");
-    {
-        CombatState state;
-        CombatParticipant player;
-        player.name = "Confused Hero";
-        player.isPlayer = true;
-        player.isAlive = true;
-        player.hp = 20;
-        player.maxHp = 20;
-        state.addParticipant(player);
-
-        CombatParticipant ally;
-        ally.name = "Ally";
-        ally.isPlayer = true;
-        ally.isAlive = true;
-        ally.hp = 20;
-        ally.maxHp = 20;
-        state.addParticipant(ally);
-
-        TurnEngine engine;
-        engine.setCombatState(&state);
-        CombatActions actions(&state, &engine);
-
-        // Apply confusion manually
-        state.participant(0).confusionDuration = 3;
-        // 25% chance to hit ally — just verify it doesn't crash
-        for (int i = 0; i < 50; ++i) {
-            // attack logic with confusion would go here
-        }
-        check(true, "confusion mechanics don't crash");
-    }
-
-    section("[103] v2.0.0 slice 2.8: monster fire breath sets on fire");
-    {
-        CombatState state;
-        CombatParticipant monster;
-        monster.name = "Dragon";
-        monster.isPlayer = false;
-        monster.isAlive = true;
-        monster.hp = 50;
-        monster.maxHp = 50;
-        monster.canBreathFire = true;
-        monster.level = 5;
-        state.addParticipant(monster);
-
-        CombatParticipant player;
-        player.name = "Hero";
-        player.isPlayer = true;
-        player.isAlive = true;
-        player.hp = 20;
-        player.maxHp = 20;
-        state.addParticipant(player);
-
-        TurnEngine engine;
-        engine.setCombatState(&state);
-        CombatActions actions(&state, &engine);
-        MonsterAI ai(&state, &engine, &actions);
-
-        state.rollInitiative();
-        engine.startRound();
-        for (int i = 0; i < 10 && !ai.isMonsterTurn(); ++i) {
-            engine.nextTurn();
-        }
-
-        // Fire breath should set player on fire
-        ai.takeTurn();
-        // Player may be on fire if fire breath was used
-        // (AI decides randomly, so just verify no crash)
-        check(true, "monster fire breath doesn't crash");
-    }
-
     section("[104] v2.0.0 slice 2.8: poison kills at 0 HP");
     {
         CombatState state;
@@ -2799,29 +2669,6 @@ void runWorldTests()
         }
         check(item.identified, "item identified");
         check(item.name == "Iron Sword", "item renamed after identification");
-    }
-
-    section("[110] v2.0.0 slice 2.10: uncurse removes cursed flag");
-    {
-        const ItemDef* cursedDef = nullptr;
-        for (const ItemDef& def : ItemDatabase::instance().all()) {
-            if (def.cursed && def.equippable()) {
-                cursedDef = &def;
-                break;
-            }
-        }
-        if (cursedDef) {
-            HeldItem item;
-            item.name = cursedDef->name;
-            item.M4E97 = cursedDef->id;
-            item.identified = true;
-
-            // Uncurse: clear cursed flag (stored in item data)
-            // In the real game, this is done via GeneralStore
-            check(cursedDef->cursed, "item starts cursed");
-        } else {
-            check(true, "no cursed items found (skip)");
-        }
     }
 
     section("[111] v2.0.0 slice 2.10: identification cost from GoldSinks");
@@ -2942,7 +2789,7 @@ void runWorldTests()
             }
             check(found, "turning in a quest wrote a Completed entry");
         } else {
-            check(true, "no kill quest posted (skip)");
+            check(false, "the quest board offered no kill quest to test with");
         }
     }
 
@@ -4169,55 +4016,6 @@ void runWorldTests()
 
     // ------------------------------------------- v3.0.0 — slice 3.6: play-time tracking
 
-    section("[154] v3.0.0 slice 3.6: startPlayTime/playTimeSeconds returns non-zero");
-    {
-        gameStateManager* gsm = gameStateManager::instance();
-        gsm->startPlayTime();
-        // Give the timer a moment to accumulate
-        QThread::msleep(50);
-        const qint64 secs = gsm->playTimeSeconds();
-        check(secs >= 0, "playTimeSeconds is non-negative", QString::number(secs));
-        // stopPlayTime should freeze the value
-        gsm->stopPlayTime();
-        const qint64 frozen = gsm->playTimeSeconds();
-        check(frozen >= 0, "playTimeSeconds after stop is non-negative", QString::number(frozen));
-        // Restarting should reset to near-zero
-        gsm->startPlayTime();
-        const qint64 restarted = gsm->playTimeSeconds();
-        check(restarted >= 0, "restarted playTimeSeconds is non-negative", QString::number(restarted));
-        gsm->stopPlayTime();
-    }
-
-    section("[155] v3.0.0 slice 3.6: PlayTimeSeconds persists through save/load");
-    {
-        gameStateManager* gsm = gameStateManager::instance();
-        gsm->startPlayTime();
-        QThread::msleep(30);
-        gsm->stopPlayTime();
-
-        const qint64 beforeSave = gsm->playTimeSeconds();
-        check(beforeSave >= 0, "playTimeSeconds before save", QString::number(beforeSave));
-
-        gsm->saveFullGameState(kTestSave);
-
-        // Verify the save file contains PlayTimeSeconds
-        QFile f(savePath());
-        if (f.open(QIODevice::ReadOnly)) {
-            const QJsonObject doc = QJsonDocument::fromJson(f.readAll()).object();
-            check(doc.contains("PlayTimeSeconds"), "save file contains PlayTimeSeconds");
-            const qint64 savedVal = doc.value("PlayTimeSeconds").toVariant().toLongLong();
-            check(savedVal >= 0, "saved PlayTimeSeconds is non-negative", QString::number(savedVal));
-            f.close();
-        } else {
-            check(false, "save file readable");
-        }
-
-        // Load and verify the value survives
-        gsm->loadFullGameState(kTestSave);
-        const qint64 afterLoad = gsm->playTimeSeconds();
-        check(afterLoad >= 0, "playTimeSeconds after load", QString::number(afterLoad));
-    }
-
     // ------------------------------------------- v3.0.0 — slice 3.8: combat visual feedback
 
     section("[159] v3.0.0 slice 3.8: combatFxEnabled defaults to true");
@@ -4279,19 +4077,6 @@ void runWorldTests()
         dlg.m_monsterPositions.remove(pos);
         dlg.m_MonsterAttitude.remove("Fx Goblin");
         dlg.m_inCombat = false;
-    }
-
-    section("[161] v3.0.0 slice 3.8: flashCombatFx does not crash without combat group");
-    {
-        // Create a dialog but don't enter combat — m_combatGroup is null
-        // until combat starts. flashCombatFx should handle this gracefully.
-        DungeonDialog dlg;
-        dlg.resize(1280, 800);
-        for (int i = 0; i < 20; ++i) QApplication::processEvents();
-
-        // m_combatGroup is null — should be a no-op
-        dlg.flashCombatFx(true);
-        dlg.flashCombatFx(false);
     }
 
     // ------------------------------------------- v4.0.0 — slice 4.1: New Game Plus
@@ -6395,17 +6180,6 @@ void runWorldTests()
         members.clear();
     }
 
-    section("[278] v5.4.0 slice 5.3: arena combat state cleanup");
-    {
-        // Construct an ArenaDialog and verify it initializes without leaking
-        ArenaDialog dlg;
-        dlg.resize(600, 500);
-        for (int i = 0; i < 10; ++i) QApplication::processEvents();
-
-        check(true, "ArenaDialog constructs without crash");
-        dlg.close();
-    }
-
     section("[291] v6.1.0 slice 6.1a: dialog instant-kill is not 9999");
     {
         // The player Cast Spell path must use the same massive-damage rule as
@@ -6655,61 +6429,6 @@ void runWorldTests()
             // Result should be valid (damage >= 0 or -1 for failure, but not crash)
             check(dmg >= -1, "castSpellBySchool returns valid result");
         }
-    }
-
-    section("[280] v5.4.0 slice 5.5: arena item usage");
-    {
-        CombatState state;
-        TurnEngine engine;
-        CombatActions actions(&state, &engine);
-
-        CombatParticipant p; p.name = "TestHero"; p.isPlayer = true; p.hp = 10; p.maxHp = 50; p.isAlive = true;
-        state.addParticipant(p);
-
-        CombatParticipant m; m.name = "TestMonster"; m.isPlayer = false; m.hp = 30; m.maxHp = 30;
-        state.addParticipant(m);
-
-        state.rollInitiative();
-        state.startRound();
-
-        Character hero;
-        hero.name = "TestHero";
-        HeldItem potion;
-        potion.M4E97 = 1;
-        potion.name = "Healing Potion";
-        potion.M4ED4 = 0;
-        potion.M5467 = 0;
-        potion.identified = true;
-        hero.inventory.append(potion);
-        check(hero.inventory.size() == 1, "hero has 1 item");
-
-        if (actions.isPlayerTurn()) {
-            QString result;
-            bool used = actions.useItem(0, hero, result);
-            // Should return a valid result (true/false, not crash)
-            check(used == true || used == false, "useItem returns valid result");
-        }
-    }
-
-    section("[281] v5.4.0 slice 5.6: arena waves cleared tracking");
-    {
-        gameStateManager *gsm = gameStateManager::instance();
-        QVariant wavesBefore = gsm->getGameValue("ArenaWavesCleared");
-        int before = wavesBefore.toInt();
-
-        // Simulate clearing a wave
-        QVariantMap record;
-        record["type"] = "arena";
-        record["wavesCleared"] = 1;
-        QVariantList records = gsm->getGameValue("ArenaRecords").toList();
-        records.append(record);
-        gsm->setGameValue("ArenaRecords", records);
-
-        // ArenaWavesCleared should be updated when waves are cleared
-        // (this is tested after the full arena flow)
-        check(true, "arena waves cleared tracking is set up");
-
-        gsm->setGameValue("ArenaWavesCleared", before);
     }
 
 }

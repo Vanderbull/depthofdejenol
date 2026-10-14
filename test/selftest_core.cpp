@@ -817,22 +817,6 @@ void runCoreTests()
         check(!loaded.inventory[0].identified, "loot starts unidentified");
     }
     {
-        // Identify an item.
-        Character c;
-        c.name = "IdentTest";
-        HeldItem sword;
-        sword.name = "Unknown Sword";
-        sword.M4E97 = 8;
-        sword.identified = false;
-        c.inventory.append(sword);
-
-        QString result;
-        gsm->identifyItem(0, 0, result);
-        // Note: this uses the gsm party, not the local character.
-        // Test via gameStateManager instead.
-        check(true, "identifyItem callable");
-    }
-    {
         // gameStateManager: identifyItem.
         auto& members = gsm->getPartyMembers();
         if (!members.isEmpty()) {
