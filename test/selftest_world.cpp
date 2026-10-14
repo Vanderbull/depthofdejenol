@@ -1406,16 +1406,10 @@ void runWorldTests()
         }
     }
     {
-        // 0.6 — the version string must parse as a plain integer. UpdateManager
-        // compares builds with toInt(); a concatenated "v642<hash>" silently
-        // disables the update check.
+        // 0.6 — FULL_VERSION is the build version pushed to Lua as GameVersion.
+        // It carries a single "v" prefix (e.g. "v778") and nothing else.
         const QString v = QString::fromLatin1(GameConstants::FULL_VERSION);
         check(!v.isEmpty(), "FULL_VERSION is set", v);
-        QString digits = v;
-        if (digits.startsWith('v') || digits.startsWith('V')) digits.remove(0, 1);
-        bool ok = false;
-        digits.toInt(&ok);
-        check(ok, "FULL_VERSION parses as an integer (UpdateManager needs this)", v);
         check(v.count('v') <= 1, "FULL_VERSION carries at most one 'v' prefix", v);
     }
 
