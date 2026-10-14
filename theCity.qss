@@ -10,8 +10,6 @@ QDialog#theCity {
 
 QLabel#titleLabel {
     color: #f0c040;
-    font-size: 18pt;
-    font-weight: bold;
     padding: 10px;
     background-color: #16213e;
     border-bottom: 1px solid #4a4a6a;
@@ -23,7 +21,6 @@ QToolButton {
     border: 1px solid #5a5a7a;
     border-radius: 4px;
     padding: 8px 16px;
-    font-size: 11pt;
     min-width: 100px;
 }
 
@@ -118,8 +115,6 @@ QTextEdit#chatDisplay {
     color: #b0b0c0;
     border: 1px solid #3a3a5a;
     border-radius: 4px;
-    font-family: "Courier New", monospace;
-    font-size: 9pt;
 }
 
 QLineEdit#chatInput {
@@ -136,7 +131,6 @@ QPushButton#sendButton {
     border: 1px solid #5a7a5a;
     border-radius: 4px;
     padding: 4px 12px;
-    font-size: 9pt;
 }
 
 QPushButton#sendButton:hover {

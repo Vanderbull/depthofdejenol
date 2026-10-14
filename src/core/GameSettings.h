@@ -42,9 +42,11 @@ public:
     QString proportionalFontFamily() const;     // "" = keep the application default
     int     proportionalFontSize() const;
     void    setProportionalFont(const QString& family, int size);
+    void    setProportionalFont(const QFont& font);
     QString fixedFontFamily() const;            // "" = keep the default monospace
     int     fixedFontSize() const;
     void    setFixedFont(const QString& family, int size);
+    void    setFixedFont(const QFont& font);
 
     // --- Lifecycle ---
     void applyAll();          // push every value into the running game
@@ -58,6 +60,10 @@ public:
     static bool  defaultRevealAutomap();
     static int   defaultCombatSpeedMs();
     static bool  defaultFullscreen();
+    // The font the game itself uses (gameSettings owns it now that the Options
+    // dialog can change it). Used whenever no font has been stored, so Default
+    // puts the game's own font back rather than Qt's platform default.
+    static QFont defaultProportionalFont();
 
     // Fold the pre-v6.6.0 [Graphics]/[Audio]/[Gameplay] sections into [Game]
     // and drop them. Public + static so a test can run it on a throwaway file.
@@ -70,7 +76,6 @@ private:
     GameSettings& operator=(const GameSettings&) = delete;
 
     QSettings* m_settings = nullptr;
-    QFont m_defaultAppFont;   // the font the app had before we applied one
 };
 
 #endif // GAMESETTINGS_H

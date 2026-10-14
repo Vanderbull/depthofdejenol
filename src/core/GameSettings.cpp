@@ -20,9 +20,6 @@ GameSettings& GameSettings::instance() {
 GameSettings::GameSettings()
     : m_settings(new QSettings(kIniFile, QSettings::IniFormat))
 {
-    // Remember the application's own font before applyAll() ever replaces it,
-    // so Default can put the original back instead of leaving a picked font.
-    m_defaultAppFont = QApplication::font();
     migrateLegacyKeys(m_settings);
 }
 
@@ -38,6 +35,7 @@ bool  GameSettings::defaultAutosaveEnabled(){ return true;  }
 bool  GameSettings::defaultRevealAutomap()  { return false; }
 int   GameSettings::defaultCombatSpeedMs()  { return 200;   }
 bool  GameSettings::defaultFullscreen()     { return true;  }
+QFont GameSettings::defaultProportionalFont(){ return QFont(QStringLiteral("MS Sans Serif"), 8); }
 
 // ------------------------------------------------------------------- audio ---
 
@@ -111,6 +109,14 @@ QString GameSettings::fixedFontFamily() const {
 int GameSettings::fixedFontSize() const {
     return m_settings->value(QString(kGroup) + "fixedFontSize", 0).toInt();
 }
+void GameSettings::setProportionalFont(const QFont& font) {
+    setProportionalFont(font.family(), font.pointSize());
+}
+
+void GameSettings::setFixedFont(const QFont& font) {
+    setFixedFont(font.family(), font.pointSize());
+}
+
 void GameSettings::setFixedFont(const QString& family, int size) {
     m_settings->setValue(QString(kGroup) + "fixedFontFamily", family);
     m_settings->setValue(QString(kGroup) + "fixedFontSize", size);
@@ -134,14 +140,13 @@ void GameSettings::applyAll() {
     // one, so a default install keeps Qt's own metrics.
     const QString propFamily = proportionalFontFamily();
     const QFont propFont = propFamily.isEmpty()
-        ? m_defaultAppFont
+        ? defaultProportionalFont()
         : QFont(propFamily, proportionalFontSize());
-    if (qApp) {
-        // A stored font overrides the application's own. With no stored font we
-        // restore the font captured above - skipping this is what made Default
-        // leave the last picked font in place.
-        QApplication::setFont(propFamily.isEmpty() ? m_defaultAppFont : propFont);
-    }
+    // fontManager sets the application font and pushes it onto the widgets that
+    // were only inheriting it, leaving widgets with a font of their own alone.
+    // applyAll must not call QApplication::setFont() itself: fontManager captures
+    // the previous app font to tell those two apart, and doing it here first
+    // would hand it the already-changed font.
     fontManager::instance()->setProportionalFont(propFont);
 
     const QString fixedFamily = fixedFontFamily();
@@ -158,8 +163,8 @@ void GameSettings::resetToDefaults() {
     setRevealAutomap(defaultRevealAutomap());
     setCombatSpeedMs(defaultCombatSpeedMs());
     setFullscreen(defaultFullscreen());
-    setProportionalFont(QString(), 0);
-    setFixedFont(QString(), 0);
+    setProportionalFont(defaultProportionalFont());
+    setFixedFont(QFont(QStringLiteral("Courier New"), 9));
     applyAll();
     sync();
 }

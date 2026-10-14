@@ -6,8 +6,6 @@ QWidget {
 /* Labels */
 QLabel {
     color: #333333; 
-    font-size: 14pt; 
-    font-weight: normal; 
 }
 
 /* Push Buttons - Restoring your Blue Theme */
@@ -15,10 +13,8 @@ QPushButton {
     background-color: #4A90E2; 
     color: white; 
     border-radius: 4px; 
-    padding: 5px; 
-    font-size: 14pt; 
-    font-weight: bold; 
-    min-width: 200px; 
+    padding: 5px;
+    min-width: 200px;
     max-width: 200px; 
     min-height: 40px; 
 }
@@ -32,9 +28,8 @@ QLineEdit, QSpinBox {
     background-color: white; 
     border: 2px solid #bdc3c7; 
     border-radius: 4px; 
-    padding: 5px; 
-    font-size: 12pt; 
-    color: #333333; 
+    padding: 5px;
+    color: #333333;
 }
 
 QLineEdit:hover, QSpinBox:hover, QLineEdit:focus, QSpinBox:focus {
@@ -72,10 +67,9 @@ QComboBox {
     background-color: white; 
     border: 2px solid #bdc3c7; 
     border-radius: 4px; 
-    padding: 5px; 
-    font-size: 12pt; 
-    color: #333333; 
-    min-width: 150px; 
+    padding: 5px;
+    color: #333333;
+    min-width: 150px;
 }
 
 QComboBox::drop-down {

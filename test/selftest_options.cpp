@@ -1,7 +1,10 @@
 #include "selftest_harness.h"
 
 #include <QCheckBox>
+#include <QFile>
 #include <QFont>
+#include <QLabel>
+#include <QWidget>
 #include <QComboBox>
 #include <QDate>
 #include <QDir>
@@ -287,27 +290,67 @@ void testBackupScope() {
 }
 
 void testDefaultRestoresFont() {
-    section("[O13] Default button restores the original application font");
+    section("[O13] Default button restores the game's font");
 
     GameSettings& s = GameSettings::instance();
-    const QFont original = QApplication::font();
-    s.resetToDefaults();  // a clean starting point
 
-    // A picked font has to actually take effect first, or the reset below
-    // proves nothing.
+    // A picked font has to take effect first, or the reset below proves nothing.
     s.setProportionalFont("Courier New", 9);
     s.applyAll();
-    check(QApplication::font().family() != original.family(),
-          "picked font overrides the application font",
-          QString("%1 -> %2").arg(original.family(), QApplication::font().family()));
+    check(QApplication::font().family() == QStringLiteral("Courier New"),
+          "picked font is applied", QApplication::font().family());
 
-    // "Default" is resetToDefaults() + reload in the dialog.
+    // "Default" is resetToDefaults() + reload in the dialog. It has to put the
+    // game's own font back - not Qt's platform default, which is what the
+    // original bug loaded.
     s.resetToDefaults();
-    check(QApplication::font() == original,
-          "Default restores the application font", QApplication::font().family());
-    check(s.proportionalFontFamily().isEmpty(), "Default clears the stored font family");
-    check(fontManager::instance()->proportionalFont().family() == original.family(),
+    check(QApplication::font().family() == QStringLiteral("MS Sans Serif") &&
+          QApplication::font().pointSize() == 8,
+          "Default restores the game's font (MS Sans Serif 8)",
+          QApplication::font().toString());
+    check(fontManager::instance()->proportionalFont().family() == QStringLiteral("MS Sans Serif"),
           "Default restores the font manager's proportional font");
+}
+
+void testFontLeavesWidgetFontsAlone() {
+    section("[O14] A picked font must not clobber a widget's own font");
+
+    GameSettings& s = GameSettings::instance();
+    s.resetToDefaults();
+
+    // Two siblings: one with a font of its own (the menu's 28pt title), one
+    // that merely inherits the application font.
+    QWidget host;
+    // The real dialog inherits MainMenu.qss from GameMenu. Apply the same
+    // sheet here - without it a widget's font carries a resolve mask and behaves
+    // differently from what the player sees.
+    if (QFile qss(QStringLiteral("MainMenu.qss"));
+            qss.open(QFile::ReadOnly | QFile::Text))
+        host.setStyleSheet(QString::fromUtf8(qss.readAll()));
+
+    QLabel title(QStringLiteral("Title"), &host);
+    QFont own = title.font();
+    own.setPointSize(28);
+    own.setBold(true);
+    title.setFont(own);
+    const QString ownBefore = title.font().toString();
+
+    QLabel plain(QStringLiteral("Plain"), &host);
+    const QString defaultFont = GameSettings::defaultProportionalFont().toString();
+
+    s.setProportionalFont("Courier New", 9);
+    s.applyAll();
+
+    check(title.font().toString() == ownBefore,
+          "picked font leaves the widget's own font alone", title.font().toString());
+    check(plain.font().family() == QStringLiteral("Courier New"),
+          "picked font reaches an inheriting widget", plain.font().family());
+
+    s.resetToDefaults();
+    check(title.font().toString() == ownBefore,
+          "Default leaves the widget's own font alone", title.font().toString());
+    check(plain.font().toString() == defaultFont,
+          "Default restores the game's font", plain.font().toString());
 }
 
 void testFullscreenSetting() {
@@ -344,5 +387,6 @@ void runOptionsTests() {
     testRevealAutomapWiring();
     testBackupScope();
     testDefaultRestoresFont();
+    testFontLeavesWidgetFontsAlone();
     testFullscreenSetting();
 }

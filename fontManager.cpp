@@ -3,6 +3,7 @@
 #include <QApplication>
 #include <QWidget>
 #include <QDebug>
+#include <QLabel>
 
 fontManager* fontManager::instance()
 {
@@ -22,21 +23,33 @@ void fontManager::loadSpriteSheet(const QString& path, int charWidth, int charHe
     qDebug() << "fontManager: Sprite sheet loaded successfully.";
 }
 
+// Same rendered font. QFont's operator== and isCopyOf() compare the private
+// data pointer rather than the attributes, so two fonts that look identical
+// compare unequal - exactly the case here.
+static bool sameEffectiveFont(const QFont &a, const QFont &b) {
+    return a.toString() == b.toString();
+}
+
 void fontManager::setProportionalFont(const QFont& font)
 {
     m_proportionalFont = font;
-    
-    // Apply to the entire application instance
-    if (qApp) {
-        qApp->setFont(font);
+
+    // Push the new font onto the widgets that were only inheriting the
+    // application font, and leave the ones with a font of their own (the menu's
+    // 28pt title) alone. Comparing against the app font as it was before the
+    // change tells the two apart: a widget that merely inherited has exactly
+    // that font. Blanket-setting every widget used to clobber the rest, and
+    // Default could then never put them back - their original font was never
+    // recorded anywhere.
+    const QFont inherited = QApplication::font();
+    qApp->setFont(font);
+    for (QWidget *widget : QApplication::allWidgets()) {
+        const QFont wf = widget->font();
+        if (sameEffectiveFont(wf, inherited)) {
+            widget->setFont(font);
+        }
     }
 
-    // Force all active widgets to update their font immediately
-    for (QWidget *widget : QApplication::allWidgets()) {
-        widget->setFont(font);
-        widget->update();
-    }
-    
     emit fontsChanged();
 }
 

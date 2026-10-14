@@ -301,8 +301,9 @@ gameStateManager::gameStateManager(QObject *parent)
     //m_proportionalFont = QFont("MS Sans Serif", 8); 
     //m_fixedFont = QFont("Courier New", 9);
 
-    fontManager::instance()->setProportionalFont(QFont("MS Sans Serif", 8));
-    fontManager::instance()->setFixedFont(QFont("Courier New", 9));
+    // The proportional/fixed fonts are owned by GameSettings, which applies
+    // them (and the player's own choice) at startup. Setting them here would
+    // override that with a hard-coded value.
 
     // If you want to load the sprite sheet at startup:
     fontManager::instance()->loadSpriteSheet("resources/images/font_spritesheet_transparent.png", 

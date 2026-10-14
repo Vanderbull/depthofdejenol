@@ -610,6 +610,49 @@ int main(int argc, char *argv[]) {
         return 0;
     }
 
+    // Options probe: run the font path the way the player does and print what
+    // actually happens, so the Default button can be verified without driving
+    // the GUI by hand.
+    if (a.arguments().contains("--probe-options")) {
+        GameSettings::instance().applyAll();
+
+        // The real thing: GameMenu carries MainMenu.qss and sets its own fonts,
+        // and the Options dialog is created as its child.
+        GameMenu menu;
+        QLabel *title = menu.findChildren<QLabel *>().first();
+
+        qInfo() << "=== OPTIONS PROBE ===";
+        qInfo() << "app font at startup:" << QApplication::font().family()
+                << QApplication::font().pointSize();
+        qInfo() << "title font (fresh):" << title->font().family()
+                << title->font().pointSize();
+
+        OptionsDialog dlg(&menu);
+        auto *combo = dlg.findChild<QComboBox*>("combatSpeedComboBox");
+        auto *propBtn = dlg.findChild<QPushButton*>("proportionalFontButton");
+        qInfo() << "prop button (fresh):" << propBtn->text();
+
+        GameSettings::instance().setProportionalFont("Courier New", 9);
+        GameSettings::instance().applyAll();
+        qInfo() << "app font after picking Courier New 9:"
+                << QApplication::font().family() << QApplication::font().pointSize();
+        qInfo() << "combo font after pick:" << combo->font().family()
+                << combo->font().pointSize();
+        qInfo() << "title font after pick:" << title->font().family()
+                << title->font().pointSize();
+
+        dlg.findChild<QPushButton*>("defaultButton")->click();
+        qInfo() << "app font after Default:"
+                << QApplication::font().family() << QApplication::font().pointSize();
+        qInfo() << "combo font after Default:" << combo->font().family()
+                << combo->font().pointSize();
+        qInfo() << "title font after Default:" << title->font().family()
+                << title->font().pointSize();
+        qInfo() << "prop button after Default:" << propBtn->text();
+        qInfo() << "=== END OPTIONS PROBE ===";
+        return 0;
+    }
+
     // Push the stored options into the running game before anything is shown,
     // so a choice made in a previous session is actually in effect.
     GameSettings::instance().applyAll();
