@@ -1,6 +1,20 @@
 # Release Notes
 
-**Latest:** v6.5.1 — Testhygien
+**Latest:** v6.5.2 — Help removed
+
+## v6.5.2 — Help borttagen (2026-10-14)
+
+Patch: tog bort Help-dialogen och dess knapp i huvudmenyn. Inga nya funktioner.
+
+### Vad som togs bort
+- **`src/helplesson/`** (HelplessonDialog) — hela modulen raderad, ~830 rader
+- **Help-knappen** i huvudmenyns footer — footern är nu Options · About · Exit
+- Slot `onHelpClicked()`, medlemmen `m_helpButton`, connect, include och byggposter
+
+### Tester
+- `[286]` (helplesson dwarf image) borttagen — testade den raderade dialogen
+- `[227]` footertestet reducerat: Help-knapp-checken borttagen, Options/About/Exit kvar
+- 1891 → **1889** checks, 0 failed
 
 ## v6.5.1 — Testhygien (2026-10-14)
 
