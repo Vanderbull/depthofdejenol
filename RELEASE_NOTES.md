@@ -1,6 +1,24 @@
 # Release Notes
 
-**Latest:** v6.5.3 — About + update system removed
+**Latest:** v6.5.4 — Main-menu button sizes unified
+
+## v6.5.4 — Knappstorlekar och Quit (2026-10-14)
+
+Patch: gjorde huvudmenyns knappar enhetliga och döpte om Exit till Quit.
+
+### Ändringar
+- **Hall of Records** 40 px → **55 px** (samma som huvudknapparna)
+- **Options** 35 px → **55 px**; den redundanta `setMaximumWidth(120)` borttagen
+- **Exit → Quit** — text, `objectName` `quitButton`, medlem `m_quitButton`; 35 px → **55 px**
+- Bredd och font var redan enhetliga (QSS:en sätter `min/max-width: 200px` och 14pt
+  bold på alla knappar) — det var bara höjden som skilde
+
+### Tester
+- `[227]` fick icke-vakuösa höjd-checkar; verifierat att de failar om en höjd
+  återställs (`FAIL Hall of Records matches the action button height` vid 40 px)
+- `[225]` påstod motsatsen ("primary button is taller than footer button") — den
+  kodade den gamla designen och kräver nu **lika** höjd
+- Checkar: 1887 → **1891**, 0 failed
 
 ## v6.5.3 — About och uppdateringssystemet borttagna (2026-10-14)
 

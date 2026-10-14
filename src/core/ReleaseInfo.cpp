@@ -29,6 +29,8 @@ QStringList ReleaseInfo::releaseNotes() {
 
 QStringList ReleaseInfo::changes() {
     return {
+        "Unified main-menu button sizes: Hall of Records, Options and Quit are now 55px like the action buttons",
+        "Renamed the main-menu Exit button to Quit",
         "Removed the About dialog and its main-menu button; the footer is now Options and Exit",
         "Removed the update system (UpdateManager, UpdateDialog, standalone test drivers)",
         "Removed the dead Version.h left over from an older version-header scheme",
@@ -84,6 +86,7 @@ QString ReleaseInfo::banner() {
 
 QList<QPair<QString, QString>> ReleaseInfo::versionHistory() {
     return {
+        {"6.5.4", "2026-10-14 — Unified main-menu button sizes (Hall of Records/Options/Quit now 55px like the action buttons); renamed Exit to Quit; 1887→1891 checks, 0 failed"},
         {"6.5.3", "2026-10-14 — Removed the About dialog and the whole update system (UpdateManager/UpdateDialog + test drivers); dead Version.h; 1889→1887 checks, 0 failed"},
         {"6.5.2", "2026-10-14 — Removed the Help dialog and its main-menu button (908 lines); 1891→1889 checks, 0 failed"},
         {"6.5.1", "2026-10-14 — Test hygiene: removed 11 vacuous/duplicate test sections and 5 dead blocks; 1911→1891 checks, 0 failed"},
