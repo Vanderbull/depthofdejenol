@@ -212,12 +212,13 @@ void GameMenu::setupUI() {
 }
 
 void GameMenu::syncFontsToAppFont() {
-    const QString family = QApplication::font().family();
-    if (family.isEmpty())
+    const QFont appFont = QApplication::font();
+    if (appFont.family().isEmpty())
         return;
 
+    // The buttons take the font Options selected - family and size - so the
+    // menu follows the player's choice instead of a hard-coded size.
     const QList<QWidget*> synced = {
-        m_titleLabel, m_versionLabel, m_partyPreviewLabel,
         m_continueButton, m_newButton, m_createCharacterButton,
         m_assemblePartyButton, m_saveButton, m_loadButton,
         m_recordsButton, m_optionsButton, m_quitButton
@@ -225,9 +226,7 @@ void GameMenu::syncFontsToAppFont() {
     for (QWidget *w : synced) {
         if (!w)
             continue;
-        QFont f = w->font();
-        f.setFamily(family);
-        w->setFont(f);
+        w->setFont(appFont);
     }
 }
 

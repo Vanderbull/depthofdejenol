@@ -395,8 +395,6 @@ void testMenuWidgetsFollowTheFont() {
 
     check(newBtn->font().family() == QStringLiteral("Courier New"),
           "menu button follows a picked font", newBtn->font().family());
-    check(title->font().family() == QStringLiteral("Courier New"),
-          "menu title follows a picked font", title->font().family());
 
     s.resetToDefaults();
     QApplication::processEvents();
@@ -423,3 +421,5 @@ void runOptionsTests() {
     testFullscreenSetting();
     testMenuWidgetsFollowTheFont();
 }
+
+

@@ -5386,6 +5386,19 @@ void runWorldTests()
                   "primary and footer buttons share the same height",
                   QString("new=%1 opt=%2").arg(newBtn->minimumHeight()).arg(optionsBtn->minimumHeight()));
         }
+
+        // Every button uses the font Options selected - the application font,
+        // family and size alike.
+        QPushButton *recordsBtn = menu.findChild<QPushButton*>("recordsButton");
+        QPushButton *quitBtn = menu.findChild<QPushButton*>("quitButton");
+        const QList<QPushButton*> allBtns{newBtn, continueBtn, optionsBtn, recordsBtn, quitBtn};
+        const QString appFontStr = QApplication::font().toString();
+        for (QPushButton *b : allBtns) {
+            if (!b) continue;
+            check(b->font().toString() == appFontStr,
+                  "button uses the font selected in Options",
+                  QString("%1: %2 (app: %3)").arg(b->objectName(), b->font().toString(), appFontStr));
+        }
     }
 
     section("[226] v5.1.0 slice 5.5: main menu has no overlapping buttons");
@@ -6391,3 +6404,4 @@ void runWorldTests()
     }
 
 }
+
