@@ -41,6 +41,9 @@ private slots:
     void onCharacterCreated(const QString &characterName);
     void onCreateCharacterClicked();
     void onAssemblePartyClicked();
+    // Re-applies the app font's family to the widgets that carry a font of
+    // their own, so the menu follows the font chosen in Options.
+    void syncFontsToAppFont();
 
 private:
     void setupUI();

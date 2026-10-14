@@ -372,6 +372,38 @@ void testFullscreenSetting() {
     }
 }
 
+
+void testMenuWidgetsFollowTheFont() {
+    section("[O15] Menu widgets follow the font chosen in Options");
+
+    GameSettings& s = GameSettings::instance();
+    s.resetToDefaults();
+    const QString defaultFamily = QApplication::font().family();
+
+    GameMenu menu;
+    QPushButton *newBtn = menu.findChild<QPushButton*>(QStringLiteral("newGameButton"));
+    QLabel *title = menu.findChildren<QLabel*>().value(0);
+    check(newBtn && title, "menu widgets found");
+    if (!newBtn || !title) return;
+
+    check(newBtn->font().family() == defaultFamily,
+          "menu button uses the game's font before any change", newBtn->font().family());
+
+    s.setProportionalFont("Courier New", 9);
+    s.applyAll();
+    QApplication::processEvents();
+
+    check(newBtn->font().family() == QStringLiteral("Courier New"),
+          "menu button follows a picked font", newBtn->font().family());
+    check(title->font().family() == QStringLiteral("Courier New"),
+          "menu title follows a picked font", title->font().family());
+
+    s.resetToDefaults();
+    QApplication::processEvents();
+    check(newBtn->font().family() == defaultFamily,
+          "menu button follows Default back", newBtn->font().family());
+}
+
 } // namespace
 
 void runOptionsTests() {
@@ -389,4 +421,5 @@ void runOptionsTests() {
     testDefaultRestoresFont();
     testFontLeavesWidgetFontsAlone();
     testFullscreenSetting();
+    testMenuWidgetsFollowTheFont();
 }

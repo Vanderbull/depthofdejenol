@@ -196,12 +196,38 @@ void GameMenu::setupUI() {
 
     mainLayout->addLayout(footerLayout);
 
+    // The menu's sizes and weights are its own typography; the family follows
+    // the font the player chose in Options.
+    connect(fontManager::instance(), &fontManager::fontsChanged,
+            this, &GameMenu::syncFontsToAppFont);
+    syncFontsToAppFont();
+
     // Fullscreen is the player's choice (Options dialog), not a hard-coded mode.
     if (GameSettings::instance().fullscreen()) {
         showFullScreen();
     } else {
         resize(1280, 800);
         showNormal();
+    }
+}
+
+void GameMenu::syncFontsToAppFont() {
+    const QString family = QApplication::font().family();
+    if (family.isEmpty())
+        return;
+
+    const QList<QWidget*> synced = {
+        m_titleLabel, m_versionLabel, m_partyPreviewLabel,
+        m_continueButton, m_newButton, m_createCharacterButton,
+        m_assemblePartyButton, m_saveButton, m_loadButton,
+        m_recordsButton, m_optionsButton, m_quitButton
+    };
+    for (QWidget *w : synced) {
+        if (!w)
+            continue;
+        QFont f = w->font();
+        f.setFamily(family);
+        w->setFont(f);
     }
 }
 
