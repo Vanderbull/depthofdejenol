@@ -1,5 +1,6 @@
 
 #include "theCity.h"
+#include "fontManager.h"
 #include "src/core/game_resources.h"
 #include "src/network_manager/NetworkManager.h"
 #include "src/partyinfo_dialog/partyinfodialog.h"
@@ -131,21 +132,37 @@ void theCity::setupUi()
     gridLayout->setSpacing(10);
 
     generalStoreButton = new QToolButton(this);
+    generalStoreButton->setObjectName("generalStoreButton");
     morgueButton = new QToolButton(this);
+    morgueButton->setObjectName("morgueButton");
     guildsButton = new QToolButton(this);
+    guildsButton->setObjectName("guildsButton");
     dungeonButton = new QToolButton(this);
+    dungeonButton->setObjectName("dungeonButton");
     confinementButton = new QToolButton(this);
+    confinementButton->setObjectName("confinementButton");
     seerButton = new QToolButton(this);
+    seerButton->setObjectName("seerButton");
     bankButton = new QToolButton(this);
+    bankButton->setObjectName("bankButton");
     tavernButton = new QToolButton(this);
+    tavernButton->setObjectName("tavernButton");
     libraryButton = new QToolButton(this);
+    libraryButton->setObjectName("libraryButton");
     questBoardButton = new QToolButton(this);
+    questBoardButton->setObjectName("questBoardButton");
     questChainButton = new QToolButton(this);
+    questChainButton->setObjectName("questChainButton");
     characterSheetButton = new QToolButton(this);
+    characterSheetButton->setObjectName("characterSheetButton");
     bestiaryButton = new QToolButton(this);
+    bestiaryButton->setObjectName("bestiaryButton");
     journalButton = new QToolButton(this);
+    journalButton->setObjectName("journalButton");
     npcButton = new QToolButton(this);
+    npcButton->setObjectName("npcButton");
     exitButton = new QToolButton(this);
+    exitButton->setObjectName("exitButton");
     arenaButton = new QToolButton(this);
     arenaButton->setObjectName("arenaButton");
 
@@ -179,6 +196,7 @@ void theCity::setupUi()
     QHBoxLayout *chatInputLayout = new QHBoxLayout();
     chatInput = new QLineEdit(this);
     sendButton = new QPushButton("Send", this);
+    sendButton->setObjectName("sendButton");
     chatInputLayout->addWidget(chatInput);
     chatInputLayout->addWidget(sendButton);
     mainLayout->addLayout(chatInputLayout);
@@ -336,6 +354,30 @@ void theCity::setupStyling()
         styleFile.close();
     }
     titleLabel->setStyleSheet("font-size: 20px; color: #CCCCCC; background-color: #444444; padding: 5px; border: 1px solid #777777;");
+
+    // The buttons take the font the player chose in Options.
+    connect(fontManager::instance(), &fontManager::fontsChanged,
+            this, &theCity::syncFontsToAppFont);
+    syncFontsToAppFont();
+}
+
+void theCity::syncFontsToAppFont() {
+    const QFont appFont = QApplication::font();
+    if (appFont.family().isEmpty())
+        return;
+
+    const QList<QWidget*> synced = {
+        generalStoreButton, morgueButton, guildsButton, dungeonButton,
+        confinementButton, seerButton, bankButton, tavernButton,
+        libraryButton, questBoardButton, questChainButton,
+        characterSheetButton, bestiaryButton, journalButton, npcButton,
+        exitButton, arenaButton, sendButton
+    };
+    for (QWidget *w : synced) {
+        if (!w)
+            continue;
+        w->setFont(appFont);
+    }
 }
 
 void theCity::on_generalStoreButton_clicked() {
@@ -679,4 +721,6 @@ void theCity::handleLocationClick() {
 }
 
 theCity::~theCity() {}
+
+
 

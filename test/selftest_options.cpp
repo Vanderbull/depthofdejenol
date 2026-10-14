@@ -1,4 +1,5 @@
 #include "selftest_harness.h"
+#include "theCity.h"
 
 #include <QCheckBox>
 #include <QFile>
@@ -10,6 +11,7 @@
 #include <QDir>
 #include <QLabel>
 #include <QPushButton>
+#include <QToolButton>
 #include <QSettings>
 #include <QSlider>
 #include <QTemporaryDir>
@@ -402,6 +404,38 @@ void testMenuWidgetsFollowTheFont() {
           "menu button follows Default back", newBtn->font().family());
 }
 
+void testTheCityButtonsFollowFont() {
+    section("[O16] theCity buttons follow the font chosen in Options");
+
+    GameSettings& s = GameSettings::instance();
+    s.resetToDefaults();
+
+    theCity city;
+    QToolButton *storeBtn = city.findChild<QToolButton*>(QStringLiteral("generalStoreButton"));
+    QPushButton *sendBtn = city.findChild<QPushButton*>(QStringLiteral("sendButton"));
+    check(storeBtn && sendBtn, "theCity buttons found");
+    if (!storeBtn || !sendBtn) return;
+
+    const QString appFontStr = QApplication::font().toString();
+    check(storeBtn->font().toString() == appFontStr,
+          "city button uses the font selected in Options",
+          QString("store: %1 (app: %2)").arg(storeBtn->font().toString(), appFontStr));
+
+    s.setProportionalFont("Courier New", 9);
+    s.applyAll();
+    QApplication::processEvents();
+
+    check(storeBtn->font().family() == QStringLiteral("Courier New"),
+          "city button follows a picked font", storeBtn->font().family());
+    check(sendBtn->font().family() == QStringLiteral("Courier New"),
+          "city send button follows a picked font", sendBtn->font().family());
+
+    s.resetToDefaults();
+    QApplication::processEvents();
+    check(storeBtn->font().toString() == appFontStr,
+          "city button follows Default back", storeBtn->font().toString());
+}
+
 } // namespace
 
 void runOptionsTests() {
@@ -420,6 +454,7 @@ void runOptionsTests() {
     testFontLeavesWidgetFontsAlone();
     testFullscreenSetting();
     testMenuWidgetsFollowTheFont();
+    testTheCityButtonsFollowFont();
 }
 
 

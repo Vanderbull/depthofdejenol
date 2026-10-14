@@ -89,6 +89,8 @@ private:
     void setupStyling();
     void loadButtonIcons();
     void setupMultiplayerConnections();
+    // Keeps the buttons on the font the player chose in Options.
+    void syncFontsToAppFont();
 
     // Standalone
     bool isOfflineMode = false;
