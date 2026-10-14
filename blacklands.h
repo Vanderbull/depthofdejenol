@@ -61,7 +61,7 @@ private:
     QPushButton *m_loadButton = nullptr;
     QPushButton *m_recordsButton = nullptr;
     QPushButton *m_optionsButton = nullptr;
-    QPushButton *m_exitButton = nullptr;
+    QPushButton *m_quitButton = nullptr;
     QSettings m_settings;
     QString m_subfolderName;
     QPixmap m_backgroundPixmap;

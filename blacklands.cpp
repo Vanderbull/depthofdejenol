@@ -165,7 +165,7 @@ void GameMenu::setupUI() {
 
     m_recordsButton = new QPushButton(tr("Hall of Records"), this);
     m_recordsButton->setObjectName("recordsButton");
-    m_recordsButton->setMinimumHeight(40);
+    m_recordsButton->setMinimumHeight(55);
     QFont secondaryFont = m_recordsButton->font();
     secondaryFont.setPointSize(11);
     m_recordsButton->setFont(secondaryFont);
@@ -183,15 +183,13 @@ void GameMenu::setupUI() {
 
     m_optionsButton = new QPushButton(tr("Options"), this);
     m_optionsButton->setObjectName("optionsButton");
-    m_optionsButton->setMinimumHeight(35);
-    m_optionsButton->setMaximumWidth(120);
+    m_optionsButton->setMinimumHeight(55);
     footerLayout->addWidget(m_optionsButton);
 
-    m_exitButton = new QPushButton(tr("Exit"), this);
-    m_exitButton->setObjectName("exitButton");
-    m_exitButton->setMinimumHeight(35);
-    m_exitButton->setMaximumWidth(120);
-    footerLayout->addWidget(m_exitButton);
+    m_quitButton = new QPushButton(tr("Quit"), this);
+    m_quitButton->setObjectName("quitButton");
+    m_quitButton->setMinimumHeight(55);
+    footerLayout->addWidget(m_quitButton);
 
     footerLayout->addStretch(1);
 
@@ -211,7 +209,7 @@ void GameMenu::setupConnections() {
     connect(m_loadButton, &QPushButton::clicked, this, &GameMenu::loadGame);
     connect(m_recordsButton, &QPushButton::clicked, this, &GameMenu::showRecords);
     connect(m_optionsButton, &QPushButton::clicked, this, &GameMenu::onOptionsClicked);
-    connect(m_exitButton, &QPushButton::clicked, this, &GameMenu::quitGame);
+    connect(m_quitButton, &QPushButton::clicked, this, &GameMenu::quitGame);
 
     // Engine Signals
     connect(EventManager::instance(), &EventManager::eventTriggered, this, &GameMenu::onEventTriggered);

@@ -5378,10 +5378,12 @@ void runWorldTests()
         check(newBtn != nullptr, "New Game button exists");
         check(optionsBtn != nullptr, "Options button exists");
 
-        // Primary button (New Game) should be taller than footer (Options)
+        // The action and footer buttons share one height now; the visual
+        // hierarchy comes from the CONTINUE button and the QSS styling, not
+        // from making the footer buttons smaller.
         if (newBtn && optionsBtn) {
-            check(newBtn->minimumHeight() > optionsBtn->minimumHeight(),
-                  "primary button is taller than footer button",
+            check(newBtn->minimumHeight() == optionsBtn->minimumHeight(),
+                  "primary and footer buttons share the same height",
                   QString("new=%1 opt=%2").arg(newBtn->minimumHeight()).arg(optionsBtn->minimumHeight()));
         }
     }
@@ -5413,10 +5415,19 @@ void runWorldTests()
     {
         GameMenu menu;
         QPushButton *optionsBtn = menu.findChild<QPushButton*>("optionsButton");
-        QPushButton *exitBtn = menu.findChild<QPushButton*>("exitButton");
+        QPushButton *quitBtn = menu.findChild<QPushButton*>("quitButton");
 
         check(optionsBtn != nullptr, "Options button exists");
-        check(exitBtn != nullptr, "Exit button exists");
+        check(quitBtn != nullptr, "Quit button exists");
+
+        // Regression: the Hall of Records, Options and Quit buttons used to be
+        // shorter (40/35/35px) than the action buttons (55px).
+        QPushButton *newBtn = menu.findChild<QPushButton*>("newGameButton");
+        QPushButton *recordsBtn = menu.findChild<QPushButton*>("recordsButton");
+        check(newBtn && newBtn->minimumHeight() == 55, "New Game is 55px (reference)");
+        check(recordsBtn && recordsBtn->minimumHeight() == 55, "Hall of Records matches the action button height");
+        check(optionsBtn && optionsBtn->minimumHeight() == 55, "Options matches the action button height");
+        check(quitBtn && quitBtn->minimumHeight() == 55, "Quit matches the action button height");
     }
 
     section("[228] v5.1.0 slice 5.6: main menu Continue button is disabled when autosave is invalid");
