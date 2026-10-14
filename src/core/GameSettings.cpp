@@ -20,6 +20,9 @@ GameSettings& GameSettings::instance() {
 GameSettings::GameSettings()
     : m_settings(new QSettings(kIniFile, QSettings::IniFormat))
 {
+    // Remember the application's own font before applyAll() ever replaces it,
+    // so Default can put the original back instead of leaving a picked font.
+    m_defaultAppFont = QApplication::font();
     migrateLegacyKeys(m_settings);
 }
 
@@ -131,10 +134,13 @@ void GameSettings::applyAll() {
     // one, so a default install keeps Qt's own metrics.
     const QString propFamily = proportionalFontFamily();
     const QFont propFont = propFamily.isEmpty()
-        ? QApplication::font()
+        ? m_defaultAppFont
         : QFont(propFamily, proportionalFontSize());
-    if (!propFamily.isEmpty() && qApp) {
-        QApplication::setFont(propFont);
+    if (qApp) {
+        // A stored font overrides the application's own. With no stored font we
+        // restore the font captured above - skipping this is what made Default
+        // leave the last picked font in place.
+        QApplication::setFont(propFamily.isEmpty() ? m_defaultAppFont : propFont);
     }
     fontManager::instance()->setProportionalFont(propFont);
 

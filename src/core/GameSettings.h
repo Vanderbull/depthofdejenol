@@ -1,6 +1,7 @@
 #ifndef GAMESETTINGS_H
 #define GAMESETTINGS_H
 
+#include <QFont>
 #include <QString>
 
 class QSettings;
@@ -69,6 +70,7 @@ private:
     GameSettings& operator=(const GameSettings&) = delete;
 
     QSettings* m_settings = nullptr;
+    QFont m_defaultAppFont;   // the font the app had before we applied one
 };
 
 #endif // GAMESETTINGS_H

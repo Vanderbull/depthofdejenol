@@ -1,6 +1,7 @@
 #include "selftest_harness.h"
 
 #include <QCheckBox>
+#include <QFont>
 #include <QComboBox>
 #include <QDate>
 #include <QDir>
@@ -13,6 +14,7 @@
 #include "audioManager.h"
 #include "blacklands.h"
 #include "gameStateManager.h"
+#include "fontManager.h"
 #include "src/core/GameSettings.h"
 #include "src/dungeon_dialog/MiniMapDialog.h"
 #include "src/options_dialog/optionsdialog.h"
@@ -284,6 +286,30 @@ void testBackupScope() {
     QDir(dir).removeRecursively();
 }
 
+void testDefaultRestoresFont() {
+    section("[O13] Default button restores the original application font");
+
+    GameSettings& s = GameSettings::instance();
+    const QFont original = QApplication::font();
+    s.resetToDefaults();  // a clean starting point
+
+    // A picked font has to actually take effect first, or the reset below
+    // proves nothing.
+    s.setProportionalFont("Courier New", 9);
+    s.applyAll();
+    check(QApplication::font().family() != original.family(),
+          "picked font overrides the application font",
+          QString("%1 -> %2").arg(original.family(), QApplication::font().family()));
+
+    // "Default" is resetToDefaults() + reload in the dialog.
+    s.resetToDefaults();
+    check(QApplication::font() == original,
+          "Default restores the application font", QApplication::font().family());
+    check(s.proportionalFontFamily().isEmpty(), "Default clears the stored font family");
+    check(fontManager::instance()->proportionalFont().family() == original.family(),
+          "Default restores the font manager's proportional font");
+}
+
 void testFullscreenSetting() {
     section("[O12] Fullscreen setting is honoured by the main menu");
 
@@ -317,5 +343,6 @@ void runOptionsTests() {
     testDefaultButton();
     testRevealAutomapWiring();
     testBackupScope();
+    testDefaultRestoresFont();
     testFullscreenSetting();
 }
