@@ -14,7 +14,6 @@
 #include "src/combat/CombatDeathHandler.h"
 #include "src/arena_dialog/ArenaDialog.h"
 #include "src/race_data/RaceData.h"
-#include "src/helplesson/helplesson.h"
 #include "src/options_dialog/optionsdialog.h"
 #include "theCity.h"
 #include "src/core/LevelTable.h"

@@ -5419,12 +5419,10 @@ void runWorldTests()
     {
         GameMenu menu;
         QPushButton *optionsBtn = menu.findChild<QPushButton*>("optionsButton");
-        QPushButton *helpBtn = menu.findChild<QPushButton*>("helpButton");
         QPushButton *aboutBtn = menu.findChild<QPushButton*>("aboutButton");
         QPushButton *exitBtn = menu.findChild<QPushButton*>("exitButton");
 
         check(optionsBtn != nullptr, "Options button exists");
-        check(helpBtn != nullptr, "Help button exists");
         check(aboutBtn != nullptr, "About button exists");
         check(exitBtn != nullptr, "Exit button exists");
     }
@@ -6222,31 +6220,6 @@ void runWorldTests()
             check(label->text().contains("Last Backup"), "label shows backup timestamp");
             check(!label->text().contains("Placeholder"), "label is not placeholder");
         }
-    }
-
-    section("[286] v5.6.0 slice 6.0b: helplesson dwarf image label hidden");
-    {
-        // The HelpLessonDialog used to show "Dwarf Image\nPlaceholder"
-        // because no image resource was ever loaded. The label is now
-        // hidden instead of showing a placeholder stub.
-        HelpLessonDialog dlg;
-        dlg.show();
-        QCoreApplication::processEvents();
-        QLabel* label = dlg.findChild<QLabel*>();
-        // Find the dwarf image label by checking all QLabels
-        bool foundDwarfLabel = false;
-        bool dwarfLabelHidden = false;
-        for (QLabel* l : dlg.findChildren<QLabel*>()) {
-            if (l->text().contains("Dwarf") && l->text().contains("Placeholder")) {
-                foundDwarfLabel = true;
-                dwarfLabelHidden = !l->isVisible();
-                break;
-            }
-        }
-        // The label should either not exist (removed) or be hidden
-        check(!foundDwarfLabel || dwarfLabelHidden,
-              "dwarf image label is hidden, not showing placeholder");
-        dlg.close();
     }
 
     section("[285] v5.5.0 slice 5.5: guild eligibility is not all-allowed");

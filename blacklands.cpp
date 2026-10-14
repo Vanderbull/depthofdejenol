@@ -10,7 +10,6 @@
 #include "src/options_dialog/optionsdialog.h"
 #include "src/about_dialog/AboutDialog.h"
 #include "src/message_window/MessageWindow.h"
-#include "src/helplesson/helplesson.h"
 #include "src/loadingscreen/LoadingScreen.h"
 #include "src/load_party_dialog/LoadPartyDialog.h"
 #include "src/assemble_party_dialog/AssemblePartyDialog.h"
@@ -189,12 +188,6 @@ void GameMenu::setupUI() {
     m_optionsButton->setMaximumWidth(120);
     footerLayout->addWidget(m_optionsButton);
 
-    m_helpButton = new QPushButton(tr("Help"), this);
-    m_helpButton->setObjectName("helpButton");
-    m_helpButton->setMinimumHeight(35);
-    m_helpButton->setMaximumWidth(120);
-    footerLayout->addWidget(m_helpButton);
-
     m_aboutButton = new QPushButton(tr("About"), this);
     m_aboutButton->setObjectName("aboutButton");
     m_aboutButton->setMinimumHeight(35);
@@ -223,7 +216,6 @@ void GameMenu::setupConnections() {
     connect(m_assemblePartyButton, &QPushButton::clicked, this, &GameMenu::onAssemblePartyClicked);
     connect(m_saveButton, &QPushButton::clicked, this, &GameMenu::saveGame);
     connect(m_loadButton, &QPushButton::clicked, this, &GameMenu::loadGame);
-    connect(m_helpButton, &QPushButton::clicked, this, &GameMenu::onHelpClicked);
     connect(m_recordsButton, &QPushButton::clicked, this, &GameMenu::showRecords);
     connect(m_optionsButton, &QPushButton::clicked, this, &GameMenu::onOptionsClicked);
     connect(m_aboutButton, &QPushButton::clicked, this, &GameMenu::onAboutClicked);
@@ -472,10 +464,6 @@ void GameMenu::onOptionsClicked() {
 
 void GameMenu::onAboutClicked() {
     (new AboutDialog(this))->show();
-}
-
-void GameMenu::onHelpClicked() {
-    (new HelpLessonDialog(this))->show();
 }
 
 void GameMenu::startNewGame() {

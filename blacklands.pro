@@ -47,7 +47,6 @@ SOURCES += \
     src/automap/automap_dialog.cpp \
     src/game_controller/game_controller.cpp \
     src/load_party_dialog/LoadPartyDialog.cpp \
-    src/helplesson/helplesson.cpp \
     src/mordorstatistics/mordorstatistics.cpp \
     src/guilds_dialog/GuildsDialog.cpp \
     src/general_store/GeneralStore.cpp \
@@ -200,7 +199,6 @@ HEADERS += \
     src/automap/automap_dialog.h \
     src/game_controller/game_controller.h \
     src/load_party_dialog/LoadPartyDialog.h \
-    src/helplesson/helplesson.h \
     src/mordorstatistics/mordorstatistics.h \
     src/guilds_dialog/GuildsDialog.h \
     src/general_store/GeneralStore.h \
