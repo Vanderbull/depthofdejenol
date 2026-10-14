@@ -29,6 +29,9 @@ QStringList ReleaseInfo::releaseNotes() {
 
 QStringList ReleaseInfo::changes() {
     return {
+        "Removed the About dialog and its main-menu button; the footer is now Options and Exit",
+        "Removed the update system (UpdateManager, UpdateDialog, standalone test drivers)",
+        "Removed the dead Version.h left over from an older version-header scheme",
         "Removed the Help dialog (src/helplesson) and its main-menu button (908 lines deleted)",
         "Test hygiene: 11 vacuous/duplicate test sections and 5 dead blocks removed (1911 to 1891 checks)",
         "48 new spells from the MORDOR manual across 18 categories (95 total)",
@@ -81,6 +84,7 @@ QString ReleaseInfo::banner() {
 
 QList<QPair<QString, QString>> ReleaseInfo::versionHistory() {
     return {
+        {"6.5.3", "2026-10-14 — Removed the About dialog and the whole update system (UpdateManager/UpdateDialog + test drivers); dead Version.h; 1889→1887 checks, 0 failed"},
         {"6.5.2", "2026-10-14 — Removed the Help dialog and its main-menu button (908 lines); 1891→1889 checks, 0 failed"},
         {"6.5.1", "2026-10-14 — Test hygiene: removed 11 vacuous/duplicate test sections and 5 dead blocks; 1911→1891 checks, 0 failed"},
         {"6.5.0", "2026-10-14 — Spell System Expansion: 48 new spells from MORDOR manual (95 total), SpellCategory registry (18 categories), SpellTargeting, SpellResistance, SpellScaling, 74 non-vacuous tests"},

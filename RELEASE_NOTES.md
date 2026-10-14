@@ -1,6 +1,32 @@
 # Release Notes
 
-**Latest:** v6.5.2 — Help removed
+**Latest:** v6.5.3 — About + update system removed
+
+## v6.5.3 — About och uppdateringssystemet borttagna (2026-10-14)
+
+Patch: fortsatt städning. Tog bort About-dialogen och hela uppdateringssystemet.
+
+### Vad som togs bort
+- **`src/about_dialog/`** (AboutDialog) — hela modulen. About-knappen borta ur
+  huvudmenyns footer → nu **Options · Exit**
+- **`src/update/`** (UpdateManager, UpdateDialog, readme) — AboutDialog var enda
+  anroparen, så hela uppdateringsvägen var död kod
+- **`test/test_updater.cpp` + `test_updater2.cpp`** och deras `.pro`-filer, plus en
+  **126 KB binär (`test/test_updater2`) som låg commitad i git**
+- **`Version.h`** (versal) — trackad men oanvänd; den riktiga version-headern
+  genereras av qmake från `version.h.in`. Innehöll dessutom en trasig
+  strängkonkatenering
+
+### Justeringar
+- `version.h.in`: `FULL_VERSION` är build-metadata för Lua-`GameVersion`, inte
+  längre ett uppdaterings-jämförelsetal — kommentaren uppdaterad
+- `[56]`-testet: "parses as an integer"-checken (fanns bara för UpdateManager) borttagen
+- `[227]`-testet: About-knapp-checken borttagen
+
+### Resultat
+- Checkar: 1889 → **1887**, 0 failed
+- `make check` grön (orphaned-system-guarden PASS)
+- Inga kvarvarande referenser till AboutDialog/UpdateManager/UpdateDialog
 
 ## v6.5.2 — Help borttagen (2026-10-14)
 

@@ -740,12 +740,12 @@ void runWorldTests()
 
     section("[56] Release packaging");
     {
-        check(ReleaseInfo::version() == "6.5.2", "version is 6.5.2");
-        check(ReleaseInfo::versionString() == "v6.5.2", "version string");
+        check(ReleaseInfo::version() == "6.5.3", "version is 6.5.3");
+        check(ReleaseInfo::versionString() == "v6.5.3", "version string");
         check(!ReleaseInfo::releaseDate().isEmpty(), "release date exists");
         check(!ReleaseInfo::systemRequirements().isEmpty(), "system requirements exist");
-        check(ReleaseInfo::installerName().contains("6.5.2"), "installer name");
-        check(ReleaseInfo::banner().contains("6.5.2"), "banner");
+        check(ReleaseInfo::installerName().contains("6.5.3"), "installer name");
+        check(ReleaseInfo::banner().contains("6.5.3"), "banner");
     }
     {
         // Release notes.
@@ -765,9 +765,9 @@ void runWorldTests()
         QList<QPair<QString, QString>> history = ReleaseInfo::versionHistory();
         check(history.size() >= 5, "at least 5 versions in history",
               QString::number(history.size()));
-        check(history[0].first == "6.5.2", "latest version is 6.5.2");
-        check(history[0].second.contains("Help") || history[0].second.contains("help"),
-              "v6.5.2 history entry mentions the Help removal");
+        check(history[0].first == "6.5.3", "latest version is 6.5.3");
+        check(history[0].second.contains("About") || history[0].second.contains("update"),
+              "v6.5.3 history entry mentions the About/update removal");
     }
 
     // ------------------------------------------- Status flag integrity

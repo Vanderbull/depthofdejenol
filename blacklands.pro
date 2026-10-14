@@ -312,7 +312,7 @@ lessThan(VERSION_INT, 0): VERSION_INT = 0
 # Bump MINOR for new features/mechanics. Bump PATCH for fixes/balance/polish.
 SEMVER_MAJOR = 6
 SEMVER_MINOR = 5
-SEMVER_PATCH = 2
+SEMVER_PATCH = 3
 SEMVER = \"$${SEMVER_MAJOR}.$${SEMVER_MINOR}.$${SEMVER_PATCH}\"
 
 # 3. Tell qmake to use the template
