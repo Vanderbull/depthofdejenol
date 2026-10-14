@@ -1,6 +1,29 @@
 # Release Notes
 
-**Latest:** v6.5.0 — Spell System Expansion
+**Latest:** v6.5.1 — Testhygien
+
+## v6.5.1 — Testhygien (2026-10-14)
+
+Patch: städning av testsviten. Inga nya funktioner — bara borttagning av tester
+som inte längre testade något.
+
+### Vad som togs bort
+- **11 hela sektioner** som saknade en riktig assertion: `[82]`, `[83]`, `[102]`
+  (tom loop), `[103]`, `[110]` (tautologi), `[154]`/`[155]` (exakta dubbletter),
+  `[161]` (ingen `check()` alls), `[278]`, `[280]`, `[281]`
+- **5 döda block** inuti annars bra sektioner (`[16]`, `[22]`, `[12]`, `[62g]`, `[75]`)
+- **2 tysta skips** (`equipment_test.cpp`, `[117]`) omvandlade till `check(false, …)`
+  så att ett test som inte kan köra sin assertion failar högt i stället för att PASS:a
+
+### Vad som behölls
+- `[22]`:s 11 riktiga XP/guld-checkar — intakta
+- Confusion/fire-täckning i `[21]`, uncurse i `[13]`, loot-tier-gating i `[70]`
+- `[56]` versionskontroll (brittlig men fångar riktiga paketeringsregressioner)
+
+### Resultat
+- Checkar: 1911 → **1891** (−20), 0 failed
+- Sektioner: 278 → 267
+- `docs/TEST_AUDIT.md` dokumenterar varje borttagning och varför
 
 ## v6.5.0 — Spell System Expansion (2026-10-14)
 

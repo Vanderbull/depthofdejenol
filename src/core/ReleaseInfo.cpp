@@ -29,6 +29,7 @@ QStringList ReleaseInfo::releaseNotes() {
 
 QStringList ReleaseInfo::changes() {
     return {
+        "Test hygiene: 11 vacuous/duplicate test sections and 5 dead blocks removed (1911 to 1891 checks)",
         "48 new spells from the MORDOR manual across 18 categories (95 total)",
         "SpellCategory registry: targeting, resistance, and combat flags per category",
         "SpellTargeting: single, group, area, and self-targeting logic",
@@ -79,6 +80,7 @@ QString ReleaseInfo::banner() {
 
 QList<QPair<QString, QString>> ReleaseInfo::versionHistory() {
     return {
+        {"6.5.1", "2026-10-14 — Test hygiene: removed 11 vacuous/duplicate test sections and 5 dead blocks; 1911→1891 checks, 0 failed"},
         {"6.5.0", "2026-10-14 — Spell System Expansion: 48 new spells from MORDOR manual (95 total), SpellCategory registry (18 categories), SpellTargeting, SpellResistance, SpellScaling, 74 non-vacuous tests"},
         {"6.4.0", "2026-10-13 — Kartgenerering & nivåsystem: större karta (50x50), BSP-algoritm, korridorsnätverk, zon-indelning, multi-nivås rum, strukturell trapp-placering, progressiv komplexitet"},
         {"6.3.0", "2026-10-13 — UI Wiring Repair: restored 14 DungeonDialog action connects, removed redundant library_dialog connect, audited disabled buttons (all intentional), verified AgingRules wiring"},
