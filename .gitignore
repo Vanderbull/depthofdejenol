@@ -84,3 +84,6 @@ data/characters/*
 /backup/
 bankpane/moc_*.cpp
 bankpane/moc_predefs.h
+
+# user state: written by the Options dialog (GameSettings)
+game_settings.ini

@@ -73,7 +73,6 @@ LoadingScreen::LoadingScreen(QWidget *parent) :
     for (const QString &itemName : fileList) {
         m_loadingFiles << "Loading: " + itemName;
     }
-    //checkSettingsFile();
     // Timer Setup
     m_messageTimer = new QTimer(this);
     connect(m_messageTimer, &QTimer::timeout, this, &LoadingScreen::updateLoadingMessage);
@@ -82,15 +81,6 @@ LoadingScreen::LoadingScreen(QWidget *parent) :
     connect(m_closeTimer, &QTimer::timeout, this, &LoadingScreen::closeDialogAutomatically);
     m_closeTimer->start(100);
 }
-/*
-void LoadingScreen::checkSettingsFile()
-{
-    QSettings settings("game_settings.ini", QSettings::IniFormat);
-    bool configOK = settings.contains("Graphics/ResolutionWidth");
-    m_loadingFiles << (configOK ? "Config OK." : "Config Missing.");
-    gameStateManager::instance()->setGameValue("ConfigIntegrityOK", configOK);
-}
-*/
 void LoadingScreen::updateLoadingMessage()
 {
     if (m_closeTimer->remainingTime() < 500) { 

@@ -6208,23 +6208,6 @@ void runWorldTests()
               QString::number(SpellMechanics::instantKillDamage(20)));
     }
 
-    section("[287] v5.6.0 slice 6.1: options backup timestamp updates");
-    {
-        OptionsDialog dlg;
-        // Construct without show() — show() is forbidden in the suite.
-        // Drive the slot directly to verify the label updates.
-        dlg.onBackupClicked();
-        QLabel* label = nullptr;
-        for (QLabel* l : dlg.findChildren<QLabel*>()) {
-            if (l->text().startsWith("Last Backup")) { label = l; break; }
-        }
-        check(label != nullptr, "backup label exists");
-        if (label) {
-            check(label->text().contains("Last Backup"), "label shows backup timestamp");
-            check(!label->text().contains("Placeholder"), "label is not placeholder");
-        }
-    }
-
     section("[285] v5.5.0 slice 5.5: guild eligibility is not all-allowed");
     {
         // RaceData has per-race guild eligibility. The placeholder set

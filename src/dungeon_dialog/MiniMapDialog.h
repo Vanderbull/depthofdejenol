@@ -10,6 +10,8 @@
 #include <QKeyEvent>
 #include <QObject>
 
+#include "../core/GameSettings.h"
+
 class MinimapDialog : public QDialog {
     Q_OBJECT
 public:
@@ -18,15 +20,18 @@ public:
         setWindowTitle("Dungeon Automap");
         resize(450, 500);        
         QVBoxLayout *layout = new QVBoxLayout(this);
-        // Add the Debug Toggle
-        m_revealAllCheck = new QCheckBox("Reveal Entire Map (Debug)", this);
+        // Reveal-all is a real option now (Options dialog > Gameplay), not a
+        // debug switch: it is loaded from and written back to GameSettings.
+        m_revealAllCheck = new QCheckBox("Reveal Entire Map", this);
+        m_revealAllCheck->setChecked(GameSettings::instance().revealAutomap());
         layout->addWidget(m_revealAllCheck);
         m_view = new QGraphicsView(this);
         m_view->setRenderHint(QPainter::Antialiasing);
         m_view->setBackgroundRole(QPalette::Dark);
         layout->addWidget(m_view);
         // When checkbox is clicked, tell the parent to redraw the map
-        connect(m_revealAllCheck, &QCheckBox::toggled, [this](){
+        connect(m_revealAllCheck, &QCheckBox::toggled, [this](bool on){
+            GameSettings::instance().setRevealAutomap(on);
             emit requestMapUpdate();
         });
     }

@@ -1,5 +1,6 @@
 
 #include "src/character_dialog/CharacterDialog.h"
+#include "src/core/GameSettings.h"
 #include "DungeonHandlers.h"
 #include "DungeonDialog.h"
 #include "src/core/BossEncounter.h"
@@ -1960,12 +1961,13 @@ void DungeonDialog::flashCombatFx(bool damage)
     if (!combatFxEnabled()) return;
     if (!m_combatGroup) return;
 
-    // Flash red on damage, green on heal. The timer clears it after 200ms.
+    // Flash red on damage, green on heal. The timer clears it; its length is
+    // the player's "combat animation speed" choice from the Options dialog.
     const QString color = damage ? "rgba(255,0,0,0.3)" : "rgba(0,255,0,0.3)";
     m_combatGroup->setStyleSheet(
         QString("QGroupBox { background-color: %1; }").arg(color));
     if (m_combatFxTimer) {
-        m_combatFxTimer->start(200);
+        m_combatFxTimer->start(GameSettings::instance().combatSpeedMs());
     }
 }
 

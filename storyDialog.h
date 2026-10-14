@@ -13,6 +13,8 @@
 #include <QPixmap>
 #include <QDebug>
 
+#include "src/core/GameSettings.h"
+
 class storyDialog : public QDialog {
     Q_OBJECT
 public:
@@ -33,7 +35,12 @@ public:
         m_group = new QSequentialAnimationGroup(this);
         // --- LOAD TILES FROM ONE IMAGE ---
         loadStoryTiles("resources/images/story_spritesheet.png"); // Use your actual filename
-        showFullScreen();
+        if (GameSettings::instance().fullscreen()) {
+            showFullScreen();
+        } else {
+            resize(1280, 800);
+            showNormal();
+        }
         showNextPart();
     }
 

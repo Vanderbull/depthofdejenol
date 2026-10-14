@@ -1,358 +1,395 @@
 #include "optionsdialog.h"
-#include "audioManager.h"
-#include <QVBoxLayout>
-#include <QHBoxLayout>
-#include <QGridLayout>
-#include <QGroupBox>
+
+#include <QApplication>
 #include <QCheckBox>
-#include <QSlider>
-#include <QLabel>
-#include <QPushButton>
-#include <QCoreApplication>
+#include <QComboBox>
+#include <QDate>
+#include <QDebug>
+#include <QDesktopServices>
 #include <QDir>
 #include <QFile>
-#include <QSettings>
-#include <QString>
-#include <QDateTime>
+#include <QFontDialog>
+#include <QGridLayout>
+#include <QGroupBox>
+#include <QHBoxLayout>
+#include <QLabel>
+#include <QPushButton>
+#include <QSignalBlocker>
+#include <QSlider>
+#include <QUrl>
+#include <QVBoxLayout>
+
+#include "audioManager.h"
+#include "../core/GameSettings.h"
 
 namespace {
-// Every Game Settings checkbox persists to the same ini file the rest of the
-// game already reads (game_settings.ini), under the [Game] group, keyed by the
-// short option name. Loading them back keeps the choices across restarts.
-void saveOption(const QString& key, bool checked)
-{
-    QSettings settings("game_settings.ini", QSettings::IniFormat);
-    settings.setValue("Game/" + key, checked);
+
+// Where the game keeps its own data, and where backups of it go.
+const char* kSavesDir      = "data/saves";
+const char* kCharactersDir = "data/characters";
+const char* kBackupRoot    = "data/backup";
+
+QString todayStamp() {
+    return QDate::currentDate().toString("yyyy-MM-dd");
 }
+
+// Copy every file directly inside `from` into `to` (created if needed).
+// A missing source is not a failure — an empty data dir is fine to back up.
+bool copyDirFlat(const QString& from, const QString& to) {
+    QDir src(from);
+    if (!src.exists()) return true;
+    if (!QDir().mkpath(to)) return false;
+    bool ok = true;
+    const QStringList files = src.entryList(QDir::Files | QDir::NoDotAndDotDot);
+    for (const QString& f : files) {
+        const QString dst = QDir(to).absoluteFilePath(f);
+        if (QFile::exists(dst) && !QFile::remove(dst)) { ok = false; continue; }
+        if (!QFile::copy(src.absoluteFilePath(f), dst)) ok = false;
+    }
+    return ok;
+}
+
+// Newest backup folder name under data/backup, or "" when there is none.
+// The yyyy-MM-dd names sort lexicographically, so last() is the newest.
+QString newestBackup() {
+    QDir root(kBackupRoot);
+    if (!root.exists()) return QString();
+    const QStringList dirs =
+        root.entryList(QDir::Dirs | QDir::NoDotAndDotDot, QDir::Name);
+    return dirs.isEmpty() ? QString() : dirs.last();
+}
+
+// Combat animation speed -> the combat FX timer interval in DungeonDialog.
+const int kSpeeds[] = { 100, 200, 400 };  // Fast / Normal / Slow
+const int kSpeedCount = 3;
+
 } // namespace
 
-void OptionsDialog::onNoMusicToggled(bool checked) 
-{
-    if (checked) {
-        audioManager::instance()->stopAllAudio();
-        qDebug() << "Music muted. Sound FX slider remains at current level.";
-    } else {
-        audioManager::instance()->playMusic("resources/waves/main.wav");
-        qDebug() << "Music restored";
-    }
-}
-/**
- * @brief Copies all files from a source directory to a "backup/YYYY-MM-DD" subfolder within it.
- * * It ignores subdirectories within the source folder and only copies individual files.
- * If a file with the same name already exists in the backup destination, it is overwritten.
- * * @param sourceDirPath The absolute or relative path to the directory to backup.
- * @return true if the operation was completely successful, false if errors occurred.
- */
-bool backupFilesToDateSubfolder(const QString& sourceDirPath) {
-    QDir sourceDir(sourceDirPath);
-    // 1. Validate the source directory
-    if (!sourceDir.exists()) {
-        qDebug() << "Error: Source directory does not exist:" << sourceDirPath;
-        return false;
-    }
-    // 2. Get the current date formatted as "YYYY-MM-DD"
-    QString dateString = QDate::currentDate().toString("yyyy-MM-dd");
-    // 3. Define the full destination path: sourceDir/backup/YYYY-MM-DD
-    QString backupBaseDirPath = sourceDir.absoluteFilePath("backup");
-    QString finalBackupDirPath = backupBaseDirPath + QDir::separator() + dateString;
-    QDir finalBackupDir(finalBackupDirPath);
-    // 4. Create the full directory path (backup/YYYY-MM-DD)
-    // QDir::mkpath will create the entire path structure recursively.
-    if (!finalBackupDir.mkpath(".")) {
-        qDebug() << "Error: Could not create date-stamped backup directory:" << finalBackupDirPath;
-        return false;
-    }
-    qDebug() << "Destination folder path:" << finalBackupDirPath;
-    // 5. Get a list of files from the source directory
-    // QDir::Files | QDir::NoDotAndDotDot ensures we only process files and ignore "." and ".."
-    QStringList files = sourceDir.entryList(QDir::Files | QDir::NoDotAndDotDot);
-
-    bool allSuccessful = true;
-    if (files.isEmpty()) {
-        qDebug() << "No files found to backup in:" << sourceDirPath;
-    }
-    // 6. Iterate through the files and copy them
-    for (const QString& fileName : files) {
-        QString sourceFilePath = sourceDir.absoluteFilePath(fileName);
-        QString destFilePath = finalBackupDir.absoluteFilePath(fileName);
-
-        // Remove existing file in destination before copying to ensure a fresh copy (overwrite)
-        if (QFile::exists(destFilePath)) {
-            if (!QFile::remove(destFilePath)) {
-                qDebug() << "Warning: Could not remove existing file (will not copy):" << destFilePath;
-                allSuccessful = false;
-                continue; 
-            }
-        }
-        // The core copying operation
-        if (QFile::copy(sourceFilePath, destFilePath)) {
-            qDebug() << "Copied:" << fileName;
-        } else {
-            qDebug() << "Error copying file:" << fileName;
-            allSuccessful = false;
-        }
-    }
-    // 7. Final status message
-    if (allSuccessful) {
-        qDebug() << "\n✅ File backup operation completed successfully to " << dateString << " folder!";
-    } else {
-        qDebug() << "\n⚠️ File backup operation completed with some errors.";
-    }
-    return allSuccessful;
-}
-
 OptionsDialog::OptionsDialog(QWidget *parent) : QDialog(parent) {
-    setWindowTitle("Options");
-    setFixedSize(850, 550);
-    // Set the default font values
-    currentPropFont = QFont("MS Sans Serif", 8); 
-    currentFixedFont = QFont("Courier New", 9); // Keeping your original Courier default
+    setWindowTitle(tr("Options"));
     setupUi();
-    // Connect the buttons to their slots
-    connect(okButton, &QPushButton::clicked, this, &OptionsDialog::onOkClicked);
-    connect(cancelButton, &QPushButton::clicked, this, &OptionsDialog::onCancelClicked);
-    connect(noMusicCheckBox, &QCheckBox::toggled, this, &OptionsDialog::onNoMusicToggled);
-    connect(defaultButton, &QPushButton::clicked, this, &OptionsDialog::onDefaultClicked);
-    // Connect the new Backup/Restore buttons
-    connect(backupButton, &QPushButton::clicked, this, &OptionsDialog::onBackupClicked);
-    // --- Connect Game Settings Checkboxes ---
-    // Each checkbox persists its state to game_settings.ini and restores it on
-    // open, so the choice actually survives a restart.
-    auto wireOption = [](QCheckBox* box, const QString& key) {
-        QSettings settings("game_settings.ini", QSettings::IniFormat);
-        box->setChecked(settings.value("Game/" + key, false).toBool());
-        QObject::connect(box, &QCheckBox::toggled, box, [key](bool checked) {
-            saveOption(key, checked);
-        });
-    };
-
-    wireOption(noPartySoundCheckBox, "NoPartySound");
-    wireOption(noMsgDingCheckBox, "NoMsgDing");
-    wireOption(noHelpSoundCheckBox, "NoHelpSound");
-    wireOption(noToolbarCheckBox, "NoToolbar");
-    wireOption(noAutomapCursorBlinkCheckBox, "NoAutomapCursorBlink");
-    wireOption(no3DCheckBox, "No3D");
-    wireOption(noStretchBltCheckBox, "NoStretchBlt");
-    wireOption(noLoadAutomapCheckBox, "NoLoadAutomap");
-    wireOption(noAutosaveCheckBox, "NoAutosave");
-
-    // --- Connect Audio Settings Checkboxes ---
-    // Note: noMusicCheckBox is already connected to onNoMusicToggled in your original code
-
-    connect(noSoundFxCheckBox, &QCheckBox::toggled, this, [](bool checked) {
-        audioManager::instance()->setSfxVolume(checked ? 0.0f : 0.75f);
-    });
-    connect(restoreButton, &QPushButton::clicked, this, &OptionsDialog::onRestoreClicked);
-
+    loadFromSettings();
+    snapshot();
+    refreshLastBackupLabel();
 }
 
-void OptionsDialog::setupUi() 
-{
-    QVBoxLayout *mainLayout = new QVBoxLayout(this);
-    QGridLayout *topGrid = new QGridLayout();
-    // Game Settings Group
-    QGroupBox *gameSettingsBox = new QGroupBox("Game Settings");
-    QGridLayout *gameSettingsLayout = new QGridLayout(gameSettingsBox);
-    noPartySoundCheckBox = new QCheckBox("No Party Sound");
-    noMsgDingCheckBox = new QCheckBox("No Msg. Ding");
-    noHelpSoundCheckBox = new QCheckBox("No HELP Sound");
-    noToolbarCheckBox = new QCheckBox("No Toolbar");
-    noAutomapCursorBlinkCheckBox = new QCheckBox("No Automap Cursor Blink");
-    no3DCheckBox = new QCheckBox("No 3-D");
-    noStretchBltCheckBox = new QCheckBox("No StretchBlt");
-    noLoadAutomapCheckBox = new QCheckBox("No Load Automap");
-    noAutosaveCheckBox = new QCheckBox("No Autosave");
-    
-    gameSettingsLayout->addWidget(noPartySoundCheckBox, 0, 0);
-    gameSettingsLayout->addWidget(no3DCheckBox, 0, 1);
-    gameSettingsLayout->addWidget(noMsgDingCheckBox, 1, 0);
-    gameSettingsLayout->addWidget(noStretchBltCheckBox, 1, 1);
-    gameSettingsLayout->addWidget(noHelpSoundCheckBox, 2, 0);
-    gameSettingsLayout->addWidget(noLoadAutomapCheckBox, 2, 1);
-    gameSettingsLayout->addWidget(noToolbarCheckBox, 3, 0);
-    gameSettingsLayout->addWidget(noAutosaveCheckBox, 3, 1);
-    gameSettingsLayout->addWidget(noAutomapCursorBlinkCheckBox, 4, 0);
-    topGrid->addWidget(gameSettingsBox, 0, 0);
-    
-    // Font Settings Group
-    QGroupBox *fontSettingsBox = new QGroupBox("Font Settings");
-    QVBoxLayout *fontSettingsLayout = new QVBoxLayout(fontSettingsBox);
+OptionsDialog::~OptionsDialog() = default;
 
-    fontSettingsLayout->addWidget(new QLabel("Proportional Font"));
-    
-    // Create the button and set its text to the default font name
-    propFontButton = new QPushButton(currentPropFont.family() + " (" + QString::number(currentPropFont.pointSize()) + ")");
-    fontSettingsLayout->addWidget(propFontButton);
+// ------------------------------------------------------------------- UI ------
 
-    fontSettingsLayout->addWidget(new QLabel("Non-Proportional Font"));
-    fixedFontButton = new QPushButton(currentFixedFont.family() + " (" + QString::number(currentFixedFont.pointSize()) + ")");
-    fontSettingsLayout->addWidget(fixedFontButton);
+void OptionsDialog::setupUi() {
+    auto *mainLayout = new QVBoxLayout(this);
+    mainLayout->setContentsMargins(16, 16, 16, 16);
+    mainLayout->setSpacing(12);
 
-    defaultButton = new QPushButton("Default");
-    fontSettingsLayout->addWidget(defaultButton, 0, Qt::AlignCenter);
-    
-    topGrid->addWidget(fontSettingsBox, 0, 1);
-    // Connect font buttons
-    connect(propFontButton, &QPushButton::clicked, this, &OptionsDialog::onSelectProportionalFont);
-    connect(fixedFontButton, &QPushButton::clicked, this, &OptionsDialog::onSelectFixedFont); 
+    auto *grid = new QGridLayout();
+    grid->setSpacing(12);
 
-    // --- Combined Audio Settings Group ---
-    QGroupBox *audioBox = new QGroupBox("Music & Sound Settings");
-    QVBoxLayout *audioLayout = new QVBoxLayout(audioBox);
-    // 1. Music Volume Section
-    audioLayout->addWidget(new QLabel("Music Vol."));
-    musicVolSlider = new QSlider(Qt::Horizontal);
-    musicVolSlider->setRange(0, 100);
-    musicVolSlider->setValue(static_cast<int>(audioManager::instance()->getMusicVolume() * 100.0f));
-    connect(musicVolSlider, &QSlider::valueChanged, this, [](int value) {
-        float vol = static_cast<float>(value) / 100.0f;
-        audioManager::instance()->setMusicVolume(vol);
-    });
+    // ---- Audio ----
+    auto *audioBox = new QGroupBox(tr("Audio"), this);
+    auto *audioLayout = new QGridLayout(audioBox);
 
-    noMusicCheckBox = new QCheckBox("No Music");
-    connect(noMusicCheckBox, &QCheckBox::toggled, this, &OptionsDialog::onNoMusicToggled);
+    m_musicSlider = new QSlider(Qt::Horizontal, audioBox);
+    m_musicSlider->setObjectName("musicVolumeSlider");
+    m_musicSlider->setRange(0, 100);
+    m_musicValue = new QLabel(audioBox);
+    m_musicValue->setMinimumWidth(40);
+    audioLayout->addWidget(new QLabel(tr("Music volume"), audioBox), 0, 0);
+    audioLayout->addWidget(m_musicSlider, 0, 1);
+    audioLayout->addWidget(m_musicValue, 0, 2);
 
-    QHBoxLayout *musicRow = new QHBoxLayout();
-    musicRow->addWidget(musicVolSlider);
-    musicRow->addWidget(noMusicCheckBox);
-    audioLayout->addLayout(musicRow);
-    // 2. SFX Volume Section (Now inside the same group)
-    audioLayout->addWidget(new QLabel("Sfx Vol."));
-    sfxVolSlider = new QSlider(Qt::Horizontal);
-    sfxVolSlider->setRange(0, 100);
-    sfxVolSlider->setValue(static_cast<int>(audioManager::instance()->getSfxVolume() * 100.0f));
+    m_sfxSlider = new QSlider(Qt::Horizontal, audioBox);
+    m_sfxSlider->setObjectName("sfxVolumeSlider");
+    m_sfxSlider->setRange(0, 100);
+    m_sfxValue = new QLabel(audioBox);
+    m_sfxValue->setMinimumWidth(40);
+    audioLayout->addWidget(new QLabel(tr("Sound FX volume"), audioBox), 1, 0);
+    audioLayout->addWidget(m_sfxSlider, 1, 1);
+    audioLayout->addWidget(m_sfxValue, 1, 2);
 
-    connect(sfxVolSlider, &QSlider::valueChanged, this, [](int value) {
-        float vol = static_cast<float>(value) / 100.0f;
-        audioManager::instance()->setSfxVolume(vol);
-    });
+    m_muteBox = new QCheckBox(tr("Mute all audio"), audioBox);
+    m_muteBox->setObjectName("muteAllCheckBox");
+    audioLayout->addWidget(m_muteBox, 2, 0, 1, 3);
+    grid->addWidget(audioBox, 0, 0);
 
-    noSoundFxCheckBox = new QCheckBox("No Sound FX");
-    QHBoxLayout *sfxRow = new QHBoxLayout();
-    sfxRow->addWidget(sfxVolSlider);
-    sfxRow->addWidget(noSoundFxCheckBox);
-    audioLayout->addLayout(sfxRow);
+    // ---- Gameplay ----
+    auto *gameBox = new QGroupBox(tr("Gameplay"), this);
+    auto *gameLayout = new QGridLayout(gameBox);
 
-    mainLayout->addWidget(audioBox);
-    topGrid->addWidget(audioBox, 1, 0);
-    // File Backups Group
-    QGroupBox *fileBackupsBox = new QGroupBox("File Backups");
-    QVBoxLayout *fileBackupsLayout = new QVBoxLayout(fileBackupsBox);
-    lastBackupLabel = new QLabel(""); // Placeholder date
-    backupButton = new QPushButton("Backup");
-    restoreButton = new QPushButton("Restore");
-    fileBackupsLayout->addWidget(lastBackupLabel, 0, Qt::AlignCenter);
-    fileBackupsLayout->addWidget(backupButton);
-    fileBackupsLayout->addWidget(restoreButton);
-    topGrid->addWidget(fileBackupsBox, 1, 1);
-    mainLayout->addLayout(topGrid);
-    // OK and Cancel Buttons
-    QHBoxLayout *buttonLayout = new QHBoxLayout();
-    okButton = new QPushButton("OK");
-    cancelButton = new QPushButton("Cancel");
+    m_autosaveBox = new QCheckBox(tr("Autosave"), gameBox);
+    m_autosaveBox->setObjectName("autosaveCheckBox");
+    gameLayout->addWidget(m_autosaveBox, 0, 0, 1, 2);
+
+    m_revealBox = new QCheckBox(tr("Reveal entire automap"), gameBox);
+    m_revealBox->setObjectName("revealAutomapCheckBox");
+    gameLayout->addWidget(m_revealBox, 1, 0, 1, 2);
+
+    m_speedBox = new QComboBox(gameBox);
+    m_speedBox->setObjectName("combatSpeedComboBox");
+    m_speedBox->addItem(tr("Fast"));
+    m_speedBox->addItem(tr("Normal"));
+    m_speedBox->addItem(tr("Slow"));
+    gameLayout->addWidget(new QLabel(tr("Combat animation speed"), gameBox), 2, 0);
+    gameLayout->addWidget(m_speedBox, 2, 1);
+    grid->addWidget(gameBox, 0, 1);
+
+    // ---- Display ----
+    auto *displayBox = new QGroupBox(tr("Display"), this);
+    auto *displayLayout = new QGridLayout(displayBox);
+
+    m_fullscreenBox = new QCheckBox(tr("Fullscreen"), displayBox);
+    m_fullscreenBox->setObjectName("fullscreenCheckBox");
+    displayLayout->addWidget(m_fullscreenBox, 0, 0, 1, 2);
+
+    m_propFontButton = new QPushButton(displayBox);
+    m_propFontButton->setObjectName("proportionalFontButton");
+    m_fixedFontButton = new QPushButton(displayBox);
+    m_fixedFontButton->setObjectName("fixedFontButton");
+    displayLayout->addWidget(new QLabel(tr("Proportional font"), displayBox), 1, 0);
+    displayLayout->addWidget(m_propFontButton, 1, 1);
+    displayLayout->addWidget(new QLabel(tr("Non-proportional font"), displayBox), 2, 0);
+    displayLayout->addWidget(m_fixedFontButton, 2, 1);
+    grid->addWidget(displayBox, 1, 0);
+
+    // ---- Data ----
+    auto *dataBox = new QGroupBox(tr("Data"), this);
+    auto *dataLayout = new QVBoxLayout(dataBox);
+
+    m_lastBackupLabel = new QLabel(dataBox);
+    m_lastBackupLabel->setObjectName("lastBackupLabel");
+    dataLayout->addWidget(m_lastBackupLabel);
+
+    m_backupButton = new QPushButton(tr("Backup now"), dataBox);
+    m_backupButton->setObjectName("backupButton");
+    m_restoreButton = new QPushButton(tr("Restore"), dataBox);
+    m_restoreButton->setObjectName("restoreButton");
+    auto *openFolderButton = new QPushButton(tr("Open save folder"), dataBox);
+    openFolderButton->setObjectName("openSaveFolderButton");
+
+    dataLayout->addWidget(m_backupButton);
+    dataLayout->addWidget(m_restoreButton);
+    dataLayout->addWidget(openFolderButton);
+    dataLayout->addStretch();
+    grid->addWidget(dataBox, 1, 1);
+
+    mainLayout->addLayout(grid);
+    mainLayout->addStretch();
+
+    // ---- Actions ----
+    auto *buttonLayout = new QHBoxLayout();
+    m_defaultButton = new QPushButton(tr("Default"), this);
+    m_defaultButton->setObjectName("defaultButton");
+    m_okButton = new QPushButton(tr("OK"), this);
+    m_okButton->setObjectName("okButton");
+    m_cancelButton = new QPushButton(tr("Cancel"), this);
+    m_cancelButton->setObjectName("cancelButton");
+    buttonLayout->addWidget(m_defaultButton);
     buttonLayout->addStretch();
-    buttonLayout->addWidget(okButton);
-    buttonLayout->addWidget(cancelButton);
+    buttonLayout->addWidget(m_okButton);
+    buttonLayout->addWidget(m_cancelButton);
     mainLayout->addLayout(buttonLayout);
+
+    // ---- Wiring: every control drives GameSettings; audio previews live ----
+    connect(m_musicSlider, &QSlider::valueChanged, this, [this](int v) {
+        m_musicValue->setText(QString::number(v));
+        GameSettings::instance().setMusicVolume(v / 100.0f);
+        applyLiveAudio();
+    });
+    connect(m_sfxSlider, &QSlider::valueChanged, this, [this](int v) {
+        m_sfxValue->setText(QString::number(v));
+        GameSettings::instance().setSfxVolume(v / 100.0f);
+        applyLiveAudio();
+    });
+    connect(m_muteBox, &QCheckBox::toggled, this, [this](bool on) {
+        GameSettings::instance().setAudioMuted(on);
+        applyLiveAudio();
+    });
+    connect(m_autosaveBox, &QCheckBox::toggled, this, [](bool on) {
+        GameSettings::instance().setAutosaveEnabled(on);
+    });
+    connect(m_revealBox, &QCheckBox::toggled, this, [](bool on) {
+        GameSettings::instance().setRevealAutomap(on);
+    });
+    connect(m_speedBox, &QComboBox::currentIndexChanged, this, [](int idx) {
+        if (idx >= 0 && idx < kSpeedCount)
+            GameSettings::instance().setCombatSpeedMs(kSpeeds[idx]);
+    });
+    connect(m_fullscreenBox, &QCheckBox::toggled, this, [](bool on) {
+        GameSettings::instance().setFullscreen(on);
+    });
+    connect(m_propFontButton, &QPushButton::clicked, this, &OptionsDialog::onSelectProportionalFont);
+    connect(m_fixedFontButton, &QPushButton::clicked, this, &OptionsDialog::onSelectFixedFont);
+    connect(m_backupButton, &QPushButton::clicked, this, &OptionsDialog::onBackupClicked);
+    connect(m_restoreButton, &QPushButton::clicked, this, &OptionsDialog::onRestoreClicked);
+    connect(openFolderButton, &QPushButton::clicked, this, []() {
+        QDesktopServices::openUrl(QUrl::fromLocalFile(QDir(kSavesDir).absolutePath()));
+    });
+    connect(m_okButton, &QPushButton::clicked, this, &OptionsDialog::onOkClicked);
+    connect(m_cancelButton, &QPushButton::clicked, this, &OptionsDialog::onCancelClicked);
+    connect(m_defaultButton, &QPushButton::clicked, this, &OptionsDialog::onDefaultClicked);
 }
+
+void OptionsDialog::loadFromSettings() {
+    // Block signals so loading the stored values does not look like the player
+    // editing them (which would write them straight back and restart audio).
+    QSignalBlocker blockMusic(m_musicSlider);
+    QSignalBlocker blockSfx(m_sfxSlider);
+    QSignalBlocker blockMute(m_muteBox);
+    QSignalBlocker blockAutosave(m_autosaveBox);
+    QSignalBlocker blockReveal(m_revealBox);
+    QSignalBlocker blockSpeed(m_speedBox);
+    QSignalBlocker blockFull(m_fullscreenBox);
+
+    GameSettings& s = GameSettings::instance();
+
+    m_musicSlider->setValue(qRound(s.musicVolume() * 100.0f));
+    m_sfxSlider->setValue(qRound(s.sfxVolume() * 100.0f));
+    m_musicValue->setText(QString::number(m_musicSlider->value()));
+    m_sfxValue->setText(QString::number(m_sfxSlider->value()));
+    m_muteBox->setChecked(s.audioMuted());
+
+    m_autosaveBox->setChecked(s.autosaveEnabled());
+    m_revealBox->setChecked(s.revealAutomap());
+
+    int speedIdx = 1;  // Normal
+    for (int i = 0; i < kSpeedCount; ++i)
+        if (kSpeeds[i] == s.combatSpeedMs()) speedIdx = i;
+    m_speedBox->setCurrentIndex(speedIdx);
+
+    m_fullscreenBox->setChecked(s.fullscreen());
+
+    m_propFamily  = s.proportionalFontFamily();
+    m_propSize    = s.proportionalFontSize();
+    m_fixedFamily = s.fixedFontFamily();
+    m_fixedSize   = s.fixedFontSize();
+    refreshFontButtons();
+}
+
+void OptionsDialog::refreshFontButtons() {
+    const QFont appFont = QApplication::font();
+    m_propFontButton->setText(m_propFamily.isEmpty()
+        ? tr("%1 (default)").arg(appFont.family())
+        : tr("%1 (%2)").arg(m_propFamily).arg(m_propSize));
+    m_fixedFontButton->setText(m_fixedFamily.isEmpty()
+        ? tr("Courier New (default)")
+        : tr("%1 (%2)").arg(m_fixedFamily).arg(m_fixedSize));
+}
+
+void OptionsDialog::applyLiveAudio() {
+    GameSettings& s = GameSettings::instance();
+    auto *audio = audioManager::instance();
+    const bool muted = m_muteBox->isChecked();
+    audio->setMusicVolume(muted ? 0.0f : s.musicVolume());
+    audio->setSfxVolume(muted ? 0.0f : s.sfxVolume());
+}
+
+// ------------------------------------------------------- snapshot / restore ---
+
+void OptionsDialog::snapshot() {
+    GameSettings& s = GameSettings::instance();
+    m_snapshot.music       = s.musicVolume();
+    m_snapshot.sfx         = s.sfxVolume();
+    m_snapshot.muted       = s.audioMuted();
+    m_snapshot.autosave    = s.autosaveEnabled();
+    m_snapshot.reveal      = s.revealAutomap();
+    m_snapshot.fullscreen  = s.fullscreen();
+    m_snapshot.speed       = s.combatSpeedMs();
+    m_snapshot.propFamily  = s.proportionalFontFamily();
+    m_snapshot.propSize    = s.proportionalFontSize();
+    m_snapshot.fixedFamily = s.fixedFontFamily();
+    m_snapshot.fixedSize   = s.fixedFontSize();
+}
+
+void OptionsDialog::restoreSnapshot() {
+    GameSettings& s = GameSettings::instance();
+    s.setMusicVolume(m_snapshot.music);
+    s.setSfxVolume(m_snapshot.sfx);
+    s.setAudioMuted(m_snapshot.muted);
+    s.setAutosaveEnabled(m_snapshot.autosave);
+    s.setRevealAutomap(m_snapshot.reveal);
+    s.setFullscreen(m_snapshot.fullscreen);
+    s.setCombatSpeedMs(m_snapshot.speed);
+    s.setProportionalFont(m_snapshot.propFamily, m_snapshot.propSize);
+    s.setFixedFont(m_snapshot.fixedFamily, m_snapshot.fixedSize);
+    s.applyAll();
+}
+
+// ----------------------------------------------------------------- actions ---
 
 void OptionsDialog::onOkClicked() {
+    GameSettings::instance().sync();
     accept();
 }
 
 void OptionsDialog::onCancelClicked() {
+    // Undo every change made while the dialog was open, then close.
+    restoreSnapshot();
+    GameSettings::instance().sync();
     reject();
 }
+
 void OptionsDialog::onDefaultClicked() {
-    // 1. Reset the font variables to the requested defaults
-    currentPropFont = QFont("MS Sans Serif", 8);
-    currentFixedFont = QFont("Courier New", 9);
-
-    // 2. Update the button labels to reflect the reset
-    propFontButton->setText(currentPropFont.family() + " (" + QString::number(currentPropFont.pointSize()) + ")");
-    fixedFontButton->setText(currentFixedFont.family() + " (" + QString::number(currentFixedFont.pointSize()) + ")");
-
-    // 3. (Optional) Apply the default font to the application immediately
-    // QGuiApplication::setFont(currentPropFont);
-
-    qDebug() << "Fonts reset to default: MS Sans Serif and Courier New";
+    GameSettings::instance().resetToDefaults();
+    loadFromSettings();
 }
 
-/**
- * @brief Restores files from the "backup/YYYY-MM-DD" subfolder back to the source directory.
- */
-bool restoreFilesFromDateSubfolder(const QString& sourceDirPath) {
-    QString dateString = QDate::currentDate().toString("yyyy-MM-dd");
-    QString backupPath = sourceDirPath + "/backup/" + dateString;
-    QDir backupDir(backupPath);
-
-    if (!backupDir.exists()) {
-        qDebug() << "Error: No backup found for today at" << backupPath;
-        return false;
-    }
-
-    QStringList files = backupDir.entryList(QDir::Files | QDir::NoDotAndDotDot);
-    bool allSuccessful = true;
-
-    for (const QString& fileName : files) {
-        QString src = backupDir.absoluteFilePath(fileName);
-        QString dest = QDir(sourceDirPath).absoluteFilePath(fileName);
-
-        if (QFile::exists(dest)) QFile::remove(dest);
-        if (QFile::copy(src, dest)) {
-            qDebug() << "Restored:" << fileName;
-        } else {
-            allSuccessful = false;
-        }
-    }
-    return allSuccessful;
+void OptionsDialog::onSelectProportionalFont() {
+    const QFont initial = m_propFamily.isEmpty() ? QApplication::font()
+                                                 : QFont(m_propFamily, m_propSize);
+    bool ok = false;
+    const QFont font = QFontDialog::getFont(&ok, initial, this,
+                                            tr("Select Proportional Font"));
+    if (!ok) return;
+    m_propFamily = font.family();
+    m_propSize = font.pointSize();
+    GameSettings::instance().setProportionalFont(m_propFamily, m_propSize);
+    GameSettings::instance().applyAll();
+    refreshFontButtons();
 }
 
-// --- New Slot Implementations ---
+void OptionsDialog::onSelectFixedFont() {
+    const QFont initial = m_fixedFamily.isEmpty() ? QFont("Courier New", 9)
+                                                  : QFont(m_fixedFamily, m_fixedSize);
+    QFontDialog dialog(initial, this);
+    dialog.setWindowTitle(tr("Select Non-Proportional Font"));
+    if (dialog.exec() != QDialog::Accepted) return;
+    const QFont font = dialog.selectedFont();
+    m_fixedFamily = font.family();
+    m_fixedSize = font.pointSize();
+    GameSettings::instance().setFixedFont(m_fixedFamily, m_fixedSize);
+    GameSettings::instance().applyAll();
+    refreshFontButtons();
+}
+
+// -------------------------------------------------------------------- data ---
 
 void OptionsDialog::onBackupClicked() {
-    qDebug() << "--- Starting Backup ---";
-    if (backupFilesToDateSubfolder(".")) {
-        lastBackupLabel->setText("Last Backup: " + QDate::currentDate().toString("yyyy-MM-dd"));
+    const QString dest = QString(kBackupRoot) + "/" + todayStamp();
+    bool ok = copyDirFlat(kSavesDir, dest + "/saves");
+    ok = copyDirFlat(kCharactersDir, dest + "/characters") && ok;
+    if (ok) {
+        m_lastBackupLabel->setText(tr("Last backup: %1").arg(todayStamp()));
+    } else {
+        m_lastBackupLabel->setText(tr("Backup failed"));
+        qWarning() << "OptionsDialog: backup to" << dest << "failed";
     }
 }
 
 void OptionsDialog::onRestoreClicked() {
-    qDebug() << "--- Starting Restore ---";
-    if (restoreFilesFromDateSubfolder(".")) {
-        lastBackupLabel->setText("Last Backup: " + QDate::currentDate().toString("yyyy-MM-dd"));
-        qDebug() << "Restore complete.";
+    const QString newest = newestBackup();
+    if (newest.isEmpty()) {
+        m_lastBackupLabel->setText(tr("No backup found"));
+        return;
     }
+    bool ok = copyDirFlat(QString(kBackupRoot) + "/" + newest + "/saves", kSavesDir);
+    ok = copyDirFlat(QString(kBackupRoot) + "/" + newest + "/characters", kCharactersDir) && ok;
+    m_lastBackupLabel->setText(ok ? tr("Restored backup from %1").arg(newest)
+                                  : tr("Restore failed"));
 }
 
-void OptionsDialog::onSelectProportionalFont() {
-    bool ok;
-    QFont font = QFontDialog::getFont(&ok, currentPropFont, this, "Select Proportional Font");
-    if (ok) {
-        currentPropFont = font;
-        propFontButton->setText(font.family() + " (" + QString::number(font.pointSize()) + ")");
-        
-        // Push to Global Manager
-        gameStateManager::instance()->setProportionalFont(font);
-        qDebug() << "Proportional font updated to:" << font.family();
-    }
+void OptionsDialog::refreshLastBackupLabel() {
+    const QString newest = newestBackup();
+    m_lastBackupLabel->setText(newest.isEmpty()
+        ? tr("No backup yet")
+        : tr("Last backup: %1").arg(newest));
 }
-
-void OptionsDialog::onSelectFixedFont() {
-    QFontDialog dialog(currentFixedFont, this);
-    dialog.setWindowTitle("Select Fixed-Width Font");
-    
-    if (dialog.exec() == QDialog::Accepted) {
-        QFont font = dialog.selectedFont();
-        currentFixedFont = font;
-        fixedFontButton->setText(font.family() + " (" + QString::number(font.pointSize()) + ")");
-        
-        // Push to Global Manager
-        gameStateManager::instance()->setFixedFont(font);
-        qDebug() << "Fixed font updated to:" << font.family();
-    }
-}
-
-
-OptionsDialog::~OptionsDialog() {}
-

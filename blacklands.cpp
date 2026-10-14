@@ -16,6 +16,7 @@
 #include <QRegularExpression>
 #include "src/race_data/RaceData.h"
 #include "src/core/DungeonLevelState.h"
+#include "src/core/GameSettings.h"
 #include "test/selftest.h"
 #include "src/dungeon_dialog/DungeonDialog.h"
 #include <QPushButton>
@@ -195,8 +196,13 @@ void GameMenu::setupUI() {
 
     mainLayout->addLayout(footerLayout);
 
-    // Fullscreen — fill the entire screen
-    showFullScreen();
+    // Fullscreen is the player's choice (Options dialog), not a hard-coded mode.
+    if (GameSettings::instance().fullscreen()) {
+        showFullScreen();
+    } else {
+        resize(1280, 800);
+        showNormal();
+    }
 }
 
 void GameMenu::setupConnections() {
@@ -603,6 +609,10 @@ int main(int argc, char *argv[]) {
         qInfo() << "=== END MENU PROBE ===";
         return 0;
     }
+
+    // Push the stored options into the running game before anything is shown,
+    // so a choice made in a previous session is actually in effect.
+    GameSettings::instance().applyAll();
 
     // Initial sequence
     LoadingScreen loadingScreen;

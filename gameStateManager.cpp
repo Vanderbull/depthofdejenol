@@ -7,6 +7,7 @@
 #include "src/core/Endgame.h"
 #include "src/spell_casting/SpellBook.h"
 #include "src/items/ItemDatabase.h"
+#include "src/core/GameSettings.h"
 
 #include "version.h"
 //#include "fontManager.h"
@@ -33,8 +34,6 @@
 #include <QPainter>
 
 void gameStateManager::initializeResources() {
-    checkSettingsFile();
-
     // 1. Call the existing static resource loader
     GameResources::loadAllResources();
     
@@ -337,7 +336,7 @@ gameStateManager::gameStateManager(QObject *parent)
     qDebug() << "Loaded" << m_raceDefinitions.size() << "race definitions.";
     qDebug() << "gameStateManager initialized.";
     listGameData();
-    m_autosaveTimer->start(30000);
+    startAutosave(30000);
 }
 
 void gameStateManager::loadGameData(const QString& filePath) {
@@ -782,17 +781,28 @@ void gameStateManager::listGameData() {
 }
 
 void gameStateManager::startAutosave(int intervalms) {
-    if (m_autosaveTimer) {
-        m_autosaveTimer->start(intervalms);
-        qDebug() << "Autosave started with interval:" << intervalms << "ms";
+    if (!m_autosaveTimer) return;
+    // The Options dialog can switch autosave off. Every caller (the periodic
+    // timer and the new-game start) goes through this one gate.
+    if (!GameSettings::instance().autosaveEnabled()) {
+        m_autosaveTimer->stop();
+        qDebug() << "Autosave disabled by settings - not started.";
+        return;
     }
+    m_autosaveTimer->start(intervalms);
+    qDebug() << "Autosave started with interval:" << intervalms << "ms";
 }
 
 void gameStateManager::stopAutosave() {
     if (m_autosaveTimer) m_autosaveTimer->stop();
 }
 
+bool gameStateManager::isAutosaveRunning() const {
+    return m_autosaveTimer && m_autosaveTimer->isActive();
+}
+
 void gameStateManager::handleAutosave() {
+    if (!GameSettings::instance().autosaveEnabled()) return;
     qDebug() << "Triggering periodic autosave...";
 
     // Check if a character is actually loaded before saving
@@ -2022,13 +2032,6 @@ bool gameStateManager::uncurseItem(int characterIndex, int inventoryIndex, QStri
     result = QString("Uncursed: %1").arg(cleanName);
     refreshUI();
     return true;
-}
-
-// Move from LoadingScreen to gameStateManager
-void gameStateManager::checkSettingsFile() {
-    QSettings settings("game_settings.ini", QSettings::IniFormat);
-    bool configOK = settings.contains("Graphics/ResolutionWidth");
-    setGameValue("ConfigIntegrityOK", configOK);
 }
 
 bool gameStateManager::saveFullGameState(const QString& saveName) {

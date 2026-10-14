@@ -144,7 +144,6 @@ public:
     // reset the dungeon, quest chain and play time, and increase NG+ level.
     void startNewGamePlus();
 
-    void checkSettingsFile();
     void initializeResources();
     QPixmap getFontSpriteSheet() const { return m_fontSpriteSheet; }
 
@@ -317,6 +316,9 @@ public:
     //bool repairSaveGame(const QString& characterName);
     void startAutosave(int intervalms = 10000);
     void stopAutosave();
+    // True while the periodic autosave timer is armed. Lets the settings test
+    // prove that "Autosave off" actually stops it.
+    bool isAutosaveRunning() const;
     // --- Global Values System ---
     void setGameValue(const QString& key, const QVariant& value);
     QVariant getGameValue(const QString& key) const;
