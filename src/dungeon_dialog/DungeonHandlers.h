@@ -18,6 +18,7 @@ public:
     static void handleRotator(DungeonDialog* dialog, int x, int y);
     static void handleEncounters(DungeonDialog* dialog, int x, int y);
     static void handleTreasure(DungeonDialog* dialog, int x, int y);
+    static void handleTeleporter(DungeonDialog* dialog, int x, int y);
 };
 
 #endif // DUNGEONHANDLERS_H

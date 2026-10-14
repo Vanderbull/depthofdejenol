@@ -1,6 +1,28 @@
 # Release Notes
 
-**Latest:** v6.4.0 — Kartgenerering & nivåsystem
+**Latest:** v6.5.0 — Spell System Expansion
+
+## v6.5.0 — Spell System Expansion (2026-10-14)
+
+Full spell taxonomy from the MORDOR manual — 18 categories, 95 spells, and the mechanical infrastructure to support them.
+
+### Spell Data (48 new spells)
+- 48 new spells added to `data/spells.json` across 18 categories: Heal, Charm, Bind, Fire, Cold, Electrical, Element, Damage, Kill, Protection, Resistant, Visual, Magical, Mind, Movement, Location, Dispel, Banish
+- Total: 95 spells (47 original + 48 from MORDOR manual)
+
+### Spell Mechanics Infrastructure
+- `SpellCategory` — registry of all 18 spell categories with targeting type, resistance type, and combat flag
+- `SpellTargeting` — single (1), group (4), area (1 + level/3), self (0) targeting logic
+- `SpellResistance` — 20% base resistance, +5% per level difference (caster vs monster)
+- `SpellScaling` — +10% power per level above base, scales damage/healing/duration
+
+### Non-Vacuous Tests
+- 5 test sections (S1–S5), 74 new checks
+- S1: Stat requirements (Int 5 can't cast Flame Bolt, Int 30 can; Mages can't cast Wizards-only spells)
+- S2: Level scaling (+10%/level, damage/healing/duration)
+- S3: Resistance rolls (20% base, +5%/level difference, 0% for no-resistance, 100% for extreme)
+- S4: Target counts (single=1, group=4, area=1+level/3, self=0)
+- S5: Category registry (18 categories, targeting types, resistance types, display names)
 
 ## v6.4.0 — Kartgenerering & nivåsystem (2026-10-13)
 

@@ -2175,7 +2175,7 @@ void runCombatTests()
         SpellBook& sb = SpellBook::instance();
         check(sb.load("data/spells.json"), "spells.json loads");
         check(sb.isLoaded(), "SpellBook is loaded");
-        check(sb.spellCount() >= 49, "at least 49 spells loaded (was 47 + 2 new)",
+        check(sb.spellCount() >= 95, "at least 95 spells loaded (was 47 + 48 new from MORDOR)",
               QString::number(sb.spellCount()));
 
         QList<SpellDef> electrical = SpellMechanics::spellsInSchool(

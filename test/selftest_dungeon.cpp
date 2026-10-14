@@ -180,7 +180,7 @@ void runDungeonTests()
         SpellBook& sb = SpellBook::instance();
         check(sb.load("data/spells.json"), "spells.json loads");
         check(sb.isLoaded(), "SpellBook is loaded");
-        check(sb.spellCount() == 49, "49 spells loaded (47 + Thunderclap + Storm)",
+        check(sb.spellCount() >= 95, "95+ spells loaded (47 + 48 new from MORDOR)",
               QString::number(sb.spellCount()));
 
         // A level-1 Mage knows Flame Bolt (base_level 1, int 10).

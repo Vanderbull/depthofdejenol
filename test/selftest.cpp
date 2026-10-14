@@ -7,6 +7,7 @@ void runCombatTests();
 void runDungeonTests();
 void runProgressionTests();
 void runWorldTests();
+void runSpellMechanicTests();
 
 int runSelfTest()
 {
@@ -22,6 +23,7 @@ int runSelfTest()
     runDungeonTests();
     runProgressionTests();
     runWorldTests();
+    runSpellMechanicTests();
 
     // -------------------------------------------------------------- cleanup
     QFile::remove(savePath());

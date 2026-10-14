@@ -374,6 +374,14 @@ public:
     bool isWallAtSide(int x, int y, const QString& side);
     void renderWireframeView();
     void drawBrickPattern(const QPolygon& wallPoly, int depth);
+    void drawPit(int d, int xL, int xR, int yB, int nxL, int nxR, int nyB);
+    void drawFog(int d, int xL, int xR, int yB, int nxL, int nxR, int nyB);
+    void drawExtinguisher(int d, int xL, int xR, int yB, int nxL, int nxR, int nyB);
+    void drawTreasure(int d, int xL, int xR, int yB);
+    void drawTrap(int d, int xL, int xR, int yB, int nxL, int nxR, int nyB);
+    void drawHiddenDoor(int d, int xL, int xR, int yB, int nxL, int nxR, int nyB);
+    void drawStud(int d, int xL, int xR, int yB, int nxL, int nxR, int nyB);
+    void drawBody(int d, int xL, int xR, int yB, int nxL, int nxR, int nyB);
     void  drawChute(int d, int xL, int xR, int yB, int nxL, int nxR, int nyB);
     void drawMonster(int d, int xL, int xR, int yB);
     void drawTeleporter(int d, int xL, int xR, int yB, int nxL, int nxR, int nyB);

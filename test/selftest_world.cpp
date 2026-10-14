@@ -740,12 +740,12 @@ void runWorldTests()
 
     section("[56] Release packaging");
     {
-        check(ReleaseInfo::version() == "6.1.0", "version is 6.1.0");
-        check(ReleaseInfo::versionString() == "v6.1.0", "version string");
+        check(ReleaseInfo::version() == "6.5.0", "version is 6.5.0");
+        check(ReleaseInfo::versionString() == "v6.5.0", "version string");
         check(!ReleaseInfo::releaseDate().isEmpty(), "release date exists");
         check(!ReleaseInfo::systemRequirements().isEmpty(), "system requirements exist");
-        check(ReleaseInfo::installerName().contains("6.1.0"), "installer name");
-        check(ReleaseInfo::banner().contains("6.1.0"), "banner");
+        check(ReleaseInfo::installerName().contains("6.5.0"), "installer name");
+        check(ReleaseInfo::banner().contains("6.5.0"), "banner");
     }
     {
         // Release notes.
@@ -765,9 +765,9 @@ void runWorldTests()
         QList<QPair<QString, QString>> history = ReleaseInfo::versionHistory();
         check(history.size() >= 5, "at least 5 versions in history",
               QString::number(history.size()));
-        check(history[0].first == "6.1.0", "latest version is 6.1.0");
+        check(history[0].first == "6.5.0", "latest version is 6.5.0");
         check(history[0].second.contains("Spell") || history[0].second.contains("Loot"),
-              "v6.1.0 history entry mentions spell wiring / loot");
+              "v6.5.0 history entry mentions spell wiring / loot");
     }
 
     // ------------------------------------------- Status flag integrity

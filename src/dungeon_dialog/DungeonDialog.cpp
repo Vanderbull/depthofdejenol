@@ -1,7 +1,8 @@
 
 #include "src/character_dialog/CharacterDialog.h"
-#include "DungeonDialog.h"
 #include "DungeonHandlers.h"
+#include "DungeonDialog.h"
+#include "src/core/BossEncounter.h"
 #include "../../gameStateManager.h"
 #include "src/items/ItemDatabase.h"
 #include "src/core/DungeonThemes.h"
@@ -394,6 +395,7 @@ void DungeonDialog::movePlayer(int dx, int dy, int dz=0)
     DungeonHandlers::handleRotator(this, newX, newY);
     DungeonHandlers::handleEncounters(this, newX, newY);
     DungeonHandlers::handlePit(this, newX, newY); // Added pit check
+    DungeonHandlers::handleTeleporter(this, newX, newY);
     if (m_fogTimer > 0) --m_fogTimer;
     updateTorchState();
     logMessage(QString("You move to (%1, %2).").arg(newX).arg(newY));
@@ -865,14 +867,10 @@ int currentLevel = gsm->getGameValue("DungeonLevel").toInt();
         }
         return {-1, -1};
     };
-    // 2. Guaranteed Room-Only Spawns (Chutes & Teleporters)
-    // We do these first so they get priority in the rooms
+    // 2. Guaranteed Room-Only Spawns (Chutes)
     for (int i = 0; i < 4; ++i) {
         QPair<int, int> cp = getValidRoomTile();
         if (cp.first != -1) m_chutePositions.insert(cp);
-        
-        QPair<int, int> tp = getValidRoomTile();
-        if (tp.first != -1) m_teleporterPositions.insert(tp);
     }
     // 3. General Population Loop
     // Get thematic monsters for this floor's theme
@@ -936,11 +934,34 @@ int currentLevel = gsm->getGameValue("DungeonLevel").toInt();
     }
 
     // Rotator and extinguisher tiles — placed in rooms only, like chutes.
-    for (int i = 0; i < 2; ++i) {
+    // Count scales with depth: deeper floors get more rotators/extinguishers.
+    int rotatorCount = 2 + currentLevel / 5;
+    for (int i = 0; i < rotatorCount; ++i) {
         QPair<int, int> rp = getValidRoomTile();
         if (rp.first != -1) m_rotatorPositions.insert(rp);
         QPair<int, int> ep = getValidRoomTile();
         if (ep.first != -1) m_extinguisherPositions.insert(ep);
+    }
+
+    // Stud tiles — structural supports in rooms. Count scales with depth.
+    int studCount = 2 + currentLevel / 5;
+    for (int i = 0; i < studCount; ++i) {
+        QPair<int, int> sp = getValidRoomTile();
+        if (sp.first != -1) m_studPositions.insert(sp);
+    }
+
+    // Teleporters — count scales with depth: deeper floors get more.
+    int teleporterCount = 4 + currentLevel / 3;
+    for (int i = 0; i < teleporterCount; ++i) {
+        QPair<int, int> tp = getValidRoomTile();
+        if (tp.first != -1) m_teleporterPositions.insert(tp);
+    }
+
+    // Boss floors: place the boss guarding the stairs down
+    if (BossEncounter::hasBoss(currentLevel) &&
+        !DungeonLevelRegistry::instance().levelForEdit(currentLevel).bossDefeated) {
+        m_monsterPositions.insert(m_stairsDownPosition, BossEncounter::bossName(currentLevel));
+        qDebug() << "Boss placed on floor" << currentLevel << "at" << m_stairsDownPosition;
     }
 
     if (currentLevel == 1) {
@@ -2103,6 +2124,9 @@ void DungeonDialog::handleVictory()
                             gsm->getGameValue("DungeonY").toInt() };
     m_monsterPositions.remove(pos);
 
+    // Leave a body behind where the monster died
+    m_bodyPositions.insert(pos);
+
     // Boss defeated?
     if (m_combatIsBoss) {
         DungeonLevelRegistry::instance().levelForEdit(level).bossDefeated = true;
@@ -3049,7 +3073,7 @@ void DungeonDialog::renderWireframeView() {
             drawSpinner(d, xL, xR, yB, nxL, nxR, nyB);
         }
 
-        // 1. Check for teleporter at this map coordinate
+        // Check for teleporter at this map coordinate
         bool hasTeleporter = m_teleporterPositions.contains({tx, ty});
 
         // ... existing Floor/Ceiling/Side Wall rendering ...
@@ -3057,6 +3081,54 @@ void DungeonDialog::renderWireframeView() {
         // 2. Draw the Teleporter effect on the floor
         if (hasTeleporter) {
             drawTeleporter(d, xL, xR, yB, nxL, nxR, nyB);
+        }
+
+        // Check for pit at this coordinate
+        bool hasPit = m_pitPositions.contains({tx, ty});
+        if (hasPit) {
+            drawPit(d, xL, xR, yB, nxL, nxR, nyB);
+        }
+
+        // Check for fog at this coordinate
+        bool hasFog = m_fogPositions.contains({tx, ty});
+        if (hasFog) {
+            drawFog(d, xL, xR, yB, nxL, nxR, nyB);
+        }
+
+        // Check for extinguisher at this coordinate
+        bool hasExtinguisher = m_extinguisherPositions.contains({tx, ty});
+        if (hasExtinguisher) {
+            drawExtinguisher(d, xL, xR, yB, nxL, nxR, nyB);
+        }
+
+        // Check for treasure at this coordinate
+        bool hasTreasure = m_treasurePositions.contains({tx, ty});
+        if (hasTreasure) {
+            drawTreasure(d, xL, xR, yB);
+        }
+
+        // Check for trap at this coordinate
+        bool hasTrap = m_trapPositions.contains({tx, ty});
+        if (hasTrap) {
+            drawTrap(d, xL, xR, yB, nxL, nxR, nyB);
+        }
+
+        // Check for hidden door at this coordinate
+        bool hasHiddenDoor = m_hiddenDoorPositions.contains({tx, ty});
+        if (hasHiddenDoor) {
+            drawHiddenDoor(d, xL, xR, yB, nxL, nxR, nyB);
+        }
+
+        // Check for stud at this coordinate
+        bool hasStud = m_studPositions.contains({tx, ty});
+        if (hasStud) {
+            drawStud(d, xL, xR, yB, nxL, nxR, nyB);
+        }
+
+        // Check for body at this coordinate
+        bool hasBody = m_bodyPositions.contains({tx, ty});
+        if (hasBody) {
+            drawBody(d, xL, xR, yB, nxL, nxR, nyB);
         }
 
         // Check if there is a monster at this coordinate
@@ -3290,6 +3362,113 @@ void DungeonDialog::drawAntimagic(int d, int xL, int xR, int yB, int nxL, int nx
         int xHRight = xR + (nxR - xR) * ratio;
         m_dungeonScene->addLine(xHLeft, yHoriz, xHRight, yHoriz, staticPen);
     }
+}
+
+void DungeonDialog::drawPit(int d, int xL, int xR, int yB, int nxL, int nxR, int nyB) {
+    // Dark hole in the floor — smaller than a chute, darker
+    double margin = 0.35;
+    int cxL = xL + (xR - xL) * margin;
+    int cxR = xR - (xR - xL) * margin;
+    int cnxL = nxL + (nxR - nxL) * margin;
+    int cnxR = nxR - (nxR - nxL) * margin;
+    int cyNear = yB;
+    int cyFar = yB + (nyB - yB) * 0.5;
+    QPolygon pitHole;
+    pitHole << QPoint(cxL, cyNear) << QPoint(cxR, cyNear)
+            << QPoint(cnxR, cyFar) << QPoint(cnxL, cyFar);
+    m_dungeonScene->addPolygon(pitHole, QPen(Qt::black), QBrush(Qt::black));
+    int depthShade = qMax(0, 15 - (d * 5));
+    QPolygon leftInner;
+    leftInner << QPoint(cxL, cyNear) << QPoint(cnxL, cyFar)
+               << QPoint(cnxL, cyFar + 8) << QPoint(cxL, cyNear + 8);
+    m_dungeonScene->addPolygon(leftInner, QPen(Qt::NoPen), QBrush(QColor(depthShade, depthShade, depthShade)));
+}
+
+void DungeonDialog::drawFog(int d, int xL, int xR, int yB, int nxL, int nxR, int nyB) {
+    int alpha = qMax(60, 120 - (d * 20));
+    m_dungeonScene->addRect(xL, yB, xR - xL, nyB - yB,
+                            QPen(QColor(180, 180, 180, alpha), 1),
+                            QBrush(QColor(180, 180, 180, alpha / 3)));
+}
+
+void DungeonDialog::drawExtinguisher(int d, int xL, int xR, int yB, int nxL, int nxR, int nyB) {
+    int centerX = xL + (xR - xL) * 0.7;
+    int centerY = yB + (nyB - yB) * 0.3;
+    int radius = (xR - xL) / 8;
+    QColor waterColor(0, 150, 255, 200);
+    for (int i = 0; i < 3; ++i) {
+        int r = radius - (i * (radius / 4));
+        m_dungeonScene->addEllipse(centerX - r, centerY - r / 2, r * 2, r,
+                                  QPen(waterColor, 1), QBrush(waterColor));
+    }
+}
+
+void DungeonDialog::drawTreasure(int d, int xL, int xR, int yB) {
+    int chestW = (xR - xL) * 0.5;
+    int chestH = chestW * 0.6;
+    int chestX = xL + (xR - xL) / 2 - chestW / 2;
+    int chestY = yB - chestH;
+    m_dungeonScene->addRect(chestX, chestY + chestH * 0.3, chestW, chestH * 0.7,
+                            QPen(QColor(139, 69, 19)), QBrush(QColor(218, 165, 32)));
+    m_dungeonScene->addRect(chestX, chestY, chestW, chestH * 0.3,
+                            QPen(QColor(139, 69, 19)), QBrush(QColor(240, 200, 80)));
+    int lockSize = chestW * 0.1;
+    m_dungeonScene->addRect(chestX + chestW / 2 - lockSize / 2, chestY + chestH * 0.25,
+                            lockSize, lockSize, QPen(Qt::black), QBrush(Qt::black));
+}
+
+void DungeonDialog::drawTrap(int d, int xL, int xR, int yB, int nxL, int nxR, int nyB) {
+    int spikeCount = 5;
+    int spikeW = (xR - xL) / (spikeCount * 2);
+    int spikeH = (nyB - yB) * 0.8;
+    for (int i = 0; i < spikeCount; ++i) {
+        int sx = xL + (xR - xL) * (i + 0.5) / spikeCount - spikeW / 2;
+        int sy = yB - spikeH;
+        QPolygon spike;
+        spike << QPoint(sx, yB) << QPoint(sx + spikeW / 2, sy) << QPoint(sx + spikeW, yB);
+        int shade = qMax(0, 180 - (d * 40));
+        m_dungeonScene->addPolygon(spike, QPen(QColor(shade, shade, shade)), QBrush(QColor(shade, shade, shade)));
+    }
+}
+
+void DungeonDialog::drawHiddenDoor(int d, int xL, int xR, int yB, int nxL, int nxR, int nyB) {
+    Q_UNUSED(d); Q_UNUSED(nxL); Q_UNUSED(nxR); Q_UNUSED(nyB);
+    int doorW = (xR - xL) * 0.4;
+    int doorH = yB * 0.8;
+    int doorX = xL + (xR - xL) / 2 - doorW / 2;
+    int doorY = yB - doorH;
+    m_dungeonScene->addRect(doorX, doorY, doorW, doorH,
+                            QPen(QColor(101, 67, 33), 2), QBrush(QColor(139, 90, 43)));
+    m_dungeonScene->addRect(doorX - 2, doorY - 2, doorW + 4, doorH + 4,
+                            QPen(QColor(80, 50, 20), 1), QBrush(Qt::NoBrush));
+    m_dungeonScene->addEllipse(doorX + doorW * 0.75, doorY + doorH * 0.5, 4, 4,
+                              QPen(Qt::yellow), QBrush(Qt::yellow));
+}
+
+void DungeonDialog::drawStud(int d, int xL, int xR, int yB, int nxL, int nxR, int nyB) {
+    Q_UNUSED(d); Q_UNUSED(nxL); Q_UNUSED(nxR); Q_UNUSED(nyB);
+    int studSize = (xR - xL) * 0.08;
+    double positions[] = {0.2, 0.5, 0.8};
+    for (int i = 0; i < 3; ++i) {
+        int sx = xL + (xR - xL) * positions[i] - studSize / 2;
+        int sy = yB - studSize * 2;
+        m_dungeonScene->addRect(sx, sy, studSize, studSize,
+                                QPen(QColor(100, 100, 100)), QBrush(QColor(160, 160, 160)));
+    }
+}
+
+void DungeonDialog::drawBody(int d, int xL, int xR, int yB, int nxL, int nxR, int nyB) {
+    Q_UNUSED(d); Q_UNUSED(nxL); Q_UNUSED(nxR); Q_UNUSED(nyB);
+    int bodyW = (xR - xL) * 0.6;
+    int bodyH = (nyB - yB) * 0.3;
+    int bodyX = xL + (xR - xL) / 2 - bodyW / 2;
+    int bodyY = yB - bodyH;
+    m_dungeonScene->addEllipse(bodyX, bodyY, bodyW, bodyH,
+                              QPen(QColor(80, 40, 40)), QBrush(QColor(120, 60, 60)));
+    int headR = bodyW * 0.15;
+    m_dungeonScene->addEllipse(bodyX + bodyW / 2 - headR, bodyY - headR,
+                              headR * 2, headR * 2,
+                              QPen(QColor(80, 40, 40)), QBrush(QColor(140, 100, 80)));
 }
 
 void DungeonDialog::togglePartyInfo() {

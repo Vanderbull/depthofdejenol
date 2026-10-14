@@ -19,7 +19,6 @@ QPushButton {
 
     min-width: 200px;  /* Ensures buttons don't shrink */
     max-width: 200px;  /* Ensures buttons don't expand */
-    min-height: 40px;  /* Ensures a consistent vertical thickness */
 }
 
 QPushButton:hover {

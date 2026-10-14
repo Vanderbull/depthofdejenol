@@ -97,6 +97,8 @@ void GameMenu::setupUI() {
     mainLayout->addSpacing(20);
 
     // --- Continue Section (primary, only when autosave exists) ---
+    QHBoxLayout *continueLayout = new QHBoxLayout();
+    continueLayout->addStretch();
     m_continueButton = new QPushButton(tr("CONTINUE"), this);
     m_continueButton->setObjectName("continueButton");
     m_continueButton->setMinimumHeight(50);
@@ -104,54 +106,64 @@ void GameMenu::setupUI() {
     continueFont.setPointSize(16);
     continueFont.setBold(true);
     m_continueButton->setFont(continueFont);
-    mainLayout->addWidget(m_continueButton);
+    continueLayout->addWidget(m_continueButton, 0, Qt::AlignCenter);
+    continueLayout->addStretch();
+    mainLayout->addLayout(continueLayout);
 
+    QHBoxLayout *previewLayout = new QHBoxLayout();
+    previewLayout->addStretch();
     m_partyPreviewLabel = new QLabel(tr("No saved game"), this);
     m_partyPreviewLabel->setObjectName("partyPreviewLabel");
     m_partyPreviewLabel->setWordWrap(true);
     m_partyPreviewLabel->setAlignment(Qt::AlignCenter);
     m_partyPreviewLabel->setFrameStyle(QFrame::StyledPanel | QFrame::Sunken);
     m_partyPreviewLabel->setMinimumHeight(40);
-    mainLayout->addWidget(m_partyPreviewLabel);
+    m_partyPreviewLabel->setMaximumWidth(400);
+    previewLayout->addWidget(m_partyPreviewLabel);
+    previewLayout->addStretch();
+    mainLayout->addLayout(previewLayout);
 
     mainLayout->addSpacing(10);
 
-    // --- Main Actions (2x3 grid) ---
+    // --- Main Actions (2x3 grid, centered) ---
     QGridLayout *actionsGrid = new QGridLayout();
     actionsGrid->setSpacing(10);
+    actionsGrid->setColumnStretch(0, 1);
+    actionsGrid->setColumnStretch(1, 1);
+    actionsGrid->setColumnStretch(2, 1);
 
     m_newButton = new QPushButton(tr("New Game"), this);
     m_newButton->setObjectName("newGameButton");
-    m_newButton->setMinimumHeight(45);
+    m_newButton->setMinimumHeight(55);
     QFont actionFont = m_newButton->font();
     actionFont.setPointSize(13);
     actionFont.setBold(true);
     m_newButton->setFont(actionFont);
-    actionsGrid->addWidget(m_newButton, 0, 0);
+    actionsGrid->addWidget(m_newButton, 0, 0, Qt::AlignCenter);
 
     m_createCharacterButton = new QPushButton(tr("Create Character"), this);
     m_createCharacterButton->setObjectName("createCharacterButton");
-    m_createCharacterButton->setMinimumHeight(45);
+    m_createCharacterButton->setMinimumHeight(55);
     m_createCharacterButton->setFont(actionFont);
-    actionsGrid->addWidget(m_createCharacterButton, 0, 1);
+    actionsGrid->addWidget(m_createCharacterButton, 0, 1, Qt::AlignCenter);
 
     m_assemblePartyButton = new QPushButton(tr("Assemble Party"), this);
     m_assemblePartyButton->setObjectName("assemblePartyButton");
-    m_assemblePartyButton->setMinimumHeight(45);
+    m_assemblePartyButton->setMinimumHeight(55);
     m_assemblePartyButton->setFont(actionFont);
-    actionsGrid->addWidget(m_assemblePartyButton, 0, 2);
+    actionsGrid->addWidget(m_assemblePartyButton, 0, 2, Qt::AlignCenter);
 
     m_saveButton = new QPushButton(tr("Save Game"), this);
     m_saveButton->setObjectName("saveGameButton");
-    m_saveButton->setMinimumHeight(45);
+    m_saveButton->setMinimumHeight(55);
     m_saveButton->setFont(actionFont);
-    actionsGrid->addWidget(m_saveButton, 1, 0);
+    actionsGrid->addWidget(m_saveButton, 1, 0, Qt::AlignCenter);
 
     m_loadButton = new QPushButton(tr("Load Game"), this);
     m_loadButton->setObjectName("loadGameButton");
-    m_loadButton->setMinimumHeight(45);
+    m_loadButton->setMinimumHeight(55);
     m_loadButton->setFont(actionFont);
-    actionsGrid->addWidget(m_loadButton, 1, 1);
+    actionsGrid->addWidget(m_loadButton, 1, 1, Qt::AlignCenter);
 
     m_recordsButton = new QPushButton(tr("Hall of Records"), this);
     m_recordsButton->setObjectName("recordsButton");
@@ -159,7 +171,7 @@ void GameMenu::setupUI() {
     QFont secondaryFont = m_recordsButton->font();
     secondaryFont.setPointSize(11);
     m_recordsButton->setFont(secondaryFont);
-    actionsGrid->addWidget(m_recordsButton, 1, 2);
+    actionsGrid->addWidget(m_recordsButton, 1, 2, Qt::AlignCenter);
 
     mainLayout->addLayout(actionsGrid);
 
@@ -169,34 +181,38 @@ void GameMenu::setupUI() {
     QHBoxLayout *footerLayout = new QHBoxLayout();
     footerLayout->setSpacing(8);
 
+    footerLayout->addStretch(1);
+
     m_optionsButton = new QPushButton(tr("Options"), this);
     m_optionsButton->setObjectName("optionsButton");
     m_optionsButton->setMinimumHeight(35);
+    m_optionsButton->setMaximumWidth(120);
     footerLayout->addWidget(m_optionsButton);
 
     m_helpButton = new QPushButton(tr("Help"), this);
     m_helpButton->setObjectName("helpButton");
     m_helpButton->setMinimumHeight(35);
+    m_helpButton->setMaximumWidth(120);
     footerLayout->addWidget(m_helpButton);
 
     m_aboutButton = new QPushButton(tr("About"), this);
     m_aboutButton->setObjectName("aboutButton");
     m_aboutButton->setMinimumHeight(35);
+    m_aboutButton->setMaximumWidth(120);
     footerLayout->addWidget(m_aboutButton);
 
     m_exitButton = new QPushButton(tr("Exit"), this);
     m_exitButton->setObjectName("exitButton");
     m_exitButton->setMinimumHeight(35);
+    m_exitButton->setMaximumWidth(120);
     footerLayout->addWidget(m_exitButton);
+
+    footerLayout->addStretch(1);
 
     mainLayout->addLayout(footerLayout);
 
-    // Screen-based Resizing
-    setMinimumSize(600, 500);
-    QScreen *screen = QGuiApplication::primaryScreen();
-    if (screen) {
-        resize(screen->geometry().width() * 0.5, screen->geometry().height() * 0.75);
-    }
+    // Fullscreen — fill the entire screen
+    showFullScreen();
 }
 
 void GameMenu::setupConnections() {

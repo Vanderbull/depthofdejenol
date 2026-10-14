@@ -11,7 +11,7 @@ QString ReleaseInfo::versionString() {
 }
 
 QString ReleaseInfo::releaseDate() {
-    return "2026-10-13";
+    return "2026-10-14";
 }
 
 QStringList ReleaseInfo::releaseNotes() {
@@ -29,6 +29,11 @@ QStringList ReleaseInfo::releaseNotes() {
 
 QStringList ReleaseInfo::changes() {
     return {
+        "48 new spells from the MORDOR manual across 18 categories (95 total)",
+        "SpellCategory registry: targeting, resistance, and combat flags per category",
+        "SpellTargeting: single, group, area, and self-targeting logic",
+        "SpellResistance: 20% base, +5% per level difference",
+        "SpellScaling: +10% power per level above base",
         "Larger dungeons: 50x50 tiles (was 30x30), more exploration space",
         "BSP-based map generation for natural cavern layouts",
         "Corridor network with loops and alternate routes",
@@ -74,6 +79,7 @@ QString ReleaseInfo::banner() {
 
 QList<QPair<QString, QString>> ReleaseInfo::versionHistory() {
     return {
+        {"6.5.0", "2026-10-14 — Spell System Expansion: 48 new spells from MORDOR manual (95 total), SpellCategory registry (18 categories), SpellTargeting, SpellResistance, SpellScaling, 74 non-vacuous tests"},
         {"6.4.0", "2026-10-13 — Kartgenerering & nivåsystem: större karta (50x50), BSP-algoritm, korridorsnätverk, zon-indelning, multi-nivås rum, strukturell trapp-placering, progressiv komplexitet"},
         {"6.3.0", "2026-10-13 — UI Wiring Repair: restored 14 DungeonDialog action connects, removed redundant library_dialog connect, audited disabled buttons (all intentional), verified AgingRules wiring"},
         {"6.2.0", "2026-10-13 — Dungeon Floor Fidelity: theme-driven tile mix, monsterLevelBonus, fog/rotator/extinguisher tiles wired, dead declarations removed"},

@@ -172,3 +172,21 @@ void DungeonHandlers::handleTreasure(DungeonDialog* dialog, int x, int y)
         SoundEffects::instance()->play(SoundEffects::Type::Gold);
     }
 }
+
+void DungeonHandlers::handleTeleporter(DungeonDialog* dialog, int x, int y)
+{
+    QPair<int, int> pos = {x, y};
+    if (dialog->m_teleporterPositions.contains(pos)) {
+        dialog->logMessage("<font color='cyan'>The teleporter hums and the world blurs...</font>");
+        // Teleport to a random room center on the same level
+        if (!dialog->m_roomCenters.isEmpty()) {
+            int idx = QRandomGenerator::global()->bounded(dialog->m_roomCenters.size());
+            QPair<int, int> dest = dialog->m_roomCenters.at(idx);
+            gameStateManager::instance()->setGameValue("DungeonX", dest.first);
+            gameStateManager::instance()->setGameValue("DungeonY", dest.second);
+            dialog->logMessage(QString("You emerge at (%1, %2).").arg(dest.first).arg(dest.second));
+            dialog->renderWireframeView();
+            dialog->drawMinimap();
+        }
+    }
+}
