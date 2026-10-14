@@ -32,7 +32,6 @@ private slots:
 //    void onInventoryClicked();
 //    void onMarlithClicked();
     void onOptionsClicked();
-    void onAboutClicked();
   //  void onEditMonsterClicked();
   //  void onEditSpellbookClicked();
   //  void onShowStatisticsClicked();
@@ -62,7 +61,6 @@ private:
     QPushButton *m_loadButton = nullptr;
     QPushButton *m_recordsButton = nullptr;
     QPushButton *m_optionsButton = nullptr;
-    QPushButton *m_aboutButton = nullptr;
     QPushButton *m_exitButton = nullptr;
     QSettings m_settings;
     QString m_subfolderName;

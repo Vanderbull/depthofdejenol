@@ -54,7 +54,6 @@ SOURCES += \
     src/seer_dialog/SeerDialog.cpp \
     src/confinement_dialog/ConfinementDialog.cpp \
     src/bank_dialog/BankDialog.cpp \
-    src/about_dialog/AboutDialog.cpp \
     src/assemble_party_dialog/AssemblePartyDialog.cpp \
     src/loadingscreen/LoadingScreen.cpp \
     src/race_data/RaceData.cpp \
@@ -212,7 +211,6 @@ HEADERS += \
     src/dungeon_dialog/DungeonDialog.h \
     src/partyinfo_dialog/partyinfodialog.h \
     src/bank_dialog/TradeDialog.h \
-    src/about_dialog/AboutDialog.h \
     src/assemble_party_dialog/AssemblePartyDialog.h \
     src/loadingscreen/LoadingScreen.h \
     src/core/game_resources.h \

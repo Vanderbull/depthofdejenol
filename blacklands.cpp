@@ -8,7 +8,6 @@
 #include "src/hall_of_records/hallofrecordsdialog.h"
 #include "src/create_character/createcharacterdialog.h"
 #include "src/options_dialog/optionsdialog.h"
-#include "src/about_dialog/AboutDialog.h"
 #include "src/message_window/MessageWindow.h"
 #include "src/loadingscreen/LoadingScreen.h"
 #include "src/load_party_dialog/LoadPartyDialog.h"
@@ -188,12 +187,6 @@ void GameMenu::setupUI() {
     m_optionsButton->setMaximumWidth(120);
     footerLayout->addWidget(m_optionsButton);
 
-    m_aboutButton = new QPushButton(tr("About"), this);
-    m_aboutButton->setObjectName("aboutButton");
-    m_aboutButton->setMinimumHeight(35);
-    m_aboutButton->setMaximumWidth(120);
-    footerLayout->addWidget(m_aboutButton);
-
     m_exitButton = new QPushButton(tr("Exit"), this);
     m_exitButton->setObjectName("exitButton");
     m_exitButton->setMinimumHeight(35);
@@ -218,7 +211,6 @@ void GameMenu::setupConnections() {
     connect(m_loadButton, &QPushButton::clicked, this, &GameMenu::loadGame);
     connect(m_recordsButton, &QPushButton::clicked, this, &GameMenu::showRecords);
     connect(m_optionsButton, &QPushButton::clicked, this, &GameMenu::onOptionsClicked);
-    connect(m_aboutButton, &QPushButton::clicked, this, &GameMenu::onAboutClicked);
     connect(m_exitButton, &QPushButton::clicked, this, &GameMenu::quitGame);
 
     // Engine Signals
@@ -460,10 +452,6 @@ void GameMenu::showRecords() {
 
 void GameMenu::onOptionsClicked() {
     (new OptionsDialog(this))->show();
-}
-
-void GameMenu::onAboutClicked() {
-    (new AboutDialog(this))->show();
 }
 
 void GameMenu::startNewGame() {

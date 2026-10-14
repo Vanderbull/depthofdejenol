@@ -5419,11 +5419,9 @@ void runWorldTests()
     {
         GameMenu menu;
         QPushButton *optionsBtn = menu.findChild<QPushButton*>("optionsButton");
-        QPushButton *aboutBtn = menu.findChild<QPushButton*>("aboutButton");
         QPushButton *exitBtn = menu.findChild<QPushButton*>("exitButton");
 
         check(optionsBtn != nullptr, "Options button exists");
-        check(aboutBtn != nullptr, "About button exists");
         check(exitBtn != nullptr, "Exit button exists");
     }
 
