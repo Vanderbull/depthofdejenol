@@ -1,6 +1,6 @@
 # Release Notes
 
-**Latest:** v6.6.0 — Options dialog rebuilt, font from Options only
+**Latest:** v6.7.0 — Balance pass, menu buttons follow the Options font
 
 ## v6.6.0 — Optionsdialogen ombyggd, font enbart från Options (2026-10-14)
 

@@ -92,6 +92,7 @@ QString ReleaseInfo::banner() {
 
 QList<QPair<QString, QString>> ReleaseInfo::versionHistory() {
     return {
+        {"6.7.0", "2026-10-15 — Balance pass: monster XP scaled 3x so a level takes roughly 10-20 fights instead of 3; the main menu and theCity buttons now follow the font chosen in Options; 1967 passed, 0 failed"},
         {"6.6.0", "2026-10-14 — Rebuilt the Options dialog around settings that actually work, and made the game's font come from Options and nothing else (GameSettings owns the default, no hard-coded font, no stylesheet font rules); 1954 passed, 0 failed"},
         {"6.5.4", "2026-10-14 — Unified main-menu button sizes (Hall of Records/Options/Quit now 55px like the action buttons); renamed Exit to Quit; 1887→1891 checks, 0 failed"},
         {"6.5.3", "2026-10-14 — Removed the About dialog and the whole update system (UpdateManager/UpdateDialog + test drivers); dead Version.h; 1889→1887 checks, 0 failed"},
