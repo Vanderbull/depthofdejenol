@@ -14,7 +14,7 @@
         },
         "is_combat_spell": true,
         "damage": "5-10",
-        "iconPath": "resources/images/spells/fire.png"
+        "iconPath": "resources/images/spells/flame_bolt.png"
       },
       {
         "name": "Fire Storm",
@@ -30,7 +30,7 @@
         },
         "is_combat_spell": true,
         "damage": "50-80",
-        "iconPath": "resources/images/spells/fire.png"
+        "iconPath": "resources/images/spells/fire_storm.png"
       },
       {
         "name": "Wall of Fire",
@@ -46,7 +46,7 @@
         },
         "is_combat_spell": true,
         "damage": "20-35",
-        "iconPath": "resources/images/spells/fire.png"
+        "iconPath": "resources/images/spells/wall_of_fire.png"
       },
       {
         "name": "Fireball",
@@ -62,7 +62,7 @@
         },
         "is_combat_spell": true,
         "damage": "15-30",
-        "iconPath": "resources/images/spells/fire.png"
+        "iconPath": "resources/images/spells/fireball.png"
       },
       {
         "name": "Fire Ring",
@@ -78,7 +78,7 @@
         },
         "is_combat_spell": true,
         "damage": "25-40",
-        "iconPath": "resources/images/spells/fire.png"
+        "iconPath": "resources/images/spells/fire_ring.png"
       },
       {
         "name": "Inferno",
@@ -93,7 +93,7 @@
         },
         "is_combat_spell": true,
         "damage": "70-120",
-        "iconPath": "resources/images/spells/fire.png"
+        "iconPath": "resources/images/spells/inferno.png"
       },
       {
         "name": "Lava Burst",
@@ -109,7 +109,7 @@
         },
         "is_combat_spell": true,
         "damage": "60-90",
-        "iconPath": "resources/images/spells/fire.png"
+        "iconPath": "resources/images/spells/lava_burst.png"
       }
     ],
     "Cold": [
@@ -126,7 +126,7 @@
         },
         "is_combat_spell": true,
         "damage": "5-10",
-        "iconPath": "resources/images/spells/cold.png"
+        "iconPath": "resources/images/spells/cold_bolt.png"
       },
       {
         "name": "Frost Storm",
@@ -142,7 +142,7 @@
         },
         "is_combat_spell": true,
         "damage": "50-80",
-        "iconPath": "resources/images/spells/cold.png"
+        "iconPath": "resources/images/spells/frost_storm.png"
       },
       {
         "name": "Ice Wall",
@@ -158,7 +158,7 @@
         },
         "is_combat_spell": true,
         "damage": "20-35",
-        "iconPath": "resources/images/spells/cold.png"
+        "iconPath": "resources/images/spells/ice_wall.png"
       },
       {
         "name": "Iceball",
@@ -174,7 +174,7 @@
         },
         "is_combat_spell": true,
         "damage": "15-30",
-        "iconPath": "resources/images/spells/cold.png"
+        "iconPath": "resources/images/spells/iceball.png"
       },
       {
         "name": "Ice Ring",
@@ -190,7 +190,7 @@
         },
         "is_combat_spell": true,
         "damage": "25-40",
-        "iconPath": "resources/images/spells/cold.png"
+        "iconPath": "resources/images/spells/ice_ring.png"
       },
       {
         "name": "Blizzard",
@@ -205,7 +205,7 @@
         },
         "is_combat_spell": true,
         "damage": "50-100",
-        "iconPath": "resources/images/spells/cold.png"
+        "iconPath": "resources/images/spells/blizzard.png"
       },
       {
         "name": "Frostbite",
@@ -221,7 +221,7 @@
         },
         "is_combat_spell": true,
         "damage": "60-90",
-        "iconPath": "resources/images/spells/cold.png"
+        "iconPath": "resources/images/spells/frostbite.png"
       }
     ],
     "Electrical": [
@@ -238,7 +238,7 @@
         },
         "is_combat_spell": true,
         "damage": "3-8",
-        "iconPath": "resources/images/spells/electrical.png"
+        "iconPath": "resources/images/spells/shock.png"
       },
       {
         "name": "Lightning",
@@ -253,7 +253,7 @@
         },
         "is_combat_spell": true,
         "damage": "10-20",
-        "iconPath": "resources/images/spells/electrical.png"
+        "iconPath": "resources/images/spells/lightning.png"
       },
       {
         "name": "Thunderclap",
@@ -269,7 +269,7 @@
         },
         "is_combat_spell": true,
         "damage": "15-25",
-        "iconPath": "resources/images/spells/electrical.png"
+        "iconPath": "resources/images/spells/thunderclap.png"
       },
       {
         "name": "Storm",
@@ -284,7 +284,7 @@
         },
         "is_combat_spell": true,
         "damage": "40-70",
-        "iconPath": "resources/images/spells/electrical.png"
+        "iconPath": "resources/images/spells/storm.png"
       },
       {
         "name": "Chain Lightning",
@@ -299,7 +299,7 @@
         },
         "is_combat_spell": true,
         "damage": "30-50",
-        "iconPath": "resources/images/spells/electrical.png"
+        "iconPath": "resources/images/spells/chain_lightning.png"
       },
       {
         "name": "Thunderstorm",
@@ -314,7 +314,7 @@
         },
         "is_combat_spell": true,
         "damage": "60-100",
-        "iconPath": "resources/images/spells/electrical.png"
+        "iconPath": "resources/images/spells/thunderstorm.png"
       }
     ],
     "Mind": [
@@ -331,7 +331,7 @@
         },
         "is_combat_spell": true,
         "damage": null,
-        "iconPath": "resources/images/spells/mind.png"
+        "iconPath": "resources/images/spells/sleep.png"
       },
       {
         "name": "Nerve Blank",
@@ -346,7 +346,7 @@
         },
         "is_combat_spell": true,
         "damage": null,
-        "iconPath": "resources/images/spells/mind.png"
+        "iconPath": "resources/images/spells/nerve_blank.png"
       },
       {
         "name": "Mind Blast",
@@ -361,7 +361,7 @@
         },
         "is_combat_spell": true,
         "damage": "5-10",
-        "iconPath": "resources/images/spells/mind.png"
+        "iconPath": "resources/images/spells/mind_blast.png"
       },
       {
         "name": "Confusion",
@@ -376,7 +376,7 @@
         },
         "is_combat_spell": false,
         "damage": null,
-        "iconPath": "resources/images/spells/mind.png"
+        "iconPath": "resources/images/spells/confusion.png"
       },
       {
         "name": "Fear",
@@ -392,7 +392,7 @@
         },
         "is_combat_spell": false,
         "damage": null,
-        "iconPath": "resources/images/spells/mind.png"
+        "iconPath": "resources/images/spells/fear.png"
       },
       {
         "name": "Insanity",
@@ -407,7 +407,7 @@
         },
         "is_combat_spell": true,
         "damage": "Instant Kill",
-        "iconPath": "resources/images/spells/mind.png"
+        "iconPath": "resources/images/spells/insanity.png"
       }
     ],
     "Damage": [
@@ -425,7 +425,7 @@
         },
         "is_combat_spell": true,
         "damage": "8-15",
-        "iconPath": "resources/images/spells/damage.png"
+        "iconPath": "resources/images/spells/cause_wounds.png"
       },
       {
         "name": "Harm",
@@ -441,7 +441,7 @@
         },
         "is_combat_spell": true,
         "damage": "12-20",
-        "iconPath": "resources/images/spells/damage.png"
+        "iconPath": "resources/images/spells/harm.png"
       },
       {
         "name": "Greater Harm",
@@ -457,7 +457,7 @@
         },
         "is_combat_spell": true,
         "damage": "30-50",
-        "iconPath": "resources/images/spells/damage.png"
+        "iconPath": "resources/images/spells/greater_harm.png"
       },
       {
         "name": "Poison",
@@ -473,7 +473,7 @@
         },
         "is_combat_spell": true,
         "damage": "Damage over Time",
-        "iconPath": "resources/images/spells/damage.png"
+        "iconPath": "resources/images/spells/poison.png"
       },
       {
         "name": "Wound",
@@ -489,7 +489,7 @@
         },
         "is_combat_spell": true,
         "damage": "Damage over Time",
-        "iconPath": "resources/images/spells/damage.png"
+        "iconPath": "resources/images/spells/wound.png"
       },
       {
         "name": "Drain Life",
@@ -505,7 +505,7 @@
         },
         "is_combat_spell": true,
         "damage": "10-20",
-        "iconPath": "resources/images/spells/damage.png"
+        "iconPath": "resources/images/spells/drain_life.png"
       },
       {
         "name": "Disintegrate",
@@ -520,7 +520,7 @@
         },
         "is_combat_spell": true,
         "damage": "40-80",
-        "iconPath": "resources/images/spells/damage.png"
+        "iconPath": "resources/images/spells/disintegrate.png"
       }
     ],
     "Element": [
@@ -537,7 +537,7 @@
         },
         "is_combat_spell": true,
         "damage": "10-20",
-        "iconPath": "resources/images/spells/element.png"
+        "iconPath": "resources/images/spells/acid_bolt.png"
       },
       {
         "name": "Disease",
@@ -552,7 +552,7 @@
         },
         "is_combat_spell": true,
         "damage": "Damage over Time",
-        "iconPath": "resources/images/spells/element.png"
+        "iconPath": "resources/images/spells/disease.png"
       },
       {
         "name": "Poison Cloud",
@@ -568,7 +568,7 @@
         },
         "is_combat_spell": true,
         "damage": "15-25",
-        "iconPath": "resources/images/spells/element.png"
+        "iconPath": "resources/images/spells/poison_cloud.png"
       },
       {
         "name": "Poison Dart",
@@ -583,7 +583,7 @@
         },
         "is_combat_spell": true,
         "damage": "5-10",
-        "iconPath": "resources/images/spells/element.png"
+        "iconPath": "resources/images/spells/poison_dart.png"
       },
       {
         "name": "Stone Skin",
@@ -598,7 +598,7 @@
         },
         "is_combat_spell": false,
         "damage": null,
-        "iconPath": "resources/images/spells/element.png"
+        "iconPath": "resources/images/spells/stone_skin.png"
       },
       {
         "name": "Iron Skin",
@@ -613,7 +613,7 @@
         },
         "is_combat_spell": false,
         "damage": null,
-        "iconPath": "resources/images/spells/element.png"
+        "iconPath": "resources/images/spells/iron_skin.png"
       },
       {
         "name": "Diamond Skin",
@@ -628,7 +628,7 @@
         },
         "is_combat_spell": false,
         "damage": null,
-        "iconPath": "resources/images/spells/element.png"
+        "iconPath": "resources/images/spells/diamond_skin.png"
       }
     ],
     "Kill": [
@@ -646,7 +646,7 @@
         },
         "is_combat_spell": true,
         "damage": "Instant Kill",
-        "iconPath": "resources/images/spells/kill.png"
+        "iconPath": "resources/images/spells/death.png"
       },
       {
         "name": "Annihilate",
@@ -661,7 +661,7 @@
         },
         "is_combat_spell": true,
         "damage": "Instant Kill",
-        "iconPath": "resources/images/spells/kill.png"
+        "iconPath": "resources/images/spells/annihilate.png"
       },
       {
         "name": "Destroy",
@@ -676,7 +676,7 @@
         },
         "is_combat_spell": true,
         "damage": "Instant Kill",
-        "iconPath": "resources/images/spells/kill.png"
+        "iconPath": "resources/images/spells/destroy.png"
       },
       {
         "name": "Exorcism",
@@ -692,7 +692,7 @@
         },
         "is_combat_spell": true,
         "damage": "Instant Kill",
-        "iconPath": "resources/images/spells/kill.png"
+        "iconPath": "resources/images/spells/exorcism.png"
       },
       {
         "name": "Vampire Slayer",
@@ -707,7 +707,7 @@
         },
         "is_combat_spell": true,
         "damage": "Instant Kill",
-        "iconPath": "resources/images/spells/kill.png"
+        "iconPath": "resources/images/spells/vampire_slayer.png"
       }
     ],
     "Charm": [
@@ -725,7 +725,7 @@
         },
         "is_combat_spell": true,
         "damage": null,
-        "iconPath": "resources/images/spells/charm.png"
+        "iconPath": "resources/images/spells/charm_insect.png"
       },
       {
         "name": "Charm Animal",
@@ -742,7 +742,7 @@
         },
         "is_combat_spell": true,
         "damage": null,
-        "iconPath": "resources/images/spells/charm.png"
+        "iconPath": "resources/images/spells/charm_animal.png"
       },
       {
         "name": "Charm Elemental",
@@ -759,7 +759,7 @@
         },
         "is_combat_spell": true,
         "damage": null,
-        "iconPath": "resources/images/spells/charm.png"
+        "iconPath": "resources/images/spells/charm_elemental.png"
       },
       {
         "name": "Charm Humanoid",
@@ -776,7 +776,7 @@
         },
         "is_combat_spell": true,
         "damage": null,
-        "iconPath": "resources/images/spells/charm.png"
+        "iconPath": "resources/images/spells/charm_humanoid.png"
       },
       {
         "name": "Charm Undead",
@@ -793,7 +793,7 @@
         },
         "is_combat_spell": true,
         "damage": null,
-        "iconPath": "resources/images/spells/charm.png"
+        "iconPath": "resources/images/spells/charm_undead.png"
       },
       {
         "name": "Charm Giant",
@@ -810,7 +810,7 @@
         },
         "is_combat_spell": true,
         "damage": null,
-        "iconPath": "resources/images/spells/charm.png"
+        "iconPath": "resources/images/spells/charm_giant.png"
       },
       {
         "name": "Bind Animal",
@@ -827,7 +827,7 @@
         },
         "is_combat_spell": true,
         "damage": null,
-        "iconPath": "resources/images/spells/charm.png"
+        "iconPath": "resources/images/spells/bind_animal.png"
       },
       {
         "name": "Charm Creature",
@@ -843,7 +843,7 @@
         },
         "is_combat_spell": false,
         "damage": null,
-        "iconPath": "resources/images/spells/charm.png"
+        "iconPath": "resources/images/spells/charm_creature.png"
       },
       {
         "name": "Charm Monster",
@@ -859,7 +859,7 @@
         },
         "is_combat_spell": false,
         "damage": null,
-        "iconPath": "resources/images/spells/charm.png"
+        "iconPath": "resources/images/spells/charm_monster.png"
       },
       {
         "name": "Bind Elemental",
@@ -876,7 +876,7 @@
         },
         "is_combat_spell": true,
         "damage": null,
-        "iconPath": "resources/images/spells/charm.png"
+        "iconPath": "resources/images/spells/bind_elemental.png"
       }
     ],
     "Bind": [
@@ -895,7 +895,7 @@
         },
         "is_combat_spell": false,
         "damage": null,
-        "iconPath": "resources/images/spells/bind.png"
+        "iconPath": "resources/images/spells/control.png"
       },
       {
         "name": "Bind",
@@ -930,7 +930,7 @@
         },
         "is_combat_spell": false,
         "damage": null,
-        "iconPath": "resources/images/spells/bind.png"
+        "iconPath": "resources/images/spells/domination.png"
       },
       {
         "name": "Bind Creature",
@@ -945,7 +945,7 @@
         },
         "is_combat_spell": false,
         "damage": null,
-        "iconPath": "resources/images/spells/bind.png"
+        "iconPath": "resources/images/spells/bind_creature.png"
       },
       {
         "name": "Bind Monster",
@@ -960,7 +960,7 @@
         },
         "is_combat_spell": false,
         "damage": null,
-        "iconPath": "resources/images/spells/bind.png"
+        "iconPath": "resources/images/spells/bind_monster.png"
       }
     ],
     "Heal": [
@@ -978,7 +978,7 @@
         },
         "is_combat_spell": false,
         "damage": null,
-        "iconPath": "resources/images/spells/heal.png"
+        "iconPath": "resources/images/spells/cure_wounds.png"
       },
       {
         "name": "Cause Wounds",
@@ -993,7 +993,7 @@
         },
         "is_combat_spell": true,
         "damage": "5-10",
-        "iconPath": "resources/images/spells/heal.png"
+        "iconPath": "resources/images/spells/cause_wounds.png"
       },
       {
         "name": "Minor Heal",
@@ -1009,7 +1009,7 @@
         },
         "is_combat_spell": false,
         "damage": null,
-        "iconPath": "resources/images/spells/heal.png"
+        "iconPath": "resources/images/spells/minor_heal.png"
       },
       {
         "name": "Cure Disease",
@@ -1024,7 +1024,7 @@
         },
         "is_combat_spell": false,
         "damage": null,
-        "iconPath": "resources/images/spells/heal.png"
+        "iconPath": "resources/images/spells/cure_disease.png"
       },
       {
         "name": "Cure Poison",
@@ -1039,7 +1039,7 @@
         },
         "is_combat_spell": false,
         "damage": null,
-        "iconPath": "resources/images/spells/heal.png"
+        "iconPath": "resources/images/spells/cure_poison.png"
       },
       {
         "name": "Cure Paralysis",
@@ -1054,7 +1054,7 @@
         },
         "is_combat_spell": false,
         "damage": null,
-        "iconPath": "resources/images/spells/heal.png"
+        "iconPath": "resources/images/spells/cure_paralysis.png"
       },
       {
         "name": "Heal",
@@ -1086,7 +1086,7 @@
         },
         "is_combat_spell": false,
         "damage": null,
-        "iconPath": "resources/images/spells/heal.png"
+        "iconPath": "resources/images/spells/resurrect.png"
       }
     ],
     "Movement": [
@@ -1103,7 +1103,7 @@
         },
         "is_combat_spell": false,
         "damage": null,
-        "iconPath": "resources/images/spells/movement.png"
+        "iconPath": "resources/images/spells/return.png"
       },
       {
         "name": "Pass Door",
@@ -1118,7 +1118,7 @@
         },
         "is_combat_spell": false,
         "damage": null,
-        "iconPath": "resources/images/spells/movement.png"
+        "iconPath": "resources/images/spells/pass_door.png"
       },
       {
         "name": "Teleport",
@@ -1133,7 +1133,7 @@
         },
         "is_combat_spell": false,
         "damage": null,
-        "iconPath": "resources/images/spells/movement.png"
+        "iconPath": "resources/images/spells/teleport.png"
       },
       {
         "name": "Levitate",
@@ -1149,7 +1149,7 @@
         },
         "is_combat_spell": false,
         "damage": null,
-        "iconPath": "resources/images/spells/movement.png"
+        "iconPath": "resources/images/spells/levitate.png"
       }
     ],
     "Banish": [
@@ -1169,7 +1169,7 @@
         },
         "is_combat_spell": true,
         "damage": "Instant Banish",
-        "iconPath": "resources/images/spells/banish.png"
+        "iconPath": "resources/images/spells/banish_devil.png"
       },
       {
         "name": "Banish Demon",
@@ -1185,7 +1185,7 @@
         },
         "is_combat_spell": true,
         "damage": "Instant Banish",
-        "iconPath": "resources/images/spells/banish.png"
+        "iconPath": "resources/images/spells/banish_demon.png"
       },
       {
         "name": "Banish Undead",
@@ -1201,7 +1201,7 @@
         },
         "is_combat_spell": true,
         "damage": "Instant Banish",
-        "iconPath": "resources/images/spells/banish.png"
+        "iconPath": "resources/images/spells/banish_undead.png"
       }
     ],
     "Dispel": [
@@ -1219,7 +1219,7 @@
         },
         "is_combat_spell": true,
         "damage": null,
-        "iconPath": "resources/images/spells/dispel.png"
+        "iconPath": "resources/images/spells/dispel_undead.png"
       },
       {
         "name": "Remove Curse",
@@ -1235,7 +1235,7 @@
         },
         "is_combat_spell": false,
         "damage": null,
-        "iconPath": "resources/images/spells/dispel.png"
+        "iconPath": "resources/images/spells/remove_curse.png"
       },
       {
         "name": "Dispel Magic",
@@ -1250,7 +1250,7 @@
         },
         "is_combat_spell": false,
         "damage": null,
-        "iconPath": "resources/images/spells/dispel.png"
+        "iconPath": "resources/images/spells/dispel_magic.png"
       }
     ],
     "Resistant": [
@@ -1267,7 +1267,7 @@
         },
         "is_combat_spell": false,
         "damage": null,
-        "iconPath": "resources/images/spells/resistant.png"
+        "iconPath": "resources/images/spells/resist_fire.png"
       },
       {
         "name": "Resist Cold",
@@ -1282,7 +1282,7 @@
         },
         "is_combat_spell": false,
         "damage": null,
-        "iconPath": "resources/images/spells/resistant.png"
+        "iconPath": "resources/images/spells/resist_cold.png"
       },
       {
         "name": "Resist Electrical",
@@ -1297,7 +1297,7 @@
         },
         "is_combat_spell": false,
         "damage": null,
-        "iconPath": "resources/images/spells/resistant.png"
+        "iconPath": "resources/images/spells/resist_electrical.png"
       },
       {
         "name": "Resist Acid",
@@ -1312,7 +1312,7 @@
         },
         "is_combat_spell": false,
         "damage": null,
-        "iconPath": "resources/images/spells/resistant.png"
+        "iconPath": "resources/images/spells/resist_acid.png"
       }
     ],
     "Visual": [
@@ -1330,7 +1330,7 @@
         },
         "is_combat_spell": false,
         "damage": null,
-        "iconPath": "resources/images/spells/visual.png"
+        "iconPath": "resources/images/spells/light.png"
       },
       {
         "name": "Invisibility",
@@ -1346,7 +1346,7 @@
         },
         "is_combat_spell": false,
         "damage": null,
-        "iconPath": "resources/images/spells/visual.png"
+        "iconPath": "resources/images/spells/invisibility.png"
       },
       {
         "name": "Dark Vision",
@@ -1361,7 +1361,7 @@
         },
         "is_combat_spell": false,
         "damage": null,
-        "iconPath": "resources/images/spells/visual.png"
+        "iconPath": "resources/images/spells/dark_vision.png"
       },
       {
         "name": "See Invisible",
@@ -1376,7 +1376,7 @@
         },
         "is_combat_spell": false,
         "damage": null,
-        "iconPath": "resources/images/spells/visual.png"
+        "iconPath": "resources/images/spells/see_invisible.png"
       },
       {
         "name": "True Sight",
@@ -1391,7 +1391,7 @@
         },
         "is_combat_spell": false,
         "damage": null,
-        "iconPath": "resources/images/spells/visual.png"
+        "iconPath": "resources/images/spells/true_sight.png"
       }
     ],
     "Magical": [
@@ -1408,7 +1408,7 @@
         },
         "is_combat_spell": false,
         "damage": null,
-        "iconPath": "resources/images/spells/magical.png"
+        "iconPath": "resources/images/spells/antimagic_shell.png"
       },
       {
         "name": "Magic Missile",
@@ -1423,7 +1423,7 @@
         },
         "is_combat_spell": true,
         "damage": "8-20",
-        "iconPath": "resources/images/spells/magical.png"
+        "iconPath": "resources/images/spells/magic_missile.png"
       },
       {
         "name": "Magic Shield",
@@ -1438,7 +1438,7 @@
         },
         "is_combat_spell": false,
         "damage": null,
-        "iconPath": "resources/images/spells/magical.png"
+        "iconPath": "resources/images/spells/magic_shield.png"
       },
       {
         "name": "Arcane Barrage",
@@ -1454,7 +1454,7 @@
         },
         "is_combat_spell": true,
         "damage": "35-65",
-        "iconPath": "resources/images/spells/magical.png"
+        "iconPath": "resources/images/spells/arcane_barrage.png"
       }
     ],
     "Location": [
@@ -1471,7 +1471,7 @@
         },
         "is_combat_spell": false,
         "damage": null,
-        "iconPath": "resources/images/spells/location.png"
+        "iconPath": "resources/images/spells/detect_rock.png"
       },
       {
         "name": "Depth Perception",
@@ -1486,7 +1486,7 @@
         },
         "is_combat_spell": false,
         "damage": null,
-        "iconPath": "resources/images/spells/location.png"
+        "iconPath": "resources/images/spells/depth_perception.png"
       },
       {
         "name": "Locate Object",
@@ -1502,7 +1502,7 @@
         },
         "is_combat_spell": false,
         "damage": null,
-        "iconPath": "resources/images/spells/location.png"
+        "iconPath": "resources/images/spells/locate_object.png"
       },
       {
         "name": "Locate Creature",
@@ -1518,7 +1518,7 @@
         },
         "is_combat_spell": false,
         "damage": null,
-        "iconPath": "resources/images/spells/location.png"
+        "iconPath": "resources/images/spells/locate_creature.png"
       },
       {
         "name": "Locate Item",
@@ -1534,7 +1534,7 @@
         },
         "is_combat_spell": false,
         "damage": null,
-        "iconPath": "resources/images/spells/location.png"
+        "iconPath": "resources/images/spells/locate_item.png"
       }
     ],
     "Protection": [
@@ -1552,7 +1552,7 @@
         },
         "is_combat_spell": false,
         "damage": null,
-        "iconPath": "resources/images/spells/protection.png"
+        "iconPath": "resources/images/spells/sanctuary.png"
       },
       {
         "name": "Shield",
@@ -1568,7 +1568,7 @@
         },
         "is_combat_spell": false,
         "damage": null,
-        "iconPath": "resources/images/spells/protection.png"
+        "iconPath": "resources/images/spells/shield.png"
       },
       {
         "name": "Protection from Evil",
@@ -1584,7 +1584,7 @@
         },
         "is_combat_spell": false,
         "damage": null,
-        "iconPath": "resources/images/spells/protection.png"
+        "iconPath": "resources/images/spells/protection_from_evil.png"
       },
       {
         "name": "Protection from Good",
@@ -1599,7 +1599,7 @@
         },
         "is_combat_spell": false,
         "damage": null,
-        "iconPath": "resources/images/spells/protection.png"
+        "iconPath": "resources/images/spells/protection_from_good.png"
       }
     ]
   }
