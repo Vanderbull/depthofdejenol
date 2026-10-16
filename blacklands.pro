@@ -75,7 +75,7 @@ SOURCES += \
 # into the real binary. It is only reachable via the `blacklands --selftest`
 # flag, so the shipped executable is unchanged.
 HEADERS += test/selftest.h test/selftest_harness.h test/selftest_includes.h
-SOURCES += test/selftest.cpp test/selftest_harness.cpp test/selftest_core.cpp test/selftest_combat.cpp test/selftest_dungeon.cpp test/selftest_progression.cpp test/selftest_world.cpp test/equipment_test.cpp test/selftest_spells.cpp test/selftest_options.cpp test/selftest_difficulty.cpp
+SOURCES += test/selftest.cpp test/selftest_harness.cpp test/selftest_core.cpp test/selftest_combat.cpp test/selftest_dungeon.cpp test/selftest_progression.cpp test/selftest_world_party.cpp test/selftest_world_save.cpp test/selftest_world_dungeon.cpp test/selftest_world_quest.cpp test/selftest_world_monster.cpp test/selftest_world_spell.cpp test/selftest_world_item.cpp test/selftest_world_town.cpp test/selftest_world_ui.cpp test/equipment_test.cpp test/selftest_spells.cpp test/selftest_options.cpp test/selftest_difficulty.cpp
 
 #--------------------------------------------------
 # Item database
