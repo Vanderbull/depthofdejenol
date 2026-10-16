@@ -383,6 +383,10 @@ void ArenaDialog::advanceCombat() {
         return;
     }
 
+    // Tick status effects every advance so poison/fire/blind work
+    QStringList statusMsgs = m_combatActions->tickStatusEffects();
+    for (const QString& msg : statusMsgs) logMessage(msg);
+
     // Process monster turns
     if (!m_combatActions->isPlayerTurn()) {
         QString aiResult = m_monsterAI->takeTurn();
@@ -410,16 +414,12 @@ void ArenaDialog::advanceCombat() {
             // Round over — tick status effects (poison, fire, blind, etc.)
             m_combatState->startRound();
             waveRounds++;
-            QStringList statusMsgs = m_combatActions->tickStatusEffects();
-            for (const QString& msg : statusMsgs) logMessage(msg);
         }
         updateUI();
         return;
     }
 
-    // Player turn — also tick status effects so poison/fire/blind work
-    QStringList statusMsgs = m_combatActions->tickStatusEffects();
-    for (const QString& msg : statusMsgs) logMessage(msg);
+    // Player turn
     updateUI();
 }
 
