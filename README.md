@@ -3,7 +3,7 @@
 ![Debian](https://img.shields.io/badge/OS-Debian%2013-A81D33?style=for-the-badge&logo=debian&logoColor=white)
 ![C++](https://img.shields.io/badge/Language-C%2B%2B%2020-blueviolet?style=for-the-badge&logo=c%2B%2B)
 ![Qt6](https://img.shields.io/badge/Engine-Qt%206-green?style=for-the-badge&logo=qt&logoColor=white)
-![Tests](https://img.shields.io/badge/Tests-1590%20Passing-brightgreen?style=for-the-badge&logo=github-actions)
+![Tests](https://img.shields.io/badge/Tests-1989%20Passing-brightgreen?style=for-the-badge&logo=github-actions)
 ![License](https://img.shields.io/badge/License-MIT-yellow?style=for-the-badge)
 
 </div>
@@ -25,22 +25,30 @@
 | Category | Details |
 |----------|---------|
 | **Monsters** | 401 unique monsters with portraits, categories, abilities, and resistances |
-| **Spells** | 100 spells across multiple guilds |
-| **Items** | 366 items with identification and equipment system |
+| **Spells** | 96 spells across 17 schools, each with a clear weak → strong progression |
+| **Items** | 370 items with identification and equipment system |
 | **Audio** | 16 soundtracks with Qt Multimedia |
-| **Dungeon** | Tile-based movement, automap, multiple levels |
-| **Characters** | Creation, leveling, guild membership, party management |
-| **Facilities** | General Store, Guilds, Bank, Seer, Tavern |
+| **Dungeon** | Tile-based movement, automap, 15 floors, 15 themes, bosses, secret doors |
+| **Characters** | Creation, leveling, guild membership, party management (1–4 members) |
+| **Town** | General Store, Guilds, Bank, Seer, Tavern, Library, Quest Board, Arena, Morgue |
 | **Endgame** | New Game Plus, the Abyss mega-dungeon, an Arena, and 25 achievements |
 | **Multiplayer** | Basic city server/client with chat |
 | **Editors** | Monster Editor, Spellbook Editor, Map Editor |
+| **Options** | Audio, autosave, combat speed, fullscreen, fonts, backup/restore |
 
 ---
 
-## Roadmap
+## Balance
 
-The current plan is [docs/ROADMAP_v4.0.0.md](docs/ROADMAP_v4.0.0.md) — endgame depth
-and replayability. Older roadmaps live in [docs/archive/](docs/archive/).
+The game is calibrated for a **10–15 hour** full run:
+
+- 15 dungeon floors, each with a recommended party level
+- Monster XP scales so a level takes roughly 10–20 fights
+- Every spell school has a clear progression from weak to strong
+- A full-run difficulty test (`[D1]`) verifies every floor is winnable
+- New Game Plus increases monster stats with each cycle
+
+See [RELEASE_NOTES.md](RELEASE_NOTES.md) for the full version history.
 
 ---
 
@@ -91,7 +99,7 @@ The binary lands at `build/bin/blacklands`.
 
 ## Testing
 
-The project ships with a self-contained test suite (1590 tests):
+The project ships with a self-contained test suite (1989 tests):
 
 ```bash
 make check
@@ -103,6 +111,9 @@ Or run directly:
 ./blacklands --selftest
 ```
 
+The suite covers combat, spells, progression, dungeon generation, world systems,
+and a full-run difficulty test that verifies the game is winnable start to finish.
+
 ---
 
 ## Project Structure
@@ -110,11 +121,14 @@ Or run directly:
 ```
 blacklands.pro          # qmake build file
 src/                      # Game source code
-  core/                   # Game state, constants, data loading
+  core/                   # Game state, constants, data loading, balance
   character_dialog/       # Character sheet, creation
   library_dialog/         # Bestiary, journal
   spell_casting/          # Spellbook, casting
   partymanager/           # Party management
+  combat/                 # Combat resolution, encounter builder
+  dungeon_dialog/         # Dungeon UI
+  options_dialog/         # Options (audio, gameplay, display, data)
   ...
 data/                     # Game data (JSON, CSV)
 resources/                # Images, sounds, fonts
