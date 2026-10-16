@@ -261,7 +261,6 @@ void ArenaDialog::on_spellButton_clicked() {
 
 void ArenaDialog::on_useItemButton_clicked() {
     if (!m_inCombat || !m_combatState || !m_combatActions) return;
-    if (!m_combatActions->isPlayerTurn()) return;
 
     // Find the current player in the combat participants
     int playerIdx = -1;
@@ -272,7 +271,6 @@ void ArenaDialog::on_useItemButton_clicked() {
     if (playerIdx < 0) return;
 
     // Find the corresponding party member index
-    // (monsters are added first in startWave, so player index = party member index + monsterCount)
     int partyIdx = -1;
     int monsterCount = 0;
     for (int i = 0; i < m_combatState->participantCount(); ++i) {
@@ -301,18 +299,14 @@ void ArenaDialog::on_useItemButton_clicked() {
         return;
     }
 
-    QString result;
-    bool used = m_combatActions->useItem(itemIdx, hero, result);
-    if (used) {
-        logMessage(QString("%1 uses %2.").arg(hero.name, hero.inventory.value(itemIdx).name));
-    } else {
-        logMessage(result);
-    }
-
-    // Using an item consumes the turn
-    m_combatState->markActed(currentIdx);
-    m_combatState->nextTurn();
-    advanceCombat();
+    performPlayerAction([&](QString& result) {
+        bool used = m_combatActions->useItem(itemIdx, hero, result);
+        if (used) {
+            logMessage(QString("%1 uses %2.").arg(hero.name, hero.inventory.value(itemIdx).name));
+        } else {
+            logMessage(result);
+        }
+    });
 }
 
 void ArenaDialog::on_fleeButton_clicked() {
