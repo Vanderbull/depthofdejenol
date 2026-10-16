@@ -226,12 +226,10 @@ void ArenaDialog::on_attackButton_clicked() {
 
 void ArenaDialog::on_defendButton_clicked() {
     if (!m_inCombat || !m_combatState) return;
-    int currentIdx = m_combatState->initiativeOrder()[m_combatState->currentTurnIndex()];
-    m_combatState->participant(currentIdx).isDefending = true;
-    m_combatState->markActed(currentIdx);
-    logMessage("You brace for impact.");
-    m_combatState->nextTurn();
-    advanceCombat();
+
+    performPlayerAction([&](QString& result) {
+        m_combatActions->defend(result);
+    });
 }
 
 void ArenaDialog::on_spellButton_clicked() {
