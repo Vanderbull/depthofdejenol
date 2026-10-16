@@ -1,6 +1,7 @@
 #include "AssemblePartyDialog.h"
 #include "src/core/gameStateManager.h"
 #include "src/core/SoundEffects.h"
+#include "src/core/GameConstants.h"
 
 #include <QVBoxLayout>
 #include <QHBoxLayout>
@@ -53,9 +54,11 @@ AssemblePartyDialog::AssemblePartyDialog(QWidget *parent)
     QHBoxLayout *btnLayout = new QHBoxLayout();
     m_addButton = new QPushButton(tr("Add →"), this);
     m_removeButton = new QPushButton(tr("← Remove"), this);
+    m_fillButton = new QPushButton(tr("Fill Party"), this);
     btnLayout->addStretch();
     btnLayout->addWidget(m_addButton);
     btnLayout->addWidget(m_removeButton);
+    btnLayout->addWidget(m_fillButton);
     btnLayout->addStretch();
     mainLayout->addLayout(btnLayout);
 
@@ -77,6 +80,7 @@ AssemblePartyDialog::AssemblePartyDialog(QWidget *parent)
 
     connect(m_addButton, &QPushButton::clicked, this, &AssemblePartyDialog::onAddClicked);
     connect(m_removeButton, &QPushButton::clicked, this, &AssemblePartyDialog::onRemoveClicked);
+    connect(m_fillButton, &QPushButton::clicked, this, &AssemblePartyDialog::onFillClicked);
     connect(m_saveButton, &QPushButton::clicked, this, &AssemblePartyDialog::onSaveClicked);
     connect(m_cancelButton, &QPushButton::clicked, this, &AssemblePartyDialog::onCancelClicked);
 
@@ -93,18 +97,12 @@ void AssemblePartyDialog::refreshLists()
     QList<Character> &party = gameStateManager::instance()->getPartyMembers();
 
     // Current party
-    if (party.isEmpty()) {
-        QListWidgetItem *empty = new QListWidgetItem(tr("(empty)"));
-        empty->setFlags(Qt::NoItemFlags);
-        m_partyList->addItem(empty);
-    } else {
-        for (const Character &c : party) {
-            QString label = QString("%1 — %2 (Lv %3)")
-                .arg(c.name, c.race)
-                .arg(c.level);
-            if (!c.isAlive) label += tr(" [DEAD]");
-            m_partyList->addItem(label);
-        }
+    for (const Character &c : party) {
+        QString label = QString("%1 — %2 (Lv %3)")
+            .arg(c.name, c.race)
+            .arg(c.level);
+        if (!c.isAlive) label += tr(" [DEAD]");
+        m_partyList->addItem(label);
     }
 
     // Available characters on disk
@@ -228,6 +226,45 @@ void AssemblePartyDialog::onRemoveClicked()
 
     QString name = party[row].name;
     party.removeAt(row);
+    refreshLists();
+}
+
+void AssemblePartyDialog::onFillClicked()
+{
+    // Add every available character from the right panel into the party.
+    // Respect MAX_PARTY_SIZE so we never overflow the party.
+    const int maxParty = GameConstants::MAX_PARTY_SIZE;
+    QList<Character> &party = gameStateManager::instance()->getPartyMembers();
+
+    for (int i = 0; i < m_availableList->count(); ++i) {
+        if (party.size() >= maxParty) break;
+
+        QListWidgetItem *item = m_availableList->item(i);
+        if (!item) continue;
+
+        QString path = item->data(Qt::UserRole).toString();
+        if (path.isEmpty()) continue;
+
+        QFile f(path);
+        if (!f.open(QIODevice::ReadOnly)) continue;
+        QJsonDocument doc = QJsonDocument::fromJson(f.readAll());
+        f.close();
+        if (doc.isNull() || !doc.isObject()) continue;
+
+        Character c;
+        c.loadFromMap(doc.object().toVariantMap());
+
+        // Skip if already in party
+        bool alreadyInParty = false;
+        for (const Character &existing : party) {
+            if (existing.name == c.name) { alreadyInParty = true; break; }
+        }
+        if (alreadyInParty) continue;
+
+        party.append(c);
+    }
+
+    SoundEffects::instance()->play(SoundEffects::Type::LevelUp);
     refreshLists();
 }
 

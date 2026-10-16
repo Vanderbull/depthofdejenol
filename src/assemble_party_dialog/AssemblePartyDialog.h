@@ -32,6 +32,7 @@ signals:
 private slots:
     void onAddClicked();
     void onRemoveClicked();
+    void onFillClicked();
     void onSaveClicked();
     void onCancelClicked();
     void refreshLists();
@@ -45,6 +46,7 @@ private:
     QLabel *m_previewLabel = nullptr;
     QPushButton *m_addButton = nullptr;
     QPushButton *m_removeButton = nullptr;
+    QPushButton *m_fillButton = nullptr;
     QPushButton *m_saveButton = nullptr;
     QPushButton *m_cancelButton = nullptr;
 };
