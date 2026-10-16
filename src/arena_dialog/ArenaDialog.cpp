@@ -71,41 +71,47 @@ void ArenaDialog::setupUi() {
     m_targetList = new QListWidget(this);
     mainLayout->addWidget(m_targetList);
 
-    // Buttons
-    QHBoxLayout* btnLayout = new QHBoxLayout();
-
+    // Buttons — grouped logically: Navigation / Combat / Wave control
+    QHBoxLayout* topBtnLayout = new QHBoxLayout();
     m_startBtn = new QPushButton("Start Arena", this);
-    m_fightBtn = new QPushButton("Fight", this);
     m_fleeBtn = new QPushButton("Flee", this);
+    m_nextWaveBtn = new QPushButton("Next Wave", this);
+    topBtnLayout->addWidget(m_startBtn);
+    topBtnLayout->addWidget(m_fleeBtn);
+    topBtnLayout->addWidget(m_nextWaveBtn);
+    mainLayout->addLayout(topBtnLayout);
+
+    QHBoxLayout* combatBtnLayout = new QHBoxLayout();
     m_attackBtn = new QPushButton("Attack", this);
     m_defendBtn = new QPushButton("Defend", this);
     m_spellBtn = new QPushButton("Cast Spell", this);
     m_useItemBtn = new QPushButton("Use Item", this);
-    m_nextWaveBtn = new QPushButton("Next Wave", this);
-    m_exitBtn = new QPushButton("Exit", this);
-
-    btnLayout->addWidget(m_startBtn);
-    btnLayout->addWidget(m_fightBtn);
-    btnLayout->addWidget(m_fleeBtn);
-    btnLayout->addWidget(m_attackBtn);
-    btnLayout->addWidget(m_defendBtn);
-    btnLayout->addWidget(m_spellBtn);
-    btnLayout->addWidget(m_useItemBtn);
-    btnLayout->addWidget(m_nextWaveBtn);
-    btnLayout->addWidget(m_exitBtn);
-
-    mainLayout->addLayout(btnLayout);
+    combatBtnLayout->addWidget(m_attackBtn);
+    combatBtnLayout->addWidget(m_defendBtn);
+    combatBtnLayout->addWidget(m_spellBtn);
+    combatBtnLayout->addWidget(m_useItemBtn);
+    mainLayout->addLayout(combatBtnLayout);
 
     // Signals
     connect(m_startBtn, &QPushButton::clicked, this, &ArenaDialog::on_startButton_clicked);
-    connect(m_fightBtn, &QPushButton::clicked, this, &ArenaDialog::on_fightButton_clicked);
     connect(m_fleeBtn, &QPushButton::clicked, this, &ArenaDialog::on_fleeButton_clicked);
     connect(m_attackBtn, &QPushButton::clicked, this, &ArenaDialog::on_attackButton_clicked);
     connect(m_defendBtn, &QPushButton::clicked, this, &ArenaDialog::on_defendButton_clicked);
     connect(m_spellBtn, &QPushButton::clicked, this, &ArenaDialog::on_spellButton_clicked);
     connect(m_useItemBtn, &QPushButton::clicked, this, &ArenaDialog::on_useItemButton_clicked);
     connect(m_nextWaveBtn, &QPushButton::clicked, this, &ArenaDialog::on_nextWaveButton_clicked);
-    connect(m_exitBtn, &QPushButton::clicked, this, &ArenaDialog::on_exitButton_clicked);
+
+    // Target list: click to select a monster
+    connect(m_targetList, &QListWidget::itemClicked, this, [this](QListWidgetItem* item) {
+        if (!item) return;
+        int idx = item->data(Qt::UserRole).toInt();
+        if (idx >= 0 && m_combatState && idx < m_combatState->participantCount()
+            && !m_combatState->participant(idx).isPlayer
+            && m_combatState->participant(idx).isAlive) {
+            selectedMonsterIdx = idx;
+            updateUI();
+        }
+    });
 }
 
 void ArenaDialog::on_startButton_clicked() {
@@ -189,11 +195,6 @@ void ArenaDialog::startWave(int wave) {
     logMessage(QString("Wave %1 begins! %2 monsters approach.").arg(wave).arg(monsterCount));
     updateUI();
     advanceCombat();
-}
-
-void ArenaDialog::on_fightButton_clicked() {
-    // Fight is the same as attack in arena context
-    on_attackButton_clicked();
 }
 
 void ArenaDialog::on_attackButton_clicked() {
@@ -344,10 +345,6 @@ void ArenaDialog::on_nextWaveButton_clicked() {
     if (m_currentWave < 10) {
         startWave(m_currentWave + 1);
     }
-}
-
-void ArenaDialog::on_exitButton_clicked() {
-    accept();
 }
 
 void ArenaDialog::advanceCombat() {
@@ -540,14 +537,19 @@ void ArenaDialog::updateUI() {
         }
         m_monsterHpLabel->setText("Monsters: " + monsterParts.join(" | "));
 
-        // Target list
+        // Target list — show selected marker
         m_targetList->clear();
         for (int i = 0; i < m_combatState->participantCount(); ++i) {
             const CombatParticipant& p = m_combatState->participant(i);
             if (!p.isPlayer && p.isAlive) {
                 QString label = QString("%1 (%2/%3)").arg(p.name).arg(p.hp).arg(p.maxHp);
+                if (i == selectedMonsterIdx) label = "▶ " + label;
                 QListWidgetItem* item = new QListWidgetItem(label, m_targetList);
                 item->setData(Qt::UserRole, i);
+                if (i == selectedMonsterIdx) {
+                    item->setSelected(true);
+                    m_targetList->setCurrentItem(item);
+                }
             }
         }
     } else {
@@ -557,15 +559,14 @@ void ArenaDialog::updateUI() {
     }
 
     // Button states
+    bool playerTurn = m_inCombat && m_combatActions && m_combatActions->isPlayerTurn();
     m_startBtn->setEnabled(!m_inCombat && !m_arenaComplete);
-    m_fightBtn->setEnabled(m_inCombat && m_combatActions && m_combatActions->isPlayerTurn());
-    m_attackBtn->setEnabled(m_inCombat && m_combatActions && m_combatActions->isPlayerTurn());
-    m_defendBtn->setEnabled(m_inCombat && m_combatActions && m_combatActions->isPlayerTurn());
-    m_spellBtn->setEnabled(m_inCombat && m_combatActions && m_combatActions->isPlayerTurn());
-    m_useItemBtn->setEnabled(m_inCombat && m_combatActions && m_combatActions->isPlayerTurn());
+    m_attackBtn->setEnabled(playerTurn);
+    m_defendBtn->setEnabled(playerTurn);
+    m_spellBtn->setEnabled(playerTurn);
+    m_useItemBtn->setEnabled(playerTurn);
     m_fleeBtn->setEnabled(m_inCombat);
     m_nextWaveBtn->setEnabled(!m_inCombat && m_currentWave > 0 && m_currentWave < 10 && !m_waveResults.isEmpty());
-    m_exitBtn->setEnabled(true);
 }
 
 void ArenaDialog::logMessage(const QString& msg) {
