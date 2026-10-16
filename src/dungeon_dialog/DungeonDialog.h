@@ -19,7 +19,7 @@
 #include "src/inventory_dialog/inventorydialog.h"
 #include "src/partyinfo_dialog/partyinfodialog.h"
 #include "../event/EventManager.h"
-#include "../../gameStateManager.h"
+#include "src/core/gameStateManager.h"
 #include "src/combat/CombatState.h"
 #include "src/combat/TurnEngine.h"
 #include "src/combat/CombatActions.h"

@@ -7,7 +7,7 @@
 #include <QVariantMap>
 #include <cstdio>
 
-#include "character.h"
+#include "src/character/character.h"
 #include "src/core/GameConstants.h"
 #include "src/items/ItemDatabase.h"
 

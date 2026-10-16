@@ -1,4 +1,4 @@
-#include "gameStateManager.h"
+#include "src/core/gameStateManager.h"
 #include "src/partymanager/PartyManager.h"
 #include "src/core/savegameVersion.h"
 #include "src/core/DungeonLevelState.h"
@@ -10,7 +10,7 @@
 #include "src/core/GameSettings.h"
 
 #include "version.h"
-//#include "fontManager.h"
+//#include "src/fontManager.h"
 #include "src/race_data/RaceData.h"
 #include <QRandomGenerator>
 #include <QApplication>

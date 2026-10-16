@@ -1,4 +1,4 @@
-#include "audioManager.h"
+#include "src/audio/audioManager.h"
 #include <QUrl>
 
 audioManager* audioManager::m_instance = nullptr;

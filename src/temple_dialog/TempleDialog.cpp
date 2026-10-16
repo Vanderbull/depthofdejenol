@@ -1,5 +1,5 @@
 #include "TempleDialog.h"
-#include "gameStateManager.h"
+#include "src/core/gameStateManager.h"
 #include "src/core/DeathRecovery.h"
 #include "src/core/SoundEffects.h"
 #include <QVBoxLayout>

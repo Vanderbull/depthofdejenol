@@ -1,6 +1,6 @@
 #include "SpellCastingDialog.h"
 #include "src/spell_casting/SpellMechanics.h"
-#include "../../gameStateManager.h"
+#include "src/core/gameStateManager.h"
 
 #include <QVBoxLayout>
 #include <QHBoxLayout>

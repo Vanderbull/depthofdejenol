@@ -1,6 +1,6 @@
 #include "CharacterSheetDialog.h"
-#include "gameStateManager.h"
-#include "character.h"
+#include "src/core/gameStateManager.h"
+#include "src/character/character.h"
 #include "src/items/ItemDatabase.h"
 #include "src/spell_casting/SpellBook.h"
 #include "src/spells/SpellIcon.h"

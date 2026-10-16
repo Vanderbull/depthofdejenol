@@ -6,7 +6,7 @@
 #include <QLabel>
 #include <QPushButton>
 #include <QKeyEvent>
-#include "gameStateManager.h"
+#include "src/core/gameStateManager.h"
 #include <QObject>
 
 // Forward declarations for efficiency

@@ -1,4 +1,4 @@
-#include "character.h"
+#include "src/character/character.h"
 #include "src/items/ItemDatabase.h"
 #include "src/core/LevelTable.h"
 #include "src/race_data/RaceData.h"

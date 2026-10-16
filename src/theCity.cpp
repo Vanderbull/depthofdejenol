@@ -1,6 +1,6 @@
 
-#include "theCity.h"
-#include "fontManager.h"
+#include "src/theCity.h"
+#include "src/fontManager.h"
 #include "src/core/game_resources.h"
 #include "src/network_manager/NetworkManager.h"
 #include "src/partyinfo_dialog/partyinfodialog.h"
@@ -348,7 +348,7 @@ void theCity::loadButtonIcons()
 
 void theCity::setupStyling()
 {
-    QFile styleFile("theCity.qss");
+    QFile styleFile("src/theCity.qss");
     if (styleFile.open(QFile::ReadOnly | QFile::Text)) {
         this->setStyleSheet(QLatin1String(styleFile.readAll()));
         styleFile.close();

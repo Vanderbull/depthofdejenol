@@ -19,7 +19,7 @@
 #include <QUrl>
 #include <QVBoxLayout>
 
-#include "audioManager.h"
+#include "src/audio/audioManager.h"
 #include "../core/GameSettings.h"
 
 namespace {

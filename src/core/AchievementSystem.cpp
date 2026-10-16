@@ -1,5 +1,5 @@
 #include "AchievementSystem.h"
-#include "gameStateManager.h"
+#include "src/core/gameStateManager.h"
 #include "src/core/Endgame.h"
 #include <QVariantList>
 #include <QVariantMap>

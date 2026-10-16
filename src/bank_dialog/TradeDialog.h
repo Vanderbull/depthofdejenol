@@ -8,7 +8,7 @@
 #include <QLabel>
 #include <QStringList>
 
-#include "gameStateManager.h"
+#include "src/core/gameStateManager.h"
 #include <QObject>
 
 // Forward declaration

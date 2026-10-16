@@ -1,6 +1,6 @@
 #include "QuestBoardDialog.h"
-#include "gameStateManager.h"
-#include "character.h"
+#include "src/core/gameStateManager.h"
+#include "src/character/character.h"
 #include "src/journal_dialog/JournalDialog.h"
 #include <QtWidgets>
 #include <QMessageBox>

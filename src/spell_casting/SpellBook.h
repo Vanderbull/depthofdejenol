@@ -1,7 +1,7 @@
 #ifndef SPELLBOOK_H
 #define SPELLBOOK_H
 
-#include "character.h"
+#include "src/character/character.h"
 #include <QString>
 #include <QStringList>
 #include <QList>

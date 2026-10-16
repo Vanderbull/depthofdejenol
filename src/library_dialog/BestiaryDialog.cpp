@@ -1,6 +1,6 @@
 #include "BestiaryDialog.h"
-#include "gameStateManager.h"
-#include "character.h"
+#include "src/core/gameStateManager.h"
+#include "src/character/character.h"
 #include <QtWidgets>
 #include <QFile>
 #include <QJsonArray>

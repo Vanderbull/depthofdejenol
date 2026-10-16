@@ -1,8 +1,8 @@
-#include "blacklands.h"
-#include "gameStateManager.h"
-#include "audioManager.h"
-#include "theCity.h"
-#include "storyDialog.h"
+#include "src/blacklands.h"
+#include "src/core/gameStateManager.h"
+#include "src/audio/audioManager.h"
+#include "src/theCity.h"
+#include "src/storyDialog.h"
 
 // Dialog and UI Includes
 #include "src/hall_of_records/hallofrecordsdialog.h"

@@ -1,5 +1,5 @@
 #include "DungeonDialog.h"
-#include "../../gameStateManager.h"
+#include "src/core/gameStateManager.h"
 #include <QGraphicsPixmapItem>
 #include <QGraphicsPolygonItem>
 #include <QPen>

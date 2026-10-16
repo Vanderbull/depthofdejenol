@@ -2,7 +2,7 @@
 #define PARTYMANAGER_H
 
 #include <QObject>
-#include "character.h"
+#include "src/character/character.h"
 
 class PartyManager : public QObject {
     Q_OBJECT

@@ -3,7 +3,7 @@
 
 #include "CombatState.h"
 #include "TurnEngine.h"
-#include "character.h"
+#include "src/character/character.h"
 #include <QString>
 
 // Combat actions a player can take. Pure logic — no Qt UI dependency.

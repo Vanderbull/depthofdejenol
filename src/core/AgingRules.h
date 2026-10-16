@@ -1,7 +1,7 @@
 #ifndef AGINGRULES_H
 #define AGINGRULES_H
 
-#include "character.h"
+#include "src/character/character.h"
 #include <QString>
 #include <QStringList>
 #include <QMap>

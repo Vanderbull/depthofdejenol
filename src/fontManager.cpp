@@ -1,5 +1,5 @@
 
-#include "fontManager.h"
+#include "src/fontManager.h"
 #include <QApplication>
 #include <QWidget>
 #include <QDebug>

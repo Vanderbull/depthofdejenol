@@ -1,7 +1,7 @@
 #ifndef DEATHRECOVERY_H
 #define DEATHRECOVERY_H
 
-#include "character.h"
+#include "src/character/character.h"
 #include <QString>
 #include <QStringList>
 #include <QList>

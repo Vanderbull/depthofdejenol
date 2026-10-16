@@ -5,7 +5,7 @@
 #include <QString>
 #include <QVariant>
 #include <QLabel>
-#include "gameStateManager.h"
+#include "src/core/gameStateManager.h"
 #include <QObject>
 
 class CharacterDialog : public QDialog {

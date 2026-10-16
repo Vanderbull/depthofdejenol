@@ -1,5 +1,5 @@
 #include "AssemblePartyDialog.h"
-#include "gameStateManager.h"
+#include "src/core/gameStateManager.h"
 #include "src/core/SoundEffects.h"
 
 #include <QVBoxLayout>

@@ -1,9 +1,9 @@
 // Shared includes for all selftest_*.cpp files.
 // Each domain file includes this instead of duplicating the full list.
 
-#include "gameStateManager.h"
-#include "blacklands.h"
-#include "character.h"
+#include "src/core/gameStateManager.h"
+#include "src/blacklands.h"
+#include "src/character/character.h"
 #include "src/items/ItemDatabase.h"
 #include "src/combat/CombatState.h"
 #include "src/combat/TurnEngine.h"
@@ -15,7 +15,7 @@
 #include "src/arena_dialog/ArenaDialog.h"
 #include "src/race_data/RaceData.h"
 #include "src/options_dialog/optionsdialog.h"
-#include "theCity.h"
+#include "src/theCity.h"
 #include "src/core/LevelTable.h"
 #include "src/core/AgingRules.h"
 #include "src/core/DungeonLevelState.h"

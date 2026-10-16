@@ -1,7 +1,7 @@
 #-------------------------------------------------- Project 
 # Configuration
 #--------------------------------------------------
-PRECOMPILED_HEADER = stable.h
+PRECOMPILED_HEADER = src/stable.h
 QT += core gui widgets multimedia network
 TARGET = blacklands
 
@@ -33,11 +33,11 @@ INCLUDEPATH += _PRO_FILE_PWD_/include
 #--------------------------------------------------
 SOURCES += \
     src/core/savegameVersion.cpp \
-    gameStateManager.cpp \
+    src/core/gameStateManager.cpp \
     src/partymanager/PartyManager.cpp \
-    audioManager.cpp \
-    blacklands.cpp \
-    theCity.cpp \
+    src/audio/audioManager.cpp \
+    src/blacklands.cpp \
+    src/theCity.cpp \
     src/network_manager/NetworkManager.cpp \
     src/hall_of_records/hallofrecordsdialog.cpp \
     src/create_character/createcharacterdialog.cpp \
@@ -66,7 +66,7 @@ SOURCES += \
     src/dungeon_dialog/DungeonMinimap.cpp \
     src/dungeon_dialog/DungeonHandlers.cpp \
     src/event/EventManager.cpp \
-    character.cpp
+    src/character/character.cpp
 
 #--------------------------------------------------
 # Self-test harness
@@ -75,7 +75,7 @@ SOURCES += \
 # into the real binary. It is only reachable via the `blacklands --selftest`
 # flag, so the shipped executable is unchanged.
 HEADERS += test/selftest.h test/selftest_harness.h test/selftest_includes.h
-SOURCES += test/selftest.cpp test/selftest_harness.cpp test/selftest_core.cpp test/selftest_combat.cpp test/selftest_dungeon.cpp test/selftest_progression.cpp test/selftest_world.cpp test/equipment_test.cpp test/selftest_spells.cpp test/selftest_options.cpp test/selftest_difficulty.cpp
+SOURCES += test/selftest.cpp test/selftest_harness.cpp test/selftest_core.cpp test/selftest_combat.cpp test/selftest_dungeon.cpp test/selftest_progression.cpp test/selftest_world.cpp test/equipment_test.cpp test/selftest_spells.cpp test/selftest_options.cpp test/selftest_difficulty.cpp test/selftest_data.cpp
 
 #--------------------------------------------------
 # Item database
@@ -183,13 +183,13 @@ SOURCES += src/spells/SpellIcon.cpp
 #--------------------------------------------------
 HEADERS += \
     src/core/savegameVersion.h \
-    gameStateManager.h \
+    src/core/gameStateManager.h \
     src/partymanager/PartyManager.h \
     src/core/GameConstants.h \
-    audioManager.h \
-    blacklands.h \
-    theCity.h \
-    storyDialog.h \
+    src/audio/audioManager.h \
+    src/blacklands.h \
+    src/theCity.h \
+    src/storyDialog.h \
     src/network_manager/NetworkManager.h \
     src/hall_of_records/hallofrecordsdialog.h \
     src/create_character/createcharacterdialog.h \
@@ -218,13 +218,13 @@ HEADERS += \
     src/dungeon_dialog/DungeonHandlers.h \
     src/event/EventManager.h \
     src/dungeon_dialog/MinimapDialog.h \
-    character.h
+    src/character/character.h
 
 HEADERS += src/spell_casting/SpellCastingDialog.h
 SOURCES += src/spell_casting/SpellCastingDialog.cpp
 
-HEADERS += fontManager.h
-SOURCES += fontManager.cpp
+HEADERS += src/fontManager.h
+SOURCES += src/fontManager.cpp
 #--------------------------------------------------
 # Post-Link Operations
 #--------------------------------------------------

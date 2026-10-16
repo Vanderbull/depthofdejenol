@@ -13,7 +13,7 @@
 #include <QHeaderView>
 #include <QMessageBox>
 
-#include "gameStateManager.h"
+#include "src/core/gameStateManager.h"
 #include <QObject>
 
 class GeneralStore : public QDialog

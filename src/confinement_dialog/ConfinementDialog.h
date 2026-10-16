@@ -9,7 +9,7 @@
 #include <QSpinBox>
 #include <QRegularExpression>
 
-#include "gameStateManager.h"
+#include "src/core/gameStateManager.h"
 #include <QObject>
 
 class ConfinementAndHoldingDialog : public QDialog

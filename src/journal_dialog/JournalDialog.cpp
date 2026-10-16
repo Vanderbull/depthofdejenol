@@ -1,5 +1,5 @@
 #include "JournalDialog.h"
-#include "gameStateManager.h"
+#include "src/core/gameStateManager.h"
 #include <QtWidgets>
 #include <QMessageBox>
 #include <QJsonDocument>

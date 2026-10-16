@@ -1,7 +1,7 @@
 #ifndef SPELLSCALING_H
 #define SPELLSCALING_H
 
-#include "character.h"
+#include "src/character/character.h"
 #include <QString>
 
 // Spell level-based power scaling.

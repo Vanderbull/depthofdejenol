@@ -4,7 +4,7 @@
 #include "DungeonHandlers.h"
 #include "DungeonDialog.h"
 #include "src/core/BossEncounter.h"
-#include "../../gameStateManager.h"
+#include "src/core/gameStateManager.h"
 #include "src/items/ItemDatabase.h"
 #include "src/core/DungeonThemes.h"
 #include "src/core/DungeonLevelState.h"

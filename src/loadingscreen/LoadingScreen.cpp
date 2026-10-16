@@ -1,6 +1,6 @@
 #include "src/core/game_resources.h"
 #include "LoadingScreen.h"
-#include "../../gameStateManager.h"
+#include "src/core/gameStateManager.h"
 #include <QPixmap>
 #include <QFont>
 #include <QColor>

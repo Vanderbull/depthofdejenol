@@ -1,5 +1,5 @@
 #include "hallofrecordsdialog.h"
-#include "gameStateManager.h"
+#include "src/core/gameStateManager.h"
 #include "src/core/AchievementSystem.h"
 #include <QMessageBox>
 

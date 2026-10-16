@@ -7,7 +7,7 @@
 #include <QObject>
 #include <QPushButton>
 
-#include "character.h"
+#include "src/character/character.h"
 
 /**
  * @brief Assemble or modify the party from the current game state.

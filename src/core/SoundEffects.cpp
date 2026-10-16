@@ -1,5 +1,5 @@
 #include "SoundEffects.h"
-#include "AudioManager.h"
+#include "src/audio/audioManager.h"
 #include <QFileInfo>
 #include <QDir>
 

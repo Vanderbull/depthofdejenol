@@ -1,6 +1,6 @@
 #include "DungeonHandlers.h"
 #include "DungeonDialog.h"
-#include "../../gameStateManager.h"
+#include "src/core/gameStateManager.h"
 #include "src/core/SoundEffects.h"
 #include "src/core/DoorAndSearch.h"
 #include "src/library_dialog/BestiaryDialog.h"

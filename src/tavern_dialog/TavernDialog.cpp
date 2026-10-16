@@ -1,7 +1,7 @@
 #include "TavernDialog.h"
-#include "gameStateManager.h"
+#include "src/core/gameStateManager.h"
 #include "src/core/GoldSinks.h"
-#include "character.h"
+#include "src/character/character.h"
 #include <QtWidgets>
 #include <QMessageBox>
 

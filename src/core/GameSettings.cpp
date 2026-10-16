@@ -4,8 +4,8 @@
 #include <QApplication>
 #include <QFont>
 
-#include "audioManager.h"
-#include "fontManager.h"
+#include "src/audio/audioManager.h"
+#include "src/fontManager.h"
 
 namespace {
 const char* kIniFile = "game_settings.ini";

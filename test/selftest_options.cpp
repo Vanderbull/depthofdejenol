@@ -1,5 +1,5 @@
 #include "selftest_harness.h"
-#include "theCity.h"
+#include "src/theCity.h"
 
 #include <QCheckBox>
 #include <QFile>
@@ -16,10 +16,10 @@
 #include <QSlider>
 #include <QTemporaryDir>
 
-#include "audioManager.h"
-#include "blacklands.h"
-#include "gameStateManager.h"
-#include "fontManager.h"
+#include "src/audio/audioManager.h"
+#include "src/blacklands.h"
+#include "src/core/gameStateManager.h"
+#include "src/fontManager.h"
 #include "src/core/GameSettings.h"
 #include "src/dungeon_dialog/MiniMapDialog.h"
 #include "src/options_dialog/optionsdialog.h"
@@ -326,7 +326,7 @@ void testFontLeavesWidgetFontsAlone() {
     // The real dialog inherits MainMenu.qss from GameMenu. Apply the same
     // sheet here - without it a widget's font carries a resolve mask and behaves
     // differently from what the player sees.
-    if (QFile qss(QStringLiteral("MainMenu.qss"));
+    if (QFile qss(QStringLiteral("src/MainMenu.qss"));
             qss.open(QFile::ReadOnly | QFile::Text))
         host.setStyleSheet(QString::fromUtf8(qss.readAll()));
 

@@ -1,5 +1,5 @@
 #include "partyinfodialog.h"
-#include "gameStateManager.h"
+#include "src/core/gameStateManager.h"
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QPushButton>

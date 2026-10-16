@@ -8,7 +8,7 @@
 #include <QListView>
 #include <QStandardItemModel>
 
-#include "gameStateManager.h"
+#include "src/core/gameStateManager.h"
 #include <QObject>
 
 class BankDialog : public QDialog

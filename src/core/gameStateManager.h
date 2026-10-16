@@ -11,10 +11,10 @@ extern "C" {
 #include "src/core/GameConstants.h"
 #include "src/core/Endgame.h"
 #include "src/core/game_resources.h"
-#include "dataRegistry.h"
-#include "audioManager.h"
-#include "fontManager.h"
-#include "character.h"
+#include "src/core/dataRegistry.h"
+#include "src/audio/audioManager.h"
+#include "src/fontManager.h"
+#include "src/character/character.h"
 
 #include <QSettings>
 #include <QTcpSocket>

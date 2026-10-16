@@ -1,6 +1,6 @@
 #include "QuestChainDriver.h"
 #include "QuestChain.h"
-#include "gameStateManager.h"
+#include "src/core/gameStateManager.h"
 #include "src/journal_dialog/JournalDialog.h"
 #include "DungeonLevelState.h"
 
