@@ -173,11 +173,10 @@ SOURCES += src/spells/SpellCategory.cpp
 HEADERS += src/spells/SpellTargeting.h
 SOURCES += src/spells/SpellTargeting.cpp
 HEADERS += src/spells/SpellResistance.h
-SOURCES += src/spells/SpellResistance.cpp
+SOURCES += src/spells/SpellResistance.cpp src/spells/SpellScaling.cpp
 HEADERS += src/spells/SpellScaling.h
-src/spells/SpellScaling.h \
-src/spells/SpellIcon.h \
-src/spells/SpellIcon.cpp \
+HEADERS += src/spells/SpellIcon.h
+SOURCES += src/spells/SpellIcon.cpp
 
 #--------------------------------------------------
 # Header Files

@@ -91,7 +91,10 @@ void CharacterSheetDialog::setupUi() {
     auto *spellsLayout = new QVBoxLayout(spellsGroup);
     m_spellsList = new QListWidget;
     m_spellsList->setMaximumHeight(120);
+    m_spellsText = new QLabel(tr("Spell book not loaded."));
+    m_spellsText->setWordWrap(true);
     spellsLayout->addWidget(m_spellsList);
+    spellsLayout->addWidget(m_spellsText);
     mainLayout->addWidget(spellsGroup);
 
     // Exit
@@ -227,19 +230,21 @@ void CharacterSheetDialog::refreshSheet() {
     if (sb.isLoaded()) {
         QList<SpellDef> spells = sb.spellsFor(c);
         if (spells.isEmpty()) {
-            m_spellsText->setPlainText(tr("No spells known."));
+            m_spellsText->setText(tr("No spells known."));
         } else {
             QStringList lines;
             m_spellsList->clear();
             for (const auto& s : spells) {
                 QListWidgetItem *item = new QListWidgetItem;
                 item->setText(QString("%1 (Mana: %2)").arg(s.name).arg(s.mana));
-                item->setIcon(SpellIcon::iconForSpell(s.iconPath));
+                item->setIcon(SpellIcon::iconForSpell(
+                    QString("resources/images/spells/%1.png")
+                        .arg(s.name.toLower().replace(" ", "_"))));
                 m_spellsList->addItem(item);
             }
         }
     } else {
-        m_spellsText->setPlainText(tr("Spell book not loaded."));
+        m_spellsText->setText(tr("Spell book not loaded."));
     }
 }
 

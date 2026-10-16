@@ -7,6 +7,7 @@
 #include <QObject>
 
 class QLabel;
+class QListWidget;
 class QPushButton;
 class QTableWidget;
 class QTextEdit;
@@ -45,6 +46,7 @@ private:
     QTableWidget *m_equipTable = nullptr;
     QTableWidget *m_guildTable = nullptr;
     QListWidget *m_spellsList = nullptr;
+    QLabel *m_spellsText = nullptr;
     QPushButton *m_exitBtn = nullptr;
     // v3.0.0 slice 3.4: per-stat spend buttons, one per stats-table row
     QList<QPushButton*> m_spendButtons;
