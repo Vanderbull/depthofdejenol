@@ -37,6 +37,7 @@ private slots:
   //  void onShowStatisticsClicked();
     void onContinueClicked();
     void enterCity();
+    void enterDungeon();
     void onEventTriggered(const GameEvent& event);
     void onCharacterCreated(const QString &characterName);
     void onCreateCharacterClicked();
@@ -70,7 +71,7 @@ private:
     QPixmap m_backgroundPixmap;
 
 signals:
-    void logMessageTriggered(const QString &message);
+
 };
 
 #endif // GAMEMENU_H

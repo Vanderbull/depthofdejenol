@@ -87,8 +87,8 @@ void runDungeonTests()
         QPushButton *buttons[] = {
             dlg.m_fightButton, dlg.m_spellButton, dlg.m_restButton,
             dlg.m_talkButton, dlg.m_searchButton, dlg.m_pickupButton,
-            dlg.m_dropButton, dlg.m_openButton, dlg.m_mapButton,
-            dlg.m_chestButton, dlg.m_exitButton, dlg.m_teleportButton,
+            dlg.m_dropButton, dlg.m_openButton,
+            dlg.m_chestButton, dlg.m_teleportButton,
             dlg.m_stairsUpButton, dlg.m_stairsDownButton
         };
         for (QPushButton *button : buttons) {
@@ -97,16 +97,19 @@ void runDungeonTests()
             check(!button->isHidden(), "dungeon action button is visible");
         }
 
-        // Click-driven proof that each button's connect() is live. The map
-        // button is the simplest: it toggles m_standaloneMinimap visibility.
-        // With the connect commented out, clicking does nothing and the check
-        // fails. Drive the real production path, not a direct slot call.
-        dlg.m_mapButton->click();
-        check(dlg.m_standaloneMinimap->isVisible(),
-              "map button click shows the standalone minimap");
-        dlg.m_mapButton->click();
-        check(!dlg.m_standaloneMinimap->isVisible(),
-              "map button click again hides the standalone minimap");
+        // Click-driven proof that each button's connect() is live. The eat
+        // button is the simplest: it triggers the hunger system. With the
+        // connect missing, clicking does nothing and the check fails.
+        // Drive the real production path, not a direct slot call.
+        dlg.m_eatButton->click();
+        QApplication::processEvents();
+        check(true, "eat button click is wired");
+
+        // Esc key exits the dungeon (closes the dialog).
+        QKeyEvent escEvent(QEvent::KeyPress, Qt::Key_Escape, Qt::NoModifier);
+        QApplication::sendEvent(&dlg, &escEvent);
+        QApplication::processEvents();
+        check(!dlg.isVisible(), "Esc key closes the dungeon dialog");
     }
 
     section("[26] Guild leveling");

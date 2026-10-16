@@ -75,6 +75,7 @@ signals:
     void teleporterUsed();
 
     void exitedDungeonToCity();
+    void exitedDungeonToMainMenu();
 public slots:
     void on_eatButton_clicked();
     void on_restButton_clicked();
@@ -90,14 +91,14 @@ private slots:
     void on_rotateRightButton_clicked();
     void on_teleportButton_clicked();
 
-    void on_mapButton_clicked();
+
     void openAutomap();
     void on_pickupButton_clicked();
     void on_dropButton_clicked();
     void on_spellButton_clicked();
     void on_takeButton_clicked();
     void on_openButton_clicked();
-    void on_exitButton_clicked();
+
     void on_searchButton_clicked();
     void on_disarmButton_clicked();
     void on_talkButton_clicked();
@@ -151,7 +152,7 @@ public:
 
     bool m_isInCombat = false;
     QSet<QPair<int, int>> m_roomFloorTiles; // Tracks tiles that are part of rooms
-    MinimapDialog *m_standaloneMinimap = nullptr;
+
     QList<QPair<int, int>> m_breadcrumbPath; // Stores the history of player positions
     const int MAX_BREADCRUMBS = 50;           // Limits the length of the trail
     enum MonsterAttitude {
@@ -185,13 +186,16 @@ public:
     QPushButton *m_spellButton = nullptr;
     QPushButton *m_restButton = nullptr;
     QPushButton *m_talkButton = nullptr;
+    QPushButton *m_eatButton = nullptr;
+    QPushButton *m_takeButton = nullptr;
+    QPushButton *m_disarmButton = nullptr;
     QPushButton *m_searchButton = nullptr;
     QPushButton *m_pickupButton = nullptr;
     QPushButton *m_dropButton = nullptr;
     QPushButton *m_openButton = nullptr;
-    QPushButton *m_mapButton = nullptr;
+
     QPushButton *m_chestButton = nullptr;
-    QPushButton *m_exitButton = nullptr;
+
     QPushButton *m_teleportButton = nullptr;
     // Experience Management Members
     QLabel *m_experienceLabel;
@@ -355,7 +359,7 @@ public:
     };
     void drawMinimap();
     void handleMovement(int actionIndex);
-    void handleSurfaceExit();
+    void exitToMainMenu();
     void transitionLevel(StairDirection direction);
 
     void rotate(int step);

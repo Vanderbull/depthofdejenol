@@ -75,10 +75,9 @@ void DungeonDialog::setupControls() {
         {"Pickup",  SLOT(on_pickupButton_clicked())},
         {"Drop",    SLOT(on_dropButton_clicked())},
         {"Open",    SLOT(on_openButton_clicked())},
-        {"Map",     SLOT(on_mapButton_clicked())},
         {"Chest",   SLOT(on_chestButton_clicked())},
         {"Teleport",SLOT(on_teleportButton_clicked())},
-        {"Exit",    SLOT(on_exitButton_clicked())},
+
         {"Stairs Up",    SLOT(on_stairsUpButton_clicked())},
         {"Stairs Down",    SLOT(on_stairsDownButton_clicked())},
     };
@@ -86,7 +85,7 @@ void DungeonDialog::setupControls() {
 
     // Loop through and create them automatically
     for (auto it = buttonConfigs.begin(); it != buttonConfigs.end(); ++it) {
-        QPushButton* btn = new QPushButton(it.key(), this);
+        QPushButton* btn = createButton(it.key(), it.value());
         m_controls.insert(it.key(), btn);
     }
 
@@ -99,12 +98,14 @@ void DungeonDialog::setupControls() {
     if (m_controls.contains("Pickup"))       m_pickupButton = m_controls["Pickup"];
     if (m_controls.contains("Drop"))         m_dropButton = m_controls["Drop"];
     if (m_controls.contains("Open"))         m_openButton = m_controls["Open"];
-    if (m_controls.contains("Map"))          m_mapButton = m_controls["Map"];
     if (m_controls.contains("Chest"))        m_chestButton = m_controls["Chest"];
-    if (m_controls.contains("Exit"))         m_exitButton = m_controls["Exit"];
+
     if (m_controls.contains("Teleport"))     m_teleportButton = m_controls["Teleport"];
     if (m_controls.contains("Stairs Up"))    m_stairsUpButton = m_controls["Stairs Up"];
     if (m_controls.contains("Stairs Down"))  m_stairsDownButton = m_controls["Stairs Down"];
+    if (m_controls.contains("Eat"))          m_eatButton = m_controls["Eat"];
+    if (m_controls.contains("Take"))         m_takeButton = m_controls["Take"];
+    if (m_controls.contains("Disarm"))       m_disarmButton = m_controls["Disarm"];
 }
 
 
@@ -1012,15 +1013,8 @@ DungeonDialog::DungeonDialog(QWidget *parent)
         return;
     }
     m_experienceLabel = new QLabel(this);
-    m_standaloneMinimap = new MinimapDialog(this);
-    QScreen *screen = QGuiApplication::primaryScreen();
-    if (screen) {
-        QRect screenGeometry = screen->availableGeometry();
-        int x = screenGeometry.width() - m_standaloneMinimap->width() - 20; // 20px padding
-        int y = 50; // 50px padding from top
-        m_standaloneMinimap->move(x, y);
-    }
-    connect(m_standaloneMinimap, &MinimapDialog::requestMapUpdate, this, &DungeonDialog::drawMinimap);
+    // Standalone minimap popup removed — the integrated minimap in the main
+    // layout serves the same purpose without a separate dialog.
     setWindowTitle("Dungeon: Depth of Dejenol");
     setMinimumSize(900, 640);
     resize(1280, 800);
@@ -1230,9 +1224,8 @@ DungeonDialog::DungeonDialog(QWidget *parent)
     connect(m_pickupButton, &QPushButton::clicked, this, &DungeonDialog::on_pickupButton_clicked);
     connect(m_dropButton, &QPushButton::clicked, this, &DungeonDialog::on_dropButton_clicked);
     connect(m_openButton, &QPushButton::clicked, this, &DungeonDialog::on_openButton_clicked);
-    connect(m_mapButton, &QPushButton::clicked, this, &DungeonDialog::on_mapButton_clicked);
     connect(m_chestButton, &QPushButton::clicked, this, &DungeonDialog::on_chestButton_clicked);
-    connect(m_exitButton, &QPushButton::clicked, this, &DungeonDialog::on_exitButton_clicked);
+
     connect(m_teleportButton, &QPushButton::clicked, this, &DungeonDialog::on_teleportButton_clicked);
     // Connections (Stairs)
     connect(m_stairsDownButton, &QPushButton::clicked, this, &DungeonDialog::on_stairsDownButton_clicked);
@@ -1473,19 +1466,6 @@ void DungeonDialog::enterLevel(int level, bool movingUp)
 }
 
 
-
-void DungeonDialog::on_mapButton_clicked()
-{
-    logMessage("You start looking at your map.");
-    if (m_standaloneMinimap->isVisible()) {
-        m_standaloneMinimap->hide();
-    } else {
-        m_standaloneMinimap->show();
-        this->activateWindow();
-        drawMinimap();
-    }
-    openAutomap();
-}
 
 void DungeonDialog::openAutomap()
 {
@@ -2616,6 +2596,10 @@ void DungeonDialog::keyPressEvent(QKeyEvent *event)
             event->accept();
             break;
         }
+        case Qt::Key_Escape:
+            exitToMainMenu();
+            event->accept();
+            break;
         default:
             QDialog::keyPressEvent(event);
             break;
@@ -2702,14 +2686,11 @@ void DungeonDialog::updateDungeonView(const QImage& dungeonImage)
     }
 }
 
-void DungeonDialog::on_exitButton_clicked()
+void DungeonDialog::exitToMainMenu()
 {
-    QMessageBox::StandardButton reply = QMessageBox::question(
-        this, "Exit", "Exit to the City?", QMessageBox::Yes | QMessageBox::No
-    );
-    if (reply == QMessageBox::Yes) {
-        handleSurfaceExit();
-    }
+    logMessage("You leave the dungeon and return to the main menu.");
+    emit exitedDungeonToMainMenu();
+    this->close();
 }
 
 void DungeonDialog::on_rotateLeftButton_clicked()
@@ -2799,7 +2780,7 @@ void DungeonDialog::transitionLevel(StairDirection direction)
             enterLevel(newLevel, true);
             SoundEffects::instance()->play(SoundEffects::Type::Stairs);
         } else {
-            handleSurfaceExit();
+            exitToMainMenu();
         }
     } else {
         int newLevel = currentZ + 1;
@@ -2819,16 +2800,6 @@ void DungeonDialog::transitionLevel(StairDirection direction)
         enterLevel(newLevel, false);
         SoundEffects::instance()->play(SoundEffects::Type::Stairs);
     }
-}
-
-void DungeonDialog::handleSurfaceExit()
-{
-    // Log the exit for the user
-    logMessage("You climb the stairs and emerge into the bright sunlight of The City.");
-    // 1. Emit the signal so the parent/manager knows we are leaving
-    emit exitedDungeonToCity();
-    // 2. Close the dungeon dialog
-    this->close();
 }
 
 void DungeonDialog::processTreasureOpening()

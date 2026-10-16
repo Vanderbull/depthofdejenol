@@ -416,10 +416,16 @@ void theCity::on_dungeonButton_clicked() {
     DungeonDialog *d = new DungeonDialog(this); 
     d->setAttribute(Qt::WA_DeleteOnClose);    
     connect(d, &DungeonDialog::exitedDungeonToCity, this, &theCity::show);
-    d->show();
+    gameStateManager::instance()->setGameValue("CurrentLocation", "Dungeon");
+    connect(d, &DungeonDialog::exitedDungeonToMainMenu, this, [this]() {
+        this->close();
+        if (parentWidget()) {
+            parentWidget()->show();
+        }
+    });
+    d->showNormal();
     d->raise();
     d->activateWindow();
-    d->setFocus();
     this->hide();
 }
 

@@ -86,8 +86,9 @@ void DungeonDialog::drawMinimap()
     m_visitedTiles.insert(currentPos);
     QGraphicsScene *scene = new QGraphicsScene(this);
     scene->setSceneRect(0, 0, MAP_WIDTH_PIXELS, MAP_HEIGHT_PIXELS);
-    // Check the toggle state from our new dialog
-    bool revealAll = m_standaloneMinimap && m_standaloneMinimap->isRevealAllEnabled();
+    // Reveal-all toggle removed with the standalone minimap dialog.
+    // Default to false so fog-of-war behaviour is unchanged.
+    bool revealAll = false;
     // 2. Draw Obstacles (Walls)
     for (const auto& pos : m_obstaclePositions) {
         // Walls are visible only if the tile has been visited
@@ -348,10 +349,8 @@ void DungeonDialog::drawMinimap()
         m_miniMapViewIntegrated->setScene(scene);
         m_miniMapViewIntegrated->fitInView(scene->sceneRect(), Qt::KeepAspectRatio);
     }
-    // The standalone popup, when open, shows the same scene.
-    if (m_standaloneMinimap) {
-        m_standaloneMinimap->updateScene(scene);
-    } else if (!m_miniMapViewIntegrated) {
+    // Standalone popup removed — only the integrated view displays the scene.
+    if (!m_miniMapViewIntegrated) {
         delete scene; // No view is displaying it; clean up.
     }
     QString bodyPath = "resources/images/minimap/body.png";

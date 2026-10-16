@@ -8,7 +8,7 @@
 #include "src/hall_of_records/hallofrecordsdialog.h"
 #include "src/create_character/createcharacterdialog.h"
 #include "src/options_dialog/optionsdialog.h"
-#include "src/message_window/MessageWindow.h"
+
 #include "src/loadingscreen/LoadingScreen.h"
 #include "src/load_party_dialog/LoadPartyDialog.h"
 #include "src/assemble_party_dialog/AssemblePartyDialog.h"
@@ -69,7 +69,7 @@ GameMenu::GameMenu(QWidget *parent)
     // 4. Initial State
     refreshContinueState();
     EventManager::instance()->update("GAME_START");
-    emit logMessageTriggered("GameMenu has successfully initialized.");
+
 }
 
 void GameMenu::setupUI() {
@@ -246,9 +246,6 @@ void GameMenu::setupConnections() {
     connect(EventManager::instance(), &EventManager::eventTriggered, this, &GameMenu::onEventTriggered);
 
     // Logging Window Setup
-    MessagesWindow *loggerWindow = new MessagesWindow();
-    connect(this, &GameMenu::logMessageTriggered, loggerWindow, &MessagesWindow::logMessage);
-    loggerWindow->show();
 }
 
 void GameMenu::loadStyleSheet() {
@@ -390,8 +387,12 @@ void GameMenu::onContinueClicked() {
     audioManager::instance()->stopAllAudio();
     if (gameStateManager::instance()->loadFullGameState("autosave")) {
         if (gameStateManager::instance()->hasLivingCharacters()) {
-            emit logMessageTriggered(tr("Autosave loaded."));
-            enterCity();
+            QString loc = gameStateManager::instance()->getGameValue("CurrentLocation").toString();
+            if (loc == "Dungeon") {
+                enterDungeon();
+            } else {
+                enterCity();
+            }
         } else {
             QMessageBox::warning(this, tr("Load Error"),
                                  tr("The autosave party is deceased."));
@@ -400,6 +401,21 @@ void GameMenu::onContinueClicked() {
         QMessageBox::warning(this, tr("Load Error"),
                              tr("Failed to load autosave."));
     }
+}
+
+void GameMenu::enterDungeon() {
+    audioManager::instance()->stopAllAudio();
+    DungeonDialog *dungeonDialog = new DungeonDialog(this);
+    dungeonDialog->setAttribute(Qt::WA_DeleteOnClose);
+    hide();
+
+    connect(dungeonDialog, &QDialog::finished, this, [this](int){
+        this->refreshContinueState();
+        this->show();
+    });
+    dungeonDialog->showNormal();
+    dungeonDialog->raise();
+    dungeonDialog->activateWindow();
 }
 
 void GameMenu::enterCity() {
@@ -412,7 +428,9 @@ void GameMenu::enterCity() {
         this->refreshContinueState();
         this->show();
     });
-    cityDialog->show();
+    cityDialog->showNormal();
+    cityDialog->raise();
+    cityDialog->activateWindow();
 }
 
 void GameMenu::loadGame() {
@@ -432,7 +450,7 @@ void GameMenu::loadGame() {
 
     if (gameStateManager::instance()->loadFullGameState(saveName)) {
         if (gameStateManager::instance()->hasLivingCharacters()) {
-            emit logMessageTriggered(tr("Game loaded successfully."));
+
             enterCity();
         } else {
             QMessageBox::warning(this, tr("Load Error"),
@@ -465,7 +483,7 @@ void GameMenu::saveGame() {
 void GameMenu::onCharacterCreated(const QString &characterName) {
     // CreateCharacterDialog already saved the character to data/characters/
     // and added it to the party. Just enter the city.
-    emit logMessageTriggered(QString("Character %1 created.").arg(characterName));
+
     gameStateManager::instance()->startAutosave(10000); // 10s intervals
     enterCity();
 }
@@ -498,7 +516,7 @@ void GameMenu::startNewGame() {
     auto *dialog = new CreateCharacterDialog(loadRaceData(), loadGuildData(), this);
     dialog->setAttribute(Qt::WA_DeleteOnClose);
     connect(dialog, &CreateCharacterDialog::characterCreated, this, [this](const QString &name) {
-        emit logMessageTriggered(QString("Character %1 created.").arg(name));
+
         // Write the initial game state so Continue works.
         gameStateManager::instance()->saveFullGameState("autosave");
         gameStateManager::instance()->startAutosave(10000);
@@ -532,6 +550,17 @@ int main(int argc, char *argv[]) {
     // Force X11 for Wayland compatibility
     qputenv("QT_QPA_PLATFORM", "xcb");
     QApplication a(argc, argv);
+    QApplication::setQuitOnLastWindowClosed(false);
+
+    // Keep every active window/dialog on top when focus changes.
+    // Without this, dialogs launched from a terminal (or another app) end up
+    // behind the window that had focus before.
+    QObject::connect(&a, &QApplication::focusChanged, [](QWidget *old, QWidget *now) {
+        if (now && old != now) {
+            now->raise();
+            now->activateWindow();
+        }
+    });
 
     // Headless verification suite (`make check`). Runs without any GUI so it
     // can gate every change; see test/selftest.cpp.

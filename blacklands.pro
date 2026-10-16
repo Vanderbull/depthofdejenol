@@ -1,4 +1,4 @@
-#-------------------------------------------------- Project 
+#-------------------------------------------------- Project
 # Configuration
 #--------------------------------------------------
 PRECOMPILED_HEADER = src/stable.h
@@ -42,7 +42,6 @@ SOURCES += \
     src/hall_of_records/hallofrecordsdialog.cpp \
     src/create_character/createcharacterdialog.cpp \
     src/character_dialog/CharacterDialog.cpp \
-    src/message_window/MessageWindow.cpp \
     src/library_dialog/library_dialog.cpp \
     src/automap/automap_dialog.cpp \
     src/game_controller/game_controller.cpp \
@@ -194,7 +193,6 @@ HEADERS += \
     src/hall_of_records/hallofrecordsdialog.h \
     src/create_character/createcharacterdialog.h \
     src/character_dialog/CharacterDialog.h \
-    src/message_window/MessageWindow.h \
     src/library_dialog/library_dialog.h \
     src/automap/automap_dialog.h \
     src/game_controller/game_controller.h \
@@ -322,7 +320,7 @@ SEMVER = \"$${SEMVER_MAJOR}.$${SEMVER_MINOR}.$${SEMVER_PATCH}\"
 QMAKE_SUBSTITUTES += version.h.in
 
 # 4. VERY IMPORTANT: Add literal quotes to the variables
-# This ensures they appear as "9629655" in version.h instead of 9629655
+# This ensures they appear as \"9629655\" in version.h instead of 9629655
 VERSION_HASH = \"$$VERSION_HASH\"
 VERSION_DATE = \"$$VERSION_DATE\"
 VERSION_INT  = \"v$$VERSION_INT\"
