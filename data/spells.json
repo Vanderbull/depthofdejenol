@@ -895,7 +895,7 @@
         },
         "is_combat_spell": false,
         "damage": null,
-        "iconPath": "resources/images/spells/bind.png"
+        "iconPath": "resources/images/spells/control.png"
       },
       {
         "name": "Bind",
@@ -930,7 +930,7 @@
         },
         "is_combat_spell": false,
         "damage": null,
-        "iconPath": "resources/images/spells/bind.png"
+        "iconPath": "resources/images/spells/domination.png"
       },
       {
         "name": "Bind Creature",
@@ -945,7 +945,7 @@
         },
         "is_combat_spell": false,
         "damage": null,
-        "iconPath": "resources/images/spells/bind.png"
+        "iconPath": "resources/images/spells/bind_creature.png"
       },
       {
         "name": "Bind Monster",
@@ -960,7 +960,7 @@
         },
         "is_combat_spell": false,
         "damage": null,
-        "iconPath": "resources/images/spells/bind.png"
+        "iconPath": "resources/images/spells/bind_monster.png"
       }
     ],
     "Heal": [
