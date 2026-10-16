@@ -64,6 +64,16 @@ See [RELEASE_NOTES.md](RELEASE_NOTES.md) for the full version history.
 | [docs/MONSTERS.md](docs/MONSTERS.md) | 401 monsters with stats, abilities, and resistances |
 | [docs/SPELLS.md](docs/SPELLS.md) | 100 spells across 18 schools with mana, damage, and guilds |
 | [docs/ITEMS.md](docs/ITEMS.md) | 370 items with stats, prices, and where they appear |
+| [docs/RACES.md](docs/RACES.md) | 9 races with stat ranges, resistances, and traits |
+| [docs/GUILDS.md](docs/GUILDS.md) | 11 guilds with requirements, abilities, and spell access |
+| [docs/PROGRESSION.md](docs/PROGRESSION.md) | XP curve for 20 levels with level-up gains |
+| [docs/RESEARCH.md](docs/RESEARCH.md) | Laired monster locations and attributes |
+| [docs/DUNGEON.md](docs/DUNGEON.md) | 15 dungeon floors, themes, bosses, and special tiles |
+| [docs/TOWN.md](docs/TOWN.md) | Town services, gold sinks, and progression |
+| [docs/QUESTS.md](docs/QUESTS.md) | Main quest chain, side quests, and rewards |
+| [docs/ENDGAME.md](docs/ENDGAME.md) | New Game Plus, Arena, Abyss, and achievements |
+| [docs/COMBAT.md](docs/COMBAT.md) | Combat flow, status effects, and monster abilities |
+| [docs/LIFECYCLE.md](docs/LIFECYCLE.md) | Aging, marriage, children, and retirement |
 
 ---
 
