@@ -485,6 +485,27 @@ void ArenaDialog::handleDefeat() {
     updateUI();
 }
 
+void ArenaDialog::performPlayerAction(const std::function<void(QString&)> &action) {
+    if (!m_inCombat || !m_combatActions || !m_turnEngine) return;
+    if (!m_combatActions->isPlayerTurn()) return;
+
+    QString result;
+    action(result);
+    logMessage(result);
+
+    // Process deaths
+    QStringList deaths = m_deathHandler->processDeaths();
+    for (const QString& d : deaths) logMessage(d);
+
+    // Mark as acted and advance turn
+    int currentIdx = m_turnEngine->currentParticipantIndex();
+    if (currentIdx >= 0) m_combatState->markActed(currentIdx);
+    m_combatState->nextTurn();
+
+    updateUI();
+    advanceCombat();
+}
+
 void ArenaDialog::recordScore() {
     Arena::Score score;
     score.heroName = gameStateManager::instance()->getGameValue("CurrentCharacterName").toString();

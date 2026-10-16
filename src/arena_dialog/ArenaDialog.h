@@ -44,6 +44,7 @@ private:
     void handleVictory();
     void handleDefeat();
     void recordScore();
+    void performPlayerAction(const std::function<void(QString&)> &action);
 
     // UI elements
     QLabel* m_titleLabel = nullptr;
