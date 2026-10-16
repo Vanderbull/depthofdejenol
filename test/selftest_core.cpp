@@ -23,9 +23,11 @@ void runCoreTests()
     // --------------------------------------------------------------- party
 
     section("[3] Party initialisation");
+    // The party now starts empty — no placeholder "Empty Slot" entries.
+    // Members are added via addCharacterToParty() when the player assembles a party.
     const int initialMembers = gsm->getParty().members.size();
-    check(initialMembers == GameConstants::MAX_PARTY_SIZE,
-          "party starts at MAX_PARTY_SIZE",
+    check(initialMembers == 0,
+          "party starts empty",
           QString::number(initialMembers));
 
     // ------------------------------------------- gold survives save / load
@@ -76,6 +78,16 @@ void runCoreTests()
     // --------------------------------------- death survives save and load
 
     section("[6] Death survives save / load");
+    // Ensure the party has at least one member for this test.
+    if (gsm->getParty().members.isEmpty()) {
+        Character testMember;
+        testMember.name = "TestMember";
+        testMember.level = 1;
+        testMember.isAlive = true;
+        testMember.hp = 10;
+        testMember.maxHp = 10;
+        gsm->addCharacterToParty(testMember);
+    }
     if (gsm->getParty().members.isEmpty()) {
         check(false, "party has a member to kill");
     } else {

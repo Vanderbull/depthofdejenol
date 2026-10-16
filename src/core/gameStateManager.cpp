@@ -1209,42 +1209,9 @@ void gameStateManager::initializeConfinementStock() {
 }
 
 void gameStateManager::initializeParty() {
-    for (int i = 0; i < GameConstants::MAX_PARTY_SIZE; ++i) {
-        QVariantMap character;
-        character["Name"] = "Empty Slot";
-        character["Level"] = 0;
-        character["Experience"] = 0;
-        character["HP"] = 0;
-        character["MaxHP"] = 0;
-        character["CurrentCharacterGold"] = 1500;
-        character["Race"] = "Human";
-        character["Age"] = 16;
-        character["Strength"] = 0;
-        character["Intelligence"] = 0;
-        character["Wisdom"] = 0;
-        character["Constitution"] = 0;
-        character["Charisma"] = 0;
-        character["Dexterity"] = 0;
-
-        character["Poisoned"] = 0;
-        character["Blinded"] = 0;
-        character["Diseased"] = 0;
-        character["isAlive"] = 0;
-        character["Inventory"] = QStringList();
-        
-        //party.append(character);
-        // 1. Convert the character data into the actual Character struct and add to members
-        Character c;
-        c.loadFromMap(character); 
-        m_partyManager->currentParty().members.append(c);
-
-        // 2. Notify the UI/QML layer using the new unified map
-        //Character c;
-        //c.loadFromMap(character);
-        //m_PC.append(c);
-        //m_currentParty.members.append(c);
-    }
-    //m_gameStateData["Party"] = party;
+    // Start with an empty party - no placeholder "Empty Slot" entries.
+    // Members are added via addCharacterToParty() when the player assembles a party.
+    m_partyManager->currentParty().members.clear();
     m_gameStateData["Party"] = m_partyManager->getPartyAsMap();
     emit gameValueChanged("party_data", m_partyManager->getPartyAsMap());
 }

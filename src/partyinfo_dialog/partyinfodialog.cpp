@@ -14,7 +14,7 @@ PartyInfoDialog::PartyInfoDialog(QWidget *parent)
     setMinimumSize(400, 350);
     QVBoxLayout *mainLayout = new QVBoxLayout(this);
     for (int i = 0; i < 4; ++i) {
-        QLabel *rowLabel = new QLabel("(empty slot)", this);
+        QLabel *rowLabel = new QLabel("", this);
         rowLabel->setTextFormat(Qt::RichText);
         rowLabel->setStyleSheet("margin-bottom: 8px; border-bottom: 1px solid #444;");
         memberLabels.append(rowLabel);
@@ -57,12 +57,22 @@ void PartyInfoDialog::updatePartyLabels()
 {
     partyMembers.clear();
     QVariantList partyData = gameStateManager::instance()->getGameValue("Party").toList();
+
+    // Show "No party members" when the party is empty
+    if (partyData.isEmpty()) {
+        memberLabels[0]->setText("<font color='gray'>No party members</font>");
+        for (int i = 1; i < 4; ++i) {
+            memberLabels[i]->setText("");
+        }
+        return;
+    }
+
     for (int i = 0; i < 4; ++i) {
         if (i < partyData.size()) {
             QVariantMap charMap = partyData[i].toMap();
             QString name = charMap.value("Name").toString();
-            if (name.isEmpty() || name == "Empty Slot") {
-                memberLabels[i]->setText("<font color='gray'>(empty slot)</font>");
+            if (name.isEmpty()) {
+                memberLabels[i]->setText("<font color='gray'>(empty)</font>");
                 continue;
             }
             partyMembers.append(name);
@@ -87,7 +97,7 @@ void PartyInfoDialog::updatePartyLabels()
                 .arg(activeMarker).arg(name).arg(race).arg(activeSuffix)
                 .arg(hp).arg(maxHp).arg(status.join(", ")));
         } else {
-            memberLabels[i]->setText("<font color='gray'>(empty slot)</font>");
+            memberLabels[i]->setText("");
         }
     }
 }
@@ -113,8 +123,7 @@ void PartyInfoDialog::onLeaveClicked()
     if (QMessageBox::question(this, "Leave", "Remove " + partyMembers.at(activeMemberIndex) + "?") == QMessageBox::Yes) {
         QVariantList partyData = gameStateManager::instance()->getGameValue("Party").toList();
         partyData.removeAt(activeMemberIndex);
-        QVariantMap empty; empty["Name"] = "Empty Slot";
-        partyData.append(empty);
+
         gameStateManager::instance()->setGameValue("Party", partyData);
     }
 }
