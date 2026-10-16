@@ -53,9 +53,6 @@ QList<AchievementSystem::Achievement> AchievementSystem::all() {
     add("level_10", "Seasoned", "Reach level 10", 500);
     add("level_20", "Hero", "Reach level 20", 1000);
     add("level_30", "Legend", "Reach level 30", 2000);
-    add("arena_1", "Contestant", "Clear 1 Arena wave", 250);
-    add("arena_5", "Fighter", "Clear 5 Arena waves", 500);
-    add("arena_10", "Arena Champion", "Clear all 10 Arena waves", 2000);
     add("abyss_1", "Abyssal Explorer", "Reach Abyss floor 1", 1000);
     add("abyss_5", "Abyssal Warrior", "Defeat the floor 5 Abyss boss", 3000);
     add("abyss_10", "Heart Destroyer", "Defeat the Abyssal Heart", 10000);
@@ -110,7 +107,6 @@ int AchievementSystem::checkAndUnlock() {
     int gold = gsm->getPartyGold();
     int kills = gsm->getGameValue("TotalKills").toInt();
     int deaths = gsm->getGameValue("TotalDeaths").toInt();
-    int arenaWaves = gsm->getGameValue("ArenaWavesCleared").toInt();
     int abyssFloor = gsm->getGameValue("AbyssFloor").toInt();
 
     // Highest party level
@@ -151,11 +147,6 @@ int AchievementSystem::checkAndUnlock() {
     if (highestLevel >= 10) { if (unlock("level_10")) count++; }
     if (highestLevel >= 20) { if (unlock("level_20")) count++; }
     if (highestLevel >= 30) { if (unlock("level_30")) count++; }
-
-    // Arena milestones
-    if (arenaWaves >= 1) { if (unlock("arena_1")) count++; }
-    if (arenaWaves >= 5) { if (unlock("arena_5")) count++; }
-    if (arenaWaves >= 10) { if (unlock("arena_10")) count++; }
 
     // Abyss milestones
     if (abyssFloor >= 1) { if (unlock("abyss_1")) count++; }

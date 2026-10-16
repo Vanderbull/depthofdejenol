@@ -31,7 +31,6 @@ public:
 private slots:
     void handleLocationClick();
     // Existing Action Slots
-    void on_arenaButton_clicked();
     void on_generalStoreButton_clicked();
     void on_morgueButton_clicked();
     void on_guildsButton_clicked();
@@ -75,7 +74,6 @@ private:
     QToolButton *bestiaryButton;
     QToolButton *journalButton;
     QToolButton *npcButton;
-    QToolButton *arenaButton;
 
     // UI Elements - Multiplayer
     QListWidget *playerList;

@@ -4223,105 +4223,11 @@ void runWorldTests()
               QString("%1 vs %2").arg(abyss10).arg(abyss5));
     }
 
-    // ------------------------------------------- v4.0.0 — slice 4.3: Arena / challenge mode
 
-    section("[171] v4.0.0 slice 4.3: Arena monster count scales with wave");
-    {
-        check(Arena::monsterCountForWave(1) == 2, "wave 1 has 2 monsters",
-              QString::number(Arena::monsterCountForWave(1)));
-        check(Arena::monsterCountForWave(5) == 6, "wave 5 has 6 monsters",
-              QString::number(Arena::monsterCountForWave(5)));
-        check(Arena::monsterCountForWave(10) == 11, "wave 10 has 11 monsters",
-              QString::number(Arena::monsterCountForWave(10)));
-        check(Arena::monsterCountForWave(0) == 2, "wave 0 clamps to wave 1",
-              QString::number(Arena::monsterCountForWave(0)));
-        check(Arena::monsterCountForWave(15) == 11, "wave 15 clamps to wave 10",
-              QString::number(Arena::monsterCountForWave(15)));
-    }
 
-    section("[172] v4.0.0 slice 4.3: Arena monster level scales with wave and NG+");
-    {
-        int w1 = Arena::monsterLevelForWave(1);
-        int w5 = Arena::monsterLevelForWave(5);
-        int w10 = Arena::monsterLevelForWave(10);
-        check(w1 < w5, "wave 1 < wave 5 monster level",
-              QString("%1 < %2").arg(w1).arg(w5));
-        check(w5 < w10, "wave 5 < wave 10 monster level",
-              QString("%1 < %2").arg(w5).arg(w10));
 
-        // NG+ bonus
-        int w1_ng0 = Arena::monsterLevelForWave(1, 0);
-        int w1_ng1 = Arena::monsterLevelForWave(1, 1);
-        check(w1_ng1 > w1_ng0, "NG+1 increases monster level",
-              QString("%1 > %2").arg(w1_ng1).arg(w1_ng0));
-    }
 
-    section("[173] v4.0.0 slice 4.3: Arena wave score rewards speed and low damage");
-    {
-        // Fast, no damage = high score
-        Arena::WaveResult fast;
-        fast.wave = 5;
-        fast.monstersKilled = 6;
-        fast.damageTaken = 0;
-        fast.rounds = 10;  // optimal = 5*2 = 10
-        fast.cleared = true;
 
-        // Slow, lots of damage = lower score
-        Arena::WaveResult slow;
-        slow.wave = 5;
-        slow.monstersKilled = 6;
-        slow.damageTaken = 200;
-        slow.rounds = 30;  // way over optimal
-        slow.cleared = true;
-
-        int fastScore = Arena::waveScore(fast);
-        int slowScore = Arena::waveScore(slow);
-        check(fastScore > slowScore, "fast no-damage wave scores higher than slow high-damage",
-              QString("%1 > %2").arg(fastScore).arg(slowScore));
-
-        // Uncleared wave = 0
-        Arena::WaveResult uncleared;
-        uncleared.wave = 5;
-        uncleared.cleared = false;
-        check(Arena::waveScore(uncleared) == 0, "uncleared wave scores 0");
-    }
-
-    section("[174] v4.0.0 slice 4.3: Arena total score sums wave scores");
-    {
-        QList<Arena::WaveResult> results;
-        Arena::WaveResult w1, w2;
-        w1.wave = 1; w1.monstersKilled = 2; w1.damageTaken = 0; w1.rounds = 2; w1.cleared = true;
-        w2.wave = 2; w2.monstersKilled = 3; w2.damageTaken = 10; w2.rounds = 6; w2.cleared = true;
-        results << w1 << w2;
-
-        int expected = Arena::waveScore(w1) + Arena::waveScore(w2);
-        check(Arena::totalScore(results) == expected, "total score = sum of wave scores",
-              QString("%1 == %2").arg(Arena::totalScore(results)).arg(expected));
-    }
-
-    section("[175] v4.0.0 slice 4.3: Arena leaderboard sorts by score descending");
-    {
-        QList<Arena::Score> scores;
-        Arena::Score s1; s1.heroName = "Alice"; s1.score = 5000;
-        Arena::Score s2; s2.heroName = "Bob"; s2.score = 10000;
-        Arena::Score s3; s3.heroName = "Charlie"; s3.score = 3000;
-        scores << s1 << s2 << s3;
-
-        QList<Arena::Score> ranked = Arena::ranked(scores);
-        check(ranked[0].heroName == "Bob", "highest score first",
-              ranked[0].heroName);
-        check(ranked[1].heroName == "Alice", "second highest second",
-              ranked[1].heroName);
-        check(ranked[2].heroName == "Charlie", "lowest last",
-              ranked[2].heroName);
-    }
-
-    section("[176] v4.0.0 slice 4.3: Arena is accessible from town");
-    {
-        check(Arena::isAccessible(), "arena is accessible");
-        check(Arena::arenaName() == "The Arena", "arena name is 'The Arena'",
-              Arena::arenaName());
-    }
 
     // ------------------------------------------- v4.0.0 — slice 4.4: Achievements
 
@@ -4336,8 +4242,6 @@ void runWorldTests()
               "first_blood name", AchievementSystem::nameForId("first_blood"));
         check(AchievementSystem::nameForId("boss_15") == "Devil's Bane",
               "boss_15 name", AchievementSystem::nameForId("boss_15"));
-        check(AchievementSystem::nameForId("arena_10") == "Arena Champion",
-              "arena_10 name", AchievementSystem::nameForId("arena_10"));
         check(AchievementSystem::nameForId("abyss_10") == "Heart Destroyer",
               "abyss_10 name", AchievementSystem::nameForId("abyss_10"));
     }
@@ -4388,7 +4292,6 @@ void runWorldTests()
         gsm->setGameValue("TotalKills", 5);
         gsm->setGameValue("DeepestFloor", 10);
         gsm->setGameValue("TotalDeaths", 0);
-        gsm->setGameValue("ArenaWavesCleared", 0);
         gsm->setGameValue("AbyssFloor", 0);
         gsm->setGameValue("NGPlusLevel", 0);
         gsm->setGameValue("PartyGold", 20000);
@@ -6143,55 +6046,26 @@ void runWorldTests()
         members.clear();
     }
 
-    // -------------------------------------------------------------- Arena tests
-
-    section("[276] v5.4.0 slice 5.1: arena button is wired to arena dialog");
+    section("[302] the arena is removed from the city");
     {
+        // The arena (ArenaDialog + core/Arena) was cut from the game. Guard
+        // against reintroduction: no button, no dialog class.
         theCity city;
-        city.resize(800, 600);
         for (int i = 0; i < 10; ++i) QApplication::processEvents();
 
-        // The arena button must exist and be checkable
-        QToolButton *arenaBtn = city.findChild<QToolButton*>("arenaButton");
-        check(arenaBtn != nullptr, "arena button exists");
-        if (arenaBtn) {
-            check(arenaBtn->isEnabled(), "arena button is enabled");
-            check(arenaBtn->toolTip() == "Arena", "arena button has correct tooltip");
-        }
+        check(city.findChild<QToolButton*>("arenaButton") == nullptr,
+              "no arena button in the city");
 
-        // Click the button and verify ArenaDialog opens.
-        // Use a timer to close the dialog since exec() blocks.
-        bool arenaCreated = false;
-        QTimer::singleShot(100, &city, [&city, &arenaCreated]() {
-            for (QWidget *child : city.findChildren<QWidget*>()) {
-                if (child->metaObject()->className() == QString("ArenaDialog")) {
-                    arenaCreated = true;
-                    child->close();
-                    break;
-                }
+        bool arenaDialogAlive = false;
+        for (QWidget *child : city.findChildren<QWidget*>()) {
+            if (child->metaObject()->className() == QString("ArenaDialog")) {
+                arenaDialogAlive = true;
+                break;
             }
-        });
-        arenaBtn->click();
-        check(arenaCreated, "clicking arena button opens ArenaDialog");
+        }
+        check(!arenaDialogAlive, "no ArenaDialog instance in the city");
 
         city.close();
-    }
-
-    section("[277] v5.4.0 slice 5.2: arena combat index mapping");
-    {
-        // Set up a known party
-        QList<Character> &members = gameStateManager::instance()->getPartyMembers();
-        members.clear();
-        Character c1; c1.name = "Fighter"; c1.race = "Human"; c1.level = 5; c1.hp = 30; c1.maxHp = 40; c1.isAlive = true;
-        Character c2; c2.name = "Mage"; c2.race = "Elf"; c2.level = 4; c2.hp = 20; c2.maxHp = 30; c2.isAlive = true;
-        members << c1 << c2;
-
-        // Verify party members are accessible
-        check(members.size() == 2, "party has 2 members");
-        check(members[0].name == "Fighter", "first member is Fighter");
-        check(members[1].name == "Mage", "second member is Mage");
-
-        members.clear();
     }
 
     section("[291] v6.1.0 slice 6.1a: dialog instant-kill is not 9999");
@@ -6311,74 +6185,8 @@ void runWorldTests()
         members.clear();
     }
 
-    section("[282] v5.5.0 slice 5.1: arena status effects tick in advanceCombat");
-    {
-        // ArenaDialog must tick status effects at round end, just like
-        // DungeonDialog does. Without this, poison/fire/blind never deal
-        // damage in the arena — they are set but never read.
-        ArenaDialog dlg;
-        dlg.resize(600, 500);
-        for (int i = 0; i < 10; ++i) QApplication::processEvents();
 
-        // Set up a known party so startWave has player participants
-        {
-            QList<Character> &members = gameStateManager::instance()->getPartyMembers();
-            members.clear();
-            Character c1; c1.name = "Fighter"; c1.race = "Human"; c1.level = 5; c1.hp = 50; c1.maxHp = 50; c1.isAlive = true;
-            members << c1;
-        }
-
-        // Start wave 1 to populate combat participants
-        dlg.on_startButton_clicked();
-        QApplication::processEvents();
-
-        CombatState* cs = dlg.combatState();
-        CombatActions* ca = dlg.combatActions();
-        check(cs != nullptr, "arena has combat state");
-        check(ca != nullptr, "arena has combat actions");
-        if (!cs || !ca) { dlg.close(); }
-
-        // Find first monster (non-player)
-        int monsterIdx = -1;
-        for (int i = 0; i < cs->participantCount(); ++i) {
-            if (!cs->participant(i).isPlayer) { monsterIdx = i; break; }
-        }
-        check(monsterIdx >= 0, "arena has a monster");
-
-        // Apply poison to the monster
-        QString result;
-        ca->applyStatus(monsterIdx, GameConstants::Poisoned, 5, result);
-        check(ca->isPoisoned(monsterIdx), "monster is poisoned");
-
-        int hpBefore = cs->participant(monsterIdx).hp;
-        check(hpBefore > 0, "monster has HP");
-
-        // Advance combat until the monster loses HP or combat ends.
-        bool poisonWorked = false;
-        for (int i = 0; i < 100; ++i) {
-            dlg.advanceCombat();
-            QApplication::processEvents();
-            if (cs->participant(monsterIdx).hp < hpBefore || !cs->participant(monsterIdx).isAlive) {
-                poisonWorked = true;
-                break;
-            }
-            // Break if all players are dead (combat over)
-            bool anyPlayerAlive = false;
-            for (int j = 0; j < cs->participantCount(); ++j) {
-                if (cs->participant(j).isPlayer && cs->participant(j).isAlive) {
-                    anyPlayerAlive = true;
-                    break;
-                }
-            }
-            if (!anyPlayerAlive) break;
-        }
-
-        check(poisonWorked, "poison deals damage via advanceCombat");
-
-        dlg.close();
-    }
-
-    section("[279] v5.4.0 slice 5.4: arena spell casting");
+    section("[279] v5.4.0 slice 5.4: CombatActions spell casting");
     {
         // Verify CombatActions has spell casting methods
         CombatState state;

@@ -20,7 +20,6 @@
 #include "src/quest_board/QuestBoardDialog.h"
 #include "src/quest_chain_dialog/QuestChainDialog.h"
 #include "src/npc_dialog/NPCDialog.h"
-#include "src/arena_dialog/ArenaDialog.h"
 #include "src/core/AlignmentSystem.h"
 #include <QDebug>
 #include <QDateTime>
@@ -161,8 +160,6 @@ void theCity::setupUi()
     journalButton->setObjectName("journalButton");
     npcButton = new QToolButton(this);
     npcButton->setObjectName("npcButton");
-    arenaButton = new QToolButton(this);
-    arenaButton->setObjectName("arenaButton");
 
     gridLayout->addWidget(generalStoreButton,   0, 0);
     gridLayout->addWidget(morgueButton,        0, 1);
@@ -179,7 +176,6 @@ void theCity::setupUi()
     gridLayout->addWidget(bestiaryButton,      2, 3);
     gridLayout->addWidget(journalButton,       3, 0);
     gridLayout->addWidget(npcButton,           3, 1);
-    gridLayout->addWidget(arenaButton,         4, 0);
     
     midLayout->addLayout(gridLayout);
     mainLayout->addLayout(midLayout);
@@ -214,7 +210,6 @@ void theCity::setupUi()
     connect(bestiaryButton,       &QToolButton::clicked, this, &theCity::handleLocationClick);
     connect(journalButton,        &QToolButton::clicked, this, &theCity::handleLocationClick);
     connect(npcButton,            &QToolButton::clicked, this, &theCity::handleLocationClick);
-    connect(arenaButton,          &QToolButton::clicked, this, &theCity::on_arenaButton_clicked);
 
     connect(sendButton,        &QPushButton::clicked, this, &theCity::sendChatMessage);
     connect(chatInput,         &QLineEdit::returnPressed, this, &theCity::sendChatMessage);
@@ -333,9 +328,6 @@ void theCity::loadButtonIcons()
     npcButton->setIconSize(iconSize);
     npcButton->setToolTip("Talk to NPCs");
 
-    arenaButton->setIcon(QIcon(GameResources::getPixmap("npc")));
-    arenaButton->setIconSize(iconSize);
-    arenaButton->setToolTip("Arena");
 }
 
 void theCity::setupStyling()
@@ -363,7 +355,7 @@ void theCity::syncFontsToAppFont() {
         confinementButton, seerButton, bankButton, tavernButton,
         libraryButton, questBoardButton, questChainButton,
         characterSheetButton, bestiaryButton, journalButton, npcButton,
-        arenaButton, sendButton
+        sendButton
     };
     for (QWidget *w : synced) {
         if (!w)
@@ -525,18 +517,6 @@ void theCity::on_npcButton_clicked() {
     NPCDialog *n = new NPCDialog(this);
     n->setAttribute(Qt::WA_DeleteOnClose);
     n->exec();
-}
-
-void theCity::on_arenaButton_clicked() {
-    titleLabel->setText(Arena::arenaName());
-    gameStateManager::instance()->enterLocation(GameConstants::CityLocation::Street);
-    // Arena dialog opens; when it closes, the title resets via the finished signal.
-    ArenaDialog *arena = new ArenaDialog(this);
-    arena->setAttribute(Qt::WA_DeleteOnClose);
-    connect(arena, &QDialog::finished, this, [this]() {
-        processLocation(GameConstants::CityLocation::Street);
-    });
-    arena->exec();
 }
 
 void theCity::on_exitButton_clicked() {

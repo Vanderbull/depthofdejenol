@@ -300,7 +300,7 @@ void runWorldSpellTests()
               QString::number(SpellMechanics::instantKillDamage(20)));
     }
 
-    section("[279] v5.4.0 slice 5.4: arena spell casting");
+    section("[279] v5.4.0 slice 5.4: CombatActions spell casting");
     {
         // Verify CombatActions has spell casting methods
         CombatState state;
