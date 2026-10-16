@@ -6,8 +6,12 @@
         "mana": 10,
         "description": "A single fiery bolt that explodes on impact.",
         "base_level": 1,
-        "guilds": ["Mages Guild"],
-        "required_stats": { "intelligence": 10 },
+        "guilds": [
+          "Mages Guild"
+        ],
+        "required_stats": {
+          "intelligence": 10
+        },
         "is_combat_spell": true,
         "damage": "5-10"
       },
@@ -16,18 +20,28 @@
         "mana": 40,
         "description": "A devastating storm of fire that damages all creatures in a wide area.",
         "base_level": 6,
-        "guilds": ["Sorcerers Guild", "Wizards Guild"],
-        "required_stats": { "intelligence": 25 },
+        "guilds": [
+          "Sorcerers Guild",
+          "Wizards Guild"
+        ],
+        "required_stats": {
+          "intelligence": 25
+        },
         "is_combat_spell": true,
-        "damage": "35-60"
+        "damage": "50-80"
       },
       {
         "name": "Wall of Fire",
         "mana": 45,
         "description": "Creates a wall of fire that blocks movement and damages creatures that pass through.",
         "base_level": 6,
-        "guilds": ["Sorcerers Guild", "Wizards Guild"],
-        "required_stats": { "intelligence": 25 },
+        "guilds": [
+          "Sorcerers Guild",
+          "Wizards Guild"
+        ],
+        "required_stats": {
+          "intelligence": 25
+        },
         "is_combat_spell": true,
         "damage": "20-35"
       },
@@ -36,8 +50,13 @@
         "mana": 25,
         "description": "A large ball of fire that explodes and causes damage to all creatures within a small radius.",
         "base_level": 3,
-        "guilds": ["Mages Guild", "Sorcerers Guild"],
-        "required_stats": { "intelligence": 15 },
+        "guilds": [
+          "Mages Guild",
+          "Sorcerers Guild"
+        ],
+        "required_stats": {
+          "intelligence": 15
+        },
         "is_combat_spell": true,
         "damage": "15-30"
       },
@@ -46,8 +65,13 @@
         "mana": 35,
         "description": "Creates a ring of fire around a character that will damage any creature coming in contact with it.",
         "base_level": 5,
-        "guilds": ["Mages Guild", "Wizards Guild"],
-        "required_stats": { "intelligence": 20 },
+        "guilds": [
+          "Mages Guild",
+          "Wizards Guild"
+        ],
+        "required_stats": {
+          "intelligence": 20
+        },
         "is_combat_spell": true,
         "damage": "25-40"
       },
@@ -56,10 +80,29 @@
         "mana": 75,
         "description": "A huge explosion of fire, causes massive damage to creatures within a very large radius.",
         "base_level": 7,
-        "guilds": ["Wizards Guild"],
-        "required_stats": { "intelligence": 30 },
+        "guilds": [
+          "Wizards Guild"
+        ],
+        "required_stats": {
+          "intelligence": 30
+        },
         "is_combat_spell": true,
-        "damage": "50-100"
+        "damage": "70-120"
+      },
+      {
+        "name": "Lava Burst",
+        "mana": 55,
+        "description": "A burst of molten lava that scorches all foes.",
+        "base_level": 6,
+        "guilds": [
+          "Sorcerers Guild",
+          "Wizards Guild"
+        ],
+        "required_stats": {
+          "intelligence": 12
+        },
+        "is_combat_spell": true,
+        "damage": "60-90"
       }
     ],
     "Cold": [
@@ -68,8 +111,12 @@
         "mana": 10,
         "description": "A bolt of cold that hits a single creature and causes damage.",
         "base_level": 1,
-        "guilds": ["Mages Guild"],
-        "required_stats": { "intelligence": 10 },
+        "guilds": [
+          "Mages Guild"
+        ],
+        "required_stats": {
+          "intelligence": 10
+        },
         "is_combat_spell": true,
         "damage": "5-10"
       },
@@ -78,8 +125,13 @@
         "mana": 40,
         "description": "A devastating storm of frost that damages all creatures in a wide area.",
         "base_level": 6,
-        "guilds": ["Sorcerers Guild", "Wizards Guild"],
-        "required_stats": { "intelligence": 25 },
+        "guilds": [
+          "Sorcerers Guild",
+          "Wizards Guild"
+        ],
+        "required_stats": {
+          "intelligence": 25
+        },
         "is_combat_spell": true,
         "damage": "35-60"
       },
@@ -88,8 +140,13 @@
         "mana": 45,
         "description": "Creates a wall of ice that blocks movement and damages creatures that pass through.",
         "base_level": 6,
-        "guilds": ["Sorcerers Guild", "Wizards Guild"],
-        "required_stats": { "intelligence": 25 },
+        "guilds": [
+          "Sorcerers Guild",
+          "Wizards Guild"
+        ],
+        "required_stats": {
+          "intelligence": 25
+        },
         "is_combat_spell": true,
         "damage": "20-35"
       },
@@ -98,8 +155,13 @@
         "mana": 25,
         "description": "A large ball of ice that explodes and causes damage to all creatures within a small radius.",
         "base_level": 3,
-        "guilds": ["Mages Guild", "Sorcerers Guild"],
-        "required_stats": { "intelligence": 15 },
+        "guilds": [
+          "Mages Guild",
+          "Sorcerers Guild"
+        ],
+        "required_stats": {
+          "intelligence": 15
+        },
         "is_combat_spell": true,
         "damage": "15-30"
       },
@@ -108,8 +170,13 @@
         "mana": 35,
         "description": "Creates a ring of ice around a character that will damage any creature coming in contact with it.",
         "base_level": 5,
-        "guilds": ["Mages Guild", "Wizards Guild"],
-        "required_stats": { "intelligence": 20 },
+        "guilds": [
+          "Mages Guild",
+          "Wizards Guild"
+        ],
+        "required_stats": {
+          "intelligence": 20
+        },
         "is_combat_spell": true,
         "damage": "25-40"
       },
@@ -118,8 +185,12 @@
         "mana": 75,
         "description": "Creates a huge snowstorm that causes massive damage to creatures within a very large radius.",
         "base_level": 7,
-        "guilds": ["Wizards Guild"],
-        "required_stats": { "intelligence": 30 },
+        "guilds": [
+          "Wizards Guild"
+        ],
+        "required_stats": {
+          "intelligence": 30
+        },
         "is_combat_spell": true,
         "damage": "50-100"
       }
@@ -130,8 +201,12 @@
         "mana": 5,
         "description": "A small electrical shock that hits a single creature.",
         "base_level": 1,
-        "guilds": ["Mages Guild"],
-        "required_stats": { "intelligence": 10 },
+        "guilds": [
+          "Mages Guild"
+        ],
+        "required_stats": {
+          "intelligence": 10
+        },
         "is_combat_spell": true,
         "damage": "3-8"
       },
@@ -140,8 +215,12 @@
         "mana": 10,
         "description": "A bolt of lightning that hits a single creature and causes damage.",
         "base_level": 2,
-        "guilds": ["Mages Guild"],
-        "required_stats": { "intelligence": 12 },
+        "guilds": [
+          "Mages Guild"
+        ],
+        "required_stats": {
+          "intelligence": 12
+        },
         "is_combat_spell": true,
         "damage": "10-20"
       },
@@ -150,8 +229,13 @@
         "mana": 20,
         "description": "A thunderous strike that hits one target and arcs to one more.",
         "base_level": 4,
-        "guilds": ["Mages Guild", "Sorcerers Guild"],
-        "required_stats": { "intelligence": 18 },
+        "guilds": [
+          "Mages Guild",
+          "Sorcerers Guild"
+        ],
+        "required_stats": {
+          "intelligence": 18
+        },
         "is_combat_spell": true,
         "damage": "15-25"
       },
@@ -160,8 +244,12 @@
         "mana": 50,
         "description": "A devastating electrical storm that arcs between up to 4 targets.",
         "base_level": 8,
-        "guilds": ["Wizards Guild"],
-        "required_stats": { "intelligence": 28 },
+        "guilds": [
+          "Wizards Guild"
+        ],
+        "required_stats": {
+          "intelligence": 28
+        },
         "is_combat_spell": true,
         "damage": "30-45"
       },
@@ -170,8 +258,12 @@
         "mana": 35,
         "description": "A bolt of lightning that will cause damage to a creature and then arc to another creature. It can arc up to 5 times.",
         "base_level": 6,
-        "guilds": ["Wizards Guild"],
-        "required_stats": { "intelligence": 25 },
+        "guilds": [
+          "Wizards Guild"
+        ],
+        "required_stats": {
+          "intelligence": 25
+        },
         "is_combat_spell": true,
         "damage": "30-50"
       }
@@ -182,8 +274,12 @@
         "mana": 10,
         "description": "Puts a single creature to sleep.",
         "base_level": 1,
-        "guilds": ["Mages Guild"],
-        "required_stats": { "intelligence": 10 },
+        "guilds": [
+          "Mages Guild"
+        ],
+        "required_stats": {
+          "intelligence": 10
+        },
         "is_combat_spell": true,
         "damage": null
       },
@@ -192,8 +288,12 @@
         "mana": 15,
         "description": "Stuns a single creature, preventing it from acting.",
         "base_level": 2,
-        "guilds": ["Mages Guild"],
-        "required_stats": { "intelligence": 12 },
+        "guilds": [
+          "Mages Guild"
+        ],
+        "required_stats": {
+          "intelligence": 12
+        },
         "is_combat_spell": true,
         "damage": null
       },
@@ -202,8 +302,12 @@
         "mana": 10,
         "description": "An explosion of mental energy that causes damage to a single creature.",
         "base_level": 1,
-        "guilds": ["Mages Guild"],
-        "required_stats": { "intelligence": 10 },
+        "guilds": [
+          "Mages Guild"
+        ],
+        "required_stats": {
+          "intelligence": 10
+        },
         "is_combat_spell": true,
         "damage": "5-10"
       },
@@ -212,8 +316,12 @@
         "mana": 25,
         "description": "Causes a single creature to become confused and attack its allies.",
         "base_level": 3,
-        "guilds": ["Sorcerers Guild"],
-        "required_stats": { "intelligence": 15 },
+        "guilds": [
+          "Sorcerers Guild"
+        ],
+        "required_stats": {
+          "intelligence": 15
+        },
         "is_combat_spell": false,
         "damage": null
       },
@@ -222,8 +330,13 @@
         "mana": 50,
         "description": "Causes all creatures within a small radius to flee in terror.",
         "base_level": 5,
-        "guilds": ["Sorcerers Guild", "Wizards Guild"],
-        "required_stats": { "intelligence": 20 },
+        "guilds": [
+          "Sorcerers Guild",
+          "Wizards Guild"
+        ],
+        "required_stats": {
+          "intelligence": 20
+        },
         "is_combat_spell": false,
         "damage": null
       },
@@ -232,8 +345,12 @@
         "mana": 75,
         "description": "Causes a single creature to attack its allies and then die.",
         "base_level": 8,
-        "guilds": ["Wizards Guild"],
-        "required_stats": { "intelligence": 35 },
+        "guilds": [
+          "Wizards Guild"
+        ],
+        "required_stats": {
+          "intelligence": 35
+        },
         "is_combat_spell": true,
         "damage": "Instant Kill"
       }
@@ -244,8 +361,13 @@
         "mana": 12,
         "description": "Inflicts a moderate amount of damage on a single creature.",
         "base_level": 2,
-        "guilds": ["Healers Guild", "Wizards Guild"],
-        "required_stats": { "wisdom": 12 },
+        "guilds": [
+          "Healers Guild",
+          "Wizards Guild"
+        ],
+        "required_stats": {
+          "wisdom": 12
+        },
         "is_combat_spell": true,
         "damage": "8-15"
       },
@@ -254,8 +376,13 @@
         "mana": 18,
         "description": "Inflicts a serious amount of damage on a single creature.",
         "base_level": 3,
-        "guilds": ["Healers Guild", "Wizards Guild"],
-        "required_stats": { "wisdom": 14 },
+        "guilds": [
+          "Healers Guild",
+          "Wizards Guild"
+        ],
+        "required_stats": {
+          "wisdom": 14
+        },
         "is_combat_spell": true,
         "damage": "12-20"
       },
@@ -264,8 +391,13 @@
         "mana": 30,
         "description": "Inflicts a large amount of damage on a single creature.",
         "base_level": 5,
-        "guilds": ["Healers Guild", "Wizards Guild"],
-        "required_stats": { "wisdom": 18 },
+        "guilds": [
+          "Healers Guild",
+          "Wizards Guild"
+        ],
+        "required_stats": {
+          "wisdom": 18
+        },
         "is_combat_spell": true,
         "damage": "20-35"
       },
@@ -274,8 +406,13 @@
         "mana": 10,
         "description": "Poisons a single creature.",
         "base_level": 2,
-        "guilds": ["Mages Guild", "Thieves Guild"],
-        "required_stats": { "intelligence": 12 },
+        "guilds": [
+          "Mages Guild",
+          "Thieves Guild"
+        ],
+        "required_stats": {
+          "intelligence": 12
+        },
         "is_combat_spell": true,
         "damage": "Damage over Time"
       },
@@ -284,8 +421,13 @@
         "mana": 15,
         "description": "Causes a single creature to bleed and take damage over time.",
         "base_level": 3,
-        "guilds": ["Warriors Guild", "Thieves Guild"],
-        "required_stats": { "strength": 15 },
+        "guilds": [
+          "Warriors Guild",
+          "Thieves Guild"
+        ],
+        "required_stats": {
+          "strength": 15
+        },
         "is_combat_spell": true,
         "damage": "Damage over Time"
       },
@@ -294,8 +436,13 @@
         "mana": 25,
         "description": "Drains the life from a single creature and transfers it to the caster.",
         "base_level": 4,
-        "guilds": ["Sorcerers Guild", "Villains Guild"],
-        "required_stats": { "intelligence": 18 },
+        "guilds": [
+          "Sorcerers Guild",
+          "Villains Guild"
+        ],
+        "required_stats": {
+          "intelligence": 18
+        },
         "is_combat_spell": true,
         "damage": "10-20"
       }
@@ -306,8 +453,12 @@
         "mana": 15,
         "description": "A bolt of acid that hits a single creature and causes damage.",
         "base_level": 2,
-        "guilds": ["Sorcerers Guild"],
-        "required_stats": { "intelligence": 14 },
+        "guilds": [
+          "Sorcerers Guild"
+        ],
+        "required_stats": {
+          "intelligence": 14
+        },
         "is_combat_spell": true,
         "damage": "10-20"
       },
@@ -316,8 +467,12 @@
         "mana": 20,
         "description": "Inflicts a single creature with a wasting disease.",
         "base_level": 3,
-        "guilds": ["Sorcerers Guild"],
-        "required_stats": { "intelligence": 15 },
+        "guilds": [
+          "Sorcerers Guild"
+        ],
+        "required_stats": {
+          "intelligence": 15
+        },
         "is_combat_spell": true,
         "damage": "Damage over Time"
       },
@@ -326,8 +481,13 @@
         "mana": 30,
         "description": "Creates a cloud of poison that damages all creatures in an area.",
         "base_level": 5,
-        "guilds": ["Sorcerers Guild", "Wizards Guild"],
-        "required_stats": { "intelligence": 22 },
+        "guilds": [
+          "Sorcerers Guild",
+          "Wizards Guild"
+        ],
+        "required_stats": {
+          "intelligence": 22
+        },
         "is_combat_spell": true,
         "damage": "15-25"
       },
@@ -336,8 +496,12 @@
         "mana": 10,
         "description": "A small dart of poison that hits a single creature.",
         "base_level": 1,
-        "guilds": ["Sorcerers Guild"],
-        "required_stats": { "intelligence": 12 },
+        "guilds": [
+          "Sorcerers Guild"
+        ],
+        "required_stats": {
+          "intelligence": 12
+        },
         "is_combat_spell": true,
         "damage": "5-10"
       },
@@ -346,8 +510,12 @@
         "mana": 10,
         "description": "Increases a character's armor class by 5.",
         "base_level": 2,
-        "guilds": ["Mages Guild"],
-        "required_stats": { "intelligence": 12 },
+        "guilds": [
+          "Mages Guild"
+        ],
+        "required_stats": {
+          "intelligence": 12
+        },
         "is_combat_spell": false,
         "damage": null
       },
@@ -356,8 +524,12 @@
         "mana": 25,
         "description": "Increases a character's armor class by 10.",
         "base_level": 4,
-        "guilds": ["Wizards Guild"],
-        "required_stats": { "intelligence": 20 },
+        "guilds": [
+          "Wizards Guild"
+        ],
+        "required_stats": {
+          "intelligence": 20
+        },
         "is_combat_spell": false,
         "damage": null
       },
@@ -366,8 +538,12 @@
         "mana": 50,
         "description": "Increases a character's armor class by 20.",
         "base_level": 7,
-        "guilds": ["Wizards Guild"],
-        "required_stats": { "intelligence": 30 },
+        "guilds": [
+          "Wizards Guild"
+        ],
+        "required_stats": {
+          "intelligence": 30
+        },
         "is_combat_spell": false,
         "damage": null
       }
@@ -378,8 +554,13 @@
         "mana": 60,
         "description": "Instantly kills a single creature.",
         "base_level": 8,
-        "guilds": ["Wizards Guild", "Villains Guild"],
-        "required_stats": { "intelligence": 28 },
+        "guilds": [
+          "Wizards Guild",
+          "Villains Guild"
+        ],
+        "required_stats": {
+          "intelligence": 28
+        },
         "is_combat_spell": true,
         "damage": "Instant Kill"
       },
@@ -388,8 +569,12 @@
         "mana": 80,
         "description": "Completely destroys a single creature.",
         "base_level": 10,
-        "guilds": ["Wizards Guild"],
-        "required_stats": { "intelligence": 32 },
+        "guilds": [
+          "Wizards Guild"
+        ],
+        "required_stats": {
+          "intelligence": 32
+        },
         "is_combat_spell": true,
         "damage": "Instant Kill"
       },
@@ -398,8 +583,12 @@
         "mana": 100,
         "description": "Utterly destroys a single creature.",
         "base_level": 12,
-        "guilds": ["Wizards Guild"],
-        "required_stats": { "intelligence": 35 },
+        "guilds": [
+          "Wizards Guild"
+        ],
+        "required_stats": {
+          "intelligence": 35
+        },
         "is_combat_spell": true,
         "damage": "Instant Kill"
       },
@@ -408,8 +597,13 @@
         "mana": 50,
         "description": "Instantly kills a single undead creature.",
         "base_level": 6,
-        "guilds": ["Healers Guild", "Paladins Guild"],
-        "required_stats": { "wisdom": 25 },
+        "guilds": [
+          "Healers Guild",
+          "Paladins Guild"
+        ],
+        "required_stats": {
+          "wisdom": 25
+        },
         "is_combat_spell": true,
         "damage": "Instant Kill"
       },
@@ -418,8 +612,12 @@
         "mana": 75,
         "description": "Instantly kills a single vampire creature.",
         "base_level": 8,
-        "guilds": ["Paladins Guild"],
-        "required_stats": { "wisdom": 30 },
+        "guilds": [
+          "Paladins Guild"
+        ],
+        "required_stats": {
+          "wisdom": 30
+        },
         "is_combat_spell": true,
         "damage": "Instant Kill"
       }
@@ -430,8 +628,13 @@
         "mana": 10,
         "description": "Charms insects, making them companions.",
         "base_level": 1,
-        "guilds": ["Mages Guild"],
-        "required_stats": { "intelligence": 12, "wisdom": 12 },
+        "guilds": [
+          "Mages Guild"
+        ],
+        "required_stats": {
+          "intelligence": 12,
+          "wisdom": 12
+        },
         "is_combat_spell": true,
         "damage": null
       },
@@ -440,8 +643,14 @@
         "mana": 15,
         "description": "Charms animals, making them companions.",
         "base_level": 2,
-        "guilds": ["Mages Guild"],
-        "required_stats": { "intelligence": 12, "wisdom": 12, "charisma": 14 },
+        "guilds": [
+          "Mages Guild"
+        ],
+        "required_stats": {
+          "intelligence": 12,
+          "wisdom": 12,
+          "charisma": 14
+        },
         "is_combat_spell": true,
         "damage": null
       },
@@ -450,8 +659,14 @@
         "mana": 20,
         "description": "Charms elementals, making them companions.",
         "base_level": 3,
-        "guilds": ["Mages Guild"],
-        "required_stats": { "intelligence": 13, "wisdom": 13, "charisma": 15 },
+        "guilds": [
+          "Mages Guild"
+        ],
+        "required_stats": {
+          "intelligence": 13,
+          "wisdom": 13,
+          "charisma": 15
+        },
         "is_combat_spell": true,
         "damage": null
       },
@@ -460,8 +675,14 @@
         "mana": 25,
         "description": "Charms humanoids, making them companions.",
         "base_level": 4,
-        "guilds": ["Mages Guild"],
-        "required_stats": { "intelligence": 16, "wisdom": 16, "charisma": 18 },
+        "guilds": [
+          "Mages Guild"
+        ],
+        "required_stats": {
+          "intelligence": 16,
+          "wisdom": 16,
+          "charisma": 18
+        },
         "is_combat_spell": true,
         "damage": null
       },
@@ -470,8 +691,14 @@
         "mana": 30,
         "description": "Charms undead creatures, making them companions.",
         "base_level": 5,
-        "guilds": ["Mages Guild"],
-        "required_stats": { "intelligence": 15, "wisdom": 17, "charisma": 10 },
+        "guilds": [
+          "Mages Guild"
+        ],
+        "required_stats": {
+          "intelligence": 15,
+          "wisdom": 17,
+          "charisma": 10
+        },
         "is_combat_spell": true,
         "damage": null
       },
@@ -480,8 +707,14 @@
         "mana": 35,
         "description": "Charms giants, making them companions.",
         "base_level": 5,
-        "guilds": ["Mages Guild"],
-        "required_stats": { "intelligence": 15, "wisdom": 15, "charisma": 16 },
+        "guilds": [
+          "Mages Guild"
+        ],
+        "required_stats": {
+          "intelligence": 15,
+          "wisdom": 15,
+          "charisma": 16
+        },
         "is_combat_spell": true,
         "damage": null
       },
@@ -490,8 +723,14 @@
         "mana": 25,
         "description": "Binds animals more strongly than Charm Animal.",
         "base_level": 5,
-        "guilds": ["Mages Guild"],
-        "required_stats": { "intelligence": 13, "wisdom": 17, "charisma": 10 },
+        "guilds": [
+          "Mages Guild"
+        ],
+        "required_stats": {
+          "intelligence": 13,
+          "wisdom": 17,
+          "charisma": 10
+        },
         "is_combat_spell": true,
         "damage": null
       },
@@ -500,8 +739,13 @@
         "mana": 25,
         "description": "Charms a single creature, making it a companion.",
         "base_level": 4,
-        "guilds": ["Sorcerers Guild", "Villains Guild"],
-        "required_stats": { "charisma": 18 },
+        "guilds": [
+          "Sorcerers Guild",
+          "Villains Guild"
+        ],
+        "required_stats": {
+          "charisma": 18
+        },
         "is_combat_spell": false,
         "damage": null
       },
@@ -510,8 +754,13 @@
         "mana": 50,
         "description": "Charms a single monster, making it a companion.",
         "base_level": 7,
-        "guilds": ["Wizards Guild", "Villains Guild"],
-        "required_stats": { "charisma": 25 },
+        "guilds": [
+          "Wizards Guild",
+          "Villains Guild"
+        ],
+        "required_stats": {
+          "charisma": 25
+        },
         "is_combat_spell": false,
         "damage": null
       },
@@ -520,8 +769,14 @@
         "mana": 30,
         "description": "Binds elementals more strongly than Charm Elemental.",
         "base_level": 6,
-        "guilds": ["Mages Guild"],
-        "required_stats": { "intelligence": 15, "wisdom": 15, "charisma": 12 },
+        "guilds": [
+          "Mages Guild"
+        ],
+        "required_stats": {
+          "intelligence": 15,
+          "wisdom": 15,
+          "charisma": 12
+        },
         "is_combat_spell": true,
         "damage": null
       }
@@ -532,8 +787,14 @@
         "mana": 15,
         "description": "Increases the bind level of a companion.",
         "base_level": 3,
-        "guilds": ["Mages Guild"],
-        "required_stats": { "intelligence": 12, "wisdom": 12, "charisma": 10 },
+        "guilds": [
+          "Mages Guild"
+        ],
+        "required_stats": {
+          "intelligence": 12,
+          "wisdom": 12,
+          "charisma": 10
+        },
         "is_combat_spell": false,
         "damage": null
       },
@@ -542,8 +803,14 @@
         "mana": 25,
         "description": "Reinforces the bind on a companion.",
         "base_level": 6,
-        "guilds": ["Mages Guild"],
-        "required_stats": { "intelligence": 14, "wisdom": 14, "charisma": 16 },
+        "guilds": [
+          "Mages Guild"
+        ],
+        "required_stats": {
+          "intelligence": 14,
+          "wisdom": 14,
+          "charisma": 16
+        },
         "is_combat_spell": false,
         "damage": null
       },
@@ -552,8 +819,15 @@
         "mana": 50,
         "description": "The most powerful binding spell.",
         "base_level": 12,
-        "guilds": ["Mages Guild"],
-        "required_stats": { "intelligence": 18, "wisdom": 18, "constitution": 18, "charisma": 18 },
+        "guilds": [
+          "Mages Guild"
+        ],
+        "required_stats": {
+          "intelligence": 18,
+          "wisdom": 18,
+          "constitution": 18,
+          "charisma": 18
+        },
         "is_combat_spell": false,
         "damage": null
       },
@@ -562,8 +836,12 @@
         "mana": 10,
         "description": "Binds a single creature, making it a companion.",
         "base_level": 2,
-        "guilds": ["Mages Guild"],
-        "required_stats": { "intelligence": 12 },
+        "guilds": [
+          "Mages Guild"
+        ],
+        "required_stats": {
+          "intelligence": 12
+        },
         "is_combat_spell": false,
         "damage": null
       },
@@ -572,8 +850,12 @@
         "mana": 25,
         "description": "Binds a single monster, making it a companion.",
         "base_level": 5,
-        "guilds": ["Sorcerers Guild"],
-        "required_stats": { "intelligence": 20 },
+        "guilds": [
+          "Sorcerers Guild"
+        ],
+        "required_stats": {
+          "intelligence": 20
+        },
         "is_combat_spell": false,
         "damage": null
       }
@@ -584,8 +866,13 @@
         "mana": 10,
         "description": "Heals a small amount of damage.",
         "base_level": 1,
-        "guilds": ["Healers Guild", "Paladins Guild"],
-        "required_stats": { "wisdom": 10 },
+        "guilds": [
+          "Healers Guild",
+          "Paladins Guild"
+        ],
+        "required_stats": {
+          "wisdom": 10
+        },
         "is_combat_spell": false,
         "damage": null
       },
@@ -594,8 +881,12 @@
         "mana": 10,
         "description": "Inflicts a small amount of damage on a single creature.",
         "base_level": 1,
-        "guilds": ["Healers Guild"],
-        "required_stats": { "wisdom": 10 },
+        "guilds": [
+          "Healers Guild"
+        ],
+        "required_stats": {
+          "wisdom": 10
+        },
         "is_combat_spell": true,
         "damage": "5-10"
       },
@@ -604,8 +895,13 @@
         "mana": 15,
         "description": "Heals a moderate amount of damage.",
         "base_level": 2,
-        "guilds": ["Healers Guild", "Paladins Guild"],
-        "required_stats": { "wisdom": 12 },
+        "guilds": [
+          "Healers Guild",
+          "Paladins Guild"
+        ],
+        "required_stats": {
+          "wisdom": 12
+        },
         "is_combat_spell": false,
         "damage": null
       },
@@ -614,8 +910,12 @@
         "mana": 15,
         "description": "Cures all diseases.",
         "base_level": 2,
-        "guilds": ["Healers Guild"],
-        "required_stats": { "wisdom": 15 },
+        "guilds": [
+          "Healers Guild"
+        ],
+        "required_stats": {
+          "wisdom": 15
+        },
         "is_combat_spell": false,
         "damage": null
       },
@@ -624,8 +924,12 @@
         "mana": 15,
         "description": "Cures all poisons.",
         "base_level": 2,
-        "guilds": ["Healers Guild"],
-        "required_stats": { "wisdom": 15 },
+        "guilds": [
+          "Healers Guild"
+        ],
+        "required_stats": {
+          "wisdom": 15
+        },
         "is_combat_spell": false,
         "damage": null
       },
@@ -634,8 +938,12 @@
         "mana": 20,
         "description": "Cures paralysis on a single character.",
         "base_level": 3,
-        "guilds": ["Healers Guild"],
-        "required_stats": { "wisdom": 15 },
+        "guilds": [
+          "Healers Guild"
+        ],
+        "required_stats": {
+          "wisdom": 15
+        },
         "is_combat_spell": false,
         "damage": null
       },
@@ -644,8 +952,13 @@
         "mana": 25,
         "description": "Heals a large amount of damage.",
         "base_level": 4,
-        "guilds": ["Healers Guild", "Paladins Guild"],
-        "required_stats": { "wisdom": 20 },
+        "guilds": [
+          "Healers Guild",
+          "Paladins Guild"
+        ],
+        "required_stats": {
+          "wisdom": 20
+        },
         "is_combat_spell": false,
         "damage": null
       },
@@ -654,8 +967,13 @@
         "mana": 50,
         "description": "Resurrects a dead character.",
         "base_level": 7,
-        "guilds": ["Healers Guild", "Paladins Guild"],
-        "required_stats": { "wisdom": 30 },
+        "guilds": [
+          "Healers Guild",
+          "Paladins Guild"
+        ],
+        "required_stats": {
+          "wisdom": 30
+        },
         "is_combat_spell": false,
         "damage": null
       }
@@ -666,8 +984,12 @@
         "mana": 20,
         "description": "Returns the caster to a previously visited location.",
         "base_level": 4,
-        "guilds": ["Wizards Guild"],
-        "required_stats": { "intelligence": 20 },
+        "guilds": [
+          "Wizards Guild"
+        ],
+        "required_stats": {
+          "intelligence": 20
+        },
         "is_combat_spell": false,
         "damage": null
       },
@@ -676,8 +998,12 @@
         "mana": 15,
         "description": "Allows the caster to pass through a single door or wall.",
         "base_level": 3,
-        "guilds": ["Wizards Guild"],
-        "required_stats": { "intelligence": 18 },
+        "guilds": [
+          "Wizards Guild"
+        ],
+        "required_stats": {
+          "intelligence": 18
+        },
         "is_combat_spell": false,
         "damage": null
       },
@@ -686,8 +1012,12 @@
         "mana": 25,
         "description": "Teleports the caster to a random location on the same level.",
         "base_level": 5,
-        "guilds": ["Wizards Guild"],
-        "required_stats": { "intelligence": 25 },
+        "guilds": [
+          "Wizards Guild"
+        ],
+        "required_stats": {
+          "intelligence": 25
+        },
         "is_combat_spell": false,
         "damage": null
       },
@@ -696,8 +1026,13 @@
         "mana": 15,
         "description": "Allows the caster to levitate for a short time.",
         "base_level": 3,
-        "guilds": ["Mages Guild", "Wizards Guild"],
-        "required_stats": { "intelligence": 15 },
+        "guilds": [
+          "Mages Guild",
+          "Wizards Guild"
+        ],
+        "required_stats": {
+          "intelligence": 15
+        },
         "is_combat_spell": false,
         "damage": null
       }
@@ -708,8 +1043,15 @@
         "mana": 50,
         "description": "Banishes a single devil back to its plane.",
         "base_level": 5,
-        "guilds": ["Wizards Guild", "Healers Guild"],
-        "required_stats": { "intelligence": 13, "wisdom": 15, "constitution": 10 },
+        "guilds": [
+          "Wizards Guild",
+          "Healers Guild"
+        ],
+        "required_stats": {
+          "intelligence": 13,
+          "wisdom": 15,
+          "constitution": 10
+        },
         "is_combat_spell": true,
         "damage": "Instant Banish"
       },
@@ -718,8 +1060,13 @@
         "mana": 50,
         "description": "Banishs a single demon.",
         "base_level": 6,
-        "guilds": ["Healers Guild", "Paladins Guild"],
-        "required_stats": { "wisdom": 25 },
+        "guilds": [
+          "Healers Guild",
+          "Paladins Guild"
+        ],
+        "required_stats": {
+          "wisdom": 25
+        },
         "is_combat_spell": true,
         "damage": "Instant Banish"
       },
@@ -728,8 +1075,13 @@
         "mana": 50,
         "description": "Banishs a single undead.",
         "base_level": 6,
-        "guilds": ["Healers Guild", "Paladins Guild"],
-        "required_stats": { "wisdom": 25 },
+        "guilds": [
+          "Healers Guild",
+          "Paladins Guild"
+        ],
+        "required_stats": {
+          "wisdom": 25
+        },
         "is_combat_spell": true,
         "damage": "Instant Banish"
       }
@@ -740,8 +1092,13 @@
         "mana": 20,
         "description": "Dispels undead creatures, weakening or destroying them.",
         "base_level": 3,
-        "guilds": ["Healers Guild", "Paladins Guild"],
-        "required_stats": { "wisdom": 16 },
+        "guilds": [
+          "Healers Guild",
+          "Paladins Guild"
+        ],
+        "required_stats": {
+          "wisdom": 16
+        },
         "is_combat_spell": true,
         "damage": null
       },
@@ -750,8 +1107,13 @@
         "mana": 25,
         "description": "Removes curses from a character or item.",
         "base_level": 4,
-        "guilds": ["Healers Guild", "Wizards Guild"],
-        "required_stats": { "wisdom": 18 },
+        "guilds": [
+          "Healers Guild",
+          "Wizards Guild"
+        ],
+        "required_stats": {
+          "wisdom": 18
+        },
         "is_combat_spell": false,
         "damage": null
       },
@@ -760,8 +1122,12 @@
         "mana": 25,
         "description": "Dispels all magical effects on a single creature.",
         "base_level": 4,
-        "guilds": ["Wizards Guild"],
-        "required_stats": { "intelligence": 20 },
+        "guilds": [
+          "Wizards Guild"
+        ],
+        "required_stats": {
+          "intelligence": 20
+        },
         "is_combat_spell": false,
         "damage": null
       }
@@ -772,8 +1138,12 @@
         "mana": 10,
         "description": "Increases resistance to fire damage.",
         "base_level": 2,
-        "guilds": ["Mages Guild"],
-        "required_stats": { "intelligence": 12 },
+        "guilds": [
+          "Mages Guild"
+        ],
+        "required_stats": {
+          "intelligence": 12
+        },
         "is_combat_spell": false,
         "damage": null
       },
@@ -782,8 +1152,12 @@
         "mana": 10,
         "description": "Increases resistance to cold damage.",
         "base_level": 2,
-        "guilds": ["Mages Guild"],
-        "required_stats": { "intelligence": 12 },
+        "guilds": [
+          "Mages Guild"
+        ],
+        "required_stats": {
+          "intelligence": 12
+        },
         "is_combat_spell": false,
         "damage": null
       },
@@ -792,8 +1166,12 @@
         "mana": 10,
         "description": "Increases resistance to electrical damage.",
         "base_level": 2,
-        "guilds": ["Mages Guild"],
-        "required_stats": { "intelligence": 12 },
+        "guilds": [
+          "Mages Guild"
+        ],
+        "required_stats": {
+          "intelligence": 12
+        },
         "is_combat_spell": false,
         "damage": null
       },
@@ -802,8 +1180,12 @@
         "mana": 10,
         "description": "Increases resistance to acid damage.",
         "base_level": 2,
-        "guilds": ["Mages Guild"],
-        "required_stats": { "intelligence": 12 },
+        "guilds": [
+          "Mages Guild"
+        ],
+        "required_stats": {
+          "intelligence": 12
+        },
         "is_combat_spell": false,
         "damage": null
       }
@@ -814,8 +1196,13 @@
         "mana": 5,
         "description": "Creates a source of light.",
         "base_level": 1,
-        "guilds": ["Mages Guild", "Healers Guild"],
-        "required_stats": { "wisdom": 10 },
+        "guilds": [
+          "Mages Guild",
+          "Healers Guild"
+        ],
+        "required_stats": {
+          "wisdom": 10
+        },
         "is_combat_spell": false,
         "damage": null
       },
@@ -824,8 +1211,13 @@
         "mana": 25,
         "description": "Makes the caster invisible.",
         "base_level": 4,
-        "guilds": ["Sorcerers Guild", "Wizards Guild"],
-        "required_stats": { "intelligence": 20 },
+        "guilds": [
+          "Sorcerers Guild",
+          "Wizards Guild"
+        ],
+        "required_stats": {
+          "intelligence": 20
+        },
         "is_combat_spell": false,
         "damage": null
       },
@@ -834,8 +1226,12 @@
         "mana": 15,
         "description": "Allows the caster to see in complete darkness.",
         "base_level": 3,
-        "guilds": ["Wizards Guild"],
-        "required_stats": { "intelligence": 18 },
+        "guilds": [
+          "Wizards Guild"
+        ],
+        "required_stats": {
+          "intelligence": 18
+        },
         "is_combat_spell": false,
         "damage": null
       },
@@ -844,8 +1240,12 @@
         "mana": 15,
         "description": "Allows the caster to see invisible creatures.",
         "base_level": 3,
-        "guilds": ["Wizards Guild"],
-        "required_stats": { "intelligence": 15 },
+        "guilds": [
+          "Wizards Guild"
+        ],
+        "required_stats": {
+          "intelligence": 15
+        },
         "is_combat_spell": false,
         "damage": null
       },
@@ -854,8 +1254,12 @@
         "mana": 35,
         "description": "Allows the caster to see through all illusions and invisibility.",
         "base_level": 6,
-        "guilds": ["Wizards Guild"],
-        "required_stats": { "intelligence": 25 },
+        "guilds": [
+          "Wizards Guild"
+        ],
+        "required_stats": {
+          "intelligence": 25
+        },
         "is_combat_spell": false,
         "damage": null
       }
@@ -866,8 +1270,12 @@
         "mana": 30,
         "description": "Creates a shell that blocks incoming magic.",
         "base_level": 5,
-        "guilds": ["Wizards Guild"],
-        "required_stats": { "intelligence": 22 },
+        "guilds": [
+          "Wizards Guild"
+        ],
+        "required_stats": {
+          "intelligence": 22
+        },
         "is_combat_spell": false,
         "damage": null
       },
@@ -876,8 +1284,12 @@
         "mana": 10,
         "description": "A magical missile that hits a single creature and causes damage.",
         "base_level": 1,
-        "guilds": ["Mages Guild"],
-        "required_stats": { "intelligence": 10 },
+        "guilds": [
+          "Mages Guild"
+        ],
+        "required_stats": {
+          "intelligence": 10
+        },
         "is_combat_spell": true,
         "damage": "5-15"
       },
@@ -886,8 +1298,12 @@
         "mana": 25,
         "description": "Creates a magical shield that absorbs damage.",
         "base_level": 4,
-        "guilds": ["Wizards Guild"],
-        "required_stats": { "intelligence": 20 },
+        "guilds": [
+          "Wizards Guild"
+        ],
+        "required_stats": {
+          "intelligence": 20
+        },
         "is_combat_spell": false,
         "damage": null
       }
@@ -898,8 +1314,12 @@
         "mana": 10,
         "description": "Detects nearby rock formations and hidden passages.",
         "base_level": 1,
-        "guilds": ["Seekers Guild"],
-        "required_stats": { "wisdom": 10 },
+        "guilds": [
+          "Seekers Guild"
+        ],
+        "required_stats": {
+          "wisdom": 10
+        },
         "is_combat_spell": false,
         "damage": null
       },
@@ -908,8 +1328,12 @@
         "mana": 15,
         "description": "Allows the caster to sense the depth of the dungeon.",
         "base_level": 3,
-        "guilds": ["Seekers Guild"],
-        "required_stats": { "wisdom": 14 },
+        "guilds": [
+          "Seekers Guild"
+        ],
+        "required_stats": {
+          "wisdom": 14
+        },
         "is_combat_spell": false,
         "damage": null
       },
@@ -918,8 +1342,13 @@
         "mana": 20,
         "description": "Locates a specific item in the dungeon.",
         "base_level": 4,
-        "guilds": ["Seekers Guild", "Wizards Guild"],
-        "required_stats": { "wisdom": 16 },
+        "guilds": [
+          "Seekers Guild",
+          "Wizards Guild"
+        ],
+        "required_stats": {
+          "wisdom": 16
+        },
         "is_combat_spell": false,
         "damage": null
       },
@@ -928,8 +1357,13 @@
         "mana": 15,
         "description": "Locates a single creature.",
         "base_level": 2,
-        "guilds": ["Seekers Guild", "Wizards Guild"],
-        "required_stats": { "wisdom": 12 },
+        "guilds": [
+          "Seekers Guild",
+          "Wizards Guild"
+        ],
+        "required_stats": {
+          "wisdom": 12
+        },
         "is_combat_spell": false,
         "damage": null
       },
@@ -938,8 +1372,13 @@
         "mana": 15,
         "description": "Locates a single item.",
         "base_level": 2,
-        "guilds": ["Seekers Guild", "Wizards Guild"],
-        "required_stats": { "wisdom": 12 },
+        "guilds": [
+          "Seekers Guild",
+          "Wizards Guild"
+        ],
+        "required_stats": {
+          "wisdom": 12
+        },
         "is_combat_spell": false,
         "damage": null
       }
@@ -950,8 +1389,13 @@
         "mana": 20,
         "description": "Creates a protective sanctuary around the caster.",
         "base_level": 2,
-        "guilds": ["Healers Guild", "Paladins Guild"],
-        "required_stats": { "wisdom": 14 },
+        "guilds": [
+          "Healers Guild",
+          "Paladins Guild"
+        ],
+        "required_stats": {
+          "wisdom": 14
+        },
         "is_combat_spell": false,
         "damage": null
       },
@@ -960,8 +1404,13 @@
         "mana": 15,
         "description": "Creates a magical shield that absorbs damage.",
         "base_level": 2,
-        "guilds": ["Sorcerers Guild", "Wizards Guild"],
-        "required_stats": { "intelligence": 14 },
+        "guilds": [
+          "Sorcerers Guild",
+          "Wizards Guild"
+        ],
+        "required_stats": {
+          "intelligence": 14
+        },
         "is_combat_spell": false,
         "damage": null
       },
@@ -970,8 +1419,13 @@
         "mana": 10,
         "description": "Protects the caster from evil creatures.",
         "base_level": 1,
-        "guilds": ["Healers Guild", "Paladins Guild"],
-        "required_stats": { "wisdom": 10 },
+        "guilds": [
+          "Healers Guild",
+          "Paladins Guild"
+        ],
+        "required_stats": {
+          "wisdom": 10
+        },
         "is_combat_spell": false,
         "damage": null
       },
@@ -980,8 +1434,12 @@
         "mana": 10,
         "description": "Protects the caster from good creatures.",
         "base_level": 1,
-        "guilds": ["Villains Guild"],
-        "required_stats": { "charisma": 10 },
+        "guilds": [
+          "Villains Guild"
+        ],
+        "required_stats": {
+          "charisma": 10
+        },
         "is_combat_spell": false,
         "damage": null
       }
