@@ -3,6 +3,7 @@
 #include "character.h"
 #include "src/items/ItemDatabase.h"
 #include "src/spell_casting/SpellBook.h"
+#include "src/spells/SpellIcon.h"
 #include <QtWidgets>
 #include <QMessageBox>
 
@@ -88,10 +89,9 @@ void CharacterSheetDialog::setupUi() {
     // Spells
     auto *spellsGroup = new QGroupBox(tr("Known Spells"));
     auto *spellsLayout = new QVBoxLayout(spellsGroup);
-    m_spellsText = new QTextEdit;
-    m_spellsText->setReadOnly(true);
-    m_spellsText->setMaximumHeight(100);
-    spellsLayout->addWidget(m_spellsText);
+    m_spellsList = new QListWidget;
+    m_spellsList->setMaximumHeight(120);
+    spellsLayout->addWidget(m_spellsList);
     mainLayout->addWidget(spellsGroup);
 
     // Exit
@@ -230,10 +230,13 @@ void CharacterSheetDialog::refreshSheet() {
             m_spellsText->setPlainText(tr("No spells known."));
         } else {
             QStringList lines;
+            m_spellsList->clear();
             for (const auto& s : spells) {
-                lines << tr("%1 (Mana: %2)").arg(s.name).arg(s.mana);
+                QListWidgetItem *item = new QListWidgetItem;
+                item->setText(QString("%1 (Mana: %2)").arg(s.name).arg(s.mana));
+                item->setIcon(SpellIcon::iconForSpell(s.iconPath));
+                m_spellsList->addItem(item);
             }
-            m_spellsText->setPlainText(lines.join("\n"));
         }
     } else {
         m_spellsText->setPlainText(tr("Spell book not loaded."));

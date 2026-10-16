@@ -175,7 +175,9 @@ SOURCES += src/spells/SpellTargeting.cpp
 HEADERS += src/spells/SpellResistance.h
 SOURCES += src/spells/SpellResistance.cpp
 HEADERS += src/spells/SpellScaling.h
-SOURCES += src/spells/SpellScaling.cpp
+src/spells/SpellScaling.h \
+src/spells/SpellIcon.h \
+src/spells/SpellIcon.cpp \
 
 #--------------------------------------------------
 # Header Files

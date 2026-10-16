@@ -13,7 +13,8 @@
           "intelligence": 10
         },
         "is_combat_spell": true,
-        "damage": "5-10"
+        "damage": "5-10",
+        "iconPath": "resources/images/spells/fire.png"
       },
       {
         "name": "Fire Storm",
@@ -28,7 +29,8 @@
           "intelligence": 25
         },
         "is_combat_spell": true,
-        "damage": "50-80"
+        "damage": "50-80",
+        "iconPath": "resources/images/spells/fire.png"
       },
       {
         "name": "Wall of Fire",
@@ -43,7 +45,8 @@
           "intelligence": 25
         },
         "is_combat_spell": true,
-        "damage": "20-35"
+        "damage": "20-35",
+        "iconPath": "resources/images/spells/fire.png"
       },
       {
         "name": "Fireball",
@@ -58,7 +61,8 @@
           "intelligence": 15
         },
         "is_combat_spell": true,
-        "damage": "15-30"
+        "damage": "15-30",
+        "iconPath": "resources/images/spells/fire.png"
       },
       {
         "name": "Fire Ring",
@@ -73,7 +77,8 @@
           "intelligence": 20
         },
         "is_combat_spell": true,
-        "damage": "25-40"
+        "damage": "25-40",
+        "iconPath": "resources/images/spells/fire.png"
       },
       {
         "name": "Inferno",
@@ -87,7 +92,8 @@
           "intelligence": 30
         },
         "is_combat_spell": true,
-        "damage": "70-120"
+        "damage": "70-120",
+        "iconPath": "resources/images/spells/fire.png"
       },
       {
         "name": "Lava Burst",
@@ -102,7 +108,8 @@
           "intelligence": 12
         },
         "is_combat_spell": true,
-        "damage": "60-90"
+        "damage": "60-90",
+        "iconPath": "resources/images/spells/fire.png"
       }
     ],
     "Cold": [
@@ -118,7 +125,8 @@
           "intelligence": 10
         },
         "is_combat_spell": true,
-        "damage": "5-10"
+        "damage": "5-10",
+        "iconPath": "resources/images/spells/cold.png"
       },
       {
         "name": "Frost Storm",
@@ -133,7 +141,8 @@
           "intelligence": 25
         },
         "is_combat_spell": true,
-        "damage": "50-80"
+        "damage": "50-80",
+        "iconPath": "resources/images/spells/cold.png"
       },
       {
         "name": "Ice Wall",
@@ -148,7 +157,8 @@
           "intelligence": 25
         },
         "is_combat_spell": true,
-        "damage": "20-35"
+        "damage": "20-35",
+        "iconPath": "resources/images/spells/cold.png"
       },
       {
         "name": "Iceball",
@@ -163,7 +173,8 @@
           "intelligence": 15
         },
         "is_combat_spell": true,
-        "damage": "15-30"
+        "damage": "15-30",
+        "iconPath": "resources/images/spells/cold.png"
       },
       {
         "name": "Ice Ring",
@@ -178,7 +189,8 @@
           "intelligence": 20
         },
         "is_combat_spell": true,
-        "damage": "25-40"
+        "damage": "25-40",
+        "iconPath": "resources/images/spells/cold.png"
       },
       {
         "name": "Blizzard",
@@ -192,7 +204,8 @@
           "intelligence": 30
         },
         "is_combat_spell": true,
-        "damage": "50-100"
+        "damage": "50-100",
+        "iconPath": "resources/images/spells/cold.png"
       },
       {
         "name": "Frostbite",
@@ -207,7 +220,8 @@
           "intelligence": 12
         },
         "is_combat_spell": true,
-        "damage": "60-90"
+        "damage": "60-90",
+        "iconPath": "resources/images/spells/cold.png"
       }
     ],
     "Electrical": [
@@ -223,7 +237,8 @@
           "intelligence": 10
         },
         "is_combat_spell": true,
-        "damage": "3-8"
+        "damage": "3-8",
+        "iconPath": "resources/images/spells/electrical.png"
       },
       {
         "name": "Lightning",
@@ -237,7 +252,8 @@
           "intelligence": 12
         },
         "is_combat_spell": true,
-        "damage": "10-20"
+        "damage": "10-20",
+        "iconPath": "resources/images/spells/electrical.png"
       },
       {
         "name": "Thunderclap",
@@ -252,7 +268,8 @@
           "intelligence": 18
         },
         "is_combat_spell": true,
-        "damage": "15-25"
+        "damage": "15-25",
+        "iconPath": "resources/images/spells/electrical.png"
       },
       {
         "name": "Storm",
@@ -266,7 +283,8 @@
           "intelligence": 28
         },
         "is_combat_spell": true,
-        "damage": "40-70"
+        "damage": "40-70",
+        "iconPath": "resources/images/spells/electrical.png"
       },
       {
         "name": "Chain Lightning",
@@ -280,7 +298,8 @@
           "intelligence": 25
         },
         "is_combat_spell": true,
-        "damage": "30-50"
+        "damage": "30-50",
+        "iconPath": "resources/images/spells/electrical.png"
       },
       {
         "name": "Thunderstorm",
@@ -294,7 +313,8 @@
           "intelligence": 15
         },
         "is_combat_spell": true,
-        "damage": "60-100"
+        "damage": "60-100",
+        "iconPath": "resources/images/spells/electrical.png"
       }
     ],
     "Mind": [
@@ -310,7 +330,8 @@
           "intelligence": 10
         },
         "is_combat_spell": true,
-        "damage": null
+        "damage": null,
+        "iconPath": "resources/images/spells/mind.png"
       },
       {
         "name": "Nerve Blank",
@@ -324,7 +345,8 @@
           "intelligence": 12
         },
         "is_combat_spell": true,
-        "damage": null
+        "damage": null,
+        "iconPath": "resources/images/spells/mind.png"
       },
       {
         "name": "Mind Blast",
@@ -338,7 +360,8 @@
           "intelligence": 10
         },
         "is_combat_spell": true,
-        "damage": "5-10"
+        "damage": "5-10",
+        "iconPath": "resources/images/spells/mind.png"
       },
       {
         "name": "Confusion",
@@ -352,7 +375,8 @@
           "intelligence": 15
         },
         "is_combat_spell": false,
-        "damage": null
+        "damage": null,
+        "iconPath": "resources/images/spells/mind.png"
       },
       {
         "name": "Fear",
@@ -367,7 +391,8 @@
           "intelligence": 20
         },
         "is_combat_spell": false,
-        "damage": null
+        "damage": null,
+        "iconPath": "resources/images/spells/mind.png"
       },
       {
         "name": "Insanity",
@@ -381,7 +406,8 @@
           "intelligence": 35
         },
         "is_combat_spell": true,
-        "damage": "Instant Kill"
+        "damage": "Instant Kill",
+        "iconPath": "resources/images/spells/mind.png"
       }
     ],
     "Damage": [
@@ -398,7 +424,8 @@
           "wisdom": 12
         },
         "is_combat_spell": true,
-        "damage": "8-15"
+        "damage": "8-15",
+        "iconPath": "resources/images/spells/damage.png"
       },
       {
         "name": "Harm",
@@ -413,7 +440,8 @@
           "wisdom": 14
         },
         "is_combat_spell": true,
-        "damage": "12-20"
+        "damage": "12-20",
+        "iconPath": "resources/images/spells/damage.png"
       },
       {
         "name": "Greater Harm",
@@ -428,7 +456,8 @@
           "wisdom": 18
         },
         "is_combat_spell": true,
-        "damage": "30-50"
+        "damage": "30-50",
+        "iconPath": "resources/images/spells/damage.png"
       },
       {
         "name": "Poison",
@@ -443,7 +472,8 @@
           "intelligence": 12
         },
         "is_combat_spell": true,
-        "damage": "Damage over Time"
+        "damage": "Damage over Time",
+        "iconPath": "resources/images/spells/damage.png"
       },
       {
         "name": "Wound",
@@ -458,7 +488,8 @@
           "strength": 15
         },
         "is_combat_spell": true,
-        "damage": "Damage over Time"
+        "damage": "Damage over Time",
+        "iconPath": "resources/images/spells/damage.png"
       },
       {
         "name": "Drain Life",
@@ -473,7 +504,8 @@
           "intelligence": 18
         },
         "is_combat_spell": true,
-        "damage": "10-20"
+        "damage": "10-20",
+        "iconPath": "resources/images/spells/damage.png"
       },
       {
         "name": "Disintegrate",
@@ -487,7 +519,8 @@
           "intelligence": 15
         },
         "is_combat_spell": true,
-        "damage": "40-80"
+        "damage": "40-80",
+        "iconPath": "resources/images/spells/damage.png"
       }
     ],
     "Element": [
@@ -503,7 +536,8 @@
           "intelligence": 14
         },
         "is_combat_spell": true,
-        "damage": "10-20"
+        "damage": "10-20",
+        "iconPath": "resources/images/spells/element.png"
       },
       {
         "name": "Disease",
@@ -517,7 +551,8 @@
           "intelligence": 15
         },
         "is_combat_spell": true,
-        "damage": "Damage over Time"
+        "damage": "Damage over Time",
+        "iconPath": "resources/images/spells/element.png"
       },
       {
         "name": "Poison Cloud",
@@ -532,7 +567,8 @@
           "intelligence": 22
         },
         "is_combat_spell": true,
-        "damage": "15-25"
+        "damage": "15-25",
+        "iconPath": "resources/images/spells/element.png"
       },
       {
         "name": "Poison Dart",
@@ -546,7 +582,8 @@
           "intelligence": 12
         },
         "is_combat_spell": true,
-        "damage": "5-10"
+        "damage": "5-10",
+        "iconPath": "resources/images/spells/element.png"
       },
       {
         "name": "Stone Skin",
@@ -560,7 +597,8 @@
           "intelligence": 12
         },
         "is_combat_spell": false,
-        "damage": null
+        "damage": null,
+        "iconPath": "resources/images/spells/element.png"
       },
       {
         "name": "Iron Skin",
@@ -574,7 +612,8 @@
           "intelligence": 20
         },
         "is_combat_spell": false,
-        "damage": null
+        "damage": null,
+        "iconPath": "resources/images/spells/element.png"
       },
       {
         "name": "Diamond Skin",
@@ -588,7 +627,8 @@
           "intelligence": 30
         },
         "is_combat_spell": false,
-        "damage": null
+        "damage": null,
+        "iconPath": "resources/images/spells/element.png"
       }
     ],
     "Kill": [
@@ -605,7 +645,8 @@
           "intelligence": 28
         },
         "is_combat_spell": true,
-        "damage": "Instant Kill"
+        "damage": "Instant Kill",
+        "iconPath": "resources/images/spells/kill.png"
       },
       {
         "name": "Annihilate",
@@ -619,7 +660,8 @@
           "intelligence": 32
         },
         "is_combat_spell": true,
-        "damage": "Instant Kill"
+        "damage": "Instant Kill",
+        "iconPath": "resources/images/spells/kill.png"
       },
       {
         "name": "Destroy",
@@ -633,7 +675,8 @@
           "intelligence": 35
         },
         "is_combat_spell": true,
-        "damage": "Instant Kill"
+        "damage": "Instant Kill",
+        "iconPath": "resources/images/spells/kill.png"
       },
       {
         "name": "Exorcism",
@@ -648,7 +691,8 @@
           "wisdom": 25
         },
         "is_combat_spell": true,
-        "damage": "Instant Kill"
+        "damage": "Instant Kill",
+        "iconPath": "resources/images/spells/kill.png"
       },
       {
         "name": "Vampire Slayer",
@@ -662,7 +706,8 @@
           "wisdom": 30
         },
         "is_combat_spell": true,
-        "damage": "Instant Kill"
+        "damage": "Instant Kill",
+        "iconPath": "resources/images/spells/kill.png"
       }
     ],
     "Charm": [
@@ -679,7 +724,8 @@
           "wisdom": 12
         },
         "is_combat_spell": true,
-        "damage": null
+        "damage": null,
+        "iconPath": "resources/images/spells/charm.png"
       },
       {
         "name": "Charm Animal",
@@ -695,7 +741,8 @@
           "charisma": 14
         },
         "is_combat_spell": true,
-        "damage": null
+        "damage": null,
+        "iconPath": "resources/images/spells/charm.png"
       },
       {
         "name": "Charm Elemental",
@@ -711,7 +758,8 @@
           "charisma": 15
         },
         "is_combat_spell": true,
-        "damage": null
+        "damage": null,
+        "iconPath": "resources/images/spells/charm.png"
       },
       {
         "name": "Charm Humanoid",
@@ -727,7 +775,8 @@
           "charisma": 18
         },
         "is_combat_spell": true,
-        "damage": null
+        "damage": null,
+        "iconPath": "resources/images/spells/charm.png"
       },
       {
         "name": "Charm Undead",
@@ -743,7 +792,8 @@
           "charisma": 10
         },
         "is_combat_spell": true,
-        "damage": null
+        "damage": null,
+        "iconPath": "resources/images/spells/charm.png"
       },
       {
         "name": "Charm Giant",
@@ -759,7 +809,8 @@
           "charisma": 16
         },
         "is_combat_spell": true,
-        "damage": null
+        "damage": null,
+        "iconPath": "resources/images/spells/charm.png"
       },
       {
         "name": "Bind Animal",
@@ -775,7 +826,8 @@
           "charisma": 10
         },
         "is_combat_spell": true,
-        "damage": null
+        "damage": null,
+        "iconPath": "resources/images/spells/charm.png"
       },
       {
         "name": "Charm Creature",
@@ -790,7 +842,8 @@
           "charisma": 18
         },
         "is_combat_spell": false,
-        "damage": null
+        "damage": null,
+        "iconPath": "resources/images/spells/charm.png"
       },
       {
         "name": "Charm Monster",
@@ -805,7 +858,8 @@
           "charisma": 25
         },
         "is_combat_spell": false,
-        "damage": null
+        "damage": null,
+        "iconPath": "resources/images/spells/charm.png"
       },
       {
         "name": "Bind Elemental",
@@ -821,7 +875,8 @@
           "charisma": 12
         },
         "is_combat_spell": true,
-        "damage": null
+        "damage": null,
+        "iconPath": "resources/images/spells/charm.png"
       }
     ],
     "Bind": [
@@ -839,7 +894,8 @@
           "charisma": 10
         },
         "is_combat_spell": false,
-        "damage": null
+        "damage": null,
+        "iconPath": "resources/images/spells/bind.png"
       },
       {
         "name": "Bind",
@@ -855,7 +911,8 @@
           "charisma": 16
         },
         "is_combat_spell": false,
-        "damage": null
+        "damage": null,
+        "iconPath": "resources/images/spells/bind.png"
       },
       {
         "name": "Domination",
@@ -872,7 +929,8 @@
           "charisma": 18
         },
         "is_combat_spell": false,
-        "damage": null
+        "damage": null,
+        "iconPath": "resources/images/spells/bind.png"
       },
       {
         "name": "Bind Creature",
@@ -886,7 +944,8 @@
           "intelligence": 12
         },
         "is_combat_spell": false,
-        "damage": null
+        "damage": null,
+        "iconPath": "resources/images/spells/bind.png"
       },
       {
         "name": "Bind Monster",
@@ -900,7 +959,8 @@
           "intelligence": 20
         },
         "is_combat_spell": false,
-        "damage": null
+        "damage": null,
+        "iconPath": "resources/images/spells/bind.png"
       }
     ],
     "Heal": [
@@ -917,7 +977,8 @@
           "wisdom": 10
         },
         "is_combat_spell": false,
-        "damage": null
+        "damage": null,
+        "iconPath": "resources/images/spells/heal.png"
       },
       {
         "name": "Cause Wounds",
@@ -931,7 +992,8 @@
           "wisdom": 10
         },
         "is_combat_spell": true,
-        "damage": "5-10"
+        "damage": "5-10",
+        "iconPath": "resources/images/spells/heal.png"
       },
       {
         "name": "Minor Heal",
@@ -946,7 +1008,8 @@
           "wisdom": 12
         },
         "is_combat_spell": false,
-        "damage": null
+        "damage": null,
+        "iconPath": "resources/images/spells/heal.png"
       },
       {
         "name": "Cure Disease",
@@ -960,7 +1023,8 @@
           "wisdom": 15
         },
         "is_combat_spell": false,
-        "damage": null
+        "damage": null,
+        "iconPath": "resources/images/spells/heal.png"
       },
       {
         "name": "Cure Poison",
@@ -974,7 +1038,8 @@
           "wisdom": 15
         },
         "is_combat_spell": false,
-        "damage": null
+        "damage": null,
+        "iconPath": "resources/images/spells/heal.png"
       },
       {
         "name": "Cure Paralysis",
@@ -988,7 +1053,8 @@
           "wisdom": 15
         },
         "is_combat_spell": false,
-        "damage": null
+        "damage": null,
+        "iconPath": "resources/images/spells/heal.png"
       },
       {
         "name": "Heal",
@@ -1003,7 +1069,8 @@
           "wisdom": 20
         },
         "is_combat_spell": false,
-        "damage": null
+        "damage": null,
+        "iconPath": "resources/images/spells/heal.png"
       },
       {
         "name": "Resurrect",
@@ -1018,7 +1085,8 @@
           "wisdom": 30
         },
         "is_combat_spell": false,
-        "damage": null
+        "damage": null,
+        "iconPath": "resources/images/spells/heal.png"
       }
     ],
     "Movement": [
@@ -1034,7 +1102,8 @@
           "intelligence": 20
         },
         "is_combat_spell": false,
-        "damage": null
+        "damage": null,
+        "iconPath": "resources/images/spells/movement.png"
       },
       {
         "name": "Pass Door",
@@ -1048,7 +1117,8 @@
           "intelligence": 18
         },
         "is_combat_spell": false,
-        "damage": null
+        "damage": null,
+        "iconPath": "resources/images/spells/movement.png"
       },
       {
         "name": "Teleport",
@@ -1062,7 +1132,8 @@
           "intelligence": 25
         },
         "is_combat_spell": false,
-        "damage": null
+        "damage": null,
+        "iconPath": "resources/images/spells/movement.png"
       },
       {
         "name": "Levitate",
@@ -1077,7 +1148,8 @@
           "intelligence": 15
         },
         "is_combat_spell": false,
-        "damage": null
+        "damage": null,
+        "iconPath": "resources/images/spells/movement.png"
       }
     ],
     "Banish": [
@@ -1096,7 +1168,8 @@
           "constitution": 10
         },
         "is_combat_spell": true,
-        "damage": "Instant Banish"
+        "damage": "Instant Banish",
+        "iconPath": "resources/images/spells/banish.png"
       },
       {
         "name": "Banish Demon",
@@ -1111,7 +1184,8 @@
           "wisdom": 25
         },
         "is_combat_spell": true,
-        "damage": "Instant Banish"
+        "damage": "Instant Banish",
+        "iconPath": "resources/images/spells/banish.png"
       },
       {
         "name": "Banish Undead",
@@ -1126,7 +1200,8 @@
           "wisdom": 25
         },
         "is_combat_spell": true,
-        "damage": "Instant Banish"
+        "damage": "Instant Banish",
+        "iconPath": "resources/images/spells/banish.png"
       }
     ],
     "Dispel": [
@@ -1143,7 +1218,8 @@
           "wisdom": 16
         },
         "is_combat_spell": true,
-        "damage": null
+        "damage": null,
+        "iconPath": "resources/images/spells/dispel.png"
       },
       {
         "name": "Remove Curse",
@@ -1158,7 +1234,8 @@
           "wisdom": 18
         },
         "is_combat_spell": false,
-        "damage": null
+        "damage": null,
+        "iconPath": "resources/images/spells/dispel.png"
       },
       {
         "name": "Dispel Magic",
@@ -1172,7 +1249,8 @@
           "intelligence": 20
         },
         "is_combat_spell": false,
-        "damage": null
+        "damage": null,
+        "iconPath": "resources/images/spells/dispel.png"
       }
     ],
     "Resistant": [
@@ -1188,7 +1266,8 @@
           "intelligence": 12
         },
         "is_combat_spell": false,
-        "damage": null
+        "damage": null,
+        "iconPath": "resources/images/spells/resistant.png"
       },
       {
         "name": "Resist Cold",
@@ -1202,7 +1281,8 @@
           "intelligence": 12
         },
         "is_combat_spell": false,
-        "damage": null
+        "damage": null,
+        "iconPath": "resources/images/spells/resistant.png"
       },
       {
         "name": "Resist Electrical",
@@ -1216,7 +1296,8 @@
           "intelligence": 12
         },
         "is_combat_spell": false,
-        "damage": null
+        "damage": null,
+        "iconPath": "resources/images/spells/resistant.png"
       },
       {
         "name": "Resist Acid",
@@ -1230,7 +1311,8 @@
           "intelligence": 12
         },
         "is_combat_spell": false,
-        "damage": null
+        "damage": null,
+        "iconPath": "resources/images/spells/resistant.png"
       }
     ],
     "Visual": [
@@ -1247,7 +1329,8 @@
           "wisdom": 10
         },
         "is_combat_spell": false,
-        "damage": null
+        "damage": null,
+        "iconPath": "resources/images/spells/visual.png"
       },
       {
         "name": "Invisibility",
@@ -1262,7 +1345,8 @@
           "intelligence": 20
         },
         "is_combat_spell": false,
-        "damage": null
+        "damage": null,
+        "iconPath": "resources/images/spells/visual.png"
       },
       {
         "name": "Dark Vision",
@@ -1276,7 +1360,8 @@
           "intelligence": 18
         },
         "is_combat_spell": false,
-        "damage": null
+        "damage": null,
+        "iconPath": "resources/images/spells/visual.png"
       },
       {
         "name": "See Invisible",
@@ -1290,7 +1375,8 @@
           "intelligence": 15
         },
         "is_combat_spell": false,
-        "damage": null
+        "damage": null,
+        "iconPath": "resources/images/spells/visual.png"
       },
       {
         "name": "True Sight",
@@ -1304,7 +1390,8 @@
           "intelligence": 25
         },
         "is_combat_spell": false,
-        "damage": null
+        "damage": null,
+        "iconPath": "resources/images/spells/visual.png"
       }
     ],
     "Magical": [
@@ -1320,7 +1407,8 @@
           "intelligence": 22
         },
         "is_combat_spell": false,
-        "damage": null
+        "damage": null,
+        "iconPath": "resources/images/spells/magical.png"
       },
       {
         "name": "Magic Missile",
@@ -1334,7 +1422,8 @@
           "intelligence": 10
         },
         "is_combat_spell": true,
-        "damage": "8-20"
+        "damage": "8-20",
+        "iconPath": "resources/images/spells/magical.png"
       },
       {
         "name": "Magic Shield",
@@ -1348,7 +1437,8 @@
           "intelligence": 20
         },
         "is_combat_spell": false,
-        "damage": null
+        "damage": null,
+        "iconPath": "resources/images/spells/magical.png"
       },
       {
         "name": "Arcane Barrage",
@@ -1363,7 +1453,8 @@
           "intelligence": 12
         },
         "is_combat_spell": true,
-        "damage": "35-65"
+        "damage": "35-65",
+        "iconPath": "resources/images/spells/magical.png"
       }
     ],
     "Location": [
@@ -1379,7 +1470,8 @@
           "wisdom": 10
         },
         "is_combat_spell": false,
-        "damage": null
+        "damage": null,
+        "iconPath": "resources/images/spells/location.png"
       },
       {
         "name": "Depth Perception",
@@ -1393,7 +1485,8 @@
           "wisdom": 14
         },
         "is_combat_spell": false,
-        "damage": null
+        "damage": null,
+        "iconPath": "resources/images/spells/location.png"
       },
       {
         "name": "Locate Object",
@@ -1408,7 +1501,8 @@
           "wisdom": 16
         },
         "is_combat_spell": false,
-        "damage": null
+        "damage": null,
+        "iconPath": "resources/images/spells/location.png"
       },
       {
         "name": "Locate Creature",
@@ -1423,7 +1517,8 @@
           "wisdom": 12
         },
         "is_combat_spell": false,
-        "damage": null
+        "damage": null,
+        "iconPath": "resources/images/spells/location.png"
       },
       {
         "name": "Locate Item",
@@ -1438,7 +1533,8 @@
           "wisdom": 12
         },
         "is_combat_spell": false,
-        "damage": null
+        "damage": null,
+        "iconPath": "resources/images/spells/location.png"
       }
     ],
     "Protection": [
@@ -1455,7 +1551,8 @@
           "wisdom": 14
         },
         "is_combat_spell": false,
-        "damage": null
+        "damage": null,
+        "iconPath": "resources/images/spells/protection.png"
       },
       {
         "name": "Shield",
@@ -1470,7 +1567,8 @@
           "intelligence": 14
         },
         "is_combat_spell": false,
-        "damage": null
+        "damage": null,
+        "iconPath": "resources/images/spells/protection.png"
       },
       {
         "name": "Protection from Evil",
@@ -1485,7 +1583,8 @@
           "wisdom": 10
         },
         "is_combat_spell": false,
-        "damage": null
+        "damage": null,
+        "iconPath": "resources/images/spells/protection.png"
       },
       {
         "name": "Protection from Good",
@@ -1499,7 +1598,8 @@
           "charisma": 10
         },
         "is_combat_spell": false,
-        "damage": null
+        "damage": null,
+        "iconPath": "resources/images/spells/protection.png"
       }
     ]
   }

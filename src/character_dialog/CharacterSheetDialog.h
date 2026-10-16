@@ -44,7 +44,7 @@ private:
     QTableWidget *m_statsTable = nullptr;
     QTableWidget *m_equipTable = nullptr;
     QTableWidget *m_guildTable = nullptr;
-    QTextEdit *m_spellsText = nullptr;
+    QListWidget *m_spellsList = nullptr;
     QPushButton *m_exitBtn = nullptr;
     // v3.0.0 slice 3.4: per-stat spend buttons, one per stats-table row
     QList<QPushButton*> m_spendButtons;
