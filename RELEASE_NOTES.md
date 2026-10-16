@@ -1,6 +1,30 @@
 # Release Notes
 
-**Latest:** v6.7.0 — Balance pass, menu buttons follow the Options font
+**Latest:** v6.8.0 — Documentation: 13 game data books with spoiler disclaimers
+
+## v6.8.0 — Dokumentation: 13 databöcker med spoiler-varningar (2026-10-16)
+
+- **docs/MONSTERS.md** — 401 monsters med stats, abilities, resistances
+- **docs/SPELLS.md** — 100 spells över 18 skolor
+- **docs/ITEMS.md** — 370 items med stats, pris, floor
+- **docs/RACES.md** — 9 raser med stats, resistances, traits
+- **docs/GUILDS.md** — 11 guilds med krav, abilities, spellåtkomst
+- **docs/PROGRESSION.md** — XP-kurva för 20 nivåer
+- **docs/RESEARCH.md** — Laired monster locations och attributes
+- **docs/DUNGEON.md** — 15 floors, teman, bosses, special tiles
+- **docs/TOWN.md** — Stadens tjänster, gold sinks, progression
+- **docs/QUESTS.md** — Main quest chain, side quests, rewards
+- **docs/ENDGAME.md** — New Game Plus, Arena, Abyss, achievements
+- **docs/COMBAT.md** — Combat flow, status effects, monster abilities
+- **docs/LIFECYCLE.md** — Åldrande, äktenskap, barn, pension
+
+Alla böcker har spoiler-disclaimer och är länkade från README.
+
+## v6.7.0 — Balanspass, menyknappar följer Options-font (2026-10-15)
+
+- Monster XP skalad 3x så en nivå tar ~10-20 strider istället för 3
+- Huvudmenyn och theCity-knappar följer nu fonten i Options
+- 1967 passed, 0 failed
 
 ## v6.6.0 — Optionsdialogen ombyggd, font enbart från Options (2026-10-14)
 
