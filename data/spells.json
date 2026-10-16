@@ -133,7 +133,7 @@
           "intelligence": 25
         },
         "is_combat_spell": true,
-        "damage": "35-60"
+        "damage": "50-80"
       },
       {
         "name": "Ice Wall",
@@ -193,6 +193,21 @@
         },
         "is_combat_spell": true,
         "damage": "50-100"
+      },
+      {
+        "name": "Frostbite",
+        "mana": 55,
+        "description": "A biting frost that freezes flesh and bone.",
+        "base_level": 6,
+        "guilds": [
+          "Sorcerers Guild",
+          "Wizards Guild"
+        ],
+        "required_stats": {
+          "intelligence": 12
+        },
+        "is_combat_spell": true,
+        "damage": "60-90"
       }
     ],
     "Electrical": [
@@ -251,7 +266,7 @@
           "intelligence": 28
         },
         "is_combat_spell": true,
-        "damage": "30-45"
+        "damage": "40-70"
       },
       {
         "name": "Chain Lightning",
@@ -266,6 +281,20 @@
         },
         "is_combat_spell": true,
         "damage": "30-50"
+      },
+      {
+        "name": "Thunderstorm",
+        "mana": 75,
+        "description": "A devastating electrical storm that smites all foes.",
+        "base_level": 8,
+        "guilds": [
+          "Wizards Guild"
+        ],
+        "required_stats": {
+          "intelligence": 15
+        },
+        "is_combat_spell": true,
+        "damage": "60-100"
       }
     ],
     "Mind": [
@@ -399,7 +428,7 @@
           "wisdom": 18
         },
         "is_combat_spell": true,
-        "damage": "20-35"
+        "damage": "30-50"
       },
       {
         "name": "Poison",
@@ -445,6 +474,20 @@
         },
         "is_combat_spell": true,
         "damage": "10-20"
+      },
+      {
+        "name": "Disintegrate",
+        "mana": 50,
+        "description": "Unmake a creature at the molecular level.",
+        "base_level": 7,
+        "guilds": [
+          "Wizards Guild"
+        ],
+        "required_stats": {
+          "intelligence": 15
+        },
+        "is_combat_spell": true,
+        "damage": "40-80"
       }
     ],
     "Element": [
@@ -800,9 +843,9 @@
       },
       {
         "name": "Bind",
-        "mana": 25,
+        "mana": 20,
         "description": "Reinforces the bind on a companion.",
-        "base_level": 6,
+        "base_level": 5,
         "guilds": [
           "Mages Guild"
         ],
@@ -1291,7 +1334,7 @@
           "intelligence": 10
         },
         "is_combat_spell": true,
-        "damage": "5-15"
+        "damage": "8-20"
       },
       {
         "name": "Magic Shield",
@@ -1306,6 +1349,21 @@
         },
         "is_combat_spell": false,
         "damage": null
+      },
+      {
+        "name": "Arcane Barrage",
+        "mana": 40,
+        "description": "A barrage of pure arcane energy.",
+        "base_level": 6,
+        "guilds": [
+          "Mages Guild",
+          "Wizards Guild"
+        ],
+        "required_stats": {
+          "intelligence": 12
+        },
+        "is_combat_spell": true,
+        "damage": "35-65"
       }
     ],
     "Location": [
