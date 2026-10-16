@@ -226,9 +226,10 @@ void ArenaDialog::on_attackButton_clicked() {
     // Process deaths
     // (m_deathHandler->processDeaths() would emit signals we don't have here)
 
-    // Mark current as acted
+    // Mark current as acted and advance to next turn
     int currentIdx = m_combatState->initiativeOrder()[m_combatState->currentTurnIndex()];
     m_combatState->markActed(currentIdx);
+    m_combatState->nextTurn();
 
     // Advance combat
     advanceCombat();
@@ -238,7 +239,9 @@ void ArenaDialog::on_defendButton_clicked() {
     if (!m_inCombat || !m_combatState) return;
     int currentIdx = m_combatState->initiativeOrder()[m_combatState->currentTurnIndex()];
     m_combatState->participant(currentIdx).isDefending = true;
+    m_combatState->markActed(currentIdx);
     logMessage("You brace for impact.");
+    m_combatState->nextTurn();
     advanceCombat();
 }
 
@@ -273,6 +276,7 @@ void ArenaDialog::on_spellButton_clicked() {
 
     int currentIdx = m_combatState->initiativeOrder()[m_combatState->currentTurnIndex()];
     m_combatState->markActed(currentIdx);
+    m_combatState->nextTurn();
     advanceCombat();
 }
 
@@ -328,6 +332,7 @@ void ArenaDialog::on_useItemButton_clicked() {
 
     // Using an item consumes the turn
     m_combatState->markActed(currentIdx);
+    m_combatState->nextTurn();
     advanceCombat();
 }
 
@@ -383,12 +388,20 @@ void ArenaDialog::advanceCombat() {
         QString aiResult = m_monsterAI->takeTurn();
         logMessage(aiResult);
 
-        // Track damage taken
+        // Track damage taken — combat participants have monsters first,
+        // so party member index = combat index - monster count
+        int monsterCount = 0;
+        for (int i = 0; i < m_combatState->participantCount(); ++i) {
+            if (!m_combatState->participant(i).isPlayer) monsterCount++;
+        }
         for (int i = 0; i < m_combatState->participantCount(); ++i) {
             if (m_combatState->participant(i).isPlayer) {
-                Character& c = gameStateManager::instance()->getPartyMembers()[i];
-                int damage = c.hp - m_combatState->participant(i).hp;
-                if (damage > 0) waveDamageTaken += damage;
+                int partyIdx = i - monsterCount;
+                if (partyIdx >= 0 && partyIdx < gameStateManager::instance()->getPartyMembers().size()) {
+                    Character& c = gameStateManager::instance()->getPartyMembers()[partyIdx];
+                    int damage = c.hp - m_combatState->participant(i).hp;
+                    if (damage > 0) waveDamageTaken += damage;
+                }
             }
         }
 
