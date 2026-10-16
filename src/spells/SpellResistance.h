@@ -8,7 +8,6 @@
 class SpellResistance {
 public:
     // Resistance roll: returns true if the spell is resisted.
-    // chance = base 20% + 5% per level difference (caster vs monster).
     static bool isResisted(const QString& category, int casterLevel,
                            int monsterLevel);
 

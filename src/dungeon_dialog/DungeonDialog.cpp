@@ -50,8 +50,8 @@
 
 // Constants that depend on MAP_SIZE (which is now in the header)
 const int TILE_SIZE = 10;
-const int MAP_WIDTH_PIXELS = MAP_SIZE * TILE_SIZE; 
-const int MAP_HEIGHT_PIXELS = MAP_SIZE * TILE_SIZE; 
+const int MAP_WIDTH_PIXELS = MAP_SIZE * TILE_SIZE;
+const int MAP_HEIGHT_PIXELS = MAP_SIZE * TILE_SIZE;
 const int MAP_MIN = 0;
 const int MAP_MAX = MAP_SIZE - 1;
 
@@ -112,7 +112,7 @@ void DungeonDialog::populateRandomTreasures(int level)
 {
     gameStateManager* gsm = gameStateManager::instance();
     // MDATA3 is loaded into m_itemData in gameStateManager
-    const QList<QVariantMap>& allItems = gsm->itemData(); 
+    const QList<QVariantMap>& allItems = gsm->itemData();
     if (allItems.isEmpty()) {
         qDebug() << "MDATA3 not loaded or empty.";
         return;
@@ -234,15 +234,15 @@ void DungeonDialog::logMessage(const QString& message)
     if (m_messageLog) {
         // Create a standard list item
         QListWidgetItem* item = new QListWidgetItem(m_messageLog);
-        
+
         // Create a QLabel to hold the HTML content
         QLabel* label = new QLabel(message);
         label->setStyleSheet("background: transparent;"); // Keep log background
-        
+
         // Set the label as the widget for this item
         m_messageLog->addItem(item);
         m_messageLog->setItemWidget(item, label);
-        
+
         // Auto-scroll to the bottom
         m_messageLog->scrollToBottom();
     }
@@ -836,7 +836,6 @@ void DungeonDialog::generateSpecialTiles(int tileCount, QRandomGenerator& rng,
     m_studPositions.clear();
     m_chutePositions.clear();
     m_monsterPositions.clear();
-    //m_treasurePositions.clear();
     m_trapPositions.clear();
     m_waterPositions.clear();
     m_teleporterPositions.clear();
@@ -860,7 +859,7 @@ int currentLevel = gsm->getGameValue("DungeonLevel").toInt();
             int x = rng.bounded(MAP_SIZE);
             int y = rng.bounded(MAP_SIZE);
             QPair<int, int> p = {x, y};
-            if (!m_obstaclePositions.contains(p) && p != playerPos && 
+            if (!m_obstaclePositions.contains(p) && p != playerPos &&
                 p != m_stairsUpPosition && p != m_stairsDownPosition &&
                 !m_treasurePositions.contains(p)) { // Also check if treasure is already there
                 return p;
@@ -910,7 +909,7 @@ int currentLevel = gsm->getGameValue("DungeonLevel").toInt();
             pos = getAnyFloorTile();
             if (pos.first != -1) {
                 // Use thematic monster or fallback to "Orc"
-                QString monsterName = thematicMonsters.isEmpty() ? "Orc" 
+                QString monsterName = thematicMonsters.isEmpty() ? "Orc"
                     : thematicMonsters.at(rng.bounded(thematicMonsters.size()));
                 m_monsterPositions.insert(pos, monsterName);
             }
@@ -918,7 +917,7 @@ int currentLevel = gsm->getGameValue("DungeonLevel").toInt();
         else if (roll < mix.treasure) { // Treasures
             pos = getAnyFloorTile();
             if (pos.first != -1) m_treasurePositions.insert(pos, "Gold Pouch");
-        } 
+        }
         else if (roll < mix.trap) { // Traps — placed with a type drawn from the floor's danger
             pos = getAnyFloorTile();
             if (pos.first != -1) {
@@ -968,7 +967,7 @@ int currentLevel = gsm->getGameValue("DungeonLevel").toInt();
     if (currentLevel == 1) {
         QList<QPair<int, int>> wallList = m_obstaclePositions.values();
         bool placed = false;
-        
+
         // Shuffle wall list to get a random wall tile for the door
         std::shuffle(wallList.begin(), wallList.end(), std::default_random_engine(rng.generate()));
 
@@ -983,10 +982,10 @@ int currentLevel = gsm->getGameValue("DungeonLevel").toInt();
 
             for (const auto& neighbor : neighbors) {
                 // Check boundaries and ensure neighbor is NOT a wall
-                if (neighbor.first >= 0 && neighbor.first < MAP_SIZE && 
+                if (neighbor.first >= 0 && neighbor.first < MAP_SIZE &&
                     neighbor.second >= 0 && neighbor.second < MAP_SIZE &&
                     !m_obstaclePositions.contains(neighbor)) {
-                    
+
                     DoorState door;
                     door.position = wallPos;
                     door.secret = true;
@@ -995,7 +994,7 @@ int currentLevel = gsm->getGameValue("DungeonLevel").toInt();
                     m_hiddenDoorPositions.insert(wallPos, door);
                     qDebug() << "Accessible Hidden Door placed in wall at:" << wallPos << " next to floor at:" << neighbor;
                     placed = true;
-                    break; 
+                    break;
                 }
             }
             if (placed) break;
@@ -1010,7 +1009,7 @@ DungeonDialog::DungeonDialog(QWidget *parent)
     gameStateManager* gsm = gameStateManager::instance();
     if (!gameStateManager::instance()) {
         qCritical() << "CRITICAL: gameStateManager is NULL!";
-        return; 
+        return;
     }
     m_experienceLabel = new QLabel(this);
     m_standaloneMinimap = new MinimapDialog(this);
@@ -1029,7 +1028,7 @@ DungeonDialog::DungeonDialog(QWidget *parent)
 
     // Retrieve Constitution to calculate a simple placeholder for maximum HP
     // int con = gsm->getGameValue("CurrentCharacterConstitution").toInt();
-    //int maxHP = (con > 0) ? con * 5 : 50; 
+    //int maxHP = (con > 0) ? con * 5 : 50;
     // --- Retrieve/Set persistent dungeon state (New GameState logic) ---
     int initialLevel = gsm->getGameValue("DungeonLevel").toInt();
     int initialX = gsm->getGameValue("DungeonX").toInt();
@@ -1172,40 +1171,14 @@ DungeonDialog::DungeonDialog(QWidget *parent)
     updatePartyPanel();
 
     // Initialize map state and draw the initial view
-    QRandomGenerator initialRng(1 + 12345); 
+    QRandomGenerator initialRng(1 + 12345);
     // 2. Pass 'initialRng' to the functions as the second argument
-    generateRandomObstacles(40, initialRng);  
-    generateStairs(initialRng);               
+    generateRandomObstacles(40, initialRng);
+    generateStairs(initialRng);
     generateSpecialTiles(20, initialRng);
     drawMinimap();
 
     // 4. Action Buttons
-    //QGridLayout *actionLayout = new QGridLayout();
-//    m_fightButton = new QPushButton("Fight (F)");
-//    m_spellButton = new QPushButton("Spell (S)");
-//    m_restButton = new QPushButton("Rest (R)");
-//    m_talkButton = new QPushButton("Talk (T)");
-//    m_searchButton = new QPushButton("Search (Z)");
-//    m_pickupButton = new QPushButton("Pickup (P)");
-//    m_dropButton = new QPushButton("Drop (D)");
-//    m_openButton = new QPushButton("Open (O)");
-//    m_mapButton = new QPushButton("Map (M)");
-//    m_chestButton = new QPushButton("Chest (C)"); 
-//    m_exitButton = new QPushButton("Exit");
-//    m_teleportButton = new QPushButton("Teleport (U)");
-//    actionLayout->addWidget(m_fightButton, 0, 0);
-//    actionLayout->addWidget(m_spellButton, 0, 1);
-//    actionLayout->addWidget(m_restButton, 0, 2);
-//    actionLayout->addWidget(m_talkButton, 1, 0);
-//    actionLayout->addWidget(m_searchButton, 1, 1);
-//    actionLayout->addWidget(m_pickupButton, 1, 2);
-//    actionLayout->addWidget(m_dropButton, 2, 0);
-//    actionLayout->addWidget(m_openButton, 2, 1);
-//    actionLayout->addWidget(m_mapButton, 2, 2);
-//    actionLayout->addWidget(m_chestButton, 3, 0);
-//    actionLayout->addWidget(m_teleportButton, 3, 1);
-//    actionLayout->addWidget(m_exitButton, 3, 2);
-
     rightPanelLayout->addLayout(actionLayout);
     // 5. Directional Buttons (Movement)
     QGroupBox *moveBox = new QGroupBox("Movement");
@@ -1542,7 +1515,7 @@ void DungeonDialog::on_pickupButton_clicked()
     }
 }
 
-void DungeonDialog::on_dropButton_clicked() 
+void DungeonDialog::on_dropButton_clicked()
 {
     gameStateManager* gsm = gameStateManager::instance();
 
@@ -1550,11 +1523,11 @@ void DungeonDialog::on_dropButton_clicked()
     int y = gsm->getGameValue("DungeonY").toInt();
     QPair<int, int> pos = {x, y};
     m_bodyPositions.insert(pos);
-    
+
     // Check if the player is actually carrying a body
     // Assuming "IsCarryingBody" is a flag in your gameStateManager
     if (gsm->getGameValue("IsCarryingBody").toBool()) {
-        
+
         // Get current position
         int curX = gsm->getGameValue("DungeonX").toInt();
         int curY = gsm->getGameValue("DungeonY").toInt();
@@ -1565,12 +1538,12 @@ void DungeonDialog::on_dropButton_clicked()
         m_bodyPositions.insert(pos);
         // Update GameState: No longer carrying, and place body on map
         gsm->setGameValue("IsCarryingBody", false);
-        
-        // You might want to add this to a specific set like m_monsterPositions 
+
+        // You might want to add this to a specific set like m_monsterPositions
         // or a new m_deadBodyPositions if you want it to persist/be seen.
         // For now, we log the action:
         logMessage("<font color='gray'>You carefully lay the carried body onto the cold stone floor.</font>");
-        
+
         // Refresh view to show the dropped object if applicable
         renderWireframeView();
     } else {
@@ -1579,8 +1552,8 @@ void DungeonDialog::on_dropButton_clicked()
     drawMinimap();
 }
 
-void DungeonDialog::on_teleportButton_clicked() 
-{ 
+void DungeonDialog::on_teleportButton_clicked()
+{
     gameStateManager* gsm = gameStateManager::instance();
     int newX, newY;
     QPair<int, int> newPos;
@@ -2401,16 +2374,16 @@ void DungeonDialog::moveDiagonalForwardRight()
 QPair<int, int> DungeonDialog::getCurrentPosition()
 {
     gameStateManager* gsm = gameStateManager::instance();
-    return qMakePair(gsm->getGameValue("DungeonX").toInt(), 
+    return qMakePair(gsm->getGameValue("DungeonX").toInt(),
                      gsm->getGameValue("DungeonY").toInt());
 }
 
-void DungeonDialog::on_takeButton_clicked() 
-{ 
-    logMessage("You try to take something, but there is nothing there."); 
+void DungeonDialog::on_takeButton_clicked()
+{
+    logMessage("You try to take something, but there is nothing there.");
 }
 
-void DungeonDialog::on_searchButton_clicked() 
+void DungeonDialog::on_searchButton_clicked()
 {
     gameStateManager* gsm = gameStateManager::instance();
     QPair<int, int> currentPos = getCurrentPosition();
@@ -2526,7 +2499,7 @@ void DungeonDialog::on_disarmButton_clicked()
     drawMinimap();
 }
 
-void DungeonDialog::on_chestButton_clicked() 
+void DungeonDialog::on_chestButton_clicked()
 {
     processTreasureOpening();
 }
@@ -2573,19 +2546,19 @@ void DungeonDialog::keyPressEvent(QKeyEvent *event)
         // --- Other Action Shortcuts ---
         case Qt::Key_T: {
             gameStateManager* gsm = gameStateManager::instance();
-            QPair<int, int> currentPos = { 
-                gsm->getGameValue("DungeonX").toInt(), 
-                gsm->getGameValue("DungeonY").toInt() 
+            QPair<int, int> currentPos = {
+                gsm->getGameValue("DungeonX").toInt(),
+                gsm->getGameValue("DungeonY").toInt()
             };
 
             if (currentPos == m_stairsUpPosition) {
                 logMessage("Taking shortcut: Climbing up...");
                 transitionLevel(StairDirection::Up);
-            } 
+            }
             else if (currentPos == m_stairsDownPosition) {
                 logMessage("Taking shortcut: Descending down...");
                 transitionLevel(StairDirection::Down);
-            } 
+            }
             else {
                 logMessage("There are no stairs here to use.");
             }
@@ -2611,12 +2584,12 @@ void DungeonDialog::keyPressEvent(QKeyEvent *event)
         case Qt::Key_U:
             on_teleportButton_clicked();
             break;
-        case Qt::Key_I: 
+        case Qt::Key_I:
         { // The opening brace starts a new local scope
-            logMessage("Inventory Key Pressed"); 
+            logMessage("Inventory Key Pressed");
             // Using 'new' ensures the dialog stays open after this function ends
-            InventoryDialog *inventory = new InventoryDialog(this); 
-            inventory->setAttribute(Qt::WA_DeleteOnClose); 
+            InventoryDialog *inventory = new InventoryDialog(this);
+            inventory->setAttribute(Qt::WA_DeleteOnClose);
             inventory->show();
             inventory->raise();
             inventory->activateWindow();
@@ -2649,7 +2622,7 @@ void DungeonDialog::keyPressEvent(QKeyEvent *event)
     }
 }
 // Suppress unused parameter warnings
-void DungeonDialog::spawnMonsters(const QString& , int ) 
+void DungeonDialog::spawnMonsters(const QString& , int )
 {
 }
 
@@ -2752,26 +2725,26 @@ void DungeonDialog::on_rotateRightButton_clicked()
 void DungeonDialog::moveForward()
 {
     // Index 0: Forward, 1: Backward, 2: Left, 3: Right
-    handleMovement(0); 
+    handleMovement(0);
 }
 
 void DungeonDialog::moveBackward()
 {
     // Index 0: Forward, 1: Backward, 2: Left, 3: Right
-    handleMovement(1); 
+    handleMovement(1);
 }
 void DungeonDialog::moveStepLeft()
 {
     // Index 0: Forward, 1: Backward, 2: Left, 3: Right
-    handleMovement(2); 
+    handleMovement(2);
 }
 
 void DungeonDialog::moveStepRight() {
     // Index 0: Forward, 1: Backward, 2: Left, 3: Right
-    handleMovement(3); 
+    handleMovement(3);
 }
 
-void DungeonDialog::handleMovement(int actionIndex) 
+void DungeonDialog::handleMovement(int actionIndex)
 {
     // Map current facing to a list of vectors
     static const QMap<QString, QVector<QPoint>> moveMap = {
@@ -2808,9 +2781,9 @@ void DungeonDialog::transitionLevel(StairDirection direction)
     gameStateManager* gsm = gameStateManager::instance();
     // Retrieve current position once
     int currentZ = gsm->getGameValue("DungeonLevel").toInt();
-    QPair<int, int> currentPos = { 
-        gsm->getGameValue("DungeonX").toInt(), 
-        gsm->getGameValue("DungeonY").toInt() 
+    QPair<int, int> currentPos = {
+        gsm->getGameValue("DungeonX").toInt(),
+        gsm->getGameValue("DungeonY").toInt()
     };
     // Use the Enum to pick the correct target
     bool isGoingUp = (direction == StairDirection::Up);
@@ -2935,7 +2908,7 @@ bool DungeonDialog::isWallAt(int x, int y, int z) {
 
 bool DungeonDialog::isWallAtSide(int x, int y, const QString& side) {
     // Retrieve the current facing direction from the UI label
-    QString facing = m_compassLabel->text(); 
+    QString facing = m_compassLabel->text();
     int targetX = x;
     int targetY = y;
 
@@ -2971,17 +2944,17 @@ void DungeonDialog::renderWireframeView() {
         activeFloor = &m_lowerLevelTiles;
     }
 
-    const int w = 300; 
+    const int w = 300;
     const int h = 300;
-    
+
     // Perspective points
-    int xs[] = {0, 75, 120, 150}; 
+    int xs[] = {0, 75, 120, 150};
     int ys[] = {0, 75, 120, 150};
 
     for (int d = 2; d >= 0; --d) {
         // 1. Calculate tile coordinates for the CENTER path
         int tx = px, ty = py;
-        int dx = 0, dy = 0; 
+        int dx = 0, dy = 0;
         if (facing.contains("North")) dy = -1;
         else if (facing.contains("South")) dy = 1;
         else if (facing.contains("East"))  dx = 1;
@@ -3013,7 +2986,7 @@ void DungeonDialog::renderWireframeView() {
         QPolygon floor, ceil;
         floor << QPoint(0, yB) << QPoint(w, yB) << QPoint(w, nyB) << QPoint(0, nyB);
         ceil << QPoint(0, yT) << QPoint(w, yT) << QPoint(w, nyT) << QPoint(0, nyT);
-        
+
         int floorCol = qMax(0, 40 - (d * 10));
         int ceilR = qMax(0, 80 - (d * 20)); // Brown base
         m_dungeonScene->addPolygon(floor, QPen(Qt::NoPen), QBrush(QColor(floorCol, floorCol, floorCol)));
@@ -3043,11 +3016,11 @@ void DungeonDialog::renderWireframeView() {
             // Draw a wall on the right wing of the screen
             m_dungeonScene->addRect(xR, yT, w - xR, yB - yT, QPen(Qt::black), QBrush(QColor(sideRoomWallCol, sideRoomWallCol, sideRoomWallCol)));
         }
-        
+
         bool hasAntimagic = m_antimagicPositions.contains({tx, ty});
 
         // 1. Draw floor/ceiling
-        // ... 
+        // ...
 
         // 2. Draw Antimagic effect on the floor
         if (hasAntimagic) {
@@ -3141,14 +3114,14 @@ void DungeonDialog::renderWireframeView() {
         // Draw the monster if present
         if (hasMonster) {
             drawMonster(d, xL, xR, yB);
-        }   
+        }
 
         // --- 4. FRONT WALL (Main Path) ---
         if (wallFront) {
             int frontCol = qMax(0, 110 - (d * 20));
             m_dungeonScene->addRect(xL, yT, xR - xL, yB - yT, QPen(Qt::black), QBrush(QColor(frontCol, frontCol, frontCol)));
         }
-        
+
         // 1. Check if there is a chute at this specific map tile
         bool hasChute = m_chutePositions.contains({tx, ty});
         // 2. Draw the chute on top of the floor
@@ -3158,7 +3131,7 @@ void DungeonDialog::renderWireframeView() {
     }
 }
 
-void DungeonDialog::drawBrickPattern(const QPolygon& wallPoly, int depth) 
+void DungeonDialog::drawBrickPattern(const QPolygon& wallPoly, int depth)
 {
     Q_UNUSED(depth);
     QRect bounds = wallPoly.boundingRect();
@@ -3167,18 +3140,18 @@ void DungeonDialog::drawBrickPattern(const QPolygon& wallPoly, int depth)
 
     int rows = 6;    // Number of brick layers
     int columns = 4; // Number of bricks per row
-    
+
     // Calculate row height
     double rowHeight = static_cast<double>(bounds.height()) / rows;
 
     for (int i = 1; i < rows; ++i) {
         int y = bounds.top() + (i * rowHeight);
-        
+
         // Find left and right edges of the polygon at this specific Y height
         // to ensure bricks don't float outside the perspective wall
         int xMin = bounds.right();
         int xMax = bounds.left();
-        
+
         // Basic scan-line logic to keep lines inside the trapezoid
         for (int x = bounds.left(); x <= bounds.right(); ++x) {
             if (wallPoly.containsPoint(QPoint(x, y), Qt::OddEvenFill)) {
@@ -3190,11 +3163,11 @@ void DungeonDialog::drawBrickPattern(const QPolygon& wallPoly, int depth)
         // Draw horizontal mortar line
         if (xMin < xMax) {
             m_dungeonScene->addLine(xMin, y, xMax, y, mortarPen);
-            
+
             // Draw vertical "staggered" mortar lines
             double colWidth = static_cast<double>(xMax - xMin) / columns;
             double offset = (i % 2 == 0) ? 0 : colWidth / 2; // Stagger bricks
-            
+
             for (int j = 0; j <= columns; ++j) {
                 int vx = xMin + (j * colWidth) + offset;
                 if (vx > xMin && vx < xMax) {
@@ -3208,7 +3181,7 @@ void DungeonDialog::drawBrickPattern(const QPolygon& wallPoly, int depth)
 void DungeonDialog::drawChute(int d, int xL, int xR, int yB, int nxL, int nxR, int nyB) {
     // We want the chute to be in the center of the tile floor
     // Calculate a 40% width/depth hole
-    double margin = 0.3;     
+    double margin = 0.3;
     // Interpolate points for the "hole" on the floor
     int cxL = xL + (xR - xL) * margin;
     int cxR = xR - (xR - xL) * margin;
@@ -3219,15 +3192,15 @@ void DungeonDialog::drawChute(int d, int xL, int xR, int yB, int nxL, int nxR, i
     int cyFar = yB + (nyB - yB) * 0.6; // The hole doesn't take the whole tile
 
     QPolygon chuteHole;
-    chuteHole << QPoint(cxL, cyNear) << QPoint(cxR, cyNear) 
+    chuteHole << QPoint(cxL, cyNear) << QPoint(cxR, cyNear)
               << QPoint(cnxR, cyFar) << QPoint(cnxL, cyFar);
     // Draw the "void" (black hole)
     m_dungeonScene->addPolygon(chuteHole, QPen(Qt::black), QBrush(Qt::black));
     // Draw inner "walls" of the chute for a 3D effect
     QPolygon leftInner;
-    leftInner << QPoint(cxL, cyNear) << QPoint(cnxL, cyFar) 
+    leftInner << QPoint(cxL, cyNear) << QPoint(cnxL, cyFar)
               << QPoint(cnxL, cyFar + 10) << QPoint(cxL, cyNear + 10);
-    
+
     int depthShade = qMax(0, 30 - (d * 10));
     m_dungeonScene->addPolygon(leftInner, QPen(Qt::NoPen), QBrush(QColor(depthShade, depthShade, depthShade)));
 }
@@ -3235,9 +3208,9 @@ void DungeonDialog::drawChute(int d, int xL, int xR, int yB, int nxL, int nxR, i
 void DungeonDialog::drawMonster(int d, int xL, int xR, int yB) {
     // Calculate size based on depth
     // d=0 (Near): Large, d=2 (Far): Small
-    int monsterWidth = (xR - xL) * 0.6; 
+    int monsterWidth = (xR - xL) * 0.6;
     int monsterHeight = monsterWidth * 1.2;
-    
+
     // Center horizontally, sit on the floor (yB)
     int centerX = xL + (xR - xL) / 2;
     int xPos = centerX - (monsterWidth / 2);
@@ -3255,13 +3228,13 @@ void DungeonDialog::drawMonster(int d, int xL, int xR, int yB) {
     m_dungeonScene->addRect(body, QPen(Qt::black), QBrush(monsterColor));
 }
 
-void DungeonDialog::drawTeleporter(int d, int xL, int xR, int yB, int nxL, int nxR, int nyB) 
+void DungeonDialog::drawTeleporter(int d, int xL, int xR, int yB, int nxL, int nxR, int nyB)
 {
     Q_UNUSED(nxR);
     Q_UNUSED(nxL);
     // Calculate the center and size of the tile floor
     int centerX = xL + (xR - xL) / 2;
-    int centerY = yB + (nyB - yB) / 2;    
+    int centerY = yB + (nyB - yB) / 2;
     // Scale radius based on depth
     int baseRadius = (xR - xL) / 3;
     // Create a shimmering effect with multiple ellipses
@@ -3286,10 +3259,10 @@ void DungeonDialog::drawTeleporter(int d, int xL, int xR, int yB, int nxL, int n
 void DungeonDialog::drawSpinner(int d, int xL, int xR, int yB, int nxL, int nxR, int nyB) {
     // Calculate the center of the tile floor using both near and far bounds
     int centerX = (xL + xR + nxL + nxR) / 4;
-    int centerY = (yB + nyB) / 2;    
+    int centerY = (yB + nyB) / 2;
     // Scale the size of the spinner based on the available floor width at this depth
     int radius = (xR - xL) / 3;
-    QPen spinnerPen(QColor(200, 200, 0), 2); 
+    QPen spinnerPen(QColor(200, 200, 0), 2);
     // Depth shading to make it darker in the distance
     int alpha = qMax(0, 200 - (d * 50));
     spinnerPen.setColor(QColor(200, 200, 0, alpha));
@@ -3300,10 +3273,10 @@ void DungeonDialog::drawSpinner(int d, int xL, int xR, int yB, int nxL, int nxR,
         QPainterPath path;
         int startAngle = i * 90; // Angles in QPainterPath are in degrees
         int spanAngle = 60;
-        
+
         path.arcMoveTo(arcRect, startAngle);
         path.arcTo(arcRect, startAngle, spanAngle);
-        
+
         m_dungeonScene->addPath(path, spinnerPen);
     }
     // Add a center point (uses near/far center)
@@ -3332,7 +3305,7 @@ void DungeonDialog::drawWater(int d, int xL, int xR, int yB, int nxL, int nxR, i
         // Draw a partial shimmering line (not the whole width for a natural look)
         int rippleWidth = (rxR - rxL) * 0.6;
         int rippleStart = rxL + (rxR - rxL) * 0.2;
-        
+
         m_dungeonScene->addLine(rippleStart, ry, rippleStart + rippleWidth, ry, ripplePen);
     }
 }
@@ -3342,7 +3315,7 @@ void DungeonDialog::drawAntimagic(int d, int xL, int xR, int yB, int nxL, int nx
     floorPoly << QPoint(xL, yB) << QPoint(xR, yB) << QPoint(nxR, nyB) << QPoint(nxL, nyB);
     // Color: A muted, "dulling" purple or gray
     int alpha = qMax(0, 120 - (d * 30));
-    QColor fieldColor(100, 100, 150, alpha); 
+    QColor fieldColor(100, 100, 150, alpha);
     // Draw a subtle tint first
     m_dungeonScene->addPolygon(floorPoly, QPen(Qt::NoPen), QBrush(fieldColor));
     // Draw "Static" lines (cross-hatch pattern)
@@ -3476,18 +3449,18 @@ void DungeonDialog::drawBody(int d, int xL, int xR, int yB, int nxL, int nxR, in
 void DungeonDialog::togglePartyInfo() {
     if (m_charSheet) {
         m_charSheet->close();
-        m_charSheet = nullptr; 
+        m_charSheet = nullptr;
         return;
     }
 
     m_charSheet = new PartyInfoDialog(this);
     // 1. ADD Qt::WindowDoesNotAcceptFocus
     // This allows the main window to keep keyboard focus for movement
-    m_charSheet->setWindowFlags(Qt::Tool | 
-                                Qt::WindowStaysOnTopHint | 
+    m_charSheet->setWindowFlags(Qt::Tool |
+                                Qt::WindowStaysOnTopHint |
                                 Qt::WindowDoesNotAcceptFocus |
-                                Qt::CustomizeWindowHint | 
-                                Qt::WindowTitleHint | 
+                                Qt::CustomizeWindowHint |
+                                Qt::WindowTitleHint |
                                 Qt::WindowCloseButtonHint);
 
     m_charSheet->setAttribute(Qt::WA_DeleteOnClose);
@@ -3508,20 +3481,20 @@ void DungeonDialog::togglePartyInfo() {
     }
 }
 
-void DungeonDialog::on_spellButton_clicked() 
-{ 
-    logMessage("You try to cast some sort of spell but fail."); 
+void DungeonDialog::on_spellButton_clicked()
+{
+    logMessage("You try to cast some sort of spell but fail.");
     // Check if in antimagic zone
     gameStateManager* gsm = gameStateManager::instance();
     int x = gsm->getGameValue("DungeonX").toInt();
     int y = gsm->getGameValue("DungeonY").toInt();
     QPair<int, int> pos = {x, y};
-    
+
     if (m_antimagicPositions.contains(pos)) {
         logMessage("<font color='purple'>An antimagic field prevents you from casting spells here!</font>");
         return;
     }
-    
+
     // Open the spell casting dialog
     SpellCastingDialog* spellDialog = new SpellCastingDialog(this, m_inCombat);
     spellDialog->setAttribute(Qt::WA_DeleteOnClose);

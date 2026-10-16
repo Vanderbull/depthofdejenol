@@ -18,7 +18,7 @@
 //const QString CATEGORY_MONSTERS = "Creatures";
 //const QString CATEGORY_ITEMS = "Items";
 
-class LibraryDialog : public QDialog 
+class LibraryDialog : public QDialog
 {
     Q_OBJECT
 public:
@@ -29,7 +29,7 @@ private slots:
     void onCategoryChanged(const QString &categoryName);
     void onSearchTextChanged(const QString &searchText);
     // Missing slot declarations added here
-    void onAddItemClicked(); 
+    void onAddItemClicked();
 private:
     void setupUI();
     void loadKnowledge();
@@ -37,7 +37,6 @@ private:
     // Missing function declaration added here
     void updateCountLabel();
 private:
-    // QMap<CategoryName, QMap<ItemName, ItemDescription>>
     QMap<QString, QMap<QString, QString>> knowledgeBase;
     // UI elements (Missing members added here)
     QListWidget *bookList;
@@ -45,7 +44,7 @@ private:
     QComboBox *categoryComboBox;
     QLabel *headerLabel;
     // Missing member variables added here
-    QPushButton *addItemButton; 
+    QPushButton *addItemButton;
     QPushButton *closeButton;
     QLabel *countLabel;
     QLineEdit *searchField;

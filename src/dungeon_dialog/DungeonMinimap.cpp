@@ -7,8 +7,8 @@
 #include <QDebug>
 // These constants match the definitions in DungeonDialog.cpp
 static const int TILE_SIZE = 10;
-static const int MAP_WIDTH_PIXELS = MAP_SIZE * TILE_SIZE; 
-static const int MAP_HEIGHT_PIXELS = MAP_SIZE * TILE_SIZE; 
+static const int MAP_WIDTH_PIXELS = MAP_SIZE * TILE_SIZE;
+static const int MAP_HEIGHT_PIXELS = MAP_SIZE * TILE_SIZE;
 
 void DungeonDialog::drawMinimap()
 {
@@ -32,32 +32,32 @@ void DungeonDialog::drawMinimap()
     QPixmap stairsdownPixmap(stairsdownPath);
     QPixmap waterPixmap(waterPath);
     QPixmap stairsupPixmap(stairsupPath);
-    QPixmap scaledAntimagic = antimagicPixmap.scaled(TILE_SIZE, TILE_SIZE, 
-                                         Qt::IgnoreAspectRatio, 
+    QPixmap scaledAntimagic = antimagicPixmap.scaled(TILE_SIZE, TILE_SIZE,
+                                         Qt::IgnoreAspectRatio,
                                          Qt::SmoothTransformation);
-    QPixmap scaledChute = chutePixmap.scaled(TILE_SIZE, TILE_SIZE, 
-                                         Qt::IgnoreAspectRatio, 
+    QPixmap scaledChute = chutePixmap.scaled(TILE_SIZE, TILE_SIZE,
+                                         Qt::IgnoreAspectRatio,
                                          Qt::SmoothTransformation);
-    QPixmap scaledExtinguisher = extinguisherPixmap.scaled(TILE_SIZE, TILE_SIZE, 
-                                         Qt::IgnoreAspectRatio, 
+    QPixmap scaledExtinguisher = extinguisherPixmap.scaled(TILE_SIZE, TILE_SIZE,
+                                         Qt::IgnoreAspectRatio,
                                          Qt::SmoothTransformation);
-    QPixmap scaledRotator = rotatorPixmap.scaled(TILE_SIZE, TILE_SIZE, 
-                                         Qt::IgnoreAspectRatio, 
+    QPixmap scaledRotator = rotatorPixmap.scaled(TILE_SIZE, TILE_SIZE,
+                                         Qt::IgnoreAspectRatio,
                                          Qt::SmoothTransformation);
-    QPixmap scaledStud = studPixmap.scaled(TILE_SIZE, TILE_SIZE, 
-                                         Qt::IgnoreAspectRatio, 
+    QPixmap scaledStud = studPixmap.scaled(TILE_SIZE, TILE_SIZE,
+                                         Qt::IgnoreAspectRatio,
                                          Qt::SmoothTransformation);
-    QPixmap scaledTeleporter = teleporterPixmap.scaled(TILE_SIZE, TILE_SIZE, 
-                                         Qt::IgnoreAspectRatio, 
+    QPixmap scaledTeleporter = teleporterPixmap.scaled(TILE_SIZE, TILE_SIZE,
+                                         Qt::IgnoreAspectRatio,
                                          Qt::SmoothTransformation);
-    QPixmap scaledStairsDown = stairsdownPixmap.scaled(TILE_SIZE, TILE_SIZE, 
-                                         Qt::IgnoreAspectRatio, 
+    QPixmap scaledStairsDown = stairsdownPixmap.scaled(TILE_SIZE, TILE_SIZE,
+                                         Qt::IgnoreAspectRatio,
                                          Qt::SmoothTransformation);
-    QPixmap scaledWater = waterPixmap.scaled(TILE_SIZE, TILE_SIZE, 
-                                         Qt::IgnoreAspectRatio, 
+    QPixmap scaledWater = waterPixmap.scaled(TILE_SIZE, TILE_SIZE,
+                                         Qt::IgnoreAspectRatio,
                                          Qt::SmoothTransformation);
-    QPixmap scaledStairsUp = stairsupPixmap.scaled(TILE_SIZE, TILE_SIZE, 
-                                         Qt::IgnoreAspectRatio, 
+    QPixmap scaledStairsUp = stairsupPixmap.scaled(TILE_SIZE, TILE_SIZE,
+                                         Qt::IgnoreAspectRatio,
                                          Qt::SmoothTransformation);
     QPixmap fogPixmap(fogPath);
     // Check if the image loaded correctly for debugging
@@ -65,8 +65,8 @@ void DungeonDialog::drawMinimap()
         qDebug() << "Error: Fog image not found at" << fogPath;
     }
     // Scale the image once to 10x10 pixels (TILE_SIZE)
-    QPixmap scaledFog = fogPixmap.scaled(TILE_SIZE, TILE_SIZE, 
-                                         Qt::IgnoreAspectRatio, 
+    QPixmap scaledFog = fogPixmap.scaled(TILE_SIZE, TILE_SIZE,
+                                         Qt::IgnoreAspectRatio,
                                          Qt::SmoothTransformation);
     // Load and scale the rock pixmap
     QPixmap rockPixmap(rockPath);
@@ -74,8 +74,8 @@ void DungeonDialog::drawMinimap()
     if (rockPixmap.isNull()) {
          qDebug() << "Error: rock image not found at" << rockPath;
     }
-    QPixmap scaledRock = rockPixmap.scaled(TILE_SIZE, TILE_SIZE, 
-                                           Qt::IgnoreAspectRatio, 
+    QPixmap scaledRock = rockPixmap.scaled(TILE_SIZE, TILE_SIZE,
+                                           Qt::IgnoreAspectRatio,
                                            Qt::SmoothTransformation);
     gameStateManager* gsm = gameStateManager::instance();
     // Retrieve player position from GameState
@@ -98,7 +98,7 @@ void DungeonDialog::drawMinimap()
                 rockTile->setPos(pos.first * TILE_SIZE, pos.second * TILE_SIZE);
             } else {
                 // Fallback to dark gray rectangle if image is missing
-                scene->addRect(pos.first * TILE_SIZE, pos.second * TILE_SIZE, 
+                scene->addRect(pos.first * TILE_SIZE, pos.second * TILE_SIZE,
                                TILE_SIZE, TILE_SIZE, QPen(Qt::black), QBrush(Qt::darkGray));
             }
         }
@@ -107,13 +107,13 @@ void DungeonDialog::drawMinimap()
     if (revealAll || m_visitedTiles.contains(m_stairsUpPosition)) {
         if (!stairsupPixmap.isNull()) {
             QGraphicsPixmapItem* upTile = scene->addPixmap(scaledStairsUp);
-            upTile->setPos(m_stairsUpPosition.first * TILE_SIZE, 
+            upTile->setPos(m_stairsUpPosition.first * TILE_SIZE,
                            m_stairsUpPosition.second * TILE_SIZE);
             upTile->setZValue(1); // Ensure it stays above the floor/grid
         } else {
             // Fallback to Cyan if image fails to load
-            QGraphicsRectItem* stairsRect = scene->addRect(m_stairsUpPosition.first * TILE_SIZE, 
-                           m_stairsUpPosition.second * TILE_SIZE, 
+            QGraphicsRectItem* stairsRect = scene->addRect(m_stairsUpPosition.first * TILE_SIZE,
+                           m_stairsUpPosition.second * TILE_SIZE,
                            TILE_SIZE, TILE_SIZE, QPen(Qt::black), QBrush(Qt::cyan));
             stairsRect->setZValue(1);
         }
@@ -121,13 +121,13 @@ void DungeonDialog::drawMinimap()
     if (revealAll || m_visitedTiles.contains(m_stairsDownPosition)) {
         if (!stairsdownPixmap.isNull()) {
             QGraphicsPixmapItem* downTile = scene->addPixmap(scaledStairsDown);
-            downTile->setPos(m_stairsDownPosition.first * TILE_SIZE, 
+            downTile->setPos(m_stairsDownPosition.first * TILE_SIZE,
                            m_stairsDownPosition.second * TILE_SIZE);
             downTile->setZValue(1); // Ensure it stays above the floor/grid
         } else {
             // Fallback to Cyan if image fails to load
-            QGraphicsRectItem* stairsRect = scene->addRect(m_stairsDownPosition.first * TILE_SIZE, 
-                           m_stairsDownPosition.second * TILE_SIZE, 
+            QGraphicsRectItem* stairsRect = scene->addRect(m_stairsDownPosition.first * TILE_SIZE,
+                           m_stairsDownPosition.second * TILE_SIZE,
                            TILE_SIZE, TILE_SIZE, QPen(Qt::black), QBrush(Qt::cyan));
             stairsRect->setZValue(1);
         }
@@ -141,7 +141,7 @@ void DungeonDialog::drawMinimap()
                 chuteTile->setPos(pos.first * TILE_SIZE, pos.second * TILE_SIZE);
             } else {
                 // Fallback to the ellipse if image fails to load
-                scene->addEllipse(pos.first * TILE_SIZE + 1, pos.second * TILE_SIZE + 1, 
+                scene->addEllipse(pos.first * TILE_SIZE + 1, pos.second * TILE_SIZE + 1,
                                   TILE_SIZE - 2, TILE_SIZE - 2, QPen(Qt::gray), QBrush(Qt::black));
             }
         }
@@ -151,9 +151,9 @@ void DungeonDialog::drawMinimap()
         QPair<int, int> pos = it.key();
         // Only show if the tile is visited or "Reveal All" is on
         if (revealAll || m_visitedTiles.contains(pos)) {
-            scene->addEllipse(pos.first * TILE_SIZE + TILE_SIZE/4, 
-                              pos.second * TILE_SIZE + TILE_SIZE/4, 
-                              TILE_SIZE/2, TILE_SIZE/2, 
+            scene->addEllipse(pos.first * TILE_SIZE + TILE_SIZE/4,
+                              pos.second * TILE_SIZE + TILE_SIZE/4,
+                              TILE_SIZE/2, TILE_SIZE/2,
                               QPen(Qt::black), QBrush(Qt::red));
         }
     }
@@ -161,9 +161,9 @@ void DungeonDialog::drawMinimap()
     for (auto it = m_treasurePositions.begin(); it != m_treasurePositions.end(); ++it) {
         QPair<int, int> pos = it.key();
         if (revealAll || m_visitedTiles.contains(pos)) {
-            scene->addRect(pos.first * TILE_SIZE + TILE_SIZE/4, 
-                           pos.second * TILE_SIZE + TILE_SIZE/4, 
-                           TILE_SIZE/2, TILE_SIZE/2, 
+            scene->addRect(pos.first * TILE_SIZE + TILE_SIZE/4,
+                           pos.second * TILE_SIZE + TILE_SIZE/4,
+                           TILE_SIZE/2, TILE_SIZE/2,
                            QPen(Qt::black), QBrush(Qt::yellow));
         }
     }
@@ -171,9 +171,9 @@ void DungeonDialog::drawMinimap()
     for (auto it = m_trapPositions.begin(); it != m_trapPositions.end(); ++it) {
         QPair<int, int> pos = it.key();
         if (revealAll || m_visitedTiles.contains(pos)) {
-            scene->addRect(pos.first * TILE_SIZE + TILE_SIZE/4, 
-                           pos.second * TILE_SIZE + TILE_SIZE/4, 
-                           TILE_SIZE/2, TILE_SIZE/2, 
+            scene->addRect(pos.first * TILE_SIZE + TILE_SIZE/4,
+                           pos.second * TILE_SIZE + TILE_SIZE/4,
+                           TILE_SIZE/2, TILE_SIZE/2,
                            QPen(Qt::black), QBrush(Qt::darkGreen));
         }
     }
@@ -185,7 +185,7 @@ void DungeonDialog::drawMinimap()
                 antiTile->setPos(pos.first * TILE_SIZE, pos.second * TILE_SIZE);
             } else {
                 // Fallback to Purple if image fails to load
-                scene->addRect(pos.first * TILE_SIZE + 1, pos.second * TILE_SIZE + 1, 
+                scene->addRect(pos.first * TILE_SIZE + 1, pos.second * TILE_SIZE + 1,
                                TILE_SIZE - 2, TILE_SIZE - 2, QPen(Qt::magenta), QBrush(Qt::NoBrush));
             }
         }
@@ -198,7 +198,7 @@ void DungeonDialog::drawMinimap()
                 rotTile->setPos(pos.first * TILE_SIZE, pos.second * TILE_SIZE);
             } else {
                 // Fallback: A dark green/yellow circle if image fails to load
-                scene->addEllipse(pos.first * TILE_SIZE + 1, pos.second * TILE_SIZE + 1, 
+                scene->addEllipse(pos.first * TILE_SIZE + 1, pos.second * TILE_SIZE + 1,
                                  TILE_SIZE - 2, TILE_SIZE - 2, QPen(Qt::darkYellow), QBrush(Qt::NoBrush));
             }
         }
@@ -211,7 +211,7 @@ void DungeonDialog::drawMinimap()
                 waterTile->setPos(pos.first * TILE_SIZE, pos.second * TILE_SIZE);
             } else {
                 // Fallback: Blue square if image fails to load
-                scene->addRect(pos.first * TILE_SIZE, pos.second * TILE_SIZE, 
+                scene->addRect(pos.first * TILE_SIZE, pos.second * TILE_SIZE,
                                TILE_SIZE, TILE_SIZE, QPen(Qt::blue), QBrush(Qt::blue));
             }
         }
@@ -225,7 +225,7 @@ void DungeonDialog::drawMinimap()
                 teleTile->setPos(pos.first * TILE_SIZE, pos.second * TILE_SIZE);
             } else {
                 // Fallback: Magenta circle if image fails to load
-                scene->addEllipse(pos.first * TILE_SIZE + 1, pos.second * TILE_SIZE + 1, 
+                scene->addEllipse(pos.first * TILE_SIZE + 1, pos.second * TILE_SIZE + 1,
                                   TILE_SIZE - 2, TILE_SIZE - 2, QPen(Qt::magenta), QBrush(Qt::NoBrush));
             }
         }
@@ -239,7 +239,7 @@ void DungeonDialog::drawMinimap()
                 studTile->setPos(pos.first * TILE_SIZE, pos.second * TILE_SIZE);
             } else {
                 // Fallback: A simple gray rectangle if image fails to load
-                scene->addRect(pos.first * TILE_SIZE + 2, pos.second * TILE_SIZE + 2, 
+                scene->addRect(pos.first * TILE_SIZE + 2, pos.second * TILE_SIZE + 2,
                                TILE_SIZE - 4, TILE_SIZE - 4, QPen(Qt::gray), QBrush(Qt::lightGray));
             }
         }
@@ -252,7 +252,7 @@ void DungeonDialog::drawMinimap()
                 extTile->setPos(pos.first * TILE_SIZE, pos.second * TILE_SIZE);
             } else {
                 // Fallback: Dark Blue/Gray square to represent "extinguishing" light
-                scene->addRect(pos.first * TILE_SIZE + 1, pos.second * TILE_SIZE + 1, 
+                scene->addRect(pos.first * TILE_SIZE + 1, pos.second * TILE_SIZE + 1,
                                TILE_SIZE - 2, TILE_SIZE - 2, QPen(Qt::blue), QBrush(Qt::darkBlue));
             }
         }
@@ -260,8 +260,8 @@ void DungeonDialog::drawMinimap()
     // Draw pits
     for (const auto& pos : m_pitPositions) {
         if (revealAll || m_visitedTiles.contains(pos)) {
-            scene->addRect(pos.first * TILE_SIZE + 1, pos.second * TILE_SIZE + 1, 
-                           TILE_SIZE - 2, TILE_SIZE - 2, 
+            scene->addRect(pos.first * TILE_SIZE + 1, pos.second * TILE_SIZE + 1,
+                           TILE_SIZE - 2, TILE_SIZE - 2,
                            QPen(Qt::darkRed), QBrush(Qt::black));
         }
     }
@@ -279,11 +279,11 @@ void DungeonDialog::drawMinimap()
             if (!doorPixmap.isNull()) {
                 QGraphicsPixmapItem* doorTile = scene->addPixmap(scaledDoor);
                 doorTile->setPos(pos.first * TILE_SIZE, pos.second * TILE_SIZE);
-                doorTile->setZValue(1); 
+                doorTile->setZValue(1);
             } else {
                 // Fallback: Draw a yellow rectangle for testing if image is missing
-                scene->addRect(pos.first * TILE_SIZE + 2, pos.second * TILE_SIZE + 2, 
-                               TILE_SIZE - 4, TILE_SIZE - 4, 
+                scene->addRect(pos.first * TILE_SIZE + 2, pos.second * TILE_SIZE + 2,
+                               TILE_SIZE - 4, TILE_SIZE - 4,
                                QPen(Qt::yellow), QBrush(Qt::yellow));
             }
         }
@@ -291,7 +291,7 @@ void DungeonDialog::drawMinimap()
 
     // 8. Draw Fog of War Overlay
     if (!revealAll) {
-        for (int x = 0; x < MAP_SIZE; ++x) { 
+        for (int x = 0; x < MAP_SIZE; ++x) {
             for (int y = 0; y < MAP_SIZE; ++y) {
                 if (!m_visitedTiles.contains({x, y})) {
                     if (!fogPixmap.isNull()) {
@@ -300,8 +300,8 @@ void DungeonDialog::drawMinimap()
                         fogTile->setPos(x * TILE_SIZE, y * TILE_SIZE);
                     } else {
                         // Fallback to semi-transparent black if image is missing
-                        scene->addRect(x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE, 
-                                       Qt::NoPen, QBrush(QColor(0, 0, 0, 220))); 
+                        scene->addRect(x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE,
+                                       Qt::NoPen, QBrush(QColor(0, 0, 0, 220)));
                     }
                 }
             }
@@ -309,14 +309,14 @@ void DungeonDialog::drawMinimap()
     }
     // Draw Breadcrumb Trail
     for (int i = 0; i < m_breadcrumbPath.size(); ++i) {
-        QPair<int, int> pos = m_breadcrumbPath.at(i);   
+        QPair<int, int> pos = m_breadcrumbPath.at(i);
         // Calculate opacity so older dots fade out
         int opacity = static_cast<int>((static_cast<float>(i) / m_breadcrumbPath.size()) * 150);
         // Draw a small subtle dot in the center of the tile
-        scene->addEllipse(pos.first * TILE_SIZE + (TILE_SIZE / 3), 
-                            pos.second * TILE_SIZE + (TILE_SIZE / 3), 
-                            TILE_SIZE / 4, TILE_SIZE / 4, 
-                            Qt::NoPen, 
+        scene->addEllipse(pos.first * TILE_SIZE + (TILE_SIZE / 3),
+                            pos.second * TILE_SIZE + (TILE_SIZE / 3),
+                            TILE_SIZE / 4, TILE_SIZE / 4,
+                            Qt::NoPen,
                             //QBrush(QColor(0, 200, 255, opacity))); // Fading cyan trail
                             QBrush(QColor(255, 255, 0, opacity + 100))); // Brighter yellow trail
     }
@@ -363,11 +363,11 @@ void DungeonDialog::drawMinimap()
             if (!bodyPixmap.isNull()) {
                 QGraphicsPixmapItem* bodyTile = scene->addPixmap(scaledBody);
                 bodyTile->setPos(pos.first * TILE_SIZE, pos.second * TILE_SIZE);
-                bodyTile->setZValue(1); 
+                bodyTile->setZValue(1);
             } else {
                 // Fallback: Draw a red cross if the image is missing
-                scene->addRect(pos.first * TILE_SIZE + 2, pos.second * TILE_SIZE + 2, 
-                               TILE_SIZE - 4, TILE_SIZE - 4, 
+                scene->addRect(pos.first * TILE_SIZE + 2, pos.second * TILE_SIZE + 2,
+                               TILE_SIZE - 4, TILE_SIZE - 4,
                                QPen(Qt::red), QBrush(Qt::red));
             }
         }
@@ -390,5 +390,5 @@ void DungeonDialog::updateMinimap(int x, int y, int z=0)
             }
         }
     }
-    drawMinimap(); 
+    drawMinimap();
 }

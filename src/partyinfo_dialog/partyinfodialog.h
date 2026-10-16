@@ -2,13 +2,13 @@
 #define PARTYINFODIALOG_H
 
 #include <QDialog>
-#include <QLabel> 
-#include <QVector> 
+#include <QLabel>
+#include <QVector>
 #include <QStringList>
 #include <QVariant>
 #include <QObject>
 
-class PartyInfoDialog : public QDialog 
+class PartyInfoDialog : public QDialog
 {
     Q_OBJECT
 public:
@@ -24,7 +24,7 @@ private:
     void refreshFromGameState();
     QStringList partyMembers;
     QVector<QLabel*> memberLabels;
-    int activeMemberIndex; 
+    int activeMemberIndex;
 };
 
 #endif

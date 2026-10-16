@@ -1,5 +1,5 @@
 #include "MessageWindow.h"
-#include <QDateTime> 
+#include <QDateTime>
 #include <QApplication>
 
 MessagesWindow::MessagesWindow(QWidget *parent)

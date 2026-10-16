@@ -51,7 +51,6 @@ GuildsDialog::GuildsDialog(QWidget *parent)
     guildsLabel = new QLabel("<b><font color='red'>Guilds</font></b>");
     guildsListWidget = new QListWidget();
     QStringList guilds = GameConstants::GUILD_NAMES;
-    //QStringList guilds = gameStateManager::guildNames();
     for (const QString& guild : guilds) {
         guildsListWidget->addItem(guild);
     }
@@ -81,7 +80,7 @@ GuildsDialog::GuildsDialog(QWidget *parent)
     // --- Set Initial Guild Selection based on Game State ---
     setInitialGuildSelection();
     // ... after UI setup ...
-    reAcquaintButton->setEnabled(false); 
+    reAcquaintButton->setEnabled(false);
     hasPassedVisitCheck = false;
 }
 
@@ -103,14 +102,14 @@ void GuildsDialog::setupConnections()
  */
 void GuildsDialog::setInitialGuildSelection()
 {
-    QString currentGuildName = gameStateManager::instance()->getGameValue("CurrentCharacterGuild").toString();   
+    QString currentGuildName = gameStateManager::instance()->getGameValue("CurrentCharacterGuild").toString();
     // Only proceed if a guild name is stored
     if (currentGuildName.isEmpty()) {
-        return; 
+        return;
     }
     for (int i = 0; i < guildsListWidget->count(); ++i) {
         QListWidgetItem *item = guildsListWidget->item(i);
-        QString itemText = item->text();   
+        QString itemText = item->text();
         // 1. Remove the mark if it exists (on all items) before checking
         if (itemText.startsWith("* ")) {
             itemText.remove(0, 2); // Remove "* "
@@ -122,7 +121,7 @@ void GuildsDialog::setInitialGuildSelection()
             guildsListWidget->setCurrentItem(item);
         } else {
             // No match: ensure it is unmarked (set the cleaned text back)
-            item->setText(itemText); 
+            item->setText(itemText);
         }
     }
 }
@@ -216,13 +215,13 @@ void GuildsDialog::on_reAcquaintButton_clicked()
     // 2. Get the full item text and remove the visual mark (* )
     QString newGuildName = selectedItem->text();
     if (newGuildName.startsWith("* ")) {
-        newGuildName.remove(0, 2); 
+        newGuildName.remove(0, 2);
     }
     // 3. Update the Game State Manager
     gsm->setGameValue("CurrentCharacterGuild", newGuildName);
     gsm->logGuildAction(QString("Re-acquainted with the %1 guild.").arg(newGuildName));
     // 4. Provide confirmation feedback
-    QMessageBox::information(this, "Acquaintance Made", 
+    QMessageBox::information(this, "Acquaintance Made",
         QString("You have successfully re-acquainted yourself with the %1 guild.").arg(newGuildName));
     // 5. Refresh the list to move the visual mark
     setInitialGuildSelection();
@@ -317,7 +316,7 @@ void GuildsDialog::on_visitButton_clicked()
     if (selectedGuildData.isEmpty()) return;
     QVariantMap reqs = selectedGuildData["reqStats"].toMap();
     // 2. Fetch Player's Natural Stats using your specific keys
-    int pStr = gsm->getGameValue("CurrentCharacterStrength").toInt(); 
+    int pStr = gsm->getGameValue("CurrentCharacterStrength").toInt();
     int pInt = gsm->getGameValue("CurrentCharacterIntelligence").toInt();
     int pWis = gsm->getGameValue("CurrentCharacterWisdom").toInt();
     int pCon = gsm->getGameValue("CurrentCharacterConstitution").toInt();
@@ -326,10 +325,10 @@ void GuildsDialog::on_visitButton_clicked()
     // --- DEBUG SECTION ---
     qDebug() << "--- Guild Visit Debug ---";
     qDebug() << "Guild Name:" << guildName;
-    qDebug() << "Player Stats (Str/Int/Wis/Con/Cha/Dex):" 
+    qDebug() << "Player Stats (Str/Int/Wis/Con/Cha/Dex):"
              << pStr << pInt << pWis << pCon << pCha << pDex;
-    qDebug() << "Required Stats (Str/Int/Wis/Con/Cha/Dex):" 
-             << reqs["Str"].toInt() << reqs["Int"].toInt() << reqs["Wis"].toInt() 
+    qDebug() << "Required Stats (Str/Int/Wis/Con/Cha/Dex):"
+             << reqs["Str"].toInt() << reqs["Int"].toInt() << reqs["Wis"].toInt()
              << reqs["Con"].toInt() << reqs["Cha"].toInt() << reqs["Dex"].toInt();
     // ---------------------
     // 3. Compare Stats
@@ -342,14 +341,14 @@ void GuildsDialog::on_visitButton_clicked()
     // 4. Update UI and Provide Feedback
     if (meetsReqs) {
         tooLowLabel->hide();
-        hasPassedVisitCheck = true; 
-        reAcquaintButton->setEnabled(true); 
+        hasPassedVisitCheck = true;
+        reAcquaintButton->setEnabled(true);
         gsm->logGuildAction("Visited " + guildName + ". Requirements met.");
         QMessageBox::information(this, "Welcome", "The Guildmaster welcomes you to the " + guildName + "!");
     } else {
         tooLowLabel->show();
         hasPassedVisitCheck = false;
-        reAcquaintButton->setEnabled(false); 
+        reAcquaintButton->setEnabled(false);
         gsm->logGuildAction("Visited " + guildName + " but failed stat requirements.");
         QMessageBox::warning(this, "Denied", "Your natural stats are too low to join the " + guildName + ".");
     }
@@ -368,13 +367,12 @@ void GuildsDialog::on_guildsListWidget_itemSelectionChanged()
     QString guildName = item->text();
     // Clean selection marker if present
     if (guildName.startsWith("* ")) {
-        guildName.remove(0, 2); 
+        guildName.remove(0, 2);
     }
     // 1. Update the Welcome Label
     welcomeLabel->setText(QString("<b><font color='blue' size='4'>Welcome to the %1's guild!</font></b>").arg(guildName));
     // 2. Fetch the Master from gameStateManager
     QMap<QString, QString> masters = GameConstants::getGuildMasters();
-    //QMap<QString, QString> masters = gameStateManager::guildMasters();
     QString masterName = masters.value(guildName, "Unknown Master");
     // 3. Update Stats Required from gameStateManager (MDATA1)
     const QList<QVariantMap>& allGuilds = gameStateManager::instance()->gameData();

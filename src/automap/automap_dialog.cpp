@@ -4,15 +4,15 @@
 #include <QHBoxLayout>
 #include <QDebug>
 #include <QMessageBox>
-#include <QPainter> 
-#include <QPen>     
-#include <QBrush>   
+#include <QPainter>
+#include <QPen>
+#include <QBrush>
 #include <QKeyEvent> // REQUIRED for keyPressEvent implementation
 
 MapViewWidget::MapViewWidget(QWidget *parent) : QWidget(parent) {
     // Styling for the map area
     setStyleSheet("background-color: #000000; border: 3px solid #5D4037;");
-    setMinimumSize(400, 400); 
+    setMinimumSize(400, 400);
 }
 
 void MapViewWidget::setPlayerPosition(int x, int y, int z, const QString& facing, bool visible) {
@@ -36,7 +36,7 @@ void MapViewWidget::paintEvent(QPaintEvent *event) {
     borderPen.setWidth(1);
     painter.setPen(borderPen);
     painter.drawRect(0, 0, width - 1, height - 1);
-    
+
     if (!playerVisible) {
         painter.setPen(QColor("#5D4037"));
         painter.setFont(QFont("Consolas", 14));
@@ -46,21 +46,21 @@ void MapViewWidget::paintEvent(QPaintEvent *event) {
     // 2. Draw the Player Marker (The Dot)
     const int MAP_MAX_COORD = 100;
     qreal normalizedX = (qreal)playerX / MAP_MAX_COORD;
-    qreal normalizedY = (qreal)playerY / MAP_MAX_COORD; 
+    qreal normalizedY = (qreal)playerY / MAP_MAX_COORD;
 
     int pixelX = qRound(normalizedX * width);
     int pixelY = qRound(height - (normalizedY * height));
 
     pixelX = qBound(5, pixelX, width - 5);
     pixelY = qBound(5, pixelY, height - 5);
-    
+
     QBrush dotBrush(QColor("#FF4500"));
     painter.setBrush(dotBrush);
     painter.setPen(QPen(QColor("#FFFFFF"), 2));
 
     const int DOT_SIZE = 8;
     painter.drawEllipse(pixelX - DOT_SIZE / 2, pixelY - DOT_SIZE / 2, DOT_SIZE, DOT_SIZE);
-    
+
     QPointF start(pixelX, pixelY);
     QPointF end = start;
     int indicatorLength = 10;
@@ -78,12 +78,12 @@ void MapViewWidget::paintEvent(QPaintEvent *event) {
 // --- AutomapDialog Implementation ---
 
 // Constructor
-AutomapDialog::AutomapDialog(QWidget *parent) 
-    : QDialog(parent), 
-      isPositionVisible(true), 
+AutomapDialog::AutomapDialog(QWidget *parent)
+    : QDialog(parent),
+      isPositionVisible(true),
       currentX(52), // Mock X position
       currentY(89), // Mock Y position
-      currentZ(3), 
+      currentZ(3),
       currentFacing("NORTH")
 {
     setWindowTitle("Automap");
@@ -106,7 +106,7 @@ void AutomapDialog::updatePlayerPosition(int x, int y, const QString &facing) {
     // 2. Update the UI elements
     updatePositionLabel();
     mapDisplay->setPlayerPosition(currentX, currentY, currentZ, currentFacing, isPositionVisible);
-    
+
     qDebug() << "Map position updated to X:" << currentX << "Y:" << currentY << "Facing:" << currentFacing;
 }
 /**
@@ -122,25 +122,25 @@ void AutomapDialog::keyPressEvent(QKeyEvent *event) {
 
     switch (event->key()) {
     case Qt::Key_Up:
-        newY += STEP; 
+        newY += STEP;
         newFacing = "NORTH";
         break;
     case Qt::Key_Down:
-        newY -= STEP; 
+        newY -= STEP;
         newFacing = "SOUTH";
         break;
     case Qt::Key_Left:
-        newX -= STEP; 
+        newX -= STEP;
         newFacing = "WEST";
         break;
     case Qt::Key_Right:
-        newX += STEP; 
+        newX += STEP;
         newFacing = "EAST";
         break;
     case Qt::Key_Escape:
         // Allow ESC to close the dialog
         this->accept();
-        return; 
+        return;
     default:
         // Key not handled by this function
         handled = false;
@@ -160,7 +160,7 @@ void AutomapDialog::keyPressEvent(QKeyEvent *event) {
  * @brief Sets up the main UI layout for the Automap dialog.
  */
 void AutomapDialog::setupUI() {
-    setFixedSize(550, 600); 
+    setFixedSize(550, 600);
     QVBoxLayout *mainLayout = new QVBoxLayout(this);
     // --- Header ---
     headerLabel = new QLabel("Mordor Automap", this);
@@ -177,7 +177,7 @@ void AutomapDialog::setupUI() {
     mainLayout->addWidget(mapDisplay);
     // --- Button Layout (omitted for brevity) ---
     QHBoxLayout *buttonLayout = new QHBoxLayout();
-    
+
     QString buttonStyle = "QPushButton { background-color: #3e2723; color: #FFFFFF; border: 2px solid #5D4037; border-radius: 8px; padding: 10px 15px; }"
                           "QPushButton:hover { background-color: #5d4037; }";
 
@@ -190,7 +190,7 @@ void AutomapDialog::setupUI() {
     clearButton->setStyleSheet(buttonStyle);
     clearButton->setCursor(Qt::PointingHandCursor);
     buttonLayout->addWidget(clearButton);
-    
+
     legendButton = new QPushButton("Map Legend", this);
     legendButton->setStyleSheet(buttonStyle);
     legendButton->setCursor(Qt::PointingHandCursor);
@@ -199,8 +199,8 @@ void AutomapDialog::setupUI() {
     closeButton = new QPushButton("Close", this);
     closeButton->setStyleSheet(buttonStyle);
     closeButton->setCursor(Qt::PointingHandCursor);
-    buttonLayout->addWidget(closeButton); 
-    
+    buttonLayout->addWidget(closeButton);
+
     mainLayout->addLayout(buttonLayout);
     // Set dialog background style
     setStyleSheet("QDialog { background-color: #212121; }");
@@ -209,7 +209,7 @@ void AutomapDialog::setupUI() {
     connect(clearButton, &QPushButton::clicked, this, &AutomapDialog::onClearMapClicked);
     connect(positionButton, &QPushButton::clicked, this, &AutomapDialog::onTogglePositionClicked);
     connect(legendButton, &QPushButton::clicked, this, &AutomapDialog::onShowLegendClicked);
-    
+
     setLayout(mainLayout);
 }
 /**
@@ -217,11 +217,11 @@ void AutomapDialog::setupUI() {
  */
 void AutomapDialog::updatePositionLabel() {
     QString visibility = isPositionVisible ? "VISIBLE" : "HIDDEN";
-    
+
     QString text = QString(
         "Party Position | X: <b>%1</b> Y: <b>%2</b> Z: <b>%3</b> | Facing: <b>%4</b> | Marker: <b>%5</b>"
     ).arg(currentX).arg(currentY).arg(currentZ).arg(currentFacing).arg(visibility);
-        
+
     positionLabel->setText(text);
     // Update button text based on visibility state
     if (isPositionVisible) {
@@ -232,24 +232,24 @@ void AutomapDialog::updatePositionLabel() {
 }
 
 void AutomapDialog::onCloseClicked() {
-    this->accept(); 
+    this->accept();
 }
 
 void AutomapDialog::onClearMapClicked() {
-    QMessageBox::information(this, tr("Clear Map"), 
+    QMessageBox::information(this, tr("Clear Map"),
         tr("The map data has been cleared. You will need to re-explore the current level."));
 }
 
 void AutomapDialog::onTogglePositionClicked() {
     isPositionVisible = !isPositionVisible;
-    
+
     mapDisplay->setPlayerPosition(currentX, currentY, currentZ, currentFacing, isPositionVisible);
-    
+
     updatePositionLabel();
 }
 
 void AutomapDialog::onShowLegendClicked() {
-    QString legend = 
+    QString legend =
         "<b>Map Legend:</b>\n\n"
         "- <font color='#FF4500'>●</font>: Your Party's Current Location\n"
         "- '#': Solid Wall\n"

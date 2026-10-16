@@ -5,7 +5,7 @@
 #include <QLabel>
 #include <QPushButton>
 #include <QString>
-#include <QWidget> 
+#include <QWidget>
 #include <QObject>
 
 /**
@@ -17,7 +17,7 @@ class MapViewWidget : public QWidget {
 public:
     explicit MapViewWidget(QWidget *parent = nullptr);
     void setPlayerPosition(int x, int y, int z, const QString& facing, bool visible);
-    
+
 protected:
     void paintEvent(QPaintEvent *event) override;
 
@@ -34,10 +34,10 @@ class AutomapDialog : public QDialog {
 
 public:
     explicit AutomapDialog(QWidget *parent = nullptr);
-    
+
     /**
      * @brief Public interface to move the player's position on the map.
-     * * This function is called by the main game loop to update the map view 
+     * * This function is called by the main game loop to update the map view
      * whenever the player moves or changes facing direction.
      * * @param x The new X coordinate.
      * @param y The new Y coordinate.
@@ -57,14 +57,14 @@ private:
 
     // UI elements
     QLabel *headerLabel;
-    MapViewWidget *mapDisplay; 
+    MapViewWidget *mapDisplay;
     QLabel *positionLabel; // Displays X, Y, Z, Facing
-    
+
     QPushButton *positionButton;
     QPushButton *clearButton;
     QPushButton *legendButton;
     QPushButton *closeButton;
-    
+
     // State and mock data
     bool isPositionVisible;
     int currentX;

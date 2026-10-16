@@ -6,8 +6,8 @@
 #include <QRandomGenerator>
 
 // The constructor must match the header's signature
-PartyManager::PartyManager(QObject *parent) 
-    : QObject(parent) 
+PartyManager::PartyManager(QObject *parent)
+    : QObject(parent)
 {
     // Initialize with an empty party if needed
     m_party.sharedGold = 0;

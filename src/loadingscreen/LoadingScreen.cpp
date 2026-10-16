@@ -30,11 +30,11 @@ LoadingScreen::LoadingScreen(QWidget *parent) :
     m_titleFadeAnimation->setEndValue(1.0);        // End fully visible
     m_titleFadeAnimation->setEasingCurve(QEasingCurve::InOutQuad); // Smooth start/stop
     // 3. Start the animation immediately
-    m_titleFadeAnimation->start(QAbstractAnimation::DeleteWhenStopped); 
+    m_titleFadeAnimation->start(QAbstractAnimation::DeleteWhenStopped);
     // -------------------------------
     const QString versionString = "Version 0.0";
     m_versionLabel = new QLabel(versionString, this);
-    gameStateManager::instance()->setGameValue("GameVersion", versionString); 
+    gameStateManager::instance()->setGameValue("GameVersion", versionString);
     m_copyrightLabel = new QLabel("© Copyright 2026, Vanderbull gaming", this);
     m_imageLabel = new QLabel(this);
     m_loadingMessageLabel = new QLabel("Initializing system...", this);
@@ -61,9 +61,9 @@ LoadingScreen::LoadingScreen(QWidget *parent) :
     QVBoxLayout *mainLayout = new QVBoxLayout(this);
     mainLayout->addWidget(m_gameTitleLabel);
     mainLayout->addWidget(m_versionLabel);
-    mainLayout->addSpacing(15); 
+    mainLayout->addSpacing(15);
     mainLayout->addWidget(m_imageLabel, 0, Qt::AlignCenter);
-    mainLayout->addSpacing(15); 
+    mainLayout->addSpacing(15);
     mainLayout->addWidget(m_copyrightLabel);
     mainLayout->addWidget(m_loadingMessageLabel);
     setLayout(mainLayout);
@@ -83,7 +83,7 @@ LoadingScreen::LoadingScreen(QWidget *parent) :
 }
 void LoadingScreen::updateLoadingMessage()
 {
-    if (m_closeTimer->remainingTime() < 500) { 
+    if (m_closeTimer->remainingTime() < 500) {
         m_messageTimer->stop();
         m_loadingMessageLabel->setText("Initialization complete. Starting game...");
         return;
@@ -91,14 +91,14 @@ void LoadingScreen::updateLoadingMessage()
     if (m_currentFileIndex < m_loadingFiles.size()) {
         m_loadingMessageLabel->setText(m_loadingFiles.at(m_currentFileIndex++));
     } else {
-        m_currentFileIndex = 0; 
+        m_currentFileIndex = 0;
     }
 }
 
 void LoadingScreen::closeDialogAutomatically()
 {
     m_closeTimer->stop();
-    this->accept(); 
+    this->accept();
 }
 void LoadingScreen::paintEvent(QPaintEvent *event)
 {

@@ -31,7 +31,7 @@ void ConfinementAndHoldingDialog::applyThemeAndWindowSettings()
 void ConfinementAndHoldingDialog::initializeGameState()
 {
     gameStateManager* gsm = gameStateManager::instance();
-    
+
     // Move pending dungeon exits into persistent stock
     if (gsm->getGameValue("GhostHoundPending").toBool()) {
         gsm->incrementStock("Ghost hound");
@@ -43,7 +43,7 @@ void ConfinementAndHoldingDialog::populateStockList()
 {
     gameStateManager* gsm = gameStateManager::instance();
     buyCreatureListWidget->clear();
-    
+
     QMap<QString, int> currentStock = gsm->getConfinementStock();
     for (auto it = currentStock.begin(); it != currentStock.end(); ++it) {
         buyCreatureListWidget->addItem(it.key());
@@ -54,17 +54,17 @@ void ConfinementAndHoldingDialog::connectSignalsAndSlots()
 {
     // Left Column Connections
     connect(bindButton, &QPushButton::clicked, this, &ConfinementAndHoldingDialog::bindCompanion);
-    connect(identifyInfoButton, &QPushButton::clicked, this, &ConfinementAndHoldingDialog::identifyCompanion); 
-    connect(identifyGneButton, &QPushButton::clicked, this, &ConfinementAndHoldingDialog::identifyCompanionGNE); 
+    connect(identifyInfoButton, &QPushButton::clicked, this, &ConfinementAndHoldingDialog::identifyCompanion);
+    connect(identifyGneButton, &QPushButton::clicked, this, &ConfinementAndHoldingDialog::identifyCompanionGNE);
     connect(identifySellButton, &QPushButton::clicked, this, &ConfinementAndHoldingDialog::sellCompanion);
-    connect(identifyIdButton, &QPushButton::clicked, this, &ConfinementAndHoldingDialog::realignCompanionID); 
+    connect(identifyIdButton, &QPushButton::clicked, this, &ConfinementAndHoldingDialog::realignCompanionID);
 
     // Right Column Connections
     connect(buyButton, &QPushButton::clicked, this, &ConfinementAndHoldingDialog::buyCompanion);
     connect(buyInfoButton, &QPushButton::clicked, this, &ConfinementAndHoldingDialog::showCompanionInfo);
 
     // Search & List Selection
-    connect(searchLineEdit, &QLineEdit::textChanged, this, &ConfinementAndHoldingDialog::searchCompanion); 
+    connect(searchLineEdit, &QLineEdit::textChanged, this, &ConfinementAndHoldingDialog::searchCompanion);
     connect(buyCreatureListWidget, &QListWidget::itemSelectionChanged, this, &ConfinementAndHoldingDialog::updateBuyFieldsFromList);
 
     // Exit
@@ -103,7 +103,7 @@ QWidget* ConfinementAndHoldingDialog::createLeftColumn()
     // --- Group Box: Identify, Realign & Sell Companions ---
     QGroupBox *identifyGroup = new QGroupBox("Identify, Realign & Sell Companions", container);
     QVBoxLayout *identifyLayout = new QVBoxLayout(identifyGroup);
-    
+
     identifyCompLineEdit = new QLineEdit(identifyGroup);
     identifyValueLineEdit = new QLineEdit(identifyGroup);
     identifyValueLineEdit->setReadOnly(true);
@@ -132,13 +132,13 @@ QWidget* ConfinementAndHoldingDialog::createLeftColumn()
     identifyButtonsLayout->addWidget(identifySellButton);
     identifyButtonsLayout->addWidget(identifyIdButton);
     identifyButtonsLayout->addStretch();
-    
+
     identifyLayout->addLayout(identifyButtonsLayout);
     identifyLayout->addWidget(new QLabel("ID Cost", identifyGroup));
-    
+
     identifyIdCostLineEdit = new QLineEdit(identifyGroup);
     identifyLayout->addWidget(identifyIdCostLineEdit);
-    
+
     leftColLayout->addWidget(identifyGroup);
     leftColLayout->addStretch();
 
@@ -241,10 +241,10 @@ void ConfinementAndHoldingDialog::buyCompanion()
     if (selectedCreature.isEmpty()) {
         return;
     }
-    
+
     gameStateManager::instance()->decrementStock(selectedCreature);
     qDebug() << "Successfully bought companion: " + selectedCreature;
-    
+
     delete buyCreatureListWidget->currentItem();
     buyCompanionLineEdit->clear();
     buyCostLineEdit->clear();
@@ -278,15 +278,15 @@ void ConfinementAndHoldingDialog::updateBuyFieldsFromList()
         buyInfoButton->setEnabled(false);
         return;
     }
-    
+
     QListWidgetItem *selectedItem = selectedItems.first();
     QString fullText = selectedItem->text().trimmed();
-    
+
     QRegularExpression rx("^(.+?)\\s+(\\d+)\\s+");
     QRegularExpressionMatch match = rx.match(fullText);
     QString companionName;
     QString companionCost;
-    
+
     if (match.hasMatch()) {
         companionName = match.captured(1).trimmed();
         companionCost = match.captured(2);
@@ -300,7 +300,7 @@ void ConfinementAndHoldingDialog::updateBuyFieldsFromList()
             companionCost = "";
         }
     }
-    
+
     buyCompanionLineEdit->setText(companionName);
     buyCostLineEdit->setText(companionCost);
     qDebug() << "Selected: " << companionName << ", Cost: " << companionCost;

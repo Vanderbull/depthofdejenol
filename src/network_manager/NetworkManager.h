@@ -19,7 +19,7 @@ class NetworkManager : public QObject
     Q_OBJECT
 public:
     static NetworkManager* instance();
-    
+
     void connectToServer(const QString &host, quint16 port);
     void sendAction(const QString &action, const QVariantMap &data);
     QAbstractSocket::SocketState state() const;

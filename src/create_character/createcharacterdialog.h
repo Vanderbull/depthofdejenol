@@ -11,7 +11,7 @@
 #include <QMap>
 #include <QVector>
 #include <QString>
-#include "src/race_data/RaceData.h" 
+#include "src/race_data/RaceData.h"
 #include "gameStateManager.h"
 #include <QObject>
 
@@ -29,12 +29,12 @@ signals:
      */
     void characterCreated(const QString &characterName);
 private slots:
-    void updateRaceStats(int index); 
+    void updateRaceStats(int index);
     void onRaceStatsClicked();
     void onGuildStatsClicked();
-    void onSaveCharacterClicked(); 
+    void onSaveCharacterClicked();
     void onTutorialClicked();
-    void onExitClicked(); 
+    void onExitClicked();
 private:
     // Helper Functions
     void updateAlignmentOptions(const RaceStats& race);
@@ -47,14 +47,14 @@ private:
     QComboBox *alignmentBox = nullptr;
     QListWidget *guildsListWidget = nullptr;
     // Stat Distribution Components
-    QMap<QString, QSpinBox*> statSpinBoxes; 
-    QMap<QString, QLabel*> statRangeLabels; 
-    QMap<QString, QLabel*> statValueLabels; 
-    QLabel *statPointsLeftLabel = nullptr; 
+    QMap<QString, QSpinBox*> statSpinBoxes;
+    QMap<QString, QLabel*> statRangeLabels;
+    QMap<QString, QLabel*> statValueLabels;
+    QLabel *statPointsLeftLabel = nullptr;
     // Data members
     QVector<RaceStats> raceData;
     QVector<QString> guildData;
     int statPoints = 5;
 };
 
-#endif // CREATECHARACTERDIALOG_H 
+#endif // CREATECHARACTERDIALOG_H

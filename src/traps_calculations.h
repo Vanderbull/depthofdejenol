@@ -2,7 +2,7 @@
 #include <cmath>
 #include <algorithm>
 // Clamp utility for percentage limits
-inline double clamp(double value, double minval, double maxval) 
+inline double clamp(double value, double minval, double maxval)
 {
     return std::max(minval, std::min(value, maxval));
 }
@@ -36,7 +36,6 @@ inline double thievingAbility(double X, double Y, double Z)
     return clamp(ability, 0.0, 100.0); // normalized to 0-100
 }
 // Helper to calculate X/Y/Z for thieving ability (for parameters as in doc)
-// X = [DEX/2 + WIS/2] + [4.5 + exp(ln(gLvl + 1) / ln(15))] * [thiefMod * 1.4] - [ln(2) * ln(2) * 9.375]
 inline double thievingParam(int DEX, int WIS, int gLvl, double thiefMod)
 {
     double part1 = DEX / 2.0 + WIS / 2.0;

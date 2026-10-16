@@ -1,7 +1,7 @@
 #include "RaceData.h"
 #include <QDebug>
 // Helper to load and return the list of all playable guilds
-QVector<QString> loadGuildData() 
+QVector<QString> loadGuildData()
 {
     return {
         "Nomad",
@@ -19,7 +19,7 @@ QVector<QString> loadGuildData()
     };
 }
 // Helper to load and return the race data vector
-QVector<RaceStats> loadRaceData() 
+QVector<RaceStats> loadRaceData()
 {
     QVector<QString> allGuilds = loadGuildData();
     QVector<RaceStats> data = {

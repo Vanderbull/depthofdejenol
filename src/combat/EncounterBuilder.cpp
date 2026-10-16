@@ -70,7 +70,6 @@ QList<CombatParticipant> EncounterBuilder::buildEncounter(
     // Three monster-table shapes exist in this repo, and "hits" means different
     // things in each:
     //   MDATA5 rows   (gameStateManager): hits = HP, numGroups = groups,
-    //                                     ingroup = monsters per group
     //   bestiary rows (data/bestiary.json): hits = HP, groups = group count
     //   legacy test rows: hits = monsters per group, HP from Constitution
     // `ingroup` only exists in the MDATA5 shape, which is what tells them apart.

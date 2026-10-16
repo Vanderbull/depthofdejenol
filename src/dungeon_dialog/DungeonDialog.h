@@ -41,7 +41,7 @@ class QTimer;
 struct FloorTheme;
 
 // Define MAP_SIZE here to resolve initialization errors in the class definition
-const int MAP_SIZE = 50; 
+const int MAP_SIZE = 50;
 struct TilePos {
     int x, y, z;
     bool operator==(const TilePos& other) const {
@@ -49,7 +49,7 @@ struct TilePos {
     }
 };
 // Custom hash for TilePos to be used in QSet and QMap
-inline uint qHash(const TilePos& key, uint seed) 
+inline uint qHash(const TilePos& key, uint seed)
 {
     return qHash(key.x, seed) ^ qHash(key.y, seed) ^ qHash(key.z, seed);
 }
@@ -171,7 +171,7 @@ public:
     QMap<QString, QPushButton*> m_controls;
     // A helper to make button creation cleaner
     QPushButton* createButton(const QString& text, const char* slot);
-    
+
     QPushButton *m_upButton;
     QPushButton *m_downButton;
     QPushButton *m_leftButton;
@@ -303,7 +303,7 @@ public:
     int torchFuel() const;
     // Map generation/management
     // Change all coordinate-based containers to use TilePos
-    QSet<TilePos> m_visitedTiles3D; 
+    QSet<TilePos> m_visitedTiles3D;
     QSet<TilePos> m_obstaclePositions3D;
     QSet<TilePos> m_chutePositions3D;
     QMap<TilePos, QString> m_monsterPositions3D;
@@ -322,13 +322,13 @@ public:
     void bspConnect(struct BspNode* node, QRandomGenerator& rng);
     void assignZones(QRandomGenerator& rng);
     void generateMultiLevelRooms(QRandomGenerator& rng);
-    void generateStairs(QRandomGenerator& rng); 
+    void generateStairs(QRandomGenerator& rng);
     void generateSpecialTiles(int tileCount, QRandomGenerator& rng, const FloorTheme* theme = nullptr);
-    QPair<int, int> m_stairsUpPosition; 
-    QPair<int, int> m_stairsDownPosition; 
+    QPair<int, int> m_stairsUpPosition;
+    QPair<int, int> m_stairsDownPosition;
     // Special Tile Position Sets (Combined list)
     QSet<QPair<int, int>> m_antimagicPositions; // implemented
-    QSet<QPair<int, int>> m_extinguisherPositions; // implemented 
+    QSet<QPair<int, int>> m_extinguisherPositions; // implemented
     QSet<QPair<int, int>> m_fogPositions; // implemented
     QSet<QPair<int, int>> m_pitPositions; // implemented
     QSet<QPair<int, int>> m_rotatorPositions; // implemented
@@ -353,7 +353,7 @@ public:
         Up,
         Down
     };
-    void drawMinimap(); 
+    void drawMinimap();
     void handleMovement(int actionIndex);
     void handleSurfaceExit();
     void transitionLevel(StairDirection direction);
@@ -361,7 +361,7 @@ public:
     void rotate(int step);
     void movePlayer(int dx, int dy, int dz);
     // Helper functions
-    void logMessage(const QString& message); 
+    void logMessage(const QString& message);
     void spawnMonsters(const QString& monsterType, int count);
     void revealAroundPlayer(int x, int y, int z);
     void populateRandomTreasures(int level);

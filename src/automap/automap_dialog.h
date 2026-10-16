@@ -10,7 +10,7 @@
 #include <QObject>
 
 // Forward declarations for efficiency
-class QPaintEvent; 
+class QPaintEvent;
 
 class MapViewWidget : public QWidget
 {
@@ -46,7 +46,7 @@ public:
     QString getCurrentFacing() const { return currentFacing; }
 
 protected:
-    void keyPressEvent(QKeyEvent *event) override; 
+    void keyPressEvent(QKeyEvent *event) override;
 
 private slots:
     void onCloseClicked();

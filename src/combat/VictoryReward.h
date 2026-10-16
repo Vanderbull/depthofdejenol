@@ -11,12 +11,10 @@
 class VictoryReward {
 public:
     // Calculate XP reward for a defeated monster.
-    // xp = levelFound * 100
     static int calculateXp(const QString& monsterName,
                            const QList<QVariantMap>& monsterData);
 
     // Calculate gold reward for a defeated monster.
-    // gold = goldFactor * random(1, 10) * NG+ reward multiplier
     static int calculateGold(const QString& monsterName,
                              const QList<QVariantMap>& monsterData,
                              int ngPlusLevel = 0);

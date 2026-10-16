@@ -56,11 +56,7 @@ private:
         const QString RESOURCE_PATH = "resources/images/";
 
         // Files are loaded explicitly below — no directory scanning needed
-        // QDir dir(RESOURCE_PATH);
-        // if (!dir.exists()) { ... }
-        // QStringList nameFilters;
         // nameFilters << "*.png" << "*.jpg" << "*.jpeg" << "*.gif" << "*.bmp";
-        // QFileInfoList fileList = dir.entryInfoList(nameFilters, QDir::Files | QDir::Readable);
         // foreach (const QFileInfo &fileInfo, fileList) { ... }
 
         // --- 4. Final check and reporting ---
@@ -77,7 +73,7 @@ private:
      */
     static void loadResources() {
         // --- YOUR IMAGE LOADING GOES HERE ---
-        
+
         // Example paths (replace these with your actual files/resource paths)
         s_resources.insert("bank", QPixmap("resources/images/bank.png"));
         s_resources.insert("confinement", QPixmap("resources/images/confinement.png"));

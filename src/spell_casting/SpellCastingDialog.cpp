@@ -51,23 +51,23 @@ SpellCastingDialog::SpellCastingDialog(QWidget *parent, bool inCombat)
     // Spell Details (right side)
     m_detailsGroup = new QGroupBox("Spell Details", this);
     QVBoxLayout* detailsLayout = new QVBoxLayout(m_detailsGroup);
-    
+
     m_spellNameLabel = new QLabel("Select a spell", this);
     m_spellNameLabel->setStyleSheet("font-size: 16px; font-weight: bold;");
-    
+
     m_manaCostLabel = new QLabel("Mana Cost: -", this);
     m_levelRequiredLabel = new QLabel("Required Level: -", this);
-    
+
     m_spellDescription = new QTextEdit(this);
     m_spellDescription->setReadOnly(true);
     m_spellDescription->setMaximumHeight(120);
-    
+
     detailsLayout->addWidget(m_spellNameLabel);
     detailsLayout->addWidget(m_manaCostLabel);
     detailsLayout->addWidget(m_levelRequiredLabel);
     detailsLayout->addWidget(m_spellDescription);
     detailsLayout->addStretch();
-    
+
     contentLayout->addWidget(m_detailsGroup);
     mainLayout->addLayout(contentLayout);
 
@@ -76,10 +76,10 @@ SpellCastingDialog::SpellCastingDialog(QWidget *parent, bool inCombat)
     m_castButton = new QPushButton("Cast Spell", this);
     m_castButton->setEnabled(false);
     m_castButton->setStyleSheet("QPushButton { background-color: #4488ff; color: white; padding: 8px 16px; }");
-    
+
     m_cancelButton = new QPushButton("Cancel", this);
     m_cancelButton->setStyleSheet("padding: 8px 16px;");
-    
+
     buttonLayout->addStretch();
     buttonLayout->addWidget(m_castButton);
     buttonLayout->addWidget(m_cancelButton);
@@ -116,7 +116,7 @@ void SpellCastingDialog::loadSpellsFromJson()
         QCoreApplication::applicationDirPath() + "/data/spells.json",
         "../data/spells.json"
     };
-    
+
     QFile file;
     for (const QString& path : paths) {
         file.setFileName(path);
@@ -124,23 +124,23 @@ void SpellCastingDialog::loadSpellsFromJson()
             break;
         }
     }
-    
+
     if (!file.open(QIODevice::ReadOnly)) {
         qWarning() << "Could not open spells.json from any path";
         return;
     }
-    
+
     QByteArray data = file.readAll();
     file.close();
-    
+
     QJsonParseError error;
     QJsonDocument doc = QJsonDocument::fromJson(data, &error);
-    
+
     if (error.error != QJsonParseError::NoError) {
         qWarning() << "JSON parse error:" << error.errorString();
         return;
     }
-    
+
     m_spellsData = doc.object().value("spells").toObject();
     qDebug() << "Loaded" << m_spellsData.keys().count() << "spell categories";
 }
@@ -149,14 +149,14 @@ void SpellCastingDialog::populateCategories()
 {
     m_categoryCombo->clear();
     m_categories = m_spellsData.keys();
-    
+
     // Sort categories for better UX
     m_categories.sort();
-    
+
     for (const QString& category : m_categories) {
         m_categoryCombo->addItem(category);
     }
-    
+
     if (!m_categories.isEmpty()) {
         populateSpellList(m_categories.first());
     }
@@ -165,10 +165,10 @@ void SpellCastingDialog::populateCategories()
 void SpellCastingDialog::populateSpellList(const QString& category)
 {
     m_spellList->clear();
-    
+
     QJsonArray spells = m_spellsData.value(category).toArray();
     gameStateManager* gsm = gameStateManager::instance();
-    
+
     // Get the current values from the variables you specified
     int currentMana = gsm->getCurrentMana(); // Pulls m_gameStateData["CurrentMana"]
     int playerLevel = gsm->getGameValue("CurrentCharacterLevel").toInt();
@@ -188,16 +188,15 @@ void SpellCastingDialog::populateSpellList(const QString& category)
             item->setForeground(Qt::gray);
             item->setFlags(item->flags() & ~Qt::ItemIsEnabled); // Make it unclickable
             item->setToolTip(QString("Requires %1 Mana (You have %2)").arg(manaCost).arg(currentMana));
-        } 
+        }
         else if (reqLevel > playerLevel) {
             // Level too low: Dark Gray
             item->setForeground(Qt::gray);
             item->setFlags(item->flags() & ~Qt::ItemIsEnabled);
             item->setToolTip(QString("Requires Level %1").arg(reqLevel));
-        } 
+        }
         else {
             // Affordable: Normal White text
-            //item->setForeground(Qt::Black); 
             item->setForeground(this->palette().text());
             item->setFlags(item->flags() | Qt::ItemIsEnabled); // Ensure it's clickable
             item->setToolTip("");
@@ -217,24 +216,24 @@ void SpellCastingDialog::onCategoryChanged(int index)
 void SpellCastingDialog::onSpellSelected(QListWidgetItem* item)
 {
     if (!item) return;
-    
+
     m_selectedSpell = item->data(Qt::UserRole).toJsonObject();
     updateSpellDetails(m_selectedSpell);
-    
+
     gameStateManager* gsm = gameStateManager::instance();
-    
+
     // CHANGE: Use "mana" consistently with your populateSpellList function
-    int manaCost = m_selectedSpell.value("mana").toInt(); 
+    int manaCost = m_selectedSpell.value("mana").toInt();
     int reqLevel = m_selectedSpell.value("base_level").toInt();
     int playerLevel = gsm->getGameValue("CurrentCharacterLevel").toInt();
-    int currentMana = gsm->getCurrentMana(); 
-    
+    int currentMana = gsm->getCurrentMana();
+
     bool canCast = (manaCost <= currentMana) && (reqLevel <= playerLevel);
-    
+
     if (m_inCombat && !m_selectedSpell.value("is_combat_spell").toBool()) {
         canCast = false;
     }
-    
+
     m_castButton->setEnabled(canCast);
 }
 
@@ -243,15 +242,15 @@ void SpellCastingDialog::updateSpellDetails(const QJsonObject& spell)
     m_spellNameLabel->setText(spell.value("name").toString());
     m_manaCostLabel->setText(QString("Mana Cost: %1").arg(spell.value("mana").toInt()));
     m_levelRequiredLabel->setText(QString("Required Level: %1").arg(spell.value("base_level").toInt()));
-    
+
     QString description = spell.value("description").toString();
-    
+
     // Add damage info if applicable
     QJsonValue damageVal = spell.value("damage");
     if (!damageVal.isNull() && damageVal.toString() != "null") {
         description += QString("\n\nDamage: %1").arg(damageVal.toString());
     }
-    
+
     // Add guild requirements
     QJsonArray guilds = spell.value("guilds").toArray();
     if (!guilds.isEmpty()) {
@@ -261,7 +260,7 @@ void SpellCastingDialog::updateSpellDetails(const QJsonObject& spell)
         }
         description += QString("\n\nTaught by: %1").arg(guildNames.join(", "));
     }
-    
+
     m_spellDescription->setText(description);
 }
 
@@ -271,9 +270,9 @@ void SpellCastingDialog::updateManaDisplay()
     gameStateManager* gsm = gameStateManager::instance();
     int current = gsm->getCurrentMana();
     int max = gsm->getMaxMana();
-    
+
     m_manaLabel->setText(QString("Mana: %1 / %2").arg(current).arg(max));
-    
+
     // Visually warn the player if they are low on mana
     if (current < 10) {
         m_manaLabel->setStyleSheet("font-size: 14px; font-weight: bold; color: #ff4444;");
@@ -290,15 +289,15 @@ void SpellCastingDialog::onCastClicked()
     }
 
     gameStateManager* gsm = gameStateManager::instance();
-    
-    // 2. Fetch mana cost using the correct JSON key "mana" 
+
+    // 2. Fetch mana cost using the correct JSON key "mana"
     // (This matches your populateSpellList and updateSpellDetails functions)
     int manaCost = m_selectedSpell.value("mana").toInt();
-    
+
     // 3. Perform the Mana Check and Reduction
     // spendMana() returns false if the player can't afford it
     if (!gsm->spendMana(manaCost)) {
-        QMessageBox::warning(this, "Insufficient Mana", 
+        QMessageBox::warning(this, "Insufficient Mana",
                              QString("You need %1 mana, but only have %2.")
                              .arg(manaCost).arg(gsm->getCurrentMana()));
         return;
@@ -312,15 +311,15 @@ void SpellCastingDialog::onCastClicked()
     // 5. Route to the appropriate effect logic
     if (category == "Heal") {
         result = castHealingSpell(m_selectedSpell);
-    } 
-    else if (category == "Fire" || category == "Cold" || category == "Electrical" || 
+    }
+    else if (category == "Fire" || category == "Cold" || category == "Electrical" ||
              category == "Mind" || category == "Magical" || category == "Damage" ||
              category == "Kill" || category == "Banish") {
         result = castDamageSpell(m_selectedSpell);
-    } 
+    }
     else if (category == "Element" || category == "Resistant" || category == "Protection") {
         result = castBuffSpell(m_selectedSpell);
-    } 
+    }
     else {
         result = castUtilitySpell(m_selectedSpell);
     }
@@ -331,7 +330,7 @@ void SpellCastingDialog::onCastClicked()
 
     // 7. Emit signals so DungeonDialog can update the game world
     emit spellCast(spellName, result);
-    
+
     if (result.damageDealt > 0) {
         emit damageDealt(result.damageDealt);
     }
@@ -350,9 +349,9 @@ void SpellCastingDialog::onCastClicked()
 
     updateManaDisplay(); // Updates the "Mana: X/Y" label
     populateSpellList(m_categoryCombo->currentText()); // Refreshes the list (greys out spells you can no longer afford)
-    
+
     // Close the dialog with an "Accepted" result so the main game knows to process
-    //accept(); 
+    //accept();
 }
 
 void SpellCastingDialog::onCancelClicked()
@@ -366,12 +365,12 @@ SpellResult SpellCastingDialog::castDamageSpell(const QJsonObject& spell)
     SpellResult result;
     QString spellName = spell.value("name").toString();
     QString damageStr = spell.value("damage").toString();
-    
+
     gameStateManager* gsm = gameStateManager::instance();
     int intelligence = gsm->getGameValue("CurrentCharacterIntelligence").toInt();
-    
+
     int damage = calculateSpellDamage(damageStr, intelligence);
-    
+
     if (damage > 0) {
         result.success = true;
         result.damageDealt = damage;
@@ -391,7 +390,7 @@ SpellResult SpellCastingDialog::castDamageSpell(const QJsonObject& spell)
         result.success = false;
         result.message = QString("You cast %1, but it has no effect.").arg(spellName);
     }
-    
+
     return result;
 }
 
@@ -399,14 +398,14 @@ SpellResult SpellCastingDialog::castHealingSpell(const QJsonObject& spell)
 {
     SpellResult result;
     QString spellName = spell.value("name").toString();
-    
+
     gameStateManager* gsm = gameStateManager::instance();
     int wisdom = gsm->getGameValue("CurrentCharacterWisdom").toInt();
     // (HP is now read from the live member, not CurrentCharacterHP.)
-    
+
     // Determine healing amount based on spell
     int healing = 0;
-    
+
     if (spellName == "Cure Wounds") {
         healing = 10 + (wisdom / 2);
     } else if (spellName == "Heal") {
@@ -432,7 +431,7 @@ SpellResult SpellCastingDialog::castHealingSpell(const QJsonObject& spell)
     } else {
         healing = 15 + (wisdom / 3);
     }
-    
+
     // Apply healing to the live member, not the dead CurrentCharacterHP key.
     auto& members = gsm->getPartyMembers();
     if (members.isEmpty()) return result;
@@ -440,11 +439,11 @@ SpellResult SpellCastingDialog::castHealingSpell(const QJsonObject& spell)
     int newHP = qMin(c.maxHp, c.hp + healing);
     int actualHealing = newHP - c.hp;
     c.hp = newHP;
-    
+
     result.success = true;
     result.healingDone = actualHealing;
     result.message = QString("You cast %1 and recover %2 HP!").arg(spellName).arg(actualHealing);
-    
+
     return result;
 }
 
@@ -452,10 +451,10 @@ SpellResult SpellCastingDialog::castBuffSpell(const QJsonObject& spell)
 {
     SpellResult result;
     QString spellName = spell.value("name").toString();
-    
+
     result.success = true;
     result.effectApplied = spellName;
-    
+
     // Different buffs have different effects
     if (spellName.contains("Skin")) {
         result.message = QString("Your skin hardens! %1 is now active.").arg(spellName);
@@ -468,7 +467,7 @@ SpellResult SpellCastingDialog::castBuffSpell(const QJsonObject& spell)
     } else {
         result.message = QString("%1 is now active.").arg(spellName);
     }
-    
+
     return result;
 }
 
@@ -476,9 +475,9 @@ SpellResult SpellCastingDialog::castUtilitySpell(const QJsonObject& spell)
 {
     SpellResult result;
     QString spellName = spell.value("name").toString();
-    
+
     gameStateManager* gsm = gameStateManager::instance();
-    
+
     if (spellName == "Light") {
         result.success = true;
         result.effectApplied = "Light";
@@ -526,7 +525,7 @@ SpellResult SpellCastingDialog::castUtilitySpell(const QJsonObject& spell)
         result.success = true;
         result.message = QString("You cast %1.").arg(spellName);
     }
-    
+
     return result;
 }
 
@@ -537,21 +536,21 @@ int SpellCastingDialog::calculateSpellDamage(const QString& damageRange, int int
     if (parts.size() != 2) {
         return 0;
     }
-    
+
     bool ok1, ok2;
     int minDamage = parts[0].toInt(&ok1);
     int maxDamage = parts[1].toInt(&ok2);
-    
+
     if (!ok1 || !ok2) {
         return 0;
     }
-    
+
     // Base damage roll
     int baseDamage = QRandomGenerator::global()->bounded(minDamage, maxDamage + 1);
-    
+
     // Intelligence bonus (10% per 10 points of intelligence)
     int bonus = (baseDamage * intelligence) / 100;
-    
+
     return baseDamage + bonus;
 }
 

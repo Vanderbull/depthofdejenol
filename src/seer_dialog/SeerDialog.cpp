@@ -9,7 +9,7 @@
 #include <QCoreApplication>
 #include <QDir>
 
-void loadStyleSheet(QWidget* widget, const QString& sheetName) 
+void loadStyleSheet(QWidget* widget, const QString& sheetName)
 {
     QFile file(sheetName);
     if (file.open(QFile::ReadOnly | QFile::Text)) {
@@ -135,7 +135,7 @@ void SeerDialog::on_characterButton_clicked()
         }
         // 5. Build the vision description based on status
         QString statusText = isAlive ? "<b style='color:green;'>Living</b>" : "<b style='color:red;'>Deceased (Ghost)</b>";
-        QString intro = isAlive ? "The mists part! You see a vision of a fellow explorer:" 
+        QString intro = isAlive ? "The mists part! You see a vision of a fellow explorer:"
                                 : "The mists turn cold... You see the spirit of a fallen adventurer:";
 
         if (!name.isEmpty()) {
@@ -196,7 +196,7 @@ void SeerDialog::on_itemButton_clicked()
     int partyGold = gsm->getPartyGold();
     // 2. Gold Validation
     if (partyGold < static_cast<int>(totalCost)) {
-        QMessageBox::warning(this, "Insufficient Gold", 
+        QMessageBox::warning(this, "Insufficient Gold",
             QString("The Seer demands %1 gold to attempt a vision. You only have %2.")
             .arg(totalCost).arg(partyGold));
         return;
@@ -211,32 +211,32 @@ void SeerDialog::on_itemButton_clicked()
         if (item.itemName.contains(searchTerm, Qt::CaseInsensitive)) {
             foundItem = item;
             itemExists = true;
-            break; 
+            break;
         }
     }
     // 5. Item Not Found Result (Gold is already gone)
     if (!itemExists) {
-        QMessageBox::information(this, "Seer Vision", 
+        QMessageBox::information(this, "Seer Vision",
             QString("The Seer peers into the world and finds nothing. Your %1 gold is spent.").arg(totalCost));
         return;
     }
     // 6. Rolling for Vision Quality (Success vs. Vague)
     int roll = QRandomGenerator::global()->bounded(100);
-    int fullSuccessThreshold = 40;   
-    int vagueThreshold = 75;         
+    int fullSuccessThreshold = 40;
+    int vagueThreshold = 75;
     if (roll < fullSuccessThreshold) {
         // Full Success: Level and exact Tile
-        QMessageBox::information(this, "Vision Success", 
+        QMessageBox::information(this, "Vision Success",
             QString("**Item:** %1\n**Location:** Floor %2, Tile [%3, %4]")
             .arg(foundItem.itemName).arg(foundItem.level).arg(foundItem.x).arg(foundItem.y));
-    } 
+    }
     else if (roll < vagueThreshold) {
         // Vague Result: Level (Z) only
-        QMessageBox::warning(this, "Vague Vision", 
+        QMessageBox::warning(this, "Vague Vision",
             QString("The Seer senses the %1, but the vision is blurred.\n\n"
                     "**Result:** It is somewhere on **Floor %2**.")
             .arg(foundItem.itemName).arg(foundItem.level));
-    } 
+    }
     else {
         // Total Failure
         QMessageBox::critical(this, "Vision Failed", "The mists refuse to part. You learned nothing.");

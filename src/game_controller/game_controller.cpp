@@ -44,7 +44,7 @@ void GameController::handleArrowPress(Qt::Key key)
     case Qt::Key_Right: keyName = "RIGHT ➡️"; break;
     default: return;
     }
-    
+
     qDebug() << "GameController detected:" << keyName;
     // Call your game logic functions here (e.g., move_player(key);)
 }

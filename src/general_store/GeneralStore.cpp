@@ -84,7 +84,6 @@ void GeneralStore::setupUi()
     QVBoxLayout *inventoryLayout = new QVBoxLayout();
     QLabel *inventoryTitle = new QLabel("<b>Your Inventory</b>", this);
     m_playerInventoryList = new QListWidget(this);
-    //    m_playerInventoryList->setSelectionMode(QAbstractItemView::SingleSelection);
     m_playerInventoryList->setSelectionMode(QAbstractItemView::ExtendedSelection);
 
     inventoryLayout->addWidget(inventoryTitle);
@@ -154,9 +153,9 @@ void GeneralStore::updateFrame()
     Q_UNUSED(current);
 //    int sharedGold = gameStateManager::instance()->getPartyGold();
 
-//    qDebug() << "[GeneralStore::updateFrame] Frame tick | Active Char:" 
+//    qDebug() << "[GeneralStore::updateFrame] Frame tick | Active Char:"
 //             << (current.name.isEmpty() ? "Hero" : current.name)
-//             << "| Gold:" << current.gold 
+//             << "| Gold:" << current.gold
 //             << "| Party Gold:" << sharedGold;
 }
 
@@ -558,7 +557,7 @@ void GeneralStore::identifySelectedItem()
 
     if (gameStateManager::instance()->getPartyGold() < static_cast<int>(identifyFee)) {
         // Handle insufficient gold
-        QMessageBox::warning(this, "Insufficient Gold", 
+        QMessageBox::warning(this, "Insufficient Gold",
                              QString("You need %1 GP to identify an item. You only have %2 GP.")
                              .arg(identifyFee)
                              .arg(gameStateManager::instance()->getPartyGold()));
@@ -595,7 +594,7 @@ void GeneralStore::identifySelectedItem()
                                    .arg(identifiedName)
                                    .arg(itemStats.value("desc", "The true nature of this item has been revealed.").toString()));
 
-    QMessageBox::information(this, "Item Identified", 
+    QMessageBox::information(this, "Item Identified",
                              QString("The shopkeeper inspects the item...\n\nIt is a %1!").arg(identifiedName));
 
     JournalDialog::addEntry(QStringLiteral("Exploration"),
@@ -625,7 +624,7 @@ void GeneralStore::uncurseSelectedItem()
 
     if (gameStateManager::instance()->getPartyGold() < static_cast<int>(uncurseFee)) {
         // Handle insufficient gold
-        QMessageBox::warning(this, "Insufficient Gold", 
+        QMessageBox::warning(this, "Insufficient Gold",
                              QString("The uncurse ritual costs %1 GP. You only have %2 GP.")
                              .arg(uncurseFee)
                              .arg(gameStateManager::instance()->getPartyGold()));
@@ -662,7 +661,7 @@ void GeneralStore::uncurseSelectedItem()
     m_itemDetailsText->setText(QString("<b>Cleansed: %1</b><br>The dark aura surrounding this item has dissipated.")
                                    .arg(uncursedName));
 
-    QMessageBox::information(this, "Curse Lifted", 
+    QMessageBox::information(this, "Curse Lifted",
                              QString("The shopkeeper recites an incantation...\n\nThe dark magic binding %1 has been lifted!")
                              .arg(rawItemName));
 

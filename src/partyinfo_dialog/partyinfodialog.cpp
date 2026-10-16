@@ -6,8 +6,8 @@
 #include <QMessageBox>
 #include <QInputDialog>
 
-PartyInfoDialog::PartyInfoDialog(QWidget *parent) 
-    : QDialog(parent), activeMemberIndex(0) 
+PartyInfoDialog::PartyInfoDialog(QWidget *parent)
+    : QDialog(parent), activeMemberIndex(0)
 {
     setWindowTitle("Party Information");
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
@@ -15,7 +15,7 @@ PartyInfoDialog::PartyInfoDialog(QWidget *parent)
     QVBoxLayout *mainLayout = new QVBoxLayout(this);
     for (int i = 0; i < 4; ++i) {
         QLabel *rowLabel = new QLabel("(empty slot)", this);
-        rowLabel->setTextFormat(Qt::RichText); 
+        rowLabel->setTextFormat(Qt::RichText);
         rowLabel->setStyleSheet("margin-bottom: 8px; border-bottom: 1px solid #444;");
         memberLabels.append(rowLabel);
         mainLayout->addWidget(rowLabel);
@@ -38,14 +38,14 @@ PartyInfoDialog::PartyInfoDialog(QWidget *parent)
 
 PartyInfoDialog::~PartyInfoDialog() {}
 
-void PartyInfoDialog::refreshFromGameState() 
+void PartyInfoDialog::refreshFromGameState()
 {
     activeMemberIndex = gameStateManager::instance()->getGameValue("ActiveCharacterIndex").toInt();
     updatePartyLabels();
 }
 
 
-void PartyInfoDialog::onGameStateChanged(const QString& key, const QVariant& value) 
+void PartyInfoDialog::onGameStateChanged(const QString& key, const QVariant& value)
 {
     Q_UNUSED(value);
     if (key == "Party" || key == "ActiveCharacterIndex") {
@@ -53,10 +53,10 @@ void PartyInfoDialog::onGameStateChanged(const QString& key, const QVariant& val
     }
 }
 
-void PartyInfoDialog::updatePartyLabels() 
+void PartyInfoDialog::updatePartyLabels()
 {
     partyMembers.clear();
-    QVariantList partyData = gameStateManager::instance()->getGameValue("Party").toList();    
+    QVariantList partyData = gameStateManager::instance()->getGameValue("Party").toList();
     for (int i = 0; i < 4; ++i) {
         if (i < partyData.size()) {
             QVariantMap charMap = partyData[i].toMap();
@@ -92,7 +92,7 @@ void PartyInfoDialog::updatePartyLabels()
     }
 }
 
-void PartyInfoDialog::onSwitchToClicked() 
+void PartyInfoDialog::onSwitchToClicked()
 {
     if (partyMembers.isEmpty()) return;
     bool ok;
@@ -102,12 +102,12 @@ void PartyInfoDialog::onSwitchToClicked()
     }
 }
 
-void PartyInfoDialog::onOptionsClicked() 
+void PartyInfoDialog::onOptionsClicked()
 {
     QMessageBox::information(this, "Options", "Management options coming soon.");
 }
 
-void PartyInfoDialog::onLeaveClicked() 
+void PartyInfoDialog::onLeaveClicked()
 {
     if (partyMembers.isEmpty()) return;
     if (QMessageBox::question(this, "Leave", "Remove " + partyMembers.at(activeMemberIndex) + "?") == QMessageBox::Yes) {

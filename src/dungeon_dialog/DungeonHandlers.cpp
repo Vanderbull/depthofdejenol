@@ -22,9 +22,9 @@ void DungeonHandlers::handlePit(DungeonDialog* dialog, int x, int y)
     }
 }
 
-void DungeonHandlers::handleWater(DungeonDialog* dialog, int x, int y) 
+void DungeonHandlers::handleWater(DungeonDialog* dialog, int x, int y)
 {
-    QPair<int, int> pos = {x, y};    
+    QPair<int, int> pos = {x, y};
     // Check if the current position contains water using the dialog's member
     if (dialog->m_waterPositions.contains(pos)) {
         gameStateManager* gsm = gameStateManager::instance();

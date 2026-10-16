@@ -29,11 +29,11 @@ private slots:
 private:
     void setupUi();
     QList<DeadCharacterInfo> fetchDeadCharacterData() const;
-    
+
     // File manipulation helpers
     bool updateCharacterFile(const QString &fileName);
     bool moveBodyToCityInFile(const QString &fileName);
-    
+
     int calculateRescueCost(int level) const;
 
 public:

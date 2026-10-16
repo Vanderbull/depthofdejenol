@@ -12,7 +12,7 @@
 #include <QObject>
 
 // Forward declaration
-class BankDialog; 
+class BankDialog;
 
 class TradeDialog : public QDialog
 {
@@ -42,9 +42,9 @@ private:
     QPushButton *closeButton;
     // --- Data Models ---
     // Reference to the player's current inventory model
-    QStandardItemModel *playerItemModel; 
+    QStandardItemModel *playerItemModel;
     // Reference to the bank's item model
-    QStandardItemModel *bankItemModel;   
+    QStandardItemModel *bankItemModel;
     // --- Core Methods ---
     void setupUi();
     void createConnections();

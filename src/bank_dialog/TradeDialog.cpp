@@ -14,7 +14,7 @@ TradeDialog::TradeDialog(QStandardItemModel *playerModel, QStandardItemModel *ba
 {
     // Safety check: ensure models were passed correctly
     if (!playerItemModel || !bankItemModel) {
-        return; 
+        return;
     }
     gameStateManager* gsm = gameStateManager::instance();
     // 1. Fetch Active Character Inventory
@@ -38,14 +38,14 @@ TradeDialog::TradeDialog(QStandardItemModel *playerModel, QStandardItemModel *ba
         bankItemModel->appendRow(new QStandardItem(item));
     }
 */
-    setupUi(); 
+    setupUi();
     createConnections();
 }
 
 void TradeDialog::setupUi()
 {
     setWindowTitle("Item Trade: Player <-> Bank");
-    setMinimumSize(600, 400); 
+    setMinimumSize(600, 400);
     QVBoxLayout *mainVLayout = new QVBoxLayout(this);
     QLabel *titleLabel = new QLabel("Transfer Items Between Inventory and Bank", this);
     titleLabel->setAlignment(Qt::AlignCenter);
@@ -103,12 +103,12 @@ void TradeDialog::moveSelectedItem(QListView *sourceView, QStandardItemModel *so
     }
 }
 
-void TradeDialog::on_depositItemButton_clicked() 
+void TradeDialog::on_depositItemButton_clicked()
 {
     moveSelectedItem(playerListView, playerItemModel, bankItemModel);
 }
 
-void TradeDialog::on_withdrawItemButton_clicked() 
+void TradeDialog::on_withdrawItemButton_clicked()
 {
     moveSelectedItem(bankListView, bankItemModel, playerItemModel);
 }
@@ -147,7 +147,6 @@ void TradeDialog::on_closeButton_clicked()
                 updatedBankItems << hi;
             }
         }
-        //gsm->setBankInventory(updatedBankItems);
     }
     accept();
 }

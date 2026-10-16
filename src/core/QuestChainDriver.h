@@ -25,7 +25,6 @@ public:
     };
 
     // Check live state, grant rewards for any newly completed steps, and
-    // return what was granted. Safe to call after every victory.
     static AdvanceResult advance();
 
     // True when the chain is complete (Prince of Devils defeated).

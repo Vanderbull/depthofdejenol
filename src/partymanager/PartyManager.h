@@ -21,7 +21,7 @@ public:
 
     // Level-up stat gains
     void applyLevelUpGains(Character& c);
-    
+
     // Data conversion (for UI/Saving)
     QVariantMap getPartyAsMap() const { return m_party.toMap(); }
     void loadPartyFromMap(const QVariantMap &map) { m_party.loadFromMap(map); }

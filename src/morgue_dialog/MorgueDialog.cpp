@@ -116,7 +116,7 @@ void MorgueDialog::onActionClicked()
     auto *btn = qobject_cast<QPushButton*>(sender());
     QString action = btn->text();
     auto* gsm = gameStateManager::instance();
-    
+
     QList<DeadCharacterInfo> deadChars = fetchDeadCharacterData();
     if (deadChars.isEmpty()) {
         QMessageBox::information(this, tr("Morgue"), tr("No dead heroes found."));
@@ -133,7 +133,7 @@ void MorgueDialog::onActionClicked()
 
     if (action == tr("Hire Rescuers")) {
         int cost = calculateRescueCost(currentInfo.dungeonLevel);
-        
+
         if (!currentInfo.inCity) {
             cost += 500;
         }

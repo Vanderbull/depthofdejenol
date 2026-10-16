@@ -54,7 +54,7 @@ private:
     void populateSpellList(const QString& category);
     void updateSpellDetails(const QJsonObject& spell);
     void updateManaDisplay();
-    
+
     // Spell effect implementations
     SpellResult castDamageSpell(const QJsonObject& spell);
 public:
@@ -63,7 +63,7 @@ public:
 private:
     SpellResult castBuffSpell(const QJsonObject& spell);
     SpellResult castUtilitySpell(const QJsonObject& spell);
-    
+
     int calculateSpellDamage(const QString& damageRange, int intelligence);
     int calculateHealing(const QString& healAmount, int wisdom);
 
@@ -85,7 +85,7 @@ private:
     SpellResult m_lastResult;
     bool m_spellWasCast = false;
     bool m_inCombat = false;
-    
+
     // Spell categories from spells.json
     QStringList m_categories;
 };

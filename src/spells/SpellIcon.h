@@ -5,8 +5,8 @@
 #include <QString>
 #include <QCache>
 
-// Laddar och cache:ar spell-ikoner från resources/images/spells/.
-// Varje spell-skola har en egen ikon (fire.png, cold.png, etc.).
+// Loads and caches spell icons from resources/images/spells/.
+// Each spell school has its own icon (fire.png, cold.png, etc.).
 class SpellIcon {
 public:
     static QPixmap iconForSchool(const QString& school);

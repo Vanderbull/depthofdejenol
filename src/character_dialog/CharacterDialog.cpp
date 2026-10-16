@@ -50,7 +50,7 @@ void CharacterDialog::updateGameStateValue(const QString& key, const QVariant& v
     }
 }
 
-void CharacterDialog::setupUi() 
+void CharacterDialog::setupUi()
 {
     QVBoxLayout *mainLayout = new QVBoxLayout(this);
     mainLayout->setContentsMargins(10, 10, 10, 10);
@@ -69,10 +69,7 @@ void CharacterDialog::setupUi()
     tabWidget->addTab(resistanceTab, "Resist");
     tabWidget->addTab(charTab, "Char");
     tabWidget->addTab(guildTab, "Guild");
-    //QVBoxLayout *lookLayout = new QVBoxLayout(lookTab);
-    //QVBoxLayout *miscLayout = new QVBoxLayout(miscTab);
     QVBoxLayout *statsLayout = new QVBoxLayout(statsTab);
-    //QVBoxLayout *charLayout = new QVBoxLayout(charTab);
     // Identity Header (Class and Level)
     QFrame *headerFrame = new QFrame();
     headerFrame->setFrameStyle(QFrame::Panel | QFrame::Sunken);

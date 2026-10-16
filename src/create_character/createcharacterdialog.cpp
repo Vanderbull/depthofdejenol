@@ -25,10 +25,10 @@
 // Global constant for the property key used in the SpinBoxes
 const static char* PROPERTY_PREVIOUS_VALUE = "previousValue";
 // Helper function to update alignment
-void CreateCharacterDialog::updateAlignmentOptions(const RaceStats& race) 
+void CreateCharacterDialog::updateAlignmentOptions(const RaceStats& race)
 {
     // RAII approach to blocking signals: automatically unblocks when 'blocker' goes out of scope
-    QSignalBlocker blocker(this->alignmentBox);    
+    QSignalBlocker blocker(this->alignmentBox);
     this->alignmentBox->clear();
     const QStringList allAlignments = GameConstants::ALIGNMENT_NAMES;
     //const QStringList allAlignments = gameStateManager::alignmentNames();
@@ -48,7 +48,7 @@ void CreateCharacterDialog::updateAlignmentOptions(const RaceStats& race)
     this->alignmentBox->setCurrentIndex(defaultIndex != -1 ? defaultIndex : 0);
 }
 // Helper to update guild list styling based on race eligibility
-void CreateCharacterDialog::updateGuildListStyle(const RaceStats& race) 
+void CreateCharacterDialog::updateGuildListStyle(const RaceStats& race)
 {
     if (!this->guildsListWidget) return;
 
@@ -72,7 +72,7 @@ void CreateCharacterDialog::updateGuildListStyle(const RaceStats& race)
     }
 }
 // Slot implementation to update all race-specific UI elements and reset stat points
-void CreateCharacterDialog::updateRaceStats(int index) 
+void CreateCharacterDialog::updateRaceStats(int index)
 {
     if (index < 0 || index >= raceData.size()) {
         return;
@@ -110,11 +110,11 @@ void CreateCharacterDialog::updateRaceStats(int index)
     this->statPointsLeftLabel->setText(QString("%1 Stat Points Left").arg(GameConstants::DEFAULT_STAT_POINTS));
 }
 
-CreateCharacterDialog::CreateCharacterDialog(const QVector<RaceStats>& raceData, 
-                                             const QVector<QString>& guildData, 
-                                             QWidget *parent) 
-    : QDialog(parent), 
-      raceData(raceData), 
+CreateCharacterDialog::CreateCharacterDialog(const QVector<RaceStats>& raceData,
+                                             const QVector<QString>& guildData,
+                                             QWidget *parent)
+    : QDialog(parent),
+      raceData(raceData),
       guildData(guildData)
 {
     setWindowTitle("Create Character");
@@ -157,7 +157,6 @@ CreateCharacterDialog::CreateCharacterDialog(const QVector<RaceStats>& raceData,
     infoLayout->addWidget(new QLabel("Sex"), 4, 0);
     sexBox = new QComboBox();
     sexBox->addItems(GameConstants::SEX_OPTIONS);
-    //sexBox->addItems(gameStateManager::sexOptions());
     infoLayout->addWidget(sexBox, 5, 0, 1, 2);
     infoLayout->addWidget(new QLabel("Alignment"), 6, 0);
     alignmentBox = new QComboBox();
@@ -202,29 +201,29 @@ CreateCharacterDialog::CreateCharacterDialog(const QVector<RaceStats>& raceData,
         statSpinBoxes.insert(statName, spinBox);
         statRangeLabels.insert(statName, rangeLabel);
         statValueLabels.insert(statName, currentValueLabel);
-	connect(spinBox, QOverload<int>::of(&QSpinBox::valueChanged),
-	                  [currentValueLabel, this, spinBox](int newValue)
+    connect(spinBox, QOverload<int>::of(&QSpinBox::valueChanged),
+                      [currentValueLabel, this, spinBox](int newValue)
         {
-	    gameStateManager* gsm = gameStateManager::instance();
-	    int currentPoints = gsm->getGameValue("CurrentCharacterStatPointsLeft").toInt();
-	    int oldValue = spinBox->property(PROPERTY_PREVIOUS_VALUE).toInt();
-	    int change = newValue - oldValue;
+        gameStateManager* gsm = gameStateManager::instance();
+        int currentPoints = gsm->getGameValue("CurrentCharacterStatPointsLeft").toInt();
+        int oldValue = spinBox->property(PROPERTY_PREVIOUS_VALUE).toInt();
+        int change = newValue - oldValue;
 
-	    if (change == 0) return;
+        if (change == 0) return;
 
-	    if (change > 0) {
-	        if (currentPoints >= change) { 
-	            currentPoints -= change;
-	        } else {
-	            // ... (warning code)
-	            return; 
-	        }
-	    } else { 
-	        currentPoints -= change;
-	    }
-	    gsm->setGameValue("CurrentCharacterStatPointsLeft", currentPoints);
-	    spinBox->setProperty(PROPERTY_PREVIOUS_VALUE, newValue);
-            updateSpinBoxLimits();            
+        if (change > 0) {
+            if (currentPoints >= change) {
+                currentPoints -= change;
+            } else {
+                // ... (warning code)
+                return;
+            }
+        } else {
+            currentPoints -= change;
+        }
+        gsm->setGameValue("CurrentCharacterStatPointsLeft", currentPoints);
+        spinBox->setProperty(PROPERTY_PREVIOUS_VALUE, newValue);
+            updateSpinBoxLimits();
             currentValueLabel->setText(QString::number(newValue));
             this->statPointsLeftLabel->setText(QString("%1 Stat Points Left").arg(currentPoints));
         });
@@ -279,9 +278,9 @@ CreateCharacterDialog::CreateCharacterDialog(const QVector<RaceStats>& raceData,
     connect(tutorialButton, &QPushButton::clicked, this, &CreateCharacterDialog::onTutorialClicked);
 }
 
-void CreateCharacterDialog::updateSpinBoxLimits() 
+void CreateCharacterDialog::updateSpinBoxLimits()
 {
-    int pointsLeft = gameStateManager::instance()->getGameValue("CurrentCharacterStatPointsLeft").toInt();    
+    int pointsLeft = gameStateManager::instance()->getGameValue("CurrentCharacterStatPointsLeft").toInt();
     // Get the data for the currently selected race
     const RaceStats& selectedRace = raceData.at(raceBox->currentIndex());
     // Create a local mapping for easy lookup during the loop
@@ -295,30 +294,30 @@ void CreateCharacterDialog::updateSpinBoxLimits()
     for (const QString& statName : GameConstants::STAT_NAMES) {
         QSpinBox* sb = statSpinBoxes.value(statName);
         if (!sb) continue;
-        
+
         RaceStat raceStat = statMap.value(statName);
-        sb->blockSignals(true);        
+        sb->blockSignals(true);
         // The maximum is the lower of:
         // 1. The absolute racial maximum (e.g., 18)
         // 2. The current value + whatever points are remaining in the pool
         int allowedMax = qMin(raceStat.max, sb->value() + pointsLeft);
-        
+
         sb->setMaximum(allowedMax);
         sb->blockSignals(false);
     }
 }
 
-void CreateCharacterDialog::onRaceStatsClicked() 
+void CreateCharacterDialog::onRaceStatsClicked()
 {
     QMessageBox::information(this, "Race Stats", "Displaying details for: " + raceBox->currentText());
 }
 
-void CreateCharacterDialog::onGuildStatsClicked() 
+void CreateCharacterDialog::onGuildStatsClicked()
 {
     QMessageBox::information(this, "Guild Stats", "Displaying details for available guilds.");
 }
 
-void CreateCharacterDialog::onSaveCharacterClicked() 
+void CreateCharacterDialog::onSaveCharacterClicked()
 {
     //gameStateManager::instance()->syncActiveCharacterToParty();
     gameStateManager::instance()->refreshUI();
@@ -334,7 +333,7 @@ void CreateCharacterDialog::onSaveCharacterClicked()
     }
     QListWidgetItem* selectedGuildItem = guildsListWidget->currentItem();
     QString selectedGuild = (selectedGuildItem && (selectedGuildItem->flags() & Qt::ItemIsEnabled)) ? selectedGuildItem->text() : "None";
-    // Update Game State Manager 
+    // Update Game State Manager
     gameStateManager* gsm = gameStateManager::instance();
     gsm->setGameValue("CurrentCharacterName", characterName);
     gsm->setGameValue("CurrentCharacterRace", raceBox->currentText());
@@ -400,12 +399,12 @@ void CreateCharacterDialog::onSaveCharacterClicked()
     QDialog::accept();
 }
 
-void CreateCharacterDialog::onTutorialClicked() 
+void CreateCharacterDialog::onTutorialClicked()
 {
     QMessageBox::information(this, "Tutorial", "Instructions for character creation...");
 }
 
-void CreateCharacterDialog::onExitClicked() 
+void CreateCharacterDialog::onExitClicked()
 {
     this->reject();
 }

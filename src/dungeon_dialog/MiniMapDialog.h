@@ -15,10 +15,10 @@
 class MinimapDialog : public QDialog {
     Q_OBJECT
 public:
-    explicit MinimapDialog(QWidget *parent = nullptr) : QDialog(parent) 
+    explicit MinimapDialog(QWidget *parent = nullptr) : QDialog(parent)
     {
         setWindowTitle("Dungeon Automap");
-        resize(450, 500);        
+        resize(450, 500);
         QVBoxLayout *layout = new QVBoxLayout(this);
         // Reveal-all is a real option now (Options dialog > Gameplay), not a
         // debug switch: it is loaded from and written back to GameSettings.
@@ -35,11 +35,11 @@ public:
             emit requestMapUpdate();
         });
     }
-    bool isRevealAllEnabled() const 
-    { 
+    bool isRevealAllEnabled() const
+    {
         return m_revealAllCheck->isChecked();
     }
-    void updateScene(QGraphicsScene *newScene) 
+    void updateScene(QGraphicsScene *newScene)
     {
         m_view->setScene(newScene);
         m_view->fitInView(newScene->sceneRect(), Qt::KeepAspectRatio);
@@ -50,7 +50,7 @@ private:
     QGraphicsView *m_view;
     QCheckBox *m_revealAllCheck;
 protected:
-    void keyPressEvent(QKeyEvent *event) override 
+    void keyPressEvent(QKeyEvent *event) override
     {
         if (parent()) {
                 // Correct way to forward events to another object
