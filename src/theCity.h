@@ -75,7 +75,6 @@ private:
     QToolButton *bestiaryButton;
     QToolButton *journalButton;
     QToolButton *npcButton;
-    QToolButton *exitButton;
     QToolButton *arenaButton;
 
     // UI Elements - Multiplayer

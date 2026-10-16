@@ -161,8 +161,6 @@ void theCity::setupUi()
     journalButton->setObjectName("journalButton");
     npcButton = new QToolButton(this);
     npcButton->setObjectName("npcButton");
-    exitButton = new QToolButton(this);
-    exitButton->setObjectName("exitButton");
     arenaButton = new QToolButton(this);
     arenaButton->setObjectName("arenaButton");
 
@@ -181,7 +179,6 @@ void theCity::setupUi()
     gridLayout->addWidget(bestiaryButton,      2, 3);
     gridLayout->addWidget(journalButton,       3, 0);
     gridLayout->addWidget(npcButton,           3, 1);
-    gridLayout->addWidget(exitButton,          3, 2);
     gridLayout->addWidget(arenaButton,         4, 0);
     
     midLayout->addLayout(gridLayout);
@@ -217,7 +214,6 @@ void theCity::setupUi()
     connect(bestiaryButton,       &QToolButton::clicked, this, &theCity::handleLocationClick);
     connect(journalButton,        &QToolButton::clicked, this, &theCity::handleLocationClick);
     connect(npcButton,            &QToolButton::clicked, this, &theCity::handleLocationClick);
-    connect(exitButton,           &QToolButton::clicked, this, &theCity::handleLocationClick);
     connect(arenaButton,          &QToolButton::clicked, this, &theCity::on_arenaButton_clicked);
 
     connect(sendButton,        &QPushButton::clicked, this, &theCity::sendChatMessage);
@@ -337,10 +333,6 @@ void theCity::loadButtonIcons()
     npcButton->setIconSize(iconSize);
     npcButton->setToolTip("Talk to NPCs");
 
-    exitButton->setIcon(QIcon(GameResources::getPixmap("exit_icon")));
-    exitButton->setIconSize(iconSize);
-    exitButton->setToolTip("Exit to main menu");
-
     arenaButton->setIcon(QIcon(GameResources::getPixmap("npc")));
     arenaButton->setIconSize(iconSize);
     arenaButton->setToolTip("Arena");
@@ -371,7 +363,7 @@ void theCity::syncFontsToAppFont() {
         confinementButton, seerButton, bankButton, tavernButton,
         libraryButton, questBoardButton, questChainButton,
         characterSheetButton, bestiaryButton, journalButton, npcButton,
-        exitButton, arenaButton, sendButton
+        arenaButton, sendButton
     };
     for (QWidget *w : synced) {
         if (!w)
@@ -588,6 +580,9 @@ void theCity::keyPressEvent(QKeyEvent *event) {
     case Qt::Key_P:
         on_questBoardButton_clicked();
         break;
+    case Qt::Key_Escape:
+        on_exitButton_clicked();
+        break;
     default:
         QDialog::keyPressEvent(event);
         break;
@@ -706,10 +701,6 @@ void theCity::handleLocationClick() {
     }
     else if (binder == dungeonButton) {
         on_dungeonButton_clicked();
-        return;
-    }
-    else if (binder == exitButton) {
-        on_exitButton_clicked();
         return;
     }
     // Add Tavern, Temple, or Morgue here easily...

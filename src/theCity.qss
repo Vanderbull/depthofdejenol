@@ -91,16 +91,6 @@ QToolButton#bankButton:hover {
     background-color: #3a4a3a;
 }
 
-QToolButton#exitButton {
-    background-color: #4a2a2a;
-    border-color: #7a3a3a;
-    color: #ff6060;
-}
-QToolButton#exitButton:hover {
-    background-color: #5a3a3a;
-    color: #ff8080;
-}
-
 /* Multiplayer section */
 QListWidget#playerList {
     background-color: #1a1a2e;
