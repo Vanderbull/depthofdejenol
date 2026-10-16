@@ -52,6 +52,21 @@ See [RELEASE_NOTES.md](RELEASE_NOTES.md) for the full version history.
 
 ---
 
+## Game Data
+
+> **Disclaimer:** The books below list every monster, spell, and item with full
+> stats. Reading them will spoil encounters, weaknesses, and loot discoveries.
+> The in-game Bestiary, Spellbook, and item descriptions only reveal what you
+> have met, learned, or identified. Play first, read later.
+
+| Book | Contents |
+|------|----------|
+| [docs/MONSTERS.md](docs/MONSTERS.md) | 401 monsters with stats, abilities, and resistances |
+| [docs/SPELLS.md](docs/SPELLS.md) | 100 spells across 18 schools with mana, damage, and guilds |
+| [docs/ITEMS.md](docs/ITEMS.md) | 370 items with stats, prices, and where they appear |
+
+---
+
 ## Building
 
 ### Prerequisites
