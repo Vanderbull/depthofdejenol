@@ -247,6 +247,9 @@ void runWorldSaveTests()
         // Set CurrentCharacterName so handleAutosave doesn't skip
         gameStateManager::instance()->setGameValue("CurrentCharacterName", "AutoHero");
 
+        // Ensure autosave falls back to "autosave" (no custom save name set)
+        gameStateManager::instance()->setCurrentSaveName("");
+
         // Call the real autosave handler
         gameStateManager::instance()->handleAutosave();
 

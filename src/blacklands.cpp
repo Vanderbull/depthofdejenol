@@ -465,7 +465,7 @@ void GameMenu::loadGame() {
 void GameMenu::saveGame() {
     bool ok;
     QString name = QInputDialog::getText(this, tr("Save Game"),
-        tr("Save name:"), QLineEdit::Normal, tr("save"), &ok);
+        tr("Save name:"), QLineEdit::Normal, tr("Party1"), &ok);
     if (!ok || name.isEmpty()) return;
 
     // Sanitize: no path separators, no ..
@@ -481,11 +481,10 @@ void GameMenu::saveGame() {
 }
 
 void GameMenu::onCharacterCreated(const QString &characterName) {
-    // CreateCharacterDialog already saved the character to data/characters/
-    // and added it to the party. Just enter the city.
-
-    gameStateManager::instance()->startAutosave(10000); // 10s intervals
-    enterCity();
+    // CreateCharacterDialog already saved the character to data/characters/.
+    // Return to the main menu so the user can assemble a party and start a game.
+    gameStateManager::instance()->saveFullGameState("autosave");
+    show();
 }
 
 void GameMenu::quitGame() {
@@ -508,21 +507,28 @@ void GameMenu::startNewGame() {
     // a fresh start never inherits stale floors or items.
     DungeonLevelRegistry::instance().clear();
 
-    // Start with an empty party.
+    // Clear the party so the user must assemble a fresh one.
     gameStateManager::instance()->getPartyMembers().clear();
 
-    // A new game requires at least one character. Open the character creation
-    // dialog — if the user cancels, no game is started.
-    auto *dialog = new CreateCharacterDialog(loadRaceData(), loadGuildData(), this);
-    dialog->setAttribute(Qt::WA_DeleteOnClose);
-    connect(dialog, &CreateCharacterDialog::characterCreated, this, [this](const QString &name) {
+    // Always start with creating a new character.
+    auto *createDialog = new CreateCharacterDialog(loadRaceData(), loadGuildData(), this);
+    createDialog->setAttribute(Qt::WA_DeleteOnClose);
 
-        // Write the initial game state so Continue works.
-        gameStateManager::instance()->saveFullGameState("autosave");
-        gameStateManager::instance()->startAutosave(10000);
-        enterCity();
+    connect(createDialog, &CreateCharacterDialog::characterCreated, this, [this](const QString &) {
+        // After character creation, open the party assembler.
+        auto *assembleDialog = new AssemblePartyDialog(this);
+        assembleDialog->setAttribute(Qt::WA_DeleteOnClose);
+
+        // Start the game only when the user saves the assembled party.
+        connect(assembleDialog, &AssemblePartyDialog::partySaved, this, [this]() {
+            gameStateManager::instance()->startAutosave(10000);
+            enterCity();
+        });
+
+        assembleDialog->show();
     });
-    dialog->show();
+
+    createDialog->show();
 }
 
 void GameMenu::onCreateCharacterClicked() {

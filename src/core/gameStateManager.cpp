@@ -817,11 +817,21 @@ void gameStateManager::handleAutosave() {
     // Sync the live UI/Game values to the Party structure first
     refreshUI();
 
-    // Save the full game state (party + inventory + everything)
+    // Save the full game state (party + inventory + everything).
+    // Always write to "autosave" for backward compatibility, and also to the
+    // party's current save name when one is set.
     if (saveFullGameState("autosave")) {
         qDebug() << "Autosave successful.";
     } else {
         qWarning() << "Autosave failed!";
+    }
+
+    if (!m_currentSaveName.isEmpty() && m_currentSaveName != "autosave") {
+        if (saveFullGameState(m_currentSaveName)) {
+            qDebug() << "Autosave also saved to:" << m_currentSaveName;
+        } else {
+            qWarning() << "Autosave to current save failed!";
+        }
     }
 }
 
@@ -2050,6 +2060,8 @@ bool gameStateManager::saveFullGameState(const QString& saveName) {
     //    failed on every save after the first one (e.g. the periodic autosave,
     //    which targets the same path over and over). QSaveFile writes to a
     //    temporary file and atomically replaces the target on commit().
+    m_currentSaveName = saveName;
+
     QString filePath = QString("data/saves/%1.json").arg(saveName);
     QSaveFile file(filePath);
 

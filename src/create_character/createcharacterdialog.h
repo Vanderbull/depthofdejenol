@@ -30,10 +30,7 @@ signals:
     void characterCreated(const QString &characterName);
 private slots:
     void updateRaceStats(int index);
-    void onRaceStatsClicked();
-    void onGuildStatsClicked();
     void onSaveCharacterClicked();
-    void onTutorialClicked();
     void onExitClicked();
 private:
     // Helper Functions
@@ -45,6 +42,7 @@ private:
     QComboBox *raceBox = nullptr;
     QComboBox *sexBox = nullptr;
     QComboBox *alignmentBox = nullptr;
+    QSpinBox *ageSpinBox = nullptr;
     QListWidget *guildsListWidget = nullptr;
     // Stat Distribution Components
     QMap<QString, QSpinBox*> statSpinBoxes;

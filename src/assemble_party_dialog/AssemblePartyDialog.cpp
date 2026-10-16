@@ -121,6 +121,12 @@ void AssemblePartyDialog::loadAvailableCharacters()
     filters << "*.json";
     QFileInfoList files = dir.entryInfoList(filters, QDir::Files, QDir::Name);
 
+    // Build a set of names already in the current party so we can hide them.
+    QSet<QString> partyNames;
+    for (const Character &c : gameStateManager::instance()->getPartyMembers()) {
+        partyNames.insert(c.name);
+    }
+
     for (const QFileInfo &fi : files) {
         QFile f(fi.absoluteFilePath());
         if (!f.open(QIODevice::ReadOnly)) continue;
@@ -135,6 +141,9 @@ void AssemblePartyDialog::loadAvailableCharacters()
         bool alive = obj.value("isAlive").toBool(true);
 
         if (name.isEmpty()) continue;
+
+        // Skip characters already in the current party.
+        if (partyNames.contains(name)) continue;
 
         QString label = QString("%1 — %2 (Lv %3)").arg(name, race).arg(level);
         if (!alive) label += tr(" [DEAD]");
@@ -247,6 +256,7 @@ void AssemblePartyDialog::onSaveClicked()
     if (gameStateManager::instance()->saveFullGameState("autosave")) {
         QMessageBox::information(this, tr("Party Saved"),
             tr("Party saved successfully."));
+        emit partySaved();
         accept();
     } else {
         QMessageBox::critical(this, tr("Save Error"),

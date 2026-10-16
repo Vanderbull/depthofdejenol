@@ -106,6 +106,14 @@ void CreateCharacterDialog::updateRaceStats(int index)
     }
     updateAlignmentOptions(selectedRace);
     updateGuildListStyle(selectedRace);
+    if (ageSpinBox) {
+        ageSpinBox->blockSignals(true);
+        ageSpinBox->setRange(18, selectedRace.maxAge);
+        if (ageSpinBox->value() > selectedRace.maxAge) {
+            ageSpinBox->setValue(selectedRace.maxAge);
+        }
+        ageSpinBox->blockSignals(false);
+    }
     gameStateManager::instance()->setGameValue("CurrentCharacterStatPointsLeft", GameConstants::DEFAULT_STAT_POINTS);
     this->statPointsLeftLabel->setText(QString("%1 Stat Points Left").arg(GameConstants::DEFAULT_STAT_POINTS));
 }
@@ -161,6 +169,11 @@ CreateCharacterDialog::CreateCharacterDialog(const QVector<RaceStats>& raceData,
     infoLayout->addWidget(new QLabel("Alignment"), 6, 0);
     alignmentBox = new QComboBox();
     infoLayout->addWidget(alignmentBox, 7, 0, 1, 2);
+    infoLayout->addWidget(new QLabel("Age"), 8, 0);
+    ageSpinBox = new QSpinBox();
+    ageSpinBox->setRange(18, 80);
+    ageSpinBox->setValue(18);
+    infoLayout->addWidget(ageSpinBox, 9, 0, 1, 2);
     contentLayout->addLayout(infoLayout);
     contentLayout->addStretch(1);
     // Middle Column: Stats
@@ -260,22 +273,14 @@ CreateCharacterDialog::CreateCharacterDialog(const QVector<RaceStats>& raceData,
     QHBoxLayout *bottomLayout = new QHBoxLayout();
     bottomLayout->setSpacing(20);
     bottomLayout->setAlignment(Qt::AlignCenter);
-    QPushButton *raceStatsButton = new QPushButton("Race Stats");
-    QPushButton *guildStatsButton = new QPushButton("Guild Stats");
     QPushButton *saveButton = new QPushButton("Save Character");
-    QPushButton *tutorialButton = new QPushButton("Tutorial");
     QPushButton *exitButton = new QPushButton("Exit");
-    bottomLayout->addWidget(raceStatsButton);
-    bottomLayout->addWidget(guildStatsButton);
     bottomLayout->addWidget(saveButton);
-    bottomLayout->addWidget(tutorialButton);
     bottomLayout->addWidget(exitButton);
     mainLayout->addLayout(bottomLayout);
     connect(exitButton, &QPushButton::clicked, this, &CreateCharacterDialog::onExitClicked);
-    connect(raceStatsButton, &QPushButton::clicked, this, &CreateCharacterDialog::onRaceStatsClicked);
-    connect(guildStatsButton, &QPushButton::clicked, this, &CreateCharacterDialog::onGuildStatsClicked);
     connect(saveButton, &QPushButton::clicked, this, &CreateCharacterDialog::onSaveCharacterClicked);
-    connect(tutorialButton, &QPushButton::clicked, this, &CreateCharacterDialog::onTutorialClicked);
+
 }
 
 void CreateCharacterDialog::updateSpinBoxLimits()
@@ -305,16 +310,6 @@ void CreateCharacterDialog::updateSpinBoxLimits()
         sb->setMaximum(allowedMax);
         sb->blockSignals(false);
     }
-}
-
-void CreateCharacterDialog::onRaceStatsClicked()
-{
-    QMessageBox::information(this, "Race Stats", "Displaying details for: " + raceBox->currentText());
-}
-
-void CreateCharacterDialog::onGuildStatsClicked()
-{
-    QMessageBox::information(this, "Guild Stats", "Displaying details for available guilds.");
 }
 
 void CreateCharacterDialog::onSaveCharacterClicked()
@@ -354,7 +349,7 @@ void CreateCharacterDialog::onSaveCharacterClicked()
     Character c;
     c.name = characterName;
     c.race = raceBox->currentText();
-    c.age = 18;
+    c.age = ageSpinBox ? ageSpinBox->value() : 18;
     c.level = 1;
     c.isAlive = true;
     for (const QString& statName : GameConstants::STAT_NAMES) {
@@ -397,11 +392,6 @@ void CreateCharacterDialog::onSaveCharacterClicked()
     QMessageBox::information(this, "Save Character", QString("Character **%1** saved successfully.").arg(characterName));
     emit characterCreated(characterName);
     QDialog::accept();
-}
-
-void CreateCharacterDialog::onTutorialClicked()
-{
-    QMessageBox::information(this, "Tutorial", "Instructions for character creation...");
 }
 
 void CreateCharacterDialog::onExitClicked()

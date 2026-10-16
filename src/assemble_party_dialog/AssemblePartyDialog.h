@@ -26,6 +26,9 @@ public:
     explicit AssemblePartyDialog(QWidget *parent = nullptr);
     ~AssemblePartyDialog();
 
+signals:
+    void partySaved();
+
 private slots:
     void onAddClicked();
     void onRemoveClicked();
