@@ -9,6 +9,8 @@
 
 - **Total guilds:** 9
 
+![Guilds](resources/images/guilds.png)
+
 ## Guild Table
 
 | Guild | Max Level | Alignment | Quest % | Exp Factor | Level Mod | Req Stats |

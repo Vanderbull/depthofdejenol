@@ -12,6 +12,8 @@
 - **Bosses:** Every 3rd floor (3, 6, 9, 12, 15)
 - **Special tiles:** Fog, rotator, extinguisher, chute, antimagic, dig, door
 
+![Dungeon](resources/images/dungeon.png)
+
 ## Floor Table
 
 | Floor | Theme | Difficulty | Recommended Level | Boss |
@@ -34,16 +36,18 @@
 
 ## Special Tiles
 
-- **Fog** — blocks vision, cleared by Light spell or torch
-- **Rotator** — rotates the party's facing direction
-- **Extinguisher** — removes fog in the area
-- **Chute** — drops the party to the next floor
-- **Antimagic** — prevents spellcasting in the area
-- **Dig** — can be dug through to reveal hidden passages
-- **Door** — may be locked, trapped, or secret
+| Tile | Image | Function |
+|------|-------|----------|
+| Fog | ![Fog](resources/images/fog.png) | Blocks vision, cleared by Light spell or torch |
+| Rotator | ![Rotator](resources/images/rotator.png) | Rotates the party's facing direction |
+| Extinguisher | ![Extinguisher](resources/images/extinguisher.png) | Removes fog in the area |
+| Chute | ![Chute](resources/images/chute.png) | Drops the party to the next floor |
+| Antimagic | ![Antimagic](resources/images/antimagic.png) | Prevents spellcasting in the area |
+| Dig | ![Dig](resources/images/dig.png) | Can be dug through to reveal hidden passages |
+| Door | ![Door](resources/images/door.png) | May be locked, trapped, or secret |
 
 ## Tile Progression
 
-- Floors 1–5: Basic tiles, few secrets
-- Floors 6–10: More secret doors, traps, and locked doors
-- Floors 11–15: Complex layouts, many secrets, boss arenas
+- Floors 1-5: Basic tiles, few secrets
+- Floors 6-10: More secret doors, traps, and locked doors
+- Floors 11-15: Complex layouts, many secrets, boss arenas

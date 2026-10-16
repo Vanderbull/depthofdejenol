@@ -9,6 +9,8 @@
 
 - **Total items:** 370
 
+![Treasure](resources/images/treasure.png)
+
 ## Item Table
 
 | Name | Type | Att | Def | Price | Floor |

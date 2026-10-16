@@ -9,6 +9,8 @@
 
 - **Total races:** 6
 
+![Warrior](resources/images/warrior.png)
+
 ## Race Table
 
 | Race | Align | Bonus Pts | Exp Factor | Max Age | Size | Str | Int | Wis | Con | Cha | Dex |

@@ -36,3 +36,5 @@
 - **HP gain:** ~+12 per level (party of 4)
 - **Attack gain:** ~+3 per level per member
 - **Mana gain:** +5 per level
+
+![Character Sheet](resources/images/character_sheet.png)

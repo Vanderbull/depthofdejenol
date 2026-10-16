@@ -10,6 +10,8 @@
   at line 2, so only the readable portion is documented here)
 - **Contents:** Laired monster locations, attributes, and notes
 
+![Bestiary](resources/images/bestiary.png)
+
 ## Laired Monsters
 
 | Name | Level | Location | Size | Resistances | Notes |
@@ -31,7 +33,7 @@ reveals laired monsters as you find them.
 For each laired monster:
 
 - **name** — monster name
-- **level** — dungeon floor (1–15)
+- **level** — dungeon floor (1-15)
 - **locations** — x,y coordinates on the dungeon map
 - **attributes** — size, resistances, lore notes
 - **known_drops** — what the monster drops when killed

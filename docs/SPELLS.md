@@ -9,9 +9,9 @@
 - **Total schools:** 18
 - **Total spells:** 100
 
-## Spells by School
+## Spell Schools
 
-### Banish
+### ![banish](resources/images/spells/banish.png) Banish
 
 | Spell | Mana | Damage | Level | Guilds | Stats |
 |-------|------|--------|-------|--------|-------|
@@ -19,7 +19,7 @@
 | Banish Demon | 50 | Instant Banish | 6 | Healers Guild, Paladins Guild | wisdom:25 |
 | Banish Undead | 50 | Instant Banish | 6 | Healers Guild, Paladins Guild | wisdom:25 |
 
-### Bind
+### ![bind](resources/images/spells/bind.png) Bind
 
 | Spell | Mana | Damage | Level | Guilds | Stats |
 |-------|------|--------|-------|--------|-------|
@@ -29,7 +29,7 @@
 | Bind Monster | 25 | None | 5 | Sorcerers Guild | intelligence:20 |
 | Domination | 50 | None | 12 | Mages Guild | intelligence:18, wisdom:18, constitution:18, charisma:18 |
 
-### Charm
+### ![charm](resources/images/spells/charm.png) Charm
 
 | Spell | Mana | Damage | Level | Guilds | Stats |
 |-------|------|--------|-------|--------|-------|
@@ -44,7 +44,7 @@
 | Bind Elemental | 30 | None | 6 | Mages Guild | intelligence:15, wisdom:15, charisma:12 |
 | Charm Monster | 50 | None | 7 | Wizards Guild, Villains Guild | charisma:25 |
 
-### Cold
+### ![cold](resources/images/spells/cold.png) Cold
 
 | Spell | Mana | Damage | Level | Guilds | Stats |
 |-------|------|--------|-------|--------|-------|
@@ -56,7 +56,7 @@
 | Frostbite | 55 | 60-90 | 6 | Sorcerers Guild, Wizards Guild | intelligence:12 |
 | Blizzard | 75 | 50-100 | 7 | Wizards Guild | intelligence:30 |
 
-### Damage
+### ![damage](resources/images/spells/damage.png) Damage
 
 | Spell | Mana | Damage | Level | Guilds | Stats |
 |-------|------|--------|-------|--------|-------|
@@ -68,7 +68,7 @@
 | Greater Harm | 30 | 30-50 | 5 | Healers Guild, Wizards Guild | wisdom:18 |
 | Disintegrate | 50 | 40-80 | 7 | Wizards Guild | intelligence:15 |
 
-### Dispel
+### ![dispel](resources/images/spells/dispel.png) Dispel
 
 | Spell | Mana | Damage | Level | Guilds | Stats |
 |-------|------|--------|-------|--------|-------|
@@ -76,7 +76,7 @@
 | Remove Curse | 25 | None | 4 | Healers Guild, Wizards Guild | wisdom:18 |
 | Dispel Magic | 25 | None | 4 | Wizards Guild | intelligence:20 |
 
-### Electrical
+### ![electrical](resources/images/spells/electrical.png) Electrical
 
 | Spell | Mana | Damage | Level | Guilds | Stats |
 |-------|------|--------|-------|--------|-------|
@@ -87,7 +87,7 @@
 | Storm | 50 | 40-70 | 8 | Wizards Guild | intelligence:28 |
 | Thunderstorm | 75 | 60-100 | 8 | Wizards Guild | intelligence:15 |
 
-### Element
+### ![element](resources/images/spells/element.png) Element
 
 | Spell | Mana | Damage | Level | Guilds | Stats |
 |-------|------|--------|-------|--------|-------|
@@ -99,7 +99,7 @@
 | Poison Cloud | 30 | 15-25 | 5 | Sorcerers Guild, Wizards Guild | intelligence:22 |
 | Diamond Skin | 50 | None | 7 | Wizards Guild | intelligence:30 |
 
-### Fire
+### ![fire](resources/images/spells/fire.png) Fire
 
 | Spell | Mana | Damage | Level | Guilds | Stats |
 |-------|------|--------|-------|--------|-------|
@@ -111,7 +111,7 @@
 | Lava Burst | 55 | 60-90 | 6 | Sorcerers Guild, Wizards Guild | intelligence:12 |
 | Inferno | 75 | 70-120 | 7 | Wizards Guild | intelligence:30 |
 
-### Heal
+### ![heal](resources/images/spells/heal.png) Heal
 
 | Spell | Mana | Damage | Level | Guilds | Stats |
 |-------|------|--------|-------|--------|-------|
@@ -124,7 +124,7 @@
 | Heal | 25 | None | 4 | Healers Guild, Paladins Guild | wisdom:20 |
 | Resurrect | 50 | None | 7 | Healers Guild, Paladins Guild | wisdom:30 |
 
-### Kill
+### ![kill](resources/images/spells/kill.png) Kill
 
 | Spell | Mana | Damage | Level | Guilds | Stats |
 |-------|------|--------|-------|--------|-------|
@@ -134,7 +134,7 @@
 | Annihilate | 80 | Instant Kill | 10 | Wizards Guild | intelligence:32 |
 | Destroy | 100 | Instant Kill | 12 | Wizards Guild | intelligence:35 |
 
-### Location
+### ![location](resources/images/spells/location.png) Location
 
 | Spell | Mana | Damage | Level | Guilds | Stats |
 |-------|------|--------|-------|--------|-------|
@@ -144,7 +144,7 @@
 | Depth Perception | 15 | None | 3 | Seekers Guild | wisdom:14 |
 | Locate Object | 20 | None | 4 | Seekers Guild, Wizards Guild | wisdom:16 |
 
-### Magical
+### ![magical](resources/images/spells/magical.png) Magical
 
 | Spell | Mana | Damage | Level | Guilds | Stats |
 |-------|------|--------|-------|--------|-------|
@@ -153,7 +153,7 @@
 | Antimagic Shell | 30 | None | 5 | Wizards Guild | intelligence:22 |
 | Arcane Barrage | 40 | 35-65 | 6 | Mages Guild, Wizards Guild | intelligence:12 |
 
-### Mind
+### ![mind](resources/images/spells/mind.png) Mind
 
 | Spell | Mana | Damage | Level | Guilds | Stats |
 |-------|------|--------|-------|--------|-------|
@@ -164,7 +164,7 @@
 | Fear | 50 | None | 5 | Sorcerers Guild, Wizards Guild | intelligence:20 |
 | Insanity | 75 | Instant Kill | 8 | Wizards Guild | intelligence:35 |
 
-### Movement
+### ![movement](resources/images/spells/movement.png) Movement
 
 | Spell | Mana | Damage | Level | Guilds | Stats |
 |-------|------|--------|-------|--------|-------|
@@ -173,7 +173,7 @@
 | Return | 20 | None | 4 | Wizards Guild | intelligence:20 |
 | Teleport | 25 | None | 5 | Wizards Guild | intelligence:25 |
 
-### Protection
+### ![protection](resources/images/spells/protection.png) Protection
 
 | Spell | Mana | Damage | Level | Guilds | Stats |
 |-------|------|--------|-------|--------|-------|
@@ -182,7 +182,7 @@
 | Sanctuary | 20 | None | 2 | Healers Guild, Paladins Guild | wisdom:14 |
 | Shield | 15 | None | 2 | Sorcerers Guild, Wizards Guild | intelligence:14 |
 
-### Resistant
+### ![resistant](resources/images/spells/resistant.png) Resistant
 
 | Spell | Mana | Damage | Level | Guilds | Stats |
 |-------|------|--------|-------|--------|-------|
@@ -191,7 +191,7 @@
 | Resist Electrical | 10 | None | 2 | Mages Guild | intelligence:12 |
 | Resist Acid | 10 | None | 2 | Mages Guild | intelligence:12 |
 
-### Visual
+### ![visual](resources/images/spells/visual.png) Visual
 
 | Spell | Mana | Damage | Level | Guilds | Stats |
 |-------|------|--------|-------|--------|-------|

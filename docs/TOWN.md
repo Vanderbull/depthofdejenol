@@ -9,26 +9,27 @@
 The town is the hub between dungeon runs. It offers services for
 healing, shopping, banking, guild management, and more.
 
+![Tavern](resources/images/tavern.png)
+
 ## Town Services
 
-| Service | Function | Cost |
-|---------|----------|------|
-| General Store | Buy/sell items, identify loot, uncurse items | Varies |
-| Morgue | Recover bodies of dead party members | Gold |
-| Guilds | Join guilds, learn spells, level up guild rank | Gold |
-| Dungeon | Enter the dungeon | Free |
-| Confinement | View/imprison criminals | Free |
-| Seer | Divination, hints, prophecies | Gold |
-| Bank | Store gold and items for safekeeping | Free |
-| Tavern | Rest (restore HP/mana), rumors, gambling | Gold |
-| Library | Research, lore, bestiary access | Free |
-| Quest Board | Accept quests for rewards | Free |
-| Character Sheet | View/edit character stats and equipment | Free |
-| Bestiary | View identified monsters | Free |
-| Journal | View quest log, victories, deaths | Free |
-| NPC | Talk to townsfolk for hints and lore | Free |
-| Arena | Fight monsters for practice and rewards | Free |
-| Exit | Leave town (quit game) | Free |
+| Image | Service | Function | Cost |
+|-------|---------|----------|------|
+| ![General Store](resources/images/general_store.png) | General Store | Buy/sell items, identify loot, uncurse items | Varies |
+| ![Morgue](resources/images/morgue.png) | Morgue | Recover bodies of dead party members | Gold |
+| ![Guilds](resources/images/guilds.png) | Guilds | Join guilds, learn spells, level up guild rank | Gold |
+| ![Dungeon](resources/images/dungeon.png) | Dungeon | Enter the dungeon | Free |
+| ![Confinement](resources/images/confinement.png) | Confinement | View/imprison criminals | Free |
+| ![Seer](resources/images/seer.png) | Seer | Divination, hints, prophecies | Gold |
+| ![Bank](resources/images/bank.png) | Bank | Store gold and items for safekeeping | Free |
+| ![Tavern](resources/images/tavern.png) | Tavern | Rest (restore HP/mana), rumors, gambling | Gold |
+| ![Library](resources/images/library.png) | Library | Research, lore, bestiary access | Free |
+| ![Quest Board](resources/images/quest_board.png) | Quest Board | Accept quests for rewards | Free |
+| ![Character Sheet](resources/images/character_sheet.png) | Character Sheet | View/edit character stats and equipment | Free |
+| ![Bestiary](resources/images/bestiary.png) | Bestiary | View identified monsters | Free |
+| ![Journal](resources/images/journal.png) | Journal | View quest log, victories, deaths | Free |
+| ![NPC](resources/images/npc.png) | NPC | Talk to townsfolk for hints and lore | Free |
+| ![Exit](resources/images/exit_icon.png) | Exit | Leave town (quit game) | Free |
 
 ## Gold Sinks
 

@@ -9,6 +9,8 @@
 The main quest chain advances from play and grants its rewards.
 Side quests are available from the Quest Board in town.
 
+![Quest Board](resources/images/quest_board.png)
+
 ## Main Quest Chain
 
 | Step | Quest | Reward |
@@ -22,6 +24,7 @@ Side quests are available from the Quest Board in town.
 
 ## Side Quests
 
+Side quests are available from the Quest Board in town. They offer
 gold, XP, and unique items as rewards. The quest board refreshes
 over time.
 
