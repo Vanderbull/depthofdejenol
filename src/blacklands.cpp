@@ -483,7 +483,8 @@ void GameMenu::saveGame() {
 void GameMenu::onCharacterCreated(const QString &characterName) {
     // CreateCharacterDialog already saved the character to data/characters/.
     // Return to the main menu so the user can assemble a party and start a game.
-    gameStateManager::instance()->saveFullGameState("autosave");
+    // Do NOT save the game here — creating a character must not overwrite autosave.
+    refreshContinueState();
     show();
 }
 
@@ -501,18 +502,28 @@ void GameMenu::onOptionsClicked() {
 }
 
 void GameMenu::startNewGame() {
+    // Confirm before wiping any existing game state.
+    if (gameStateManager::instance()->getPartyMembers().size() > 0) {
+        QMessageBox::StandardButton reply = QMessageBox::question(this, tr("Start New Game"),
+            tr("This will clear your current party and start a new game. Continue?"),
+            QMessageBox::Yes | QMessageBox::No);
+        if (reply != QMessageBox::Yes) return;
+    }
+
     audioManager::instance()->stopAllAudio();
 
     // Clear any leftover dungeon / placed-item state from a previous game so
     // a fresh start never inherits stale floors or items.
     DungeonLevelRegistry::instance().clear();
 
-    // Clear the party so the user must assemble a fresh one.
+    // Clear the party and reset the save name so autosave starts fresh.
     gameStateManager::instance()->getPartyMembers().clear();
+    gameStateManager::instance()->setCurrentSaveName("");
 
     // Always start with creating a new character.
     auto *createDialog = new CreateCharacterDialog(loadRaceData(), loadGuildData(), this);
     createDialog->setAttribute(Qt::WA_DeleteOnClose);
+    hide();
 
     connect(createDialog, &CreateCharacterDialog::characterCreated, this, [this](const QString &) {
         // After character creation, open the party assembler.
@@ -521,11 +532,26 @@ void GameMenu::startNewGame() {
 
         // Start the game only when the user saves the assembled party.
         connect(assembleDialog, &AssemblePartyDialog::partySaved, this, [this]() {
+            if (gameStateManager::instance()->getPartyMembers().isEmpty()) {
+                QMessageBox::warning(this, tr("Empty Party"),
+                    tr("You must add at least one character to the party."));
+                return;
+            }
             gameStateManager::instance()->startAutosave(10000);
             enterCity();
         });
 
+        connect(assembleDialog, &QDialog::finished, this, [this](int) {
+            refreshContinueState();
+            show();
+        });
+
         assembleDialog->show();
+    });
+
+    connect(createDialog, &QDialog::finished, this, [this](int) {
+        refreshContinueState();
+        show();
     });
 
     createDialog->show();
@@ -541,7 +567,11 @@ void GameMenu::onCreateCharacterClicked() {
 void GameMenu::onAssemblePartyClicked() {
     auto *dialog = new AssemblePartyDialog(this);
     dialog->setAttribute(Qt::WA_DeleteOnClose);
-    dialog->exec();
+    connect(dialog, &QDialog::finished, this, [this](int) {
+        refreshContinueState();
+        show();
+    });
+    dialog->show();
 }
 
 void GameMenu::onEventTriggered(const GameEvent& event) {
