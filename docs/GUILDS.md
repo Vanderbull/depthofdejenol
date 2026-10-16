@@ -9,7 +9,7 @@
 
 - **Total guilds:** 9
 
-![Guilds](resources/images/guilds.png)
+![Guilds](https://github.com/Vanderbull/depthofdejenol/blob/main/resources/images/guilds.png)
 
 ## Guild Table
 

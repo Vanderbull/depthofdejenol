@@ -9,7 +9,7 @@
 
 - **Total races:** 6
 
-![Warrior](resources/images/warrior.png)
+![Warrior](https://github.com/Vanderbull/depthofdejenol/blob/main/resources/images/warrior.png)
 
 ## Race Table
 

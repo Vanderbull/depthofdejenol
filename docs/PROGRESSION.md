@@ -37,4 +37,4 @@
 - **Attack gain:** ~+3 per level per member
 - **Mana gain:** +5 per level
 
-![Character Sheet](resources/images/character_sheet.png)
+![Character Sheet](https://github.com/Vanderbull/depthofdejenol/blob/main/resources/images/character_sheet.png)

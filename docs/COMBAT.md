@@ -9,7 +9,7 @@
 Combat is tactical: pick targets, see each monster, use front/back
 rows, and manage spell selection.
 
-![Warrior](resources/images/warrior.png)
+![Warrior](https://github.com/Vanderbull/depthofdejenol/blob/main/resources/images/warrior.png)
 
 ## Combat Flow
 
@@ -30,7 +30,7 @@ rows, and manage spell selection.
 
 | Effect | Cause | Cure |
 |--------|-------|------|
-| Poison | ![Thief](resources/images/thief.png) Spiders, snakes, scorpions | Cure Poison, Tavern |
+| Poison | ![Thief](https://github.com/Vanderbull/depthofdejenol/blob/main/resources/images/thief.png) Spiders, snakes, scorpions | Cure Poison, Tavern |
 | Blind | Certain monsters | Rest, Tavern |
 | Confusion | Mind spells, certain monsters | Rest, Tavern |
 | Fire | Fire-breathing monsters | Rest, Tavern |
@@ -59,4 +59,4 @@ After combat, the party receives:
 - Gold based on monster level and floor
 - Items from monster drops
 
-![Treasure](resources/images/treasure.png)
+![Treasure](https://github.com/Vanderbull/depthofdejenol/blob/main/resources/images/treasure.png)

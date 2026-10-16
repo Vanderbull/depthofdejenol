@@ -10,7 +10,7 @@
   at line 2, so only the readable portion is documented here)
 - **Contents:** Laired monster locations, attributes, and notes
 
-![Bestiary](resources/images/bestiary.png)
+![Bestiary](https://github.com/Vanderbull/depthofdejenol/blob/main/resources/images/bestiary.png)
 
 ## Laired Monsters
 

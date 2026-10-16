@@ -9,7 +9,7 @@
 Characters age over time with race-specific decay and max age.
 Coming-of-age happens at 18. Characters can marry and have children.
 
-![NPC](resources/images/npc.png)
+![NPC](https://github.com/Vanderbull/depthofdejenol/blob/main/resources/images/npc.png)
 
 ## Aging
 

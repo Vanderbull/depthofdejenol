@@ -9,7 +9,7 @@
 The main quest chain advances from play and grants its rewards.
 Side quests are available from the Quest Board in town.
 
-![Quest Board](resources/images/quest_board.png)
+![Quest Board](https://github.com/Vanderbull/depthofdejenol/blob/main/resources/images/quest_board.png)
 
 ## Main Quest Chain
 

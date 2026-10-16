@@ -9,7 +9,7 @@
 
 - **Total items:** 370
 
-![Treasure](resources/images/treasure.png)
+![Treasure](https://github.com/Vanderbull/depthofdejenol/blob/main/resources/images/treasure.png)
 
 ## Item Table
 

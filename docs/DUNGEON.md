@@ -12,7 +12,7 @@
 - **Bosses:** Every 3rd floor (3, 6, 9, 12, 15)
 - **Special tiles:** Fog, rotator, extinguisher, chute, antimagic, dig, door
 
-![Dungeon](resources/images/dungeon.png)
+![Dungeon](https://github.com/Vanderbull/depthofdejenol/blob/main/resources/images/dungeon.png)
 
 ## Floor Table
 
@@ -38,13 +38,13 @@
 
 | Tile | Image | Function |
 |------|-------|----------|
-| Fog | ![Fog](resources/images/fog.png) | Blocks vision, cleared by Light spell or torch |
-| Rotator | ![Rotator](resources/images/rotator.png) | Rotates the party's facing direction |
-| Extinguisher | ![Extinguisher](resources/images/extinguisher.png) | Removes fog in the area |
-| Chute | ![Chute](resources/images/chute.png) | Drops the party to the next floor |
-| Antimagic | ![Antimagic](resources/images/antimagic.png) | Prevents spellcasting in the area |
-| Dig | ![Dig](resources/images/dig.png) | Can be dug through to reveal hidden passages |
-| Door | ![Door](resources/images/door.png) | May be locked, trapped, or secret |
+| Fog | ![Fog](https://github.com/Vanderbull/depthofdejenol/blob/main/resources/images/fog.png) | Blocks vision, cleared by Light spell or torch |
+| Rotator | ![Rotator](https://github.com/Vanderbull/depthofdejenol/blob/main/resources/images/rotator.png) | Rotates the party's facing direction |
+| Extinguisher | ![Extinguisher](https://github.com/Vanderbull/depthofdejenol/blob/main/resources/images/extinguisher.png) | Removes fog in the area |
+| Chute | ![Chute](https://github.com/Vanderbull/depthofdejenol/blob/main/resources/images/chute.png) | Drops the party to the next floor |
+| Antimagic | ![Antimagic](https://github.com/Vanderbull/depthofdejenol/blob/main/resources/images/antimagic.png) | Prevents spellcasting in the area |
+| Dig | ![Dig](https://github.com/Vanderbull/depthofdejenol/blob/main/resources/images/dig.png) | Can be dug through to reveal hidden passages |
+| Door | ![Door](https://github.com/Vanderbull/depthofdejenol/blob/main/resources/images/door.png) | May be locked, trapped, or secret |
 
 ## Tile Progression
 

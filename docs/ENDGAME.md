@@ -9,7 +9,7 @@
 After defeating the final boss, the player can start New Game Plus
 (NG+), which carries the party and scales monster stats.
 
-![Treasure](resources/images/treasure.png)
+![Treasure](https://github.com/Vanderbull/depthofdejenol/blob/main/resources/images/treasure.png)
 
 ## New Game Plus
 
@@ -55,4 +55,4 @@ They track milestones like:
 - Finding rare items
 - Surviving NG+ cycles
 
-![Chest](resources/images/chest.png)
+![Chest](https://github.com/Vanderbull/depthofdejenol/blob/main/resources/images/chest.png)
