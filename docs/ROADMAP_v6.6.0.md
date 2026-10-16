@@ -4,7 +4,7 @@
 every control drives a system that actually exists in this game, persists, and
 survives a restart.
 
-Status: PLANNED
+Status: ✅ DONE
 
 ---
 
@@ -105,27 +105,27 @@ public:
 
 ## 4. Phases
 
-### Phase 1 — Settings store + startup apply
+### Phase 1 — Settings store + startup apply ✅ DONE
 `GameSettings`, defaults, legacy migration, `sync()`, `applyAll()` wired at
 startup. **Tests:** round-trip (set→sync→reload); defaults when the file is
 absent; legacy keys migrated then gone.
 
-### Phase 2 — Audio + Gameplay
+### Phase 2 — Audio + Gameplay ✅ DONE
 Wire volumes/mute/autosave/reveal/combat-speed. **Tests:** mute → volume 0 and
 unmute restores; autosave off → no `autosave.json` written by the party dialog;
 combat speed → the FX timer interval matches the setting.
 
-### Phase 3 — Display
+### Phase 3 — Display ✅ DONE
 Fullscreen read by the menu/story dialog; fonts applied on selection and at
 startup. **Tests:** fullscreen flag → `isFullScreen()` matches after apply; font
 setter → `QApplication::font().family()` changes; `Default` restores.
 
-### Phase 4 — Data + dialog semantics
+### Phase 4 — Data + dialog semantics ✅ DONE
 Backup/Restore re-scoped; last-backup read on open; OK/Cancel/Default with a real
 snapshot. **Tests:** change + Cancel → value unchanged; Backup writes into
 `data/backup/<date>/`; last-backup label populated on open.
 
-### Phase 5 — Remove the vestigial controls
+### Phase 5 — Remove the vestigial controls ✅ DONE
 Delete the 8 dead checkboxes and their persistence; remove or rewire the dead
 `ConfigIntegrityOK` path (`checkSettingsFile()` reads `Graphics/ResolutionWidth`
 which nothing writes and nothing consumes). **Tests:** the dialog no longer
