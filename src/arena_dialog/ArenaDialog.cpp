@@ -213,27 +213,15 @@ void ArenaDialog::on_attackButton_clicked() {
 
     if (selectedMonsterIdx < 0) return;
 
-    QString result;
-    m_combatActions->attack(selectedMonsterIdx, result);
-    logMessage(result);
-
-    // Check if monster died
-    if (!m_combatState->participant(selectedMonsterIdx).isAlive) {
-        waveKills++;
-        logMessage(QString("Monster killed! (%1 total)").arg(waveKills));
-        selectedMonsterIdx = -1;  // Select next on next attack
-    }
-
-    // Process deaths
-    // (m_deathHandler->processDeaths() would emit signals we don't have here)
-
-    // Mark current as acted and advance to next turn
-    int currentIdx = m_combatState->initiativeOrder()[m_combatState->currentTurnIndex()];
-    m_combatState->markActed(currentIdx);
-    m_combatState->nextTurn();
-
-    // Advance combat
-    advanceCombat();
+    int targetIdx = selectedMonsterIdx;
+    performPlayerAction([&](QString& result) {
+        m_combatActions->attack(targetIdx, result);
+        if (!m_combatState->participant(targetIdx).isAlive) {
+            waveKills++;
+            logMessage(QString("Monster killed! (%1 total)").arg(waveKills));
+            selectedMonsterIdx = -1;
+        }
+    });
 }
 
 void ArenaDialog::on_defendButton_clicked() {
