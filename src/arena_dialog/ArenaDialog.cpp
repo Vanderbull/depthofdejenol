@@ -234,7 +234,6 @@ void ArenaDialog::on_defendButton_clicked() {
 
 void ArenaDialog::on_spellButton_clicked() {
     if (!m_inCombat || !m_combatState || !m_combatActions) return;
-    if (!m_combatActions->isPlayerTurn()) return;
 
     // Pick a spell based on the first living party member's mana
     // Use Fireball as default arena spell
@@ -250,21 +249,14 @@ void ArenaDialog::on_spellButton_clicked() {
     }
     if (targetIdx < 0) return;
 
-    QString result;
-    int dmg = m_combatActions->castSpellBySchool(targetIdx, spellName, result);
-    logMessage(result);
-
-    // Check if monster died
-    if (dmg > 0 && !m_combatState->participant(targetIdx).isAlive) {
-        waveKills++;
-        logMessage(QString("Monster killed! (%1 total)").arg(waveKills));
-        selectedMonsterIdx = -1;
-    }
-
-    int currentIdx = m_combatState->initiativeOrder()[m_combatState->currentTurnIndex()];
-    m_combatState->markActed(currentIdx);
-    m_combatState->nextTurn();
-    advanceCombat();
+    performPlayerAction([&](QString& result) {
+        int dmg = m_combatActions->castSpellBySchool(targetIdx, spellName, result);
+        if (dmg > 0 && !m_combatState->participant(targetIdx).isAlive) {
+            waveKills++;
+            logMessage(QString("Monster killed! (%1 total)").arg(waveKills));
+            selectedMonsterIdx = -1;
+        }
+    });
 }
 
 void ArenaDialog::on_useItemButton_clicked() {
