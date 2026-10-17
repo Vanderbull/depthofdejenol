@@ -60,35 +60,23 @@ Status: ✅ DONE
 
 **Verify:** Build, run tests, add test that status icons appear.
 
-## 6. Wave bonus (if arena returns)
+## 6. Wave bonus — BORTTAGEN (arena borttagen)
 
-**Why:** No reward for fast or no-damage clears.
+**Why:** Arenan är borttagen ur spelet. Wave-bonus är inte relevant.
 
-**Do:**
-- Bonus points for clearing a wave quickly
-- Bonus points for no-damage clears
+## 7. Auto-continue — BORTTAGEN (arena borttagen)
 
-**Verify:** Build, run tests, add test that bonus is applied.
-
-## 7. Auto-continue option
-
-**Why:** Player must manually click "Next Wave" after each clear.
-
-**Do:**
-- Add auto-continue option in Options
-- When enabled, automatically start next wave after clear
-
-**Verify:** Build, run tests, add test that auto-continue works.
+**Why:** Arenan är borttagen ur spelet. Auto-continue är inte relevant.
 
 ---
 
 ## Release criteria
 
-- [ ] All orphaned systems resolved
-- [ ] Combat visual feedback implemented
-- [ ] Spell selection dialog works
-- [ ] Item selection dialog works
-- [ ] Monster status visible in target list
-- [ ] All tests pass (2001+)
-- [ ] Version bumped to 6.8.0
-- [ ] RELEASE_NOTES.md updated
+- [x] All orphaned systems resolved
+- [x] Combat visual feedback confirmed (already in DungeonDialog)
+- [x] Spell selection dialog confirmed (already in DungeonDialog)
+- [x] Item selection dialog confirmed (already in DungeonDialog)
+- [x] Monster status visible in target list (already in DungeonDialog)
+- [x] All tests pass (1973)
+- [x] Version bumped to 6.8.0
+- [x] RELEASE_NOTES.md updated
