@@ -1535,6 +1535,22 @@ void DungeonDialog::on_dropButton_clicked()
 void DungeonDialog::on_teleportButton_clicked()
 {
     gameStateManager* gsm = gameStateManager::instance();
+
+    // Check if any party member has an active teleport effect
+    bool hasTeleport = false;
+    auto& members = gsm->getPartyMembers();
+    for (int i = 0; i < members.size(); ++i) {
+        if (members[i].teleportTurns > 0) {
+            hasTeleport = true;
+            break;
+        }
+    }
+
+    if (!hasTeleport) {
+        logMessage("No teleport effect is active.");
+        return;
+    }
+
     int newX, newY;
     QPair<int, int> newPos;
     // 1. Find a random valid location (not a wall)
