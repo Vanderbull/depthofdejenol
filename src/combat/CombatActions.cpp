@@ -9,6 +9,29 @@
 CombatActions::CombatActions(CombatState* state, TurnEngine* engine)
     : m_state(state), m_engine(engine) {}
 
+// Wrap a combat message in HTML so the log renders it in a distinct colour.
+// The message log shows a QLabel per line and honours Qt rich text, so this
+// is how crits and misses stand out from ordinary hits. Centralised here
+// rather than inlined at every call site so the wording cannot drift apart.
+QString CombatActions::stylize(const QString& message, const char* color) {
+    return QString("<font color='%1'>%2</font>").arg(color, message);
+}
+
+QString CombatActions::attackMessage(int roll, const QString& attacker,
+                                     const QString& target, int damage) {
+    const QString body = QString("%1 hits %2 for %3 damage.")
+                             .arg(attacker, target).arg(damage);
+    if (roll == 20) return stylize(QString("CRITICAL — %1").arg(body), "red");
+    return stylize(body, "orange");
+}
+
+QString CombatActions::missMessage(const QString& attacker, const QString& target,
+                                   int roll, int targetAC) {
+    return stylize(QString("%1 misses %2 (roll %3 vs AC %4).")
+                       .arg(attacker, target).arg(roll).arg(targetAC),
+                   "gray");
+}
+
 bool CombatActions::isPlayerTurn() const {
     if (!m_state || !m_engine) return false;
     int idx = m_engine->currentParticipantIndex();
@@ -84,7 +107,7 @@ int CombatActions::attack(int targetIndex, QString& result) {
     int targetAC = targetArmorClass(target);
 
     if (roll == 1) {
-        result = QString("%1 fumbles the attack!").arg(attacker.name);
+        result = stylize(QString("%1 fumbles the attack!").arg(attacker.name), "gray");
         SoundEffects::instance()->play(SoundEffects::Type::Miss);
         return -1;
     }
@@ -93,7 +116,8 @@ int CombatActions::attack(int targetIndex, QString& result) {
         double levelMultiplier = 1.0 + (attacker.levelScale * attacker.level) / 100.0;
         int baseDamage = qMax(1, static_cast<int>(attacker.att * attacker.swings * attacker.damageMod / 100.0 * levelMultiplier));
         int damage = baseDamage + QRandomGenerator::global()->bounded(0, 5);
-        if (roll == 20) damage *= 2;  // crit
+        const bool isCrit = (roll == 20);
+        if (isCrit) damage *= 2;  // crit
         if (target.isDefending) damage = qMax(1, damage / 2);  // stance halves damage
         target.hp -= damage;
         if (target.hp <= 0) {
@@ -103,14 +127,15 @@ int CombatActions::attack(int targetIndex, QString& result) {
                 .arg(attacker.name).arg(target.name).arg(damage).arg(target.name);
             SoundEffects::instance()->play(SoundEffects::Type::Death);
         } else {
-            result = QString("%1 hits %2 for %3 damage.")
-                .arg(attacker.name).arg(target.name).arg(damage);
-            SoundEffects::instance()->play(roll == 20 ? SoundEffects::Type::CriticalHit : SoundEffects::Type::Hit);
+            result = attackMessage(roll, attacker.name, target.name, damage);
+            SoundEffects::instance()->play(isCrit ? SoundEffects::Type::CriticalHit : SoundEffects::Type::Hit);
         }
+        // A natural 20 doubles damage but said nothing about it — the log now
+        // says so, in a colour the player cannot miss. Misses are marked the
+        // same way so the three outcomes read differently at a glance.
         return damage;
     } else {
-        result = QString("%1 misses %2 (roll %3 vs AC %4).")
-            .arg(attacker.name).arg(target.name).arg(roll).arg(targetAC);
+        result = missMessage(attacker.name, target.name, roll, targetAC);
         SoundEffects::instance()->play(SoundEffects::Type::Miss);
         return -1;
     }

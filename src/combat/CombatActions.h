@@ -24,6 +24,21 @@ public:
     static int attackerSkill(const CombatParticipant& attacker);
     static int targetArmorClass(const CombatParticipant& target);
 
+    // Wrap a combat message in HTML so the log renders it in a distinct
+    // colour. Centralised here so crit/miss wording cannot drift apart.
+    static QString stylize(const QString& message, const char* color);
+
+    // Build the log line for an attack that landed, given the attack roll.
+    // roll == 20 is a critical hit and is announced as such. Pure — the only
+    // caller is attack(), and exposing it lets the crit wording be tested
+    // without having to roll a natural 20.
+    static QString attackMessage(int roll, const QString& attacker,
+                                 const QString& target, int damage);
+
+    // Build the log line for an attack that missed. Pure, for the same reason.
+    static QString missMessage(const QString& attacker, const QString& target,
+                               int roll, int targetAC);
+
     // Defend: current participant defends (halves damage taken this round).
     void defend(QString& result);
 

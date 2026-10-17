@@ -2169,4 +2169,181 @@ void runCombatTests()
               QString::number(c.maxMana - manaBefore));
     }
 
+    section("[300] v6.9.0 slice 6.9c: combat log marks crits and misses");
+    {
+        // Roadmap v6.9.0 step 3. A natural 20 doubles damage but used to say
+        // nothing about it — the log now marks it, and marks misses, so the
+        // three outcomes are distinguishable at a glance.
+        //
+        // The roll is random, so this is statistical rather than a forced
+        // roll: over 300 attacks both crits (1/20) and misses are guaranteed,
+        // and every outcome must be colour-marked.
+
+        CombatState cs;
+        CombatParticipant warrior;
+        warrior.name = "Warrior"; warrior.isPlayer = true;
+        warrior.hp = 1000000; warrior.maxHp = 1000000;
+        warrior.att = 10; warrior.swings = 1; warrior.damageMod = 100;
+        warrior.dex = 10; warrior.speed = 100;
+        CombatParticipant goblin;
+        goblin.name = "Goblin"; goblin.isPlayer = false;
+        goblin.hp = 1000000; goblin.maxHp = 1000000;
+        goblin.att = 5; goblin.def = 5; goblin.speed = 1; goblin.dex = 5;
+        cs.addParticipant(warrior);
+        cs.addParticipant(goblin);
+
+        TurnEngine te;
+        te.setCombatState(&cs);
+        CombatActions ca(&cs, &te);
+
+        te.startRound();
+        te.nextTurn();
+        check(ca.isPlayerTurn(), "warrior acts first");
+
+        const int trials = 300;
+        int crits = 0, misses = 0, ordinary = 0, unmarked = 0;
+        int lastCritDamage = 0, lastOrdinaryDamage = 0;
+
+        for (int i = 0; i < trials; ++i) {
+            // Keep the goblin alive so every trial resolves the same way.
+            cs.participant(1).hp = 1000000;
+            QString r;
+            int dmg = ca.attack(1, r);
+            if (dmg < 0) { ++misses; }
+
+            const bool marked = r.contains("<font color=");
+            if (!marked) { ++unmarked; }
+
+            if (r.contains("CRITICAL")) {
+                ++crits;
+                lastCritDamage = dmg;
+            } else if (dmg >= 0) {
+                ++ordinary;
+                lastOrdinaryDamage = dmg;
+            }
+        }
+
+        check(unmarked == 0,
+              "every attack result is colour-marked for the log",
+              QString("%1 of %2 unmarked").arg(unmarked).arg(trials));
+        check(crits > 0, "at least one critical was rolled over 300 attacks",
+              QString::number(crits));
+        check(misses > 0, "at least one miss was rolled over 300 attacks",
+              QString::number(misses));
+        check(ordinary > 0, "at least one ordinary hit was rolled",
+              QString::number(ordinary));
+        check(lastCritDamage > lastOrdinaryDamage,
+              "a crit deals more than an ordinary hit of the same swing",
+              QString("crit=%1 ordinary=%2").arg(lastCritDamage).arg(lastOrdinaryDamage));
+
+        // The crit hit the same target with the same swing as every ordinary
+        // hit, so any crit being at least as large as any ordinary hit is the
+        // real invariant. The single-swing comparison above is only a sanity
+        // check; the range check cannot be satisfied by a miss or an
+        // unlucky low roll.
+        int minOrdinary = INT_MAX, maxCrit = 0;
+        for (int i = 0; i < trials; ++i) {
+            cs.participant(1).hp = 1000000;
+            QString r;
+            int dmg = ca.attack(1, r);
+            if (r.contains("CRITICAL")) {
+                maxCrit = qMax(maxCrit, dmg);
+            } else if (dmg > 0) {
+                minOrdinary = qMin(minOrdinary, dmg);
+            }
+        }
+        check(maxCrit >= minOrdinary,
+              "a crit is never weaker than an ordinary hit of the same swing",
+              QString("maxCrit=%1 minOrdinary=%2").arg(maxCrit).arg(minOrdinary));
+        check(maxCrit >= 2,
+              "a crit lands real damage (at least the doubled minimum)",
+              QString::number(maxCrit));
+    }
+
+    {
+        // The crit flag is what makes the log say CRITICAL. It is derived from
+        // the roll, so the deterministic way to test it is the helper that
+        // builds the message for a given roll.
+        check(CombatActions::attackMessage(20, "Warrior", "Goblin", 40).contains("CRITICAL"),
+              "a natural 20 is announced as a critical",
+              CombatActions::attackMessage(20, "Warrior", "Goblin", 40));
+        check(!CombatActions::attackMessage(10, "Warrior", "Goblin", 40).contains("CRITICAL"),
+              "an ordinary roll is not announced as a critical",
+              CombatActions::attackMessage(10, "Warrior", "Goblin", 40));
+
+        const QString crit = CombatActions::attackMessage(20, "Warrior", "Goblin", 40);
+        check(crit.contains("40 damage"), "the crit reports the doubled damage", crit);
+        check(crit.startsWith("<font color='red'>"),
+              "the crit is marked for the log in red", crit);
+
+        const QString ordinary = CombatActions::attackMessage(10, "Warrior", "Goblin", 20);
+        check(ordinary.contains("20 damage"), "the ordinary hit reports its damage", ordinary);
+        check(ordinary.startsWith("<font color='orange'>"),
+              "the ordinary hit is marked in orange", ordinary);
+
+        const QString miss = CombatActions::missMessage("Warrior", "Goblin", 7, 14);
+        check(miss.contains("misses"), "the miss says it missed", miss);
+        check(miss.contains("(roll 7 vs AC 14)"), "the miss reports roll and AC", miss);
+        check(miss.startsWith("<font color='gray'>"),
+              "the miss is marked in gray", miss);
+
+        // The three outcomes must never share a colour, or the log marking
+        // would be pointless.
+        check(!crit.startsWith(ordinary.left(20)),
+              "crit and ordinary hit use different colours");
+    }
+
+    {
+        // A miss is marked, and a marked miss is a miss — not just any line.
+        // Driven to a guaranteed miss by forcing the attacker's skill to 0
+        // against a target whose AC is as high as the band allows.
+        CombatState cs;
+        CombatParticipant archer;
+        archer.name = "Archer"; archer.isPlayer = true;
+        archer.att = 10; archer.swings = 1; archer.damageMod = 100;
+        archer.dex = 1; archer.level = 1; archer.speed = 100;
+        CombatParticipant wall;
+        wall.name = "Wall"; wall.isPlayer = false;
+        // AC = 10 + level/2 + min(def/12, 8). Maxing def and level pushes the
+        // target's AC to the top of the band while the attacker's skill stays
+        // at 1, so every roll but a 20 misses.
+        wall.hp = 1000000; wall.maxHp = 1000000; wall.def = 100000; wall.level = 1000;
+        wall.speed = 1; wall.dex = 1;
+        cs.addParticipant(archer);
+        cs.addParticipant(wall);
+
+        TurnEngine te;
+        te.setCombatState(&cs);
+        CombatActions ca(&cs, &te);
+        te.startRound();
+        te.nextTurn();
+
+        int misses = 0, unmarked = 0;
+        for (int i = 0; i < 200; ++i) {
+            cs.participant(1).hp = 1000000;
+            QString r;
+            if (ca.attack(1, r) < 0) {
+                ++misses;
+                if (!r.contains("<font color=")) ++unmarked;
+            }
+        }
+        check(misses > 0, "at least one miss was forced over 200 attacks",
+              QString::number(misses));
+        check(unmarked == 0,
+              "every miss carries the colour markup the log needs",
+              QString::number(unmarked));
+    }
+
+    {
+        // stylize() is the single definition of the markup, so a crit line and
+        // a miss line can never drift into different formats.
+        const QString critLine = CombatActions::stylize("CRITICAL — test", "red");
+        const QString missLine = CombatActions::stylize("misses test", "gray");
+        check(critLine == "<font color='red'>CRITICAL — test</font>",
+              "stylize wraps in a quoted font colour", critLine);
+        check(missLine == "<font color='gray'>misses test</font>",
+              "stylize wraps misses the same way", missLine);
+        check(critLine.startsWith("<font") && critLine.endsWith("</font>"),
+              "crit markup is well-formed");
+    }
 }

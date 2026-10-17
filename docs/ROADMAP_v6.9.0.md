@@ -33,17 +33,24 @@ Status: 🔄 IN PROGRESS
 ⚠️ **Kvar att göra:** ingen test kontrollerar *färgerna* — `selftest_world.cpp:3305-3350` testar bara att texten innehåller `poison 3` / `fire 2`, inte `<font color=…>`.
 **Commit:** `195e0c6` feat: färgkodade status-effekter i combat target list
 
-## 3. Combat log förbättring — 🟡 DELVIS
+## 3. Combat log förbättring — ✅ GJORT
 
 **Why:** Combat log visar inte damage numbers, crits, eller misses tydligt.
 
 **Do:**
-- [x] Lägg till damage numbers i combat log — finns sedan tidigare: `CombatActions.cpp:102-112` (`hits %1 for %3 damage`, `misses %2 (roll %3 vs AC %4)`)
-- [ ] **Markera crits med speciell färg eller text** — `CombatActions.cpp:96` dubblar skadan vid `roll == 20` men meddelandet är oförändrat (`hits %1 for %3 damage.`); endast ljudet skiljer (`SoundEffects::Type::CriticalHit`)
-- [x] Markera misses tydligt — finns sedan tidigare: `CombatActions.cpp:112`
+- [x] Lägg till damage numbers i combat log — fanns sedan tidigare: `CombatActions.cpp` (`hits %1 for %3 damage`, `misses %2 (roll %3 vs AC %4)`)
+- [x] **Markera crits med speciell färg eller text** — `attackMessage()` lägger till `CRITICAL — ` och röd färg vid `roll == 20`
+- [x] Markera misses tydligt — `missMessage()` i grå
 
-**Verify:** ⚠️ Ej täckt av någon test.
-**Commit:** inget än — crit-delen kvarstår
+**Verify:** ✅ Buildad, **1996 passed / 0 failed**.
+Färgmarkeringen går via `stylize()`, som ligger bakom `attackMessage()`/`missMessage()`
+så ordvalet och färgen inte kan glida isär. Testad i `selftest_combat.cpp`
+sektion `[300]` (23 nya kontroller) och mutationstestad: tar man bort
+crit-markeringen fallerar 7 kontroller.
+
+**Färger:** crit = röd, träff = orange, miss/fumble = grå.
+
+**Commit:** `steg-3-crit` (se nedan)
 
 ## 4. Förbättra character system — ❌ EJ GJORT
 
@@ -111,16 +118,16 @@ Status per 2026-10-17 (HEAD `fc443f9`):
 
 - [x] Alla döda filer borttagna — `c6acfde`
 - [x] Färgkodade status-effekter implementerade — `195e0c6`
-- [ ] Combat log förbättrad — **delvis**: damage numbers och misses finnas sedan tidigare; crits (roll 20) markeras fortfarande inte i texten
+- [x] Combat log förbättrad — crits, träffar och misses är nu färgmarkerade (`attackMessage`/`missMessage`)
 - [ ] Character system förbättrat — **ej gjort**: `character.cpp:514` är oförändrad
 - [x] Minimap förbättrad — redan klart i `735a842` (v3.0.0, 2026-01-05)
 - [x] Snabbknappar implementerade — `fc443f9`
 - [ ] Balans justerad — **ej gjort**: `MonsterBalance.cpp` oförändrad sedan `bb1fa27`
-- [x] Alla tester passerar — 1973 passed / 0 failed (verifierat: `./build/bin/blacklands --selftest`)
+- [x] Alla tester passerar — **1996 passed / 0 failed** (1973 + 23 nya)
 - [ ] Version bumpad till 6.9.0 — `blacklands.pro` säger fortfarande `SEMVER 6.8.0`
 - [ ] RELEASE_NOTES.md uppdaterad — senaste posten är fortfarande v6.8.0
 
-**Blockerande för v6.9.0:** steg 3 (crits), 4 (character system), 7 (balans) + semver-bump.
+**Blockerande för v6.9.0:** steg 4 (character system), steg 7 (balans) + semver-bump.
 **Ej blockerande:** steg 5 är långt klart; steg 2 och 6 saknar bara tester.
 
 ### Kvarvarande testluckor (alla steg)
