@@ -158,7 +158,16 @@ void DungeonHandlers::handleEncounters(DungeonDialog* dialog, int x, int y)
 
         // Start combat automatically when stepping onto a hostile monster.
         // Neutral and friendly monsters do not trigger combat.
-        if (attitude == "Hostile" && !dialog->m_inCombat) {
+        // Invisible party members are not detected by monsters.
+        bool partyInvisible = false;
+        auto& members = gameStateManager::instance()->getPartyMembers();
+        for (int i = 0; i < members.size(); ++i) {
+            if (members[i].invisibilityTurns > 0) {
+                partyInvisible = true;
+                break;
+            }
+        }
+        if (attitude == "Hostile" && !dialog->m_inCombat && !partyInvisible) {
             dialog->startCombatAt(pos);
         }
     }
