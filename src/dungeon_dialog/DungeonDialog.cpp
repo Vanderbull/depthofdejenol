@@ -2600,6 +2600,37 @@ void DungeonDialog::keyPressEvent(QKeyEvent *event)
             exitToMainMenu();
             event->accept();
             break;
+        // --- Save/Load shortcuts ---
+        case Qt::Key_F5: {
+            // Quick save
+            gameStateManager* gsm = gameStateManager::instance();
+            QString saveName = gsm->getGameValue("CurrentSaveName").toString();
+            if (saveName.isEmpty()) saveName = "quicksave";
+            gsm->setCurrentSaveName(saveName);
+            gsm->saveFullGameState(saveName);
+            logMessage("Game saved to " + saveName);
+            event->accept();
+            break;
+        }
+        case Qt::Key_F9: {
+            // Quick load
+            gameStateManager* gsm = gameStateManager::instance();
+            QString saveName = gsm->getGameValue("CurrentSaveName").toString();
+            if (saveName.isEmpty()) saveName = "quicksave";
+            gsm->loadFullGameState(saveName);
+            logMessage("Game loaded from " + saveName);
+            event->accept();
+            break;
+        }
+        case Qt::Key_F12: {
+            // Quick save to autosave
+            gameStateManager* gsm = gameStateManager::instance();
+            gsm->setCurrentSaveName("autosave");
+            gsm->saveFullGameState("autosave");
+            logMessage("Game autosaved");
+            event->accept();
+            break;
+        }
         default:
             QDialog::keyPressEvent(event);
             break;
