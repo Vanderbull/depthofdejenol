@@ -3345,20 +3345,59 @@ void runWorldTests()
 
         CombatParticipant poisoned;
         poisoned.poisonDuration = 3;
-        check(DungeonDialog::combatStatusText(poisoned).contains("poison 3"),
-              "poison shows its remaining rounds",
-              DungeonDialog::combatStatusText(poisoned));
+        const QString poisonText = DungeonDialog::combatStatusText(poisoned);
+        check(poisonText.contains("poison 3"),
+              "poison shows its remaining rounds", poisonText);
+        check(poisonText.contains("<font color='green'>"),
+              "poison is green", poisonText);
 
         CombatParticipant burning;
         burning.fireDuration = 2;
-        check(DungeonDialog::combatStatusText(burning).contains("fire 2"),
-              "fire shows its remaining rounds",
-              DungeonDialog::combatStatusText(burning));
+        const QString fireText = DungeonDialog::combatStatusText(burning);
+        check(fireText.contains("fire 2"),
+              "fire shows its remaining rounds", fireText);
+        check(fireText.contains("<font color='red'>"),
+              "fire is red", fireText);
+
+        CombatParticipant blinded;
+        blinded.blindDuration = 1;
+        const QString blindText = DungeonDialog::combatStatusText(blinded);
+        check(blindText.contains("blind 1"),
+              "blind shows its remaining rounds", blindText);
+        check(blindText.contains("<font color='yellow'>"),
+              "blind is yellow", blindText);
+
+        CombatParticipant confused;
+        confused.confusionDuration = 1;
+        const QString confusedText = DungeonDialog::combatStatusText(confused);
+        check(confusedText.contains("confused 1"),
+              "confused shows its remaining rounds", confusedText);
+        check(confusedText.contains("<font color='magenta'>"),
+              "confused is magenta", confusedText);
 
         CombatParticipant stunned;
         stunned.stunDuration = 1;
-        check(DungeonDialog::combatStatusText(stunned).contains("stunned 1"),
-              "stun is shown", DungeonDialog::combatStatusText(stunned));
+        const QString stunText = DungeonDialog::combatStatusText(stunned);
+        check(stunText.contains("stunned 1"),
+              "stun is shown", stunText);
+        check(stunText.contains("<font color='cyan'>"),
+              "stunned is cyan", stunText);
+
+        CombatParticipant slowed;
+        slowed.slowDuration = 1;
+        const QString slowText = DungeonDialog::combatStatusText(slowed);
+        check(slowText.contains("slowed 1"),
+              "slowed shows its remaining rounds", slowText);
+        check(slowText.contains("<font color='gray'>"),
+              "slowed is gray", slowText);
+
+        CombatParticipant defending;
+        defending.isDefending = true;
+        const QString defendText = DungeonDialog::combatStatusText(defending);
+        check(defendText.contains("defending"),
+              "defending is shown", defendText);
+        check(defendText.contains("<font color='blue'>"),
+              "defending is blue", defendText);
 
         CombatParticipant many;
         many.poisonDuration = 2;
