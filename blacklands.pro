@@ -312,7 +312,7 @@ lessThan(VERSION_INT, 0): VERSION_INT = 0
 # Bump MAJOR for the first finishable release or a fundamental rework.
 # Bump MINOR for new features/mechanics. Bump PATCH for fixes/balance/polish.
 SEMVER_MAJOR = 6
-SEMVER_MINOR = 9
+SEMVER_MINOR = 10
 SEMVER_PATCH = 0
 SEMVER = \"$${SEMVER_MAJOR}.$${SEMVER_MINOR}.$${SEMVER_PATCH}\"
 

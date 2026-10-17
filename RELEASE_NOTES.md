@@ -1,6 +1,23 @@
 # Release Notes
 
-**Latest:** v6.9.0 — Konsumtionssystem: föremålslöseri från data, inte från namn
+**Latest:** v6.10.0 — Consumable-effekter: teleport, levitation, invisibility, true sight, bind
+
+## v6.10.0 — Consumable-effekter: teleport, levitation, invisibility, true sight, bind (2026-10-17)
+
+**Vad som ändrades:** Sex consumable-effekter var "not yet wired" — de visade
+ett meddelande men gjorde ingenting. Nu är de implementerade:
+
+| Effekt | Effekt |
+|--------|--------|
+| Teleport | Teleporterar party till slumpmässig position |
+| Levitation | Party kan flyga över hinder |
+| Invisibility | Party osynlig för monsters |
+| SeeInvisible | Visar dolda dörrar på minimap |
+| Bind | Halverar skada från bundna mål |
+| Unknown | Tydligt meddelande om att effekten inte är implementerad |
+
+Varje effekt sätter en statusvariabel som tickas ner varje runda.
+2058 passed, 0 failed.
 
 ## v6.9.0 — Konsumtionssystem: föremålslöseri från data (2026-10-17)
 
