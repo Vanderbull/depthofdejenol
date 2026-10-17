@@ -11,7 +11,7 @@ QString ReleaseInfo::versionString() {
 }
 
 QString ReleaseInfo::releaseDate() {
-    return "2026-10-14";
+    return "2026-10-17";
 }
 
 QStringList ReleaseInfo::releaseNotes() {
@@ -29,6 +29,10 @@ QStringList ReleaseInfo::releaseNotes() {
 
 QStringList ReleaseInfo::changes() {
     return {
+        "Arena removed from the game — combat is now exclusively in the dungeon",
+        "Orphaned systems audit: NetworkManager and LoadingScreen confirmed wired",
+        "Combat visual feedback confirmed: flashCombatFx, SpellCastingDialog, item selection, monster status in target list",
+        "Documentation: 13 game data books with spoiler disclaimers",
         "Options dialog rebuilt around the settings that actually do something: audio, autosave, automap reveal-all, combat speed, fullscreen, fonts, backup/restore",
         "GameSettings is the single source of truth for player options; applyAll() runs at startup so a choice survives a restart",
         "Cancel restores a snapshot taken when the dialog opened instead of leaving changes half applied",
