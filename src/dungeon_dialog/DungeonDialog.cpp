@@ -308,7 +308,20 @@ void DungeonDialog::movePlayer(int dx, int dy, int dz=0)
         return;
     }
     QPair<int, int> newPos = {newX, newY};
-    if (m_obstaclePositions.contains(newPos)) {
+
+    // Levitating party members can fly over obstacles
+    bool partyLevitating = false;
+    {
+        auto& members = gsm->getPartyMembers();
+        for (int i = 0; i < members.size(); ++i) {
+            if (members[i].levitationTurns > 0) {
+                partyLevitating = true;
+                break;
+            }
+        }
+    }
+
+    if (!partyLevitating && m_obstaclePositions.contains(newPos)) {
         logMessage("A solid rock wall blocks your path.");
         return;
     }
