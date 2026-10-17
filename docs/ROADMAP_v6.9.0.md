@@ -155,10 +155,10 @@ Status per 2026-10-17 (HEAD `fc443f9`):
 **Blockerande för v6.9.0:** inget — samtliga steg är gjorda och releasen är taggad.
 **Ej blockerande:** steg 5 är långt klart; steg 2 och 6 saknar bara tester.
 
-### Kvarvarande testluckor (alla steg)
+### Testluckor (alla steg)
 
-- Status-färgerna i steg 2 testas bara som text, aldrig som `<font color=…>`
-- Steg 6 (F5/F9/F12): `grep -rn "Key_F5" test/` ger 0 träffar
+- Status-färgerna i steg 2 testas både som text och som `<font color=…>` (sektion [131])
+- Steg 6 (F5/F9/F12): täcks av sektion [303] — 3 kontroller
 - Steg 3 och 7 saknar test helt
 
 ### Kvarvarande dokumentationsluckor
