@@ -66,6 +66,9 @@ int CombatActions::attack(int targetIndex, QString& result) {
 
     if (!target.isAlive) { result = "Target is already dead"; return -1; }
 
+    // Bound targets take half damage
+    bool targetBound = target.bindTurns > 0;
+
     // Confusion: 25% chance to hit a random ally instead
     if (attacker.confusionDuration > 0 && QRandomGenerator::global()->bounded(100) < 25) {
         // Find a random living ally (same type as attacker)
@@ -121,6 +124,7 @@ int CombatActions::attack(int targetIndex, QString& result) {
         const bool isCrit = (roll == 20);
         if (isCrit) damage *= 2;  // crit
         if (target.isDefending) damage = qMax(1, damage / 2);  // stance halves damage
+        if (targetBound) damage = qMax(1, damage / 2);  // bound targets take half damage
         target.hp -= damage;
         if (target.hp <= 0) {
             target.hp = 0;
