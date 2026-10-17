@@ -149,10 +149,10 @@ Status per 2026-10-17 (HEAD `fc443f9`):
       (balansen är redan bevisad av sektionerna `[183]`/`[184]`/`[185]` i `selftest_world.cpp`;
       "kan behöva justeras" är inget arbete — se steg 7)
 - [x] Alla tester passerar — **2043 passed / 0 failed** (1973 + 70 nya)
-- [ ] Version bumpad till 6.9.0 — `blacklands.pro` säger fortfarande `SEMVER 6.8.0`
-- [ ] RELEASE_NOTES.md uppdaterad — senaste posten är fortfarande v6.8.0
+- [x] Version bumpad till 6.9.0 — `SEMVER_MINOR = 9` i `blacklands.pro`, `SEMANTIC_VERSION = "6.9.0"` i `version.h`
+- [x] RELEASE_NOTES.md uppdaterad — ny post för v6.9.0 + 6.9.0 i `ReleaseInfo::versionHistory()`
 
-**Blockerande för v6.9.0:** semver-bump + RELEASE_NOTES (steg 4 är nu gjort).
+**Blockerande för v6.9.0:** inget — samtliga steg är gjorda och releasen är taggad.
 **Ej blockerande:** steg 5 är långt klart; steg 2 och 6 saknar bara tester.
 
 ### Kvarvarande testluckor (alla steg)

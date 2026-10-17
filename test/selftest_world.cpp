@@ -740,12 +740,20 @@ void runWorldTests()
 
     section("[56] Release packaging");
     {
-        check(ReleaseInfo::version() == "6.8.0", "version is 6.8.0");
-        check(ReleaseInfo::versionString() == "v6.8.0", "version string");
+        // The expected version is read from ReleaseInfo itself, so a version
+        // bump changes the data the tests point at rather than breaking them.
+        const QString v = ReleaseInfo::version();
+        check(v == GameConstants::SEMANTIC_VERSION,
+              "version matches the build header", v);
+        check(v.size() >= 5 && v[0].isDigit(),
+              "version is a non-empty numeric string", v);
+        check(ReleaseInfo::versionString() == "v" + v, "version string",
+              ReleaseInfo::versionString());
         check(!ReleaseInfo::releaseDate().isEmpty(), "release date exists");
         check(!ReleaseInfo::systemRequirements().isEmpty(), "system requirements exist");
-        check(ReleaseInfo::installerName().contains("6.8.0"), "installer name");
-        check(ReleaseInfo::banner().contains("6.8.0"), "banner");
+        check(ReleaseInfo::installerName().contains(v), "installer name",
+              ReleaseInfo::installerName());
+        check(ReleaseInfo::banner().contains(v), "banner", ReleaseInfo::banner());
     }
     {
         // Release notes.
@@ -765,9 +773,12 @@ void runWorldTests()
         QList<QPair<QString, QString>> history = ReleaseInfo::versionHistory();
         check(history.size() >= 5, "at least 5 versions in history",
               QString::number(history.size()));
-        check(history[0].first == "6.8.0", "latest version is 6.8.0");
-        check(history[0].second.contains("books"),
-              "v6.8.0 history entry mentions the documentation books");
+        check(history[0].first == ReleaseInfo::version(),
+              "the newest history entry is the current version",
+              QString("%1 vs %2").arg(history[0].first, ReleaseInfo::version()));
+        check(history[0].second.contains("2026-10-17"),
+              "the newest history entry is dated today",
+              history[0].second.left(40));
     }
 
     // ------------------------------------------- Status flag integrity

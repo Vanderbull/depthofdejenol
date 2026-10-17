@@ -142,12 +142,14 @@ void runWorldUITests()
 
     section("[56] Release packaging");
     {
-        check(ReleaseInfo::version() == "6.8.0", "version is 6.8.0");
-        check(ReleaseInfo::versionString() == "v6.8.0", "version string");
+        // Derived from ReleaseInfo so a version bump does not break the test.
+        const QString v = ReleaseInfo::version();
+        check(v == GameConstants::SEMANTIC_VERSION, "version matches the build header", v);
+        check(ReleaseInfo::versionString() == "v" + v, "version string");
         check(!ReleaseInfo::releaseDate().isEmpty(), "release date exists");
         check(!ReleaseInfo::systemRequirements().isEmpty(), "system requirements exist");
-        check(ReleaseInfo::installerName().contains("6.8.0"), "installer name");
-        check(ReleaseInfo::banner().contains("6.8.0"), "banner");
+        check(ReleaseInfo::installerName().contains(v), "installer name");
+        check(ReleaseInfo::banner().contains(v), "banner");
     }
 
     section("[57] Status flags");

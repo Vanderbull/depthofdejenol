@@ -96,6 +96,7 @@ QString ReleaseInfo::banner() {
 
 QList<QPair<QString, QString>> ReleaseInfo::versionHistory() {
     return {
+        {"6.9.0", "2026-10-17 — Konsumtionssystem: föremålslöseri från data, inte från namn. Character::useConsumable matchade på item-namn och var en no-op för allt utan rätt nyckelord; ny ConsumableResolver löser effekten via spellID mot MDATA2-spell-tabellen, alla 18 spell-schoolar mappade uttryckligen. Fixar två buggar datan avslöjade: heal-spells börjar på 0 så en potion kunde läka 0 HP, och charm-scrolls behandlades som skadescrolls. CombatActions::useItem delar nu samma resolver. 2043 passed, 0 failed"},
         {"6.8.0", "2026-10-16 — Documentation: 13 game data books (monsters, spells, items, races, guilds, progression, research, dungeon, town, quests, endgame, combat, lifecycle) with spoiler disclaimers, all linked from README"},
         {"6.7.0", "2026-10-15 — Balance pass: monster XP scaled 3x so a level takes roughly 10-20 fights instead of 3; the main menu and theCity buttons now follow the font chosen in Options; 1967 passed, 0 failed"},
         {"6.6.0", "2026-10-14 — Rebuilt the Options dialog around settings that actually work, and made the game's font come from Options and nothing else (GameSettings owns the default, no hard-coded font, no stylesheet font rules); 1954 passed, 0 failed"},

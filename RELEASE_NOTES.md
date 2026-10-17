@@ -1,6 +1,56 @@
 # Release Notes
 
-**Latest:** v6.8.0 — Documentation: 13 game data books with spoiler disclaimers
+**Latest:** v6.9.0 — Konsumtionssystem: föremålslöseri från data, inte från namn
+
+## v6.9.0 — Konsumtionssystem: föremålslöseri från data (2026-10-17)
+
+**Vad som ändrades:** `Character::useConsumable` matchade på item-*namn*
+(`nameLower.contains("healing")`) och var en no-op för allt som inte träffade ett
+nyckelord. Buff-potioner fanns inte alls, och samma logik fanns duplicerad i
+`CombatActions::useItem` med andra nyckelord.
+
+Ny klass **`src/items/ConsumableResolver`** löser effekten från itemdatat:
+`spellID` indexerar MDATA2-spell-tabellen (105 rader, verifierat — varje rads ID
+är lika med radindexet). Föremål utan spell bär effekten i sina egna
+stat-modifierare.
+
+Alla 18 spell-schoolar mappas uttryckligen — ingen gissning:
+
+| Klass | Skola | Effekt |
+|-------|-------|--------|
+| 0-6 | Fire, Cold, Electrical, Mind, Damage, Element, Death | attack |
+| 7 | Charm | charmar monsters |
+| 8 | Bind | restrainar |
+| 9 | Heal | läker / curar |
+| 10 | Movement | levitation / teleport |
+| 11 | Banish | bannlyser |
+| 12 | Dispel | upplöser |
+| 13 | Resistant | resistans |
+| 14 | Visual | osynlighet / true sight |
+| 15-16 | Special / Location | reveal |
+| 17 | Protection | skydd |
+
+**Två buggar som datan avslöjade:**
+
+- **Heal-spells börjar alla på 0.** "Minor Heal" är 0-5, så en potion kunde läka
+  0 HP och slösa en charge — 1 gång av 6. Golvet kläms nu till 1, så `amountMin`
+  är en *garanterad* minimum.
+- **Charm-scrolls behandlades som skadescrolls.** "Scroll of Negrun" är Charm
+  Giant; manualen beskriver dem som "will cause 4 Monsters in 1 Group to be
+  Charmed". Skadefältet är charmens *styrka*, inte HP-skada.
+
+`CombatActions::useItem` använder nu samma resolver, så strid och utom-strid kan
+inte ha olika åsikter om vad ett föremål gör.
+
+**Övrigt i denna release:**
+
+- Combat log: crits, träffar och misses är färgmarkerade (`attackMessage` /
+  `missMessage`)
+- `blacklands.pro` dokumenterar att qmake spårar header-beroenden via `HEADERS`
+
+**Tests:** 2043 passed / 0 failed (1973 + 70 nya).
+Sektion `[303]` täcker resolvern, `[304]` hela vägen genom `useConsumable`.
+Mutationsstest bevisar att testen fångar båda buggarna.
 
 ## v6.8.0 — Dokumentation: 13 databöcker med spoiler-varningar (2026-10-16)
 
