@@ -273,10 +273,19 @@ void DungeonDialog::drawMinimap()
     QPixmap scaledDoor = doorPixmap.scaled(TILE_SIZE, TILE_SIZE, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
 
     // Draw Hidden Doors
+    bool partySeeInvisible = false;
+    auto& members = gameStateManager::instance()->getPartyMembers();
+    for (int i = 0; i < members.size(); ++i) {
+        if (members[i].seeInvisibleTurns > 0) {
+            partySeeInvisible = true;
+            break;
+        }
+    }
     for (auto it = m_hiddenDoorPositions.constBegin(); it != m_hiddenDoorPositions.constEnd(); ++it) {
         const auto& pos = it.key();
-        // Logic: Show if debug 'revealAll' is on, OR if the tile is visited
-        if (revealAll || m_visitedTiles.contains(pos)) {
+        // Logic: Show if debug 'revealAll' is on, OR if the tile is visited,
+        // OR if a party member has true sight active
+        if (revealAll || m_visitedTiles.contains(pos) || partySeeInvisible) {
             if (!doorPixmap.isNull()) {
                 QGraphicsPixmapItem* doorTile = scene->addPixmap(scaledDoor);
                 doorTile->setPos(pos.first * TILE_SIZE, pos.second * TILE_SIZE);
