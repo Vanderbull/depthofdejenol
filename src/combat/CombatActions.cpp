@@ -622,6 +622,51 @@ QStringList CombatActions::tickStatusEffects() {
             }
         }
 
+        // Tick down consumable-effect durations
+        if (p.teleportTurns > 0) {
+            p.teleportTurns--;
+            if (p.teleportTurns <= 0)
+                messages.append(QString("%1's teleport effect fades.").arg(p.name));
+        }
+        if (p.levitationTurns > 0) {
+            p.levitationTurns--;
+            if (p.levitationTurns <= 0)
+                messages.append(QString("%1's levitation effect fades.").arg(p.name));
+        }
+        if (p.invisibilityTurns > 0) {
+            p.invisibilityTurns--;
+            if (p.invisibilityTurns <= 0)
+                messages.append(QString("%1 is no longer invisible.").arg(p.name));
+        }
+        if (p.seeInvisibleTurns > 0) {
+            p.seeInvisibleTurns--;
+            if (p.seeInvisibleTurns <= 0)
+                messages.append(QString("%1's true sight fades.").arg(p.name));
+        }
+        if (p.bindTurns > 0) {
+            p.bindTurns--;
+            if (p.bindTurns <= 0)
+                messages.append(QString("%1 is no longer bound.").arg(p.name));
+        }
+
+        // On Fire DoT: 2-5 damage per round
+        if (p.statusFlags & GameConstants::OnFire) {
+            int damage = 2 + QRandomGenerator::global()->bounded(4);
+            p.hp -= damage;
+            messages.append(QString("%1 takes %2 fire damage!").arg(p.name).arg(damage));
+            if (p.hp <= 0) {
+                p.hp = 0;
+                p.isAlive = false;
+                messages.append(QString("%1 dies from fire!").arg(p.name));
+                continue;
+            }
+            p.fireDuration--;
+            if (p.fireDuration <= 0) {
+                p.statusFlags &= ~GameConstants::OnFire;
+                messages.append(QString("%1 is no longer on fire.").arg(p.name));
+            }
+        }
+
         // Blind duration
         if (p.statusFlags & GameConstants::Blinded) {
             p.blindDuration--;

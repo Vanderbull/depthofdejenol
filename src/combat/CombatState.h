@@ -48,6 +48,11 @@ struct CombatParticipant {
     int blindDuration = 0;
     int fireDuration = 0;
     int confusionDuration = 0;
+    int teleportTurns = 0;
+    int levitationTurns = 0;
+    int invisibilityTurns = 0;
+    int seeInvisibleTurns = 0;
+    int bindTurns = 0;
 
     // School mechanics (driven by SpellMechanics)
     int slowDuration = 0;   // rounds of cold slow remaining
