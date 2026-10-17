@@ -3,7 +3,7 @@
 ![Debian](https://img.shields.io/badge/OS-Debian%2013-A81D33?style=for-the-badge&logo=debian&logoColor=white)
 ![C++](https://img.shields.io/badge/Language-C%2B%2B%2020-blueviolet?style=for-the-badge&logo=c%2B%2B)
 ![Qt6](https://img.shields.io/badge/Engine-Qt%206-green?style=for-the-badge&logo=qt&logoColor=white)
-![Tests](https://img.shields.io/badge/Tests-1996%20Passing-brightgreen?style=for-the-badge&logo=github-actions)
+![Tests](https://img.shields.io/badge/Tests-2043%20Passing-brightgreen?style=for-the-badge&logo=github-actions)
 ![License](https://img.shields.io/badge/License-MIT-yellow?style=for-the-badge)
 
 </div>
@@ -124,7 +124,7 @@ The binary lands at `build/bin/blacklands`.
 
 ## Testing
 
-The project ships with a self-contained test suite (1996 tests):
+The project ships with a self-contained test suite (2043 tests):
 
 ```bash
 make check

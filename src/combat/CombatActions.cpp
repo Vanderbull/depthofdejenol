@@ -2,6 +2,8 @@
 #include "src/core/GameConstants.h"
 #include "src/core/SoundEffects.h"
 #include "src/items/ItemDatabase.h"
+#include "src/items/ConsumableResolver.h"
+#include "src/core/gameStateManager.h"
 #include "src/spell_casting/SpellBook.h"
 #include "src/spell_casting/SpellMechanics.h"
 #include <QRandomGenerator>
@@ -720,41 +722,78 @@ bool CombatActions::useItem(int itemIndex, Character& user, QString& result) {
     }
 
     const QString itemName = user.inventory[itemIndex].name;
-    const QString lower = itemName.toLower();
+
+    // Resolve the effect from the item data, exactly as the out-of-combat path
+    // does — the two must not disagree about what an item does.
+    const ItemDef* def = ItemDatabase::instance().byName(itemName);
+    const QVariantMap spellRow = (def && def->spellID > 0)
+        ? gameStateManager::instance()->getSpell(def->spellID)
+        : QVariantMap();
+    const ConsumableResolver::Resolved effect =
+        def ? ConsumableResolver::resolve(*def, spellRow)
+            : ConsumableResolver::Resolved();
 
     // Resolve the effect on the combat participant, then consume the item via
     // Character::useConsumable so inventory HP/charges stay authoritative.
     CombatParticipant& participant = m_state->participant(userIdx);
+    bool handledHere = false;
 
-    if (lower.contains("healing") || lower.contains("health")) {
-        const ItemDef* def = ItemDatabase::instance().byName(itemName);
-        int healAmount = 10 + (def ? def->spellLvl * 5 : 0);
-        int actual = qMin(healAmount, participant.maxHp - participant.hp);
+    switch (effect.effect) {
+    case ConsumableResolver::Effect::Heal: {
+        int roll = effect.amountMin;
+        if (effect.amountMax > effect.amountMin) {
+            roll += QRandomGenerator::global()->bounded(effect.amountMax - effect.amountMin + 1);
+        }
+        const int actual = qMin(qMax(0, roll), participant.maxHp - participant.hp);
         participant.hp += actual;
         result = QString("%1 uses %2 and restores %3 HP.")
                      .arg(participant.name).arg(itemName).arg(actual);
-    } else if (lower.contains("mana")) {
-        const ItemDef* def = ItemDatabase::instance().byName(itemName);
-        int manaAmount = 10 + (def ? def->spellLvl * 5 : 0);
-        int actual = qMin(manaAmount, participant.maxMana - participant.mana);
-        participant.mana += actual;
-        result = QString("%1 uses %2 and restores %3 mana.")
-                     .arg(participant.name).arg(itemName).arg(actual);
-    } else if (lower.contains("cure") || lower.contains("poison")) {
-        bool had = (participant.statusFlags & GameConstants::Poisoned) != 0;
+        handledHere = true;
+        break;
+    }
+
+    case ConsumableResolver::Effect::CurePoison: {
+        const bool had = (participant.statusFlags & GameConstants::Poisoned) != 0;
         participant.statusFlags &= ~GameConstants::Poisoned;
         participant.poisonDuration = 0;
         result = had ? QString("%1 uses %2 — the poison is cured.")
                            .arg(participant.name).arg(itemName)
                      : QString("%1 uses %2 — nothing to cure.")
                            .arg(participant.name).arg(itemName);
-    } else {
-        result = QString("%1 uses %2.").arg(participant.name).arg(itemName);
+        handledHere = true;
+        break;
+    }
+
+    case ConsumableResolver::Effect::Damage:
+    case ConsumableResolver::Effect::Charm:
+    case ConsumableResolver::Effect::Banish:
+    case ConsumableResolver::Effect::Dispel:
+    case ConsumableResolver::Effect::Bind:
+        // Targeted effects need a target; useItem() carries none, so say so
+        // rather than acting on an arbitrary creature.
+        result = QString("%1 readies %2 — choose a target to use it.")
+                     .arg(participant.name).arg(effect.spellName);
+        handledHere = true;
+        break;
+
+    default:
+        break;
     }
 
     // Consume: apply the real inventory effect (decrements charges / removes).
-    QString effect;
-    user.useConsumable(itemIndex, effect);
+    // This also applies stat boosts, so the combat layer must not apply them
+    // itself or they would land twice.
+    QString effectDesc;
+    const bool consumed = user.useConsumable(itemIndex, effectDesc);
+
+    if (!handledHere) {
+        result = QString("%1 uses %2 — %3")
+                     .arg(participant.name).arg(itemName).arg(effectDesc);
+    }
+
+    if (!consumed) {
+        return false;
+    }
 
     participant.hasActed = true;
     return true;

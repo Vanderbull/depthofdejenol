@@ -25,6 +25,15 @@ UI_DIR = $$BUILD_DIR/ui
 #--------------------------------------------------
 QMAKE_RESOURCE_FLAGS += --root /
 
+# Header dependencies are tracked by qmake itself: every header listed in
+# HEADERS below becomes a prerequisite of every object that includes it, so
+# editing a header rebuilds its dependents. Keep HEADERS in sync with the real
+# includes — a header missing from that list is invisible to the build, and the
+# result is a binary linking objects compiled against two different
+# definitions of the same class. That ODR violation does not crash; it shows up
+# as "the value prints correctly but the comparison is false".
+DEPENDPATH += $$PWD
+
 INCLUDEPATH += _PRO_FILE_PWD_/include
 
 #--------------------------------------------------
@@ -78,8 +87,8 @@ SOURCES += test/selftest.cpp test/selftest_harness.cpp test/selftest_core.cpp te
 #--------------------------------------------------
 # Typed, indexed view of MDATA3. Loaded once; consumers look items up by id or
 # name instead of scanning QVariantMaps.
-HEADERS += src/items/ItemDatabase.h
-SOURCES += src/items/ItemDatabase.cpp
+HEADERS += src/items/ItemDatabase.h src/items/ConsumableResolver.h
+SOURCES += src/items/ItemDatabase.cpp src/items/ConsumableResolver.cpp
 HEADERS += src/victory_dialog/VictoryDialog.h
 SOURCES += src/victory_dialog/VictoryDialog.cpp
 

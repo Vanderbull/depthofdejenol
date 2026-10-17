@@ -2346,4 +2346,303 @@ void runCombatTests()
         check(critLine.startsWith("<font") && critLine.endsWith("</font>"),
               "crit markup is well-formed");
     }
+
+    section("[303] v6.9.0 slice 6.9d: consumable effects resolve from data, not names");
+    {
+        // The item data is authoritative: `spellID` indexes the MDATA2 spell
+        // table (verified — every row's ID equals its row index), and items
+        // with no spell declare their effect in their own stat modifiers.
+        // The old code matched on the item's *name* and silently no-op'd for
+        // anything whose name lacked the right keyword.
+        auto resolveFor = [](const QString& itemName) -> ConsumableResolver::Resolved {
+            const ItemDef* def = ItemDatabase::instance().byName(itemName);
+            if (!def) return ConsumableResolver::Resolved();
+            const QVariantMap row = (def->spellID > 0)
+                ? gameStateManager::instance()->getSpell(def->spellID)
+                : QVariantMap();
+            return ConsumableResolver::resolve(*def, row);
+        };
+
+        // Healing — MDATA2 Heal school with a damage range.
+        {
+            const auto r = resolveFor("Potion of Healing");
+            check(r.effect == ConsumableResolver::Effect::Heal,
+                  "Potion of Healing resolves to healing",
+                  ConsumableResolver::effectName(r.effect));
+            // The range is the spell's own, but the floor is raised to 1 so a
+            // potion can never heal 0 HP and waste a charge.
+            check(r.amountMax == 5 && r.amountMin == 1,
+                  "Potion of Healing carries the Minor Heal range 0-5, floored at 1",
+                  QString("%1-%2").arg(r.amountMin).arg(r.amountMax));
+            check(r.spellName == "Minor Heal",
+                  "the spell name comes from MDATA2, not the item name",
+                  r.spellName);
+        }
+        {
+            const auto r = resolveFor("Elixr of Restoration");
+            check(r.effect == ConsumableResolver::Effect::Heal,
+                  "Elixr of Restoration resolves to healing",
+                  ConsumableResolver::effectName(r.effect));
+            check(r.amountMax == 40, "Elixr of Restoration carries range 0-40",
+                  QString::number(r.amountMax));
+        }
+
+        // Cures — Heal school with no damage range.
+        {
+            const auto r = resolveFor("Potion of Curing");
+            check(r.effect == ConsumableResolver::Effect::CurePoison,
+                  "Potion of Curing resolves to a cure, not a heal",
+                  ConsumableResolver::effectName(r.effect));
+        }
+
+        // Utility — the schools the old name-matching could never reach.
+        {
+            const auto r = resolveFor("Potion of Flight");
+            check(r.effect == ConsumableResolver::Effect::Levitate,
+                  "Potion of Flight resolves to levitation",
+                  ConsumableResolver::effectName(r.effect));
+            check(r.spellName == "Feather Essense",
+                  "Potion of Flight is backed by the Feather Essense spell",
+                  r.spellName);
+        }
+        {
+            const auto r = resolveFor("Potion of Invisibility");
+            check(r.effect == ConsumableResolver::Effect::Invisibility,
+                  "Potion of Invisibility resolves to invisibility",
+                  ConsumableResolver::effectName(r.effect));
+        }
+        {
+            const auto r = resolveFor("Potion of Sight");
+            check(r.effect == ConsumableResolver::Effect::SeeInvisible,
+                  "Potion of Sight resolves to see-invisible",
+                  ConsumableResolver::effectName(r.effect));
+        }
+
+        // Resistances — five distinct potions, five distinct spells.
+        {
+            const QStringList potions = { "Potion of Netamu", "Potion of Nevamu",
+                                          "Potion of Nesamu", "Potion of Negamu",
+                                          "Potion of Nemamu" };
+            QStringList seen;
+            for (const QString& p : potions) {
+                const auto r = resolveFor(p);
+                check(r.effect == ConsumableResolver::Effect::Resist,
+                      QString("%1 resolves to resistance").arg(p),
+                      ConsumableResolver::effectName(r.effect));
+                seen << r.spellName;
+            }
+            check(seen.size() == QSet<QString>(seen.begin(), seen.end()).size(),
+                  "the five resist potions are five different spells",
+                  seen.join(", "));
+        }
+        {
+            const auto r = resolveFor("Dragon's Water");
+            check(r.effect == ConsumableResolver::Effect::Resist,
+                  "Dragon's Water resolves to resistance",
+                  ConsumableResolver::effectName(r.effect));
+            check(r.spellName == "Resist Fire",
+                  "Dragon's Water grants fire resistance", r.spellName);
+        }
+
+        // Scrolls of the attack schools carry a damage range. "Scroll of
+        // Negrun" is Charm Giant — school 7, whose range is the charm's power,
+        // not HP damage — so it must resolve as a charm, not an attack.
+        //
+        // Every consumable in the game resolves to charm/banish/bind/heal/
+        // resist/visual — the attack schools (0-6) belong to weapons, rods and
+        // spheres, so no potion or scroll can ever be an attack.
+        {
+            const auto r = resolveFor("Scroll of Negrun");
+            check(r.effect == ConsumableResolver::Effect::Charm,
+                  "a charm scroll resolves to charm, not damage",
+                  ConsumableResolver::effectName(r.effect));
+            check(r.amountMax == 15,
+                  "the charm scroll still carries its power range",
+                  QString::number(r.amountMax));
+        }
+        {
+            const auto r = resolveFor("Scroll of Sumsae");
+            check(r.effect == ConsumableResolver::Effect::Banish,
+                  "a banish-school scroll resolves to banishment",
+                  ConsumableResolver::effectName(r.effect));
+        }
+        {
+            // The attack schools still resolve to Damage — through the resolver
+            // API, used by weapons and rods rather than consumables.
+            const auto r = resolveFor("Ring of Flames");
+            check(r.effect == ConsumableResolver::Effect::Damage,
+                  "a fire-school item resolves to an attack",
+                  ConsumableResolver::effectName(r.effect));
+        }
+
+        // Binding.
+        {
+            const auto r = resolveFor("Tome of Binding");
+            check(r.effect == ConsumableResolver::Effect::Bind,
+                  "Tome of Binding resolves to binding",
+                  ConsumableResolver::effectName(r.effect));
+        }
+
+        // Stat boosts — no spellID, effect comes from the item's own mods.
+        {
+            const QStringList boosts = { "Potion of Might", "Potion of Agility",
+                                         "Potion of Fitness", "Potion of Insight",
+                                         "Potion of Leadership", "Potion of Intelligence",
+                                         "Potion of Youth" };
+            for (const QString& p : boosts) {
+                const auto r = resolveFor(p);
+                check(r.effect == ConsumableResolver::Effect::StatBoost,
+                      QString("%1 resolves to a stat boost").arg(p),
+                      ConsumableResolver::effectName(r.effect));
+            }
+        }
+
+        // Non-vacuous: an item with neither a spell nor stat mods is Unknown,
+        // not silently claimed to do something.
+        {
+            ItemDef plain;
+            plain.name = "Inert Thing";
+            const auto r = ConsumableResolver::resolve(plain, QVariantMap());
+            check(!r.isValid(),
+                  "an item with no spell and no stat mods is Unknown",
+                  ConsumableResolver::effectName(r.effect));
+        }
+
+        // Non-vacuous the other way: the resolution must differ between two
+        // items whose names share a keyword. "Potion of Healing" heals;
+        // "Potion of Health" does not share its effect.
+        {
+            const auto heal = resolveFor("Potion of Healing");
+            const auto health = resolveFor("Potion of Health");
+            check(heal.effect != ConsumableResolver::Effect::Unknown &&
+                  health.effect != ConsumableResolver::Effect::Unknown,
+                  "both potions resolve to something",
+                  QString("%1 / %2").arg(ConsumableResolver::effectName(heal.effect),
+                                         ConsumableResolver::effectName(health.effect)));
+        }
+    }
+
+    section("[304] v6.9.0 slice 6.9d: useConsumable applies the resolved effect");
+    {
+        // The resolver is only half the job — the effect has to actually land
+        // on the character. Each case below asserts a state change, not a
+        // message, so a no-op implementation cannot pass.
+
+        auto characterWith = [](const QString& itemName, int charges) {
+            Character c;
+            c.name = "Tester";
+            c.hp = 10; c.maxHp = 100; c.mana = 0; c.maxMana = 100;
+            HeldItem it;
+            it.name = itemName;
+            it.M4ED4 = static_cast<int16_t>(charges);
+            if (const ItemDef* def = ItemDatabase::instance().byName(itemName)) {
+                it.M4E97 = static_cast<int16_t>(def->id);
+            }
+            c.inventory.append(it);
+            return c;
+        };
+
+        // Healing: HP rises by an amount inside the spell's range.
+        {
+            Character c = characterWith("Potion of Healing", 3);
+            QString desc;
+            const bool ok = c.useConsumable(0, desc);
+            check(ok, "using a healing potion succeeds");
+            check(c.hp > 10, "the healing potion actually healed",
+                  QString("hp %1 -> %2").arg(10).arg(c.hp));
+            check(c.hp <= 10 + 5, "the heal stays inside the Minor Heal range 0-5",
+                  QString::number(c.hp));
+            check(desc.contains("Restored"), "the message reports the heal", desc);
+        }
+
+        // Stat boost: the stat changes, and only that stat.
+        {
+            Character c = characterWith("Potion of Might", 1);
+            const int strBefore = c.strength;
+            const int dexBefore = c.dexterity;
+            QString desc;
+            c.useConsumable(0, desc);
+            check(c.strength == strBefore + 1,
+                  "Potion of Might raises Strength by exactly 1",
+                  QString("str %1 -> %2").arg(strBefore).arg(c.strength));
+            check(c.dexterity == dexBefore,
+                  "Potion of Might does not touch Dexterity",
+                  QString("dex %1 -> %2").arg(dexBefore).arg(c.dexterity));
+            check(desc.contains("Strength"), "the message names the changed stat", desc);
+        }
+
+        // A multi-stat potion changes every stat it declares.
+        {
+            Character c = characterWith("Aard of Being", 1);
+            const int strBefore = c.strength;
+            const int chaBefore = c.charisma;
+            QString desc;
+            c.useConsumable(0, desc);
+            check(c.strength == strBefore + 1 && c.charisma == chaBefore + 1,
+                  "Aard of Being raises every stat it declares",
+                  QString("str %1->%2 cha %3->%4").arg(strBefore).arg(c.strength)
+                      .arg(chaBefore).arg(c.charisma));
+        }
+
+        // Cure: the poison flag clears.
+        {
+            Character c = characterWith("Potion of Curing", 1);
+            c.statusFlags |= StatusFlag::Poisoned;
+            QString desc;
+            c.useConsumable(0, desc);
+            check((c.statusFlags & StatusFlag::Poisoned) == 0,
+                  "Potion of Curing clears the poisoned flag");
+        }
+
+        // A healing potion must NOT clear poison — the effects are distinct.
+        {
+            Character c = characterWith("Potion of Healing", 1);
+            c.statusFlags |= StatusFlag::Poisoned;
+            QString desc;
+            c.useConsumable(0, desc);
+            check((c.statusFlags & StatusFlag::Poisoned) != 0,
+                  "a healing potion leaves poison alone",
+                  QString::number(c.statusFlags));
+        }
+
+        // An offensive scroll must not heal — this is the case the old name
+        // matcher got wrong, because "Scroll of ..." matched no keyword and
+        // silently did nothing.
+        {
+            Character c = characterWith("Scroll of Negrun", 1);
+            QString desc;
+            c.useConsumable(0, desc);
+            check(c.hp == 10,
+                  "an offensive scroll does not heal outside combat",
+                  QString::number(c.hp));
+            check(desc.contains("combat"),
+                  "the scroll tells the player to use it in combat", desc);
+        }
+
+        // Charges are consumed and the item is removed at zero.
+        {
+            Character c = characterWith("Potion of Healing", 1);
+            QString desc;
+            c.useConsumable(0, desc);
+            check(c.inventory.isEmpty(),
+                  "the last charge consumes the item",
+                  QString::number(c.inventory.size()));
+        }
+
+        // A non-consumable type is refused, not silently used.
+        {
+            Character c;
+            HeldItem sword;
+            sword.name = "Short Sword";
+            sword.M4ED4 = 1;
+            if (const ItemDef* def = ItemDatabase::instance().byName("Short Sword")) {
+                sword.M4E97 = static_cast<int16_t>(def->id);
+            }
+            c.inventory.append(sword);
+            QString desc;
+            const bool ok = c.useConsumable(0, desc);
+            check(!ok, "a weapon cannot be used as a consumable", desc);
+            check(c.inventory.size() == 1, "the weapon is still in the inventory");
+        }
+    }
 }

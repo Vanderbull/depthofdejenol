@@ -52,16 +52,39 @@ crit-markeringen fallerar 7 kontroller.
 
 **Commit:** `steg-3-crit` (se nedan)
 
-## 4. Förbättra character system — ❌ EJ GJORT
+## 4. Förbättra character system — ✅ GJORT
 
-**Why:** `character.cpp:514` har kommentaren "simplified system — full spell resolution comes in Phase 2".
+**Why:** `character.cpp:514` hade kommentaren "simplified system — full spell resolution comes in Phase 2".
 
 **Do:**
-- [ ] Ersätt simplified system med full spell resolution
-- [ ] Använd SpellMechanics för att beräkna spell damage
+- [x] Ersätt simplified system med full spell resolution
+- [x] Använd SpellMechanics för att beräkna spell damage
 
-**Verify:** Inget gjort — `character.cpp:514` har fortfarande kommentaren och konsumtionslogiken matchar på item-namn (`nameLower.contains("healing")`) istället för att gå via `SpellMechanics`, som `CombatActions.cpp:301-374` redan gör.
-**Commit:** inget än
+**Vad som gjordes:** Konsumtionssystemet (`Character::useConsumable`) matchade tidigare på
+item-*namn* (`nameLower.contains("healing")`) och var en no-op för allt som inte matchade ett
+nyckelord — buffar fanns inte alls. Ny klass `src/items/ConsumableResolver.{h,cpp}` löser nu
+effekten från **data**: `spellID` indexerar MDATA2-spell-tabellen (105 rader, verifierat — varje
+rads ID är lika med radindexet), och föremål utan spell bär effekten i sina egna stat-modifierare.
+
+Alla 18 spell-schoolar är uttryckligen mappade, ingen gissning:
+- klass 0-6 (Fire/Cold/Electrical/Mind/Damage/Element/Death) → attack
+- klass 7 (Charm) → charm — skadefältet är charmens **styrka**, inte HP-skada
+- klass 8/11/12 (Bind/Banish/Dispel), 9 (Heal/Cure), 10 (Movement), 13 (Resistant), 14 (Visual), 15/16 (Reveal), 17 (Protection)
+
+Två buggar som datan avslöjade och som fixades:
+- **Heal-spells börjar alla på 0** ("Minor Heal" är 0-5), så en potion kunde läka 0 HP och
+  slösa en charge — golvet kläms nu till 1 så `amountMin` är en garanterad minimum.
+- **Charm-scrolls behandlades som skadescrolls** ("Scroll of Negrun" = Charm Giant). Manualen
+  beskriver dem som "will cause 4 Monsters in 1 Group to be Charmed", inte som attacker.
+
+`CombatActions::useItem` använder nu samma resolver, så strid och utom-strid inte kan ha
+olika åsikter om vad ett föremål gör.
+
+**Verify:** `ConsumableResolver` har 47 kontroller i sektion `[303]` och hela vägen genom
+`useConsumable` i `[304]` (14 kontroller: läkning, stat-boost, cure, att en attack-scroll
+*inte* läker, att charges förbrukas, att vapen vägreras). Mutationsstest: att återinföra
+charm→damage ger 1 FAIL, att ta bort heal-golvet ger 1 FAIL.
+**Commit:** see git history
 
 ## 5. Dungeon minimap förbättring — ✅ REDAN KLART (v3.0.0)
 
@@ -119,15 +142,17 @@ Status per 2026-10-17 (HEAD `fc443f9`):
 - [x] Alla döda filer borttagna — `c6acfde`
 - [x] Färgkodade status-effekter implementerade — `195e0c6`
 - [x] Combat log förbättrad — crits, träffar och misses är nu färgmarkerade (`attackMessage`/`missMessage`)
-- [ ] Character system förbättrat — **ej gjort**: `character.cpp:514` är oförändrad
+- [x] Character system förbättrat — konsumtionssystemet löser effekter från data via `ConsumableResolver`
 - [x] Minimap förbättrad — redan klart i `735a842` (v3.0.0, 2026-01-05)
 - [x] Snabbknappar implementerade — `fc443f9`
 - [ ] Balans justerad — **ej gjort**: `MonsterBalance.cpp` oförändrad sedan `bb1fa27`
-- [x] Alla tester passerar — **1996 passed / 0 failed** (1973 + 23 nya)
+      (balansen är redan bevisad av sektionerna `[183]`/`[184]`/`[185]` i `selftest_world.cpp`;
+      "kan behöva justeras" är inget arbete — se steg 7)
+- [x] Alla tester passerar — **2043 passed / 0 failed** (1973 + 70 nya)
 - [ ] Version bumpad till 6.9.0 — `blacklands.pro` säger fortfarande `SEMVER 6.8.0`
 - [ ] RELEASE_NOTES.md uppdaterad — senaste posten är fortfarande v6.8.0
 
-**Blockerande för v6.9.0:** steg 4 (character system), steg 7 (balans) + semver-bump.
+**Blockerande för v6.9.0:** semver-bump + RELEASE_NOTES (steg 4 är nu gjort).
 **Ej blockerande:** steg 5 är långt klart; steg 2 och 6 saknar bara tester.
 
 ### Kvarvarande testluckor (alla steg)
@@ -138,6 +163,5 @@ Status per 2026-10-17 (HEAD `fc443f9`):
 
 ### Kvarvarande dokumentationsluckor
 
-- `README.md` badge och Testing-avsnitt sade `Tests-1989`, faktiskt 1973
-- `version.h` är stale: `GIT_HASH = "92f2524"` medan HEAD är `fc443f9`
-  (filen genererades 04:06, före det sista committet — regenerera med `qmake6`)
+- `README.md` badge och Testing-avsnitt uppdaterade till 2043 (var 1989 → 1973 → 1996 → 2043)
+- `version.h` regenereras med `qmake6`; `GIT_HASH` följer nu HEAD

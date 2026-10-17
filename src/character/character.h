@@ -10,6 +10,10 @@
 
 #include "src/core/GameConstants.h"
 
+// ItemDef lives in ItemDatabase.h; only a forward declaration is needed here
+// so character.h does not pull in the whole item table.
+struct ItemDef;
+
 // --- Supporting structs (from MTypes.h) ---
 
 struct HeldItem {
@@ -240,6 +244,10 @@ struct Character {
     // --- Consumables ---
     // Use a consumable item. Returns true on success.
     bool useConsumable(int inventoryIndex, QString& effectDescription);
+
+    // Apply a consumable's own stat modifiers (Potion of Might and friends).
+    // Returns a human-readable summary of what changed.
+    QString applyConsumableStatBoost(const ItemDef& def);
 
     // Can this inventory slot be used as a consumable? Potions (23), scrolls
     // (24) and tomes (25) are the usable types; the same rule useConsumable()

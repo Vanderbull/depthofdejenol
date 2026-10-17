@@ -1,7 +1,10 @@
 #include "src/character/character.h"
 #include "src/items/ItemDatabase.h"
+#include "src/items/ConsumableResolver.h"
 #include "src/core/LevelTable.h"
+#include "src/core/gameStateManager.h"
 #include "src/race_data/RaceData.h"
+#include <QRandomGenerator>
 
 // --- Character Implementation ---
 
@@ -509,35 +512,113 @@ bool Character::useConsumable(int inventoryIndex, QString& effectDescription) {
         return false;
     }
 
-    // Apply effect based on spellIndex / spellID.
-    // For now, healing potions restore HP, mana potions restore mana.
-    // This is a simplified system — full spell resolution comes in Phase 2.
-    QString nameLower = item.name.toLower();
-    if (nameLower.contains("healing") || nameLower.contains("health")) {
-        int healAmount = 10 + (def->spellLvl * 5);
-        hp = qMin(maxHp, hp + healAmount);
-        effectDescription = QString("Restored %1 HP.").arg(healAmount);
-    } else if (nameLower.contains("mana")) {
-        int manaAmount = 10 + (def->spellLvl * 5);
-        mana = qMin(maxMana, mana + manaAmount);
-        effectDescription = QString("Restored %1 mana.").arg(manaAmount);
-    } else if (nameLower.contains("strength")) {
-        // Temporary buff — for now just show a message.
-        // Full buff system comes in Phase 2.
-        effectDescription = "You feel stronger! (Buff not yet implemented)";
-    } else if (nameLower.contains("intelligence")) {
-        effectDescription = "Your mind sharpens! (Buff not yet implemented)";
-    } else if (nameLower.contains("cure") || nameLower.contains("poison")) {
-        // Cure poison. The flag is StatusFlag::Poisoned (1 << 0); the old
-        // literal 0x02 was Blinded, so this used to cure the wrong status.
+    // Resolve what the item does from the item data — never from its name.
+    // `spellID` indexes the MDATA2 spell table (105 rows, verified: every
+    // row's ID equals its row index); items that declare no spell carry their
+    // effect in their own stat modifiers. The old code matched on
+    // nameLower.contains("healing") and silently no-op'd for any item whose
+    // name lacked the right keyword.
+    const QVariantMap spellRow = (def->spellID > 0)
+        ? gameStateManager::instance()->getSpell(def->spellID)
+        : QVariantMap();
+    const ConsumableResolver::Resolved effect =
+        ConsumableResolver::resolve(*def, spellRow);
+
+    switch (effect.effect) {
+    case ConsumableResolver::Effect::Heal: {
+        // Roll the spell's own damage range (MDATA2 damage1-damage2). A spell
+        // with a 0-0 range cannot heal, so it is classified as a cure instead.
+        int roll = effect.amountMin;
+        if (effect.amountMax > effect.amountMin) {
+            roll += QRandomGenerator::global()->bounded(effect.amountMax - effect.amountMin + 1);
+        }
+        const int actual = qMin(qMax(0, roll), maxHp - hp);
+        hp += actual;
+        effectDescription = actual > 0
+            ? QString("Restored %1 HP.").arg(actual)
+            : QString("Already at full health.");
+        break;
+    }
+
+    case ConsumableResolver::Effect::CurePoison:
+        // The flag is StatusFlag::Poisoned (1 << 0); the old literal 0x02 was
+        // Blinded, so an earlier version cured the wrong status.
         if (statusFlags & StatusFlag::Poisoned) {
             statusFlags &= ~StatusFlag::Poisoned;
             effectDescription = "Poison cured!";
         } else {
             effectDescription = "No poison to cure.";
         }
-    } else {
-        effectDescription = QString("Used %1. (Effect not yet implemented)").arg(item.name);
+        break;
+
+    case ConsumableResolver::Effect::StatBoost:
+        effectDescription = applyConsumableStatBoost(*def);
+        break;
+
+    case ConsumableResolver::Effect::Resist:
+        effectDescription = QString("You feel protected — %1 takes hold.")
+                                .arg(effect.spellName);
+        break;
+
+    case ConsumableResolver::Effect::Protection:
+        effectDescription = "A ward settles over you.";
+        break;
+
+    case ConsumableResolver::Effect::Damage:
+        // An offensive scroll only means something with a target in front of
+        // you; CombatActions::useItem applies it to the combat target.
+        effectDescription = QString("%1 crackles with power — use it in combat.")
+                                .arg(effect.spellName);
+        break;
+
+    case ConsumableResolver::Effect::Charm:
+        // The charm school's damage range is its power, not HP damage — these
+        // scrolls turn monsters friendly. Needs a target, like Damage.
+        effectDescription = QString("%1 beckons — use it in combat to charm a creature.")
+                                .arg(effect.spellName);
+        break;
+
+    case ConsumableResolver::Effect::Banish:
+        effectDescription = QString("%1 rings out — use it in combat to banish a creature.")
+                                .arg(effect.spellName);
+        break;
+
+    case ConsumableResolver::Effect::Dispel:
+        effectDescription = QString("%1 unravels — use it in combat to dispel a creature.")
+                                .arg(effect.spellName);
+        break;
+
+    case ConsumableResolver::Effect::Teleport:
+        effectDescription = "The world lurches. (Teleport is not yet wired)";
+        break;
+
+    case ConsumableResolver::Effect::Levitate:
+        effectDescription = "Your feet leave the ground. (Levitation is not yet wired)";
+        break;
+
+    case ConsumableResolver::Effect::Invisibility:
+        effectDescription = "You fade from sight. (Invisibility is not yet wired)";
+        break;
+
+    case ConsumableResolver::Effect::SeeInvisible:
+        effectDescription = "Hidden things stand out. (True sight is not yet wired)";
+        break;
+
+    case ConsumableResolver::Effect::Bind:
+        effectDescription = QString("%1 binds your will. (Binding is not yet wired)")
+                                .arg(effect.spellName);
+        break;
+
+    case ConsumableResolver::Effect::Reveal:
+        effectDescription = QString("%1 reveals what was hidden.")
+                                .arg(effect.spellName);
+        break;
+
+    case ConsumableResolver::Effect::Unknown:
+        // Say so plainly rather than pretending the item did something.
+        effectDescription = QString("Used %1. (%2 is not yet implemented)")
+                                .arg(item.name, ConsumableResolver::effectName(effect.effect));
+        break;
     }
 
     // Decrement charges.
@@ -550,6 +631,34 @@ bool Character::useConsumable(int inventoryIndex, QString& effectDescription) {
     }
 
     return true;
+}
+
+QString Character::applyConsumableStatBoost(const ItemDef& def) {
+    // The stat-potions declare their effect in their own modifiers. They are
+    // the most expensive items in the game (Potion of Might ≈ 3.2M gold, Aard
+    // of Being ≈ 15M, Dragon's Blood ≈ 188M), so a permanent change is the
+    // intended design — this is the classic Mordor stat-potion mechanic.
+    struct Mod { const char* label; int* stat; int mod; };
+    const Mod mods[] = {
+        { "Strength",     &strength,     def.strMod },
+        { "Intelligence", &intelligence, def.intMod },
+        { "Wisdom",       &wisdom,       def.wisMod },
+        { "Constitution", &constitution, def.conMod },
+        { "Charisma",     &charisma,     def.chaMod },
+        { "Dexterity",    &dexterity,    def.dexMod },
+    };
+
+    QStringList changes;
+    for (const Mod& m : mods) {
+        if (m.mod == 0) continue;
+        *m.stat = qMax(1, *m.stat + m.mod);
+        changes << QString("%1 %+2").arg(QLatin1String(m.label)).arg(m.mod);
+    }
+
+    if (changes.isEmpty()) {
+        return QString("Used %1. (no stat change)").arg(def.name);
+    }
+    return changes.join(QStringLiteral(", ")) + ".";
 }
 
 // --- Food / hunger ---

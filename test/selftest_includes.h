@@ -5,6 +5,7 @@
 #include "src/blacklands.h"
 #include "src/character/character.h"
 #include "src/items/ItemDatabase.h"
+#include "src/items/ConsumableResolver.h"
 #include "src/combat/CombatState.h"
 #include "src/combat/TurnEngine.h"
 #include "src/combat/CombatActions.h"
