@@ -1932,13 +1932,13 @@ QString DungeonDialog::combatGroupStyleSheet() const
 QString DungeonDialog::combatStatusText(const CombatParticipant& p)
 {
     QStringList parts;
-    if (p.poisonDuration > 0) parts << QString("poison %1").arg(p.poisonDuration);
-    if (p.fireDuration > 0)   parts << QString("fire %1").arg(p.fireDuration);
-    if (p.blindDuration > 0)  parts << QString("blind %1").arg(p.blindDuration);
-    if (p.confusionDuration > 0) parts << QString("confused %1").arg(p.confusionDuration);
-    if (p.stunDuration > 0)   parts << QString("stunned %1").arg(p.stunDuration);
-    if (p.slowDuration > 0)   parts << QString("slowed %1").arg(p.slowDuration);
-    if (p.isDefending)        parts << "defending";
+    if (p.poisonDuration > 0) parts << QString("<font color='green'>poison %1</font>").arg(p.poisonDuration);
+    if (p.fireDuration > 0)   parts << QString("<font color='red'>fire %1</font>").arg(p.fireDuration);
+    if (p.blindDuration > 0)  parts << QString("<font color='yellow'>blind %1</font>").arg(p.blindDuration);
+    if (p.confusionDuration > 0) parts << QString("<font color='magenta'>confused %1</font>").arg(p.confusionDuration);
+    if (p.stunDuration > 0)   parts << QString("<font color='cyan'>stunned %1</font>").arg(p.stunDuration);
+    if (p.slowDuration > 0)   parts << QString("<font color='gray'>slowed %1</font>").arg(p.slowDuration);
+    if (p.isDefending)        parts << "<font color='blue'>defending</font>";
     return parts.join(", ");
 }
 
