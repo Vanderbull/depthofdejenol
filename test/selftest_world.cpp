@@ -3331,6 +3331,14 @@ void runWorldTests()
               "the clean row shows no status",
               dlg.m_combatTargetList->item(1)->text());
 
+        // The colour markup must reach the row too, not just combatStatusText().
+        check(dlg.m_combatTargetList->item(0)->text().contains("<font color='green'>"),
+              "the poisoned row is green",
+              dlg.m_combatTargetList->item(0)->text());
+        check(dlg.m_combatTargetList->item(2)->text().contains("<font color='red'>"),
+              "the burning row is red",
+              dlg.m_combatTargetList->item(2)->text());
+
         dlg.m_monsterPositions.remove(pos);
         dlg.m_MonsterAttitude.remove("Test Row Goblin");
         dlg.m_inCombat = false;
@@ -3407,6 +3415,17 @@ void runWorldTests()
         check(text.contains("poison 2") && text.contains("blind 1") &&
               text.contains("defending"),
               "multiple statuses combine", text);
+
+        // Each colour must be bound to ITS OWN status, not merely appear
+        // somewhere in the joined string: a shared <font> wrapper or a
+        // swapped colour would satisfy a bare "contains" check but colour
+        // the wrong status.
+        check(text.contains("<font color='green'>poison 2</font>"),
+              "green wraps the poison status", text);
+        check(text.contains("<font color='yellow'>blind 1</font>"),
+              "yellow wraps the blind status", text);
+        check(text.contains("<font color='blue'>defending</font>"),
+              "blue wraps the defending status", text);
     }
 
     section("[132] v3.0.0 slice 3.3: melee reaches the front row only");
