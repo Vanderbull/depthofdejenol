@@ -1,7 +1,6 @@
 #-------------------------------------------------- Project
 # Configuration
 #--------------------------------------------------
-PRECOMPILED_HEADER = src/stable.h
 QT += core gui widgets multimedia network
 TARGET = blacklands
 
@@ -44,9 +43,7 @@ SOURCES += \
     src/character_dialog/CharacterDialog.cpp \
     src/library_dialog/library_dialog.cpp \
     src/automap/automap_dialog.cpp \
-    src/game_controller/game_controller.cpp \
     src/load_party_dialog/LoadPartyDialog.cpp \
-    src/mordorstatistics/mordorstatistics.cpp \
     src/guilds_dialog/GuildsDialog.cpp \
     src/general_store/GeneralStore.cpp \
     src/morgue_dialog/MorgueDialog.cpp \
@@ -191,9 +188,7 @@ HEADERS += \
     src/character_dialog/CharacterDialog.h \
     src/library_dialog/library_dialog.h \
     src/automap/automap_dialog.h \
-    src/game_controller/game_controller.h \
     src/load_party_dialog/LoadPartyDialog.h \
-    src/mordorstatistics/mordorstatistics.h \
     src/guilds_dialog/GuildsDialog.h \
     src/general_store/GeneralStore.h \
     src/morgue_dialog/MorgueDialog.h \
