@@ -6118,6 +6118,36 @@ void runWorldTests()
         city.close();
     }
 
+    section("[303] v6.9.0: F5/F9/F12 save/load shortcuts");
+    {
+        DungeonDialog dlg;
+        dlg.resize(1280, 800);
+        for (int i = 0; i < 20; ++i) QApplication::processEvents();
+
+        gameStateManager* gsm = gameStateManager::instance();
+        gsm->setCurrentSaveName("test_quicksave");
+
+        // F5 = quicksave — must not crash
+        QKeyEvent f5Event(QEvent::KeyPress, Qt::Key_F5, Qt::NoModifier);
+        QApplication::sendEvent(&dlg, &f5Event);
+        for (int i = 0; i < 10; ++i) QApplication::processEvents();
+        check(true, "F5 quicksave does not crash");
+
+        // F9 = quickload — must not crash
+        QKeyEvent f9Event(QEvent::KeyPress, Qt::Key_F9, Qt::NoModifier);
+        QApplication::sendEvent(&dlg, &f9Event);
+        for (int i = 0; i < 10; ++i) QApplication::processEvents();
+        check(true, "F9 quickload does not crash");
+
+        // F12 = autosave — must not crash
+        QKeyEvent f12Event(QEvent::KeyPress, Qt::Key_F12, Qt::NoModifier);
+        QApplication::sendEvent(&dlg, &f12Event);
+        for (int i = 0; i < 10; ++i) QApplication::processEvents();
+        check(true, "F12 autosave does not crash");
+
+        dlg.close();
+    }
+
     section("[291] v6.1.0 slice 6.1a: dialog instant-kill is not 9999");
     {
         // The player Cast Spell path must use the same massive-damage rule as
