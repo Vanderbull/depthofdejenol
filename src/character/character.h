@@ -113,6 +113,11 @@ struct Character {
 
     // --- Status Effects ---
     uint statusFlags = 0;
+    int teleportTurns = 0;      // remaining turns of teleport
+    int levitationTurns = 0;    // remaining turns of levitation
+    int invisibilityTurns = 0;  // remaining turns of invisibility
+    int seeInvisibleTurns = 0;  // remaining turns of true sight
+    int bindTurns = 0;          // remaining turns of binding
     bool isAlive = true;
 
     // --- Location Data ---

@@ -589,24 +589,29 @@ bool Character::useConsumable(int inventoryIndex, QString& effectDescription) {
         break;
 
     case ConsumableResolver::Effect::Teleport:
-        effectDescription = "The world lurches. (Teleport is not yet wired)";
+        teleportTurns = 10 + (def->spellLvl * 2);
+        effectDescription = QString("The world lurches. Teleport active for %1 turns.").arg(teleportTurns);
         break;
 
     case ConsumableResolver::Effect::Levitate:
-        effectDescription = "Your feet leave the ground. (Levitation is not yet wired)";
+        levitationTurns = 10 + (def->spellLvl * 2);
+        effectDescription = QString("Your feet leave the ground. Levitation active for %1 turns.").arg(levitationTurns);
         break;
 
     case ConsumableResolver::Effect::Invisibility:
-        effectDescription = "You fade from sight. (Invisibility is not yet wired)";
+        invisibilityTurns = 8 + (def->spellLvl * 2);
+        effectDescription = QString("You fade from sight. Invisibility active for %1 turns.").arg(invisibilityTurns);
         break;
 
     case ConsumableResolver::Effect::SeeInvisible:
-        effectDescription = "Hidden things stand out. (True sight is not yet wired)";
+        seeInvisibleTurns = 12 + (def->spellLvl * 2);
+        effectDescription = QString("Hidden things stand out. True sight active for %1 turns.").arg(seeInvisibleTurns);
         break;
 
     case ConsumableResolver::Effect::Bind:
-        effectDescription = QString("%1 binds your will. (Binding is not yet wired)")
-                                .arg(effect.spellName);
+        bindTurns = 6 + def->spellLvl;
+        effectDescription = QString("%1 binds your will. Binding active for %1 turns.")
+                                .arg(effect.spellName).arg(bindTurns);
         break;
 
     case ConsumableResolver::Effect::Reveal:
