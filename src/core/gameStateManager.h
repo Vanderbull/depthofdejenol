@@ -143,7 +143,7 @@ public:
 
     // Start a New Game Plus run: keep the party (level, stats, equipment, gold),
     // reset the dungeon, quest chain and play time, and increase NG+ level.
-    void startNewGamePlus();
+
 
     void initializeResources();
     QPixmap getFontSpriteSheet() const { return m_fontSpriteSheet; }
@@ -369,7 +369,7 @@ public:
 
 signals:
     void gameValueChanged(const QString& key, const QVariant& value);
-    void fontChanged();
+
     // Text from the multiplayer server, already parsed and never executed.
     void systemMessage(const QString& sender, const QString& message);
 

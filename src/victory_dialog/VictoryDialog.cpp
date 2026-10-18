@@ -1,5 +1,6 @@
 #include "VictoryDialog.h"
 #include "src/core/gameStateManager.h"
+#include <QMessageBox>
 #include <QPropertyAnimation>
 #include <QGraphicsOpacityEffect>
 #include <QSequentialAnimationGroup>
@@ -43,14 +44,18 @@ VictoryDialog::VictoryDialog(const QString& title, const QStringList& paragraphs
     if (isFinalVictory) {
         m_ngPlusBtn = new QPushButton("New Game Plus", this);
         m_ngPlusBtn->setMinimumSize(150, 40);
-        connect(m_ngPlusBtn, &QPushButton::clicked, this, [gsm]() { gsm->startNewGamePlus(); });
+        connect(m_ngPlusBtn, &QPushButton::clicked, this, [this]() {
+            QMessageBox::information(this, "New Game Plus", "Coming soon.");
+        });
         btnLayout->addWidget(m_ngPlusBtn);
     }
 
     m_quitBtn = new QPushButton("Return to Menu", this);
     m_quitBtn->setMinimumSize(150, 40);
     if (m_ngPlusBtn) {
-        connect(m_ngPlusBtn, &QPushButton::clicked, this, [gsm]() { gsm->startNewGamePlus(); });
+        connect(m_ngPlusBtn, &QPushButton::clicked, this, [this]() {
+            QMessageBox::information(this, "New Game Plus", "Coming soon.");
+        });
     }
     connect(m_quitBtn, &QPushButton::clicked, this, &QDialog::accept);
     btnLayout->addWidget(m_quitBtn);

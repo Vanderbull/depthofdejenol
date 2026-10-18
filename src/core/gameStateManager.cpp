@@ -2240,47 +2240,6 @@ bool gameStateManager::spendPartyGold(int amount) {
     return false; // Not enough gold
 }
 
-// v4.0.0 slice 4.1: New Game Plus — keep the party, reset the world.
-void gameStateManager::startNewGamePlus() {
-    // 1. Increase NG+ level.
-    const int newLevel = getNgPlusLevel() + 1;
-    setNgPlusLevel(newLevel);
-
-    // 2. Reset dungeon state (monsters, traps, visited tiles, torch).
-    DungeonLevelRegistry::instance().clear();
-
-    // 3. Reset quest chain progress.
-    // QuestChain state is stored in game values; clear all quest-related keys.
-    QStringList keysToRemove;
-    for (const QString& key : m_gameStateData.keys()) {
-        if (key.startsWith("Quest") || key.startsWith("quest") ||
-            key.startsWith("QuestRewardGiven_")) {
-            keysToRemove.append(key);
-        }
-    }
-    for (const QString& key : keysToRemove) {
-        m_gameStateData.remove(key);
-    }
-
-    // 4. Reset play time.
-    m_playTimeAccumulatedMs = 0;
-    m_playTimeTimer.invalidate();
-    m_gameStateData["PlayTimeSeconds"] = 0;
-
-    // 5. Reset dungeon level to 1.
-    setDungeonLevel(1);
-
-    // 6. Reset party HP/mana to full (but keep level, stats, equipment, gold).
-    for (Character& c : getPartyMembers()) {
-        c.hp = c.maxHp;
-        c.mana = c.maxMana;
-        c.isAlive = true;
-    }
-
-    // 7. Save the new state.
-    packStateForSaving();
-}
-
 void gameStateManager::loadGeneralStoreData(const QString& filePath) {
     loadCSVData(filePath, m_generalstoreData);
     qDebug() << "Loaded" << m_generalstoreData.size() << "general store entries from" << filePath;
