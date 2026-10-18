@@ -4,83 +4,123 @@
   "levels": [
     {
       "level": 1,
-      "xpToNext": 30
+      "xpToNext": 30,
+      "floor": 1,
+      "name": "The Gates"
     },
     {
       "level": 2,
-      "xpToNext": 69
+      "xpToNext": 69,
+      "floor": 2,
+      "name": "Dark Halls"
     },
     {
       "level": 3,
-      "xpToNext": 112
+      "xpToNext": 112,
+      "floor": 3,
+      "name": "Forgotten Chambers"
     },
     {
       "level": 4,
-      "xpToNext": 158
+      "xpToNext": 158,
+      "floor": 4,
+      "name": "The Deep Tunnels"
     },
     {
       "level": 5,
-      "xpToNext": 207
+      "xpToNext": 207,
+      "floor": 5,
+      "name": "Cursed Crypts"
     },
     {
       "level": 6,
-      "xpToNext": 258
+      "xpToNext": 258,
+      "floor": 6,
+      "name": "Shadow Depths"
     },
     {
       "level": 7,
-      "xpToNext": 310
+      "xpToNext": 310,
+      "floor": 7,
+      "name": "The Abyss"
     },
     {
       "level": 8,
-      "xpToNext": 364
+      "xpToNext": 364,
+      "floor": 8,
+      "name": "Ebon Caverns"
     },
     {
       "level": 9,
-      "xpToNext": 419
+      "xpToNext": 419,
+      "floor": 9,
+      "name": "Void Passages"
     },
     {
       "level": 10,
-      "xpToNext": 475
+      "xpToNext": 475,
+      "floor": 10,
+      "name": "The Underhalls"
     },
     {
       "level": 11,
-      "xpToNext": 533
+      "xpToNext": 533,
+      "floor": 11,
+      "name": "Sunken Tombs"
     },
     {
       "level": 12,
-      "xpToNext": 592
+      "xpToNext": 592,
+      "floor": 12,
+      "name": "The Black Maze"
     },
     {
       "level": 13,
-      "xpToNext": 651
+      "xpToNext": 651,
+      "floor": 13,
+      "name": "Dread Halls"
     },
     {
       "level": 14,
-      "xpToNext": 712
+      "xpToNext": 712,
+      "floor": 14,
+      "name": "The Chasm"
     },
     {
       "level": 15,
-      "xpToNext": 773
+      "xpToNext": 773,
+      "floor": 15,
+      "name": "Nightmare Realm"
     },
     {
       "level": 16,
-      "xpToNext": 836
+      "xpToNext": 836,
+      "floor": 16,
+      "name": "The Final Descent"
     },
     {
       "level": 17,
-      "xpToNext": 899
+      "xpToNext": 899,
+      "floor": 17,
+      "name": "Dejenol's Core"
     },
     {
       "level": 18,
-      "xpToNext": 963
+      "xpToNext": 963,
+      "floor": 18,
+      "name": "The Last Gate"
     },
     {
       "level": 19,
-      "xpToNext": 1027
+      "xpToNext": 1027,
+      "floor": 19,
+      "name": "Chaos Throne"
     },
     {
       "level": 20,
-      "xpToNext": 1092
+      "xpToNext": 1092,
+      "floor": 20,
+      "name": "The End"
     }
   ]
 }
