@@ -93,7 +93,7 @@ private slots:
     void on_teleportButton_clicked();
 
 
-    void openAutomap();
+
     void on_pickupButton_clicked();
     void on_dropButton_clicked();
     void on_spellButton_clicked();
@@ -107,15 +107,14 @@ private slots:
     void on_stairsUpButton_clicked();
     void on_stairsLowerButton_clicked();
     void on_chestButton_clicked();
-    void onEventTriggered(const GameEvent& event);
-    void initiateFight();
+
     void moveMonsters();
 
     // Monster AI helpers.
     int distanceBetween(QPair<int, int> a, QPair<int, int> b);
     bool hasLineOfSight(QPair<int, int> from, QPair<int, int> to);
     QVector<QPair<int, int>> getWalkableNeighbors(QPair<int, int> pos);
-    void on_winBattle_trigger();
+
     void togglePartyInfo();
 
     // --- Combat Slots ---
@@ -367,7 +366,7 @@ public:
     void movePlayer(int dx, int dy, int dz);
     // Helper functions
     void logMessage(const QString& message);
-    void spawnMonsters(const QString& monsterType, int count);
+
     void revealAroundPlayer(int x, int y, int z);
     void populateRandomTreasures(int level);
     void processTreasureOpening();

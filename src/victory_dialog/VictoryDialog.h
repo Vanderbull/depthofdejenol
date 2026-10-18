@@ -15,7 +15,7 @@ public:
                           bool isFinalVictory, QWidget *parent = nullptr);
 
 signals:
-    void startNewGamePlus();
+
 
 private:
     QLabel* m_titleLabel;

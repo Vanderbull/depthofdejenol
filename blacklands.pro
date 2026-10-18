@@ -212,7 +212,7 @@ HEADERS += \
     src/core/game_resources.h \
     src/dungeon_dialog/DungeonHandlers.h \
     src/event/EventManager.h \
-    src/dungeon_dialog/MinimapDialog.h \
+    src/dungeon_dialog/MiniMapDialog.h \
     src/character/character.h
 
 HEADERS += src/spell_casting/SpellCastingDialog.h

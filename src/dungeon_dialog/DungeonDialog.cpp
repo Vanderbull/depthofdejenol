@@ -1481,16 +1481,7 @@ void DungeonDialog::enterLevel(int level, bool movingUp)
 
 
 
-void DungeonDialog::openAutomap()
-{
-    gameStateManager* gsm = gameStateManager::instance();
-    int x = gsm->getGameValue("DungeonX").toInt();
-    int y = gsm->getGameValue("DungeonY").toInt();
-    int z = gsm->getGameValue("DungeonLevel").toInt();
-    QString facing = m_compassLabel->text().replace("Facing ", "").toUpper();
 
-    // AutomapDialog removed — MinimapDialog in dungeon_dialog/ handles this
-}
 
 void DungeonDialog::on_pickupButton_clicked()
 {
@@ -2131,9 +2122,7 @@ void DungeonDialog::handleVictory()
         QStringList paragraphs = Endgame::victoryParagraphs();
         VictoryDialog* dlg = new VictoryDialog(title, paragraphs, true, this);
         dlg->setAttribute(Qt::WA_DeleteOnClose);
-        connect(dlg, &VictoryDialog::startNewGamePlus, gsm, [gsm]() {
-            gsm->startNewGamePlus();
-        });
+
         // Record the run for the Hall of Records.
         GameRecord rec;
         rec.heroName = gsm->getPartyMembers().isEmpty() ? "Unknown" : gsm->getPartyMembers()[0].name;
@@ -2511,11 +2500,11 @@ void DungeonDialog::on_chestButton_clicked()
     processTreasureOpening();
 }
 
-void DungeonDialog::initiateFight() {}
 
-void DungeonDialog::on_winBattle_trigger() {}
 
-void DungeonDialog::onEventTriggered(const GameEvent& ) { }
+
+
+
 
 void DungeonDialog::keyPressEvent(QKeyEvent *event)
 {
@@ -2663,10 +2652,7 @@ void DungeonDialog::keyPressEvent(QKeyEvent *event)
             break;
     }
 }
-// Suppress unused parameter warnings
-void DungeonDialog::spawnMonsters(const QString& , int )
-{
-}
+
 
 void DungeonDialog::on_restButton_clicked()
 {
