@@ -13,7 +13,6 @@
 #include "src/load_party_dialog/LoadPartyDialog.h"
 #include "src/assemble_party_dialog/AssemblePartyDialog.h"
 #include "src/multiplayer_dialog/MultiplayerLobbyDialog.h"
-#include "src/tutorial/Tutorial.h"
 #include <QInputDialog>
 #include <QRegularExpression>
 #include "src/race_data/RaceData.h"
@@ -194,11 +193,6 @@ void GameMenu::setupUI() {
     m_multiplayerButton->setMinimumHeight(55);
     footerLayout->addWidget(m_multiplayerButton);
 
-    m_tutorialButton = new QPushButton(tr("Tutorial"), this);
-    m_tutorialButton->setObjectName("tutorialButton");
-    m_tutorialButton->setMinimumHeight(55);
-    footerLayout->addWidget(m_tutorialButton);
-
     m_quitButton = new QPushButton(tr("Quit"), this);
     m_quitButton->setObjectName("quitButton");
     m_quitButton->setMinimumHeight(55);
@@ -233,7 +227,7 @@ void GameMenu::syncFontsToAppFont() {
     const QList<QWidget*> synced = {
         m_continueButton, m_newButton, m_createCharacterButton,
         m_assemblePartyButton, m_saveButton, m_loadButton,
-        m_recordsButton, m_optionsButton, m_multiplayerButton, m_tutorialButton, m_quitButton
+        m_recordsButton, m_optionsButton, m_multiplayerButton, m_quitButton
     };
     for (QWidget *w : synced) {
         if (!w)
@@ -253,7 +247,6 @@ void GameMenu::setupConnections() {
     connect(m_recordsButton, &QPushButton::clicked, this, &GameMenu::showRecords);
     connect(m_optionsButton, &QPushButton::clicked, this, &GameMenu::onOptionsClicked);
     connect(m_multiplayerButton, &QPushButton::clicked, this, &GameMenu::onMultiplayerClicked);
-    connect(m_tutorialButton, &QPushButton::clicked, this, &GameMenu::onTutorialClicked);
     connect(m_quitButton, &QPushButton::clicked, this, &GameMenu::quitGame);
 
     // Engine Signals
@@ -517,13 +510,6 @@ void GameMenu::onOptionsClicked() {
 
 void GameMenu::onMultiplayerClicked() {
     (new MultiplayerLobbyDialog(this))->show();
-}
-
-void GameMenu::onTutorialClicked() {
-    Tutorial::start();
-    QMessageBox::information(this, "Tutorial",
-        "Tutorial started! Enter the dungeon to begin the guided walkthrough.\n\n"
-        "Follow the on-screen instructions to learn movement, combat, spells, and more.");
 }
 
 void GameMenu::startNewGame() {
