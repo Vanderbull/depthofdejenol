@@ -409,115 +409,6 @@ void runWorldTests()
         check(locations.contains("Morgue"), "Morgue NPC exists");
     }
 
-    // ------------------------------------------- Tutorial (7.10)
-
-    section("[47] Guided first dungeon run");
-    {
-        Tutorial::reset();
-        check(!Tutorial::isActive(), "tutorial not active after reset");
-
-        QList<TutorialStep> steps = Tutorial::steps();
-        check(steps.size() == 11, "11 tutorial steps",
-              QString::number(steps.size()));
-
-        // First step is movement.
-        TutorialStep s0 = Tutorial::step(0);
-        check(s0.id == "welcome", "step 0 is welcome");
-        check(s0.completesOn == "move", "step 0 completes on move");
-
-        // Last step is victory.
-        TutorialStep last = Tutorial::step(10);
-        check(last.id == "victory", "last step is victory");
-
-        // Out-of-range step is invalid.
-        TutorialStep invalid = Tutorial::step(99);
-        check(invalid.index == -1, "out-of-range step is invalid");
-    }
-    {
-        // Start the tutorial and advance through events.
-        Tutorial::reset();
-        Tutorial::start();
-        check(Tutorial::isActive(), "tutorial active after start");
-        check(Tutorial::currentStepIndex() == 0, "starts at step 0");
-
-        // Move completes step 0.
-        check(Tutorial::reportEvent("move"), "move advances tutorial");
-        check(Tutorial::currentStepIndex() == 1, "now on step 1");
-
-        // Stairs completes step 1.
-        check(Tutorial::reportEvent("stairs"), "stairs advances tutorial");
-        check(Tutorial::currentStepIndex() == 2, "now on step 2");
-
-        // Level 2 completes step 2.
-        check(Tutorial::reportEvent("level", 2), "level 2 advances tutorial");
-        check(Tutorial::currentStepIndex() == 3, "now on step 3");
-
-        // Fight completes step 3.
-        check(Tutorial::reportEvent("fight"), "fight advances tutorial");
-        check(Tutorial::currentStepIndex() == 4, "now on step 4");
-
-        // Spell completes step 4.
-        check(Tutorial::reportEvent("spell"), "spell advances tutorial");
-        check(Tutorial::currentStepIndex() == 5, "now on step 5");
-
-        // Rest completes step 5.
-        check(Tutorial::reportEvent("rest"), "rest advances tutorial");
-        check(Tutorial::currentStepIndex() == 6, "now on step 6");
-
-        // Pickup completes step 6.
-        check(Tutorial::reportEvent("pickup"), "pickup advances tutorial");
-        check(Tutorial::currentStepIndex() == 7, "now on step 7");
-
-        // Door completes step 7.
-        check(Tutorial::reportEvent("door"), "door advances tutorial");
-        check(Tutorial::currentStepIndex() == 8, "now on step 8");
-
-        // Level 5 completes step 8.
-        check(Tutorial::reportEvent("level", 5), "level 5 advances tutorial");
-        check(Tutorial::currentStepIndex() == 9, "now on step 9");
-
-        // Boss on floor 5 completes step 9.
-        check(Tutorial::reportEvent("boss", 5), "boss advances tutorial");
-        check(Tutorial::currentStepIndex() == 10, "now on step 10");
-
-        // Progress text.
-        check(Tutorial::progressText().contains("11 / 11"), "progress shows final step",
-              Tutorial::progressText());
-    }
-    {
-        // Events that don't match the current step do nothing.
-        Tutorial::reset();
-        Tutorial::start();
-        check(!Tutorial::reportEvent("spell"), "spell does not complete move step");
-        check(Tutorial::currentStepIndex() == 0, "still on step 0");
-    }
-    {
-        // Level below target does not complete.
-        Tutorial::reset();
-        Tutorial::start();
-        Tutorial::reportEvent("move");   // -> step 1 (stairs)
-        Tutorial::reportEvent("stairs"); // -> step 2 (level 2)
-        check(!Tutorial::reportEvent("level", 1), "level 1 does not complete level 2 step");
-        check(Tutorial::currentStepIndex() == 2, "still on step 2");
-    }
-    {
-        // Tutorial finishes after the last step.
-        Tutorial::reset();
-        Tutorial::start();
-        for (int i = 0; i < 20; ++i) {
-            TutorialStep s = Tutorial::currentStep();
-            if (s.index < 0) break;
-            Tutorial::reportEvent(s.completesOn, s.targetValue);
-        }
-        check(!Tutorial::isActive(), "tutorial finished after all steps");
-        check(Tutorial::currentStepIndex() == -1, "no current step when finished");
-    }
-    {
-        // Report event when not active does nothing.
-        Tutorial::reset();
-        check(!Tutorial::reportEvent("move"), "no event when not active");
-    }
-
     // ------------------------------------------- Monster difficulty curve (8.1)
 
     section("[52] Monster difficulty curve");
@@ -1280,18 +1171,6 @@ void runWorldTests()
             }
         }
         check(count == 8, "8 walkable neighbors in open space", QString::number(count));
-    }
-
-    // ------------------------------------------- Automap integration (G2)
-
-    section("[62g] Automap integration");
-    {
-        // AutomapDialog can be constructed and updated.
-        AutomapDialog* dlg = new AutomapDialog();
-        check(dlg != nullptr, "AutomapDialog constructs");
-        dlg->updatePlayerPosition(10, 20, "NORTH");
-        dlg->updatePlayerPosition(15, 25, "EAST");
-        delete dlg;
     }
 
     // ------------------------------------------- DungeonDialog action buttons are a grid

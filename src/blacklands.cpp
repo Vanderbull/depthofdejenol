@@ -2,7 +2,7 @@
 #include "src/core/gameStateManager.h"
 #include "src/audio/audioManager.h"
 #include "src/theCity.h"
-#include "src/storyDialog.h"
+
 
 // Dialog and UI Includes
 #include "src/hall_of_records/hallofrecordsdialog.h"
@@ -761,9 +761,6 @@ int main(int argc, char *argv[]) {
     // Initial sequence
     LoadingScreen loadingScreen;
     loadingScreen.exec();
-
-    storyDialog story;
-    story.exec();
 
     GameMenu w;
     w.show();

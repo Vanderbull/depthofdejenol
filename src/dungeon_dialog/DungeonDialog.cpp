@@ -17,7 +17,7 @@
 #include "../event/EventManager.h"
 #include "src/spell_casting/SpellCastingDialog.h"
 #include "src/quest_board/QuestBoardDialog.h"
-#include "src/automap/automap_dialog.h"
+
 #include "src/core/Endgame.h"
 #include "src/core/DeathRecovery.h"
 #include "src/journal_dialog/JournalDialog.h"
@@ -1489,10 +1489,7 @@ void DungeonDialog::openAutomap()
     int z = gsm->getGameValue("DungeonLevel").toInt();
     QString facing = m_compassLabel->text().replace("Facing ", "").toUpper();
 
-    AutomapDialog* dlg = new AutomapDialog(this);
-    dlg->updatePlayerPosition(x, y, facing);
-    dlg->setAttribute(Qt::WA_DeleteOnClose);
-    dlg->show();
+    // AutomapDialog removed — MinimapDialog in dungeon_dialog/ handles this
 }
 
 void DungeonDialog::on_pickupButton_clicked()

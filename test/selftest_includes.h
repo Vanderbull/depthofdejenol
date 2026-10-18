@@ -37,7 +37,7 @@
 #include "src/core/QuestChainDriver.h"
 #include "src/core/AlignmentSystem.h"
 #include "src/npc_dialog/NPCDialog.h"
-#include "src/tutorial/Tutorial.h"
+
 #include "src/quest_board/QuestBoardDialog.h"
 #include "src/journal_dialog/JournalDialog.h"
 #include "src/tavern_dialog/TavernDialog.h"
@@ -45,7 +45,7 @@
 #include "src/partymanager/PartyManager.h"
 #include "src/library_dialog/BestiaryDialog.h"
 #include "src/character_dialog/CharacterSheetDialog.h"
-#include "src/automap/automap_dialog.h"
+
 #include <QSpinBox>
 #include <QComboBox>
 #include <QPushButton>

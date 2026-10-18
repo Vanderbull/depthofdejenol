@@ -51,7 +51,6 @@ SOURCES += \
     src/create_character/createcharacterdialog.cpp \
     src/character_dialog/CharacterDialog.cpp \
     src/library_dialog/library_dialog.cpp \
-    src/automap/automap_dialog.cpp \
     src/load_party_dialog/LoadPartyDialog.cpp \
     src/guilds_dialog/GuildsDialog.cpp \
     src/general_store/GeneralStore.cpp \
@@ -148,8 +147,6 @@ HEADERS += src/core/SoundEffects.h
 SOURCES += src/core/SoundEffects.cpp
 HEADERS += src/core/AlignmentSystem.h
 SOURCES += src/core/AlignmentSystem.cpp
-HEADERS += src/tutorial/Tutorial.h
-SOURCES += src/tutorial/Tutorial.cpp
 HEADERS += src/npc_dialog/NPCDialog.h
 SOURCES += src/npc_dialog/NPCDialog.cpp
 HEADERS += src/core/AchievementSystem.h
@@ -191,13 +188,11 @@ HEADERS += \
     src/audio/audioManager.h \
     src/blacklands.h \
     src/theCity.h \
-    src/storyDialog.h \
     src/network_manager/NetworkManager.h \
     src/hall_of_records/hallofrecordsdialog.h \
     src/create_character/createcharacterdialog.h \
     src/character_dialog/CharacterDialog.h \
     src/library_dialog/library_dialog.h \
-    src/automap/automap_dialog.h \
     src/load_party_dialog/LoadPartyDialog.h \
     src/guilds_dialog/GuildsDialog.h \
     src/general_store/GeneralStore.h \
