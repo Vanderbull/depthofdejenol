@@ -36,7 +36,7 @@ PartyInfoDialog::PartyInfoDialog(QWidget *parent)
             this, &PartyInfoDialog::onGameStateChanged);
 }
 
-PartyInfoDialog::~PartyInfoDialog() {}
+PartyInfoDialog::~PartyInfoDialog() = default;
 
 void PartyInfoDialog::refreshFromGameState()
 {

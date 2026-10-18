@@ -399,4 +399,4 @@ void CreateCharacterDialog::onExitClicked()
     this->reject();
 }
 
-CreateCharacterDialog::~CreateCharacterDialog() {}
+CreateCharacterDialog::~CreateCharacterDialog() = default;

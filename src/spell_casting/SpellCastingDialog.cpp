@@ -103,9 +103,7 @@ SpellCastingDialog::SpellCastingDialog(QWidget *parent, bool inCombat)
     populateCategories();
 }
 
-SpellCastingDialog::~SpellCastingDialog()
-{
-}
+SpellCastingDialog::~SpellCastingDialog() = default;
 
 void SpellCastingDialog::loadSpellsFromJson()
 {

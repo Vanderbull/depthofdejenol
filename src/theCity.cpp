@@ -697,7 +697,7 @@ void theCity::handleLocationClick() {
     }
 }
 
-theCity::~theCity() {}
+theCity::~theCity() = default;
 
 
 

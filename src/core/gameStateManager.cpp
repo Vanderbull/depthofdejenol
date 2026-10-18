@@ -79,7 +79,7 @@ bool gameStateManager::loadGameConfig(const QString& filePath) {
     }
 
     return loadFullGameState("autosave");
-    //return true;
+    
 }
 
 void gameStateManager::refreshUI() {
@@ -896,7 +896,7 @@ void gameStateManager::incrementPartyAge(int years)
     emit gameValueChanged("Party", partyList);
 
     // 4. Update the "CurrentCharacterAge" global value if index 0 changed
-//    if (!m_partyManager->currentParty().members.isEmpty()) {
+
 //        setGameValue("CurrentCharacterAge", m_partyManager->currentParty().members[0].age);
 //    }
 

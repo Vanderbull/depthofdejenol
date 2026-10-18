@@ -306,4 +306,4 @@ void InventoryDialog::onIdentifyButtonClicked()
     loadInventoryData();
 }
 
-InventoryDialog::~InventoryDialog() {}
+InventoryDialog::~InventoryDialog() = default;

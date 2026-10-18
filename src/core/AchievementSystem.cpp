@@ -1,6 +1,7 @@
 #include "AchievementSystem.h"
 #include "src/core/gameStateManager.h"
 #include "src/core/Endgame.h"
+#include "GameConstants.h"
 #include <QVariantList>
 #include <QVariantMap>
 
@@ -36,26 +37,26 @@ QList<AchievementSystem::Achievement> AchievementSystem::all() {
         list.append(a);
     };
 
-    add("first_blood", "First Blood", "Kill your first monster", 100);
-    add("slayer", "Slayer", "Kill 100 monsters", 500);
-    add("floor_5", "Delver", "Reach dungeon floor 5", 250);
-    add("floor_10", "Deep Delver", "Reach dungeon floor 10", 500);
-    add("floor_15", "Abyss Walker", "Reach dungeon floor 15", 1000);
-    add("boss_5", "Grotto Vanquisher", "Defeat the floor 5 boss", 500);
-    add("boss_10", "Bone Breaker", "Defeat the floor 10 boss", 1000);
-    add("boss_15", "Devil's Bane", "Defeat the Prince of Devils", 5000);
-    add("ng_plus_1", "New Game", "Complete your first NG+ run", 1000);
-    add("ng_plus_3", "Veteran", "Reach NG+ level 3", 3000);
-    add("gold_10000", "Treasurer", "Earn 10,000 gold", 500);
-    add("gold_50000", "Dragon Hoard", "Earn 50,000 gold", 2000);
-    add("die_1", "Mortal", "Die for the first time", 100);
-    add("die_10", "Persistent", "Die 10 times", 500);
-    add("level_10", "Seasoned", "Reach level 10", 500);
-    add("level_20", "Hero", "Reach level 20", 1000);
-    add("level_30", "Legend", "Reach level 30", 2000);
-    add("abyss_1", "Abyssal Explorer", "Reach Abyss floor 1", 1000);
-    add("abyss_5", "Abyssal Warrior", "Defeat the floor 5 Abyss boss", 3000);
-    add("abyss_10", "Heart Destroyer", "Defeat the Abyssal Heart", 10000);
+    add("first_blood", "First Blood", "Kill your first monster", GameConstants::ACH_FIRST_BLOOD);
+    add("slayer", "Slayer", "Kill 100 monsters", GameConstants::ACH_SLAYER);
+    add("floor_5", "Delver", "Reach dungeon floor 5", GameConstants::ACH_FLOOR_5);
+    add("floor_10", "Deep Delver", "Reach dungeon floor 10", GameConstants::ACH_FLOOR_10);
+    add("floor_15", "Abyss Walker", "Reach dungeon floor 15", GameConstants::ACH_FLOOR_15);
+    add("boss_5", "Grotto Vanquisher", "Defeat the floor 5 boss", GameConstants::ACH_BOSS_5);
+    add("boss_10", "Bone Breaker", "Defeat the floor 10 boss", GameConstants::ACH_BOSS_10);
+    add("boss_15", "Devil's Bane", "Defeat the Prince of Devils", GameConstants::ACH_BOSS_15);
+    add("ng_plus_1", "New Game", "Complete your first NG+ run", GameConstants::ACH_NG_PLUS_1);
+    add("ng_plus_3", "Veteran", "Reach NG+ level 3", GameConstants::ACH_NG_PLUS_3);
+    add("gold_10000", "Treasurer", "Earn 10,000 gold", GameConstants::ACH_GOLD_10000);
+    add("gold_50000", "Dragon Hoard", "Earn 50,000 gold", GameConstants::ACH_GOLD_50000);
+    add("die_1", "Mortal", "Die for the first time", GameConstants::ACH_DIE_1);
+    add("die_10", "Persistent", "Die 10 times", GameConstants::ACH_DIE_10);
+    add("level_10", "Seasoned", "Reach level 10", GameConstants::ACH_LEVEL_10);
+    add("level_20", "Hero", "Reach level 20", GameConstants::ACH_LEVEL_20);
+    add("level_30", "Legend", "Reach level 30", GameConstants::ACH_LEVEL_30);
+    add("abyss_1", "Abyssal Explorer", "Reach Abyss floor 1", GameConstants::ACH_ABYSS_1);
+    add("abyss_5", "Abyssal Warrior", "Defeat the floor 5 Abyss boss", GameConstants::ACH_ABYSS_5);
+    add("abyss_10", "Heart Destroyer", "Defeat the Abyssal Heart", GameConstants::ACH_ABYSS_10);
 
     return list;
 }

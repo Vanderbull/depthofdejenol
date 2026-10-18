@@ -67,7 +67,7 @@ private:
     // Use a pointer so the compiler doesn't need to know
     // the exact size of PartyManager yet.
     PartyManager* m_partyManager;
-    //int m_currentCharacterIndex = 0; 
+     
 
 
     QTcpSocket* m_clientSocket;
@@ -174,7 +174,7 @@ public:
     // --- Cursed items ---
     bool uncurseItem(int characterIndex, int inventoryIndex, QString& result);
     //Character getCurrentCharacter() const;
-    //bool hasLivingCharacters() const;
+    
     virtual ~gameStateManager();
     QList<QVariantMap> getMonsterData() const { return m_monsterData; }
 
@@ -313,8 +313,7 @@ public:
     // --- Persistence ---
     bool loadCharacterFromFile(const QString& characterName);
     bool saveCharacterToFile(int partyIndex);
-    //bool verifySaveGame(const QString& characterName);
-    //bool repairSaveGame(const QString& characterName);
+
     void startAutosave(int intervalms = 10000);
     void stopAutosave();
     // True while the periodic autosave timer is armed. Lets the settings test

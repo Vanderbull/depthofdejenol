@@ -1,4 +1,5 @@
 #include "QuestChain.h"
+#include "GameConstants.h"
 
 QList<QuestStep> QuestChain::steps() {
     QList<QuestStep> steps;
@@ -16,43 +17,43 @@ QList<QuestStep> QuestChain::steps() {
     QuestStep s0 = make(0, "first_descent", "Into the Dark",
                         "Descend into the mines and learn what lurks below.");
     s0.requiresDepth = 1;
-    s0.rewardGold = 100;
-    s0.rewardXp = 100;
+    s0.rewardGold = GameConstants::QUEST_S0_GOLD;
+    s0.rewardXp = GameConstants::QUEST_S0_XP;
     steps.append(s0);
 
     QuestStep s1 = make(1, "grotto_warden", "The Grotto Warden",
                         "Something guards the way past the fifth floor. End it.");
     s1.bossFloor = 5;
-    s1.rewardGold = 1000;
-    s1.rewardXp = 5000;
+    s1.rewardGold = GameConstants::QUEST_S1_GOLD;
+    s1.rewardXp = GameConstants::QUEST_S1_XP;
     steps.append(s1);
 
     QuestStep s2 = make(2, "deeper", "Beneath the Crypts",
                         "Push past the crypts and into the black marble halls.");
     s2.requiresDepth = 10;
-    s2.rewardGold = 2500;
-    s2.rewardXp = 10000;
+    s2.rewardGold = GameConstants::QUEST_S2_GOLD;
+    s2.rewardXp = GameConstants::QUEST_S2_XP;
     steps.append(s2);
 
     QuestStep s3 = make(3, "bone_tyrant", "The Bone Tyrant",
                         "The throne of bone has a king. Unseat it.");
     s3.bossFloor = 10;
-    s3.rewardGold = 5000;
-    s3.rewardXp = 25000;
+    s3.rewardGold = GameConstants::QUEST_S3_GOLD;
+    s3.rewardXp = GameConstants::QUEST_S3_XP;
     steps.append(s3);
 
     QuestStep s4 = make(4, "devils_threshold", "The Devil's Threshold",
                         "Reach the last gate before the Prince of Devils.");
     s4.requiresDepth = 15;
-    s4.rewardGold = 10000;
-    s4.rewardXp = 50000;
+    s4.rewardGold = GameConstants::QUEST_S4_GOLD;
+    s4.rewardXp = GameConstants::QUEST_S4_XP;
     steps.append(s4);
 
     QuestStep s5 = make(5, "prince_of_devils", "The Prince of Devils",
                         "Destroy the Prince and close the gate forever.");
     s5.bossFloor = 15;
-    s5.rewardGold = 50000;
-    s5.rewardXp = 250000;
+    s5.rewardGold = GameConstants::QUEST_S5_GOLD;
+    s5.rewardXp = GameConstants::QUEST_S5_XP;
     steps.append(s5);
 
     return steps;

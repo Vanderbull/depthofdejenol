@@ -1022,79 +1022,64 @@ DungeonDialog::DungeonDialog(QWidget *parent)
       m_dungeonScene(new QGraphicsScene(this))
 {
     gameStateManager* gsm = gameStateManager::instance();
-    if (!gameStateManager::instance()) {
+    if (!gsm) {
         qCritical() << "CRITICAL: gameStateManager is NULL!";
         return;
     }
     m_experienceLabel = new QLabel(this);
-    // Standalone minimap popup removed — the integrated minimap in the main
-    // layout serves the same purpose without a separate dialog.
+    setupWindowAndState(gsm);
+    setupMainLayout();
+    setupSidebarContent();
+    setupMapGeneration();
+    setupActionButtons();
+    setupSignalConnections();
+    setupCombatSystem();
+
+    // --- Finalize the viewport ---
+    m_dungeonScene->setSceneRect(0, 0, 300, 300);
+    enterLevel(m_initialLevel);
+    drawMinimap();
+    renderWireframeView();
+    QTimer::singleShot(0, this, [this]() { fitViewport(); });
+    this->setFocusPolicy(Qt::StrongFocus);
+    this->setFocus();
+}
+
+void DungeonDialog::setupWindowAndState(gameStateManager* gsm)
+{
     setWindowTitle("Dungeon: Depth of Dejenol");
     setMinimumSize(900, 640);
     resize(1280, 800);
-    // Load gameStateManager data
 
-    // Retrieve Constitution to calculate a simple placeholder for maximum HP
-    // int con = gsm->getGameValue("CurrentCharacterConstitution").toInt();
-    //int maxHP = (con > 0) ? con * 5 : 50;
-    // --- Retrieve/Set persistent dungeon state (New GameState logic) ---
     int initialLevel = gsm->getGameValue("DungeonLevel").toInt();
     int initialX = gsm->getGameValue("DungeonX").toInt();
     int initialY = gsm->getGameValue("DungeonY").toInt();
-    // Set defaults if state data is missing (e.g., first time entering)
     if (initialLevel == 0) {
         initialLevel = 1;
         initialX = MAP_SIZE / 2;
         initialY = MAP_SIZE / 2;
-        // Initialize party gold to 1500 for a new game
-        gameStateManager::instance()->addPartyGold(1500);
-        // Start play-time tracking for this run.
-        gameStateManager::instance()->startPlayTime();
-        // Save initial defaults to GameState
+        gsm->addPartyGold(1500);
+        gsm->startPlayTime();
         gsm->setDungeonLevel(initialLevel);
         gsm->setGameValue("DungeonX", initialX);
         gsm->setGameValue("DungeonY", initialY);
     }
-    // -----------------------------------------------------------------
-    // --- Main Layout Setup ---
+    m_initialLevel = initialLevel;
+}
+
+void DungeonDialog::setupMainLayout()
+{
     QHBoxLayout *rootLayout = new QHBoxLayout(this);
     setupControls();
 
-    // MainMenu.qss is inherited down the chain GameMenu -> theCity -> this
-    // dialog, and its QPushButton rule pins every button to
-    // min-width/max-width 200px. Three 200px columns do not fit in this 320px
-    // sidebar, so the action buttons overlapped each other and read as a single
-    // mashed pile. Relax the width constraint only; keep a sane minimum height
-    // so the buttons stay clickable.
     setStyleSheet(
         "QPushButton { min-width: 0px; max-width: 999px;"
         " min-height: 24px; padding: 4px 2px; font-size: 11px; }");
 
-    QGridLayout *actionLayout = new QGridLayout();
-    actionLayout->setSpacing(4);
-    actionLayout->setContentsMargins(0, 0, 0, 0);
-
-    QStringList actions = {"Fight", "Spell", "Rest", "Eat", "Talk", "Search", "Pickup", "Drop", "Open", "Map", "Chest", "Teleport", "Exit", "Stairs Up", "Stairs Down"};
-    int row = 0, col = 0;
-    for (const QString& name : actions) {
-        if (m_controls.contains(name)) {
-            QPushButton* btn = m_controls[name];
-            btn->setMinimumSize(60, 26);
-            actionLayout->addWidget(btn, row, col);
-            if (++col > 2) { col = 0; row++; } // Grid layout: 3 buttons per row
-        }
-    }
-    // Stretch columns to fill the sidebar width evenly
-    actionLayout->setColumnStretch(0, 1);
-    actionLayout->setColumnStretch(1, 1);
-    actionLayout->setColumnStretch(2, 1);
-
-    // --- Left Panel: main first-person view (grows) + adventure log ---
     QVBoxLayout *leftPanelLayout = new QVBoxLayout();
     leftPanelLayout->setContentsMargins(0, 0, 0, 0);
     leftPanelLayout->setSpacing(6);
 
-    // The main viewport: the first-person wireframe renderer fills this.
     m_graphicsView = new QGraphicsView(m_dungeonScene);
     m_graphicsView->setRenderHint(QPainter::Antialiasing);
     m_graphicsView->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
@@ -1105,7 +1090,6 @@ DungeonDialog::DungeonDialog(QWidget *parent)
     m_graphicsView->setObjectName("dungeonViewport");
     leftPanelLayout->addWidget(m_graphicsView, 4);
 
-    // The adventure log sits under the viewport.
     QGroupBox *logBox = new QGroupBox("Adventure Log");
     QVBoxLayout *logLayout = new QVBoxLayout(logBox);
     m_messageLog = new QListWidget();
@@ -1115,11 +1099,6 @@ DungeonDialog::DungeonDialog(QWidget *parent)
 
     rootLayout->addLayout(leftPanelLayout, 3);
 
-    // --- Right Panel: fixed-width sidebar (info, party, minimap, controls) ---
-    // The sidebar holds more content than fits at the dialog's minimum height
-    // (900x640). A plain QVBoxLayout crushes the widgets together — the action
-    // buttons end up overlapping by ~10px each. Wrap the content in a scroll
-    // area so widgets keep their real size and the panel scrolls instead.
     QWidget *rightPanel = new QWidget(this);
     rightPanel->setObjectName("dungeonSidebar");
     rightPanel->setFixedWidth(360);
@@ -1137,15 +1116,20 @@ DungeonDialog::DungeonDialog(QWidget *parent)
 
     QVBoxLayout *rightPanelLayout = new QVBoxLayout(rightPanel);
     rightPanelLayout->setSpacing(8);
-    // 1. Location and Compass
+}
+
+void DungeonDialog::setupSidebarContent()
+{
+    QVBoxLayout *rightPanelLayout = findChild<QScrollArea*>("dungeonSidebarScroll")->widget()->findChild<QVBoxLayout*>();
+    if (!rightPanelLayout) return;
+
     QGroupBox *infoBox = new QGroupBox("Current Location");
     QGridLayout *infoLayout = new QGridLayout(infoBox);
-    m_locationLabel = new QLabel("Dungeon Level 1, (15, 15)"); // Placeholder
+    m_locationLabel = new QLabel("Dungeon Level 1, (15, 15)");
     m_locationLabel->setStyleSheet("font-weight: bold;");
     infoLayout->addWidget(m_locationLabel, 0, 0, 1, 2);
     m_compassLabel = new QLabel("Facing North");
     infoLayout->addWidget(m_compassLabel, 1, 0);
-    // Display Character Alignment as part of info
     QString alignment = gameStateManager::instance()->getGameValue("CurrentCharacterAlignment").toString();
     if (alignment.isEmpty()) alignment = "Neutral";
     QLabel *alignmentLabel = new QLabel(QString("Alignment: **%1**").arg(alignment));
@@ -1153,12 +1137,11 @@ DungeonDialog::DungeonDialog(QWidget *parent)
     rightPanelLayout->addWidget(infoBox);
     updateExperienceLabel();
     rightPanelLayout->addWidget(m_experienceLabel);
-    // 2. Gold Display
+
     m_goldLabel = new QLabel();
-    updateGoldLabel(); // Call to update label with GameState value
+    updateGoldLabel();
     rightPanelLayout->addWidget(m_goldLabel);
 
-    // 3. Party Status Panel (real-time HP)
     QGroupBox* partyBox = new QGroupBox("Party Status");
     QVBoxLayout* partyBoxLayout = new QVBoxLayout(partyBox);
     m_partyStatusList = new QListWidget(partyBox);
@@ -1167,7 +1150,6 @@ DungeonDialog::DungeonDialog(QWidget *parent)
     partyBoxLayout->addWidget(m_partyStatusList);
     rightPanelLayout->addWidget(partyBox);
 
-    // 4. Integrated Minimap
     QGroupBox* miniMapBox = new QGroupBox("Automap");
     QVBoxLayout* miniMapBoxLayout = new QVBoxLayout(miniMapBox);
     m_miniMapViewIntegrated = new QGraphicsView(miniMapBox);
@@ -1177,28 +1159,49 @@ DungeonDialog::DungeonDialog(QWidget *parent)
     miniMapBoxLayout->addWidget(m_miniMapViewIntegrated);
     rightPanelLayout->addWidget(miniMapBox);
     updatePartyPanel();
+}
 
-    // Initialize map state and draw the initial view
+void DungeonDialog::setupMapGeneration()
+{
     QRandomGenerator initialRng(1 + 12345);
-    // 2. Pass 'initialRng' to the functions as the second argument
     generateRandomObstacles(40, initialRng);
     generateStairs(initialRng);
     generateSpecialTiles(20, initialRng);
     drawMinimap();
+}
 
-    // 4. Action Buttons
+void DungeonDialog::setupActionButtons()
+{
+    QVBoxLayout *rightPanelLayout = findChild<QScrollArea*>("dungeonSidebarScroll")->widget()->findChild<QVBoxLayout*>();
+    if (!rightPanelLayout) return;
+
+    QGridLayout *actionLayout = new QGridLayout();
+    actionLayout->setSpacing(4);
+    actionLayout->setContentsMargins(0, 0, 0, 0);
+
+    QStringList actions = {"Fight", "Spell", "Rest", "Eat", "Talk", "Search", "Pickup", "Drop", "Open", "Map", "Chest", "Teleport", "Exit", "Stairs Up", "Stairs Down"};
+    int row = 0, col = 0;
+    for (const QString& name : actions) {
+        if (m_controls.contains(name)) {
+            QPushButton* btn = m_controls[name];
+            btn->setMinimumSize(60, 26);
+            actionLayout->addWidget(btn, row, col);
+            if (++col > 2) { col = 0; row++; }
+        }
+    }
+    actionLayout->setColumnStretch(0, 1);
+    actionLayout->setColumnStretch(1, 1);
+    actionLayout->setColumnStretch(2, 1);
     rightPanelLayout->addLayout(actionLayout);
-    // 5. Directional Buttons (Movement)
+
     QGroupBox *moveBox = new QGroupBox("Movement");
     QGridLayout *moveLayout = new QGridLayout(moveBox);
     m_upButton = new QPushButton("^");
     m_downButton = new QPushButton("v");
     m_leftButton = new QPushButton("<");
     m_rightButton = new QPushButton(">");
-    // Rotate
     m_rotateLeftButton = new QPushButton("Rotate L");
     m_rotateRightButton = new QPushButton("Rotate R");
-    // Auto-backtrack
     m_backtrackButton = new QPushButton("Back");
     m_backtrackButton->setToolTip("Retrace your steps");
     moveLayout->addWidget(m_rotateLeftButton, 0, 0);
@@ -1209,7 +1212,7 @@ DungeonDialog::DungeonDialog(QWidget *parent)
     moveLayout->addWidget(m_rightButton, 1, 2);
     moveLayout->addWidget(m_backtrackButton, 2, 0, 1, 3);
     rightPanelLayout->addWidget(moveBox);
-    // 6. Stairs Buttons
+
     m_stairsUpButton = new QPushButton("Stairs Up");
     m_stairsDownButton = new QPushButton("Stairs Down");
     m_stairsLowerButton = new QPushButton("Stairs Lower");
@@ -1221,7 +1224,10 @@ DungeonDialog::DungeonDialog(QWidget *parent)
     stairsLayout->addWidget(m_stairsDownButton);
     stairsLayout->addWidget(m_stairsLowerButton);
     rightPanelLayout->addLayout(stairsLayout);
-    // Connections (Movements)
+}
+
+void DungeonDialog::setupSignalConnections()
+{
     connect(m_upButton, &QPushButton::clicked, this, &DungeonDialog::moveForward);
     connect(m_downButton, &QPushButton::clicked, this, &DungeonDialog::moveBackward);
     connect(m_leftButton, &QPushButton::clicked, this, &DungeonDialog::moveStepLeft);
@@ -1229,7 +1235,7 @@ DungeonDialog::DungeonDialog(QWidget *parent)
     connect(m_rotateLeftButton, &QPushButton::clicked, this, &DungeonDialog::on_rotateLeftButton_clicked);
     connect(m_rotateRightButton, &QPushButton::clicked, this, &DungeonDialog::on_rotateRightButton_clicked);
     connect(m_backtrackButton, &QPushButton::clicked, this, &DungeonDialog::on_backtrackButton_clicked);
-    // Connections (Actions)
+
     connect(m_fightButton, &QPushButton::clicked, this, &DungeonDialog::on_fightButton_clicked);
     connect(m_spellButton, &QPushButton::clicked, this, &DungeonDialog::on_spellButton_clicked);
     connect(m_restButton, &QPushButton::clicked, this, &DungeonDialog::on_restButton_clicked);
@@ -1239,30 +1245,18 @@ DungeonDialog::DungeonDialog(QWidget *parent)
     connect(m_dropButton, &QPushButton::clicked, this, &DungeonDialog::on_dropButton_clicked);
     connect(m_openButton, &QPushButton::clicked, this, &DungeonDialog::on_openButton_clicked);
     connect(m_chestButton, &QPushButton::clicked, this, &DungeonDialog::on_chestButton_clicked);
-
     connect(m_teleportButton, &QPushButton::clicked, this, &DungeonDialog::on_teleportButton_clicked);
-    // Connections (Stairs)
+
     connect(m_stairsDownButton, &QPushButton::clicked, this, &DungeonDialog::on_stairsDownButton_clicked);
     connect(m_stairsUpButton, &QPushButton::clicked, this, &DungeonDialog::on_stairsUpButton_clicked);
-    // Multi-level room: stairs to lower level
     connect(m_stairsLowerButton, &QPushButton::clicked, this, &DungeonDialog::on_stairsLowerButton_clicked);
-    // Place the stairs lower button next to the other stairs buttons
-    m_stairsLowerButton->setToolTip("Descend to lower level (multi-level room)");
-    // Place the stairs lower button next to the other stairs buttons
-    m_stairsLowerButton->setToolTip("Descend to lower level (multi-level room)");
-    // --- Finalize the viewport ---
-    // The wireframe renderer draws into a logical 300x300 coordinate space.
-    // Pin the scene rect so the view can scale it up to fill the window.
-    m_dungeonScene->setSceneRect(0, 0, 300, 300);
-    enterLevel(initialLevel); // Use initialLevel retrieved from GameState
-    drawMinimap();
-    renderWireframeView();
-    QTimer::singleShot(0, this, [this]() { fitViewport(); });
-    // Keep focus on the dialog so movement keys work.
-    this->setFocusPolicy(Qt::StrongFocus);
-    this->setFocus();
+}
 
-    // --- Combat System Setup ---
+void DungeonDialog::setupCombatSystem()
+{
+    QVBoxLayout *rightPanelLayout = findChild<QScrollArea*>("dungeonSidebarScroll")->widget()->findChild<QVBoxLayout*>();
+    if (!rightPanelLayout) return;
+
     m_combatState = new CombatState();
     m_turnEngine = new TurnEngine();
     m_combatActions = new CombatActions(m_combatState, m_turnEngine);
@@ -1270,7 +1264,6 @@ DungeonDialog::DungeonDialog(QWidget *parent)
     m_deathHandler = new CombatDeathHandler(m_combatState, m_turnEngine, m_combatActions);
     m_turnEngine->setCombatState(m_combatState);
 
-    // --- Combat UI ---
     m_combatGroup = new QGroupBox("Combat", this);
     QVBoxLayout* combatLayout = new QVBoxLayout(m_combatGroup);
 
@@ -1278,11 +1271,7 @@ DungeonDialog::DungeonDialog(QWidget *parent)
     m_combatMonsterHpLabel->setStyleSheet("font-weight: bold; color: red;");
     combatLayout->addWidget(m_combatMonsterHpLabel);
 
-    // v3.0.0 slice 3.1: pick the target. One row per living monster; group
-    // encounters otherwise collapse into the single label above.
     m_combatTargetList = new QListWidget(m_combatGroup);
-
-    // v3.0.0 slice 3.8: combat visual feedback timer
     m_combatFxTimer = new QTimer(this);
     m_combatFxTimer->setSingleShot(true);
     connect(m_combatFxTimer, &QTimer::timeout, this, [this]() {
@@ -1308,14 +1297,12 @@ DungeonDialog::DungeonDialog(QWidget *parent)
     m_combatRowBtn = new QPushButton("Row", m_combatGroup);
     m_combatRowBtn->setToolTip("Move the current character between the front and back row.\n"
                                "Melee only reaches the front row.");
-
     m_combatAttackBtn->setFocusPolicy(Qt::NoFocus);
     m_combatDefendBtn->setFocusPolicy(Qt::NoFocus);
     m_combatFleeBtn->setFocusPolicy(Qt::NoFocus);
     m_combatUseItemBtn->setFocusPolicy(Qt::NoFocus);
     m_combatSpellBtn->setFocusPolicy(Qt::NoFocus);
     m_combatRowBtn->setFocusPolicy(Qt::NoFocus);
-
     combatBtnLayout->addWidget(m_combatAttackBtn);
     combatBtnLayout->addWidget(m_combatDefendBtn);
     combatBtnLayout->addWidget(m_combatFleeBtn);
@@ -1323,25 +1310,20 @@ DungeonDialog::DungeonDialog(QWidget *parent)
     combatBtnLayout->addWidget(m_combatSpellBtn);
     combatBtnLayout->addWidget(m_combatRowBtn);
     combatLayout->addLayout(combatBtnLayout);
-
     m_combatGroup->setVisible(false);
     rightPanelLayout->addWidget(m_combatGroup);
 
-    // Combat button connections
     connect(m_combatAttackBtn, &QPushButton::clicked, this, &DungeonDialog::on_combatAttackButton_clicked);
     connect(m_combatDefendBtn, &QPushButton::clicked, this, &DungeonDialog::on_combatDefendButton_clicked);
     connect(m_combatFleeBtn, &QPushButton::clicked, this, &DungeonDialog::on_combatFleeButton_clicked);
     connect(m_combatUseItemBtn, &QPushButton::clicked, this, &DungeonDialog::on_combatUseItemButton_clicked);
     connect(m_combatSpellBtn, &QPushButton::clicked, this, &DungeonDialog::on_combatSpellButton_clicked);
     connect(m_combatRowBtn, &QPushButton::clicked, this, [this]() {
-        // Move the character whose turn it is. During their turn the acting
-        // participant is the one the player controls.
         if (!m_inCombat || !m_combatState || !m_turnEngine) return;
         const int idx = m_turnEngine->currentParticipantIndex();
         if (idx < 0) return;
         const CombatParticipant& p = m_combatState->participant(idx);
         if (!p.isPlayer) return;
-
         togglePlayerRow(idx);
         logMessage(QString("%1 moves to the %2 row.")
                        .arg(p.name)
@@ -3600,4 +3582,4 @@ QStringList DungeonDialog::getThematicMonsters(int level) const
     return monsters;
 }
 
-DungeonDialog::~DungeonDialog(){}
+DungeonDialog::~DungeonDialog() = default;

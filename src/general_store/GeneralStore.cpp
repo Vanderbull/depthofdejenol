@@ -151,7 +151,7 @@ void GeneralStore::updateFrame()
     // Debug log to trace frame-by-frame updates
     Character current = gameStateManager::instance()->getCurrentCharacter();
     Q_UNUSED(current);
-//    int sharedGold = gameStateManager::instance()->getPartyGold();
+
 
 //    qDebug() << "[GeneralStore::updateFrame] Frame tick | Active Char:"
 //             << (current.name.isEmpty() ? "Hero" : current.name)

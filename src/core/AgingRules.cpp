@@ -1,19 +1,13 @@
 #include "AgingRules.h"
+#include "GameConstants.h"
 #include <QRandomGenerator>
 
 int AgingRules::maxAgeForRace(const QString& race) {
-    // Mirrors gameStateManager::getRaceAgeLimits(); kept here so the rules are
-    // unit-testable without a gameStateManager instance.
-    static const QMap<QString, int> limits = {
-        {"Human", 100}, {"Elf", 400}, {"Giant", 225},
-        {"Gnome", 300}, {"Dwarf", 275}, {"Ogre", 265},
-        {"Morloch", 175}, {"Osiri", 325}, {"Troll", 285}
-    };
-    return limits.value(race, 100);
+    return GameConstants::raceMaxAges().value(race, 100);
 }
 
 int AgingRules::decayThresholdForRace(const QString& race) {
-    return static_cast<int>(maxAgeForRace(race) * 0.7);
+    return static_cast<int>(maxAgeForRace(race) * GameConstants::DECAY_THRESHOLD_RATIO);
 }
 
 bool AgingRules::isPastMaxAge(const Character& c) {

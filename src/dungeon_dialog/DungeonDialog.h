@@ -65,7 +65,7 @@ class DungeonDialog : public QDialog
     friend class DungeonHandlers; // allow the handler to see private members
 public:
     explicit DungeonDialog(QWidget *parent = nullptr);
-    //void enterLevel(int level);
+    
     void enterLevel(int level, bool movingUp = false);
     ~DungeonDialog();
     void updateDungeonView(const QImage& dungeonImage);
@@ -139,6 +139,14 @@ public:
 
 private:
     void setupControls();
+    void setupWindowAndState(gameStateManager* gsm);
+    void setupMainLayout();
+    void setupSidebarContent();
+    void setupMapGeneration();
+    void setupActionButtons();
+    void setupSignalConnections();
+    void setupCombatSystem();
+    int m_initialLevel = 1;
 
     QSet<QPair<int, int>> m_bodyPositions;
 

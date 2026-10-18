@@ -457,6 +457,4 @@ void BankDialog::on_withdrawItemButton_clicked()
     QMessageBox::information(this, "Item Withdrawn", QString("Withdrew '%1' from bank.").arg(name));
 }
 
-BankDialog::~BankDialog()
-{
-}
+BankDialog::~BankDialog() = default;

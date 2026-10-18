@@ -27,14 +27,8 @@ private slots:
     void loadGame();
     void saveGame();
     void showRecords();
-//    void showCredits();
     void quitGame();
-//    void onInventoryClicked();
-//    void onMarlithClicked();
     void onOptionsClicked();
-  //  void onEditMonsterClicked();
-  //  void onEditSpellbookClicked();
-  //  void onShowStatisticsClicked();
     void onContinueClicked();
     void enterCity();
     void enterDungeon();

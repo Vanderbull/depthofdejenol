@@ -248,4 +248,4 @@ void SeerDialog::on_exitButton_clicked()
     accept();
 }
 
-SeerDialog::~SeerDialog(){}
+SeerDialog::~SeerDialog() = default;

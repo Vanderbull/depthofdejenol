@@ -107,4 +107,4 @@ void LoadingScreen::paintEvent(QPaintEvent *event)
 
     QPixmap fontSheet = gameStateManager::instance()->getFontSpriteSheet();
 }
-LoadingScreen::~LoadingScreen() {}
+LoadingScreen::~LoadingScreen() = default;

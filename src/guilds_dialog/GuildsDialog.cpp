@@ -408,4 +408,4 @@ void GuildsDialog::on_guildsListWidget_itemSelectionChanged()
     reAcquaintButton->setEnabled(false);
 }
 
-GuildsDialog::~GuildsDialog(){}
+GuildsDialog::~GuildsDialog() = default;

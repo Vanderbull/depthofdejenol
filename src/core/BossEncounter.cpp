@@ -1,5 +1,6 @@
 #include "BossEncounter.h"
 #include "AbyssThemes.h"
+#include "GameConstants.h"
 
 bool BossEncounter::canDescend(int level, bool bossDefeated) {
     if (!hasBoss(level)) return true;
@@ -19,9 +20,9 @@ QVariantMap BossEncounter::buildBoss(int level) {
 
     // Base scaled by floor. Floor 5 is a real fight; floor 15 is brutal.
     int tier = level / 5;  // 1, 2, 3
-    int hp = 150 * tier + 50 * (level - 1);
-    int att = 20 * tier + 2 * level;
-    int def = 8 * tier + level;
+    int hp = GameConstants::BASE_BOSS_HP_PER_TIER * tier + GameConstants::BASE_BOSS_HP_PER_LEVEL * (level - 1);
+    int att = GameConstants::BASE_BOSS_ATT_PER_TIER * tier + GameConstants::BASE_BOSS_ATT_PER_LEVEL * level;
+    int def = GameConstants::BASE_BOSS_DEF_PER_TIER * tier + GameConstants::BASE_BOSS_DEF_PER_LEVEL * level;
 
     boss["hp"] = hp;
     boss["maxHp"] = hp;
@@ -30,9 +31,9 @@ QVariantMap BossEncounter::buildBoss(int level) {
     boss["speed"] = 10 + level;
     boss["dex"] = 10 + level;
     boss["level"] = level * 2;
-    boss["damageMod"] = 150;   // bosses hit harder than normal
+    boss["damageMod"] = GameConstants::BOSS_DAMAGE_MOD;
     boss["swings"] = tier + 1; // floor 5: 2 swings, floor 10: 3, floor 15: 4
-    boss["levelScale"] = 5;
+    boss["levelScale"] = GameConstants::BOSS_LEVEL_SCALE;
 
     return boss;
 }
@@ -40,7 +41,7 @@ QVariantMap BossEncounter::buildBoss(int level) {
 int BossEncounter::bossXp(int level) {
     // Far above a normal monster on the same floor (which gives levelFound * 100).
     int tier = level / 5;
-    return tier * 5000 + level * 250;
+    return tier * GameConstants::BOSS_XP_PER_TIER + level * GameConstants::BOSS_XP_PER_LEVEL;
 }
 
 // --- Abyss bosses (v4.0.0 slice 4.2) ---
@@ -56,9 +57,9 @@ QVariantMap BossEncounter::buildAbyssBoss(int level) {
     // Use multiplicative scaling so floor 10 is significantly harder than floor 5.
     int tier = (level >= 10) ? 3 : 2;  // floor 5 = tier 2, floor 10 = tier 3
     int depthFactor = (level >= 10) ? 2 : 1;  // floor 10 gets 2x depth factor
-    int hp = 2000 * tier * depthFactor;
-    int att = 50 * tier * depthFactor;
-    int def = 20 * tier * depthFactor;
+    int hp = GameConstants::ABYSS_BASE_HP * tier * depthFactor;
+    int att = GameConstants::ABYSS_BASE_ATT * tier * depthFactor;
+    int def = GameConstants::ABYSS_BASE_DEF * tier * depthFactor;
 
     boss["hp"] = hp;
     boss["maxHp"] = hp;
@@ -67,9 +68,9 @@ QVariantMap BossEncounter::buildAbyssBoss(int level) {
     boss["speed"] = 20 + level * 2;
     boss["dex"] = 20 + level * 2;
     boss["level"] = 40 + level * 3;
-    boss["damageMod"] = 250;   // Abyss bosses hit much harder
+    boss["damageMod"] = GameConstants::ABYSS_DAMAGE_MOD;
     boss["swings"] = tier + 1; // floor 5: 3 swings, floor 10: 4
-    boss["levelScale"] = 10;
+    boss["levelScale"] = GameConstants::ABYSS_LEVEL_SCALE;
 
     return boss;
 }

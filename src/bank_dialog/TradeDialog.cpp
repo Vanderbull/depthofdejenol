@@ -151,4 +151,4 @@ void TradeDialog::on_closeButton_clicked()
     accept();
 }
 
-TradeDialog::~TradeDialog() {}
+TradeDialog::~TradeDialog() = default;

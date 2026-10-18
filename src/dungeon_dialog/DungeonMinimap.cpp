@@ -327,7 +327,7 @@ void DungeonDialog::drawMinimap()
                             pos.second * TILE_SIZE + (TILE_SIZE / 3),
                             TILE_SIZE / 4, TILE_SIZE / 4,
                             Qt::NoPen,
-                            //QBrush(QColor(0, 200, 255, opacity))); // Fading cyan trail
+                            
                             QBrush(QColor(255, 255, 0, opacity + 100))); // Brighter yellow trail
     }
     // 9. Draw Player Arrow (Blue)

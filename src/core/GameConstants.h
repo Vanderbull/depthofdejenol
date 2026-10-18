@@ -125,6 +125,74 @@ namespace GameConstants {
     const QString CATEGORY_MONSTERS = "Creatures";
     const QString CATEGORY_ITEMS = "Items";
 
+    // --- Boss stat scaling ---
+    static constexpr int BASE_BOSS_HP_PER_TIER = 150;
+    static constexpr int BASE_BOSS_HP_PER_LEVEL = 50;
+    static constexpr int BASE_BOSS_ATT_PER_TIER = 20;
+    static constexpr int BASE_BOSS_ATT_PER_LEVEL = 2;
+    static constexpr int BASE_BOSS_DEF_PER_TIER = 8;
+    static constexpr int BASE_BOSS_DEF_PER_LEVEL = 1;
+    static constexpr int BOSS_DAMAGE_MOD = 150;
+    static constexpr int BOSS_LEVEL_SCALE = 5;
+    static constexpr int BOSS_XP_PER_TIER = 5000;
+    static constexpr int BOSS_XP_PER_LEVEL = 250;
+
+    // --- Abyss boss stat scaling ---
+    static constexpr int ABYSS_BASE_HP = 2000;
+    static constexpr int ABYSS_BASE_ATT = 50;
+    static constexpr int ABYSS_BASE_DEF = 20;
+    static constexpr int ABYSS_DAMAGE_MOD = 250;
+    static constexpr int ABYSS_LEVEL_SCALE = 10;
+    static constexpr int ABYSS_LEVEL_BASE = 40;
+    static constexpr int ABYSS_LEVEL_PER_FLOOR = 3;
+
+    // --- Quest rewards ---
+    static constexpr int QUEST_S0_GOLD = 100;
+    static constexpr int QUEST_S0_XP = 100;
+    static constexpr int QUEST_S1_GOLD = 1000;
+    static constexpr int QUEST_S1_XP = 5000;
+    static constexpr int QUEST_S2_GOLD = 2500;
+    static constexpr int QUEST_S2_XP = 10000;
+    static constexpr int QUEST_S3_GOLD = 5000;
+    static constexpr int QUEST_S3_XP = 25000;
+    static constexpr int QUEST_S4_GOLD = 10000;
+    static constexpr int QUEST_S4_XP = 50000;
+    static constexpr int QUEST_S5_GOLD = 50000;
+    static constexpr int QUEST_S5_XP = 250000;
+
+    // --- Achievement gold rewards ---
+    static constexpr int ACH_FIRST_BLOOD = 100;
+    static constexpr int ACH_SLAYER = 500;
+    static constexpr int ACH_FLOOR_5 = 250;
+    static constexpr int ACH_FLOOR_10 = 500;
+    static constexpr int ACH_FLOOR_15 = 1000;
+    static constexpr int ACH_BOSS_5 = 500;
+    static constexpr int ACH_BOSS_10 = 1000;
+    static constexpr int ACH_BOSS_15 = 5000;
+    static constexpr int ACH_NG_PLUS_1 = 1000;
+    static constexpr int ACH_NG_PLUS_3 = 3000;
+    static constexpr int ACH_GOLD_10000 = 500;
+    static constexpr int ACH_GOLD_50000 = 2000;
+    static constexpr int ACH_DIE_1 = 100;
+    static constexpr int ACH_DIE_10 = 500;
+    static constexpr int ACH_LEVEL_10 = 500;
+    static constexpr int ACH_LEVEL_20 = 1000;
+    static constexpr int ACH_LEVEL_30 = 2000;
+    static constexpr int ACH_ABYSS_1 = 1000;
+    static constexpr int ACH_ABYSS_5 = 3000;
+    static constexpr int ACH_ABYSS_10 = 10000;
+
+    // --- Aging ---
+    inline const QMap<QString, int>& raceMaxAges() {
+        static const QMap<QString, int> ages = {
+            {"Human", 100}, {"Elf", 400}, {"Giant", 225},
+            {"Gnome", 300}, {"Dwarf", 275}, {"Ogre", 265},
+            {"Morloch", 175}, {"Osiri", 325}, {"Troll", 285}
+        };
+        return ages;
+    }
+    static constexpr double DECAY_THRESHOLD_RATIO = 0.7;
+
 }
 Q_DECLARE_OPERATORS_FOR_FLAGS(GameConstants::EntityStatuses)
 

@@ -21,7 +21,7 @@ MultiplayerLobbyDialog::MultiplayerLobbyDialog(QWidget *parent)
     setupConnections();
 }
 
-MultiplayerLobbyDialog::~MultiplayerLobbyDialog() {}
+MultiplayerLobbyDialog::~MultiplayerLobbyDialog() = default;
 
 void MultiplayerLobbyDialog::setupUI() {
     QVBoxLayout *mainLayout = new QVBoxLayout(this);
