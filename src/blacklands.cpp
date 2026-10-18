@@ -12,6 +12,7 @@
 #include "src/loadingscreen/LoadingScreen.h"
 #include "src/load_party_dialog/LoadPartyDialog.h"
 #include "src/assemble_party_dialog/AssemblePartyDialog.h"
+#include "src/multiplayer_dialog/MultiplayerLobbyDialog.h"
 #include <QInputDialog>
 #include <QRegularExpression>
 #include "src/race_data/RaceData.h"
@@ -187,6 +188,11 @@ void GameMenu::setupUI() {
     m_optionsButton->setMinimumHeight(55);
     footerLayout->addWidget(m_optionsButton);
 
+    m_multiplayerButton = new QPushButton(tr("Multiplayer"), this);
+    m_multiplayerButton->setObjectName("multiplayerButton");
+    m_multiplayerButton->setMinimumHeight(55);
+    footerLayout->addWidget(m_multiplayerButton);
+
     m_quitButton = new QPushButton(tr("Quit"), this);
     m_quitButton->setObjectName("quitButton");
     m_quitButton->setMinimumHeight(55);
@@ -221,7 +227,7 @@ void GameMenu::syncFontsToAppFont() {
     const QList<QWidget*> synced = {
         m_continueButton, m_newButton, m_createCharacterButton,
         m_assemblePartyButton, m_saveButton, m_loadButton,
-        m_recordsButton, m_optionsButton, m_quitButton
+        m_recordsButton, m_optionsButton, m_multiplayerButton, m_quitButton
     };
     for (QWidget *w : synced) {
         if (!w)
@@ -240,6 +246,7 @@ void GameMenu::setupConnections() {
     connect(m_loadButton, &QPushButton::clicked, this, &GameMenu::loadGame);
     connect(m_recordsButton, &QPushButton::clicked, this, &GameMenu::showRecords);
     connect(m_optionsButton, &QPushButton::clicked, this, &GameMenu::onOptionsClicked);
+    connect(m_multiplayerButton, &QPushButton::clicked, this, &GameMenu::onMultiplayerClicked);
     connect(m_quitButton, &QPushButton::clicked, this, &GameMenu::quitGame);
 
     // Engine Signals
@@ -499,6 +506,10 @@ void GameMenu::showRecords() {
 
 void GameMenu::onOptionsClicked() {
     (new OptionsDialog(this))->show();
+}
+
+void GameMenu::onMultiplayerClicked() {
+    (new MultiplayerLobbyDialog(this))->show();
 }
 
 void GameMenu::startNewGame() {

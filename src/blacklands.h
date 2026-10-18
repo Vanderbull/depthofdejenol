@@ -42,6 +42,7 @@ private slots:
     void onCharacterCreated(const QString &characterName);
     void onCreateCharacterClicked();
     void onAssemblePartyClicked();
+    void onMultiplayerClicked();
     // Re-applies the app font's family to the widgets that carry a font of
     // their own, so the menu follows the font chosen in Options.
     void syncFontsToAppFont();
@@ -65,6 +66,7 @@ private:
     QPushButton *m_loadButton = nullptr;
     QPushButton *m_recordsButton = nullptr;
     QPushButton *m_optionsButton = nullptr;
+    QPushButton *m_multiplayerButton = nullptr;
     QPushButton *m_quitButton = nullptr;
     QSettings m_settings;
     QString m_subfolderName;

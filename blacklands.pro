@@ -60,6 +60,7 @@ SOURCES += \
     src/confinement_dialog/ConfinementDialog.cpp \
     src/bank_dialog/BankDialog.cpp \
     src/assemble_party_dialog/AssemblePartyDialog.cpp \
+    src/multiplayer_dialog/MultiplayerLobbyDialog.cpp \
     src/loadingscreen/LoadingScreen.cpp \
     src/race_data/RaceData.cpp \
     src/inventory_dialog/inventorydialog.cpp \
@@ -211,6 +212,7 @@ HEADERS += \
     src/partyinfo_dialog/partyinfodialog.h \
     src/bank_dialog/TradeDialog.h \
     src/assemble_party_dialog/AssemblePartyDialog.h \
+    src/multiplayer_dialog/MultiplayerLobbyDialog.h \
     src/loadingscreen/LoadingScreen.h \
     src/core/game_resources.h \
     src/dungeon_dialog/DungeonHandlers.h \
