@@ -11,6 +11,7 @@ void runSpellMechanicTests();
 void runOptionsTests();
 void runDifficultyTests();
 void runDataFileTests();
+void runMultiplayerTests();
 
 int runSelfTest()
 {
@@ -30,6 +31,7 @@ int runSelfTest()
     runOptionsTests();
     runDifficultyTests();
     runDataFileTests();
+    runMultiplayerTests();
 
     // -------------------------------------------------------------- cleanup
     QFile::remove(savePath());
