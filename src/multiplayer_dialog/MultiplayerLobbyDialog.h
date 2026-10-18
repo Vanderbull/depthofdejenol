@@ -20,7 +20,10 @@ public:
 private slots:
     void onConnectClicked();
     void onDisconnectClicked();
+    void onStartServerClicked();
     void onChatSend();
+    void onMoveClicked();
+    void onFightClicked();
     void onConnected();
     void onDisconnected();
     void onChatReceived(const QString &from, const QString &message);
@@ -43,11 +46,14 @@ private:
     QLineEdit *m_usernameInput = nullptr;
     QPushButton *m_connectButton = nullptr;
     QPushButton *m_disconnectButton = nullptr;
+    QPushButton *m_startServerButton = nullptr;
     QLabel *m_statusLabel = nullptr;
     QListWidget *m_playerList = nullptr;
     QTextEdit *m_chatDisplay = nullptr;
     QLineEdit *m_chatInput = nullptr;
     QPushButton *m_sendButton = nullptr;
+    QPushButton *m_moveButton = nullptr;
+    QPushButton *m_fightButton = nullptr;
 
     bool m_connected = false;
 };

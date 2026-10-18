@@ -1,5 +1,6 @@
 #include "MultiplayerLobbyDialog.h"
 #include "src/network_manager/NetworkManager.h"
+#include "src/audio/audioManager.h"
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QFormLayout>
@@ -8,6 +9,8 @@
 #include <QDebug>
 #include <QDateTime>
 #include <QIntValidator>
+#include <QProcess>
+#include <QDir>
 
 MultiplayerLobbyDialog::MultiplayerLobbyDialog(QWidget *parent)
     : QDialog(parent)
@@ -40,8 +43,10 @@ void MultiplayerLobbyDialog::setupUI() {
     m_connectButton = new QPushButton("Connect");
     m_disconnectButton = new QPushButton("Disconnect");
     m_disconnectButton->setEnabled(false);
+    m_startServerButton = new QPushButton("Start Server");
     btnLayout->addWidget(m_connectButton);
     btnLayout->addWidget(m_disconnectButton);
+    btnLayout->addWidget(m_startServerButton);
     connForm->addRow("", btnLayout);
 
     m_statusLabel = new QLabel("Disconnected");
@@ -82,6 +87,15 @@ void MultiplayerLobbyDialog::setupUI() {
     mainLayout->addWidget(chatGroup);
 
     // --- Close button ---
+    QHBoxLayout *actionLayout = new QHBoxLayout();
+    m_moveButton = new QPushButton("Move");
+    m_moveButton->setEnabled(false);
+    m_fightButton = new QPushButton("Fight");
+    m_fightButton->setEnabled(false);
+    actionLayout->addWidget(m_moveButton);
+    actionLayout->addWidget(m_fightButton);
+    mainLayout->addLayout(actionLayout);
+
     QPushButton *closeButton = new QPushButton("Close");
     connect(closeButton, &QPushButton::clicked, this, &QDialog::close);
     mainLayout->addWidget(closeButton);
@@ -92,8 +106,11 @@ void MultiplayerLobbyDialog::setupConnections() {
 
     connect(m_connectButton, &QPushButton::clicked, this, &MultiplayerLobbyDialog::onConnectClicked);
     connect(m_disconnectButton, &QPushButton::clicked, this, &MultiplayerLobbyDialog::onDisconnectClicked);
+    connect(m_startServerButton, &QPushButton::clicked, this, &MultiplayerLobbyDialog::onStartServerClicked);
     connect(m_sendButton, &QPushButton::clicked, this, &MultiplayerLobbyDialog::onChatSend);
     connect(m_chatInput, &QLineEdit::returnPressed, this, &MultiplayerLobbyDialog::onChatSend);
+    connect(m_moveButton, &QPushButton::clicked, this, &MultiplayerLobbyDialog::onMoveClicked);
+    connect(m_fightButton, &QPushButton::clicked, this, &MultiplayerLobbyDialog::onFightClicked);
 
     connect(nm, &NetworkManager::connected, this, &MultiplayerLobbyDialog::onConnected);
     connect(nm, &NetworkManager::disconnected, this, &MultiplayerLobbyDialog::onDisconnected);
@@ -127,6 +144,42 @@ void MultiplayerLobbyDialog::onConnectClicked() {
     updateStatus("Connecting...");
 }
 
+void MultiplayerLobbyDialog::onStartServerClicked() {
+    QString portStr = m_portInput->text().trimmed();
+    bool ok;
+    quint16 port = portStr.toUShort(&ok);
+    if (!ok) {
+        QMessageBox::warning(this, "Invalid Port", "Port must be a number between 1 and 65535.");
+        return;
+    }
+
+    QString serverPath = QDir::currentPath() + "/tools/multiplayer/ref_server.py";
+    if (!QFile::exists(serverPath)) {
+        QMessageBox::warning(this, "Server Not Found", "ref_server.py not found at: " + serverPath);
+        return;
+    }
+
+    QProcess *serverProcess = new QProcess(this);
+    serverProcess->start("python3", QStringList() << serverPath << "--port" << QString::number(port));
+    connect(serverProcess, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
+            this, [this](int exitCode, QProcess::ExitStatus) {
+        if (exitCode != 0) {
+            QMessageBox::warning(this, "Server Error", "Reference server crashed or failed to start.");
+        }
+    });
+    QMessageBox::information(this, "Server Started", "Reference server started on port " + QString::number(port) + ".");
+}
+
+void MultiplayerLobbyDialog::onMoveClicked() {
+    if (!m_connected) return;
+    NetworkManager::instance()->sendAction("move", {{"direction", "forward"}});
+}
+
+void MultiplayerLobbyDialog::onFightClicked() {
+    if (!m_connected) return;
+    NetworkManager::instance()->sendAction("fight", {{"target", "nearest"}});
+}
+
 void MultiplayerLobbyDialog::onDisconnectClicked() {
     NetworkManager::instance()->sendAction("disconnect", {});
     updateStatus("Disconnected");
@@ -153,6 +206,8 @@ void MultiplayerLobbyDialog::onConnected() {
     m_disconnectButton->setEnabled(true);
     m_chatInput->setEnabled(true);
     m_sendButton->setEnabled(true);
+    m_moveButton->setEnabled(true);
+    m_fightButton->setEnabled(true);
     refreshPlayerList();
 }
 
@@ -163,10 +218,13 @@ void MultiplayerLobbyDialog::onDisconnected() {
     m_disconnectButton->setEnabled(false);
     m_chatInput->setEnabled(false);
     m_sendButton->setEnabled(false);
+    m_moveButton->setEnabled(false);
+    m_fightButton->setEnabled(false);
 }
 
 void MultiplayerLobbyDialog::onChatReceived(const QString &from, const QString &message) {
     addChatMessage(from, message);
+    audioManager::instance()->playSound("qrc:/sounds/chat_notify.wav");
 }
 
 void MultiplayerLobbyDialog::onPlayerJoined(const QString &playerName) {
