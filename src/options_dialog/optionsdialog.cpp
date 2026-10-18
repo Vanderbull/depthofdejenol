@@ -8,11 +8,15 @@
 #include <QDesktopServices>
 #include <QDir>
 #include <QFile>
+#include <QFileDialog>
 #include <QFontDialog>
 #include <QGridLayout>
 #include <QGroupBox>
 #include <QHBoxLayout>
+#include <QJsonDocument>
+#include <QJsonObject>
 #include <QLabel>
+#include <QMessageBox>
 #include <QPushButton>
 #include <QSignalBlocker>
 #include <QSlider>
@@ -163,11 +167,17 @@ void OptionsDialog::setupUi() {
     m_backupButton->setObjectName("backupButton");
     m_restoreButton = new QPushButton(tr("Restore"), dataBox);
     m_restoreButton->setObjectName("restoreButton");
+    m_exportButton = new QPushButton(tr("Export settings"), dataBox);
+    m_exportButton->setObjectName("exportButton");
+    m_importButton = new QPushButton(tr("Import settings"), dataBox);
+    m_importButton->setObjectName("importButton");
     auto *openFolderButton = new QPushButton(tr("Open save folder"), dataBox);
     openFolderButton->setObjectName("openSaveFolderButton");
 
     dataLayout->addWidget(m_backupButton);
     dataLayout->addWidget(m_restoreButton);
+    dataLayout->addWidget(m_exportButton);
+    dataLayout->addWidget(m_importButton);
     dataLayout->addWidget(openFolderButton);
     dataLayout->addStretch();
     grid->addWidget(dataBox, 1, 1);
@@ -221,6 +231,8 @@ void OptionsDialog::setupUi() {
     connect(m_fixedFontButton, &QPushButton::clicked, this, &OptionsDialog::onSelectFixedFont);
     connect(m_backupButton, &QPushButton::clicked, this, &OptionsDialog::onBackupClicked);
     connect(m_restoreButton, &QPushButton::clicked, this, &OptionsDialog::onRestoreClicked);
+    connect(m_exportButton, &QPushButton::clicked, this, &OptionsDialog::onExportClicked);
+    connect(m_importButton, &QPushButton::clicked, this, &OptionsDialog::onImportClicked);
     connect(openFolderButton, &QPushButton::clicked, this, []() {
         QDesktopServices::openUrl(QUrl::fromLocalFile(QDir(kSavesDir).absolutePath()));
     });
@@ -392,4 +404,77 @@ void OptionsDialog::refreshLastBackupLabel() {
     m_lastBackupLabel->setText(newest.isEmpty()
         ? tr("No backup yet")
         : tr("Last backup: %1").arg(newest));
+}
+
+void OptionsDialog::onExportClicked() {
+    QString fileName = QFileDialog::getSaveFileName(this, tr("Export Settings"),
+        QDir::homePath() + "/blacklands_settings.json", tr("JSON (*.json)"));
+    if (fileName.isEmpty()) return;
+
+    GameSettings& s = GameSettings::instance();
+    QJsonObject obj;
+    obj["musicVolume"] = s.musicVolume();
+    obj["sfxVolume"] = s.sfxVolume();
+    obj["muted"] = s.audioMuted();
+    obj["autosave"] = s.autosaveEnabled();
+    obj["revealAutomap"] = s.revealAutomap();
+    obj["fullscreen"] = s.fullscreen();
+    obj["combatSpeedMs"] = s.combatSpeedMs();
+    obj["proportionalFontFamily"] = s.proportionalFontFamily();
+    obj["proportionalFontSize"] = s.proportionalFontSize();
+    obj["fixedFontFamily"] = s.fixedFontFamily();
+    obj["fixedFontSize"] = s.fixedFontSize();
+
+    QFile file(fileName);
+    if (file.open(QIODevice::WriteOnly)) {
+        file.write(QJsonDocument(obj).toJson());
+        file.close();
+        QMessageBox::information(this, tr("Export Complete"),
+            tr("Settings exported to %1").arg(fileName));
+    } else {
+        QMessageBox::warning(this, tr("Export Failed"),
+            tr("Could not write to %1").arg(fileName));
+    }
+}
+
+void OptionsDialog::onImportClicked() {
+    QString fileName = QFileDialog::getOpenFileName(this, tr("Import Settings"),
+        QDir::homePath(), tr("JSON (*.json)"));
+    if (fileName.isEmpty()) return;
+
+    QFile file(fileName);
+    if (!file.open(QIODevice::ReadOnly)) {
+        QMessageBox::warning(this, tr("Import Failed"),
+            tr("Could not read %1").arg(fileName));
+        return;
+    }
+
+    QJsonDocument doc = QJsonDocument::fromJson(file.readAll());
+    file.close();
+
+    if (!doc.isObject()) {
+        QMessageBox::warning(this, tr("Import Failed"),
+            tr("Invalid settings file format."));
+        return;
+    }
+
+    QJsonObject obj = doc.object();
+    GameSettings& s = GameSettings::instance();
+
+    if (obj.contains("musicVolume")) s.setMusicVolume(obj["musicVolume"].toDouble());
+    if (obj.contains("sfxVolume")) s.setSfxVolume(obj["sfxVolume"].toDouble());
+    if (obj.contains("muted")) s.setAudioMuted(obj["muted"].toBool());
+    if (obj.contains("autosave")) s.setAutosaveEnabled(obj["autosave"].toBool());
+    if (obj.contains("revealAutomap")) s.setRevealAutomap(obj["revealAutomap"].toBool());
+    if (obj.contains("fullscreen")) s.setFullscreen(obj["fullscreen"].toBool());
+    if (obj.contains("combatSpeedMs")) s.setCombatSpeedMs(obj["combatSpeedMs"].toInt());
+    if (obj.contains("proportionalFontFamily") && obj.contains("proportionalFontSize"))
+        s.setProportionalFont(obj["proportionalFontFamily"].toString(), obj["proportionalFontSize"].toInt());
+    if (obj.contains("fixedFontFamily") && obj.contains("fixedFontSize"))
+        s.setFixedFont(obj["fixedFontFamily"].toString(), obj["fixedFontSize"].toInt());
+
+    s.applyAll();
+    loadFromSettings();
+    QMessageBox::information(this, tr("Import Complete"),
+        tr("Settings imported from %1").arg(fileName));
 }

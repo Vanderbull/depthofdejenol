@@ -31,6 +31,8 @@ private slots:
     void onSelectFixedFont();
     void onBackupClicked();
     void onRestoreClicked();
+    void onExportClicked();
+    void onImportClicked();
 
 private:
     void setupUi();
@@ -64,6 +66,8 @@ private:
     QLabel      *m_lastBackupLabel = nullptr;
     QPushButton *m_backupButton    = nullptr;
     QPushButton *m_restoreButton   = nullptr;
+    QPushButton *m_exportButton    = nullptr;
+    QPushButton *m_importButton    = nullptr;
 
     // --- Actions ---
     QPushButton *m_okButton      = nullptr;
