@@ -23,6 +23,7 @@
 #include "src/journal_dialog/JournalDialog.h"
 #include "src/victory_dialog/VictoryDialog.h"
 #include <cmath>
+#include <functional>
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QGridLayout>
@@ -55,31 +56,31 @@ const int MAP_HEIGHT_PIXELS = MAP_SIZE * TILE_SIZE;
 const int MAP_MIN = 0;
 const int MAP_MAX = MAP_SIZE - 1;
 
-QPushButton* DungeonDialog::createButton(const QString& text, const char* slot) {
+QPushButton* DungeonDialog::createButton(const QString& text, std::function<void()> slot) {
     QPushButton* button = new QPushButton(text, this);
     button->setFocusPolicy(Qt::NoFocus); // Keeps focus on the main window for movement
-    connect(button, SIGNAL(clicked()), this, slot);
+    connect(button, &QPushButton::clicked, this, std::move(slot));
     return button;
 }
 
 void DungeonDialog::setupControls() {
     // Define the buttons and their corresponding slots
-    QMap<QString, const char*> buttonConfigs = {
-        {"Fight",   SLOT(on_fightButton_clicked())},
-        {"Eat",     SLOT(on_eatButton_clicked())},
-        {"Spell",   SLOT(on_spellButton_clicked())},
-        {"Rest",    SLOT(on_restButton_clicked())},
-        {"Talk",    SLOT(on_talkButton_clicked())},
-        {"Search",  SLOT(on_searchButton_clicked())},
-        {"Disarm",  SLOT(on_disarmButton_clicked())},
-        {"Pickup",  SLOT(on_pickupButton_clicked())},
-        {"Drop",    SLOT(on_dropButton_clicked())},
-        {"Open",    SLOT(on_openButton_clicked())},
-        {"Chest",   SLOT(on_chestButton_clicked())},
-        {"Teleport",SLOT(on_teleportButton_clicked())},
+    QMap<QString, std::function<void()>> buttonConfigs = {
+        {"Fight",   [this]() { on_fightButton_clicked(); }},
+        {"Eat",     [this]() { on_eatButton_clicked(); }},
+        {"Spell",   [this]() { on_spellButton_clicked(); }},
+        {"Rest",    [this]() { on_restButton_clicked(); }},
+        {"Talk",    [this]() { on_talkButton_clicked(); }},
+        {"Search",  [this]() { on_searchButton_clicked(); }},
+        {"Disarm",  [this]() { on_disarmButton_clicked(); }},
+        {"Pickup",  [this]() { on_pickupButton_clicked(); }},
+        {"Drop",    [this]() { on_dropButton_clicked(); }},
+        {"Open",    [this]() { on_openButton_clicked(); }},
+        {"Chest",   [this]() { on_chestButton_clicked(); }},
+        {"Teleport",[this]() { on_teleportButton_clicked(); }},
 
-        {"Stairs Up",    SLOT(on_stairsUpButton_clicked())},
-        {"Stairs Down",    SLOT(on_stairsDownButton_clicked())},
+        {"Stairs Up",    [this]() { on_stairsUpButton_clicked(); }},
+        {"Stairs Down",    [this]() { on_stairsDownButton_clicked(); }},
     };
 
 

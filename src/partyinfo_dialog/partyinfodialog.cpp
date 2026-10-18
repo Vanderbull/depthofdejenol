@@ -114,7 +114,23 @@ void PartyInfoDialog::onSwitchToClicked()
 
 void PartyInfoDialog::onOptionsClicked()
 {
-    QMessageBox::information(this, "Options", "Management options coming soon.");
+    QStringList items;
+    items << "Switch Active Character" << "View Character Stats" << "Close";
+    bool ok;
+    QString choice = QInputDialog::getItem(this, "Party Options", "Choose an option:", items, 0, false, &ok);
+    if (!ok || choice == "Close" || choice.isEmpty()) return;
+    if (choice == "Switch Active Character") {
+        onSwitchToClicked();
+    } else if (choice == "View Character Stats") {
+        QStringList details;
+        for (const QString& m : partyMembers) {
+            int level = gameStateManager::instance()->getGameValue(m + "_Level").toInt();
+            int hp = gameStateManager::instance()->getGameValue(m + "_HP").toInt();
+            int maxHp = gameStateManager::instance()->getGameValue(m + "_MaxHP").toInt();
+            details << QString("%1: Lv %2, HP %3/%4").arg(m).arg(level).arg(hp).arg(maxHp);
+        }
+        QMessageBox::information(this, "Character Stats", details.join("\n"));
+    }
 }
 
 void PartyInfoDialog::onLeaveClicked()

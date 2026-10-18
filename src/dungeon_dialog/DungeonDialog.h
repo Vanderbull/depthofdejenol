@@ -5,6 +5,7 @@
 #include <QGraphicsScene>
 #include <QGraphicsView>
 #include <QMap>
+#include <functional>
 #include <QImage>
 #include <QKeyEvent>
 #include <QSet>
@@ -171,7 +172,7 @@ public:
     // Buttons
     QMap<QString, QPushButton*> m_controls;
     // A helper to make button creation cleaner
-    QPushButton* createButton(const QString& text, const char* slot);
+    QPushButton* createButton(const QString& text, std::function<void()> slot);
 
     QPushButton *m_upButton;
     QPushButton *m_downButton;
