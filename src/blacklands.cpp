@@ -102,6 +102,7 @@ void GameMenu::setupUI() {
     m_continueButton = new QPushButton(tr("CONTINUE"), this);
     m_continueButton->setObjectName("continueButton");
     m_continueButton->setMinimumHeight(50);
+    m_continueButton->setToolTip(tr("Load saved game"));
     QFont continueFont = m_continueButton->font();
     continueFont.setPointSize(16);
     continueFont.setBold(true);
@@ -135,6 +136,7 @@ void GameMenu::setupUI() {
     m_newButton = new QPushButton(tr("New Game"), this);
     m_newButton->setObjectName("newGameButton");
     m_newButton->setMinimumHeight(55);
+    m_newButton->setToolTip(tr("Start a new game"));
     QFont actionFont = m_newButton->font();
     actionFont.setPointSize(13);
     actionFont.setBold(true);
@@ -144,6 +146,7 @@ void GameMenu::setupUI() {
     m_createCharacterButton = new QPushButton(tr("Create Character"), this);
     m_createCharacterButton->setObjectName("createCharacterButton");
     m_createCharacterButton->setMinimumHeight(55);
+    m_createCharacterButton->setToolTip(tr("Create a new character"));
     m_createCharacterButton->setFont(actionFont);
     actionsGrid->addWidget(m_createCharacterButton, 0, 1, Qt::AlignCenter);
 
@@ -191,11 +194,13 @@ void GameMenu::setupUI() {
     m_multiplayerButton = new QPushButton(tr("Multiplayer"), this);
     m_multiplayerButton->setObjectName("multiplayerButton");
     m_multiplayerButton->setMinimumHeight(55);
+    m_multiplayerButton->setToolTip(tr("Connect to multiplayer server"));
     footerLayout->addWidget(m_multiplayerButton);
 
     m_quitButton = new QPushButton(tr("Quit"), this);
     m_quitButton->setObjectName("quitButton");
     m_quitButton->setMinimumHeight(55);
+    m_quitButton->setToolTip(tr("Exit the game"));
     footerLayout->addWidget(m_quitButton);
 
     footerLayout->addStretch(1);
