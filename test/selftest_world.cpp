@@ -1,5 +1,6 @@
 #include "selftest_harness.h"
 #include "selftest_includes.h"
+#include "src/combat/CombatController.h"
 
 void runWorldTests()
 {
@@ -1726,9 +1727,10 @@ void runWorldTests()
         gsm->addCharacterToParty(partyMember);
 
         // Place a hostile monster at (5, 5) and start combat there.
+        // Use a real monster name so EncounterBuilder can find it in the data.
         QPair<int, int> monsterPos = {5, 5};
-        dlg.m_monsterPositions[monsterPos] = "Test Flee Goblin";
-        dlg.m_MonsterAttitude["Test Flee Goblin"] = "Hostile";
+        dlg.m_monsterPositions[monsterPos] = "Goblin";
+        dlg.m_MonsterAttitude["Goblin"] = "Hostile";
         gsm->setGameValue("DungeonX", 5);
         gsm->setGameValue("DungeonY", 5);
 
@@ -1737,19 +1739,19 @@ void runWorldTests()
 
         // Force a successful flee by setting the monster's speed very low
         // and the player's speed very high.
-        if (dlg.m_combatState && dlg.m_combatState->participantCount() > 0) {
-            for (int i = 0; i < dlg.m_combatState->participantCount(); ++i) {
-                auto& p = dlg.m_combatState->participant(i);
+        if (dlg.m_combatController && dlg.m_combatController->combatState() && dlg.m_combatController->combatState()->participantCount() > 0) {
+            for (int i = 0; i < dlg.m_combatController->combatState()->participantCount(); ++i) {
+                auto& p = dlg.m_combatController->combatState()->participant(i);
                 if (p.isPlayer) p.speed = 100;
                 else p.speed = 0;
             }
         }
 
         // Advance combat until it's the player's turn (monster may go first).
-        for (int i = 0; i < 100 && !dlg.m_combatActions->isPlayerTurn(); ++i) {
+        for (int i = 0; i < 100 && !dlg.m_combatController->isPlayerTurn(); ++i) {
             dlg.advanceCombat();
         }
-        check(dlg.m_combatActions->isPlayerTurn(), "player turn for flee test");
+        check(dlg.m_combatController->isPlayerTurn(), "player turn for flee test");
 
         // Call the flee handler.
         dlg.fleeCombat();
@@ -1802,9 +1804,9 @@ void runWorldTests()
 
         // Find the monster's combat index.
         int monsterIdx = -1;
-        if (dlg.m_combatState) {
-            for (int i = 0; i < dlg.m_combatState->participantCount(); ++i) {
-                const auto& p = dlg.m_combatState->participant(i);
+        if (dlg.m_combatController->combatState()) {
+            for (int i = 0; i < dlg.m_combatController->combatState()->participantCount(); ++i) {
+                const auto& p = dlg.m_combatController->combatState()->participant(i);
                 if (!p.isPlayer && p.isAlive) {
                     monsterIdx = i;
                     break;
@@ -1815,23 +1817,23 @@ void runWorldTests()
 
         // Record the monster's HP before the spell.
         int hpBefore = 0;
-        if (monsterIdx >= 0 && dlg.m_combatState) {
-            hpBefore = dlg.m_combatState->participant(monsterIdx).hp;
+        if (monsterIdx >= 0 && dlg.m_combatController->combatState()) {
+            hpBefore = dlg.m_combatController->combatState()->participant(monsterIdx).hp;
         }
 
         // Simulate a spell cast by emitting the signal that SpellCastingDialog
         // would emit. We call the lambda directly by invoking the spell
         // button handler, but since that opens a modal dialog, we instead
         // test the routing by calling applySpellDamageBySchool directly.
-        if (dlg.m_combatActions && monsterIdx >= 0) {
+        if (dlg.m_combatController->combatActions() && monsterIdx >= 0) {
             QString result;
-            dlg.m_combatActions->applySpellDamageBySchool(monsterIdx, "Fireball", 50, result);
+            dlg.m_combatController->combatActions()->applySpellDamageBySchool(monsterIdx, "Fireball", 50, result);
         }
 
         // The monster's HP must have changed (or it died).
-        if (dlg.m_combatState && monsterIdx >= 0) {
-            int hpAfter = dlg.m_combatState->participant(monsterIdx).hp;
-            bool died = !dlg.m_combatState->participant(monsterIdx).isAlive;
+        if (dlg.m_combatController->combatState() && monsterIdx >= 0) {
+            int hpAfter = dlg.m_combatController->combatState()->participant(monsterIdx).hp;
+            bool died = !dlg.m_combatController->combatState()->participant(monsterIdx).isAlive;
             check(hpAfter != hpBefore || died,
                   "spell damage applied to monster");
         }
@@ -2925,7 +2927,7 @@ void runWorldTests()
         check(dlg.m_inCombat, "combat started");
 
         // Build a deterministic 3-monster fight on top of the real participants.
-        dlg.m_combatState->clear();
+        dlg.m_combatController->combatState()->clear();
         CombatParticipant hero;
         hero.name = "Target Hero";
         hero.isPlayer = true;
@@ -2933,7 +2935,7 @@ void runWorldTests()
         hero.hp = 100; hero.maxHp = 100;
         hero.att = 30; hero.dex = 50; hero.level = 5;
         hero.speed = 100;
-        dlg.m_combatState->addParticipant(hero);
+        dlg.m_combatController->combatState()->addParticipant(hero);
 
         for (int m = 0; m < 3; ++m) {
             CombatParticipant mon;
@@ -2944,16 +2946,16 @@ void runWorldTests()
             mon.def = -50;                    // guarantee hits
             mon.level = 1;
             mon.speed = 0;
-            dlg.m_combatState->addParticipant(mon);
+            dlg.m_combatController->combatState()->addParticipant(mon);
         }
 
         // Give the hero the turn.
-        dlg.m_combatState->rollInitiative();
-        dlg.m_turnEngine->startRound();
-        for (int i = 0; i < 100 && !dlg.m_combatActions->isPlayerTurn(); ++i) {
+        dlg.m_combatController->combatState()->rollInitiative();
+        dlg.m_combatController->turnEngine()->startRound();
+        for (int i = 0; i < 100 && !dlg.m_combatController->combatActions()->isPlayerTurn(); ++i) {
             dlg.advanceCombat();
         }
-        check(dlg.m_combatActions->isPlayerTurn(), "player has the turn");
+        check(dlg.m_combatController->combatActions()->isPlayerTurn(), "player has the turn");
 
         dlg.updateCombatUI();
         check(dlg.m_combatTargetList && dlg.m_combatTargetList->count() == 3,
@@ -2966,18 +2968,18 @@ void runWorldTests()
         check(dlg.selectedMonsterIndex() == thirdIdx, "third monster is selected",
               QString::number(dlg.selectedMonsterIndex()));
 
-        int firstHp = dlg.m_combatState->participant(1).hp;
-        int thirdHp = dlg.m_combatState->participant(thirdIdx).hp;
+        int firstHp = dlg.m_combatController->combatState()->participant(1).hp;
+        int thirdHp = dlg.m_combatController->combatState()->participant(thirdIdx).hp;
 
         // A natural 1 always fumbles, so a single attack can miss. Attack until
         // one lands (re-taking the turn each round), then check WHERE it landed:
         // the first monster must be untouched throughout.
         bool thirdDamaged = false;
         for (int attempt = 0; attempt < 50 && !thirdDamaged; ++attempt) {
-            for (int i = 0; i < 100 && !dlg.m_combatActions->isPlayerTurn(); ++i) {
+            for (int i = 0; i < 100 && !dlg.m_combatController->combatActions()->isPlayerTurn(); ++i) {
                 dlg.advanceCombat();
             }
-            if (!dlg.m_combatActions->isPlayerTurn()) break;
+            if (!dlg.m_combatController->combatActions()->isPlayerTurn()) break;
 
             dlg.updateCombatUI();
             for (int row = 0; row < dlg.m_combatTargetList->count(); ++row) {
@@ -2988,14 +2990,14 @@ void runWorldTests()
             }
             dlg.on_combatAttackButton_clicked();
 
-            if (dlg.m_combatState->participant(thirdIdx).hp < thirdHp) thirdDamaged = true;
+            if (dlg.m_combatController->combatState()->participant(thirdIdx).hp < thirdHp) thirdDamaged = true;
         }
 
         check(thirdDamaged, "the selected (third) monster took the damage",
-              QString::number(dlg.m_combatState->participant(thirdIdx).hp));
-        check(dlg.m_combatState->participant(1).hp == firstHp,
+              QString::number(dlg.m_combatController->combatState()->participant(thirdIdx).hp));
+        check(dlg.m_combatController->combatState()->participant(1).hp == firstHp,
               "the first monster was NOT hit",
-              QString::number(dlg.m_combatState->participant(1).hp));
+              QString::number(dlg.m_combatController->combatState()->participant(1).hp));
 
         dlg.m_monsterPositions.remove(pos);
         dlg.m_MonsterAttitude.remove("Test Target Goblin");
@@ -3026,14 +3028,14 @@ void runWorldTests()
         gsm->setGameValue("DungeonY", 6);
         DungeonHandlers::handleEncounters(&dlg, 6, 6);
 
-        dlg.m_combatState->clear();
+        dlg.m_combatController->combatState()->clear();
         CombatParticipant hero;
         hero.name = "Mover Hero";
         hero.isPlayer = true;
         hero.isAlive = true;
         hero.hp = 100; hero.maxHp = 100;
         hero.speed = 100;
-        dlg.m_combatState->addParticipant(hero);
+        dlg.m_combatController->combatState()->addParticipant(hero);
 
         for (int m = 0; m < 2; ++m) {
             CombatParticipant mon;
@@ -3043,7 +3045,7 @@ void runWorldTests()
             mon.hp = 1; mon.maxHp = 1;   // one hit kills
             mon.def = -50;
             mon.speed = 0;
-            dlg.m_combatState->addParticipant(mon);
+            dlg.m_combatController->combatState()->addParticipant(mon);
         }
 
         dlg.updateCombatUI();
@@ -3054,8 +3056,8 @@ void runWorldTests()
         check(dlg.selectedMonsterIndex() == 1, "first monster selected");
 
         // Kill it directly, then refresh: selection must move to the survivor.
-        dlg.m_combatState->participant(1).hp = 0;
-        dlg.m_combatState->participant(1).isAlive = false;
+        dlg.m_combatController->combatState()->participant(1).hp = 0;
+        dlg.m_combatController->combatState()->participant(1).isAlive = false;
         dlg.updateCombatUI();
 
         check(dlg.m_combatTargetList->count() == 1, "dead monster dropped from the list");
@@ -3092,14 +3094,14 @@ void runWorldTests()
         gsm->setGameValue("DungeonY", 7);
         DungeonHandlers::handleEncounters(&dlg, 7, 7);
 
-        dlg.m_combatState->clear();
+        dlg.m_combatController->combatState()->clear();
         CombatParticipant hero;
         hero.name = "Fallback Hero";
         hero.isPlayer = true;
         hero.isAlive = true;
         hero.hp = 100; hero.maxHp = 100;
         hero.speed = 100;
-        dlg.m_combatState->addParticipant(hero);
+        dlg.m_combatController->combatState()->addParticipant(hero);
 
         CombatParticipant mon;
         mon.name = "Lonely Goblin";
@@ -3108,7 +3110,7 @@ void runWorldTests()
         mon.hp = 50; mon.maxHp = 50;
         mon.def = -50;
         mon.speed = 0;
-        dlg.m_combatState->addParticipant(mon);
+        dlg.m_combatController->combatState()->addParticipant(mon);
 
         // Clear any selection: the fallback must find the living monster.
         dlg.m_combatTargetList->clear();
@@ -3150,13 +3152,13 @@ void runWorldTests()
         gsm->setGameValue("DungeonY", 8);
         DungeonHandlers::handleEncounters(&dlg, 8, 8);
 
-        dlg.m_combatState->clear();
+        dlg.m_combatController->combatState()->clear();
         CombatParticipant hero;
         hero.name = "Row Hero";
         hero.isPlayer = true;
         hero.isAlive = true;
         hero.hp = 100; hero.maxHp = 100;
-        dlg.m_combatState->addParticipant(hero);
+        dlg.m_combatController->combatState()->addParticipant(hero);
 
         for (int m = 0; m < 3; ++m) {
             CombatParticipant mon;
@@ -3165,7 +3167,7 @@ void runWorldTests()
             mon.isAlive = true;
             mon.hp = 20 + m * 10;   // distinct HP per row
             mon.maxHp = 20 + m * 10;
-            dlg.m_combatState->addParticipant(mon);
+            dlg.m_combatController->combatState()->addParticipant(mon);
         }
 
         dlg.updateCombatUI();
@@ -3182,7 +3184,7 @@ void runWorldTests()
               "row 3 shows its own HP", dlg.m_combatTargetList->item(2)->text());
 
         // Damage only the second monster: only its row changes.
-        dlg.m_combatState->participant(2).hp = 5;
+        dlg.m_combatController->combatState()->participant(2).hp = 5;
         dlg.updateCombatUI();
 
         check(dlg.m_combatTargetList->item(0)->text().contains("20/20"),
@@ -3195,8 +3197,8 @@ void runWorldTests()
         // Status must reach the ROW, not just exist in combatStatusText().
         // Participant 0 is the hero, so goblins are participants 1..3 and list
         // rows 0..2.
-        dlg.m_combatState->participant(1).poisonDuration = 4;   // goblin 1 = row 0
-        dlg.m_combatState->participant(3).fireDuration = 2;     // goblin 3 = row 2
+        dlg.m_combatController->combatState()->participant(1).poisonDuration = 4;   // goblin 1 = row 0
+        dlg.m_combatController->combatState()->participant(3).fireDuration = 2;     // goblin 3 = row 2
         dlg.updateCombatUI();
 
         check(dlg.m_combatTargetList->item(0)->text().contains("poison 4"),
@@ -3467,20 +3469,20 @@ void runWorldTests()
 
         // Find the player's participant index.
         int playerIdx = -1;
-        for (int i = 0; i < dlg.m_combatState->participantCount(); ++i) {
-            if (dlg.m_combatState->participant(i).isPlayer) { playerIdx = i; break; }
+        for (int i = 0; i < dlg.m_combatController->combatState()->participantCount(); ++i) {
+            if (dlg.m_combatController->combatState()->participant(i).isPlayer) { playerIdx = i; break; }
         }
         check(playerIdx >= 0, "player is in the combat state");
 
-        const CombatRow before = dlg.m_combatState->participant(playerIdx).row;
+        const CombatRow before = dlg.m_combatController->combatState()->participant(playerIdx).row;
         check(dlg.togglePlayerRow(playerIdx), "togglePlayerRow succeeded");
-        const CombatRow after = dlg.m_combatState->participant(playerIdx).row;
+        const CombatRow after = dlg.m_combatController->combatState()->participant(playerIdx).row;
         check(after != before, "the row changed");
 
         // Toggling a monster must be refused: rows are a player position.
         int monsterIdx = -1;
-        for (int i = 0; i < dlg.m_combatState->participantCount(); ++i) {
-            if (!dlg.m_combatState->participant(i).isPlayer) { monsterIdx = i; break; }
+        for (int i = 0; i < dlg.m_combatController->combatState()->participantCount(); ++i) {
+            if (!dlg.m_combatController->combatState()->participant(i).isPlayer) { monsterIdx = i; break; }
         }
         if (monsterIdx >= 0) {
             check(!dlg.togglePlayerRow(monsterIdx), "a monster's row cannot be toggled");

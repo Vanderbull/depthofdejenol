@@ -17,6 +17,7 @@
 #include "../event/EventManager.h"
 #include "src/spell_casting/SpellCastingDialog.h"
 #include "src/quest_board/QuestBoardDialog.h"
+#include "src/combat/CombatController.h"
 
 #include "src/core/Endgame.h"
 #include "src/core/DeathRecovery.h"
@@ -1257,13 +1258,6 @@ void DungeonDialog::setupCombatSystem()
     QVBoxLayout *rightPanelLayout = findChild<QScrollArea*>("dungeonSidebarScroll")->widget()->findChild<QVBoxLayout*>();
     if (!rightPanelLayout) return;
 
-    m_combatState = new CombatState();
-    m_turnEngine = new TurnEngine();
-    m_combatActions = new CombatActions(m_combatState, m_turnEngine);
-    m_monsterAI = new MonsterAI(m_combatState, m_turnEngine, m_combatActions);
-    m_deathHandler = new CombatDeathHandler(m_combatState, m_turnEngine, m_combatActions);
-    m_turnEngine->setCombatState(m_combatState);
-
     m_combatGroup = new QGroupBox("Combat", this);
     QVBoxLayout* combatLayout = new QVBoxLayout(m_combatGroup);
 
@@ -1313,23 +1307,34 @@ void DungeonDialog::setupCombatSystem()
     m_combatGroup->setVisible(false);
     rightPanelLayout->addWidget(m_combatGroup);
 
+    // Create combat controller and wire it to the UI widgets
+    m_combatController = new CombatController(this);
+    m_combatController->setCombatWidgets(m_combatGroup, m_combatMonsterHpLabel,
+                                         m_combatTargetList, m_combatPartyHpLabel,
+                                         m_combatAttackBtn, m_combatDefendBtn,
+                                         m_combatFleeBtn, m_combatUseItemBtn,
+                                         m_combatSpellBtn, m_combatRowBtn,
+                                         m_combatFxTimer);
+    m_combatController->setLogCallback([this](const QString& msg) { logMessage(msg); });
+    m_combatController->setRenderCallback([this]() { drawMinimap(); renderWireframeView(); });
+
     connect(m_combatAttackBtn, &QPushButton::clicked, this, &DungeonDialog::on_combatAttackButton_clicked);
     connect(m_combatDefendBtn, &QPushButton::clicked, this, &DungeonDialog::on_combatDefendButton_clicked);
     connect(m_combatFleeBtn, &QPushButton::clicked, this, &DungeonDialog::on_combatFleeButton_clicked);
     connect(m_combatUseItemBtn, &QPushButton::clicked, this, &DungeonDialog::on_combatUseItemButton_clicked);
     connect(m_combatSpellBtn, &QPushButton::clicked, this, &DungeonDialog::on_combatSpellButton_clicked);
     connect(m_combatRowBtn, &QPushButton::clicked, this, [this]() {
-        if (!m_inCombat || !m_combatState || !m_turnEngine) return;
-        const int idx = m_turnEngine->currentParticipantIndex();
+        if (!m_inCombat || !m_combatController) return;
+        const int idx = m_combatController->turnEngine()->currentParticipantIndex();
         if (idx < 0) return;
-        const CombatParticipant& p = m_combatState->participant(idx);
+        const CombatParticipant& p = m_combatController->combatState()->participant(idx);
         if (!p.isPlayer) return;
-        togglePlayerRow(idx);
+        m_combatController->togglePlayerRow(idx);
         logMessage(QString("%1 moves to the %2 row.")
                        .arg(p.name)
-                       .arg(m_combatState->participant(idx).row == CombatRow::Front
+                       .arg(m_combatController->combatState()->participant(idx).row == CombatRow::Front
                                 ? "front" : "back"));
-        updateCombatUI();
+        m_combatController->updateCombatUI();
     });
 }
 
@@ -1578,6 +1583,20 @@ bool DungeonDialog::startCombatAt(const QPair<int, int>& pos)
 {
     if (!m_monsterPositions.contains(pos)) return false;
 
+    // Ensure combat controller exists (may not if setupCombatSystem wasn't called)
+    if (!m_combatController) {
+        m_combatController = new CombatController(this);
+        m_combatController->setLogCallback([this](const QString& msg) { logMessage(msg); });
+        m_combatController->setRenderCallback([this]() { drawMinimap(); renderWireframeView(); });
+        m_combatController->setCombatWidgets(m_combatGroup, m_combatMonsterHpLabel,
+                                             m_combatTargetList, m_combatPartyHpLabel,
+                                             m_combatAttackBtn, m_combatDefendBtn,
+                                             m_combatFleeBtn, m_combatUseItemBtn,
+                                             m_combatSpellBtn, m_combatRowBtn,
+                                             m_combatFxTimer);
+    }
+    m_combatController->setInCombat(true);
+
     gameStateManager* gsm = gameStateManager::instance();
     QString monsterName = m_monsterPositions.value(pos);
     int level = gsm->getGameValue("DungeonLevel").toInt();
@@ -1589,7 +1608,7 @@ bool DungeonDialog::startCombatAt(const QPair<int, int>& pos)
     m_inCombat = true;
 
     // Build combat encounter
-    m_combatState->clear();
+    m_combatController->combatState()->clear();
 
     // Add party members
     auto& members = gsm->getPartyMembers();
@@ -1631,7 +1650,7 @@ bool DungeonDialog::startCombatAt(const QPair<int, int>& pos)
             }
         }
 
-        m_combatState->addParticipant(p);
+        m_combatController->combatState()->addParticipant(p);
     }
 
     // Add monsters
@@ -1650,7 +1669,7 @@ bool DungeonDialog::startCombatAt(const QPair<int, int>& pos)
         boss.level = bossData["level"].toInt();
         boss.damageMod = bossData["damageMod"].toInt();
         boss.swings = bossData["swings"].toInt();
-        m_combatState->addParticipant(boss);
+        m_combatController->combatState()->addParticipant(boss);
     } else {
         // Monster stats come from the game's own MDATA5 table (loaded by
         // gameStateManager): hits = HP, att/def, numGroups x ingroup = the
@@ -1661,20 +1680,20 @@ bool DungeonDialog::startCombatAt(const QPair<int, int>& pos)
             gsm->getGameValue("DungeonLevel").toInt(),
             DungeonThemes::forLevel(gsm->getGameValue("DungeonLevel").toInt()).monsterLevelBonus);
         for (const auto& m : monsters) {
-            m_combatState->addParticipant(m);
+            m_combatController->combatState()->addParticipant(m);
         }
     }
 
     // Start combat
-    m_turnEngine->startRound();
+    m_combatController->turnEngine()->startRound();
     m_combatGroup->setVisible(true);
     updateCombatUI();
 
     logMessage(QString("<font color='red'>⚔️ Combat begins with %1!</font>").arg(monsterName));
 
     // If monster goes first, take its turn
-    if (m_turnEngine->hasCurrentParticipant() && !m_combatActions->isPlayerTurn()) {
-        QString aiResult = m_monsterAI->takeTurn();
+    if (m_combatController->turnEngine()->hasCurrentParticipant() && !m_combatController->combatActions()->isPlayerTurn()) {
+        QString aiResult = m_combatController->monsterAI()->takeTurn();
         logMessage(aiResult);
         advanceCombat();
     }
@@ -1685,97 +1704,52 @@ bool DungeonDialog::startCombatAt(const QPair<int, int>& pos)
 // --- Combat Action Slots ---
 void DungeonDialog::on_combatAttackButton_clicked()
 {
-    if (!m_inCombat || !m_combatActions || !m_turnEngine->hasCurrentParticipant()) return;
-    if (!m_combatActions->isPlayerTurn()) return;
-
-    // Attack the monster the player selected. Fall back to the first living
-    // monster when nothing is selected, so keyboard-only play still works.
-    int targetIdx = selectedMonsterIndex();
-    if (targetIdx < 0) targetIdx = selectFirstLivingMonster();
+    if (!m_inCombat || !m_combatController) return;
+    int targetIdx = m_combatController->selectedMonsterIndex();
+    if (targetIdx < 0) targetIdx = m_combatController->selectFirstLivingMonster();
     if (targetIdx < 0) return;
-
-    QString result;
-    m_combatActions->attack(targetIdx, result);
-    logMessage(result);
-
-    // Flash red if the player took damage (monster hits back), green on kill
-    // We detect this by checking if any player HP dropped — but simpler: flash
-    // red when the attack misses or the monster survives (player took damage)
-    // and green when the monster dies. For now, flash red on any player damage.
-    // The monster's counterattack happens in advanceCombat, so we flash there.
-
-    // Process deaths
-    QStringList deaths = m_deathHandler->processDeaths();
-    for (const QString& d : deaths) logMessage(d);
-
-    // Update game state HP
-    syncCombatToGameState();
-
-    m_turnEngine->markCurrentActed();
-    updateCombatUI();
-    advanceCombat();
+    m_combatController->attack(targetIdx);
 }
 
 void DungeonDialog::on_combatDefendButton_clicked()
 {
-    if (!m_inCombat || !m_combatActions || !m_turnEngine->hasCurrentParticipant()) return;
-    if (!m_combatActions->isPlayerTurn()) return;
-
-    QString result;
-    m_combatActions->defend(result);
-    logMessage(result);
-
-    m_turnEngine->markCurrentActed();
-    updateCombatUI();
-    advanceCombat();
+    if (!m_inCombat || !m_combatController) return;
+    m_combatController->defend();
 }
 
 void DungeonDialog::on_combatFleeButton_clicked()
 {
-    fleeCombat();
+    if (!m_combatController) return;
+    m_combatController->flee();
 }
 
 bool DungeonDialog::fleeCombat()
 {
-    if (!m_inCombat || !m_combatActions) return false;
-
-    QString result;
-    bool fled = m_combatActions->flee(result);
-    logMessage(result);
-
+    if (!m_combatController) {
+        m_combatController = new CombatController(this);
+        m_combatController->setLogCallback([this](const QString& msg) { logMessage(msg); });
+        m_combatController->setRenderCallback([this]() { drawMinimap(); renderWireframeView(); });
+    }
+    bool fled = m_combatController->flee();
     if (fled) {
-        // Remove the monster from the map so the player can step onto this
-        // tile again without combat restarting immediately.
         QPair<int, int> pos = getCurrentPosition();
         m_monsterPositions.remove(pos);
         renderWireframeView();
         drawMinimap();
-
         m_inCombat = false;
-        m_combatGroup->setVisible(false);
-        logMessage("You flee from combat!");
-    } else {
-        // Failed to flee — monster gets a free attack
-        m_turnEngine->markCurrentActed();
-        advanceCombat();
     }
-    updateCombatUI();
     return fled;
 }
 
 void DungeonDialog::on_combatUseItemButton_clicked()
 {
-    if (!m_inCombat || !m_combatActions || !m_turnEngine->hasCurrentParticipant()) return;
-    if (!m_combatActions->isPlayerTurn()) return;
+    if (!m_inCombat || !m_combatController) return;
 
-    // Offer the party member's actual usable items instead of guessing at the
-    // first name containing "healing". isConsumable() is the same rule
-    // Character::useConsumable() enforces, so every listed item really works.
     gameStateManager* gsm = gameStateManager::instance();
     Character& c = gsm->getPartyMember(gsm->getCurrentCharacterIndex());
 
     QStringList names;
-    QList<int> slotIndices;   // 'slots' is a Qt macro, so not a valid name
+    QList<int> slotIndices;
     for (int i = 0; i < c.inventory.size(); ++i) {
         if (!Character::isConsumable(c.inventory[i])) continue;
         slotIndices << i;
@@ -1798,130 +1772,41 @@ void DungeonDialog::on_combatUseItemButton_clicked()
     const int listIdx = names.indexOf(chosen);
     if (listIdx < 0 || listIdx >= slotIndices.size()) return;
 
-    QString result;
-    m_combatActions->useItem(slotIndices[listIdx], c, result);
-    logMessage(result);
-    m_turnEngine->markCurrentActed();
-    updateCombatUI();
-    advanceCombat();
+    m_combatController->useItem(slotIndices[listIdx]);
 }
 
 void DungeonDialog::on_combatSpellButton_clicked()
 {
-    if (!m_inCombat || !m_combatActions || !m_turnEngine->hasCurrentParticipant()) return;
-    if (!m_combatActions->isPlayerTurn()) return;
-
-    // Open spell casting dialog
-    on_spellButton_clicked();
+    if (!m_inCombat || !m_combatController) return;
+    m_combatController->castSpell();
 }
 
 void DungeonDialog::updateCombatUI()
 {
-    if (!m_combatState) return;
-
-    // Monster HP
-    QStringList monsterHp;
-    for (int i = 0; i < m_combatState->participantCount(); ++i) {
-        const auto& p = m_combatState->participant(i);
-        if (!p.isPlayer && p.isAlive) {
-            monsterHp << QString("%1: %2/%3").arg(p.name).arg(p.hp).arg(p.maxHp);
-        }
-    }
-    m_combatMonsterHpLabel->setText("Monster: " + (monsterHp.isEmpty() ? "None" : monsterHp.join(", ")));
-
-    // Target list: one row per living monster, carrying its participant index.
-    // The player's choice survives a refresh; if the chosen monster is gone the
-    // selection moves to the first living one so play never stalls.
-    if (m_combatTargetList) {
-        const int previous = selectedMonsterIndex();
-        const int actingIdx = m_turnEngine ? m_turnEngine->currentParticipantIndex() : -1;
-        m_combatTargetList->blockSignals(true);
-        m_combatTargetList->clear();
-        for (int i = 0; i < m_combatState->participantCount(); ++i) {
-            const auto& p = m_combatState->participant(i);
-            if (p.isPlayer || !p.isAlive) continue;
-
-            // One row per monster: name, HP, status. The row that is acting this
-            // turn is marked with a marker so the player can see the turn order.
-            QString label = QString("%1  %2/%3").arg(p.name).arg(p.hp).arg(p.maxHp);
-            const QString status = combatStatusText(p);
-            if (!status.isEmpty()) label += "  [" + status + "]";
-            if (i == actingIdx) label.prepend("> ");
-
-            auto* item = new QListWidgetItem(label, m_combatTargetList);
-            item->setData(Qt::UserRole, i);
-            if (i == previous) item->setSelected(true);
-        }
-        m_combatTargetList->blockSignals(false);
-
-        // Nothing selected (first round, or the target died): pick the first.
-        if (selectedMonsterIndex() < 0 && m_combatTargetList->count() > 0) {
-            m_combatTargetList->setCurrentRow(0);
-        }
-    }
-
-    // Party HP
-    QStringList hpList;
-    for (int i = 0; i < m_combatState->participantCount(); ++i) {
-        const auto& p = m_combatState->participant(i);
-        if (p.isPlayer) {
-            // Show the row so the player can see who is exposed to melee.
-            hpList << QString("%1 [%2]: %3/%4")
-                          .arg(p.name)
-                          .arg(p.row == CombatRow::Front ? "front" : "back")
-                          .arg(p.hp).arg(p.maxHp);
-        }
-    }
-    m_combatPartyHpLabel->setText("Party: " + hpList.join(" | "));
+    if (m_combatController) m_combatController->updateCombatUI();
 }
 
 int DungeonDialog::selectedMonsterIndex() const
 {
-    if (!m_combatTargetList || !m_combatState) return -1;
-    const QListWidgetItem* item = m_combatTargetList->currentItem();
-    if (!item) return -1;
-
-    const int idx = item->data(Qt::UserRole).toInt();
-    if (idx < 0 || idx >= m_combatState->participantCount()) return -1;
-    const auto& p = m_combatState->participant(idx);
-    if (p.isPlayer || !p.isAlive) return -1;
-    return idx;
+    if (!m_combatController) return -1;
+    return m_combatController->selectedMonsterIndex();
 }
 
 bool DungeonDialog::togglePlayerRow(int participantIndex)
 {
-    if (!m_combatState) return false;
-    if (participantIndex < 0 || participantIndex >= m_combatState->participantCount()) return false;
-
-    CombatParticipant& p = m_combatState->participant(participantIndex);
-    if (!p.isPlayer) return false;
-
-    p.row = (p.row == CombatRow::Front) ? CombatRow::Back : CombatRow::Front;
-    return true;
+    if (!m_combatController) return false;
+    return m_combatController->togglePlayerRow(participantIndex);
 }
 
 // v3.0.0 slice 3.8: combat visual feedback
 bool DungeonDialog::combatFxEnabled()
 {
-    // Read from game state; default to enabled when the key is absent or empty.
-    const QVariant v = gameStateManager::instance()->getGameValue("CombatFxEnabled");
-    if (!v.isValid() || v.isNull()) return true;
-    return v.toBool();
+    return CombatController::combatFxEnabled();
 }
 
 void DungeonDialog::flashCombatFx(bool damage)
 {
-    if (!combatFxEnabled()) return;
-    if (!m_combatGroup) return;
-
-    // Flash red on damage, green on heal. The timer clears it; its length is
-    // the player's "combat animation speed" choice from the Options dialog.
-    const QString color = damage ? "rgba(255,0,0,0.3)" : "rgba(0,255,0,0.3)";
-    m_combatGroup->setStyleSheet(
-        QString("QGroupBox { background-color: %1; }").arg(color));
-    if (m_combatFxTimer) {
-        m_combatFxTimer->start(GameSettings::instance().combatSpeedMs());
-    }
+    if (m_combatController) m_combatController->flashCombatFx(damage);
 }
 
 QString DungeonDialog::combatGroupStyleSheet() const
@@ -1931,214 +1816,33 @@ QString DungeonDialog::combatGroupStyleSheet() const
 
 QString DungeonDialog::combatStatusText(const CombatParticipant& p)
 {
-    QStringList parts;
-    if (p.poisonDuration > 0) parts << QString("<font color='green'>poison %1</font>").arg(p.poisonDuration);
-    if (p.fireDuration > 0)   parts << QString("<font color='red'>fire %1</font>").arg(p.fireDuration);
-    if (p.blindDuration > 0)  parts << QString("<font color='yellow'>blind %1</font>").arg(p.blindDuration);
-    if (p.confusionDuration > 0) parts << QString("<font color='magenta'>confused %1</font>").arg(p.confusionDuration);
-    if (p.stunDuration > 0)   parts << QString("<font color='cyan'>stunned %1</font>").arg(p.stunDuration);
-    if (p.slowDuration > 0)   parts << QString("<font color='gray'>slowed %1</font>").arg(p.slowDuration);
-    if (p.isDefending)        parts << "<font color='blue'>defending</font>";
-    return parts.join(", ");
+    return CombatController::combatStatusText(p);
 }
 
 int DungeonDialog::selectFirstLivingMonster()
 {
-    if (!m_combatState || !m_combatTargetList) return -1;
-
-    // The list may not have been built yet (or was cleared). Rebuild it from
-    // the combat state so the fallback never depends on the caller's ordering.
-    if (m_combatTargetList->count() == 0) {
-        updateCombatUI();
-        // updateCombatUI() auto-selects the first monster when it can.
-        const int autoPicked = selectedMonsterIndex();
-        if (autoPicked >= 0) return autoPicked;
-    }
-
-    for (int i = 0; i < m_combatState->participantCount(); ++i) {
-        const auto& p = m_combatState->participant(i);
-        if (p.isPlayer || !p.isAlive) continue;
-
-        // Select the row that carries this index.
-        for (int row = 0; row < m_combatTargetList->count(); ++row) {
-            QListWidgetItem* item = m_combatTargetList->item(row);
-            if (item && item->data(Qt::UserRole).toInt() == i) {
-                m_combatTargetList->setCurrentRow(row);
-                return i;
-            }
-        }
-    }
-    return -1;
+    if (!m_combatController) return -1;
+    return m_combatController->selectFirstLivingMonster();
 }
 
 void DungeonDialog::advanceCombat()
 {
-    if (!m_inCombat || !m_turnEngine || !m_combatState) return;
-
-    // Check combat end
-    if (m_combatState->isCombatOver()) {
-        if (m_deathHandler->isVictory()) {
-            handleVictory();
-        } else if (m_deathHandler->isPartyWipe()) {
-            handlePartyWipe();
-        }
-        return;
-    }
-
-    // Advance to next turn
-    if (!m_turnEngine->nextTurn()) {
-        // Round over — start new round
-        m_turnEngine->startRound();
-        // Tick status effects
-        QStringList statusMsgs = m_combatActions->tickStatusEffects();
-        for (const QString& msg : statusMsgs) logMessage(msg);
-    }
-
-    // If monster's turn, take AI action
-    if (m_turnEngine->hasCurrentParticipant() && !m_combatActions->isPlayerTurn()) {
-        QString aiResult = m_monsterAI->takeTurn();
-        logMessage(aiResult);
-        // Flash red if the monster hit a player (damage feedback)
-        if (aiResult.contains("damage") || aiResult.contains("slain")) {
-            flashCombatFx(true);
-        }
-        QStringList deaths = m_deathHandler->processDeaths();
-        for (const QString& d : deaths) logMessage(d);
-        syncCombatToGameState();
-        updateCombatUI();
-        advanceCombat();  // Recurse until player turn or combat ends
-    }
+    if (!m_inCombat || !m_combatController) return;
+    m_combatController->advanceCombat();
 }
 
 void DungeonDialog::handleVictory()
 {
-    gameStateManager* gsm = gameStateManager::instance();
-    int level = gsm->getGameValue("DungeonLevel").toInt();
-
-    // Calculate rewards from the same monster table the encounter came from.
-    const QList<QVariantMap>& monsters = gsm->getMonsterData();
-    int xp = VictoryReward::calculateXp(m_combatMonsterName, monsters);
-    // Pass the NG+ cycle so the reward multiplier actually applies: without it
-    // New Game Plus was all cost and no reward.
-    int gold = VictoryReward::calculateGold(m_combatMonsterName, monsters, gsm->getNgPlusLevel());
-    QStringList loot = VictoryReward::calculateLoot(m_combatMonsterName, monsters, level);
-
-    // Boss bonus
-    if (m_combatIsBoss) {
-        xp = BossEncounter::bossXp(level);
-    }
-
-    // Award rewards
-    gsm->addExperienceToParty(xp);
-    gsm->addPartyGold(gold);
-
-    // Award guild experience to living party members
-    for (int i = 0; i < gsm->getParty().members.size(); ++i) {
-        Character& member = gsm->getPartyMember(i);
-        if (!member.isAlive) continue;
-        for (auto it = member.guildLevels.constBegin(); it != member.guildLevels.constEnd(); ++it) {
-            member.addGuildExperience(it.key(), xp);
-        }
-    }
-
-    // Report kill to the quest board so kill-quests progress.
-    QuestBoardDialog::reportKill(m_combatMonsterName, level);
-
-    logMessage(QString("<font color='gold'>🏆 Victory! Gained %1 XP and %2 gold.</font>").arg(xp).arg(gold));
-
-    // Journal: record the victory.
-    JournalDialog::addEntry(QStringLiteral("Combat"),
-        QStringLiteral("Defeated %1 on floor %2 (+%3 XP, +%4 gold)")
-            .arg(m_combatMonsterName).arg(level).arg(xp).arg(gold));
-    if (m_combatIsBoss) {
-        JournalDialog::addEntry(QStringLiteral("Combat"),
-            QStringLiteral("Slew the boss %1 on floor %2!")
-                .arg(m_combatMonsterName).arg(level));
-    }
-
-    // Add loot items to the first living party member's inventory
-    for (const QString& itemName : loot) {
-        HeldItem lootItem;
-        lootItem.name = itemName;
-        lootItem.identified = false;  // dungeon loot starts unidentified
-        if (const ItemDef* def = ItemDatabase::instance().byName(itemName)) {
-            lootItem.M4E97 = static_cast<int16_t>(def->id);
-        }
-        // Find first living party member
-        for (int i = 0; i < gsm->getParty().members.size(); ++i) {
-            if (gsm->getPartyMember(i).isAlive) {
-                gsm->addItemToCharacter(i, lootItem);
-                logMessage(QString("<font color='gold'>💰 Loot: %1 (unidentified)</font>").arg(itemName));
-                break;
-            }
-        }
-    }
-
-    // Remove monster from map
-    QPair<int, int> pos = { gsm->getGameValue("DungeonX").toInt(),
-                            gsm->getGameValue("DungeonY").toInt() };
-    m_monsterPositions.remove(pos);
-
-    // Leave a body behind where the monster died
-    m_bodyPositions.insert(pos);
-
-    // Boss defeated?
-    if (m_combatIsBoss) {
-        DungeonLevelRegistry::instance().levelForEdit(level).bossDefeated = true;
-    }
-
-    // Advance the main quest chain. This grants any newly earned quest rewards
-    // and reports whether the chain just completed.
-    QuestChainDriver::AdvanceResult questResult = QuestChainDriver::advance();
-    for (const auto& reward : questResult.grantedRewards) {
-        logMessage(QString("<font color='gold'>📜 Quest reward: +%1 gold, +%2 XP (%3)</font>")
-                       .arg(reward.gold).arg(reward.xp).arg(reward.stepTitle));
-    }
-
+    if (!m_combatController) return;
+    m_combatController->handleVictory();
     m_inCombat = false;
     m_combatGroup->setVisible(false);
-
-    // Check for final victory: the quest chain is complete (Prince of Devils dead).
-    if (questResult.chainJustCompleted) {
-        QString title = Endgame::victoryTitle();
-        QStringList paragraphs = Endgame::victoryParagraphs();
-        VictoryDialog* dlg = new VictoryDialog(title, paragraphs, true, this);
-        dlg->setAttribute(Qt::WA_DeleteOnClose);
-
-        // Record the run for the Hall of Records.
-        GameRecord rec;
-        rec.heroName = gsm->getPartyMembers().isEmpty() ? "Unknown" : gsm->getPartyMembers()[0].name;
-        rec.highestLevel = gsm->getPartyMembers().isEmpty() ? 1 : gsm->getPartyMembers()[0].level;
-        rec.mostGold = gsm->getPartyGold();
-        rec.deepestFloor = level;
-        // Record actual play time for the Hall of Records. This was
-        // previously hardcoded to 0, which made the fastest-completion
-        // category impossible to set.
-        rec.completionTimeSeconds = gsm->playTimeSeconds();
-        rec.won = true;
-        gsm->addGameRecord(rec);
-        dlg->exec();
-    }
-
-    drawMinimap();
-    renderWireframeView();
 }
 
 void DungeonDialog::handlePartyWipe()
 {
-    gameStateManager* gsm = gameStateManager::instance();
-    logMessage("<font color='red'>💀 Your party has been defeated!</font>");
-    gsm->setGameValue("isAlive", 0);
-
-    JournalDialog::addEntry(QStringLiteral("Combat"),
-        QStringLiteral("The party was wiped out on floor %1.")
-            .arg(gsm->getGameValue("DungeonLevel").toInt()));
-
-    // Save dead characters to file so the Morgue can find them
-    for (int i = 0; i < gsm->getParty().members.size(); ++i) {
-        gsm->saveCharacterToFile(i);
-    }
-
+    if (!m_combatController) return;
+    m_combatController->handlePartyWipe();
     m_inCombat = false;
     m_combatGroup->setVisible(false);
     this->close();
@@ -2147,28 +1851,8 @@ void DungeonDialog::handlePartyWipe()
 
 void DungeonDialog::syncCombatToGameState()
 {
-    gameStateManager* gsm = gameStateManager::instance();
-    auto& members = gsm->getPartyMembers();
-    int memberIdx = 0;
-    for (int i = 0; i < m_combatState->participantCount(); ++i) {
-        const auto& p = m_combatState->participant(i);
-        if (p.isPlayer && memberIdx < members.size()) {
-            bool wasAlive = members[memberIdx].isAlive;
-            members[memberIdx].hp = p.hp;
-            members[memberIdx].isAlive = p.isAlive;
-            // If the character just died, record body location for the Morgue
-            if (!p.isAlive && wasAlive) {
-                int level = gsm->getGameValue("DungeonLevel").toInt();
-                int x = gsm->getGameValue("DungeonX").toInt();
-                int y = gsm->getGameValue("DungeonY").toInt();
-                DeathRecovery::killCharacter(members[memberIdx], level, x, y);
-                JournalDialog::addEntry(QStringLiteral("Combat"),
-                    QStringLiteral("%1 fell in battle on floor %2 (%3,%4).")
-                        .arg(members[memberIdx].name).arg(level).arg(x).arg(y));
-            }
-            memberIdx++;
-        }
-    }
+    if (!m_combatController) return;
+    m_combatController->syncCombatToGameState();
     updatePartyPanel();
 }
 
@@ -3527,7 +3211,7 @@ void DungeonDialog::on_spellButton_clicked()
                 }
 
                 // Check combat end
-                QStringList deaths = m_deathHandler->processDeaths();
+                QStringList deaths = m_combatController->deathHandler()->processDeaths();
                 for (const QString& d : deaths) logMessage(d);
                 syncCombatToGameState();
                 updateCombatUI();

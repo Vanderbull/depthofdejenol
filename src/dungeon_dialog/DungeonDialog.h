@@ -59,6 +59,8 @@ namespace Ui {
     class DungeonDialog;
 }
 
+class CombatController;
+
 class DungeonDialog : public QDialog
 {
     Q_OBJECT
@@ -153,6 +155,7 @@ private:
 public:
     PartyInfoDialog *m_charSheet = nullptr; // Track the window here
     QMap<QPair<int, int>, QString> m_monsterPositions; // public for tests
+    CombatController* m_combatController = nullptr; // public for tests
     QPair<int, int> getCurrentPosition(); // The helper function
     // --- Phase 4: Torch / Light ---
     int m_torchFuel = 0;              // turns of light remaining on the current floor
