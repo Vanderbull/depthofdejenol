@@ -1,4 +1,5 @@
 #include "SeerDialog.h"
+#include "src/core/ResourcePaths.h"
 #include <QMessageBox>
 #include <QRandomGenerator>
 #include <QFile>
@@ -42,12 +43,8 @@ bool SeerDialog::checkAndDeductSeerCost(const QString& serviceName)
 SeerDialog::SeerDialog(QWidget *parent)
     : QDialog(parent)
 {
-    // 1. Get the directory of THIS .cpp file
-    // __FILE__ is a built-in macro that gives the path to SeerDialog.cpp
-    QFileInfo fileInfo(__FILE__);
-    QString dir = fileInfo.absolutePath();
-    // 2. Build the path to the .qss file in the same folder
-    QString qssPath = dir + "/SeerDialog.qss";
+    // Locate the stylesheet at runtime; a build-time path is not portable.
+    const QString qssPath = ResourcePaths::locate("SeerDialog.qss");
     // 3. Load and apply the style
     QFile styleFile(qssPath);
     if (styleFile.open(QFile::ReadOnly | QFile::Text)) {

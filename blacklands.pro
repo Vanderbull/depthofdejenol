@@ -145,6 +145,8 @@ HEADERS += src/core/GameSettings.h
 SOURCES += src/core/GameSettings.cpp
 HEADERS += src/core/ReleaseInfo.h
 SOURCES += src/core/ReleaseInfo.cpp
+HEADERS += src/core/ResourcePaths.h
+SOURCES += src/core/ResourcePaths.cpp
 HEADERS += src/core/SoundEffects.h
 SOURCES += src/core/SoundEffects.cpp
 HEADERS += src/core/AlignmentSystem.h
@@ -286,6 +288,7 @@ SOURCES += \
 # Ensure the C compiler is used for these files
 QMAKE_CFLAGS += -std=c11
 DEFINES += LUA_COMPAT_5_3
+
 
 # --- Suppression of the 'tmpnam' warning ONLY on Linux ---
 linux {

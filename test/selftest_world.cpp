@@ -1,6 +1,9 @@
 #include "selftest_harness.h"
 #include "selftest_includes.h"
 #include "src/combat/CombatController.h"
+#include <QDir>
+#include <QFileInfo>
+#include <QTemporaryDir>
 
 void runWorldTests()
 {
@@ -671,6 +674,45 @@ void runWorldTests()
         check(history[0].second.contains(ReleaseInfo::releaseDate()),
               "the newest history entry carries the release date",
               history[0].second.left(40));
+    }
+
+    // ------------------------------------------- Runtime asset lookup
+
+    section("[305] ResourcePaths::locate finds assets at runtime");
+    {
+        // The stylesheets live under src/ in the source tree, so a lookup from
+        // the repo root must succeed and hand back a path that really exists.
+        const QString found = ResourcePaths::locate("MainMenu.qss");
+        check(!found.isEmpty(), "locate finds MainMenu.qss", found);
+        check(QFileInfo::exists(found), "the located path exists on disk", found);
+        check(found.endsWith("MainMenu.qss"),
+              "the located path is the file that was asked for", found);
+
+        // A miss must be reported as empty, not as a bogus path.
+        check(ResourcePaths::locate("definitely-not-here-12345.qss").isEmpty(),
+              "locate returns empty for a file that does not exist");
+        check(ResourcePaths::locate(QString()).isEmpty(),
+              "locate returns empty for an empty name");
+
+        // The working-directory search is new: the old __FILE__-only lookup
+        // could never find an asset sitting beside the cwd's src/ folder, so
+        // this fails if that candidate is dropped.
+        QTemporaryDir tmp;
+        check(tmp.isValid(), "temp dir for the portability probe", tmp.path());
+        QDir(tmp.path()).mkpath("src");
+        QFile probe(QDir(tmp.path()).filePath("src/portable_probe.qss"));
+        check(probe.open(QIODevice::WriteOnly), "wrote the portability probe");
+        probe.write("QWidget { }");
+        probe.close();
+
+        const QString cwdBefore = QDir::currentPath();
+        QDir::setCurrent(tmp.path());
+        const QString fromCwd = ResourcePaths::locate("portable_probe.qss");
+        QDir::setCurrent(cwdBefore);
+
+        check(!fromCwd.isEmpty() && QFileInfo::exists(fromCwd),
+              "locate finds an asset beside the working directory's src/",
+              fromCwd);
     }
 
     // ------------------------------------------- Status flag integrity

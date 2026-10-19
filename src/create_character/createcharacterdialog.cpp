@@ -2,6 +2,7 @@
 #include "createcharacterdialog.h"
 #include "src/race_data/RaceData.h"
 #include "src/core/gameStateManager.h"
+#include "src/core/ResourcePaths.h"
 #include <QScreen>
 #include <QGuiApplication>
 #include <QMessageBox>
@@ -126,9 +127,8 @@ CreateCharacterDialog::CreateCharacterDialog(const QVector<RaceStats>& raceData,
       guildData(guildData)
 {
     setWindowTitle("Create Character");
-    QFileInfo fileInfo(__FILE__);
-    QString dir = fileInfo.absolutePath();
-    QString qssPath = QDir(dir).filePath("createcharacterdialog.qss");
+    // Locate the stylesheet at runtime; a build-time path is not portable.
+    const QString qssPath = ResourcePaths::locate("createcharacterdialog.qss");
     QFile styleFile(qssPath);
     if (styleFile.open(QFile::ReadOnly | QFile::Text)) {
         QTextStream ts(&styleFile);

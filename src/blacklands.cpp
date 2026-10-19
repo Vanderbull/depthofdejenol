@@ -18,6 +18,7 @@
 #include "src/race_data/RaceData.h"
 #include "src/core/DungeonLevelState.h"
 #include "src/core/GameSettings.h"
+#include "src/core/ResourcePaths.h"
 #include "test/selftest.h"
 #include "src/dungeon_dialog/DungeonDialog.h"
 #include <QPushButton>
@@ -261,12 +262,12 @@ void GameMenu::setupConnections() {
 }
 
 void GameMenu::loadStyleSheet() {
-    QString qssPath = QFileInfo(__FILE__).absolutePath() + "/MainMenu.qss";
+    const QString qssPath = ResourcePaths::locate("MainMenu.qss");
     QFile styleFile(qssPath);
-    if (styleFile.open(QFile::ReadOnly | QFile::Text)) {
+    if (!qssPath.isEmpty() && styleFile.open(QFile::ReadOnly | QFile::Text)) {
         setStyleSheet(QTextStream(&styleFile).readAll());
     } else {
-        qDebug() << "Style file not found at:" << qssPath;
+        qDebug() << "Style file not found:" << qssPath;
     }
 }
 
@@ -637,7 +638,7 @@ int main(int argc, char *argv[]) {
         // misses what the player sees.
         QWidget styleHost;
         {
-            QFile qss(QFileInfo(__FILE__).absolutePath() + "/MainMenu.qss");
+            QFile qss(ResourcePaths::locate("MainMenu.qss"));
             if (qss.open(QFile::ReadOnly | QFile::Text))
                 styleHost.setStyleSheet(QString::fromUtf8(qss.readAll()));
         }

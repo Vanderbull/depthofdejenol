@@ -20,6 +20,7 @@
 #include "src/core/AgingRules.h"
 #include "src/core/DungeonLevelState.h"
 #include "src/core/DungeonThemes.h"
+#include "src/core/ResourcePaths.h"
 #include "src/core/DoorAndSearch.h"
 #include "src/core/BossEncounter.h"
 #include "src/core/AbyssThemes.h"
