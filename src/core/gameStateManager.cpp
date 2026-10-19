@@ -1078,16 +1078,6 @@ void gameStateManager::initializeRaceAges()
 
     m_gameStateData["MaxRaceAge"] = MaxRaceAgesList;
 
-    // Max ages for each race
-    //m_gameStateData["MaxHumanAge"] = 100;
-    //m_gameStateData["MaxElfAge"] = 400;
-    //m_gameStateData["MaxGiantAge"] = 225;
-    //m_gameStateData["MaxGnomeAge"] = 300;
-    //m_gameStateData["MaxDwarfAge"] = 275;
-    //m_gameStateData["MaxOgreAge"] = 265;
-    //m_gameStateData["MaxMorlochAge"] = 175;
-    //m_gameStateData["MaxOsiriAge"] = 325;
-    //m_gameStateData["MaxTrollAge"] = 285;
 }
 
 void gameStateManager::initializeGameState()
@@ -1103,39 +1093,39 @@ void gameStateManager::initializeGameState()
         record["CurrentCharacterSex"] = GameConstants::SEX_OPTIONS.at(0);
         record["CurrentCharacterStatPointsLeft"] = GameConstants::DEFAULT_STAT_POINTS;
         record["CurrentCharacterHP"] = 50;
-	record["CurrentCharacterLevel"] = 1;
-	record["CurrentCharacterAge"] = 16;
-	record["CurrentCharacterExperience"] = QVariant::fromValue((qulonglong)0);
-	record["CurrentCharacterGold"] = QVariant::fromValue((qulonglong)1500);
-	record["CurrentMana"] = 50;
-	record["MaxMana"] = 50;
-	// --- Empty Character Identity ---
-	record["CurrentCharacterName"] = "";
-	record["CurrentCharacterRace"] = "";
-	record["CurrentCharacterGuild"] = "";
-	// --- Base Stats ---
-	record["CurrentCharacterStrength"] = 0;
-	record["CurrentCharacterIntelligence"] = 0;
-	record["CurrentCharacterWisdom"] = 0;
-	record["CurrentCharacterConstitution"] = 0;
-	record["CurrentCharacterCharisma"] = 0;
-	record["CurrentCharacterDexterity"] = 0;
-	// --- World & Progression ---
-	record["PlayerScore"] = 0;
-	record["DungeonLevel"] = 1;
-	record["DungeonX"] = 17;
-	record["DungeonY"] = 12;
-	record["BankedGold"] = QVariant::fromValue((qulonglong)0);
-	record["BankInventory"] = QStringList();
-	record["GhostHoundPending"] = false;
-	record["GuildActionLog"] = QVariantList();
+    record["CurrentCharacterLevel"] = 1;
+    record["CurrentCharacterAge"] = 16;
+    record["CurrentCharacterExperience"] = QVariant::fromValue((qulonglong)0);
+    record["CurrentCharacterGold"] = QVariant::fromValue((qulonglong)1500);
+    record["CurrentMana"] = 50;
+    record["MaxMana"] = 50;
+    // --- Empty Character Identity ---
+    record["CurrentCharacterName"] = "";
+    record["CurrentCharacterRace"] = "";
+    record["CurrentCharacterGuild"] = "";
+    // --- Base Stats ---
+    record["CurrentCharacterStrength"] = 0;
+    record["CurrentCharacterIntelligence"] = 0;
+    record["CurrentCharacterWisdom"] = 0;
+    record["CurrentCharacterConstitution"] = 0;
+    record["CurrentCharacterCharisma"] = 0;
+    record["CurrentCharacterDexterity"] = 0;
+    // --- World & Progression ---
+    record["PlayerScore"] = 0;
+    record["DungeonLevel"] = 1;
+    record["DungeonX"] = 17;
+    record["DungeonY"] = 12;
+    record["BankedGold"] = QVariant::fromValue((qulonglong)0);
+    record["BankInventory"] = QStringList();
+    record["GhostHoundPending"] = false;
+    record["GuildActionLog"] = QVariantList();
         // --- Global Status States ---
         record["CharacterPoisoned"] = false;
         record["CharacterBlinded"] = false;
         record["CharacterDiseased"] = false;
         record["isAlive"] = 1;
         record["GameVersion"] = "Version 0.0";
-	record["Party"] = m_partyManager->getPartyAsMap();
+    record["Party"] = m_partyManager->getPartyAsMap();
 
         GameStateList.append(record);
     };
@@ -1144,51 +1134,6 @@ void gameStateManager::initializeGameState()
 
     m_gameStateData["GameStates"] = GameStateList;
 
-    // --- Initial UI/Location State ---
-//    m_gameStateData["ResourcesLoaded"] = false;
-//    m_gameStateData["inCity"] = false;
-    //m_gameStateData["ActiveCharacterIndex"] = 0;
-    // --- Current Character Defaults ---
-//    m_gameStateData["CurrentCharacterSex"] = GameConstants::SEX_OPTIONS.at(0);
-    //m_gameStateData["CurrentCharacterAlignment"] = GameConstants::ALIGNMENT_NAMES.at(GameConstants::DEFAULT_ALIGNMENT_INDEX);
-//    m_gameStateData["CurrentCharacterStatPointsLeft"] = GameConstants::DEFAULT_STAT_POINTS;
-//    m_gameStateData["CurrentCharacterHP"] = 50;
-//    m_gameStateData["MaxCharacterHP"] = 50;
-//    m_gameStateData["CurrentCharacterLevel"] = 1;
-    //m_gameStateData["CurrentCharacterAge"] = 16;
-//    m_gameStateData["CurrentCharacterExperience"] = QVariant::fromValue((qulonglong)0);
-//    m_gameStateData["CurrentCharacterGold"] = QVariant::fromValue((qulonglong)1500);
-//    m_gameStateData["CurrentMana"] = 50;
-//    m_gameStateData["MaxMana"] = 50;
-
-    // --- Empty Character Identity ---
-//    m_gameStateData["CurrentCharacterName"] = "";
-//    m_gameStateData["CurrentCharacterRace"] = "";
-//    m_gameStateData["CurrentCharacterGuild"] = "";
-
-    // --- Base Stats ---
-//    m_gameStateData["CurrentCharacterStrength"] = 0;
-//    m_gameStateData["CurrentCharacterIntelligence"] = 0;
-//    m_gameStateData["CurrentCharacterWisdom"] = 0;
-//    m_gameStateData["CurrentCharacterConstitution"] = 0;
-//    m_gameStateData["CurrentCharacterCharisma"] = 0;
-//    m_gameStateData["CurrentCharacterDexterity"] = 0;
-
-    // --- World & Progression ---
-//    m_gameStateData["PlayerScore"] = 0;
-//    m_gameStateData["DungeonLevel"] = 1;
-//    m_gameStateData["DungeonX"] = 17;
-//    m_gameStateData["DungeonY"] = 12;
-//    m_gameStateData["BankedGold"] = QVariant::fromValue((qulonglong)0);
-//    m_gameStateData["BankInventory"] = QStringList();
-//    m_gameStateData["GhostHoundPending"] = false;
-//    m_gameStateData["GuildActionLog"] = QVariantList();
-
-    // --- Global Status States ---
-//    m_gameStateData["CharacterPoisoned"] = false;
-//    m_gameStateData["CharacterBlinded"] = false;
-//    m_gameStateData["CharacterDiseased"] = false;
-//    m_gameStateData["isAlive"] = 1;
 }
 
 void gameStateManager::initializeConfinementStock() {

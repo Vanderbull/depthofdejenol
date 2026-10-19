@@ -1502,15 +1502,13 @@ void DungeonDialog::on_dropButton_clicked()
         int curY = gsm->getGameValue("DungeonY").toInt();
         QPair<int, int> pos = {curX, curY};
 
-        // Logic to check if the player is actually carrying a body would go here
-        // For now, we add the tile at the current location
+        // Place the body on the tile the party is standing on, and stop
+        // carrying it. m_bodyPositions is what renderWireframeView() reads, so
+        // the body stays visible on this tile.
         m_bodyPositions.insert(pos);
         // Update GameState: No longer carrying, and place body on map
         gsm->setGameValue("IsCarryingBody", false);
 
-        // You might want to add this to a specific set like m_monsterPositions
-        // or a new m_deadBodyPositions if you want it to persist/be seen.
-        // For now, we log the action:
         logMessage("<font color='gray'>You carefully lay the carried body onto the cold stone floor.</font>");
 
         // Refresh view to show the dropped object if applicable
