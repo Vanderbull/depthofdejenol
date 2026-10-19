@@ -1,6 +1,34 @@
 # Release Notes
 
-**Latest:** v6.10.0 — Consumable-effekter: teleport, levitation, invisibility, true sight, bind
+**Latest:** v6.11.0 — Multiplayer: lobby, chatt, spelarlista och zone-sync
+
+## v6.11.0 — Multiplayer: lobby, chatt, spelarlista och zone-sync (2026-10-19)
+
+**Vad som ändrades:** Multiplayern är nu spelbar från huvudmenyn. En ny
+"Multiplayer"-knapp öppnar en lobby där du anger host, port och användarnamn,
+connectar mot en server (eller startar en lokal), chattar, ser vilka som är
+online och tar emot zone-sync från andra spelare.
+
+| Del | Vad den gör |
+|-----|-------------|
+| Lobby | Host/port/username, connect/disconnect, status (connected/disconnected/reconnecting) |
+| Chatt | Skicka med QLineEdit (Enter), ta emot via `chatReceived`, ljudnotis vid nytt meddelande |
+| Spelarlista | Fylls från `playerJoined` / `playerLeft` |
+| Zone-sync | `zoneUpdateReceived` visas i lobbyn |
+| Server | "Start Server" startar en lokal server från lobbyn |
+| Kommandon | move/fight skickas som actions till servern |
+
+Under huven: `NetworkManager` med reconnect, ping/pong och JSON-protokoll.
+
+**Dessutom i denna version:**
+- `data/levels.json` — alla 20 nivåer har nu `floor` och `name`
+- Journal-post skrivs vid level-up
+- Fem refaktoreringsfaser: `CombatController` utbruten ur `DungeonDialog`,
+  `unique_ptr`-minnesäkerhet, tema-variabler i stället för hårdkodade färger,
+  tooltips på huvudmenyn, samt borttagen död kod (`storyDialog`, `Tutorial`,
+  `AutomapDialog`, `mordorstatistics`)
+
+2030 passed, 0 failed.
 
 ## v6.10.0 — Consumable-effekter: teleport, levitation, invisibility, true sight, bind (2026-10-17)
 

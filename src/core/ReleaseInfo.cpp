@@ -11,7 +11,7 @@ QString ReleaseInfo::versionString() {
 }
 
 QString ReleaseInfo::releaseDate() {
-    return "2026-10-17";
+    return "2026-10-19";
 }
 
 QStringList ReleaseInfo::releaseNotes() {
@@ -29,6 +29,11 @@ QStringList ReleaseInfo::releaseNotes() {
 
 QStringList ReleaseInfo::changes() {
     return {
+        "Multiplayer lobby: host/port/username, connect and disconnect against a real server",
+        "Multiplayer chat with a notification sound, plus a live player list",
+        "Zone-sync: other players' actions are received and shown in the lobby",
+        "Host a server from the lobby and send move/fight commands as a client",
+        "Dungeon floors carry names in levels.json, and a level-up writes a journal entry",
         "Arena removed from the game — combat is now exclusively in the dungeon",
         "Orphaned systems audit: NetworkManager and LoadingScreen confirmed wired",
         "Combat visual feedback confirmed: flashCombatFx, SpellCastingDialog, item selection, monster status in target list",
@@ -96,6 +101,7 @@ QString ReleaseInfo::banner() {
 
 QList<QPair<QString, QString>> ReleaseInfo::versionHistory() {
     return {
+        {"6.11.0", "2026-10-19 — Multiplayer blir spelbart: lobby-dialog med host/port/username, connect/disconnect, chatt med ljudnotis, spelarlista, zone-sync, starta server lokalt samt move/fight-kommandon. NetworkManager med reconnect, ping/pong och JSON-protokoll. Dessutom: floor-namn i levels.json, journal-post vid level-up, och fem refaktoreringsfaser (CombatController utbruten ur DungeonDialog, unique_ptr-minnesäkerhet, tema-variabler i stället för hårdkodade färger, tooltips på huvudmenyn, död kod borttagen). 2030 passed, 0 failed"},
         {"6.10.0", "2026-10-17 — Consumable-effekter: teleport, levitation, invisibility, true sight, bind. Sex effekter var 'not yet wired' och gjorde ingenting; nu är de implementerade med statusvariabler som tickas ner varje runda. Teleporterar party, låter party flyga över hinder, gör party osynlig för monsters, visar dolda dörrar på minimap, och halverar skada från bundna mål. 2058 passed, 0 failed"},
         {"6.9.0", "2026-10-17 — Konsumtionssystem: föremålslöseri från data, inte från namn. Character::useConsumable matchade på item-namn och var en no-op för allt utan rätt nyckelord; ny ConsumableResolver löser effekten via spellID mot MDATA2-spell-tabellen, alla 18 spell-schoolar mappade uttryckligen. Fixar två buggar datan avslöjade: heal-spells börjar på 0 så en potion kunde läka 0 HP, och charm-scrolls behandlades som skadescrolls. CombatActions::useItem delar nu samma resolver. 2043 passed, 0 failed"},
         {"6.8.0", "2026-10-16 — Documentation: 13 game data books (monsters, spells, items, races, guilds, progression, research, dungeon, town, quests, endgame, combat, lifecycle) with spoiler disclaimers, all linked from README"},

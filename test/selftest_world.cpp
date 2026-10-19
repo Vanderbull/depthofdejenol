@@ -668,8 +668,8 @@ void runWorldTests()
         check(history[0].first == ReleaseInfo::version(),
               "the newest history entry is the current version",
               QString("%1 vs %2").arg(history[0].first, ReleaseInfo::version()));
-        check(history[0].second.contains("2026-10-17"),
-              "the newest history entry is dated today",
+        check(history[0].second.contains(ReleaseInfo::releaseDate()),
+              "the newest history entry carries the release date",
               history[0].second.left(40));
     }
 
