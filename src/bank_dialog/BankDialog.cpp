@@ -59,7 +59,7 @@ void BankDialog::setupUi()
     // Row 0: Title
     QLabel *titleLabel = new QLabel("Welcome to the Bank!", this);
     titleLabel->setAlignment(Qt::AlignCenter);
-    titleLabel->setStyleSheet("font-size: 16pt; font-weight: bold; color: #4CAF50;");
+    titleLabel->setStyleSheet("font-size: 16pt; font-weight: bold; color: VAR(--success-color);");
     mainLayout->addWidget(titleLabel, 0, 0, 1, 5);
 
     // Row 1: Status

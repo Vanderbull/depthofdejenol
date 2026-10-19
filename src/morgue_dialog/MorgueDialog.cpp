@@ -25,7 +25,7 @@ void MorgueDialog::setupUi()
     auto *mainLayout = new QVBoxLayout(this);
     m_welcomeLabel = new QLabel(tr("Morgue Services"));
     m_welcomeLabel->setAlignment(Qt::AlignCenter);
-    m_welcomeLabel->setStyleSheet("font-weight: bold; font-size: 16px; color: #2c3e50;");
+    m_welcomeLabel->setStyleSheet("font-weight: bold; font-size: 16px; color: VAR(--text-color);");
     mainLayout->addWidget(m_welcomeLabel);
 
     auto *buttonGrid = new QGridLayout();

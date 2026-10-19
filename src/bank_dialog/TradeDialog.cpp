@@ -49,7 +49,7 @@ void TradeDialog::setupUi()
     QVBoxLayout *mainVLayout = new QVBoxLayout(this);
     QLabel *titleLabel = new QLabel("Transfer Items Between Inventory and Bank", this);
     titleLabel->setAlignment(Qt::AlignCenter);
-    titleLabel->setStyleSheet("font-size: 14pt; font-weight: bold; color: #007bff;");
+    titleLabel->setStyleSheet("font-size: 14pt; font-weight: bold; color: VAR(--accent-color);");
     mainVLayout->addWidget(titleLabel);
     QHBoxLayout *centralHLayout = new QHBoxLayout();
     // Player Column

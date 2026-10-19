@@ -56,7 +56,7 @@ void GeneralStore::setupUi()
     m_charInfoLabel->setStyleSheet("font-weight: bold; font-size: 14px;");
 
     m_goldLabel = new QLabel("Gold: 0 GP", this);
-    m_goldLabel->setStyleSheet("font-weight: bold; font-size: 14px; color: #000000;");
+    m_goldLabel->setStyleSheet("font-weight: bold; font-size: 14px; color: VAR(--text-color);");
 
     topHeaderLayout->addWidget(m_charInfoLabel);
     topHeaderLayout->addStretch();
@@ -134,12 +134,12 @@ void GeneralStore::setupStyling()
 {
     // Apply cohesive dark fantasy store styling
     setStyleSheet(
-        "QDialog { background-color: #2B2B2B; color: #E0E0E0; }"
-        "QTableWidget, QListWidget, QTextEdit { background-color: #1E1E1E; color: #DCDCDC; border: 1px solid #444; gridline-color: #333; }"
-        "QHeaderView::section { background-color: #3C3F41; color: #FFFFFF; padding: 4px; border: 1px solid #444; }"
-        "QPushButton { background-color: #3C3F41; color: #FFFFFF; border: 1px solid #555; padding: 6px 12px; border-radius: 3px; font-weight: bold; }"
-        "QPushButton:hover { background-color: #4C5052; border-color: #FFD700; }"
-        "QPushButton:disabled { background-color: #2A2A2A; color: #666; border-color: #333; }"
+        "QDialog { background-color: VAR(--bg-color); color: VAR(--text-color); }"
+        "QTableWidget, QListWidget, QTextEdit { background-color: VAR(--bg-color); color: VAR(--text-color); border: 1px solid VAR(--border-color); gridline-color: VAR(--border-color); }"
+        "QHeaderView::section { background-color: VAR(--bg-color); color: VAR(--text-color); padding: 4px; border: 1px solid VAR(--border-color); }"
+        "QPushButton { background-color: VAR(--bg-color); color: VAR(--text-color); border: 1px solid VAR(--border-color); padding: 6px 12px; border-radius: 3px; font-weight: bold; }"
+        "QPushButton:hover { background-color: VAR(--bg-color); border-color: VAR(--accent-color); }"
+        "QPushButton:disabled { background-color: VAR(--bg-color); color: VAR(--text-color); border-color: VAR(--border-color); }"
     );
 }
 

@@ -44,7 +44,7 @@ LoadingScreen::LoadingScreen(QWidget *parent) :
     titleFont.setBold(true);
     m_gameTitleLabel->setFont(titleFont);
     m_gameTitleLabel->setAlignment(Qt::AlignCenter);
-    m_gameTitleLabel->setStyleSheet("color: #C00000;");
+    m_gameTitleLabel->setStyleSheet("color: VAR(--danger-color);");
     // Version/Copyright Styling
     m_versionLabel->setAlignment(Qt::AlignCenter);
     m_versionLabel->setStyleSheet("color: gold;");
