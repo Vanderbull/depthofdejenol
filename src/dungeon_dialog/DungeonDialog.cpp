@@ -3189,7 +3189,7 @@ void DungeonDialog::on_spellButton_clicked()
         // Handle damage to current monster if in combat (turn-based).
         // Route through CombatActions so death bookkeeping and the defensive
         // stance are respected, instead of poking participant HP directly.
-        if (result.damageDealt > 0 && m_inCombat && m_combatState && m_combatActions) {
+        if (result.damageDealt > 0 && m_inCombat && m_combatController) {
             // Cast at the monster the player selected (falls back to the first
             // living one), not always the first in the participant list.
             int targetIdx = selectedMonsterIndex();
@@ -3198,11 +3198,11 @@ void DungeonDialog::on_spellButton_clicked()
                 QString dmgResult;
                 // Route through the school-aware path so fire splashes, cold
                 // slows, lightning chains and mind stuns actually happen.
-                m_combatActions->applySpellDamageBySchool(targetIdx, spellName,
+                m_combatController->combatActions()->applySpellDamageBySchool(targetIdx, spellName,
                                                           result.damageDealt, dmgResult);
                 logMessage(QString("<font color='yellow'>%1</font>").arg(dmgResult));
 
-                if (!m_combatState->participant(targetIdx).isAlive) {
+                if (!m_combatController->combatState()->participant(targetIdx).isAlive) {
                     // Remove from map
                     QPair<int, int> pos = getCurrentPosition();
                     m_monsterPositions.remove(pos);

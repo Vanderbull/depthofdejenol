@@ -11,6 +11,7 @@
 #include <QLabel>
 #include <QPushButton>
 #include <QTimer>
+#include <memory>
 
 #include "src/combat/CombatState.h"
 #include "src/combat/TurnEngine.h"
@@ -66,11 +67,11 @@ public:
     static QString combatStatusText(const CombatParticipant& p);
 
     // Accessors for DungeonDialog integration
-    TurnEngine* turnEngine() const { return m_turnEngine; }
-    CombatState* combatState() const { return m_combatState; }
-    CombatActions* combatActions() const { return m_combatActions; }
-    MonsterAI* monsterAI() const { return m_monsterAI; }
-    CombatDeathHandler* deathHandler() const { return m_deathHandler; }
+    TurnEngine* turnEngine() const { return m_turnEngine.get(); }
+    CombatState* combatState() const { return m_combatState.get(); }
+    CombatActions* combatActions() const { return m_combatActions.get(); }
+    MonsterAI* monsterAI() const { return m_monsterAI.get(); }
+    CombatDeathHandler* deathHandler() const { return m_deathHandler.get(); }
 
     // Victory/defeat handling
     void handleVictory();
@@ -92,11 +93,11 @@ signals:
 
 private:
 
-    CombatState* m_combatState = nullptr;
-    TurnEngine* m_turnEngine = nullptr;
-    CombatActions* m_combatActions = nullptr;
-    MonsterAI* m_monsterAI = nullptr;
-    CombatDeathHandler* m_deathHandler = nullptr;
+    std::unique_ptr<CombatState> m_combatState;
+    std::unique_ptr<TurnEngine> m_turnEngine;
+    std::unique_ptr<CombatActions> m_combatActions;
+    std::unique_ptr<MonsterAI> m_monsterAI;
+    std::unique_ptr<CombatDeathHandler> m_deathHandler;
 
     // UI widgets (owned by DungeonDialog, not by this controller)
     QGroupBox* m_combatGroup = nullptr;

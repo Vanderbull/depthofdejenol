@@ -20,13 +20,13 @@
 
 CombatController::CombatController(QObject *parent)
     : QObject(parent)
-    , m_combatState(new CombatState())
-    , m_turnEngine(new TurnEngine())
-    , m_combatActions(new CombatActions(m_combatState, m_turnEngine))
-    , m_monsterAI(new MonsterAI(m_combatState, m_turnEngine, m_combatActions))
-    , m_deathHandler(new CombatDeathHandler(m_combatState, m_turnEngine, m_combatActions))
+    , m_combatState(std::make_unique<CombatState>())
+    , m_turnEngine(std::make_unique<TurnEngine>())
+    , m_combatActions(std::make_unique<CombatActions>(m_combatState.get(), m_turnEngine.get()))
+    , m_monsterAI(std::make_unique<MonsterAI>(m_combatState.get(), m_turnEngine.get(), m_combatActions.get()))
+    , m_deathHandler(std::make_unique<CombatDeathHandler>(m_combatState.get(), m_turnEngine.get(), m_combatActions.get()))
 {
-    m_turnEngine->setCombatState(m_combatState);
+    m_turnEngine->setCombatState(m_combatState.get());
 }
 
 CombatController::~CombatController() = default;

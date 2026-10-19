@@ -219,11 +219,6 @@ public:
     void updatePartyMemberHealth(int row, int damage);
 
     // Combat System (from src/combat/)
-    CombatState* m_combatState = nullptr;
-    TurnEngine* m_turnEngine = nullptr;
-    CombatActions* m_combatActions = nullptr;
-    MonsterAI* m_monsterAI = nullptr;
-    CombatDeathHandler* m_deathHandler = nullptr;
     bool m_inCombat = false;
     QString m_combatMonsterName;
     int m_combatMonsterLevel = 1;
