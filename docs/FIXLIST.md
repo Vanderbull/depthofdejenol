@@ -84,13 +84,14 @@ Adjust row boundaries in `drawSpriteText()` to match the real sprite grid.
 ---
 
 ## 6. `__FILE__` Used for Runtime Resource Paths ( FIXED )
-**Files:** `blacklands.cpp:103`, `SeerDialog.cpp:26`
-**Problem:** Both use `QFileInfo(__FILE__).absolutePath()` to locate `.qss` stylesheets at runtime. `__FILE__` expands to the *build-time source path*, which won't exist on any other machine or after installation.
+**Files:** `blacklands.cpp:264`, `blacklands.cpp:640`, `seer_dialog/SeerDialog.cpp:47`, `create_character/createcharacterdialog.cpp:129`
+**Problem:** These use `QFileInfo(__FILE__).absolutePath()` to locate `.qss` stylesheets at runtime. `__FILE__` expands to the *build-time source path*, which won't exist on any other machine or after installation.
 **Fix:** Use `QCoreApplication::applicationDirPath()` or Qt's resource system (`qrc`) to locate runtime assets:
 ```cpp
 QString qssPath = QCoreApplication::applicationDirPath() + "/styles/SeerDialog.qss";
 ```
 Or embed stylesheets in a `.qrc` resource file.
+**Status:** Done 2026-10-19 (commit `45673ef`) — via `src/core/ResourcePaths.h/.cpp`, `ResourcePaths::locate(fileName)`, which searches `applicationDirPath()`, `appDir/..`, `appDir/../..`, `appDir/../../src`, `currentPath()`, `currentPath()/src`, then the compile-time source directory. All four call sites now use it; `grep -rn "__FILE__" src/` returns 0 matches outside `ResourcePaths` itself. Verified: the stylesheet now loads from `build/bin` as well as the source tree, where it previously failed silently. Covered by test `[305]`.
 
 ---
 
@@ -127,7 +128,7 @@ if (!GameStateManager::instance()) {
 
 ---
 
-## 10. Old String-Based SIGNAL/SLOT Macros ( ONGOING )
+## 10. Old String-Based SIGNAL/SLOT Macros ( FIXED )
 **Files:** `blacklands.cpp:302-303`, `DungeonDialog.cpp:40, 65`
 **Problem:** Uses old Qt4-style `SIGNAL()` / `SLOT()` macros which bypass compile-time type checking. Typos in signal/slot names silently fail at runtime.
 **Fix:** Replace with modern pointer-to-member syntax:
@@ -139,6 +140,7 @@ connect(dialog, &CreateCharacterDialog::characterCreated,
 // DungeonDialog.cpp createButton/setupControls — refactor to use lambdas or
 // &Class::method pointers instead of SIGNAL()/SLOT() strings.
 ```
+**Status:** Done. Verified 2026-10-19: `grep -rE "SIGNAL\(|SLOT\(" src/ *.cpp` returns **0 matches** — every `connect()` now uses pointer-to-member syntax.
 
 ---
 
@@ -240,12 +242,12 @@ Then remove them from tracking: `git rm --cached blacklands qrc_resources.cpp` a
 
 ---
 
-## 21. Massive Commented-Out Dead Code ( ONGOING )
+## 21. Massive Commented-Out Dead Code ( FIXED )
 **File:** Primarily `GameStateManager.cpp`
 **Problem:** Hundreds of lines of commented-out `m_PC`-era code throughout the file (e.g., old `refreshUI`, old `loadCharacterFromFile`, old `setCharacterInventory`, etc.). This makes the file hard to read and maintain.
 **Fix:** Delete all commented-out old implementations. They're preserved in git history if ever needed. This is a cleanup pass best done after the functional bugs above are fixed.
-**Status:** Ongoing — ~350 commented lines remain in `gameStateManager.cpp`.
+**Status:** Done 2026-10-19 (commit `c7e0a4a`). The dead commented-out `m_gameStateData["..."]` blocks in `initializeGameState()` and the commented-out `MaxXAge` assignments in the age table are gone — a whitespace-insensitive diff shows **55 lines removed, 0 added**, so no logic changed. Remaining comment blocks in `gameStateManager.cpp` and `DungeonDialog.cpp` are explanatory prose, and a scan finds **0 commented-out C++ statements** anywhere under `src/`.
 
 ---
 
-*Generated: 2026-03-12. Last reviewed: 2026-10-11 (v4.0.0 slice 4.6).*
+*Generated: 2026-03-12. Last reviewed: 2026-10-19 (v6.12.0 — items 6, 10 and 21 re-verified against source).*
