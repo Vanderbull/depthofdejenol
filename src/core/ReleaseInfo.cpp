@@ -29,6 +29,9 @@ QStringList ReleaseInfo::releaseNotes() {
 
 QStringList ReleaseInfo::changes() {
     return {
+        "Stylesheets are located at runtime, so an installed build keeps its theme",
+        "ResourcePaths::locate() searches the application dir, its parents and the working directory instead of a build-time __FILE__ path",
+        "Dead commented-out code removed from gameStateManager.cpp; no logic changed",
         "Multiplayer lobby: host/port/username, connect and disconnect against a real server",
         "Multiplayer chat with a notification sound, plus a live player list",
         "Zone-sync: other players' actions are received and shown in the lobby",
@@ -101,6 +104,7 @@ QString ReleaseInfo::banner() {
 
 QList<QPair<QString, QString>> ReleaseInfo::versionHistory() {
     return {
+        {"6.12.0", "2026-10-19 — Runtime-asset-uppslagning i stallet for __FILE__: ny ResourcePaths::locate() som letar i applicationDirPath(), appDir/.., appDir/../.., appDir/../../src, cwd och cwd/src — en installerad eller flyttad binar tappar inte längre stylingen tyst. Alla fyra __FILE__-stallen bytta (0 traffar kvar). Dessutom: 55 rader kommenterad dod kod borta ur gameStateManager.cpp (ingen logik andrad), 27 tabbar rattade till 4 mellanslag, FIXLIST gjord sanningsenlig, och nytt test [305] med 8 checks. 2038 passed, 0 failed"},
         {"6.11.0", "2026-10-19 — Multiplayer blir spelbart: lobby-dialog med host/port/username, connect/disconnect, chatt med ljudnotis, spelarlista, zone-sync, starta server lokalt samt move/fight-kommandon. NetworkManager med reconnect, ping/pong och JSON-protokoll. Dessutom: floor-namn i levels.json, journal-post vid level-up, och fem refaktoreringsfaser (CombatController utbruten ur DungeonDialog, unique_ptr-minnesäkerhet, tema-variabler i stället för hårdkodade färger, tooltips på huvudmenyn, död kod borttagen). 2030 passed, 0 failed"},
         {"6.10.0", "2026-10-17 — Consumable-effekter: teleport, levitation, invisibility, true sight, bind. Sex effekter var 'not yet wired' och gjorde ingenting; nu är de implementerade med statusvariabler som tickas ner varje runda. Teleporterar party, låter party flyga över hinder, gör party osynlig för monsters, visar dolda dörrar på minimap, och halverar skada från bundna mål. 2058 passed, 0 failed"},
         {"6.9.0", "2026-10-17 — Konsumtionssystem: föremålslöseri från data, inte från namn. Character::useConsumable matchade på item-namn och var en no-op för allt utan rätt nyckelord; ny ConsumableResolver löser effekten via spellID mot MDATA2-spell-tabellen, alla 18 spell-schoolar mappade uttryckligen. Fixar två buggar datan avslöjade: heal-spells börjar på 0 så en potion kunde läka 0 HP, och charm-scrolls behandlades som skadescrolls. CombatActions::useItem delar nu samma resolver. 2043 passed, 0 failed"},

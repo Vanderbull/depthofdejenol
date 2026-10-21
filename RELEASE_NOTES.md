@@ -1,6 +1,28 @@
 # Release Notes
 
-**Latest:** v6.11.0 — Multiplayer: lobby, chatt, spelarlista och zone-sync
+**Latest:** v6.12.0 — Runtime-asset-uppslagning (ingen `__FILE__`) + död kod borttagen
+
+## v6.12.0 — Runtime-asset-uppslagning + kodhygien (2026-10-19)
+
+**Vad som ändrades:** Två saker som en audit av `docs/FIXLIST.md` mot
+källkoden avslöjade — listan ljög i båda riktningarna.
+
+| Punkt | Vad som var fel | Vad som gjordes |
+|-------|-----------------|-----------------|
+| FIXLIST #6 | Stod som FIXED, men `__FILE__` användes på **fyra** ställen för att hitta `.qss`-filer. En installerad eller flyttad binär tappar all styling tyst. | Ny `ResourcePaths::locate()` letar i `applicationDirPath()`, `appDir/..`, `appDir/../..`, `appDir/../../src`, `cwd` och `cwd/src`. **0 `__FILE__`-träffar kvar** i `src/`. |
+| FIXLIST #10 | Stod som ONGOING, men var redan klart. | Omräktat till FIXED — `grep -rE "SIGNAL\(|SLOT\("` ger **0 träffar**. |
+| FIXLIST #21 | ~292 kommenterade död-kods-rader i `gameStateManager.cpp`. | **55 rader borta**, vitrymmesokänslig diff: 0 tillagda rader → ingen logik ändrades. |
+
+**Dessutom i denna version:**
+- 27 tabbar rättade till 4 mellanslag i `initializeGameState()` (projektkonventionen)
+- Två vilseledande kommentarer i `DungeonDialog` rättade (de beskrev arbete
+  som redan gjorts på raden under)
+- En scan hittar **0 kommenterade C++-satser** någonstans under `src/`
+- Nytt test `[305]` med 8 checks; bevisat icke-vakuitivt genom mutation
+  (kandidat borttagen → exakt 1 FAIL)
+
+**Verifierat:** stylesheet laddas nu från `build/bin` lika säker som från
+källträdet. 2038 passed, 0 failed.
 
 ## v6.11.0 — Multiplayer: lobby, chatt, spelarlista och zone-sync (2026-10-19)
 
