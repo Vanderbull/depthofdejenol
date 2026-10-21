@@ -7,7 +7,7 @@ som FIXED men `__FILE__` användes fortfarande på fyra ställen för att hitta
 (2) `FIXLIST #21` hade ~292 kommenterade död-kods-rader kvar i
 `gameStateManager.cpp`, och (3) FIXLIST:s egna statusar stämde inte med källkoden.
 
-Status: 🟡 PÅGÅENDE
+Status: ✅ DONE (släppt och taggad v6.12.0, 2026-10-19)
 
 **Audit-not (2026-10-19):** Verifierat mot källkoden med `grep`:
 - `__FILE__` fanns i `src/blacklands.cpp:264`, `src/blacklands.cpp:640`,
@@ -62,29 +62,29 @@ Den gör filen svårläst och döljer den levande koden. Git-historiken bevarar 
 
 **Verify:** Bygg + tester passerar. ✅
 
-## 3. Gör FIXLIST sanningsenlig — ❌ EJ GJORT
+## 3. Gör FIXLIST sanningsenlig — ✅ GJORT
 
 **Why:** FIXLIST läses som sanning om vad som är kvar. Den säger FIXED om #6
 (inte fixat förrän denna version) och ONGOING om #10 (klart sedan länge). En
 felaktig lista leder nästa session fel.
 
 **Do:**
-- [ ] Sätt status per punkt mot verifierat källäge, med commit-hash eller radhänvisning
-- [ ] Inför statusprefix i rubrikerna (`✅ FIXED` / `🟡 ONGOING` / `❌ OPEN`)
-- [ ] Uppdatera "Last reviewed"-raden
+- [x] Sätt status per punkt mot verifierat källäge, med commit-hash eller radhänvisning
+- [x] Inför statusprefix i rubrikerna (`✅ FIXED` / `🟡 ONGOING` / `❌ OPEN`)
+- [x] Uppdatera "Last reviewed"-raden
 
 **Verify:** Varje status går att belägga med en `grep` mot källkoden.
 
-## 4. Release v6.12.0 — ❌ EJ GJORT
+## 4. Release v6.12.0 — ✅ GJORT
 
 **Why:** Släpp versionen.
 
 **Do:**
-- [ ] Bumpa SEMVER 6.11.0 → 6.12.0 i `blacklands.pro`
-- [ ] `ReleaseInfo.cpp`: `releaseDate`, `versionHistory()[0]`, `changes()` topp
-- [ ] `RELEASE_NOTES.md` ny sektion överst
-- [ ] `qmake6`, `make clean`, fullt bygge, full testkörning
-- [ ] Commit + tagga `v6.12.0`, pusha
+- [x] Bumpa SEMVER 6.11.0 → 6.12.0 i `blacklands.pro`
+- [x] `ReleaseInfo.cpp`: `releaseDate`, `versionHistory()[0]`, `changes()` topp
+- [x] `RELEASE_NOTES.md` ny sektion överst
+- [x] `qmake6`, `make clean`, fullt bygge, full testkörning
+- [x] Commit + tagga `v6.12.0`, pusha
 
 **Verify:** Bygg + alla tester passerar; `version.h` visar 6.12.0.
 
@@ -94,11 +94,11 @@ felaktig lista leder nästa session fel.
 
 - [x] `__FILE__` används inte längre för runtime-assets (0 träffar i `src/`)
 - [x] Kommenterad död kod borta ur `gameStateManager.cpp`
-- [ ] FIXLIST-statusar stämmer med källkoden
+- [x] FIXLIST-statusar stämmer med källkoden
 - [x] Alla tester passerar (2038 + 3, 0 failed; orphaned-systems PASS)
-- [ ] Version bumpad till 6.12.0
-- [ ] RELEASE_NOTES.md uppdaterad
-- [ ] Taggad och pushad
+- [x] Version bumpad till 6.12.0
+- [x] RELEASE_NOTES.md uppdaterad
+- [x] Taggad och pushad
 
 ---
 
