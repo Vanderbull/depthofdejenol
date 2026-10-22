@@ -1,14 +1,14 @@
 # Release Notes
 
-**Latest:** v6.12.0 — Runtime-asset-uppslagning (ingen `__FILE__`) + död kod borttagen
+**Latest:** v6.13.0 — Testhygien + quicksave-slot bug
 
-## v6.12.0 — Runtime-asset-uppslagning + kodhygien (2026-10-19)
+## v6.13.0 — Testhygien + quicksave-slot bug (2026-10-22)
 
-**Vad som ändrades:** Två saker som en audit av `docs/FIXLIST.md` mot
-källkoden avslöjade — listan ljög i båda riktningarna.
+**Vad som ändrades:** Testhygien (8 vakuitiva tester → observerbara assertioner) och quicksave/slot (F5/F9 målade inte rätt fil).
 
 | Punkt | Vad som var fel | Vad som gjordes |
 |-------|-----------------|-----------------|
+| Fixlist #6 (korrigering) | F5/F9 läste en `CurrentSaveName`-nyckel i game-värdet som aldrig skrevs, så quicksave och quickload alltid målade den statiska `quicksave`-filen. | Handläggarna använder nu `getCurrentSaveName()` och `load()` sätter sloten för nästa quicksave. |
 | FIXLIST #6 | Stod som FIXED, men `__FILE__` användes på **fyra** ställen för att hitta `.qss`-filer. En installerad eller flyttad binär tappar all styling tyst. | Ny `ResourcePaths::locate()` letar i `applicationDirPath()`, `appDir/..`, `appDir/../..`, `appDir/../../src`, `cwd` och `cwd/src`. **0 `__FILE__`-träffar kvar** i `src/`. |
 | FIXLIST #10 | Stod som ONGOING, men var redan klart. | Omräktat till FIXED — `grep -rE "SIGNAL\(|SLOT\("` ger **0 träffar**. |
 | FIXLIST #21 | ~292 kommenterade död-kods-rader i `gameStateManager.cpp`. | **55 rader borta**, vitrymmesokänslig diff: 0 tillagda rader → ingen logik ändrades. |
@@ -21,8 +21,7 @@ källkoden avslöjade — listan ljög i båda riktningarna.
 - Nytt test `[305]` med 8 checks; bevisat icke-vakuitivt genom mutation
   (kandidat borttagen → exakt 1 FAIL)
 
-**Verifierat:** stylesheet laddas nu från `build/bin` lika säker som från
-källträdet. 2038 passed, 0 failed.
+**Verifierat:** make check: 2103 passed, 0 failed; 3 passed, 0 failed; orphaned systems PASS.
 
 ## v6.11.0 — Multiplayer: lobby, chatt, spelarlista och zone-sync (2026-10-19)
 
