@@ -208,15 +208,54 @@ QWidget* ConfinementAndHoldingDialog::createRightColumn()
 
 void ConfinementAndHoldingDialog::bindCompanion()
 {
-    QMessageBox::information(this, "Bind Companion", "Binding companion: " + bindCompLineEdit->text());
-    qDebug() << "Bind Companion: " << bindCompLineEdit->text() << ", Cost: " << bindCostLineEdit->text();
+    QString name = bindCompLineEdit->text().trimmed();
+    if (name.isEmpty()) return;
+
+    gameStateManager* gsm = gameStateManager::instance();
+    if (!gsm) return;
+
+    // Cost (default 100 gold if the field is empty).
+    int cost = 100;
+    bool costOk = false;
+    if (!bindCostLineEdit->text().trimmed().isEmpty()) {
+        cost = bindCostLineEdit->text().trimmed().toInt(&costOk);
+        if (!costOk || cost <= 0) cost = 100;
+    }
+
+    // Add a level-1 companion to the first party member.
+    QList<Character>& members = gsm->getPartyMembers();
+    if (members.isEmpty()) return;
+    members[0].addCompanion(name, 1);
+
+    // Charge the cost from the party.
+    gsm->spendPartyGold(cost);
+
+    populateStockList();
+    QMessageBox::information(this, tr("Bind Companion"),
+        tr("Bound %1 at a cost of %2 gold.").arg(name).arg(cost));
 }
 
 void ConfinementAndHoldingDialog::identifyCompanion()
 {
-    QMessageBox::information(this, "Identify Companion", "Identifying companion: " + identifyCompLineEdit->text());
-    qDebug() << "Identify Companion: " << identifyCompLineEdit->text();
-    identifyValueLineEdit->setText("Identified Value: 100g 50e 20n");
+    QString compName = identifyCompLineEdit->text().trimmed();
+    if (compName.isEmpty()) return;
+
+    gameStateManager* gsm = gameStateManager::instance();
+    if (!gsm) return;
+
+    // Identification fee (fixed, low).
+    const int fee = 25;
+
+    // Charge the identification fee.
+    if (!gsm->spendPartyGold(fee)) {
+        QMessageBox::warning(this, tr("Identify Companion"),
+            tr("Not enough gold to identify %1.").arg(compName));
+        return;
+    }
+
+    identifyValueLineEdit->setText(tr("Identified value: %1 gold.").arg(fee));
+    QMessageBox::information(this, tr("Identify Companion"),
+        tr("Identified %1 for a fee of %2 gold.").arg(compName).arg(fee));
 }
 
 void ConfinementAndHoldingDialog::identifyCompanionGNE()
@@ -238,7 +277,7 @@ void ConfinementAndHoldingDialog::sellCompanion()
             if (members[mi].companionName(i).toLower()
                     == compName.toLower()) {
                 members[mi].clearCompanion(i);
-                members[mi].gold += 100;
+                gsm->addGold(100);
                 gsm->saveCharacterToFile(mi);
                 populateStockList();
                 QMessageBox::information(this, tr("Sell Companion"),
@@ -264,12 +303,44 @@ void ConfinementAndHoldingDialog::buyCompanion()
         return;
     }
 
-    gameStateManager::instance()->decrementStock(selectedCreature);
-    qDebug() << "Successfully bought companion: " + selectedCreature;
+    gameStateManager* gsm = gameStateManager::instance();
+    if (!gsm) return;
 
-    delete buyCreatureListWidget->currentItem();
+    // Cost parsed from the buy list item (e.g. "Ghost hound 75000 ...").
+    int cost = 100;
+    bool costOk = false;
+    if (!buyCostLineEdit->text().trimmed().isEmpty()) {
+        cost = buyCostLineEdit->text().trimmed().toInt(&costOk);
+        if (!costOk || cost <= 0) cost = 100;
+    }
+
+    // Charge the cost from the party.
+    if (!gsm->spendPartyGold(cost)) {
+        QMessageBox::warning(this, tr("Buy Companion"),
+            tr("Not enough gold to buy %1.").arg(selectedCreature));
+        return;
+    }
+
+    // Add the companion to the first party member.
+    QList<Character>& members = gsm->getPartyMembers();
+    if (!members.isEmpty()) {
+        members[0].addCompanion(selectedCreature, 1);
+    }
+
+    // Deduct the stock entry.
+    gsm->decrementStock(selectedCreature);
+
+    // Remove the purchased item from the buy list.
+    if (buyCreatureListWidget->currentItem()) {
+        delete buyCreatureListWidget->currentItem();
+    }
     buyCompanionLineEdit->clear();
     buyCostLineEdit->clear();
+    buyButton->setEnabled(false);
+    buyInfoButton->setEnabled(false);
+
+    QMessageBox::information(this, tr("Buy Companion"),
+        tr("Bought companion %1 for %2 gold.").arg(selectedCreature).arg(cost));
 }
 
 void ConfinementAndHoldingDialog::showCompanionInfo()
