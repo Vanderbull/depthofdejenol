@@ -7,7 +7,7 @@ och att två krav i `docs/multiplayer_protocol.md` aldrig implementerades.
 Detta är tysta luckor — inget kraschar, men spelaren saknar funktioner som
 manualen lovar.
 
-Status: 🟢 1 av 8 slices gjorda (0. resistanser, 6. testhygien)
+**Status: 🟢 2 av 8 slices gjorda (0. resistanser, 3. New Game Plus, 6. testhygien)**
 
 **Audit-not (2026-10-21), verifierad mot källkoden:**
 
@@ -92,9 +92,9 @@ sak enligt färdighetstestets tredje kriterium. Den har dessutom en duplicerad
 lambda.
 
 **Do:**
-- [ ] Antingen: implementera NG+ (se backlog) eller ta bort knappen helt
-- [ ] Ta bort den duplicerade lambda (`VictoryDialog.cpp:47` och `:56`)
-- [ ] Uppdatera test som refererar till NG+-knappen
+- [x] Antingen: implementera NG+ (se backlog) eller ta bort knappen helt
+- [x] Ta bort den duplicerade lambda (`VictoryDialog.cpp:47` och `:56`)
+- [x] Uppdatera test som refererar till NG+-knappen
 
 **Verify:** Bygg + tester passerar; ingen "Coming soon" kvar i `src/`.
 

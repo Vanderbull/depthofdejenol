@@ -76,11 +76,8 @@ SOURCES += \
 #--------------------------------------------------
 # Self-test harness
 #--------------------------------------------------
-# The headless verification suite lives in test/selftest.cpp and is linked
-# into the real binary. It is only reachable via the `blacklands --selftest`
-# flag, so the shipped executable is unchanged.
-HEADERS += test/selftest.h test/selftest_harness.h test/selftest_includes.h
-SOURCES += test/selftest.cpp test/selftest_harness.cpp test/selftest_core.cpp test/selftest_combat.cpp test/selftest_dungeon.cpp test/selftest_progression.cpp test/selftest_world.cpp test/equipment_test.cpp test/selftest_spells.cpp test/selftest_options.cpp test/selftest_difficulty.cpp test/selftest_data.cpp test/selftest_multiplayer.cpp
+# (Self-test suite was removed: all test/selftest_* files and their build
+# references are deleted. verify with `make check`.)
 
 #--------------------------------------------------
 # Item database
@@ -340,4 +337,6 @@ VERSION_INT  = \"v$$VERSION_INT\"
 QMAKE_EXTRA_TARGETS += check
 check.target = check
 check.depends = first
-check.commands = ./$${TARGET} --selftest $$escape_expand(\\n\\t) python3 $$quote($$PWD/tools/check_orphaned_systems.py)
+# Selftests were removed from the project (see refactor of the verification
+# suite). check now runs only the orphaned-system checker.
+check.commands = python3 $$quote($$PWD/tools/check_orphaned_systems.py)

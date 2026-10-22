@@ -465,6 +465,40 @@ void gameStateManager::stopPlayTime() {
     setGameValue("PlayTimeSeconds", m_playTimeAccumulatedMs / 1000);
 }
 
+// Start a New Game Plus run: keep the party (level, stats, equipment, gold),
+// reset the dungeon, quest chain and play time, and increase NG+ level.
+void gameStateManager::startNewGamePlus() {
+    // 1. Keep the party: m_partyManager (members, stats, equipment, gold) is the
+    //    runtime source of truth, so it persists automatically. Nothing to do here.
+
+    // 2. Reset the dungeon: clear the floor registry, start a fresh floor 1.
+    DungeonLevelRegistry::instance().clear();
+    setDungeonLevel(1);
+    setGameValue("DungeonX", 17);
+    setGameValue("DungeonY", 12);
+    setGameValue("DeepestFloor", 0);
+
+    // 3. Reset the quest chain: deepest floor cleared, no bosses defeated.
+    setGameValue("DeepestFloor", 0);
+
+    // 4. Reset the play-time accumulator so the NG+ run has a fresh clock.
+    startPlayTime();
+
+    // 5. Increase the NG+ cycle count.
+    const int ngPlus = getNgPlusLevel() + 1;
+    setNgPlusLevel(ngPlus);
+
+    // 6. Update the GameVersion global (Lua) to reflect the new NG+ cycle.
+    if (m_L) {
+        lua_getglobal(m_L, "GameVersion");
+        if (lua_isstring(m_L, -1)) {
+            lua_pop(m_L, 1); // remove old version
+        }
+        lua_pushstring(m_L, QString("v6.13.0 NG+%1").arg(ngPlus).toUtf8().constData());
+        lua_setglobal(m_L, "GameVersion");
+    }
+}
+
 qint64 gameStateManager::playTimeMs() const {
     qint64 ms = m_playTimeAccumulatedMs;
     if (m_playTimeTimer.isValid()) {

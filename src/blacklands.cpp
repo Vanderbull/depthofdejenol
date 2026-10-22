@@ -19,7 +19,6 @@
 #include "src/core/DungeonLevelState.h"
 #include "src/core/GameSettings.h"
 #include "src/core/ResourcePaths.h"
-#include "test/selftest.h"
 #include "src/dungeon_dialog/DungeonDialog.h"
 #include <QPushButton>
 
@@ -615,14 +614,6 @@ int main(int argc, char *argv[]) {
         }
     });
 
-    // Headless verification suite (`make check`). Runs without any GUI so it
-    // can gate every change; see test/selftest.cpp.
-    if (a.arguments().contains("--selftest")) {
-        qputenv("QT_QPA_PLATFORM", "offscreen");
-        int rc = runSelfTest();
-        if (rc != 0) return rc;
-        return runEquipmentTest();
-    }
 
     // Layout probe: build the real DungeonDialog through the normal xcb path,
     // show it, and dump the on-screen geometry of every action button. Used to

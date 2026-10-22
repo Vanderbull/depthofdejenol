@@ -144,6 +144,10 @@ public:
 
     // Start a New Game Plus run: keep the party (level, stats, equipment, gold),
     // reset the dungeon, quest chain and play time, and increase NG+ level.
+    void startNewGamePlus();
+
+    // Start a New Game Plus run: keep the party (level, stats, equipment, gold),
+    // reset the dungeon, quest chain and play time, and increase NG+ level.
 
 
     void initializeResources();

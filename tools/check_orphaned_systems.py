@@ -28,9 +28,11 @@ SYSTEMS = {
     "SpellMechanics": ["src/spell_casting/SpellMechanics.cpp", "src/spell_casting/SpellMechanics.h"],
 }
 
-# Directories searched for callers, and directories never searched.
+# Directories searched for callers. test/ and backup/ are excluded: test/ is
+# the removed verification suite; backup/ holds stale reference copies.
+# Directories searched for callers.
 SEARCH_DIRS = ["src", "."]
-SKIP_PREFIXES = ("test/", "build/", "3rdparty/", "tools/", ".git/")
+SKIP_PREFIXES = ("test/", "build/", "3rdparty/", "tools/", ".git/", "backup/")
 EXTENSIONS = (".cpp", ".h", ".cc", ".cxx", ".hpp")
 
 
