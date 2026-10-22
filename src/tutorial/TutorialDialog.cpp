@@ -29,10 +29,10 @@ TutorialDialog::TutorialDialog(QWidget *parent)
     connect(m_buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
 
     // Populate steps
-    m_listWidget->addItem(new QListWidgetItem(QString("1. Skapa en karaktär")));
-    m_listWidget->addItem(new QListWidgetItem(QString("2. Köp ett vapen i general store")));
-    m_listWidget->addItem(new QListWidgetItem(QString("3. Gå ner i dungeon")));
-    m_listWidget->addItem(new QListWidgetItem(QString("4. Slå ett monster")));
+    m_listWidget->addItem(new QListWidgetItem(QString("1. Create a character")));
+    m_listWidget->addItem(new QListWidgetItem(QString("2. Buy a weapon in the general store")));
+    m_listWidget->addItem(new QListWidgetItem(QString("3. Go down to the dungeon")));
+    m_listWidget->addItem(new QListWidgetItem(QString("4. Fight a monster")));
 
     // Show first step
     showStep(0);

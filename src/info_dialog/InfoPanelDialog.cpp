@@ -45,25 +45,25 @@ void InfoPanelDialog::onExitClicked() {
 void InfoPanelDialog::showHelp() {
     m_titleLabel->setText(tr("F1 — Help & Tips"));
     m_body->setPlainText(
-        tr("Hjälp & Ledsningar\n"
+        tr("Help & Tips\n"
            "\n"
            "• Press F5 to quicksave, F9 to quickload, F12 to autosave.\n"
            "• In the dungeon: WASD to move, Q/E to rotate, F to fight,\n"
            "  O to open, R to rest, H to eat, S to cast spell, U to teleport.\n"
            "• Press C to open the character sheet.\n"
-           "• Press M to open the automap (manualen anger F8)."));
+           "• Press M to open the automap (the manual says F8)."));
 }
 
 void InfoPanelDialog::showAreaLook() {
     m_titleLabel->setText(tr("F2 — Area Look"));
     m_body->setPlainText(
-        tr("Area Look — entiteter i nuvarande zon\n"
+        tr("Area Look — entities in current zone\n"
            "\n"
-           "Visar entiteter i nuvarande zonen (staden/dvärg). "
-           "Enkel textrepresentation av vad som finns runt omkring.\n"
+           "Shows entities in the current zone (city/dwarf). Simple text"
+           "representation of what is around you.\n"
            "\n"
-           "I praktiken visas en lista med förnemmelser, fientliga händelser,\n"
-           "fastigheter och monstren i närheten."));
+           "In practice a list of feats, hostile events,\n"
+           "and nearby monsters is shown."));
 }
 
 void InfoPanelDialog::showResistance() {
@@ -71,15 +71,15 @@ void InfoPanelDialog::showResistance() {
     m_body->setPlainText(
         tr("Resistance Information\n"
            "\n"
-           "Entydiga resistor samt regler för hur skada reduceras.\n"
+           "Resistances and the rules for how damage is reduced.\n"
            "\n"
-           "Resist-formler:\n"
-           "  Resist Fire     → reducerad eldskada\n"
-           "  Resist Cold     → reducerad kallskada\n"
-           "  Resist Acid     → reducerad syrefördel\n"
-           "  Resist Shock    → reducerad elskada\n"
-           "  Resist Mind     → reducerad trolldomsskada\n"
-           "  Resist Dodge    → reduced risk etta\n"
+           "Resistance formulas:\n"
+           "  Resist Fire     → reduced fire damage\n"
+           "  Resist Cold     → reduced cold damage\n"
+           "  Resist Acid     → reduced acid damage\n"
+           "  Resist Shock    → reduced electric damage\n"
+           "  Resist Mind     → reduced spell damage\n"
+           "  Resist Dodge    → reduced one-handed risk\n"
            "  Resist Parry    → reduced risk melee\n"
            "  Resist Reflex   → increased dodge chance\n"
            "  Resist Mend     → faster healing\n"
@@ -91,16 +91,16 @@ void InfoPanelDialog::showBuffer() {
     m_body->setPlainText(
         tr("Buffer Information\n"
            "\n"
-           "Visar statusen för ditt chars buffertar och statusars effekter.\n"
+           "Your character's buff states and status-effect effects.\n"
            "\n"
-           "Tänk på buffertar som:\n"
-           "  • Cure (hälsa)\n"
-           "  • Shield (skydd)\n"
-           "  • Protection (skydd)\n"
-           "  • Evasion (undvikande)\n"
-           "  • Resist (resistans)\n"
-           "  • Stamina (utåt)\n"
-           "  • Energy (energi)\n"
-           "  • Combat Ready (klar för strid)\n"
+           "Your buffs include:\n"
+           "  • Cure (health)\n"
+           "  • Shield (protection)\n"
+           "  • Protection (guard)\n"
+           "  • Evasion (evasion)\n"
+           "  • Resist (resistance)\n"
+           "  • Stamina (visible bar)\n"
+           "  • Energy (energy)\n"
+           "  • Combat Ready (ready for combat)\n"
            "  • ...}, etc."));
 }

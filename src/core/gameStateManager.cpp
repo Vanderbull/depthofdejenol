@@ -2065,8 +2065,8 @@ bool gameStateManager::loadFullGameState(const QString& saveName) {
                    << saveVer << "is newer than this build (max"
                    << SavegameVersion::MAX_LOADABLE_VERSION << ")";
         emit saveLoadRefused(saveName,
-            QString("Sparfilen är skapad av en nyare version (v%1). "
-                    "Uppgradera spelet för att ladda den.")
+            QString("This save file was created by a newer version (v%1). "
+                    "Upgrade the game to load it.")
                 .arg(saveVer));
         return false;
     }
