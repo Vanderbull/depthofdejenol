@@ -486,6 +486,35 @@ void gameStateManager::startNewGamePlus() {
     // 3. Reset the quest chain: deepest floor cleared, no bosses defeated.
     setGameValue("DeepestFloor", 0);
 
+    // 3b. Re-arm the quest rewards. QuestChainDriver records each payout in a
+    //     "QuestRewardGiven_<stepId>" flag so a step is never paid twice within
+    //     one cycle; those flags must be cleared here or a NG+ run completes the
+    //     whole chain again and collects nothing.
+    {
+        QStringList staleRewardKeys;
+        for (auto it = m_gameStateData.keyBegin(); it != m_gameStateData.keyEnd(); ++it) {
+            if (it->startsWith("QuestRewardGiven_")) {
+                staleRewardKeys.append(*it);
+            }
+        }
+        for (const QString& key : staleRewardKeys) {
+            m_gameStateData.remove(key);
+        }
+    }
+
+    // 3b. Re-arm the quest reward markers. QuestChainDriver keys each payout
+    //     off "QuestRewardGiven_<stepId>", so leaving them set would make the
+    //     whole chain silently pay nothing in NG+.
+    QStringList questRewardKeys;
+    for (auto it = m_gameStateData.constBegin(); it != m_gameStateData.constEnd(); ++it) {
+        if (it.key().startsWith("QuestRewardGiven_")) {
+            questRewardKeys << it.key();
+        }
+    }
+    for (const QString& key : questRewardKeys) {
+        m_gameStateData.remove(key);
+    }
+
     // 4. Reset the play-time accumulator so the NG+ run has a fresh clock.
     startPlayTime();
 

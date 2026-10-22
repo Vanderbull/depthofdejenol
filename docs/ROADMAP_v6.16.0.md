@@ -36,8 +36,8 @@
 || 0.1 | Monster geometry | Monster levels and themes appear in the dungeon | harness: read dungeon level, count monsters, check theme | ☐ |
 || 0.2 | Multi-level monsters | Some monsters have z=-1 and stairs; free a level with a level-up | harness: free a level, check stair tile | ☐ |
 || 0.3 | Monster progression | Larger floors have more monsters | harness: compare monster count across floors | ☐ |
-|| 1.1 | Main quest chain | Completing the main quest ends the run; NG+ raises level | harness: advance quest chain, check victory | ☐ |
-|| 1.2 | Quest rewards | Completing a quest grants gold and XP | harness: complete a quest, check rewards | ☐ |
+| 1.1 | Main quest chain | Completing the main quest ends the run; NG+ raises level | harness: advance quest chain, check victory | ✅ PASS (21/21) — full chain drive: depth 1 → boss 5 → depth 10 → boss 10 → depth 15 → boss 15; `chainJustCompleted` set, `isChainComplete()` true, `nextStepIndex()` −1; totals 68 600 g / 340 100 XP = Σ step rewards; NG+ 0→1, `DeepestFloor`→0, chain incomplete again |
+| 1.2 | Quest rewards | Completing a quest grants gold and XP | harness: complete a quest, check rewards | ✅ PASS — step 0 pays exactly +100 g / +100 XP (`QUEST_S0_GOLD`/`QUEST_S0_XP`); `QuestRewardGiven_first_descent` persisted; second `advance()` does not double-pay |
 || 2.1 | Tavern | Tavern Dialog opens, drink/talk options work | harness: open Tavern, select drink | ☐ |
 || 2.2 | Bank | Bank Dialog opens, deposit/withdraw works | harness: deposit gold, check balance | ☐ |
 || 2.3 | Alignments | Enemy types depend on alignment | harness: change alignment, check enemies | ☐ |
@@ -51,7 +51,7 @@
 ## Key findings (what the analysis showed)
 
 1. `struct Companion` in `src/character/character.h` carries mangled field names (`M548B`, `M4ED4`, …) — reverse-engineered residue, not clean source. Treat it as a data carrier, not a spec.
-2. QuestChainDriver is wired; the main quest chain data is stubbed — fill it from levels.json.
+2. QuestChainDriver is wired and the main quest chain now has six real steps (depth 1 → boss 5 → depth 10 → boss 10 → depth 15 → boss 15) with per-step gold/XP from `GameConstants`. Reached from `CombatController::handleVictory()`; surfaced in `QuestChainDialog` (city button).
 3. Town Dialog is largely a stub; tavern/bank/quest board/alignment are the cheapest LVC path.
 4. Monster hints are partial; a cheap approach is to show level/HP/attack/defence from the bestiary.
 
@@ -60,6 +60,6 @@
 ## Risks
 
 - Monster geometry is the highest-risk slice (may need refinement). If it exceeds 4 h, downscope to monster layout and theme assignment only.
-- Quest chain data is largely absent; treat the quest chain driver as integration, not feature.
+- Quest chain is done and verified (1.1, 1.2 PASS). Residual risk: `hasLevel()` requires `generated == true` while boss kills are written via `levelForEdit()`, so a boss killed on a floor without a generated snapshot would be silently dropped — no such path exists today, but the two APIs disagree on the precondition.
 - Alignment system requires balancing with enemies; start with a small map.
 - Monster hints require bestiary data; reference existing bestiary JSON.
