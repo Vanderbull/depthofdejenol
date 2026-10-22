@@ -14,6 +14,7 @@
 #include "src/dungeon_dialog/DungeonDialog.h"
 #include "src/tavern_dialog/TavernDialog.h"
 #include "src/character_dialog/CharacterSheetDialog.h"
+#include "src/info_dialog/InfoPanelDialog.h"
 #include "src/library_dialog/BestiaryDialog.h"
 #include "src/library_dialog/library_dialog.h"
 #include "src/journal_dialog/JournalDialog.h"
@@ -539,6 +540,52 @@ void theCity::keyPressEvent(QKeyEvent *event) {
     case Qt::Key_F:
         on_generalStoreButton_clicked();
         break;
+    case Qt::Key_F1: {
+        InfoPanelDialog *panel = new InfoPanelDialog(this);
+        panel->setAttribute(Qt::WA_DeleteOnClose);
+        panel->show(); panel->raise(); panel->activateWindow();
+        break;
+    }
+    case Qt::Key_F2: {
+        InfoPanelDialog *panel = new InfoPanelDialog(this);
+        panel->setAttribute(Qt::WA_DeleteOnClose);
+        panel->show(); panel->raise(); panel->activateWindow();
+        break;
+    }
+    case Qt::Key_F4: {
+        InfoPanelDialog *panel = new InfoPanelDialog(this);
+        panel->setAttribute(Qt::WA_DeleteOnClose);
+        panel->show(); panel->raise(); panel->activateWindow();
+        break;
+    }
+    case Qt::Key_F6: {
+        InfoPanelDialog *panel = new InfoPanelDialog(this);
+        panel->setAttribute(Qt::WA_DeleteOnClose);
+        panel->show(); panel->raise(); panel->activateWindow();
+        break;
+    }
+    case Qt::Key_F7: {
+        InfoPanelDialog *panel = new InfoPanelDialog(this);
+        panel->setAttribute(Qt::WA_DeleteOnClose);
+        panel->show(); panel->raise(); panel->activateWindow();
+        break;
+    }
+    case Qt::Key_F8: {
+        InfoPanelDialog *panel = new InfoPanelDialog(this);
+        panel->setAttribute(Qt::WA_DeleteOnClose);
+        panel->show(); panel->raise(); panel->activateWindow();
+        break;
+    }
+    case Qt::Key_F10: {
+        InfoPanelDialog *panel = new InfoPanelDialog(this);
+        panel->setAttribute(Qt::WA_DeleteOnClose);
+        panel->show(); panel->raise(); panel->activateWindow();
+        break;
+    }
+    case Qt::Key_F11: {
+        // Unused — reserved for future panels.
+        break;
+    }
     case Qt::Key_S:
         on_seerButton_clicked();
         break;

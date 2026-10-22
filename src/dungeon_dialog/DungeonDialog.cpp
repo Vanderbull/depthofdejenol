@@ -18,6 +18,7 @@
 #include "src/spell_casting/SpellCastingDialog.h"
 #include "src/quest_board/QuestBoardDialog.h"
 #include "src/combat/CombatController.h"
+#include "src/info_dialog/InfoPanelDialog.h"
 
 #include "src/core/Endgame.h"
 #include "src/core/DeathRecovery.h"
@@ -2315,6 +2316,60 @@ void DungeonDialog::keyPressEvent(QKeyEvent *event)
             gsm->setCurrentSaveName("autosave");
             gsm->saveFullGameState("autosave");
             logMessage("Game autosaved");
+            event->accept();
+            break;
+        }
+        case Qt::Key_F1: {
+            InfoPanelDialog *panel = new InfoPanelDialog(this);
+            panel->setAttribute(Qt::WA_DeleteOnClose);
+            panel->show(); panel->raise(); panel->activateWindow();
+            event->accept();
+            break;
+        }
+        case Qt::Key_F2: {
+            InfoPanelDialog *panel = new InfoPanelDialog(this);
+            panel->setAttribute(Qt::WA_DeleteOnClose);
+            panel->show(); panel->raise(); panel->activateWindow();
+            event->accept();
+            break;
+        }
+        case Qt::Key_F4: {
+            InfoPanelDialog *panel = new InfoPanelDialog(this);
+            panel->setAttribute(Qt::WA_DeleteOnClose);
+            panel->show(); panel->raise(); panel->activateWindow();
+            event->accept();
+            break;
+        }
+        case Qt::Key_F6: {
+            InfoPanelDialog *panel = new InfoPanelDialog(this);
+            panel->setAttribute(Qt::WA_DeleteOnClose);
+            panel->show(); panel->raise(); panel->activateWindow();
+            event->accept();
+            break;
+        }
+        case Qt::Key_F7: {
+            InfoPanelDialog *panel = new InfoPanelDialog(this);
+            panel->setAttribute(Qt::WA_DeleteOnClose);
+            panel->show(); panel->raise(); panel->activateWindow();
+            event->accept();
+            break;
+        }
+        case Qt::Key_F8: {
+            InfoPanelDialog *panel = new InfoPanelDialog(this);
+            panel->setAttribute(Qt::WA_DeleteOnClose);
+            panel->show(); panel->raise(); panel->activateWindow();
+            event->accept();
+            break;
+        }
+        case Qt::Key_F10: {
+            InfoPanelDialog *panel = new InfoPanelDialog(this);
+            panel->setAttribute(Qt::WA_DeleteOnClose);
+            panel->show(); panel->raise(); panel->activateWindow();
+            event->accept();
+            break;
+        }
+        case Qt::Key_F11: {
+            // Unused — reserved for future panels.
             event->accept();
             break;
         }

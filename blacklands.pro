@@ -71,7 +71,8 @@ SOURCES += \
     src/dungeon_dialog/DungeonMinimap.cpp \
     src/dungeon_dialog/DungeonHandlers.cpp \
     src/event/EventManager.cpp \
-    src/character/character.cpp
+    src/character/character.cpp \
+    src/info_dialog/InfoPanelDialog.cpp
 
 #--------------------------------------------------
 # Self-test harness
@@ -216,7 +217,8 @@ HEADERS += \
     src/dungeon_dialog/DungeonHandlers.h \
     src/event/EventManager.h \
     src/dungeon_dialog/MiniMapDialog.h \
-    src/character/character.h
+    src/character/character.h \
+    src/info_dialog/InfoPanelDialog.h
 
 HEADERS += src/spell_casting/SpellCastingDialog.h
 SOURCES += src/spell_casting/SpellCastingDialog.cpp
