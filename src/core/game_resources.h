@@ -55,11 +55,8 @@ private:
         // A common setup places the assets folder next to the executable.
         const QString RESOURCE_PATH = "resources/images/";
 
-        // Files are loaded explicitly below — no directory scanning needed
-        // nameFilters << "*.png" << "*.jpg" << "*.jpeg" << "*.gif" << "*.bmp";
-        // foreach (const QFileInfo &fileInfo, fileList) { ... }
+        // Files are loaded explicitly below — no directory scanning needed.
 
-        // --- 4. Final check and reporting ---
         if (s_resources.isEmpty()) {
             qWarning() << "No game resources were loaded from:" << RESOURCE_PATH;
         } else {
