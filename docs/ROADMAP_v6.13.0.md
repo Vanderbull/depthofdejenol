@@ -152,18 +152,18 @@ säkerhet. Fyra ligger i de multiplayertesterna som tillkom i v6.11.0.
 
 **Commit:** `9eba3ab`
 
-## 7. Release v6.13.0 — ❌ EJ GJORT
+## 7. Release v6.13.0 — ✅ Gjort
 
 **Why:** Släpp versionen.
 
 **Do:**
-- [ ] Bumpa SEMVER 6.12.0 → 6.13.0 i `blacklands.pro`
-- [ ] `ReleaseInfo.cpp`: `releaseDate`, `versionHistory()[0]`, `changes()` topp
-- [ ] `RELEASE_NOTES.md` ny sektion överst
-- [ ] `qmake6`, `make clean`, fullt bygge, full testkörning
-- [ ] Commit + tagga `v6.13.0`, pusha
+- [x] Bumpa SEMVER 6.12.0 → 6.13.0 i `blacklands.pro`
+- [x] `ReleaseInfo.cpp`: `releaseDate`, `versionHistory()[0]`, `changes()` topp
+- [x] `RELEASE_NOTES.md` ny sektion överst
+- [x] `qmake6`, `make clean`, fullt bygge, full testkörning
+- [x] Commit + tagga `v6.13.0`, pusha
 
-**Verify:** Bygg + alla tester passerar; `version.h` visar 6.13.0.
+**Verify:** Bygg + alla tester passerar; `version.h` visar 6.13.0. make check: 2103 passed, 0 failed; orphaned systems PASS. Tag v6.13.0 pekar på commit 9619fef.
 
 ---
 
