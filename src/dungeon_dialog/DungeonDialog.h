@@ -30,6 +30,7 @@
 #include "src/combat/CombatDeathHandler.h"
 #include "src/core/DoorAndSearch.h"
 #include "MiniMapDialog.h"
+#include "src/mapdialog/AutoMapDialog.h"
 #include "src/toolbar/GameToolbar.h"
 #include <QObject>
 
@@ -298,6 +299,8 @@ public:
     // --- Phase 3: Movement & UI ---
     // Integrated minimap (in the main layout, not a popup)
     QGraphicsView* m_miniMapViewIntegrated = nullptr;
+    // AutoMap dialog (full map view)
+    AutoMapDialog *m_autoMapDialog = nullptr;
     // Party status panel
     QListWidget* m_partyStatusList = nullptr;
     void updatePartyPanel();
