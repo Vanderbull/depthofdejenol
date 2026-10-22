@@ -103,14 +103,33 @@ void NetworkManager::onReadyRead() {
         if (type == "chat") {
             QString sender = obj.value("sender").toString();
             QString message = obj.value("message").toString();
-            // Basic sanitization/truncation
-            if (message.size() > 1024) message = message.left(1024);
+            // Sanitize chat: strip control characters and truncate
+            message = sanitizeChatMessage(message);
             emit chatReceived(sender, message);
         } else if (type == "player_join") {
             emit playerJoined(obj.value("username").toString());
         } else if (type == "player_leave") {
             emit playerLeft(obj.value("username").toString());
         } else if (type == "zone_sync") {
+            // Track sequence numbers per source for ordering (Slice 5)
+            QString source = obj.value("source").toString(); // e.g., "bestiary", "quests"
+            int seq = obj.value("seq").toInt();
+            if (seq >= 0) {
+                // Detect sequence gaps: if we expected seq+1 but got something else
+                int expectedSeq = m_lastZoneSeq.value(source, 0);
+                if (seq == expectedSeq + 1) {
+                    // Contiguous: update tracker
+                    m_lastZoneSeq[source] = seq;
+                } else {
+                    // Gap detected: source has fallen behind
+                    // Never re-request without asking for full state (avoid cascade)
+                    if (!m_syncInProgress) {
+                        m_syncInProgress = true;
+                        emit resyncRequested(source);
+                    }
+                }
+            }
+            // Emit zone update regardless (server may still be ahead, we'll resync later)
             QVariantMap zoneData = obj.value("data").toVariant().toMap();
             emit zoneUpdateReceived(zoneData);
         } else if (type == "pong") {
@@ -164,4 +183,34 @@ void NetworkManager::attemptReconnect() {
 
 QAbstractSocket::SocketState NetworkManager::state() const {
     return m_socket->state();
+}
+
+// --- Slice 5: Multiplayer hardening ---
+
+/**
+ * Sanitize a chat message by handling control characters.
+ * This strips control characters (\r, \n, \x00-\x08, \x0e-\x1f, \x7f)
+ * so that messages cannot inject escape sequences or format commands.
+ */
+QString NetworkManager::sanitizeChatMessage(const QString& message) const {
+    QString result;
+    result.reserve(message.size());
+    for (QChar c : message) {
+        // Allow printable characters: space (0x20) through tilde (0x7E)
+        quint16 uc = c.unicode();
+        if (uc >= 0x20 && uc <= 0x7E) {
+            result += c;
+        }
+        // Allow common Unicode whitespace (nbsp, em-space) and normal symbols
+        else if (uc >= 0x2000 && uc <= 0x200A) {
+            // Replace with regular space
+            result += QChar::Space;
+        }
+        // Otherwise drop (control chars, delete, etc.)
+    }
+    // Final safety: truncate to a sane length
+    if (result.size() > 1024) {
+        result.truncate(1024);
+    }
+    return result;
 }

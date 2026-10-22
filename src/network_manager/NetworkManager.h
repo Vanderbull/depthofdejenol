@@ -28,7 +28,9 @@ signals:
     void playerLeft(const QString &playerName);
     void chatReceived(const QString &from, const QString &message);
     void zoneUpdateReceived(const QVariantMap &zoneData);
-
+    // --- Slice 5: multiplayer hardening ---
+    void resyncRequested(const QString& source);
+    void syncAcknowledged();
     // Additional signals
     void connectionAttemptFailed(int attempt, int backoffMs);
     void connectionReestablished();
@@ -44,6 +46,16 @@ private:
     explicit NetworkManager(QObject *parent = nullptr);
     static NetworkManager* m_instance;
     QTcpSocket *m_socket;
+
+    // --- Slice 5: multiplayer hardening ---
+    // Track last seen seq per source (for zone_sync) to detect gaps
+    QMap<QString, int> m_lastZoneSeq;
+    // Sequence number for our own zone_sync messages
+    int m_zoneSyncSeq = 0;
+    // Whether a system-wide sync is in progress (prevents cascade re-requests)
+    bool m_syncInProgress = false;
+    // Sanitize chat control characters
+    QString sanitizeChatMessage(const QString& message) const;
 
     // New members for robustness & reconnect
     QByteArray m_recvBuffer;
