@@ -14,6 +14,7 @@
 #include "src/items/ConsumableResolver.h"
 #include "src/victory_dialog/VictoryDialog.h"
 #include "src/quest_board/QuestBoardDialog.h"
+#include "src/spell_casting/SpellCastingDialog.h"
 #include "src/core/QuestChainDriver.h"
 #include <QInputDialog>
 #include <QTimer>
@@ -149,8 +150,23 @@ void CombatController::useItem(int slotIndex)
 
 void CombatController::castSpell()
 {
-    // Spell casting is handled by the spell button in DungeonDialog
-    // This is a placeholder for future combat spell integration
+    // Open the spell casting dialog (in combat mode)
+    // Note: parent is nullptr - the dialog is deleted via setAttribute(Qt::WA_DeleteOnClose)
+    SpellCastingDialog* spellDialog = new SpellCastingDialog(nullptr, m_inCombat);
+    spellDialog->setAttribute(Qt::WA_DeleteOnClose);
+
+    // Connect spell effects to combat actions (logging only)
+    connect(spellDialog, &SpellCastingDialog::spellCast, this,
+            [this](const QString& spellName, const SpellResult& result) {
+        // Log the result via the log callback
+        if (m_logCallback) {
+            m_logCallback(QString("<font color='cyan'>%1</font>").arg(result.message));
+        }
+    });
+
+    // Show the dialog modally
+    spellDialog->exec();
+    delete spellDialog;
 }
 
 bool CombatController::togglePlayerRow(int participantIndex)
