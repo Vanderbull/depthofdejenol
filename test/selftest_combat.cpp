@@ -2646,7 +2646,7 @@ void runCombatTests()
         }
     }
 
-    section("[305] v6.13.0 slice 6.13a: damage resistances (bestiary + potions)");
+    section("[306] v6.13.0 slice 6.13a: damage resistances (bestiary + potions)");
     {
         // Every resistance a monster can carry in data/bestiary.json has to be
         // addressable by name and by canonical index, or the combat layer

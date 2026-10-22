@@ -38,7 +38,7 @@ sattes aldrig i någon plats — av datans sex Resist-formler mappade bara
 - [x] Resist/Protection-potions sätter sin plats; `Resist Electrical`/`Mental Resistance` mappar till Electric/Mind
 - [x] Potions utan skadematch (Stone/Drain/Acidity) säger nu att de ger något i stället för att låtsas
 
-**Verify:** Testsektion `[305]`, 54 kontroller. Icke-vakuitivt verifierat — 5 tester
+**Verify:** Testsektion `[306]`, 54 kontroller. Icke-vakuitivt verifierat — 5 tester
 fallerar när alias-fixen tas bort. 2092 passed, 0 failed.
 **Commit:** `8fb0973`
 
