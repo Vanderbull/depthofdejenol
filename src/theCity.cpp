@@ -12,6 +12,7 @@
 #include "src/confinement_dialog/ConfinementDialog.h"
 #include "src/bank_dialog/BankDialog.h"
 #include "src/dungeon_dialog/DungeonDialog.h"
+#include "src/toolbar/GameToolbar.h"
 #include "src/tavern_dialog/TavernDialog.h"
 #include "src/character_dialog/CharacterSheetDialog.h"
 #include "src/info_dialog/InfoPanelDialog.h"
@@ -78,6 +79,16 @@ theCity::theCity(QWidget *parent) :
     loadButtonIcons();
     setupStyling();
     setupMultiplayerConnections();
+
+    // Create and configure the toolbar (slice 2: F-tangentens informationspaneler)
+    m_toolbar = new GameToolbar(this);
+    m_toolbar->setObjectName("GameToolbar");
+    m_toolbar->setMode(GameToolbar::CommandPage);
+    connect(m_toolbar, &GameToolbar::modeChanged, this, [this](GameToolbar::CommandMode mode) {
+        qDebug() << "Toolbar mode changed to" << (mode == GameToolbar::CommandPage ? "Commands" : "Info");
+    });
+    // Add toolbar to the top of the main layout
+    ((QVBoxLayout*)this->layout())->insertWidget(0, m_toolbar);
 
     // 1. Set up a timeout (e.g., 3 seconds)
     QTimer *connectionTimer = new QTimer(this);

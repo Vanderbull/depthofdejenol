@@ -19,6 +19,7 @@
 #include "src/quest_board/QuestBoardDialog.h"
 #include "src/combat/CombatController.h"
 #include "src/info_dialog/InfoPanelDialog.h"
+#include "src/toolbar/GameToolbar.h"
 
 #include "src/core/Endgame.h"
 #include "src/core/DeathRecovery.h"
@@ -1036,6 +1037,16 @@ DungeonDialog::DungeonDialog(QWidget *parent)
     setupActionButtons();
     setupSignalConnections();
     setupCombatSystem();
+
+    // Create and configure the toolbar (slice 2: F-tangentens informationspaneler)
+    m_toolbar = new GameToolbar(this);
+    m_toolbar->setObjectName("GameToolbar");
+    m_toolbar->setMode(GameToolbar::CommandPage);
+    connect(m_toolbar, &GameToolbar::modeChanged, this, [this](GameToolbar::CommandMode mode) {
+        qDebug() << "Toolbar mode changed to" << (mode == GameToolbar::CommandPage ? "Commands" : "Info");
+    });
+    // Add toolbar to the top of the main layout
+    ((QVBoxLayout*)this->layout())->insertWidget(0, m_toolbar);
 
     // --- Finalize the viewport ---
     m_dungeonScene->setSceneRect(0, 0, 300, 300);

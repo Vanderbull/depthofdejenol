@@ -15,6 +15,7 @@
 #include <QPushButton>
 #include <QMediaPlayer>
 #include <QAudioOutput>
+#include "src/toolbar/GameToolbar.h"
 
 class TempleDialog;
 
@@ -78,6 +79,9 @@ private:
     // UI Elements - Multiplayer
     QListWidget *playerList;
     QTextEdit *chatDisplay;
+
+    // Toolbar (slice 2: F-tangentens informationspanaler)
+    GameToolbar *m_toolbar = nullptr;
     QLineEdit *chatInput;
     QPushButton *sendButton;
 

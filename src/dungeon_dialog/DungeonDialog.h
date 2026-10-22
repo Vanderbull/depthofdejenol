@@ -30,6 +30,7 @@
 #include "src/combat/CombatDeathHandler.h"
 #include "src/core/DoorAndSearch.h"
 #include "MiniMapDialog.h"
+#include "src/toolbar/GameToolbar.h"
 #include <QObject>
 
 // Forward declarations
@@ -149,6 +150,9 @@ private:
     void setupSignalConnections();
     void setupCombatSystem();
     int m_initialLevel = 1;
+
+    // Toolbar (slice 2: F-tangentens informationspanaler)
+    GameToolbar *m_toolbar = nullptr;
 
     QSet<QPair<int, int>> m_bodyPositions;
 
