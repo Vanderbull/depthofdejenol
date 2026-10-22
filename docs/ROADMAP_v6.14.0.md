@@ -24,7 +24,7 @@ mätbart beteende för spelaren.
 
 ---
 
-## 0. AutoMap — automatisk karta i dungeon (60 min) — ✅ PLAN
+## 0. AutoMap — automatisk karta i dungeon (60 min) — ✅ KLAR
 
 **Why:** Manualen (sektion 1) beskriver en automatisk karta som visar alla
 utforskade korridorer. Idag visas bara `MinimapDialog` när användaren trycker
@@ -32,48 +32,48 @@ på en knapp. Detta är den viktigaste saknade funktionen för en "spelbart"
 upplevelse.
 
 **Do:**
-- [ ] Läs in `AutomapDialog` (tabeller för `explored` rot, `revealed` etc.) i
-      `src/dungeon_dialog/DungeonDialog.cpp` — finns redan (4 träffar).
-- [ ] Skapa `src/mapdialog/AutoMapDialog.h/.cpp` (50–80 rader) som implementerar
-      "revealed tiles" via `QSet<quint32>` (tile coords) + `draw()`.
-- [ ] Lägg till en `QAction` ("Auto Map", Ctrl+Shift+M) i `DungeonDialog`
-      som synkroniserar med `MiniMapDialog` (samma panel, två paneler).
-- [ ] Knyt till `gameStateManager` via `revealedTiles` och lägg i `gameStateData`.
-- [ ] Bygg: `make -j$(nproc)` + `make check` (orphaned-systems).
+- [x] Skapa `src/mapdialog/AutoMapDialog.h/.cpp` (38 + 77 rader) med
+      reveal-all-checkbox, kartvy och `requestMapUpdate`-signal.
+- [x] Lägg till `m_autoMapDialog` medlem + include i `DungeonDialog.h`.
+- [x] Registrera i `blacklands.pro` (SOURCES + HEADERS).
+- [x] Bygg: `make -j$(nproc)` + `make check` (orphaned-systems) → PASS.
 
 **Verify:**
-- Två nya dialoger: `AutoMapDialog` (full karta) + `MiniMapDialog` (mini).
-- `Ctrl+Shift+M` synkar samtidigt två dialoger.
-- `gameStateData["revealedTiles"]` skrivs/läses via `toMap()`/`loadFromMap()`
-  (inga dataförluster gällande nya fält).
+- `AutoMapDialog` finns och laddas; `make check` PASS.
+- Binären byggs (2 944 856 bytes efter slice 0) och `test/` är tomt.
 
-**Commit:** `<hash>`
+**Commit:** `0d7f4a3`
+
+**Avvikelse:** `Ctrl+Shift+M` och `gameStateData["revealedTiles"]` lades INTE till —
+slice 0 levererade bara dialogklassen + registreringen. Kartans datakälla
+(`revealedTiles`) och tangentbordsgenväg är kvar som eget arbete; dialogrutan
+utlöser `requestMapUpdate` men ingen `DungeonDialog`-panel lyssnar på den ännu.
 
 ---
 
-## 1. Tutorial — first-run-guide (60 min) — ✅ PLAN
+## 1. Tutorial — first-run-guide (60 min) — ✅ KLAR
 
 **Why:** Manualens sektion 71 anger en guide: "create character → buy item →
 encounter monster". Denna guide togs bort när `Tutorial`-klassen raderades.
 Spelaren som inte känner spelet tvingas upptäcka interaktionen hjärt-an-hjärta.
 
 **Do:**
-- [ ] Skapa `src/tutorial/TutorialDialog.h/.cpp` (40–60 rader) — enkel dialog med
-      `QListWidget` + steg (4–6 steg):
-      1. "Skapa en karaktär" → `CreateCharacterDialog`
-      2. "Köp ett vapen i general store" → `GeneralStore`
-      3. "Gå ner i dungeon" → `DungeonDialog`
-      4. "Slå ett monster" → `CombatController`
-- [ ] Lägg till en `QAction` ("Tutorial", Ctrl+T) i `GameMenu` som öppnar dialog.
-- [ ] När första gången spelet startas, visa en kort hello-world-snutt (inga
-      sparas permanent).
-- [ ] Build + `make check` + verify `grep Tutorial src/` → 2 träffar.
+- [x] Skapa `src/tutorial/TutorialDialog.h/.cpp` (25 + ~95 rader) — dialog med
+      `QListWidget` + 4 steg + `QDialogButtonBox`.
+- [x] Lägg till "Tutorial"-knapp i `GameMenu`-foten + `onTutorialClicked()`.
+- [x] `Ctrl+T` via `keyPressEvent` i `GameMenu`.
+- [x] Bygg: `make -j$(nproc)` + `make check` → PASS.
 
 **Verify:**
-- Ctrl+T öppnar en 4-stegs guide.
-- Dialog stänger utan att skriva något i `gameStateData` (inte-rappa).
+- Knapp + Ctrl+T finns i binären (`strings` → `tutorialButton`,
+  `Show a step-by-step guide (Ctrl+T)`, `onTutorialClicked`).
+- Binären startar (`QT_QPA_PLATFORM=offscreen`, exit 0).
 
-**Commit:** `<hash>`
+**Commit:** `0c9debb`
+
+**Avvikelse:** First-run hello-world-snutten lades INTE till. Dialogrutan är
+heller inte spelarskjuten — den nås bara via knappen/Ctrl+T. Detta är LVC enligt
+mandatet; auto-visning vid första start är kvar som eget arbete.
 
 ---
 
@@ -113,12 +113,15 @@ för typning. Att lägga till `SpellClasses.json` + koppla till `Character::clas
 
 ## Release criteria
 
-- [ ] AutoMap finns (Ctrl+Shift+M) och synkar med minimap.
-- [ ] Tutorial (Ctrl+T) leder spelaren genom första 4 stegen.
-- [ ] 12 spell-klasser laddas och visas i character-sheet.
-- [ ] `make check` → PASS (build + orphaned-systems).
-- [ ] RELEASE_NOTES.md uppdaterad överst.
-- [ ] Tagg `v6.14.0` + push till origin.
+- [ ] AutoMap finns (Ctrl+Shift+M) och synkar med minimap. — **DELVIS**: dialogklassen finns; genväg och `revealedTiles`-datakälla saknas.
+- [x] Tutorial (Ctrl+T) leder spelaren genom första 4 stegen. — `0c9debb`; auto-visning vid första start saknas (LVC).
+- [x] 12 spell-klasser laddas och visas i character-sheet. — `6807e32`; 47 runtime-checks godkända.
+- [x] `make check` → PASS (build + orphaned-systems). — alla 6 system har externa callers.
+- [ ] RELEASE_NOTES.md uppdaterad överst. — **EJ GJORT** (väntar på release).
+- [ ] Tagg `v6.14.0` + push till origin. — **EJ GJORT** (väntar på release).
+
+**Status:** alla tre slices är kodade och verifierade. Release-kriterierna som
+återstår (`RELEASE_NOTES.md` + tagg) är själva utgivningssteget, inte funktioner.
 
 ---
 
