@@ -226,8 +226,30 @@ void ConfinementAndHoldingDialog::identifyCompanionGNE()
 
 void ConfinementAndHoldingDialog::sellCompanion()
 {
-    QMessageBox::information(this, "Sell Companion", "Selling companion: " + identifyCompLineEdit->text());
-    qDebug() << "Sell Companion: " << identifyCompLineEdit->text();
+    QString compName = identifyCompLineEdit->text().trimmed();
+    if (compName.isEmpty()) return;
+
+    gameStateManager* gsm = gameStateManager::instance();
+    if (!gsm) return;
+    QList<Character>& members = gsm->getPartyMembers();
+
+    for (int mi = 0; mi < members.size(); ++mi) {
+        for (int i = 0; i < members[mi].companionCount(); ++i) {
+            if (members[mi].companionName(i).toLower()
+                    == compName.toLower()) {
+                members[mi].clearCompanion(i);
+                members[mi].gold += 100;
+                gsm->saveCharacterToFile(mi);
+                populateStockList();
+                QMessageBox::information(this, tr("Sell Companion"),
+                    tr("Sold companion %1. You received 100 gold.").arg(compName));
+                return;
+            }
+        }
+    }
+
+    QMessageBox::warning(this, tr("Sell Companion"),
+                          tr("Companion not found in your party."));
 }
 
 void ConfinementAndHoldingDialog::realignCompanionID()

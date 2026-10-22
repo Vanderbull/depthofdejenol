@@ -145,6 +145,19 @@ QVariantMap Character::toMap() const {
     for (int i = 0; i < 12; ++i) resList.append(resistances[i]);
     map["Resistances"] = resList;
 
+    // Companion slots (MType::Companion). Serialise only slots that hold a name.
+    QVariantList compList;
+    for (int ci = 0; ci < companionCount(); ++ci) {
+        const QString nm = companionName(ci);
+        if (!nm.isEmpty()) {
+            QVariantMap slot;
+            slot["Name"] = nm;
+            slot["Level"] = companionLevel(ci);
+            compList.append(slot);
+        }
+    }
+    map["Companions"] = compList;
+
     return map;
 }
 
@@ -232,6 +245,25 @@ void Character::loadFromMap(const QVariantMap &map) {
         const QVariantList resList = resVar.toList();
         for (int i = 0; i < 12 && i < resList.size(); ++i) {
             resistances[i] = int16_t(qBound(0, resList.at(i).toInt(), 100));
+        }
+    }
+
+    // Load companions (v6.15.0 slice 0).
+    {
+        const QVariantList compList = map.value("Companions").toList();
+        for (const QVariant& v : compList) {
+            if (v.typeId() != QMetaType::QVariantMap) continue;
+            QMap<QString, QVariant> slot = v.toMap();
+            const QString nm = slot["Name"].toString();
+            if (!nm.isEmpty()) {
+                for (int i = 0; i < 5; ++i) {
+                    if (M58CB[i].M548B.isEmpty()) {
+                        M58CB[i].M548B = nm;
+                        M58CB[i].M4ED4 = slot["Level"].toInt();
+                        break;
+                    }
+                }
+            }
         }
     }
 }

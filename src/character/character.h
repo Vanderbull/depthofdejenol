@@ -184,6 +184,25 @@ struct Character {
     // Companions (5 entries)
     Companion M58CB[5];
 
+    // --- Companion accessors (v6.15.0 slice 0) ---
+    int companionCount() const { return 5; }
+    QString companionName(int i) const { return M58CB[i].M548B; }
+    int companionLevel(int i) const { return M58CB[i].M4ED4; }
+    bool addCompanion(const QString& name, int level = 1) {
+        for (int i = 0; i < 5; ++i) {
+            if (M58CB[i].M548B.isEmpty()) {
+                M58CB[i].M548B = name;
+                M58CB[i].M4ED4 = level;
+                return true;
+            }
+        }
+        return false;
+    }
+    void clearCompanion(int i) {
+        M58CB[i].M548B = QString();
+        M58CB[i].M4ED4 = 0;
+    }
+
     // Misc fields
     int16_t M5700;         //
     int16_t M58DC;         //

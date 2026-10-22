@@ -20,6 +20,7 @@ void CharacterSheetDialog::setupUi() {
     setMinimumSize(500, 600);
 
     auto *mainLayout = new QVBoxLayout(this);
+    m_mainLayout = mainLayout;
 
     // Member selector
     auto *selectorLayout = new QHBoxLayout;
@@ -171,6 +172,32 @@ void CharacterSheetDialog::refreshSheet() {
     m_hungerLabel->setStyleSheet(c.isHungerLow() ? "color: #b8860b; font-weight: bold;"
                                                  : QString());
     m_goldLabel->setText(tr("Gold: %1").arg(c.gold));
+
+    // --- v6.15.0 slice 0: companions joined the party ---
+    m_companionsText = new QLabel(tr("No companions yet."));
+    m_companionsText->setWordWrap(true);
+    m_companionsList = new QListWidget();
+    for (int i = 0; i < c.companionCount(); ++i) {
+        if (c.companionName(i).isEmpty()) continue;  // skip empty slots
+        QListWidgetItem *it = new QListWidgetItem(
+            tr("L%1 %2").arg(c.companionLevel(i)).arg(c.companionName(i)));
+        m_companionsList->addItem(it);
+    }
+    m_tameBtn = new QPushButton(tr("Tame Companion"));
+    m_sellCompBtn = new QPushButton(tr("Sell Companion"));
+    connect(m_tameBtn, &QPushButton::clicked, this, &CharacterSheetDialog::onTameCompanion);
+    connect(m_sellCompBtn, &QPushButton::clicked, this, &CharacterSheetDialog::onSellCompanion);
+    QHBoxLayout *btns = new QHBoxLayout();
+    btns->addWidget(m_tameBtn);
+    btns->addWidget(m_sellCompBtn);
+    QVBoxLayout *compLayout = new QVBoxLayout();
+    compLayout->addWidget(new QLabel(tr("Companions (v6.15.0)")));
+    compLayout->addWidget(m_companionsText);
+    compLayout->addWidget(m_companionsList);
+    compLayout->addLayout(btns);
+    QWidget *compGroup = new QWidget();
+    compGroup->setLayout(compLayout);
+    m_mainLayout->insertWidget(10, compGroup);
 
     // Play time — show elapsed time for this run (HH:MM:SS).
     const qint64 secs = gsm->playTimeSeconds();
@@ -337,4 +364,30 @@ void CharacterSheetDialog::onSpendStatPoint(int statIndex) {
 
 void CharacterSheetDialog::onExitClicked() {
     accept();
+}
+
+void CharacterSheetDialog::onTameCompanion() {
+    gameStateManager* gsm = gameStateManager::instance();
+    if (!gsm) return;
+    QList<Character>& members = gsm->getPartyMembers();
+    const int idx = m_memberCombo->currentIndex();
+    if (idx < 0 || idx >= members.size()) return;
+    if (!members[idx].addCompanion("Charmdog", 1)) return;
+    refreshSheet();
+}
+
+void CharacterSheetDialog::onSellCompanion() {
+    gameStateManager* gsm = gameStateManager::instance();
+    if (!gsm) return;
+    QList<Character>& members = gsm->getPartyMembers();
+    const int idx = m_memberCombo->currentIndex();
+    if (idx < 0 || idx >= members.size()) return;
+    for (int i = 0; i < members[idx].companionCount(); ++i) {
+        if (!members[idx].companionName(i).isEmpty()) {
+            members[idx].clearCompanion(i);
+            members[idx].gold += 100;  // LVC gold reward
+            refreshSheet();
+            return;
+        }
+    }
 }
