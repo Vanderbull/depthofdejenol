@@ -12,7 +12,7 @@ kompletterade. Kvar att leverera enligt `docs/MORDOR.rtf` (manualen, 72 sektione
 Båda är LVC-mässigt enkla (befintlig kod kan återanvändas) och ger omedelbart
 mätbart beteende för spelaren.
 
-**Status: 🟢 2 av 3 slices planerade**  *(se avsnitt 0–2 nedan)*
+**Status: 🟢 3 av 3 slices klara**  *(0. AutoMap ✅, 1. Tutorial ✅, 2. Spell classes ✅)*
 
 **Audit-not (2026-10-24), verifierad mot källkoden:**
 
@@ -77,30 +77,37 @@ Spelaren som inte känner spelet tvingas upptäcka interaktionen hjärt-an-hjär
 
 ---
 
-## 2. Spell classes — 12 klasser + spell lista (120 min) — ✅ PLAN
+## 2. Spell classes — 12 klasser + spell lista (120 min) — ✅ KLAR
 
 **Why:** Manualen (sektion 6) listar 12 karaktärsklasser (Healer, Mage,
 Ninja, Nomad, Paladin, och 7 fler) med varsin spellista. Nu används guild+level
-för typning. Att lägga till `SpellClasses.json` + koppla till `Character::class_`
+för typning. Att lägga till `SpellClasses.json` + koppla till `Character::classId`
 är en 1–2h-övning som inte kräver en omskrivning.
 
 **Do:**
-- [ ] Skapa `data/SpellClasses.json` — 12 objekt:
-      `{ "id": "Paladin", "name": "Riddaren", "title": "...", "spellIds": [...] }`
-      (copy from existing `SpellCategories.json` + brainstorm 12 names).
-- [ ] Läs in i `src/core/SpellClassRegistry.h/.cpp` (ny klass, ~60 rader).
-- [ ] Lägg till `m_classId` i `Character::toMap()` / `loadFromMap()` — ruta
+- [x] Skapa `data/SpellClasses.json` — 12 objekt:
+      `{ "id": "Paladin", "name": "Paladin", "title": "...", "spellIds": [...] }`.
+      `spellIds` är hämtade ur `guilds`-arrayen i `spells.json` (141 ids, alla
+      validerade). Klassen *är* startgillet, så `id` matchar
+      `GameConstants::GUILD_NAMES`. Nomad/Ninja/Scavenger ger inga spells —
+      det är datans sanna tillstånd, inte en platshållare.
+- [x] Läs in i `src/core/SpellClassRegistry.h/.cpp` (ny klass, ~120 rader).
+      `byId()` + `byGuildName()` + `normalizeToClassId()` accepterar
+      "Paladins Guild", "Paladins" och "paladin".
+- [x] Lägg till `classId` i `Character::toMap()` / `loadFromMap()` — ruta
       på character-sheet dialog.
-- [ ] `CharacterSheetDialog` visar "Klass: Paladin" + 3 nivå-1-spells.
-- [ ] Build + `make check` + verify `GameStateManager::instance()->getParty()`
-      innehåller `m_classId` efter load/save.
+- [x] `CharacterSheetDialog` visar "Class: Paladin" + en "Class Spells"-grupp
+      med klassens spellista (oberoende av gille-nivå/stats).
+- [x] Build + `make check` + verify: `getPartyMembers()[0].classId` överlever
+      save/load.
 
 **Verify:**
-- 12 klasser finns i `SpellClasses.json` (validera med Python).
+- 12 klasser finns i `SpellClasses.json` (validerade med Python + QJson).
 - `CharacterSheetDialog` visar klass + spelllista.
-- Save/load runt 3 characters; `m_classId` är kvar efter load.
+- Save/load runt en klassbärande karaktär; `classId` är kvar efter load.
+- Äldre save utan `ClassId` laddar med tom klass (krasar inte).
 
-**Commit:** `<hash>`
+**Commit:** `6807e32`
 
 ---
 
