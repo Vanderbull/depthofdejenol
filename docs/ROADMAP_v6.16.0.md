@@ -4,7 +4,7 @@
 
 || Manual § | Topic | Status today |
 ||----------|-------|--------------|
-|| ~2 "Dungeon" | Rooms, corridors, themes, multi-level rooms, stairs, progressive complexity | Code exists; room geometry and theme mapping wired, theme names in levels.json |
+|| ~2 "Dungeon" | Monster count, corridors, themes, multi-level monsters, stairs, progressive complexity | Code exists; room geometry and theme mapping wired, theme names in levels.json |
 || ~3 "Quest" | Main quest chain, quests, quest rewards, progression | Quest chain driver exists (QuestChainDriver), main quest chain stubbed |
 || ~4 "Town" | Tavern, bank, quest board, NPCs, alignment | Town Dialog exists; NPCs and quest board partial |
 || ~7 "Monster and Treasure" | Monster hints, equipment, gold sinks (hints, highlight, etc.) | Monster hints partial; equipment not implemented |
@@ -17,7 +17,7 @@
 
 || # | Slice | LVC target | Hours | Cost |
 ||---|-------|-----------|-------|------|
-|| 0 | Dungeon: room geometry & theme | Rooms, corridors, themes, multi-level rooms, stairs, progressive complexity | 1.5 | 1350 kr |
+|| 0 | Dungeon: room geometry & theme | Monster count, corridors, themes, multi-level monsters, stairs, progressive complexity | 1.5 | 1350 kr |
 || 1 | Quest: main chain | Main quest chain, quests, quest rewards, progression | 1.0 | 900 kr |
 || 2 | Town: tavern, bank, quest board, alignment | Tavern, bank, quest board, NPCs, alignment | 1.0 | 900 kr |
 || 3 | Monster & Treasure | Monster hints, equipment, gold sinks | 1.0 | 900 kr |
@@ -33,9 +33,9 @@
 
 || # | Check | Expected (LVC) | How verified | Status |
 ||---|-------|----------------------|--------------|--------|
-|| 0.1 | Room geometry | Rooms of different sizes and themes appear in the dungeon | harness: read dungeon level, count rooms, check theme | ☐ |
-|| 0.2 | Multi-level rooms | Some rooms have z=-1 and stairs; free a level with a level-up | harness: free a level, check stair tile | ☐ |
-|| 0.3 | Progressive complexity | Larger floors have more rooms | harness: compare room count across floors | ☐ |
+|| 0.1 | Monster geometry | Monster levels and themes appear in the dungeon | harness: read dungeon level, count monsters, check theme | ☐ |
+|| 0.2 | Multi-level monsters | Some monsters have z=-1 and stairs; free a level with a level-up | harness: free a level, check stair tile | ☐ |
+|| 0.3 | Monster progression | Larger floors have more monsters | harness: compare monster count across floors | ☐ |
 || 1.1 | Main quest chain | Completing the main quest ends the run; NG+ raises level | harness: advance quest chain, check victory | ☐ |
 || 1.2 | Quest rewards | Completing a quest grants gold and XP | harness: complete a quest, check rewards | ☐ |
 || 2.1 | Tavern | Tavern Dialog opens, drink/talk options work | harness: open Tavern, select drink | ☐ |
@@ -59,7 +59,7 @@
 
 ## Risks
 
-- Room geometry is the highest-risk slice (may need refinement). If it exceeds 4 h, downscope to room layout and theme assignment only.
+- Monster geometry is the highest-risk slice (may need refinement). If it exceeds 4 h, downscope to monster layout and theme assignment only.
 - Quest chain data is largely absent; treat the quest chain driver as integration, not feature.
 - Alignment system requires balancing with enemies; start with a small map.
 - Monster hints require bestiary data; reference existing bestiary JSON.
