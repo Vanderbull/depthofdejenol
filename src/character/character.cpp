@@ -2,6 +2,7 @@
 #include "src/items/ItemDatabase.h"
 #include "src/items/ConsumableResolver.h"
 #include "src/core/LevelTable.h"
+#include "src/core/ResistanceNames.h"
 #include "src/core/gameStateManager.h"
 #include "src/race_data/RaceData.h"
 #include <QRandomGenerator>
@@ -137,6 +138,12 @@ QVariantMap Character::toMap() const {
     }
     map["Equipped"] = eqList;
 
+    // Resistances are granted by Resist/Protection consumables and consulted
+    // by the combat damage path, so they must survive a save/load round trip.
+    QVariantList resList;
+    for (int i = 0; i < 12; ++i) resList.append(resistances[i]);
+    map["Resistances"] = resList;
+
     return map;
 }
 
@@ -211,6 +218,16 @@ void Character::loadFromMap(const QVariantMap &map) {
     if (eqVar.typeId() == QMetaType::QVariantList) {
         for (const QVariant& v : eqVar.toList()) {
             equipped.append(heldItemFromMap(v.toMap()));
+        }
+    }
+
+    // Load resistances. Older saves have no entry, in which case every slot
+    // stays at zero rather than being treated as a corrupt save.
+    const QVariant resVar = map.value("Resistances");
+    if (resVar.typeId() == QMetaType::QVariantList) {
+        const QVariantList resList = resVar.toList();
+        for (int i = 0; i < 12 && i < resList.size(); ++i) {
+            resistances[i] = int16_t(qBound(0, resList.at(i).toInt(), 100));
         }
     }
 }
@@ -555,13 +572,39 @@ bool Character::useConsumable(int inventoryIndex, QString& effectDescription) {
         effectDescription = applyConsumableStatBoost(*def);
         break;
 
-    case ConsumableResolver::Effect::Resist:
-        effectDescription = QString("You feel protected — %1 takes hold.")
-                                .arg(effect.spellName);
+    case ConsumableResolver::Effect::Resist: {
+        // "Resist Fire" names its own element; the value goes into that slot.
+        // Previously this only set the description, so the potion did nothing.
+        const QString type = ResistanceNames::fromSpellName(effect.spellName);
+        const int idx = ResistanceNames::indexOf(type);
+        if (idx < 0 || idx >= 12) {
+            // The manual names three resistance types the combat damage model
+            // has no damage school for (Stone, Drain, Acidity), so those
+            // potions have nothing to reduce. Say so rather than claim
+            // protection the character does not get.
+            effectDescription = QString("%1 grants no resistance in this game.")
+                                    .arg(effect.spellName);
+            break;
+        }
+        resistances[idx] = qMax(resistances[idx],
+                                int16_t(GameConstants::RESIST_GRANT_PERCENT));
+        effectDescription = QString("You feel protected — %1 resistance now %2%.")
+                                .arg(type).arg(resistances[idx]);
         break;
+    }
 
     case ConsumableResolver::Effect::Protection:
-        effectDescription = "A ward settles over you.";
+        // A general ward rather than a single element; it covers the physical
+        // and weapon schools, which are the ones no Resist spell names.
+        resistances[ResistanceNames::indexOf(QStringLiteral("Physical"))] =
+            qMax(resistances[ResistanceNames::indexOf(QStringLiteral("Physical"))],
+                 int16_t(GameConstants::PROTECTION_GRANT_PERCENT));
+        resistances[ResistanceNames::indexOf(QStringLiteral("Weapon"))] =
+            qMax(resistances[ResistanceNames::indexOf(QStringLiteral("Weapon"))],
+                 int16_t(GameConstants::PROTECTION_GRANT_PERCENT));
+        effectDescription = QString("A ward settles over you — physical and "
+                                    "weapon damage reduced by %1%.")
+                                .arg(GameConstants::PROTECTION_GRANT_PERCENT);
         break;
 
     case ConsumableResolver::Effect::Damage:

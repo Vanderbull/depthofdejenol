@@ -6,6 +6,7 @@
 #include "src/core/gameStateManager.h"
 #include "src/spell_casting/SpellBook.h"
 #include "src/spell_casting/SpellMechanics.h"
+#include "src/combat/MonsterResistance.h"
 #include <QRandomGenerator>
 
 CombatActions::CombatActions(CombatState* state, TurnEngine* engine)
@@ -32,6 +33,50 @@ QString CombatActions::missMessage(const QString& attacker, const QString& targe
     return stylize(QString("%1 misses %2 (roll %3 vs AC %4).")
                        .arg(attacker, target).arg(roll).arg(targetAC),
                    "gray");
+}
+
+// The resistance a spell's school is rolled against. The game's schools and
+// the bestiary's resistance names differ in two places — "Lightning" spells are
+// resisted as "Electric", and the generic "Damage" school as "Physical".
+QString CombatActions::resistanceNameForSpell(const QString& spellName) {
+    const SpellDef* spell = SpellBook::instance().byName(spellName);
+    if (!spell) return QString();
+
+    switch (SpellMechanics::schoolFor(spell->category)) {
+    case SpellMechanics::School::Fire:      return QStringLiteral("Fire");
+    case SpellMechanics::School::Cold:      return QStringLiteral("Cold");
+    case SpellMechanics::School::Lightning: return QStringLiteral("Electric");
+    case SpellMechanics::School::Mind:      return QStringLiteral("Mind");
+    case SpellMechanics::School::Magical:   return QStringLiteral("Magic");
+    case SpellMechanics::School::Damage:    return QStringLiteral("Physical");
+    }
+    return QString();
+}
+
+int CombatActions::resistancePercent(const CombatParticipant& target, const QString& spellName) {
+    const QString resName = resistanceNameForSpell(spellName);
+    if (resName.isEmpty()) return 0;
+
+    // Players carry their own resistances (copied from Character).
+    if (target.isPlayer) {
+        const int idx = MonsterResistance::indexForName(resName);
+        if (idx < 0 || idx >= 12) return 0;
+        return qBound(0, int(target.resistances[idx]), 100);
+    }
+
+    // Monsters are looked up by name in data/bestiary.json.
+    return qBound(0, MonsterResistance::percentFor(target.name, resName), 100);
+}
+
+int CombatActions::applyHit(CombatParticipant& target, int damage, const QString& spellName) {
+    int dmg = damage;
+    if (target.isDefending) dmg = qMax(1, dmg / 2);
+    const int resist = resistancePercent(target, spellName);
+    if (resist > 0) dmg = qMax(GameConstants::MIN_RESISTED_DAMAGE,
+                               dmg * (100 - resist) / 100);
+    target.hp -= dmg;
+    if (target.hp <= 0) { target.hp = 0; target.isAlive = false; }
+    return dmg;
 }
 
 bool CombatActions::isPlayerTurn() const {
@@ -281,31 +326,30 @@ int CombatActions::applySpellDamage(int targetIndex, const QString& spellName,
 
     if (isAoE) {
         bool targetIsPlayer = target.isPlayer;
+        QStringList dmgs;
         for (int i = 0; i < m_state->participantCount(); ++i) {
             CombatParticipant& p = m_state->participant(i);
             if (p.isAlive && p.isPlayer == targetIsPlayer) {
-                int dmg = damage;
-                if (p.isDefending) dmg = qMax(1, dmg / 2);
-                p.hp -= dmg;
-                if (p.hp <= 0) { p.hp = 0; p.isAlive = false; }
+                const int dmg = applyHit(p, damage, spellName);
                 totalDamage += dmg;
                 hitNames.append(p.name);
+                dmgs << QString::number(dmg);
             }
         }
         result = QString("%1 hits %2 for %3 damage each!")
-            .arg(spellName).arg(hitNames.join(", ")).arg(damage);
+            .arg(spellName).arg(hitNames.join(", ")).arg(dmgs.join("/"));
     } else {
-        int dmg = damage;
-        if (target.isDefending) dmg = qMax(1, dmg / 2);
-        target.hp -= dmg;
+        const int dmg = applyHit(target, damage, spellName);
+        const int resist = resistancePercent(target, spellName);
         if (target.hp <= 0) {
-            target.hp = 0;
-            target.isAlive = false;
             result = QString("%1 hits %2 for %3 damage — %2 is slain!")
                 .arg(spellName).arg(target.name).arg(dmg);
         } else {
-            result = QString("%1 hits %2 for %3 damage.")
-                .arg(spellName).arg(target.name).arg(dmg);
+            result = resist > 0
+                ? QString("%1 hits %2 for %3 damage (%4% resisted).")
+                      .arg(spellName).arg(target.name).arg(dmg).arg(resist)
+                : QString("%1 hits %2 for %3 damage.")
+                      .arg(spellName).arg(target.name).arg(dmg);
         }
         totalDamage = dmg;
     }
@@ -338,11 +382,10 @@ int CombatActions::applySpellDamageBySchool(int targetIndex, const QString& spel
         const int casterLevel = m_state->participant(casterIdx).level;
         const int massiveDmg = SpellMechanics::instantKillDamage(casterLevel);
         CombatParticipant& target = m_state->participant(targetIndex);
-        target.hp -= massiveDmg;
-        if (target.hp <= 0) { target.hp = 0; target.isAlive = false; }
+        const int dealt = applyHit(target, massiveDmg, spellName);
         result = QString("%1 hits %2 for %3 damage!")
-            .arg(spellName).arg(target.name).arg(massiveDmg);
-        return massiveDmg;
+            .arg(spellName).arg(target.name).arg(dealt);
+        return dealt;
     }
 
     // --- Damage: Poison/Wound apply a damage-over-time, Drain Life heals ---
@@ -350,10 +393,7 @@ int CombatActions::applySpellDamageBySchool(int targetIndex, const QString& spel
         CombatParticipant& tgt = m_state->participant(targetIndex);
         if (spellName == "Drain Life") {
             // Instant damage, half of it transferred to the caster.
-            int dmg = qMax(1, damage);
-            if (tgt.isDefending) dmg = qMax(1, dmg / 2);
-            tgt.hp -= dmg;
-            if (tgt.hp <= 0) { tgt.hp = 0; tgt.isAlive = false; }
+            const int dmg = applyHit(tgt, qMax(1, damage), spellName);
             int healed = qMax(1, dmg / 2);
             const int casterIdx = m_engine->currentParticipantIndex();
             if (casterIdx >= 0 && casterIdx != targetIndex) {
@@ -384,19 +424,18 @@ int CombatActions::applySpellDamageBySchool(int targetIndex, const QString& spel
         int hit = 0;
         int total = 0;
         QStringList names;
+        QStringList dmgs;
         for (int i = 0; i < m_state->participantCount() && hit < targets; ++i) {
             CombatParticipant& p = m_state->participant(i);
             if (!p.isAlive || p.isPlayer != targetIsPlayer) continue;
-            int dmg = perTarget;
-            if (p.isDefending) dmg = qMax(1, dmg / 2);
-            p.hp -= dmg;
-            if (p.hp <= 0) { p.hp = 0; p.isAlive = false; }
+            const int dmg = applyHit(p, perTarget, spellName);
             total += dmg;
             names.append(p.name);
+            dmgs << QString::number(dmg);
             hit++;
         }
         result = QString("%1 erupts in fire, hitting %2 for %3 damage each!")
-            .arg(spellName).arg(names.join(", ")).arg(perTarget);
+            .arg(spellName).arg(names.join(", ")).arg(dmgs.join("/"));
         return total;
     }
 
@@ -413,9 +452,7 @@ int CombatActions::applySpellDamageBySchool(int targetIndex, const QString& spel
                 CombatParticipant& p = m_state->participant(i);
                 if (!p.isAlive || p.isPlayer != targetIsPlayer) continue;
                 int hitDmg = qMax(1, dmg * (100 - falloff * jump) / 100);
-                if (p.isDefending) hitDmg = qMax(1, hitDmg / 2);
-                p.hp -= hitDmg;
-                if (p.hp <= 0) { p.hp = 0; p.isAlive = false; }
+                hitDmg = applyHit(p, hitDmg, spellName);
                 total += hitDmg;
                 names.append(QString("%1 (%2)").arg(p.name).arg(hitDmg));
                 jump++;
@@ -428,15 +465,8 @@ int CombatActions::applySpellDamageBySchool(int targetIndex, const QString& spel
 
     // --- Single-target schools (cold slow, mind stun/confuse, plain damage) ---
     CombatParticipant& target = m_state->participant(targetIndex);
-    int dmg = damage;
-    if (target.isDefending) dmg = qMax(1, dmg / 2);
-    target.hp -= dmg;
-    bool slain = false;
-    if (target.hp <= 0) {
-        target.hp = 0;
-        target.isAlive = false;
-        slain = true;
-    }
+    const int dmg = applyHit(target, damage, spellName);
+    bool slain = !target.isAlive;
 
     QString extra;
 

@@ -39,6 +39,27 @@ public:
     static QString missMessage(const QString& attacker, const QString& target,
                                int roll, int targetAC);
 
+    // The resistance name a spell's school maps to (Fire -> "Fire",
+    // Lightning -> "Electric", Damage -> "Physical", ...). Empty when the
+    // spell is unknown or its school carries no resistance type.
+    static QString resistanceNameForSpell(const QString& spellName);
+
+    // Percentage (0-100) the target resists the given spell. Players are read
+    // from the participant's own resistances (copied from Character); monsters
+    // are looked up by name in data/bestiary.json. Returns 0 when the target
+    // has no such resistance. Pure, so the mitigation curve is testable.
+    static int resistancePercent(const CombatParticipant& target, const QString& spellName);
+
+    // Apply one mitigated hit to a participant: defend halving, then the
+    // target's resistance, then death bookkeeping. Returns the damage actually
+    // dealt. Every damage path in this class goes through here so the
+    // mitigation curve cannot drift between them.
+    //
+    // Pure — it touches neither CombatState nor TurnEngine — so it is exposed
+    // for the same reason as attackerSkill/resistancePercent: the reduction
+    // curve is the thing most worth pinning down in a test.
+    static int applyHit(CombatParticipant& target, int damage, const QString& spellName);
+
     // Defend: current participant defends (halves damage taken this round).
     void defend(QString& result);
 

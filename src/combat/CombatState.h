@@ -59,6 +59,11 @@ struct CombatParticipant {
     int slowAmount = 0;     // speed removed by the slow, restored on expiry
     int stunDuration = 0;   // rounds the participant loses its turn (mind)
 
+    // Damage reduction by resistance name index (MonsterResistance::names()).
+    // Players copy this from Character::resistances; monsters are looked up by
+    // name in CombatActions instead, since their data lives in bestiary.json.
+    int16_t resistances[12] = {};
+
     // Monster abilities
     bool canPoison = false;
     bool canBreathFire = false;

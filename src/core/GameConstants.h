@@ -146,6 +146,17 @@ namespace GameConstants {
     static constexpr int ABYSS_LEVEL_BASE = 40;
     static constexpr int ABYSS_LEVEL_PER_FLOOR = 3;
 
+    // --- Resistances ---
+    // A Resist <Type> potion/scroll grants this much reduction for its
+    // duration; stacking takes the higher value rather than adding, so
+    // re-drinking one is never a waste but never breaks the cap.
+    static constexpr int RESIST_GRANT_PERCENT = 50;
+    // Protection is a general ward rather than a single element.
+    static constexpr int PROTECTION_GRANT_PERCENT = 25;
+    // A resisted hit never deals less than this, so a 100%-resistant creature
+    // is still killable rather than immortal.
+    static constexpr int MIN_RESISTED_DAMAGE = 1;
+
     // --- Quest rewards ---
     static constexpr int QUEST_S0_GOLD = 100;
     static constexpr int QUEST_S0_XP = 100;

@@ -9,6 +9,8 @@
 #include "src/combat/CombatState.h"
 #include "src/combat/TurnEngine.h"
 #include "src/combat/CombatActions.h"
+#include "src/combat/MonsterResistance.h"
+#include "src/core/ResistanceNames.h"
 #include "src/combat/MonsterAI.h"
 #include "src/combat/EncounterBuilder.h"
 #include "src/combat/VictoryReward.h"

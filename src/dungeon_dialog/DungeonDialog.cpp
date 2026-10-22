@@ -1627,6 +1627,9 @@ bool DungeonDialog::startCombatAt(const QPair<int, int>& pos)
         p.dex = c.effectiveDexterity();
         p.mana = c.mana;
         p.maxMana = c.maxMana;
+        // Resistances granted by Resist/Protection consumables; the damage
+        // path reads them so the potion actually does something.
+        for (int r = 0; r < 12; ++r) p.resistances[r] = c.resistances[r];
 
         // Default position: the first two members form the front line, the rest
         // stand behind them. The player can move anyone with the Row button.

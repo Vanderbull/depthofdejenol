@@ -188,7 +188,7 @@ struct Character {
     int64_t M5906[9];      // kills, deaths, comp kills, quests, play time, creation date, +3
     int16_t M5914[6];      // character options
     int16_t M56B9[8];      // status effects
-    int16_t resistances[12]; // ResFire..ResSpecial
+    int16_t resistances[12] = {}; // ResFire..ResSpecial (0 = no resistance)
     int32_t M591F;         //
     int16_t M592F[12];     // temp resistances
     int16_t M5483;         //

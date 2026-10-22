@@ -2645,4 +2645,233 @@ void runCombatTests()
             check(c.inventory.size() == 1, "the weapon is still in the inventory");
         }
     }
+
+    section("[305] v6.13.0 slice 6.13a: damage resistances (bestiary + potions)");
+    {
+        // Every resistance a monster can carry in data/bestiary.json has to be
+        // addressable by name and by canonical index, or the combat layer
+        // cannot read the data at all.
+        {
+            const QStringList all = ResistanceNames::all();
+            check(all.size() == 11, "there are 11 canonical resistance types",
+                  QString::number(all.size()));
+            check(all.first() == "Fire" && all.last() == "Special",
+                  "the canonical order runs Fire..Special", all.join(", "));
+
+            // Exactly the names data/bestiary.json uses, derived from the file.
+            const QStringList bestiary = { "Mind", "Disease", "Fire", "Magic",
+                                           "Poison", "Cold", "Weapon",
+                                           "Electric", "Spell", "Special",
+                                           "Physical" };
+            for (const QString& n : bestiary) {
+                check(ResistanceNames::indexOf(n) >= 0,
+                      QString("%1 is a canonical resistance name").arg(n));
+            }
+            check(ResistanceNames::indexOf("Electrical") < 0,
+                  "the manual's 'Electrical' is not a canonical name");
+        }
+
+        // --- index <-> name round trip ---------------------------------
+        {
+            bool roundTrips = true;
+            for (int i = 0; i < ResistanceNames::all().size(); ++i) {
+                if (ResistanceNames::nameAt(i) != ResistanceNames::all().at(i)) {
+                    roundTrips = false;
+                }
+            }
+            check(roundTrips, "nameAt(i) equals all().at(i) for every index");
+            check(ResistanceNames::nameAt(-1).isEmpty()
+                  && ResistanceNames::nameAt(11).isEmpty(),
+                  "nameAt is empty outside the canonical range");
+            check(ResistanceNames::indexOf("  fire  ") == 0,
+                  "indexOf trims whitespace and ignores case");
+        }
+
+        // --- spell names that grant a resistance -----------------------
+        // MDATA2 holds six Class-13 spells and the potions point at them. Only
+        // "Resist Fire" mapped before this slice, so five of the six potions
+        // granted nothing while claiming otherwise.
+        {
+            struct Case { const char* spell; const char* resistance; };
+            const Case cases[] = {
+                { "Resist Fire",           "Fire"     },
+                { "Resist Cold",           "Cold"     },
+                { "Resist Poison",         "Poison"   },
+                { "Resist Disease",        "Disease"  },
+                { "Mental Resistance",     "Mind"     },
+                { "Electrical Resistance", "Electric" },
+            };
+            for (const Case& c : cases) {
+                const QString got = ResistanceNames::fromSpellName(QLatin1String(c.spell));
+                check(got == QLatin1String(c.resistance),
+                      QString("%1 grants %2 resistance")
+                          .arg(QLatin1String(c.spell), QLatin1String(c.resistance)),
+                      got);
+            }
+
+            // A name that names no resistance must not pretend to.
+            check(ResistanceNames::fromSpellName("Protection").isEmpty(),
+                  "Protection is a ward, not a resistance type");
+            check(ResistanceNames::fromSpellName("Resist All").isEmpty(),
+                  "Resist All names no single type");
+            // The manual also names Stone, Drain and Acidity, but the combat
+            // damage model has no damage school for them, so they grant nothing.
+            check(ResistanceNames::fromSpellName("Resist Stoning").isEmpty(),
+                  "Resist Stoning grants nothing (no Stone damage school)");
+            check(ResistanceNames::fromSpellName("Resist Acidity").isEmpty(),
+                  "Resist Acidity grants nothing (no Acidity damage school)");
+        }
+
+        // --- the bestiary is actually loaded ---------------------------
+        {
+            MonsterResistance::reset();
+            check(MonsterResistance::indexForName("Electric") == 2,
+                  "Electric sits at canonical index 2");
+            check(MonsterResistance::nameForIndex(3) == "Mind", "index 3 is Mind");
+
+            // Aboleth carries Mind/Poison/Disease at 100% in the data.
+            check(MonsterResistance::percentFor("Aboleth", "Mind") == 100,
+                  "Aboleth is 100% Mind-resistant",
+                  QString::number(MonsterResistance::percentFor("Aboleth", "Mind")));
+            check(MonsterResistance::percentFor("Aboleth", "Fire") == 0,
+                  "Aboleth carries no Fire resistance");
+            check(MonsterResistance::percentFor("NoSuchCreature", "Fire") == 0,
+                  "an unknown monster resists nothing");
+            check(MonsterResistance::percentFor("Aboleth", "Electric") == 0,
+                  "a monster without the type reports 0, not a stale value");
+
+            const QList<QPair<QString, int> > aboleth =
+                MonsterResistance::resistancesFor("Aboleth");
+            check(aboleth.size() == 3, "Aboleth carries exactly three resistances",
+                  QString::number(aboleth.size()));
+        }
+
+        // --- spell school -> resistance --------------------------------
+        {
+            SpellBook& sb = SpellBook::instance();
+            sb.load("data/spells.json");
+
+            check(CombatActions::resistanceNameForSpell("Flame Bolt") == "Fire",
+                  "a Fire-school spell rolls against Fire");
+            check(CombatActions::resistanceNameForSpell("Lightning") == "Electric",
+                  "a Lightning-school spell rolls against Electric");
+            check(CombatActions::resistanceNameForSpell("Cause Wounds") == "Physical",
+                  "a Damage-school spell rolls against Physical");
+            check(CombatActions::resistanceNameForSpell("Magic Missile") == "Magic",
+                  "a Magical-school spell rolls against Magic");
+            check(CombatActions::resistanceNameForSpell("Acid Bolt") == "Magic",
+                  "an Element-school spell rolls against Magic",
+                  CombatActions::resistanceNameForSpell("Acid Bolt"));
+            check(CombatActions::resistanceNameForSpell("No Such Spell").isEmpty(),
+                  "an unknown spell rolls against nothing");
+        }
+
+        // --- the mitigation curve --------------------------------------
+        {
+            CombatState cs;
+            TurnEngine te;
+            CombatActions ca(&cs, &te);
+
+            CombatParticipant aboleth;
+            aboleth.name = "Aboleth";
+            aboleth.isPlayer = false;
+            aboleth.hp = 500; aboleth.maxHp = 500;
+
+            check(ca.resistancePercent(aboleth, "Mind Blast") == 100,
+                  "Aboleth is 100% resistant to a Mind spell",
+                  QString::number(ca.resistancePercent(aboleth, "Mind Blast")));
+
+            const int dealt = ca.applyHit(aboleth, 40, "Mind Blast");
+            check(dealt == GameConstants::MIN_RESISTED_DAMAGE,
+                  "a 100% resistance still lands the minimum hit",
+                  QString::number(dealt));
+            check(aboleth.hp == 500 - GameConstants::MIN_RESISTED_DAMAGE,
+                  "the resisted hit is subtracted from HP",
+                  QString::number(aboleth.hp));
+
+            // A creature carrying no such resistance takes the full hit.
+            CombatParticipant frog;
+            frog.name = "Giant Frog";
+            frog.isPlayer = false;
+            frog.hp = 500; frog.maxHp = 500;
+            const int full = ca.applyHit(frog, 40, "Mind Blast");
+            check(full == 40, "an unresistant target takes the full hit",
+                  QString::number(full));
+
+            // Defend halves first, resistance applies to the remainder, and
+            // the minimum still floors the result.
+            CombatParticipant defender = aboleth;
+            defender.isDefending = true;
+            const int defended = ca.applyHit(defender, 40, "Mind Blast");
+            check(defended == GameConstants::MIN_RESISTED_DAMAGE,
+                  "defending does not stack below the minimum",
+                  QString::number(defended));
+        }
+
+        // --- a resist potion grants a real, usable resistance -----------
+        {
+            Character c;
+            c.name = "Tester";
+            HeldItem it;
+            it.name = "Potion of Nevamu";
+            it.M4ED4 = 3;
+            const ItemDef* def = ItemDatabase::instance().byName("Potion of Nevamu");
+            check(def != nullptr, "Potion of Nevamu exists in the item data");
+            if (def) it.M4E97 = static_cast<int16_t>(def->id);
+            c.inventory.append(it);
+
+            QString desc;
+            const bool used = c.useConsumable(0, desc);
+            check(used, "the resist potion can be used", desc);
+            const int electricIdx = ResistanceNames::indexOf("Electric");
+            check(electricIdx >= 0
+                  && c.resistances[electricIdx] == GameConstants::RESIST_GRANT_PERCENT,
+                  "the potion grants Electric resistance",
+                  QString("slot=%1 desc=%2").arg(c.resistances[electricIdx]).arg(desc));
+
+            // It has to survive a save/load round trip or it is gone on reload.
+            const QVariantMap saved = c.toMap();
+            Character restored;
+            restored.loadFromMap(saved);
+            check(restored.resistances[electricIdx] == GameConstants::RESIST_GRANT_PERCENT,
+                  "the resistance survives a save/load round trip",
+                  QString::number(restored.resistances[electricIdx]));
+
+            // And it has to reach combat: the participant copies the slot, so
+            // an Electric spell is reduced by the granted amount.
+            CombatState cs;
+            TurnEngine te;
+            CombatActions ca(&cs, &te);
+            CombatParticipant p;
+            p.isPlayer = true;
+            p.name = c.name;
+            for (int r = 0; r < 12; ++r) p.resistances[r] = restored.resistances[r];
+            check(ca.resistancePercent(p, "Lightning") == GameConstants::RESIST_GRANT_PERCENT,
+                  "the granted resistance shows up in combat",
+                  QString::number(ca.resistancePercent(p, "Lightning")));
+        }
+
+        // --- an unmapped resist type says so instead of pretending ------
+        {
+            Character c;
+            c.name = "Tester";
+            HeldItem it;
+            it.name = "Potion of Nesamu";   // Resist Acidity
+            it.M4ED4 = 3;
+            const ItemDef* def = ItemDatabase::instance().byName("Potion of Nesamu");
+            check(def != nullptr, "Potion of Nesamu exists in the item data");
+            if (def) it.M4E97 = static_cast<int16_t>(def->id);
+            c.inventory.append(it);
+
+            QString desc;
+            const bool used = c.useConsumable(0, desc);
+            check(used, "the potion is still consumed", desc);
+            int anySlot = 0;
+            for (int r = 0; r < 12; ++r) anySlot = qMax(anySlot, int(c.resistances[r]));
+            check(anySlot == 0, "a type with no damage school grants no resistance",
+                  QString("max slot=%1 desc=%2").arg(anySlot).arg(desc));
+            check(desc.contains("no resistance"),
+                  "the message admits it granted nothing", desc);
+        }
+    }
 }
