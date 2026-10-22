@@ -70,7 +70,6 @@ SOURCES += \
     src/game_resources.cpp \
     src/dungeon_dialog/DungeonMinimap.cpp \
     src/mapdialog/AutoMapDialog.cpp \
-    src/mapdialog/AutoMapDialog.h \
     src/dungeon_dialog/DungeonHandlers.cpp \
     src/tutorial/TutorialDialog.cpp \
     src/tutorial/TutorialDialog.h \
@@ -225,7 +224,6 @@ HEADERS += \
     src/core/game_resources.h \
     src/dungeon_dialog/DungeonHandlers.h \
     src/event/EventManager.h \
-    src/dungeon_dialog/MiniMapDialog.h \
     src/character/character.h \
     src/info_dialog/InfoPanelDialog.h \
     src/toolbar/GameToolbar.h

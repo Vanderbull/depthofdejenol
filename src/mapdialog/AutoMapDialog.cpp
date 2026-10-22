@@ -1,77 +1,55 @@
 #include "AutoMapDialog.h"
+#include "src/dungeon_dialog/DungeonDialog.h"
 #include "src/core/GameSettings.h"
+#include <QVBoxLayout>
 
 AutoMapDialog::AutoMapDialog(QWidget *parent) : QDialog(parent)
 {
-    setWindowTitle("Dungeon AutoMap");
-    resize(600, 500);
+    setWindowTitle(tr("Dungeon AutoMap"));
+    resize(760, 700);
 
     QVBoxLayout *mainLayout = new QVBoxLayout(this);
 
-    // Toggle reveal-all checkbox
-    m_revealAllCheck = new QCheckBox("Reveal Entire Map", this);
+    // Reveal-all: lifts fog of war in this view only. The choice is remembered in
+    // GameSettings so reopening the map restores it.
+    m_revealAllCheck = new QCheckBox(tr("Reveal Entire Map"), this);
     m_revealAllCheck->setChecked(GameSettings::instance().revealAutomap());
     mainLayout->addWidget(m_revealAllCheck);
 
-    // Map view
     m_view = new QGraphicsView(this);
     m_view->setRenderHint(QPainter::Antialiasing);
     m_view->setBackgroundRole(QPalette::Dark);
+    m_view->setDragMode(QGraphicsView::ScrollHandDrag);
+    m_view->setMinimumSize(400, 400);
     mainLayout->addWidget(m_view);
 
-    // Connect checkbox to parent's map update
-    connect(m_revealAllCheck, &QCheckBox::toggled, [this](bool on) {
+    connect(m_revealAllCheck, &QCheckBox::toggled, this, [this](bool on) {
         GameSettings::instance().setRevealAutomap(on);
-        emit requestMapUpdate();
+        emit revealAllChanged(on);
     });
 }
 
-void AutoMapDialog::setTiles(const QSet<QPair<int, int>> &tiles)
+void AutoMapDialog::refreshFrom(DungeonDialog *source)
 {
-    m_tiles = tiles;
-    m_view->update();
+    if (!source) return;
+
+    // setScene() does not delete the scene it replaces, and the old ones are
+    // parented to this dialog, so drop them or every refresh leaks a floor.
+    delete m_view->scene();
+
+    auto *scene = new QGraphicsScene(this);
+    source->drawMapTo(scene, AUTOMAP_TILE_SIZE, m_revealAllCheck->isChecked());
+    m_view->setScene(scene);
+    m_view->fitInView(scene->sceneRect(), Qt::KeepAspectRatio);
 }
 
-void AutoMapDialog::updateScene(QGraphicsScene *newScene)
+bool AutoMapDialog::isRevealAll() const
 {
-    m_view->setScene(newScene);
-    m_view->fitInView(newScene->sceneRect(), Qt::KeepAspectRatio);
-}
-
-void AutoMapDialog::drawMap(QGraphicsScene *scene, int levelWidth, int levelHeight)
-{
-    // Clear existing items (keep the grid)
-    QList<QGraphicsItem *> items = scene->items();
-    for (QGraphicsItem *item : items) {
-        if (item->data(0) != "grid") {
-            delete item;
-        }
-    }
-
-    // Draw revealed tiles
-    for (const QPair<int, int> &tile : m_tiles) {
-        int x = tile.first;
-        int y = tile.second;
-
-        // Skip negative coordinates (outside map bounds)
-        if (x < 0 || y < 0) continue;
-
-        // Draw a simple rectangle for the revealed tile
-        QRectF rect(x * 20, y * 20, 20, 20);
-        QGraphicsRectItem *rectItem = new QGraphicsRectItem(rect);
-        rectItem->setBrush(QBrush(Qt::lightGray));
-        rectItem->setPen(QPen(Qt::black, 1));
-        rectItem->setData(0, "grid");
-        scene->addItem(rectItem);
-    }
+    return m_revealAllCheck->isChecked();
 }
 
 void AutoMapDialog::keyPressEvent(QKeyEvent *event)
 {
-    if (parent()) {
-        QCoreApplication::sendEvent(parent(), event);
-    } else {
-        QDialog::keyPressEvent(event);
-    }
+    // Esc closes through the QDialog default; nothing else is intercepted here.
+    QDialog::keyPressEvent(event);
 }
-

@@ -2,28 +2,33 @@
 #define AUTOMAPDIALOG_H
 
 #include <QDialog>
-#include <QSet>
 #include <QGraphicsView>
 #include <QGraphicsScene>
-#include <QGraphicsItem>
-#include <QVBoxLayout>
 #include <QCheckBox>
 #include <QKeyEvent>
 
-class GameSettings;
+class DungeonDialog;
 
+// Full-size dungeon map, opened from DungeonDialog with Ctrl+Shift+M.
+//
+// This dialog owns no tile data. It is fed by DungeonDialog::drawMapTo(), the
+// same renderer the integrated minimap uses, so the two views cannot drift
+// apart. "Reveal Entire Map" lifts fog of war for this view only — it does not
+// change what the minimap or the game itself remembers as visited.
 class AutoMapDialog : public QDialog
 {
     Q_OBJECT
 public:
     explicit AutoMapDialog(QWidget *parent = nullptr);
 
-    void setTiles(const QSet<QPair<int, int>> &tiles);
-    void updateScene(QGraphicsScene *newScene);
-    void drawMap(QGraphicsScene *scene, int levelWidth, int levelHeight);
+    // Render the dungeon into this view. `source` supplies the tile data.
+    void refreshFrom(DungeonDialog *source);
+
+    // Whether fog of war is lifted in this view.
+    bool isRevealAll() const;
 
 signals:
-    void requestMapUpdate();
+    void revealAllChanged(bool on);
 
 protected:
     void keyPressEvent(QKeyEvent *event) override;
@@ -31,7 +36,8 @@ protected:
 private:
     QGraphicsView *m_view = nullptr;
     QCheckBox *m_revealAllCheck = nullptr;
-    QSet<QPair<int, int>> m_tiles;
+    // Larger than the minimap's 10px so a 50x50 floor stays readable.
+    static constexpr int AUTOMAP_TILE_SIZE = 12;
 };
 
 #endif // AUTOMAPDIALOG_H

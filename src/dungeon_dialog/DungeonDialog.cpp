@@ -2187,6 +2187,15 @@ void DungeonDialog::on_chestButton_clicked()
 
 void DungeonDialog::keyPressEvent(QKeyEvent *event)
 {
+    // Ctrl+Shift+M opens the full-size AutoMap. Checked before the switch below,
+    // which only looks at event->key() and so ignores modifiers entirely.
+    if ((event->modifiers() & (Qt::ControlModifier | Qt::ShiftModifier))
+            == (Qt::ControlModifier | Qt::ShiftModifier)
+        && event->key() == Qt::Key_M) {
+        showAutoMap();
+        event->accept();
+        return;
+    }
     // Add this to see if the event is even reaching the function
     qDebug() << "Key Pressed:" << event->key();
     switch (event->key()) {

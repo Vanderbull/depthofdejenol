@@ -29,7 +29,6 @@
 #include "src/combat/VictoryReward.h"
 #include "src/combat/CombatDeathHandler.h"
 #include "src/core/DoorAndSearch.h"
-#include "MiniMapDialog.h"
 #include "src/mapdialog/AutoMapDialog.h"
 #include "src/toolbar/GameToolbar.h"
 #include <QObject>
@@ -162,6 +161,12 @@ public:
     QMap<QPair<int, int>, QString> m_monsterPositions; // public for tests
     CombatController* m_combatController = nullptr; // public for tests
     QPair<int, int> getCurrentPosition(); // The helper function
+    // Full-size dungeon map (Ctrl+Shift+M). Lazily created and owned here.
+    void showAutoMap();
+    // Render the dungeon into `scene` at `tileSize` pixels per tile. Shared by the
+    // integrated minimap and the AutoMap dialog so the two views cannot drift
+    // apart. `revealAll` lifts fog of war for this render only.
+    void drawMapTo(QGraphicsScene *scene, int tileSize, bool revealAll);
     // --- Phase 4: Torch / Light ---
     int m_torchFuel = 0;              // turns of light remaining on the current floor
     static const int DEFAULT_TORCH_FUEL = 50;
@@ -371,6 +376,9 @@ public:
         Down
     };
     void drawMinimap();
+    // Re-render the AutoMap dialog if it is open, so it tracks the same tile data
+    // as the integrated minimap. No-op when the dialog was never opened.
+    void refreshAutoMap();
     void handleMovement(int actionIndex);
     void exitToMainMenu();
     void transitionLevel(StairDirection direction);
