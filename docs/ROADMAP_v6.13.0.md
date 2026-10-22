@@ -23,6 +23,25 @@ Status: 🟡 PLANERAD
 
 ---
 
+## 0. Skaderesistans (bestiary + potions) — ✅ GJORT
+
+**Why:** Bestiaryn bar visade monsteres resistanser; striden ignorerade dem. En
+Aboleth med 100% mind-resistans tog full mind-skada. Potions med resistans
+sattes aldrig i någon plats — av datans sex Resist-formler mappade bara
+"Resist Fire", så fem potions gjorde ingenting medan de påstod skydda.
+
+**Do:**
+- [x] `src/core/ResistanceNames.h` — 11 kanoniska platser (samma namn som bestiaryn) + index
+- [x] `src/combat/MonsterResistance.{h,cpp}` — läser `data/bestiary.json` en gång per process
+- [x] `CombatActions::applyHit` — alla skadevägar genom samma kurva (defend → resistans → minst 1)
+- [x] `Character::resistances[12]` — nollställd (var oinitialiserad skräpminne)
+- [x] Resist/Protection-potions sätter sin plats; `Resist Electrical`/`Mental Resistance` mappar till Electric/Mind
+- [x] Potions utan skadematch (Stone/Drain/Acidity) säger nu att de ger något i stället för att låtsas
+
+**Verify:** Testsektion `[305]`, 54 kontroller. Icke-vakuitivt verifierat — 5 tester
+fallerar när alias-fixen tas bort. 2092 passed, 0 failed.
+**Commit:** `8fb0973`
+
 ## 1. F-tangentens informationspaneler — ❌ EJ GJORT
 
 **Why:** Manualen specificerar F1–F11 med varsin panel. Spelaren kan idag bara
