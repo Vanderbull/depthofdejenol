@@ -6016,26 +6016,52 @@ void runWorldTests()
         for (int i = 0; i < 20; ++i) QApplication::processEvents();
 
         gameStateManager* gsm = gameStateManager::instance();
-        gsm->setCurrentSaveName("test_quicksave");
+        const QString saveName = QStringLiteral("test_quicksave");
+        const QString savePath = QStringLiteral("data/saves/%1.json").arg(saveName);
 
-        // F5 = quicksave — must not crash
+        QFile::remove(savePath);
+
+        // F5 = quicksave: the key press must actually write the file, not merely
+        // fail to crash.
+        gsm->setGameValue("DungeonX", 11);
+        gsm->setGameValue("DungeonY", 22);
+        gsm->setCurrentSaveName(saveName);
+
         QKeyEvent f5Event(QEvent::KeyPress, Qt::Key_F5, Qt::NoModifier);
         QApplication::sendEvent(&dlg, &f5Event);
         for (int i = 0; i < 10; ++i) QApplication::processEvents();
-        check(true, "F5 quicksave does not crash");
 
-        // F9 = quickload — must not crash
+        {
+            QFile saveFile(savePath);
+            check(saveFile.exists(), "F5 quicksave writes a save file");
+            QByteArray body;
+            if (saveFile.open(QIODevice::ReadOnly)) {
+                body = saveFile.readAll();
+                saveFile.close();
+            }
+            check(!body.isEmpty(), "F5 quicksave file is not empty");
+        }
+
+        // F9 = quickload: change the state, then the key press must restore the
+        // saved value.
+        gsm->setGameValue("DungeonX", 999);
         QKeyEvent f9Event(QEvent::KeyPress, Qt::Key_F9, Qt::NoModifier);
         QApplication::sendEvent(&dlg, &f9Event);
         for (int i = 0; i < 10; ++i) QApplication::processEvents();
-        check(true, "F9 quickload does not crash");
+        check(gsm->getGameValue("DungeonX").toInt() == 11,
+              "F9 quickload restores the saved position",
+              QString::number(gsm->getGameValue("DungeonX").toInt()));
 
-        // F12 = autosave — must not crash
+        // F12 = autosave: must write the autosave path.
+        const QString autoPath = QStringLiteral("data/saves/autosave.json");
+        QFile::remove(autoPath);
         QKeyEvent f12Event(QEvent::KeyPress, Qt::Key_F12, Qt::NoModifier);
         QApplication::sendEvent(&dlg, &f12Event);
         for (int i = 0; i < 10; ++i) QApplication::processEvents();
-        check(true, "F12 autosave does not crash");
+        check(QFile::exists(autoPath), "F12 autosave writes the autosave file");
 
+        QFile::remove(savePath);
+        QFile::remove(autoPath);
         dlg.close();
     }
 

@@ -2051,6 +2051,10 @@ bool gameStateManager::loadFullGameState(const QString& saveName) {
     // unpackStateAfterLoading() restores the Party from m_gameStateData; doing
     // it here as well would load the party twice.
     unpackStateAfterLoading();
+
+    // Remember the slot so a following quicksave (F5) writes back to the game
+    // the player just loaded rather than to a separate "quicksave" file.
+    m_currentSaveName = saveName;
     return true;
 }
 

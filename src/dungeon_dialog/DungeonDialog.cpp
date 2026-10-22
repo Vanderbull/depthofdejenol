@@ -2285,9 +2285,13 @@ void DungeonDialog::keyPressEvent(QKeyEvent *event)
             break;
         // --- Save/Load shortcuts ---
         case Qt::Key_F5: {
-            // Quick save
+            // Quick save. The slot is the current save name when one is set
+            // (so quicksave lands in the game's own file), otherwise the
+            // dedicated "quicksave" slot. The old code read a "CurrentSaveName"
+            // game value that nothing ever wrote, so it always fell back to
+            // "quicksave" and the slot choice was dead.
             gameStateManager* gsm = gameStateManager::instance();
-            QString saveName = gsm->getGameValue("CurrentSaveName").toString();
+            QString saveName = gsm->getCurrentSaveName();
             if (saveName.isEmpty()) saveName = "quicksave";
             gsm->setCurrentSaveName(saveName);
             gsm->saveFullGameState(saveName);
@@ -2296,9 +2300,9 @@ void DungeonDialog::keyPressEvent(QKeyEvent *event)
             break;
         }
         case Qt::Key_F9: {
-            // Quick load
+            // Quick load — mirrors F5's slot choice.
             gameStateManager* gsm = gameStateManager::instance();
-            QString saveName = gsm->getGameValue("CurrentSaveName").toString();
+            QString saveName = gsm->getCurrentSaveName();
             if (saveName.isEmpty()) saveName = "quicksave";
             gsm->loadFullGameState(saveName);
             logMessage("Game loaded from " + saveName);

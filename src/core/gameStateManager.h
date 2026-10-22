@@ -124,6 +124,7 @@ public:
     bool saveFullGameState(const QString& saveName);
     bool loadFullGameState(const QString& saveName);
     void setCurrentSaveName(const QString &name) { m_currentSaveName = name; }
+    QString getCurrentSaveName() const { return m_currentSaveName; }
     void addGameRecord(const GameRecord& record);
 
     // --- Play-time tracking (v3.0.0 slice 3.6) ---

@@ -98,12 +98,36 @@ void runDungeonTests()
         }
 
         // Click-driven proof that each button's connect() is live. The eat
-        // button is the simplest: it triggers the hunger system. With the
-        // connect missing, clicking does nothing and the check fails.
+        // button is the simplest: it consumes food and restores hunger. With
+        // the connect missing, clicking does nothing and both checks fail.
         // Drive the real production path, not a direct slot call.
-        dlg.m_eatButton->click();
-        QApplication::processEvents();
-        check(true, "eat button click is wired");
+        {
+            gameStateManager* gsm = gameStateManager::instance();
+            Character hero;
+            hero.name = "Eater";
+            hero.hunger = 40;
+            HeldItem food;
+            food.name = "Rations";
+            food.M4ED4 = 1;
+            if (const ItemDef* def = ItemDatabase::instance().byName("Rations")) {
+                food.M4E97 = static_cast<int16_t>(def->id);
+            }
+            hero.inventory.append(food);
+            gsm->getPartyMembers().append(hero);
+            gsm->setCurrentCharacterIndex(gsm->getPartyMembers().size() - 1);
+
+            Character& target = gsm->getPartyMembers().last();
+            const int countBefore = target.inventory.size();
+
+            dlg.m_eatButton->click();
+            QApplication::processEvents();
+
+            check(target.hunger > 40, "eating restores hunger",
+                  QString::number(target.hunger));
+            check(target.inventory.size() < countBefore,
+                  "the food is consumed from the inventory",
+                  QString::number(target.inventory.size()));
+        }
 
         // Esc key exits the dungeon (closes the dialog).
         QKeyEvent escEvent(QEvent::KeyPress, Qt::Key_Escape, Qt::NoModifier);
