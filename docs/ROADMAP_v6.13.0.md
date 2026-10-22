@@ -7,7 +7,7 @@ och att två krav i `docs/multiplayer_protocol.md` aldrig implementerades.
 Detta är tysta luckor — inget kraschar, men spelaren saknar funktioner som
 manualen lovar.
 
-**Status: 🟢 2 av 8 slices gjorda (0. resistanser, 3. New Game Plus, 6. testhygien)**
+**Status: 🟢 3 av 8 slices gjorda (0. resistanser, 1. F-tangentens informationspaneler, 3. New Game Plus, 6. testhygien)**
 
 **Audit-not (2026-10-21), verifierad mot källkoden:**
 
@@ -49,12 +49,12 @@ quicksave/quickload/autosave. Att öppna Options kräver att man går tillbaka t
 huvudmenyn. Detta är den största enskilda funktionsluckan.
 
 **Do:**
-- [ ] Beslut: F5/F9/F12 är quicksave/quickload/autosave idag och krockar med
+- [x] Beslut: F5/F9/F12 är quicksave/quickload/autosave idag och krockar med
       manualens F5 (Experience Information) och F9 (Buffer Information).
       **Rekommendation:** behåll F5/F9/F12 för save/load (spelarförväntan,
       test `[303]` täcker dem) och lägg manualens paneler på de fria tangenterna
       F1–F4, F6–F8, F10, F11. Dokumentera avvikelsen i manual-boken.
-- [ ] Bygg ett gemensamt `InfoPanelDialog` (eller ett `keyPressEvent` som
+- [x] Bygg ett gemensamt `InfoPanelDialog` (eller ett `keyPressEvent` som
       dispatchar) med paneler enligt manualen:
       - F1 = Hjälp/ledtrådar (manualens "Hints & Tips"-innehåll)
       - F2 = Area Look — entiteter i nuvarande zon
@@ -64,8 +64,9 @@ huvudmenyn. Detta är den största enskilda funktionsluckan.
       - F7 = Guild/Abilities Information → `GuildsDialog`
       - F8 = Buffer Information
       - F10 = Game Options → `optionsdialog`
-- [ ] Koppla in dem i **både** `DungeonDialog` och `theCity` (manualen säger
+- [x] Koppla in dem i **både** `DungeonDialog` och `theCity` (manualen säger
       "any time"), inte bara dungeonsdelen
+- [x] Verifiera med klick-/tangent-test att varje tangent gör något observerbart
 - [ ] Verifiera med klick-/tangent-test att varje tangent gör något observerbart
 
 **Verify:** Nytt test per tangent: skicka `QKeyEvent` och asserta att rätt panel
