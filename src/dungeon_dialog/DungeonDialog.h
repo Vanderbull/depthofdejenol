@@ -71,6 +71,12 @@ public:
     
     void enterLevel(int level, bool movingUp = false);
     ~DungeonDialog();
+    // Apply the alignment filter to a monster pool so the enemies depend on the
+    // party's alignment (0 = neutral ... 99 = holy). Returns a subset of
+    // `monsters` the current party is opposed to, never empty.
+    static QStringList applyAlignmentFilter(const QStringList& monsters,
+                                            const QList<QVariantMap>& table,
+                                            const QString& alignmentName);
     void updateDungeonView(const QImage& dungeonImage);
     void updateCompass(const QString& direction);
     void updateLocation(const QString& location);
@@ -161,6 +167,22 @@ public:
     QMap<QPair<int, int>, QString> m_monsterPositions; // public for tests
     CombatController* m_combatController = nullptr; // public for tests
     QPair<int, int> getCurrentPosition(); // The helper function
+
+    // --- v6.16.0 slice 0: floor geometry summary for the throwaway harness.
+    // Reads the live floor state so the harness can check room geometry, monster
+    // placement and multi-level stairs without reaching into private members.
+    struct FloorGeometry {
+        int level = 1;
+        int roomCount = 0;        // distinct rooms carved by the BSP
+        int roomFloorTiles = 0;   // tiles belonging to a room (excludes corridors)
+        int monsterCount = 0;     // monsters placed on the active level
+        int lowerLevelTiles = 0;  // tiles carved on z=-1
+        bool hasStairsUp = false;
+        bool hasStairsDown = false;
+        bool hasLowerStairsUp = false;
+        bool onLowerLevel = false;
+    };
+    FloorGeometry floorGeometry() const;
     // Full-size dungeon map (Ctrl+Shift+M). Lazily created and owned here.
     void showAutoMap();
     // Render the dungeon into `scene` at `tileSize` pixels per tile. Shared by the

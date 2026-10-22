@@ -38,9 +38,9 @@
 || 0.3 | Monster progression | Larger floors have more monsters | harness: compare monster count across floors | ☐ |
 | 1.1 | Main quest chain | Completing the main quest ends the run; NG+ raises level | harness: advance quest chain, check victory | ✅ PASS (21/21) — full chain drive: depth 1 → boss 5 → depth 10 → boss 10 → depth 15 → boss 15; `chainJustCompleted` set, `isChainComplete()` true, `nextStepIndex()` −1; totals 68 600 g / 340 100 XP = Σ step rewards; NG+ 0→1, `DeepestFloor`→0, chain incomplete again |
 | 1.2 | Quest rewards | Completing a quest grants gold and XP | harness: complete a quest, check rewards | ✅ PASS — step 0 pays exactly +100 g / +100 XP (`QUEST_S0_GOLD`/`QUEST_S0_XP`); `QuestRewardGiven_first_descent` persisted; second `advance()` does not double-pay |
-|| 2.1 | Tavern | Tavern Dialog opens, drink/talk options work | harness: open Tavern, select drink | ☐ |
-|| 2.2 | Bank | Bank Dialog opens, deposit/withdraw works | harness: deposit gold, check balance | ☐ |
-|| 2.3 | Alignments | Enemy types depend on alignment | harness: change alignment, check enemies | ☐ |
+|| 2.1 | Tavern | Tavern Dialog opens, rest/cure/advance work | harness: open Tavern, rest/cure/advance | ✅ PASS — opens; rest spends 80 g & restores HP; advance ages party; cure no-op when nothing to cure |
+|| 2.2 | Bank | Bank Dialog opens, deposit/withdraw works | harness: deposit/withdraw works | ✅ PASS — deposit all empties party gold to 0 & bank +920; withdraw all restores both |
+|| 2.3 | Alignments | Enemy types depend on alignment | harness: change alignment, check enemies | ✅ PASS — Evil faces only high-alignment (holy) monsters (57), Neutral only neutral (92), Good only low (92); sets differ by alignment |
 || 3.1 | Monster hints | Monster hints show level, HP, attack, defence | harness: read monster hint | ☐ |
 || 3.2 | Equipment | Equipment modifies stats | harness: equip an item, check stats | ☐ |
 

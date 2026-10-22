@@ -2053,6 +2053,23 @@ QPair<int, int> DungeonDialog::getCurrentPosition()
                      gsm->getGameValue("DungeonY").toInt());
 }
 
+DungeonDialog::FloorGeometry DungeonDialog::floorGeometry() const
+{
+    FloorGeometry g;
+    g.level = m_currentLevel;
+    g.roomCount = m_roomCenters.size();
+    g.roomFloorTiles = m_roomFloorTiles.size();
+    g.monsterCount = m_monsterPositions.size();
+    g.lowerLevelTiles = m_lowerLevelTiles.size();
+    // Stairs are placed at real tile coordinates; the sentinel for "not placed"
+    // is the {-1, -1} default.
+    g.hasStairsUp = m_stairsUpPosition.first >= 0 && m_stairsUpPosition.second >= 0;
+    g.hasStairsDown = m_stairsDownPosition.first >= 0 && m_stairsDownPosition.second >= 0;
+    g.hasLowerStairsUp = m_lowerStairsUpPosition.first >= 0 && m_lowerStairsUpPosition.second >= 0;
+    g.onLowerLevel = m_onLowerLevel;
+    return g;
+}
+
 void DungeonDialog::on_takeButton_clicked()
 {
     logMessage("You try to take something, but there is nothing there.");
@@ -3333,6 +3350,13 @@ QStringList DungeonDialog::getThematicMonsters(int level) const
         collect(level + delta);
     }
 
+    // Alignment filtering uses the shared helper (unit-testable in isolation).
+    if (!monsters.isEmpty()) {
+        const QString alignmentName = gameStateManager::instance()->
+            getGameValue("CurrentCharacterAlignment").toString();
+        monsters = DungeonDialog::applyAlignmentFilter(monsters, table, alignmentName);
+    }
+
     // Last resort: any monster at all, so the floor is never empty.
     if (monsters.isEmpty()) {
         for (const QVariantMap& m : table) {
@@ -3344,4 +3368,35 @@ QStringList DungeonDialog::getThematicMonsters(int level) const
     return monsters;
 }
 
+QStringList DungeonDialog::applyAlignmentFilter(const QStringList& monsters,
+        const QList<QVariantMap>& table,
+        const QString& alignmentName)
+{
+    // Index: name -> alignment, built once per call.
+    QMap<QString, int> nameAlignment;
+    for (const QVariantMap& m : table) {
+        const QString name = m.value("name").toString();
+        if (!name.isEmpty()) {
+            nameAlignment[name] = m.value("alignment").toInt();
+        }
+    }
+
+    QStringList filtered;
+    for (const QString& name : monsters) {
+        const int a = nameAlignment.value(name, 50);
+        const bool keep = alignmentName == "Evil" ? (a > 30)       // the light
+                                                  : alignmentName == "Neutral" ? (a == 0)   // the uncommitted
+                                                  : (a < 20);             // the low-lying
+        if (keep) {
+            filtered << name;
+        }
+    }
+    // Never leave the floor without enemies.
+    if (filtered.isEmpty()) {
+        filtered = monsters;
+    }
+    return filtered;
+}
+
 DungeonDialog::~DungeonDialog() = default;
+
