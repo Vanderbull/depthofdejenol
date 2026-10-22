@@ -2196,8 +2196,6 @@ void DungeonDialog::keyPressEvent(QKeyEvent *event)
         event->accept();
         return;
     }
-    // Add this to see if the event is even reaching the function
-    qDebug() << "Key Pressed:" << event->key();
     switch (event->key()) {
         // --- Movement (WASD) ---
         case Qt::Key_Up:
