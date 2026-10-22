@@ -18,6 +18,19 @@ mot de riktiga objekten (14 kontroller, två körningar, båda gröna): kakelsto
 parameteriserad (12px i AutoMappen, 10px i minimapen), dimman täcker de obesökta
 kaklen och lyfts av reveal-all, och `Ctrl+Shift+M` öppnar en dialog med en renderad scen.
 
+## v6.15.0 — Companion core, Confinement & Holding, Economy (2026-10-22)
+
+**What changed:** Slices 0-2: Companion core (M58CB array exposed as a data carrier with toMap/loadFromMap serialization), Confinement & Holding (sell/bind/buy/identify), Economy (identification cost, quest gilden rewards, chest state, legacy save).
+
+| Point | What was done |
+|-------|-----------------|
+| Companion core | `M58CB[5]` Companion array exposed as a data carrier with `toMap()`/`loadFromMap()` serialization. `Character::companionCount()`, `companionName(i)`, `companionLevel(i)`, `addCompanion(name, level)`, `clearCompanion(i)`. |
+| CharacterSheetDialog | Companions list (empty slots skipped), Tame/Sell Companion buttons wired. |
+| ConfinementDialog | `sellCompanion()` (party gold + clear + save + stock refresh), `bindCompanion()` (add level-1 companion + charge), `buyCompanion()` (charge cost + add companion + deduct stock), `identifyCompanion()` (25-gold fee + value text). |
+| Economy | GeneralStore identification cost (50 gold), quest gilden rewards (gold + XP), chest state round-trip, legacy save load. |
+
+**Verify:** `make check` PASS. ReleaseInfo.cpp versionHistory() has the 6.15.0 entry.
+
 ## v6.13.0 — Testhygien + quicksave-slot bug (2026-10-22)
 
 **Vad som ändrades:** Testhygien (8 vakuitiva tester → observerbara assertioner) och quicksave/slot (F5/F9 målade inte rätt fil).
