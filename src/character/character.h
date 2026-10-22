@@ -77,6 +77,10 @@ struct Character {
     // --- Basic Info ---
     QString name;
     QString race;          // runtime: race name string
+    // v6.14.0 slice 2: the class picked at creation. In the manual each class
+    // is a guild with its own spell list, so this id keys into
+    // SpellClassRegistry / data/SpellClasses.json ("" = none chosen yet).
+    QString classId;       // runtime: class id, e.g. "Paladin"
     int age = 18;          // runtime: years
     int level = 1;         // runtime: level
     int experience = 0;    // runtime: XP

@@ -78,6 +78,7 @@ QVariantMap Character::toMap() const {
     map["Alignment"]    = "Neutral";
     map["Name"]         = name;
     map["Race"]         = race;
+    map["ClassId"]      = classId;
     map["Level"]        = level;
     map["Experience"]   = experience;
     map["HP"]           = hp;
@@ -150,6 +151,9 @@ QVariantMap Character::toMap() const {
 void Character::loadFromMap(const QVariantMap &map) {
     name         = map.value("Name").toString();
     race         = map.value("Race").toString();
+    // Saves written before classes existed simply have no class; leave it empty
+    // and the character sheet falls back to the guild-based display.
+    classId      = map.value("ClassId").toString();
     age          = map.value("Age", 18).toInt();
     level        = map.value("Level", 1).toInt();
     experience   = map.value("Experience", 0).toInt();

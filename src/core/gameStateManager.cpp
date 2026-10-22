@@ -6,6 +6,7 @@
 #include "src/journal_dialog/JournalDialog.h"
 #include "src/core/Endgame.h"
 #include "src/spell_casting/SpellBook.h"
+#include "src/core/SpellClassRegistry.h"
 #include "src/items/ItemDatabase.h"
 #include "src/core/GameSettings.h"
 
@@ -43,7 +44,11 @@ void gameStateManager::initializeResources() {
     // 3. Load the spell book
     SpellBook::instance().load("data/spells.json");
 
-    // 4. Mark resources as loaded in the state map
+    // 4. Load the class table (v6.14.0 slice 2) so the character sheet can show
+    //    a character's class and the spells that class grants.
+    SpellClassRegistry::instance().load("data/SpellClasses.json");
+
+    // 5. Mark resources as loaded in the state map
     setGameValue("ResourcesLoaded",true);
     
     qDebug() << "Game resources and Font SpriteSheet initialized by gameStateManager.";

@@ -364,6 +364,9 @@ void CreateCharacterDialog::onSaveCharacterClicked()
         else if (statName == "Dexterity")    c.dexterity    = v;
     }
     if (selectedGuild != "None") c.joinGuild(selectedGuild);
+    // The class the manual describes is the starting guild, so record it
+    // verbatim — SpellClasses.json is keyed by these same names.
+    c.classId = (selectedGuild == "None") ? QString() : selectedGuild;
     // Starting HP/Mana are derived from the build; a new character must not be
     // saved at 0 HP or it would load as dead.
     c.maxHp = qMax(10, c.constitution * 2);

@@ -3,6 +3,7 @@
 #include "src/character/character.h"
 #include "src/items/ItemDatabase.h"
 #include "src/spell_casting/SpellBook.h"
+#include "src/core/SpellClassRegistry.h"
 #include "src/spells/SpellIcon.h"
 #include <QtWidgets>
 #include <QMessageBox>
@@ -97,6 +98,18 @@ void CharacterSheetDialog::setupUi() {
     spellsLayout->addWidget(m_spellsText);
     mainLayout->addWidget(spellsGroup);
 
+    // Class spells (v6.14.0 slice 2) — what this character's class grants,
+    // independent of guild level and stat requirements.
+    auto *classSpellsGroup = new QGroupBox(tr("Class Spells"));
+    auto *classSpellsLayout = new QVBoxLayout(classSpellsGroup);
+    m_classSpellsList = new QListWidget;
+    m_classSpellsList->setMaximumHeight(120);
+    m_classSpellsText = new QLabel(tr("No class selected."));
+    m_classSpellsText->setWordWrap(true);
+    classSpellsLayout->addWidget(m_classSpellsList);
+    classSpellsLayout->addWidget(m_classSpellsText);
+    mainLayout->addWidget(classSpellsGroup);
+
     // Exit
     m_exitBtn = new QPushButton(tr("Close"));
     mainLayout->addWidget(m_exitBtn, 0, Qt::AlignRight);
@@ -137,7 +150,16 @@ void CharacterSheetDialog::refreshSheet() {
     // Identity
     m_nameLabel->setText(c.name);
     m_raceLabel->setText(tr("Race: %1").arg(c.race));
-    m_classLabel->setText(tr("Class: %1").arg(c.guildLevels.isEmpty() ? tr("None") : c.guildLevels.keys().first()));
+    // Class (v6.14.0 slice 2): the class picked at creation, resolved through the
+    // class table. Saves written before classes existed have no classId, so fall
+    // back to their guild; with neither, show "None".
+    const SpellClassRegistry& reg = SpellClassRegistry::instance();
+    const SpellClassDef* cls = c.classId.isEmpty()
+        ? reg.byGuildName(c.guildLevels.isEmpty() ? QString() : c.guildLevels.keys().first())
+        : reg.byId(c.classId);
+    const QString classDisplay = cls ? cls->name
+                                     : (c.guildLevels.isEmpty() ? tr("None") : c.guildLevels.keys().first());
+    m_classLabel->setText(tr("Class: %1").arg(classDisplay));
     m_levelLabel->setText(tr("Level: %1").arg(c.level));
     m_xpLabel->setText(tr("Experience: %1").arg(c.experience));
     m_hpLabel->setText(tr("HP: %1 / %2").arg(c.hp).arg(c.maxHp));
@@ -227,13 +249,16 @@ void CharacterSheetDialog::refreshSheet() {
 
     // Spells
     SpellBook& sb = SpellBook::instance();
+    // Clear both lists first: they are reused across member switches, so an
+    // empty result must not leave the previous member's entries on screen.
+    m_spellsList->clear();
+    m_classSpellsList->clear();
     if (sb.isLoaded()) {
         QList<SpellDef> spells = sb.spellsFor(c);
         if (spells.isEmpty()) {
             m_spellsText->setText(tr("No spells known."));
         } else {
             QStringList lines;
-            m_spellsList->clear();
             for (const auto& s : spells) {
                 QListWidgetItem *item = new QListWidgetItem;
                 item->setText(QString("%1 (Mana: %2)").arg(s.name).arg(s.mana));
@@ -245,6 +270,30 @@ void CharacterSheetDialog::refreshSheet() {
         }
     } else {
         m_spellsText->setText(tr("Spell book not loaded."));
+    }
+
+    // Class spells (v6.14.0 slice 2) — what the class grants, independent of
+    // guild level and stat requirements.
+    if (!cls) {
+        m_classSpellsText->setText(c.classId.isEmpty() && c.guildLevels.isEmpty()
+            ? tr("No class selected.")
+            : tr("%1 grants no spells.").arg(classDisplay));
+    } else if (cls->spellIds.isEmpty()) {
+        m_classSpellsText->setText(tr("%1 grants no spells.").arg(cls->name));
+    } else {
+        for (const QString& spellName : cls->spellIds) {
+            // Resolve by name through the spell book; a stale id is skipped
+            // rather than shown as a blank row.
+            const SpellDef* def = sb.byName(spellName);
+            if (!def) continue;
+            QListWidgetItem *item = new QListWidgetItem;
+            item->setText(QString("%1 (Mana: %2)").arg(def->name).arg(def->mana));
+            item->setIcon(SpellIcon::iconForSpell(
+                QString("resources/images/spells/%1.png")
+                    .arg(def->name.toLower().replace(" ", "_"))));
+            m_classSpellsList->addItem(item);
+        }
+        m_classSpellsText->setText(tr("%1 spells").arg(cls->spellIds.size()));
     }
 }
 

@@ -47,6 +47,10 @@ private:
     QTableWidget *m_guildTable = nullptr;
     QListWidget *m_spellsList = nullptr;
     QLabel *m_spellsText = nullptr;
+    // v6.14.0 slice 2: the class's granted spell list, which is a different
+    // thing from the guild/level-gated "Known Spells" list above it.
+    QListWidget *m_classSpellsList = nullptr;
+    QLabel *m_classSpellsText = nullptr;
     QPushButton *m_exitBtn = nullptr;
     // v3.0.0 slice 3.4: per-stat spend buttons, one per stats-table row
     QList<QPushButton*> m_spendButtons;
