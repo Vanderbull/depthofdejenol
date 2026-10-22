@@ -1,6 +1,22 @@
 # Release Notes
 
-**Latest:** v6.13.0 — Testhygien + quicksave-slot bug
+**Latest:** v6.14.0 — AutoMap, Tutorial och Spellklasser
+
+## v6.14.0 — AutoMap, Tutorial och Spellklasser (2026-10-22)
+
+**Vad som ändrades:** Fullstor automap, en first-run-guide och spellklasser kopplade till startgillet.
+
+| Punkt | Vad som gjorts |
+|-------|-----------------|
+| AutoMap | `Ctrl+Shift+M` i dyrrännan öppnar en fullstor karta. Den renderas av `DungeonDialog::drawMapTo()` — samma funktion som minimapen — så de båda vyerna visar alltid samma kakel. En vy-lokal "Reveal Entire Map" lyfter dimman i kartvyn utan att ändra vad spelet kommer ihåg som besökt. |
+| Städning | `MiniMapDialog` (den gamla fristående minimap-dialogen) är borttagen; `AutoMapDialog` har den rollen. |
+| Tutorial | `Ctrl+T` (och en knapp i huvudmenyn) öppnar en first-run-guide i fyra steg. |
+| Spellklasser | 12 klasser i `data/SpellClasses.json`, hämtade via `SpellClassRegistry`. Klassen är startgillet. Karaktärskortet visar nu "Class: X" och en "Class Spells"-grupp. |
+
+**Verify:** `make check` PASS. AutoMappen verifierades dessutom i en runtime-harness
+mot de riktiga objekten (14 kontroller, två körningar, båda gröna): kakelstorleken är
+parameteriserad (12px i AutoMappen, 10px i minimapen), dimman täcker de obesökta
+kaklen och lyfts av reveal-all, och `Ctrl+Shift+M` öppnar en dialog med en renderad scen.
 
 ## v6.13.0 — Testhygien + quicksave-slot bug (2026-10-22)
 
