@@ -70,7 +70,10 @@ SOURCES += \
     src/game_resources.cpp \
     src/dungeon_dialog/DungeonMinimap.cpp \
     src/mapdialog/AutoMapDialog.cpp \
+    src/mapdialog/AutoMapDialog.h \
     src/dungeon_dialog/DungeonHandlers.cpp \
+    src/tutorial/TutorialDialog.cpp \
+    src/tutorial/TutorialDialog.h \
     src/event/EventManager.cpp \
     src/character/character.cpp \
     src/info_dialog/InfoPanelDialog.cpp \
@@ -88,7 +91,8 @@ SOURCES += \
 # Typed, indexed view of MDATA3. Loaded once; consumers look items up by id or
 # name instead of scanning QVariantMaps.
 HEADERS += src/items/ItemDatabase.h src/items/ConsumableResolver.h \
-    src/mapdialog/AutoMapDialog.h
+    src/mapdialog/AutoMapDialog.h \
+    src/tutorial/TutorialDialog.h
 SOURCES += src/items/ItemDatabase.cpp src/items/ConsumableResolver.cpp
 HEADERS += src/victory_dialog/VictoryDialog.h
 SOURCES += src/victory_dialog/VictoryDialog.cpp

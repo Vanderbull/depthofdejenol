@@ -13,7 +13,9 @@
 #include "src/load_party_dialog/LoadPartyDialog.h"
 #include "src/assemble_party_dialog/AssemblePartyDialog.h"
 #include "src/multiplayer_dialog/MultiplayerLobbyDialog.h"
+#include "src/tutorial/TutorialDialog.h"
 #include <QInputDialog>
+#include <QKeyEvent>
 #include <QRegularExpression>
 #include "src/race_data/RaceData.h"
 #include "src/core/DungeonLevelState.h"
@@ -197,6 +199,12 @@ void GameMenu::setupUI() {
     m_multiplayerButton->setToolTip(tr("Connect to multiplayer server"));
     footerLayout->addWidget(m_multiplayerButton);
 
+    m_tutorialButton = new QPushButton(tr("Tutorial"), this);
+    m_tutorialButton->setObjectName("tutorialButton");
+    m_tutorialButton->setMinimumHeight(55);
+    m_tutorialButton->setToolTip(tr("Show a step-by-step guide (Ctrl+T)"));
+    footerLayout->addWidget(m_tutorialButton);
+
     m_quitButton = new QPushButton(tr("Quit"), this);
     m_quitButton->setObjectName("quitButton");
     m_quitButton->setMinimumHeight(55);
@@ -252,6 +260,7 @@ void GameMenu::setupConnections() {
     connect(m_recordsButton, &QPushButton::clicked, this, &GameMenu::showRecords);
     connect(m_optionsButton, &QPushButton::clicked, this, &GameMenu::onOptionsClicked);
     connect(m_multiplayerButton, &QPushButton::clicked, this, &GameMenu::onMultiplayerClicked);
+    connect(m_tutorialButton, &QPushButton::clicked, this, &GameMenu::onTutorialClicked);
     connect(m_quitButton, &QPushButton::clicked, this, &GameMenu::quitGame);
 
     // Engine Signals
@@ -515,6 +524,20 @@ void GameMenu::onOptionsClicked() {
 
 void GameMenu::onMultiplayerClicked() {
     (new MultiplayerLobbyDialog(this))->show();
+}
+
+void GameMenu::onTutorialClicked() {
+    (new TutorialDialog(this))->show();
+}
+
+void GameMenu::keyPressEvent(QKeyEvent *event) {
+    // Ctrl+T opens the step-by-step guide (same as the Tutorial button).
+    if ((event->modifiers() & Qt::ControlModifier) && event->key() == Qt::Key_T) {
+        onTutorialClicked();
+        event->accept();
+        return;
+    }
+    QWidget::keyPressEvent(event);
 }
 
 void GameMenu::startNewGame() {
