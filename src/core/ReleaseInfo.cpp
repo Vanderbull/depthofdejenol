@@ -29,6 +29,12 @@ QStringList ReleaseInfo::releaseNotes() {
 
 QStringList ReleaseInfo::changes() {
     return {
+        "F-key information panels restored: F1 Help, F2 Area Look, F4 Resistance, F8 Buffer, plus F3/F6 (character sheet), F7 (guilds) and F10 (options); wired in both DungeonDialog and theCity",
+        "GameToolbar added with command/info page switching (F11) in both town and dungeon, connected to the same slots as the menu buttons",
+        "New Game Plus implemented: keeps the party, resets the dungeon, quest chain and play time, and raises the NG+ level — the \"Coming soon.\" stub is gone",
+        "Combat spellcasting: CombatController::castSpell() now opens SpellCastingDialog and logs the result instead of being a no-op stub",
+        "Multiplayer hardening: resync tracking per zone-sync source, chat control-character sanitisation, and protocol-version enforcement",
+        "Damage resistances from the bestiary now apply in combat through CombatActions::applyHit, so a monster's listed resistances actually reduce damage",
         "Test hygiene: 8 vacuous check(true) tests replaced with observable assertions and race-checked quicksave/quickload slot (6.13)",
         "Race: F5/F9 quicksave/quickload now honour the current slot; removed the F5/F9 read of the never-written CurrentSaveName game value (6.13)",
         "Stylesheets are located at runtime, so an installed build keeps its theme",
@@ -106,7 +112,7 @@ QString ReleaseInfo::banner() {
 
 QList<QPair<QString, QString>> ReleaseInfo::versionHistory() {
     return {
-        {"6.13.0", "2026-10-22 — Testhygien: 8 vakua testsatser (check(true, ...)) byttes mot observerbara påståenden. Samtidigt upptäcktes och korrigerades en cacherad bug i quicksave/quickload: F5/F9 läste en \"CurrentSaveName\"-nyckel i game-värdet som aldrig skrevs, så quicksave och quickload alltid målade den statiska filen \"quicksave\". Fix: handläggarna använder nu getCurrentSaveName() och load() sätter sloten för nästa quicksave. 2103 passed, 0 failed"},
+        {"6.13.0", "2026-10-22 — Återställ MORDOR:s gränssnitt: F1-F4/F6-F8/F10-F11 informationspaneler, GameToolbar med sidväxling (F11), New Game Plus implementerad (Coming soon borta), combat-spellcasting i strid, multiplayer-härdning (resync + chat-sanitering) och testhygien. Skaderesistanser från bestiaryn tillämpas nu i striden. Testhygienen hittade en cacherad quicksave/quickload-bug: F5/F9 läste en \"CurrentSaveName\"-nyckel som aldrig skrevs, så quicksave alltid målade den statiska filen \"quicksave\". Fix: handläggarna använder getCurrentSaveName() och load() sätter sloten. Bygget kör make check: PASS"},
         {"6.11.0", "2026-10-19 — Multiplayer blir spelbart: lobby-dialog med host/port/username, connect/disconnect, chatt med ljudnotis, spelarlista, zone-sync, starta server lokalt samt move/fight-kommandon. NetworkManager med reconnect, ping/pong och JSON-protokoll. Dessutom: floor-namn i levels.json, journal-post vid level-up, och fem refaktoreringsfaser (CombatController utbruten ur DungeonDialog, unique_ptr-minnesäkerhet, tema-variabler i stället för hårdkodade färger, tooltips på huvudmenyn, död kod borttagen). 2030 passed, 0 failed"},
         {"6.10.0", "2026-10-17 — Consumable-effekter: teleport, levitation, invisibility, true sight, bind. Sex effekter var 'not yet wired' och gjorde ingenting; nu är de implementerade med statusvariabler som tickas ner varje runda. Teleporterar party, låter party flyga över hinder, gör party osynlig för monsters, visar dolda dörrar på minimap, och halverar skada från bundna mål. 2058 passed, 0 failed"},
         {"6.9.0", "2026-10-17 — Konsumtionssystem: föremålslöseri från data, inte från namn. Character::useConsumable matchade på item-namn och var en no-op för allt utan rätt nyckelord; ny ConsumableResolver löser effekten via spellID mot MDATA2-spell-tabellen, alla 18 spell-schoolar mappade uttryckligen. Fixar två buggar datan avslöjade: heal-spells börjar på 0 så en potion kunde läka 0 HP, och charm-scrolls behandlades som skadescrolls. CombatActions::useItem delar nu samma resolver. 2043 passed, 0 failed"},
