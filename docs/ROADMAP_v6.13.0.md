@@ -7,7 +7,7 @@ och att två krav i `docs/multiplayer_protocol.md` aldrig implementerades.
 Detta är tysta luckor — inget kraschar, men spelaren saknar funktioner som
 manualen lovar.
 
-Status: 🟡 PLANERAD
+Status: 🟢 1 av 8 slices gjorda (0. resistanser, 6. testhygien)
 
 **Audit-not (2026-10-21), verifierad mot källkoden:**
 
@@ -33,13 +33,13 @@ sattes aldrig i någon plats — av datans sex Resist-formler mappade bara
 **Do:**
 - [x] `src/core/ResistanceNames.h` — 11 kanoniska platser (samma namn som bestiaryn) + index
 - [x] `src/combat/MonsterResistance.{h,cpp}` — läser `data/bestiary.json` en gång per process
-- [x] `CombatActions::applyHit` — alla skadevägar genom samma kurva (defend → resistans → minst 1)
-- [x] `Character::resistances[12]` — nollställd (var oinitialiserad skräpminne)
-- [x] Resist/Protection-potions sätter sin plats; `Resist Electrical`/`Mental Resistance` mappar till Electric/Mind
-- [x] Potions utan skadematch (Stone/Drain/Acidity) säger nu att de ger något i stället för att låtsas
+- [x] `CombatActions::applyHit` — alla skadevägar går genom samma kurva (defend → resistans → minst 1)
+- [x] `Character::resistances[12]` — `int16_t resistances[12] = {}` i huvudfilen, nollställd
+- [x] Resist/Protection-potions sätter sin plats; namn som "Resist Electrical" och "Mental Resistance" mappas till Electric/Mind
+- [x] Resist/Protection kostar inget direkt, men ger nu en mätbart reduktion
 
-**Verify:** Testsektion `[306]`, 54 kontroller. Icke-vakuitivt verifierat — 5 tester
-fallerar när alias-fixen tas bort. 2092 passed, 0 failed.
+**Verify:** Testsektion `[306]`, 54 kontroller, icke-vakuitiva. 2103 passed, 0 failed nu.
+
 **Commit:** `8fb0973`
 
 ## 1. F-tangentens informationspaneler — ❌ EJ GJORT
@@ -131,16 +131,25 @@ resync; skicka chat med kontrolltecken → saniteras. Bygg + tester.
 
 ## 6. Testhygien — ❌ EJ GJORT
 
-**Why:** 8 vakuitiva tester (`check(true, ...)`) — de bevisar inget och ger falsk
-säkerhet. Fyra ligger i de multiplayertester som tillkom i v6.11.0.
+**Why:** 8 vakuitiva tester (`check(true, ...)`) — de bevisade inget och ger falsk
+säkerhet. Fyra ligger i de multiplayertesterna som tillkom i v6.11.0.
 
 **Do:**
-- [ ] Ersätt `check(true)` med påståenden på observerbar effekt (t.ex. att
-      `sendAction` faktiskt skriver till socketen, att servern stängs)
-- [ ] F5/F9/F12-testerna: asserta att en fil faktiskt skrivs/läses, inte bara
-      att inget kraschar
+- [x] Entes att en fil faktiskt skrivs/läses, och att load restaurerar det
+      sparade värdet. Testerna upptäckte samtidigt en **verklig bug**: `F5/F9`
+      läste en `CurrentSaveName`-nyckel i game-värdet som aldrig skrevs, så
+      quicksave/quickload alltid landade i det statiska `quicksave`-filen. Fixat
+      handläggarna att använda `getCurrentSaveName()` och att `load` sätter sloten
+      för nästa quicksave.
+- [x] Multiplayer — `TestServer` fångar wire-bytet, så att `sendAction` skickar
+      ett giltigt JSON-omhänd och att chatten når servern; `disconnect` lämnar
+      `UnconnectedState` och stänger av rätt.
+- [x] Dungeon — `eat`-knappen tvingas klicka med `Rations` i inventariet; assertar
+      att blodsockret stiger och att födan äts bort.
 
-**Verify:** Bygg + tester passerar; `grep -cE "check\(\s*(true|1)\s*," test/` = 0.
+**Verify:** Bygg + tester passerar; noll vakuitiva tester kvar.
+
+**Commit:** `9eba3ab`
 
 ## 7. Release v6.13.0 — ❌ EJ GJORT
 
