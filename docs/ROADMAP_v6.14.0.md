@@ -32,22 +32,30 @@ på en knapp. Detta är den viktigaste saknade funktionen för en "spelbart"
 upplevelse.
 
 **Do:**
-- [x] Skapa `src/mapdialog/AutoMapDialog.h/.cpp` (38 + 77 rader) med
-      reveal-all-checkbox, kartvy och `requestMapUpdate`-signal.
-- [x] Lägg till `m_autoMapDialog` medlem + include i `DungeonDialog.h`.
-- [x] Registrera i `blacklands.pro` (SOURCES + HEADERS).
-- [x] Bygg: `make -j$(nproc)` + `make check` (orphaned-systems) → PASS.
+- [x] Extrahera `drawMapTo(QGraphicsScene*, int tileSize, bool revealAll)` ur
+      `drawMinimap()` — minimapen och AutoMapen delar samma kakelfunktionskälla.
+- [x] `AutoMapDialog` matas av `drawMapTo` i stället för egen/tom logik;
+      reveal-all lyfter dimman för vyn (inte för spelet).
+- [x] `Ctrl+Shift+M` i `DungeonDialog::keyPressEvent` → `showAutoMap()`.
+- [x] `refreshAutoMap()` anropas från `drawMinimap()` så den större vyn följer
+      samma kakeldata.
+- [x] Borttagning av `MiniMapDialog.h` (ersatt av `AutoMapDialog`) + städning
+      i `blacklands.pro` (`.h` låg i både SOURCES och HEADERS).
 
 **Verify:**
-- `AutoMapDialog` finns och laddas; `make check` PASS.
-- Binären byggs (2 944 856 bytes efter slice 0) och `test/` är tomt.
+- `make check` → PASS (6/6 system har externa callers).
+- 16 kontroller i en runtime-harness mot de riktiga objekten: 10px/12px
+  kakelstorlek, dimman täcker 2501 kakel och lyfts till 5, spelarpilen finns,
+  `Ctrl+Shift+M` öppnar (vanlig `M` gör det INTE), AutoMap-scenen matchar en
+  direkt render (2501 vs 2501), reveal-all är vy-lokal. **Två körningar, båda
+  gröna** (harnessen återställer `revealAutomap` först — annars ärvdes den
+  persisterade inställningen).
 
-**Commit:** `0d7f4a3`
+**Commit:** `0d7f4a3` (dialogklassen) + `497eb4c` (datakälla + genväg)
 
-**Avvikelse:** `Ctrl+Shift+M` och `gameStateData["revealedTiles"]` lades INTE till —
-slice 0 levererade bara dialogklassen + registreringen. Kartans datakälla
-(`revealedTiles`) och tangentbordsgenväg är kvar som eget arbete; dialogrutan
-utlöser `requestMapUpdate` men ingen `DungeonDialog`-panel lyssnar på den ännu.
+**Avvikelse:** Ingen. Datakällan är `DungeonDialog::drawMapTo` — kartan renderas
+från samma besökta-kakel-uppsättning som minimapen, särskild `revealedTiles`-låda
+behövdes aldrig.
 
 ---
 
@@ -113,7 +121,7 @@ för typning. Att lägga till `SpellClasses.json` + koppla till `Character::clas
 
 ## Release criteria
 
-- [ ] AutoMap finns (Ctrl+Shift+M) och synkar med minimap. — **DELVIS**: dialogklassen finns; genväg och `revealedTiles`-datakälla saknas.
+- [x] AutoMap finns (Ctrl+Shift+M) och synkar med minimap. — `497eb4c`; 16 runtime-checks godkända (två körningar).
 - [x] Tutorial (Ctrl+T) leder spelaren genom första 4 stegen. — `0c9debb`; auto-visning vid första start saknas (LVC).
 - [x] 12 spell-klasser laddas och visas i character-sheet. — `6807e32`; 47 runtime-checks godkända.
 - [x] `make check` → PASS (build + orphaned-systems). — alla 6 system har externa callers.
