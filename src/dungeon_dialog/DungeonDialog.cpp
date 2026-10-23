@@ -2169,11 +2169,11 @@ void DungeonDialog::on_disarmButton_clicked()
     int mLvl = floorLevel;  // monster level = floor level
     int dLvl = floorLevel;  // dungeon level
 
-    // Thief modifier: 1.0 for non-thieves, higher for thief/scavenger guilds.
+    // Thief modifier: based on thieving skill points from skill tree.
     double thiefMod = 1.0;
-    if (members[0].guildLevel("Thief") > 0 || members[0].guildLevel("Scavenger") > 0) {
-        thiefMod = 1.5;
-    }
+    int thiefSkillPoints = members[0].skillThieving;
+    double thiefBonus = SkillTreeManager::instance().thievingBonus(thiefSkillPoints);
+    thiefMod += thiefBonus;
 
     double chance = disarmTrapChance(dex, wis, gLvl, thiefMod, mLvl, dLvl);
     int roll = QRandomGenerator::global()->bounded(1, 101);
