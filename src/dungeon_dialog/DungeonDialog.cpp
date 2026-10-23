@@ -2169,13 +2169,20 @@ void DungeonDialog::on_disarmButton_clicked()
     int gLvl = members[0].level;
     int mLvl = floorLevel;  // monster level = floor level
     int dLvl = floorLevel;  // dungeon level
-
-
-    // Thief modifier: based on thieving skill points from skill tree.
+    // Thief modifier: based on thieving skill points from skill tree (player + companions).
     double thiefMod = 1.0;
     int thiefSkillPoints = members[0].skillThieving;
     double thiefBonus = SkillTreeManager::instance().thievingBonus(thiefSkillPoints);
     thiefMod += thiefBonus;
+
+    // Add companion assistance (each companion contributes half their thieving bonus)
+    for (int i = 1; i < members.size(); ++i) {
+        if (members[i].isAlive) {  // Only living companions can assist
+            int companionThieving = members[i].skillThieving;
+            double companionBonus = SkillTreeManager::instance().thievingBonus(companionThieving);
+            thiefMod += companionBonus * 0.5;
+        }
+    }
     double chance = disarmTrapChance(dex, wis, gLvl, thiefMod, mLvl, dLvl);
     int roll = QRandomGenerator::global()->bounded(1, 101);
 
@@ -3144,6 +3151,9 @@ void DungeonDialog::drawFog(int d, int xL, int xR, int yB, int nxL, int nxR, int
     m_dungeonScene->addRect(xL, yB, xR - xL, nyB - yB,
                             QPen(QColor(180, 180, 180, alpha), 1),
                             QBrush(QColor(180, 180, 180, alpha / 3)));
+    Q_UNUSED(d);
+    Q_UNUSED(nxL);
+    Q_UNUSED(nxR);
 }
 
 void DungeonDialog::drawExtinguisher(int d, int xL, int xR, int yB, int nxL, int nxR, int nyB) {
@@ -3156,6 +3166,7 @@ void DungeonDialog::drawExtinguisher(int d, int xL, int xR, int yB, int nxL, int
     QColor waterColor(0, 150, 255, 200);
     for (int i = 0; i < 3; ++i) {
         int r = radius - (i * (radius / 4));
+    Q_UNUSED(d);
         m_dungeonScene->addEllipse(centerX - r, centerY - r / 2, r * 2, r,
                                   QPen(waterColor, 1), QBrush(waterColor));
     }
