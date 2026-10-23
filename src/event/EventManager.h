@@ -1,3 +1,6 @@
+#ifndef EVENT_EVENTMANAGER_H
+#define EVENT_EVENTMANAGER_H
+
 #pragma once
 
 #include <QObject>
@@ -40,3 +43,5 @@ private:
 
     void checkEvents(const QString& trigger, QJsonObject context);
 };
+
+#endif // EVENT_EVENTMANAGER_H

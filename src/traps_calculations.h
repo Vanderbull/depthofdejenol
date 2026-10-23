@@ -1,3 +1,6 @@
+#ifndef TRAPS_CALCULATIONS_H
+#define TRAPS_CALCULATIONS_H
+
 #pragma once
 #include <cmath>
 #include <algorithm>
@@ -44,3 +47,5 @@ inline double thievingParam(int DEX, int WIS, int gLvl, double thiefMod)
     double part4 = std::log(2.0) * std::log(2.0) * 9.375;
     return part1 + part2 * part3 - part4;
 }
+
+#endif // TRAPS_CALCULATIONS_H

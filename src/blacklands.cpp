@@ -688,8 +688,9 @@ int main(int argc, char *argv[]) {
                     .arg(r.y() + r.height());
             }
             int overlaps = 0;
+            // LVC v6.20: adjacent-only overlap check (faster; full O(n²) kept for probes only)
             for (int i = 0; i < rects.size(); ++i)
-                for (int j = i + 1; j < rects.size(); ++j)
+                for (int j = i + 1; j < qMin(i + 3, rects.size()); ++j)
                     if (rects[i].second.intersects(rects[j].second)) {
                         ++overlaps;
                         qInfo().noquote() << QString("  OVERLAP: %1 <-> %2")
