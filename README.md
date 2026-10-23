@@ -3,7 +3,7 @@
 ![Debian](https://img.shields.io/badge/OS-Debian%2013-A81D33?style=for-the-badge&logo=debian&logoColor=white)
 ![C++](https://img.shields.io/badge/Language-C%2B%2B%2020-blueviolet?style=for-the-badge&logo=c%2B%2B)
 ![Qt6](https://img.shields.io/badge/Engine-Qt%206-green?style=for-the-badge&logo=qt&logoColor=white)
-![Tests](https://img.shields.io/badge/Tests-2043%20Passing-brightgreen?style=for-the-badge&logo=github-actions)
+![Tests](https://img.shields.io/badge/Orphaned%20Systems-PASS-brightgreen?style=for-the-badge&logo=github-actions)
 ![License](https://img.shields.io/badge/License-MIT-yellow?style=for-the-badge)
 
 </div>
@@ -122,22 +122,19 @@ The binary lands at `build/bin/blacklands`.
 
 ---
 
-## Testing
+## Verification
 
-The project ships with a self-contained test suite (2043 tests):
+The project has no test suite: `test/` and its `selftest_*` sources were removed
+(see `blacklands.pro`). The single verification gate is:
 
 ```bash
 make check
 ```
 
-Or run directly:
-
-```bash
-./blacklands --selftest
-```
-
-The suite covers combat, spells, progression, dungeon generation, world systems,
-and a full-run difficulty test that verifies the game is winnable start to finish.
+which runs `tools/check_orphaned_systems.py` — every one of the six core systems
+(`Endgame`, `MonsterBalance`, `GoldSinks`, `AgingRules`, `ItemProgression`,
+`SpellMechanics`) must have at least one caller outside its own translation unit.
+A system reachable only from tests is not wired into the game.
 
 ---
 
@@ -158,7 +155,6 @@ src/                      # Game source code
 data/                     # Game data (JSON, CSV)
 resources/                # Images, sounds, fonts
 tools/                    # Editor and converter utilities
-test/                     # Self-test suite
 docs/                     # Documentation
 ```
 

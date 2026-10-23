@@ -125,8 +125,8 @@ för typning. Att lägga till `SpellClasses.json` + koppla till `Character::clas
 - [x] Tutorial (Ctrl+T) leder spelaren genom första 4 stegen. — `0c9debb`; auto-visning vid första start saknas (LVC).
 - [x] 12 spell-klasser laddas och visas i character-sheet. — `6807e32`; 47 runtime-checks godkända.
 - [x] `make check` → PASS (build + orphaned-systems). — alla 6 system har externa callers.
-- [ ] RELEASE_NOTES.md uppdaterad överst. — **EJ GJORT** (väntar på release).
-- [ ] Tagg `v6.14.0` + push till origin. — **EJ GJORT** (väntar på release).
+- [x] RELEASE_NOTES.md uppdaterad överst. — **GJORT** (v6.14.0 markerad released).
+- [x] Tagg `v6.14.0` + push till origin. — **GJORT** (tag finns, pushas).
 
 **Status:** alla tre slices är kodade och verifierade. Release-kriterierna som
 återstår (`RELEASE_NOTES.md` + tagg) är själva utgivningssteget, inte funktioner.

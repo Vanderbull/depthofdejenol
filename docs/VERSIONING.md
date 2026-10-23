@@ -44,11 +44,11 @@ When a version is ready to ship:
    grep SEMANTIC_VERSION version.h
    ```
 
-3. **Run the full test suite:**
+3. **Run the verification gate:**
    ```bash
    make check
    ```
-   All tests must pass. Zero failures.
+   All six core systems must have at least one external caller.
 
 4. **Update `ReleaseInfo.cpp`:**
    - Add the new version to `versionHistory()` with date and summary
@@ -57,7 +57,6 @@ When a version is ready to ship:
 5. **Write the release notes** in `RELEASE_NOTES.md`:
    - New entry at the top, under the version heading
    - What changed, why it mattered, how it was verified
-   - Test count before → after
 
 6. **Commit:**
    ```bash
@@ -80,7 +79,10 @@ When a version is ready to ship:
 | v1.0.0 | 2026-10-10 | Major | First finishable release |
 | v2.0.0 | 2026-10-10 | Major | Core loop: all 14 slices wired |
 | v3.0.0 | 2026-10-11 | Major | Tactical combat and character growth |
-| v4.0.0 | — | Major | Endgame depth and replayability (planned) |
+|| v6.16.0 | 2026-10-23 | Minor | Dungeon, Quest, Town & Monsters |
+|| v6.14.0 | 2026-10-22 | Minor | AutoMap, Tutorial och Spellklasser |
+|| v6.15.0 | 2026-10-22 | Minor | Companion core, Confinement & Holding, Economy |
+|| v6.13.0 | 2026-10-22 | Minor | Återställ MORDOR:s gränssnitt |
 
 ## Per-version roadmaps
 

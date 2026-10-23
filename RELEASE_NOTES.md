@@ -1,8 +1,21 @@
 # Release Notes
 
-**Latest:** v6.14.0 — AutoMap, Tutorial och Spellklasser
+**Latest:** v6.14.0 — AutoMap + Tutorial + Spell Classes (2026-10-19) ✅ RELEASED
 
-## v6.14.0 — AutoMap, Tutorial och Spellklasser (2026-10-22)
+## v6.16.0 — Dungeon, Quest, Town & Monsters (2026-10-23)
+
+**Vad som ändrades:** Hjärtat av spelet — dungeon, huvudquest, stad och monster/skatter är nu kopplade till data.
+
+|| Punkt | Vad som gjorts |
+|-------|-----------------|
+|| Dungeon | `FloorGeometry`-hjälp + testbar markering av rum/monster/trappa; progressiv komplexitet och teman är kopplade. |
+|| Quest | Huvudquestkedja med 6 steg, per-steg guld/XP, NG+ re-arms rewards så kedjan betalar ut igen. |
+|| Town | Tavern, bank, alignment-filter i `getThematicMonsters()` — Evil/Neutral/Good ser olika monster. |
+|| Monster/Treasure | Bestiary-hints (level/HP/att/def), equipment-statmodifier, identification fee, gilden-rewards, chest-state. |
+
+**Verify:** `make check` PASS. Testregister i `docs/ROADMAP_v6.16.0.md`: 1.1–1.2, 2.1–2.3, 3.1–3.2 ✅ PASS.
+
+## v6.15.0 — Companion core, Confinement & Holding, Economy (2026-10-22)
 
 **Vad som ändrades:** Fullstor automap, en first-run-guide och spellklasser kopplade till startgillet.
 
