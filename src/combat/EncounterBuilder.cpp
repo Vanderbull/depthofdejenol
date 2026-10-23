@@ -1,6 +1,8 @@
 #include "EncounterBuilder.h"
 #include "src/core/Endgame.h"
 #include "src/core/MonsterBalance.h"
+#include "src/core/gameStateManager.h"
+#include "src/character/character.h"
 #include <QVariantMap>
 #include <QList>
 #include <QString>
@@ -38,6 +40,25 @@ QList<CombatParticipant> EncounterBuilder::buildEncounter(
     QList<CombatParticipant> result;
     const double ngMult = Endgame::ngPlusMonsterMultiplier(ngPlusLevel);
     const double floorMult = MonsterBalance::statMultiplier(floorLevel);
+
+    // Include companions from the first party member in combat (v6.17 LVC).
+    gameStateManager* gsm = gameStateManager::instance();
+    if (gsm) {
+        QList<Character> members = gsm->getPartyMembers();
+        if (!members.isEmpty()) {
+            for (int i = 0; i < members[0].companionCount(); ++i) {
+                CombatParticipant c;
+                c.name = members[0].companionName(i);
+                c.isPlayer = true;
+                c.hp = members[0].companionLevel(i) * 5 + 10;
+                c.maxHp = c.hp;
+                c.att = 6;
+                c.def = 4;
+                c.speed = 4;
+                result.append(c);
+            }
+        }
+    }
 
     // Find the monster in the data
     QVariantMap monsterInfo;
