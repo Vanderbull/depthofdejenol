@@ -159,6 +159,8 @@ QVariantMap Character::toMap() const {
             slot["ResFire"] = c.resistanceFire;
             slot["ResCold"] = c.resistanceCold;
             slot["ResMental"] = c.resistanceMental;
+            // v6.23.0: serialize companion experience
+            slot["Experience"] = c.experience;
             compList.append(slot);
         }
     }
@@ -270,6 +272,7 @@ void Character::loadFromMap(const QVariantMap &map) {
                         M58CB[i].resistanceFire = slot.value("ResFire", 0).toInt();
                         M58CB[i].resistanceCold = slot.value("ResCold", 0).toInt();
                         M58CB[i].resistanceMental = slot.value("ResMental", 0).toInt();
+                        M58CB[i].experience = slot.value("Experience", 0).toInt();
                         break;
                     }
                 }
@@ -836,6 +839,22 @@ void Character::addExperience(int amount) {
         hp = maxHp; // Heal on level up
         maxMana += 5;
         mana = maxMana;
+    }
+}
+
+void Character::addCompanionExperience(int companionIndex, int amount) {
+    if (companionIndex < 0 || companionIndex >= companionCount()) return;
+    M58CB[companionIndex].experience += amount;
+    // Check for level up
+    const int newLevel = LevelTable::instance().levelForXp(M58CB[companionIndex].experience);
+    if (newLevel > M58CB[companionIndex].M4ED4) {
+        // Level up: increase level and stats
+        M58CB[companionIndex].M4ED4 = newLevel;
+        // Increase stats on level up (similar to character level up)
+        // For simplicity, increase all stats by 1 per level (could be refined)
+        M58CB[companionIndex].M4E97 += 1; // atk
+        M58CB[companionIndex].M4EA1 += 1; // def
+        qInfo() << "Companion" << M58CB[companionIndex].M548B << "leveled up to" << newLevel;
     }
 }
 

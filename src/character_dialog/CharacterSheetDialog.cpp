@@ -179,8 +179,11 @@ void CharacterSheetDialog::refreshSheet() {
     m_companionsList = new QListWidget();
     for (int i = 0; i < c.companionCount(); ++i) {
         if (c.companionName(i).isEmpty()) continue;  // skip empty slots
-        QListWidgetItem *it = new QListWidgetItem(
-            tr("L%1 %2").arg(c.companionLevel(i)).arg(c.companionName(i)));
+        QString nameText = tr("L%1 %2 XP%3").arg(c.companionLevel(i)).arg(c.companionName(i)).arg(c.companionExperience(i));
+        QString ability = c.companionAbility(i);
+        if (!ability.isEmpty())
+            nameText += tr(" (%1)").arg(ability);
+        QListWidgetItem *it = new QListWidgetItem(nameText);
         m_companionsList->addItem(it);
     }
     m_tameBtn = new QPushButton(tr("Tame Companion"));

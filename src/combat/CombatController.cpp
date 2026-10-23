@@ -1,5 +1,6 @@
 #include "CombatController.h"
 #include "src/core/gameStateManager.h"
+#include "src/character/character.h"
 #include "src/core/BossEncounter.h"
 #include "src/core/DungeonThemes.h"
 #include "src/combat/EncounterBuilder.h"
@@ -90,6 +91,18 @@ void CombatController::attack(int targetIndex)
     QStringList deaths = m_deathHandler->processDeaths();
     for (const QString& d : deaths) {
         if (m_logCallback) m_logCallback(d);
+    }
+
+    // v6.23.0: Grant XP to companions for surviving the round
+    gameStateManager* gsm = gameStateManager::instance();
+    if (gsm) {
+        QList<Character> members = gsm->getPartyMembers();
+        if (!members.isEmpty()) {
+            for (int i = 0; i < members[0].companionCount(); ++i) {
+                // Give 5 XP per round survived (adjust as needed)
+                members[0].addCompanionExperience(i, 5);
+            }
+        }
     }
 
     syncCombatToGameState();

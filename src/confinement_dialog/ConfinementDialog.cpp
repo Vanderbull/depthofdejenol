@@ -263,8 +263,7 @@ void ConfinementAndHoldingDialog::identifyCompanionGNE()
     QMessageBox::information(this, "Identify G N E", "Calculating G N E for: " + identifyCompLineEdit->text());
 }
 
-void ConfinementAndHoldingDialog::sellCompanion()
-{
+void ConfinementAndHoldingDialog::sellCompanion() {
     QString compName = identifyCompLineEdit->text().trimmed();
     if (compName.isEmpty()) return;
 
@@ -276,19 +275,32 @@ void ConfinementAndHoldingDialog::sellCompanion()
         for (int i = 0; i < members[mi].companionCount(); ++i) {
             if (members[mi].companionName(i).toLower()
                     == compName.toLower()) {
+                // v6.23.0: selling price based on companion level
+                int basePrice = 100;
+                int level = members[mi].companionLevel(i); // returns M4ED4
+                int price = basePrice * level;
+                // Optionally add bonus for abilities/resistances
+                QString ability = members[mi].companionAbility(i);
+                if (!ability.isEmpty()) {
+                    price += 50; // example bonus
+                }
+                // Cap price to avoid insane values
+                if (price > 10000) price = 10000;
+
                 members[mi].clearCompanion(i);
-                gsm->addGold(100);
+                gsm->addGold(price);
                 gsm->saveCharacterToFile(mi);
                 populateStockList();
                 QMessageBox::information(this, tr("Sell Companion"),
-                    tr("Sold companion %1. You received 100 gold.").arg(compName));
+                                         tr("Sold companion %1. You received %2 gold.")
+                                             .arg(compName).arg(price));
                 return;
             }
         }
     }
 
     QMessageBox::warning(this, tr("Sell Companion"),
-                          tr("Companion not found in your party."));
+                       tr("Companion not found in your party."));
 }
 
 void ConfinementAndHoldingDialog::realignCompanionID()

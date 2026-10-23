@@ -51,6 +51,8 @@ struct Companion {
     int16_t M4EA1;
     int16_t M57E1;
     int16_t M4EEE;
+    // v6.23.0: companion experience and leveling
+    int32_t experience = 0; // XP accumulated
     // v6.22.0 substantial feature: companion abilities and resistances
     QString ability;         // active ability name (e.g. "Bind", "Charm")
     int resistanceFire = 0; // resistance percentages (0-100)
@@ -194,6 +196,12 @@ struct Character {
     int companionCount() const { return 5; }
     QString companionName(int i) const { return M58CB[i].M548B; }
     int companionLevel(int i) const { return M58CB[i].M4ED4; }
+    // v6.23.0: getters for companion XP and ability
+    int companionExperience(int i) const { return M58CB[i].experience; }
+    QString companionAbility(int i) const { return M58CB[i].ability; }
+    int companionResistanceFire(int i) const { return M58CB[i].resistanceFire; }
+    int companionResistanceCold(int i) const { return M58CB[i].resistanceCold; }
+    int companionResistanceMental(int i) const { return M58CB[i].resistanceMental; }
     bool addCompanion(const QString& name, int level = 1) {
         for (int i = 0; i < 5; ++i) {
             if (M58CB[i].M548B.isEmpty()) {
@@ -243,6 +251,7 @@ struct Character {
 
     // --- Logic ---
     void addExperience(int amount);
+    void addCompanionExperience(int companionIndex, int amount);
     void setDead();
     void resurrect();
     void addStatus(uint flag);
