@@ -11,7 +11,7 @@ QString ReleaseInfo::versionString() {
 }
 
 QString ReleaseInfo::releaseDate() {
-    return "2026-10-28";
+    return "2026-10-29";
 }
 
 QStringList ReleaseInfo::releaseNotes() {

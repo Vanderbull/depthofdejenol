@@ -153,6 +153,8 @@ HEADERS += src/core/GameSettings.h
 SOURCES += src/core/GameSettings.cpp
 HEADERS += src/core/ReleaseInfo.h
 SOURCES += src/core/ReleaseInfo.cpp
+SOURCES += src/core/SkillTreeManager.cpp
+HEADERS += src/core/SkillTreeManager.h
 HEADERS += src/core/ResourcePaths.h
 SOURCES += src/core/ResourcePaths.cpp
 HEADERS += src/core/SoundEffects.h
@@ -323,7 +325,7 @@ lessThan(VERSION_INT, 0): VERSION_INT = 0
 # Bump MAJOR for the first finishable release or a fundamental rework.
 # Bump MINOR for new features/mechanics. Bump PATCH for fixes/balance/polish.
 SEMVER_MAJOR = 6
-SEMVER_MINOR = 26
+SEMVER_MINOR = 27
 SEMVER_PATCH = 0
 SEMVER = \"$${SEMVER_MAJOR}.$${SEMVER_MINOR}.$${SEMVER_PATCH}\"
 

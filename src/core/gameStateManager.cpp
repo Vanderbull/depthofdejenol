@@ -7,6 +7,7 @@
 #include "src/core/Endgame.h"
 #include "src/spell_casting/SpellBook.h"
 #include "src/core/SpellClassRegistry.h"
+#include "src/core/SkillTreeManager.h"
 #include "src/items/ItemDatabase.h"
 #include "src/core/GameSettings.h"
 
@@ -48,6 +49,7 @@ void gameStateManager::initializeResources() {
     //    a character's class and the spells that class grants.
     SpellClassRegistry::instance().load("data/SpellClasses.json");
 
+    SkillTreeManager::instance().load();
     // 5. Mark resources as loaded in the state map
     setGameValue("ResourcesLoaded",true);
     
