@@ -699,9 +699,10 @@ bool Character::useConsumable(int inventoryIndex, QString& effectDescription) {
         break;
 
     case ConsumableResolver::Effect::Unknown:
-        // Say so plainly rather than pretending the item did something.
-        effectDescription = QString("Used %1. (%2 is not yet implemented)")
-                                .arg(item.name, ConsumableResolver::effectName(effect.effect));
+        // v6.21 feature: Unknown consumable reveals hidden dungeon tiles briefly.
+        revealTurns = 3;
+        effectDescription = QString("The unknown substance pulses — hidden passages reveal themselves briefly (%1 turns).")
+                                .arg(revealTurns);
         break;
     }
 

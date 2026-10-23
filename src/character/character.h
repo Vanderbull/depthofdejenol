@@ -122,6 +122,7 @@ struct Character {
     int invisibilityTurns = 0;  // remaining turns of invisibility
     int seeInvisibleTurns = 0;  // remaining turns of true sight
     int bindTurns = 0;          // remaining turns of binding
+    int revealTurns = 0;       // remaining turns of reveal (v6.21 Unknown effect)
     bool isAlive = true;
 
     // --- Location Data ---
