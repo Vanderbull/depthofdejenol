@@ -6,6 +6,7 @@
 #include "src/core/BossEncounter.h"
 #include "src/core/gameStateManager.h"
 #include "src/core/SkillTreeManager.h"
+#include "src/core/DeathRecovery.h"
 #include "src/items/ItemDatabase.h"
 #include "src/core/DungeonThemes.h"
 #include "src/core/DungeonLevelState.h"
@@ -656,6 +657,7 @@ enum class ZoneType { Cells, Caverns, Temple, Lair };
 
 void DungeonDialog::assignZones(QRandomGenerator& rng)
 {
+    Q_UNUSED(rng);
     // Divide the map into 3-4 thematic zones based on position.
     // West = Cells (prison), Center = Caverns (natural), East = Temple (ritual).
     // Deeper floors add a Lair zone in the far corner.
@@ -732,7 +734,6 @@ void DungeonDialog::generateRandomObstacles(int roomCount, QRandomGenerator& rng
     bspConnect(root, rng);
     // 3. Add a few extra rooms via the sprouting method for variety
     QList<QPair<int, int>> sproutPoints = m_roomCenters;
-    int extraRooms = roomCount / 3;
     int roomsCreated = m_roomCenters.size();
     while (!sproutPoints.isEmpty() && roomsCreated < roomCount) {
         int idx = rng.bounded(sproutPoints.size());
@@ -1479,24 +1480,6 @@ void DungeonDialog::enterLevel(int level, bool movingUp)
     DungeonLevelRegistry::instance().levelForEdit(level).torchTurnsRemaining = m_torchFuel;
 }
 
-
-
-
-
-void DungeonDialog::on_pickupButton_clicked()
-{
-    gameStateManager* gsm = gameStateManager::instance();
-    QPair<int, int> pos = {
-        gsm->getGameValue("DungeonX").toInt(),
-        gsm->getGameValue("DungeonY").toInt()
-    };
-    if (m_treasurePositions.contains(pos)) {
-        processTreasureOpening();
-    } else {
-        logMessage("There is nothing here to pick up.");
-    }
-}
-
 void DungeonDialog::on_dropButton_clicked()
 {
     gameStateManager* gsm = gameStateManager::instance();
@@ -1530,6 +1513,73 @@ void DungeonDialog::on_dropButton_clicked()
         logMessage("You aren't carrying anything to drop.");
     }
     drawMinimap();
+}
+void DungeonDialog::on_pickupButton_clicked()
+{
+    gameStateManager* gsm = gameStateManager::instance();
+
+    // Check if we're already carrying a body
+    if (gsm->getGameValue("IsCarryingBody").toBool()) {
+        logMessage("You are already carrying a body.");
+        return;
+    }
+
+    // Get current position
+    int curX = gsm->getGameValue("DungeonX").toInt();
+    int curY = gsm->getGameValue("DungeonY").toInt();
+    int curLevel = gsm->getGameValue("DungeonLevel").toInt();
+
+    // Check each party member for a dead body at our position
+    auto& members = gsm->getPartyMembers();
+    for (Character& c : members) {
+        // Skip living characters
+        if (c.isAlive) {
+            continue;
+        }
+
+        // Check if this dead character's body is at our position
+        if (c.dungeonLevel == curLevel && c.dungeonX == curX && c.dungeonY == curY) {
+            // Create BodyLocation for this character
+            BodyLocation loc;
+            loc.valid = true;
+            loc.inCity = false;  // Not in city yet
+            loc.carried = false; // Not currently carried
+            loc.dungeonLevel = c.dungeonLevel;
+            loc.x = c.dungeonX;
+            loc.y = c.dungeonY;
+
+            // Check if the body can be carried (valid, not carried, not in city)
+            QString reason;
+            if (DeathRecovery::canCarry(loc)) {
+                // Pick up the body
+                if (DeathRecovery::carryBody(loc, reason)) {
+                    // Successfully picked up
+                    gsm->setGameValue("IsCarryingBody", true);
+                    
+                    // Remove from m_bodyPositions so it doesn't render on the map
+                    QPair<int, int> pos = {curX, curY};
+                    m_bodyPositions.remove(pos);
+                    
+                    logMessage(QString("<font color='gray'>You lift %1 onto your shoulders.</font>").arg(c.name));
+                    
+                    // Refresh view to hide the body from the map
+                    renderWireframeView();
+                    return;
+                } else {
+                    // Shouldn't happen if canCarry returned true, but just in case
+                    logMessage(QString("Failed to pick up body: %1").arg(reason));
+                    return;
+                }
+            } else {
+                // Body exists but can't be carried (shouldn't happen for fresh corpses)
+                logMessage(QString("Cannot pick up body: %1").arg(reason));
+                return;
+            }
+        }
+    }
+    
+    // No body found at current position
+    logMessage("No body here to pickup.");
 }
 
 void DungeonDialog::on_teleportButton_clicked()
@@ -2169,20 +2219,13 @@ void DungeonDialog::on_disarmButton_clicked()
     int gLvl = members[0].level;
     int mLvl = floorLevel;  // monster level = floor level
     int dLvl = floorLevel;  // dungeon level
-    // Thief modifier: based on thieving skill points from skill tree (player + companions).
-    double thiefMod = 1.0;
-    int thiefSkillPoints = members[0].skillThieving;
-    double thiefBonus = SkillTreeManager::instance().thievingBonus(thiefSkillPoints);
-    thiefMod += thiefBonus;
 
-    // Add companion assistance (each companion contributes half their thieving bonus)
-    for (int i = 1; i < members.size(); ++i) {
-        if (members[i].isAlive) {  // Only living companions can assist
-            int companionThieving = members[i].skillThieving;
-            double companionBonus = SkillTreeManager::instance().thievingBonus(companionThieving);
-            thiefMod += companionBonus * 0.5;
-        }
+    // Thief modifier: 1.0 for non-thieves, higher for thief/scavenger guilds.
+    double thiefMod = 1.0;
+    if (members[0].guildLevel("Thief") > 0 || members[0].guildLevel("Scavenger") > 0) {
+        thiefMod = 1.5;
     }
+
     double chance = disarmTrapChance(dex, wis, gLvl, thiefMod, mLvl, dLvl);
     int roll = QRandomGenerator::global()->bounded(1, 101);
 
@@ -2316,6 +2359,11 @@ void DungeonDialog::keyPressEvent(QKeyEvent *event)
             charDialog->show();
             charDialog->raise();
             charDialog->activateWindow();
+            break;
+        }
+        case Qt::Key_P: {
+            on_pickupButton_clicked();
+            event->accept();
             break;
         }
         case Qt::Key_D: {
@@ -3151,9 +3199,6 @@ void DungeonDialog::drawFog(int d, int xL, int xR, int yB, int nxL, int nxR, int
     m_dungeonScene->addRect(xL, yB, xR - xL, nyB - yB,
                             QPen(QColor(180, 180, 180, alpha), 1),
                             QBrush(QColor(180, 180, 180, alpha / 3)));
-    Q_UNUSED(d);
-    Q_UNUSED(nxL);
-    Q_UNUSED(nxR);
 }
 
 void DungeonDialog::drawExtinguisher(int d, int xL, int xR, int yB, int nxL, int nxR, int nyB) {
@@ -3166,7 +3211,6 @@ void DungeonDialog::drawExtinguisher(int d, int xL, int xR, int yB, int nxL, int
     QColor waterColor(0, 150, 255, 200);
     for (int i = 0; i < 3; ++i) {
         int r = radius - (i * (radius / 4));
-    Q_UNUSED(d);
         m_dungeonScene->addEllipse(centerX - r, centerY - r / 2, r * 2, r,
                                   QPen(waterColor, 1), QBrush(waterColor));
     }
@@ -3188,6 +3232,7 @@ void DungeonDialog::drawTreasure(int d, int xL, int xR, int yB) {
 }
 
 void DungeonDialog::drawTrap(int d, int xL, int xR, int yB, int nxL, int nxR, int nyB) {
+    Q_UNUSED(d);
     Q_UNUSED(nxL);
     Q_UNUSED(nxR);
     int spikeCount = 5;
