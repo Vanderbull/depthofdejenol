@@ -52,11 +52,19 @@ QStringList AgingRules::applyYearOfAging(Character& c, int years) {
 
     // Past the decay threshold, a small chance each year to lose a point.
     if (isDecaying(c) && years > 0) {
+        // Physical stats: STR, CON, DEX - 10% chance each to lose 1 point.
         if (QRandomGenerator::global()->bounded(100) < 10) {
             c.strength     = qMax(3, c.strength - 1);
             c.constitution = qMax(3, c.constitution - 1);
             c.dexterity    = qMax(3, c.dexterity - 1);
             messages.append(QString("%1 feels the weight of the years (STR/CON/DEX -1).").arg(c.name));
+        }
+        // Mental stats: INT, WIS, CHA - 5% chance each to lose 1 point.
+        if (QRandomGenerator::global()->bounded(100) < 5) {
+            c.intelligence = qMax(3, c.intelligence - 1);
+            c.wisdom       = qMax(3, c.wisdom - 1);
+            c.charisma     = qMax(3, c.charisma - 1);
+            messages.append(QString("%1 feels the weight of the years (INT/WIS/CHA -1).").arg(c.name));
         }
     }
 
