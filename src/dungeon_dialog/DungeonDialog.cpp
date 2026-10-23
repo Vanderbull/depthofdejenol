@@ -5,6 +5,7 @@
 #include "DungeonDialog.h"
 #include "src/core/BossEncounter.h"
 #include "src/core/gameStateManager.h"
+#include "src/core/SkillTreeManager.h"
 #include "src/items/ItemDatabase.h"
 #include "src/core/DungeonThemes.h"
 #include "src/core/DungeonLevelState.h"
@@ -2169,12 +2170,12 @@ void DungeonDialog::on_disarmButton_clicked()
     int mLvl = floorLevel;  // monster level = floor level
     int dLvl = floorLevel;  // dungeon level
 
+
     // Thief modifier: based on thieving skill points from skill tree.
     double thiefMod = 1.0;
     int thiefSkillPoints = members[0].skillThieving;
     double thiefBonus = SkillTreeManager::instance().thievingBonus(thiefSkillPoints);
     thiefMod += thiefBonus;
-
     double chance = disarmTrapChance(dex, wis, gLvl, thiefMod, mLvl, dLvl);
     int roll = QRandomGenerator::global()->bounded(1, 101);
 
@@ -3137,6 +3138,8 @@ void DungeonDialog::drawPit(int d, int xL, int xR, int yB, int nxL, int nxR, int
 }
 
 void DungeonDialog::drawFog(int d, int xL, int xR, int yB, int nxL, int nxR, int nyB) {
+    Q_UNUSED(nxL);
+    Q_UNUSED(nxR);
     int alpha = qMax(60, 120 - (d * 20));
     m_dungeonScene->addRect(xL, yB, xR - xL, nyB - yB,
                             QPen(QColor(180, 180, 180, alpha), 1),
@@ -3144,6 +3147,9 @@ void DungeonDialog::drawFog(int d, int xL, int xR, int yB, int nxL, int nxR, int
 }
 
 void DungeonDialog::drawExtinguisher(int d, int xL, int xR, int yB, int nxL, int nxR, int nyB) {
+    Q_UNUSED(d);
+    Q_UNUSED(nxL);
+    Q_UNUSED(nxR);
     int centerX = xL + (xR - xL) * 0.7;
     int centerY = yB + (nyB - yB) * 0.3;
     int radius = (xR - xL) / 8;
@@ -3156,6 +3162,7 @@ void DungeonDialog::drawExtinguisher(int d, int xL, int xR, int yB, int nxL, int
 }
 
 void DungeonDialog::drawTreasure(int d, int xL, int xR, int yB) {
+    Q_UNUSED(d);
     int chestW = (xR - xL) * 0.5;
     int chestH = chestW * 0.6;
     int chestX = xL + (xR - xL) / 2 - chestW / 2;
@@ -3170,6 +3177,8 @@ void DungeonDialog::drawTreasure(int d, int xL, int xR, int yB) {
 }
 
 void DungeonDialog::drawTrap(int d, int xL, int xR, int yB, int nxL, int nxR, int nyB) {
+    Q_UNUSED(nxL);
+    Q_UNUSED(nxR);
     int spikeCount = 5;
     int spikeW = (xR - xL) / (spikeCount * 2);
     int spikeH = (nyB - yB) * 0.8;
