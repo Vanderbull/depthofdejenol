@@ -28,6 +28,10 @@ private slots:
     void onSpendStatPoint(int statIndex);
     void onTameCompanion();
     void onSellCompanion();
+    // v6.26.0: skill points allocation
+    void onAddFighting();
+    void onAddMagical();
+    void onAddThieving();
 
 private:
     void setupUi();
@@ -45,6 +49,14 @@ private:
     QLabel *m_goldLabel = nullptr;
     QLabel *m_statPointsLabel = nullptr;
     QLabel *m_playTimeLabel = nullptr;
+    // v6.26.0: skill points allocation UI
+    QLabel *m_skillPointsLabel = nullptr;
+    QLabel *m_fightingLabel = nullptr;
+    QLabel *m_magicalLabel = nullptr;
+    QLabel *m_thievingLabel = nullptr;
+    QPushButton *m_addFightingBtn = nullptr;
+    QPushButton *m_addMagicalBtn = nullptr;
+    QPushButton *m_addThievingBtn = nullptr;
     QTableWidget *m_statsTable = nullptr;
     QTableWidget *m_equipTable = nullptr;
     QTableWidget *m_guildTable = nullptr;

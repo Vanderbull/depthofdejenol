@@ -55,6 +55,35 @@ void CharacterSheetDialog::setupUi() {
     m_statPointsLabel = new QLabel;
     m_statPointsLabel->setStyleSheet("font-weight: bold; color: #2c5f2d;");
     mainLayout->addWidget(m_statPointsLabel);
+    // v6.26.0: skill points allocation UI
+    auto *skillLayout = new QHBoxLayout();
+    m_skillPointsLabel = new QLabel;
+    m_skillPointsLabel->setMinimumWidth(120);
+    skillLayout->addWidget(m_skillPointsLabel);
+    m_fightingLabel = new QLabel(tr("Fighting: "));
+    m_fightingLabel->setMinimumWidth(80);
+    skillLayout->addWidget(m_fightingLabel);
+    m_addFightingBtn = new QPushButton(tr("+1"));
+    m_addFightingBtn->setMaximumWidth(30);
+    skillLayout->addWidget(m_addFightingBtn);
+    m_magicalLabel = new QLabel(tr("Magical: "));
+    m_magicalLabel->setMinimumWidth(80);
+    skillLayout->addWidget(m_magicalLabel);
+    m_addMagicalBtn = new QPushButton(tr("+1"));
+    m_addMagicalBtn->setMaximumWidth(30);
+    skillLayout->addWidget(m_addMagicalBtn);
+    m_thievingLabel = new QLabel(tr("Thieving: "));
+    m_thievingLabel->setMinimumWidth(80);
+    skillLayout->addWidget(m_thievingLabel);
+    m_addThievingBtn = new QPushButton(tr("+1"));
+    m_addThievingBtn->setMaximumWidth(30);
+    skillLayout->addWidget(m_addThievingBtn);
+    skillLayout->addStretch();
+    mainLayout->addLayout(skillLayout);
+    // Connect skill buttons
+    connect(m_addFightingBtn, &QPushButton::clicked, this, &CharacterSheetDialog::onAddFighting);
+    connect(m_addMagicalBtn, &QPushButton::clicked, this, &CharacterSheetDialog::onAddMagical);
+    connect(m_addThievingBtn, &QPushButton::clicked, this, &CharacterSheetDialog::onAddThieving);
 
     mainLayout->addSpacing(10);
 
@@ -214,6 +243,11 @@ void CharacterSheetDialog::refreshSheet() {
 
     // Stat point pool — the player must see what they have to spend.
     m_statPointsLabel->setText(tr("Stat Points: %1").arg(c.statPoints));
+    // v6.26.0: skill points display
+    m_skillPointsLabel->setText(tr("Skill Points: %1").arg(c.skillPoints));
+    m_fightingLabel->setText(tr("Fighting: %1").arg(c.skillFighting));
+    m_magicalLabel->setText(tr("Magical: %1").arg(c.skillMagical));
+    m_thievingLabel->setText(tr("Thieving: %1").arg(c.skillThieving));
 
     // Effective stats — with per-stat spend buttons (v3.0.0 slice 3.4)
     QStringList statNames = {tr("Strength"), tr("Intelligence"), tr("Wisdom"),
@@ -392,5 +426,57 @@ void CharacterSheetDialog::onSellCompanion() {
             refreshSheet();
             return;
         }
+    }
+}
+
+// v6.26.0: skill points allocation slots
+void CharacterSheetDialog::onAddFighting() {
+    auto *gsm = gameStateManager::instance();
+    auto& members = gsm->getPartyMembers();
+    if (members.isEmpty()) return;
+    int idx = m_memberCombo->currentIndex();
+    if (idx < 0 || idx >= members.size()) idx = 0;
+    Character& c = members[idx];
+    if (c.skillPoints > 0) {
+        --c.skillPoints;
+        ++c.skillFighting;
+        refreshSheet();
+    } else {
+        QMessageBox::information(this, "No Skill Points",
+                                 "You have no skill points to spend. Gain a level to earn more.");
+    }
+}
+
+void CharacterSheetDialog::onAddMagical() {
+    auto *gsm = gameStateManager::instance();
+    auto& members = gsm->getPartyMembers();
+    if (members.isEmpty()) return;
+    int idx = m_memberCombo->currentIndex();
+    if (idx < 0 || idx >= members.size()) idx = 0;
+    Character& c = members[idx];
+    if (c.skillPoints > 0) {
+        --c.skillPoints;
+        ++c.skillMagical;
+        refreshSheet();
+    } else {
+        QMessageBox::information(this, "No Skill Points",
+                                 "You have no skill points to spend. Gain a level to earn more.");
+    }
+}
+
+void CharacterSheetDialog::onAddThieving() {
+    auto *gsm = gameStateManager::instance();
+    auto& members = gsm->getPartyMembers();
+    if (members.isEmpty()) return;
+    int idx = m_memberCombo->currentIndex();
+    if (idx < 0 || idx >= members.size()) idx = 0;
+    Character& c = members[idx];
+    if (c.skillPoints > 0) {
+        --c.skillPoints;
+        ++c.skillThieving;
+        refreshSheet();
+    } else {
+        QMessageBox::information(this, "No Skill Points",
+                                 "You have no skill points to spend. Gain a level to earn more.");
     }
 }
