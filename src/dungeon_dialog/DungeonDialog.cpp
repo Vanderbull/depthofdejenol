@@ -1564,6 +1564,28 @@ void DungeonDialog::on_pickupButton_clicked()
                     
                     // Refresh view to hide the body from the map
                     renderWireframeView();
+                    // Loot chance
+                    if (QRandomGenerator::global()->bounded(100) < 25) { // 25% chance
+                        // Loot table: Herb, Flask, Gold
+                        QStringList lootTable;
+                        lootTable << "Herb" << "Flask" << "Gold";
+                        QString loot = lootTable[QRandomGenerator::global()->bounded(lootTable.size())];
+                        if (loot == "Gold") {
+                            int goldAmount = QRandomGenerator::global()->bounded(16) + 5; // 5-20 gold
+                            gsm->spendPartyGold(-goldAmount); // Negative to add gold
+                            logMessage(QString("You find %1 gold on the corpse.").arg(goldAmount));
+                        } else {
+                            if (const ItemDef* def = ItemDatabase::instance().byName(loot)) {
+                                HeldItem lootItem;
+                                lootItem.M4E97 = static_cast<int16_t>(def->id);
+                                lootItem.identified = true;
+                                gsm->addItemToInventory(lootItem);
+                                logMessage(QString("You find a %1 on the corpse.").arg(loot));
+                            } else {
+                                logMessage(QString("You find something strange on the corpse, but can't identify it."));
+                            }
+                        }
+                    }
                     return;
                 } else {
                     // Shouldn't happen if canCarry returned true, but just in case
