@@ -213,6 +213,37 @@ void CombatController::advanceCombat()
         for (const QString& msg : statusMsgs) {
             if (m_logCallback) m_logCallback(msg);
         }
+
+        // v6.24.0: Process companion abilities that trigger at start of round
+        gameStateManager* gsm = gameStateManager::instance();
+        if (gsm) {
+            QList<Character> members = gsm->getPartyMembers();
+            if (!members.isEmpty()) {
+                bool focusActive = false;
+                for (int pm = 0; pm < members.size(); ++pm) {
+                    const Character& member = members[pm];
+                    for (int cmp = 0; cmp < member.companionCount(); ++cmp) {
+                        if (member.companionAbility(cmp) == "Focus") {
+                            focusActive = true;
+                            break;
+                        }
+                    }
+                    if (focusActive) break;
+                }
+                if (focusActive) {
+                    // Regenerate 1 mana for each party member (up to max)
+                    for (int pm = 0; pm < members.size(); ++pm) {
+                        Character& member = members[pm];
+                        if (member.mana < member.maxMana) {
+                            member.mana++;
+                            if (m_logCallback) m_logCallback(tr("Companion Focus grants 1 mana to %1.")
+                                                           .arg(member.name));
+                        }
+                    }
+                }
+            }
+        }
+
     }
 
     if (m_turnEngine->hasCurrentParticipant() && !m_combatActions->isPlayerTurn()) {
