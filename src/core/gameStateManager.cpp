@@ -50,6 +50,7 @@ void gameStateManager::initializeResources() {
     SpellClassRegistry::instance().load("data/SpellClasses.json");
 
     SkillTreeManager::instance().load();
+    CraftingRecipeManager::instance().load();
     // 5. Mark resources as loaded in the state map
     setGameValue("ResourcesLoaded",true);
     
@@ -2206,17 +2207,11 @@ void gameStateManager::addGameRecord(const GameRecord& record)
 
 QString gameStateManager::getCraftingRecipeResult(const QString& item1, const QString& item2)
 {
-    auto matches = [&](const QString& a, const QString& b) {
-        return (item1.contains(a, Qt::CaseInsensitive) && item2.contains(b, Qt::CaseInsensitive)) ||
-               (item1.contains(b, Qt::CaseInsensitive) && item2.contains(a, Qt::CaseInsensitive));
-    };
+    QStringList inputs;
+    inputs << item1 << item2;
+    return CraftingRecipeManager::instance().getResult(inputs);
 
-    if (matches("Herb", "Flask"))        return "Healing Potion";
-    if (matches("Iron Ore", "Iron Ore")) return "Iron Bar";
-
-    return QString();
 }
-
 // --- Global Gold Implementation ---
 
 int gameStateManager::getGold(int characterIndex) const {

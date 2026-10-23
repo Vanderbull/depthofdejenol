@@ -14,6 +14,7 @@ extern "C" {
 #include "src/core/dataRegistry.h"
 #include "src/audio/audioManager.h"
 #include "src/fontManager.h"
+#include "src/core/CraftingRecipeManager.h"
 #include "src/character/character.h"
 
 #include <QSettings>

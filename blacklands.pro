@@ -159,6 +159,8 @@ HEADERS += src/core/ResourcePaths.h
 SOURCES += src/core/ResourcePaths.cpp
 HEADERS += src/core/SoundEffects.h
 SOURCES += src/core/SoundEffects.cpp
+HEADERS += src/core/CraftingRecipeManager.h
+SOURCES += src/core/CraftingRecipeManager.cpp
 HEADERS += src/core/AlignmentSystem.h
 SOURCES += src/core/AlignmentSystem.cpp
 HEADERS += src/npc_dialog/NPCDialog.h
@@ -325,7 +327,7 @@ lessThan(VERSION_INT, 0): VERSION_INT = 0
 # Bump MAJOR for the first finishable release or a fundamental rework.
 # Bump MINOR for new features/mechanics. Bump PATCH for fixes/balance/polish.
 SEMVER_MAJOR = 6
-SEMVER_MINOR = 27
+SEMVER_MINOR = 28
 SEMVER_PATCH = 0
 SEMVER = \"$${SEMVER_MAJOR}.$${SEMVER_MINOR}.$${SEMVER_PATCH}\"
 

@@ -1,0 +1,27 @@
+[
+    {
+        "name": "Healing Potion",
+        "inputs": ["Herb", "Flask"],
+        "description": "Restores a small amount of HP."
+    },
+    {
+        "name": "Iron Bar",
+        "inputs": ["Iron Ore", "Iron Ore"],
+        "description": "Smelted iron ore."
+    },
+    {
+        "name": "Steel Bar",
+        "inputs": ["Iron Bar", "Coal"],
+        "description": "Strong alloy for weapons and armor."
+    },
+    {
+        "name": "Magic Scroll",
+        "inputs": ["Parchment", "Quill", "Ink"],
+        "description": "A scroll that can hold a spell."
+    },
+    {
+        "name": "Enchanted Blade",
+        "inputs": ["Steel Bar", "Gemstone", "Magic Scroll"],
+        "description": "A blade infused with magical energy."
+    }
+]
