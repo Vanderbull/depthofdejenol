@@ -39,18 +39,18 @@ fixed — it is never re-run against the same stale state.
 
 | # | Check | Expected (LVC) | How verified | Status |
 |---|-------|----------------|--------------|--------|
-| 0.1 | Companion joins from Mages | `Character::companions()` non-empty after bind | runtime harness: class=Mage, bind level-1 monster | ☐ |
-| 0.2 | Companion appears in dungeon | `getPartyMembers()[i].isCompanion()` true; name/race/level present | harness: read companion slot | ☐ |
-| 0.3 | Companion fights | temporary HP drops on attack | harness: `useCombatAction` vs a companion | ☐ |
-| 0.4 | Companion sells | Confinement sell returns gold, slot cleared | harness: gold before/after `sellCompanion` | ☐ |
-| 0.5 | Bad companion rejected | no crash / no cost when bind data is missing | harness: empty slot, expect `QMessageBox`, no crash | ☐ |
-| 1.1 | Sell returns gold | party gold increases | harness: gold before/after | ☐ |
-| 1.2 | Buy shows data | buy list non-empty | harness: `buyCompanion()` shows >0 items | ☐ |
-| 1.3 | Bind costs gold | handler records a cost, does not crash | harness: gold before/after | ☐ |
-| 2.1 | Identification has a fee | `Item::identifyPrice` > 0, fee charged | harness: identify an item, gold -fee | ☐ |
-| 2.2 | Gilden contracts pay gold | completing a contract increases party gold | harness: finish a gilden quest | ☐ |
-| 2.3 | Chest/container ops | store, retrieve, sell from chest | harness: store → retrieve → sell | ☐ |
-| 2.4 | Bad/legacy save survives | old save (no identification) still loads | load a v2 save, no crash | ☐ |
+| 0.1 | Companion joins from Mages | `Character::companions()` non-empty after bind | runtime harness: class=Mage, bind level-1 monster | ✅ PASS |
+| 0.2 | Companion appears in dungeon | `getPartyMembers()[i].isCompanion()` true; name/race/level present | harness: read companion slot | ✅ PASS |
+| 0.3 | Companion fights | temporary HP drops on attack | harness: `useCombatAction` vs a companion | ✅ PASS |
+| 0.4 | Companion sells | Confinement sell returns gold, slot cleared | harness: gold before/after `sellCompanion` | ✅ PASS |
+| 0.5 | Bad companion rejected | no crash / no cost when bind data is missing | harness: empty slot, expect `QMessageBox`, no crash | ✅ PASS |
+| 1.1 | Sell returns gold | party gold increases | harness: gold before/after | ✅ PASS |
+| 1.2 | Buy shows data | buy list non-empty | harness: `buyCompanion()` shows >0 items | ✅ PASS |
+| 1.3 | Bind costs gold | handler records a cost, does not crash | harness: gold before/after | ✅ PASS |
+| 2.1 | Identification has a fee | `Item::identifyPrice` > 0, fee charged | harness: identify an item, gold -fee | ✅ PASS |
+| 2.2 | Gilden contracts pay gold | completing a contract increases party gold | harness: finish a gilden quest | ✅ PASS |
+| 2.3 | Chest/container ops | store, retrieve, sell from chest | harness: store → retrieve → sell | ✅ PASS |
+| 2.4 | Bad/legacy save survives | old save (no identification) still loads | load a v2 save, no crash | ✅ PASS |
 
 **Run order:** 0.1→0.5 (companions), then 1.1→1.3 (confinement), then 2.1→2.4
 (economy). Gates: slice N passes before slice N+1 starts. A failed check is

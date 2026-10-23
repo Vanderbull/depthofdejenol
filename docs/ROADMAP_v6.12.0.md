@@ -70,7 +70,7 @@ felaktig lista leder nästa session fel.
 
 **Do:**
 - [x] Sätt status per punkt mot verifierat källäge, med commit-hash eller radhänvisning
-- [x] Inför statusprefix i rubrikerna (`✅ FIXED` / `🟡 ONGOING` / `❌ OPEN`)
+- [x] Inför statusprefix i rubrikerna (`✅ FIXED` / `✅ GJORT` / `❌ OPEN`)
 - [x] Uppdatera "Last reviewed"-raden
 
 **Verify:** Varje status går att belägga med en `grep` mot källkoden.

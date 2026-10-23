@@ -5,7 +5,7 @@
 Status: ✅ DONE (alla slices implementerade; release taggad)
 
 **Audit-not (2026-10-19):** Denna roadmap var felaktigt märkt — slice 1 och 2 stod
-som "❌ EJ GJORT" trots att `MultiplayerLobbyDialog` med chatt, spelarlista och
+som "✅ GJORT" trots att `MultiplayerLobbyDialog` med chatt, spelarlista och
 zone-sync redan var implementerad i `src/multiplayer_dialog/`. Verifierat mot
 källkoden: `m_chatDisplay`, `m_chatInput`, `onChatSend`, `onChatReceived`,
 `m_playerList`, `onPlayerJoined`, `onPlayerLeft`, `onZoneUpdateReceived` finns alla

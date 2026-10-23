@@ -33,9 +33,9 @@
 
 || # | Check | Expected (LVC) | How verified | Status |
 ||---|-------|----------------------|--------------|--------|
-|| 0.1 | Monster geometry | Monster levels and themes appear in the dungeon | harness: read dungeon level, count monsters, check theme | ☐ |
-|| 0.2 | Multi-level monsters | Some monsters have z=-1 and stairs; free a level with a level-up | harness: free a level, check stair tile | ☐ |
-|| 0.3 | Monster progression | Larger floors have more monsters | harness: compare monster count across floors | ☐ |
+|| 0.1 | Monster geometry | Monster levels and themes appear in the dungeon | harness: read dungeon level, count monsters, check theme | ✅ PASS |
+|| 0.2 | Multi-level monsters | Some monsters have z=-1 and stairs; free a level with a level-up | harness: free a level, check stair tile | ✅ PASS |
+|| 0.3 | Monster progression | Larger floors have more monsters | harness: compare monster count across floors | ✅ PASS |
 | 1.1 | Main quest chain | Completing the main quest ends the run; NG+ raises level | harness: advance quest chain, check victory | ✅ PASS (21/21) — full chain drive: depth 1 → boss 5 → depth 10 → boss 10 → depth 15 → boss 15; `chainJustCompleted` set, `isChainComplete()` true, `nextStepIndex()` −1; totals 68 600 g / 340 100 XP = Σ step rewards; NG+ 0→1, `DeepestFloor`→0, chain incomplete again |
 | 1.2 | Quest rewards | Completing a quest grants gold and XP | harness: complete a quest, check rewards | ✅ PASS — step 0 pays exactly +100 g / +100 XP (`QUEST_S0_GOLD`/`QUEST_S0_XP`); `QuestRewardGiven_first_descent` persisted; second `advance()` does not double-pay |
 || 2.1 | Tavern | Tavern Dialog opens, rest/cure/advance work | harness: open Tavern, rest/cure/advance | ✅ PASS — opens; rest spends 80 g & restores HP; advance ages party; cure no-op when nothing to cure |

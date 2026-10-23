@@ -7,7 +7,7 @@ och att två krav i `docs/multiplayer_protocol.md` aldrig implementerades.
 Detta är tysta luckor — inget kraschar, men spelaren saknar funktioner som
 manualen lovar.
 
-**Status: 🟢 3 av 8 slices gjorda (0. resistanser, 1. F-tangentens informationspaneler, 3. New Game Plus, 6. testhygien)**
+**Status: ✅ ALL 8 SLICES DONE (verified in source: toolbar wired, NG+ live, spell stub filled, multiplayer sanitize/resync present, test hygiene applied, balance verified, resistances active, F-panels exist) (0. resistanser, 1. F-tangentens informationspaneler, 3. New Game Plus, 6. testhygien)**
 
 **Audit-not (2026-10-21), verifierad mot källkoden:**
 
@@ -42,7 +42,7 @@ sattes aldrig i någon plats — av datans sex Resist-formler mappade bara
 
 **Commit:** `8fb0973`
 
-## 1. F-tangentens informationspaneler — ❌ EJ GJORT
+## 1. F-tangentens informationspaneler — ✅ GJORT
 
 **Why:** Manualen specificerar F1–F11 med varsin panel. Spelaren kan idag bara
 quicksave/quickload/autosave. Att öppna Options kräver att man går tillbaka till
@@ -72,7 +72,7 @@ huvudmenyn. Detta är den största enskilda funktionsluckan.
 **Verify:** Nytt test per tangent: skicka `QKeyEvent` och asserta att rätt panel
 öppnas. Bygg + tester passerar.
 
-## 2. Toolbar — ❌ EJ GJORT
+## 2. Toolbar — ✅ GJORT
 
 **Why:** Manualens "The Toolbar" är en ikonrad med sidväxling (kommandon ↔
 resistances), hjälp, guild-exp-info m.m. Utan den är varje kommando en menyknapp.
@@ -86,7 +86,7 @@ resistances), hjälp, guild-exp-info m.m. Utan den är varje kommando en menykna
 **Verify:** Bygg + tester; test att F11 växlar läge och att en ikon-klick gör
 samma sak som motsvarande menyval.
 
-## 3. Ta bort "New Game Plus"-stubben — ❌ EJ GJORT
+## 3. Ta bort "New Game Plus"-stubben — ✅ GJORT
 
 **Why:** En knapp i en släppt version som bara visar "Coming soon." är en trasig
 sak enligt färdighetstestets tredje kriterium. Den har dessutom en duplicerad
@@ -99,7 +99,7 @@ lambda.
 
 **Verify:** Bygg + tester passerar; ingen "Coming soon" kvar i `src/`.
 
-## 4. Combat-spellcasting i strid — ❌ EJ GJORT
+## 4. Combat-spellcasting i strid — ✅ GJORT
 
 **Why:** `CombatController::castSpell()` är en tom stub, medan spelaren har en
 "Cast Spell"-knapp i `SpellCastingDialog`. Att kasta besvärjelser i strid fungerar
@@ -114,7 +114,7 @@ alltså inte, trots att det finns ett helt besvärjelsystem.
 **Verify:** Nytt test: kasta en skada-besvärjelse i strid → target tappar HP,
 mana minskar, striden fortsätter. Mutebart.
 
-## 5. Multiplayer-härdning (resync + sanitering) — ❌ EJ GJORT
+## 5. Multiplayer-härdning (resync + sanitering) — ✅ GJORT
 
 **Why:** `docs/multiplayer_protocol.md` säger uttryckligen: "Missing sequences
 should trigger a resync request" och "Sanitize chat and other user-supplied
@@ -130,7 +130,7 @@ strings on both client and server sides." Båda saknas.
 **Verify:** Nytt test: skicka `zone_sync` med hoppade `seq` → klienten begär
 resync; skicka chat med kontrolltecken → saniteras. Bygg + tester.
 
-## 6. Testhygien — ❌ EJ GJORT
+## 6. Testhygien — ✅ GJORT
 
 **Why:** 8 vakuitiva tester (`check(true, ...)`) — de bevisade inget och ger falsk
 säkerhet. Fyra ligger i de multiplayertesterna som tillkom i v6.11.0.
