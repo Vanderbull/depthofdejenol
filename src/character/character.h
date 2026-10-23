@@ -94,6 +94,11 @@ struct Character {
     int hp = 10;           // runtime: current HP
     int maxHp = 10;        // runtime: max HP
     int gold = 0;          // runtime: gold on hand
+    // v6.25.0: skill points and skill levels
+    int skillPoints = 0;          // unspent skill points
+    int skillFighting = 0;        // points invested in Fighting skill
+    int skillMagical = 0;         // points invested in Magical skill
+    int skillThieving = 0;        // points invested in Thieving skill
 
     // --- Stats ---
     int strength = 8;
@@ -202,6 +207,7 @@ struct Character {
     int companionResistanceFire(int i) const { return M58CB[i].resistanceFire; }
     int companionResistanceCold(int i) const { return M58CB[i].resistanceCold; }
     int companionResistanceMental(int i) const { return M58CB[i].resistanceMental; }
+
     bool addCompanion(const QString& name, int level = 1) {
         for (int i = 0; i < 5; ++i) {
             if (M58CB[i].M548B.isEmpty()) {

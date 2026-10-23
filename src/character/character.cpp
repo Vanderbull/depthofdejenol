@@ -84,6 +84,10 @@ QVariantMap Character::toMap() const {
     map["HP"]           = hp;
     map["MaxHP"]        = maxHp;
     map["Gold"]         = gold;
+    map["SkillPoints"]  = skillPoints;
+    map["SkillFighting"] = skillFighting;
+    map["SkillMagical"]  = skillMagical;
+    map["SkillThieving"] = skillThieving;
     map["Strength"]     = strength;
     map["Intelligence"] = intelligence;
     map["Wisdom"]       = wisdom;
@@ -181,6 +185,10 @@ void Character::loadFromMap(const QVariantMap &map) {
     hp           = map.value("HP").toInt();
     maxHp        = map.value("MaxHP").toInt();
     gold         = map.value("Gold").toInt();
+    skillPoints  = map.value("SkillPoints", 0).toInt();
+    skillFighting = map.value("SkillFighting", 0).toInt();
+    skillMagical  = map.value("SkillMagical", 0).toInt();
+    skillThieving = map.value("SkillThieving", 0).toInt();
     
     strength     = map.value("Strength").toInt();
     intelligence = map.value("Intelligence").toInt();
@@ -839,6 +847,8 @@ void Character::addExperience(int amount) {
         hp = maxHp; // Heal on level up
         maxMana += 5;
         mana = maxMana;
+        // v6.25.0: award skill point on level up
+        skillPoints++;
     }
 }
 

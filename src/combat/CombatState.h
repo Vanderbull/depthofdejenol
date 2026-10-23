@@ -18,6 +18,7 @@ struct CombatParticipant {
     int def = 5;       // defense
     int speed = 5;     // initiative
     int dex = 5;       // dexterity (to-hit, initiative)
+    int skillFighting = 0;       // v6.25.0: skill points invested in Fighting skill
     bool isPlayer = false;
     bool isAlive = true;
     bool hasActed = false;  // true once this participant has acted this round

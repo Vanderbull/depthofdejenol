@@ -89,7 +89,7 @@ bool CombatActions::isPlayerTurn() const {
 int CombatActions::attackerSkill(const CombatParticipant& attacker) {
     // Level is the backbone; dexterity adds up to +6, then a hard ceiling so a
     // runaway dex cannot make every attack auto-hit.
-    return attacker.level + qBound(0, attacker.dex / 3, 6);
+    return attacker.level + qBound(0, attacker.dex / 3, 6) + attacker.skillFighting;
 }
 
 int CombatActions::targetArmorClass(const CombatParticipant& target) {
