@@ -8,8 +8,6 @@
     <file>seer.png</file>
     <file>bank.png</file>
     <file>exit_icon.png</file>
-    <file>images/monolith.png</file>
-    <file>images/warner.png</file>
 </qresource>
 <qresource prefix="/">
     <file>TheCity.qss</file>

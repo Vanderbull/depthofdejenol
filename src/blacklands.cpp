@@ -17,11 +17,6 @@
 #include <QInputDialog>
 #include <QKeyEvent>
 #include <QRegularExpression>
-#include <QJsonDocument>
-#include <QJsonObject>
-#include <QJsonArray>
-#include <QJsonValue>
-
 #include "src/race_data/RaceData.h"
 #include "src/core/DungeonLevelState.h"
 #include "src/core/GameSettings.h"
@@ -33,10 +28,6 @@
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QGridLayout>
-#include <QLabel>
-#include <QPixmap>
-#include <QString>
-#include <QFont>
 #include <QApplication>
 #include <QScreen>
 #include <QMessageBox>
@@ -85,252 +76,130 @@ GameMenu::GameMenu(QWidget *parent)
 }
 
 void GameMenu::setupUI() {
-    // Main layout: sidebar (fixed width) + content (stretches)
-    QHBoxLayout *mainLayout = new QHBoxLayout(this);
-    mainLayout->setContentsMargins(0, 0, 0, 0);
-    mainLayout->setSpacing(0);
+    QVBoxLayout *mainLayout = new QVBoxLayout(this);
+    mainLayout->setContentsMargins(40, 30, 40, 30);
+    mainLayout->setSpacing(12);
 
-    // ---------- Sidebar ----------
-    m_sidebar = new QWidget(this);
-    m_sidebar->setObjectName("sidebar");
-    m_sidebar->setFixedWidth(220);
-    QVBoxLayout *sidebarLayout = new QVBoxLayout(m_sidebar);
-    sidebarLayout->setContentsMargins(10, 10, 10, 10);
-    sidebarLayout->setSpacing(6);
 
-    // Sidebar title
-    m_sidebarTitleLabel = new QLabel(tr("MORDOR: DEPTHS OF DEJENOL"), m_sidebar);
-    m_sidebarTitleLabel->setObjectName("sidebarTitleLabel");
-    m_sidebarTitleLabel->setAlignment(Qt::AlignCenter);
-    sidebarLayout->addWidget(m_sidebarTitleLabel);
+    // Title and version removed per request.
+    mainLayout->addSpacing(20);
 
-    // Spacer
-    sidebarLayout->addStretch();
-
-    // Sidebar continue button
-    m_sidebarContinueButton = new QPushButton(tr("CONTINUE"), m_sidebar);
-    m_sidebarContinueButton->setObjectName("sidebarContinueButton");
-    m_sidebarContinueButton->setMinimumHeight(40);
-    QFont continueFont = m_sidebarContinueButton->font();
-    continueFont.setPointSize(18);
-    continueFont.setBold(true);
-    m_sidebarContinueButton->setFont(continueFont);
-    sidebarLayout->addWidget(m_sidebarContinueButton);
-
-    // Sidebar continue subtitle
-    m_sidebarContinueSubtitleLabel = new QLabel(tr("Chapter 14 - The Abyss"), m_sidebar);
-    m_sidebarContinueSubtitleLabel->setObjectName("sidebarContinueSubtitleLabel");
-    m_sidebarContinueSubtitleLabel->setAlignment(Qt::AlignCenter);
-    sidebarLayout->addWidget(m_sidebarContinueSubtitleLabel);
-
-    // Spacer
-    sidebarLayout->addStretch();
-
-    // Sidebar menu buttons
-    m_sidebarNewGameButton = new QPushButton(tr("NEW GAME"), m_sidebar);
-    m_sidebarNewGameButton->setObjectName("sidebarButton");
-    m_sidebarNewGameButton->setMinimumHeight(35);
-    m_sidebarNewGameButton->setFont(continueFont);
-    m_sidebarNewGameButton->setStyleSheet("QPushButton#sidebarButton { background-color: #2a2a2a; color: #cccccc; border: 1px solid #555; border-radius: 4px; padding: 8px; }"
-                                           "QPushButton#sidebarButton:hover { background-color: #3a3a3a; color: #ffffff; }");
-    sidebarLayout->addWidget(m_sidebarNewGameButton);
-
-    m_sidebarLoadGameButton = new QPushButton(tr("LOAD GAME"), m_sidebar);
-    m_sidebarLoadGameButton->setObjectName("sidebarButton");
-    m_sidebarLoadGameButton->setMinimumHeight(35);
-    m_sidebarLoadGameButton->setFont(continueFont);
-    m_sidebarLoadGameButton->setStyleSheet("QPushButton#sidebarButton { background-color: #2a2a2a; color: #cccccc; border: 1px solid #555; border-radius: 4px; padding: 8px; }"
-                                           "QPushButton#sidebarButton:hover { background-color: #3a3a3a; color: #ffffff; }");
-    sidebarLayout->addWidget(m_sidebarLoadGameButton);
-
-    m_sidebarOptionsButton = new QPushButton(tr("OPTIONS"), m_sidebar);
-    m_sidebarOptionsButton->setObjectName("sidebarButton");
-    m_sidebarOptionsButton->setMinimumHeight(35);
-    m_sidebarOptionsButton->setFont(continueFont);
-    m_sidebarOptionsButton->setStyleSheet("QPushButton#sidebarButton { background-color: #2a2a2a; color: #cccccc; border: 1px solid #555; border-radius: 4px; padding: 8px; }"
-                                           "QPushButton#sidebarButton:hover { background-color: #3a3a3a; color: #ffffff; }");
-    sidebarLayout->addWidget(m_sidebarOptionsButton);
-
-    m_sidebarExtrasButton = new QPushButton(tr("EXTRAS"), m_sidebar);
-    m_sidebarExtrasButton->setObjectName("sidebarButton");
-    m_sidebarExtrasButton->setMinimumHeight(35);
-    m_sidebarExtrasButton->setFont(continueFont);
-    m_sidebarExtrasButton->setStyleSheet("QPushButton#sidebarButton { background-color: #2a2a2a; color: #cccccc; border: 1px solid #555; border-radius: 4px; padding: 8px; }"
-                                         "QPushButton#sidebarButton:hover { background-color: #3a3a3a; color: #ffffff; }");
-    sidebarLayout->addWidget(m_sidebarExtrasButton);
-
-    m_sidebarQuitButton = new QPushButton(tr("QUIT GAME"), m_sidebar);
-    m_sidebarQuitButton->setObjectName("sidebarButton");
-    m_sidebarQuitButton->setMinimumHeight(35);
-    m_sidebarQuitButton->setFont(continueFont);
-    m_sidebarQuitButton->setStyleSheet("QPushButton#sidebarButton { background-color: #2a2a2a; color: #cccccc; border: 1px solid #555; border-radius: 4px; padding: 8px; }"
-                                       "QPushButton#sidebarButton:hover { background-color: #3a3a3a; color: #ffffff; }");
-    sidebarLayout->addWidget(m_sidebarQuitButton);
-
-    // ---------- Content ----------
-    m_content = new QWidget(this);
-    m_content->setObjectName("content");
-    m_contentLayout = new QVBoxLayout(m_content);
-    m_contentLayout->setContentsMargins(0, 0, 0, 0);
-    m_contentLayout->setSpacing(10);
-
-    // Menu title
-    m_menuTitleLabel = new QLabel(tr("DEPTHS OF DEJENOL"), m_content);
-    m_menuTitleLabel->setObjectName("menuTitleLabel");
-    m_menuTitleLabel->setAlignment(Qt::AlignCenter);
-    m_contentLayout->addWidget(m_menuTitleLabel);
-
-    // Continue button
-    m_continueButton = new QPushButton(tr("CONTINUE"), m_content);
+    // --- Continue Section (primary, only when autosave exists) ---
+    QHBoxLayout *continueLayout = new QHBoxLayout();
+    continueLayout->addStretch();
+    m_continueButton = new QPushButton(tr("CONTINUE"), this);
     m_continueButton->setObjectName("continueButton");
-    m_continueButton->setMinimumHeight(55);
-    QFont continueFont2 = m_continueButton->font();
-    continueFont2.setPointSize(18);
-    continueFont2.setBold(true);
-    m_continueButton->setFont(continueFont2);
-    m_contentLayout->addWidget(m_continueButton);
+    m_continueButton->setMinimumHeight(50);
+    m_continueButton->setToolTip(tr("Load saved game"));
+    QFont continueFont = m_continueButton->font();
+    continueFont.setPointSize(16);
+    continueFont.setBold(true);
+    m_continueButton->setFont(continueFont);
+    continueLayout->addWidget(m_continueButton, 0, Qt::AlignCenter);
+    continueLayout->addStretch();
+    mainLayout->addLayout(continueLayout);
 
-    // Continue subtitle
-    m_continueSubtitleLabel = new QLabel(tr("Chapter 14 - The Abyss"), m_content);
-    m_continueSubtitleLabel->setObjectName("continueSubtitleLabel");
-    m_continueSubtitleLabel->setAlignment(Qt::AlignCenter);
-    m_contentLayout->addWidget(m_continueSubtitleLabel);
-
-    // Party preview
-    m_partyPreviewLabel = new QLabel(tr("No saved game"), m_content);
+    QHBoxLayout *previewLayout = new QHBoxLayout();
+    previewLayout->addStretch();
+    m_partyPreviewLabel = new QLabel(tr("No saved game"), this);
     m_partyPreviewLabel->setObjectName("partyPreviewLabel");
     m_partyPreviewLabel->setWordWrap(true);
     m_partyPreviewLabel->setAlignment(Qt::AlignCenter);
     m_partyPreviewLabel->setFrameStyle(QFrame::StyledPanel | QFrame::Sunken);
     m_partyPreviewLabel->setMinimumHeight(40);
     m_partyPreviewLabel->setMaximumWidth(400);
-    m_contentLayout->addWidget(m_partyPreviewLabel);
+    previewLayout->addWidget(m_partyPreviewLabel);
+    previewLayout->addStretch();
+    mainLayout->addLayout(previewLayout);
 
-    // Main actions grid
+    mainLayout->addSpacing(10);
+
+    // --- Main Actions (2x3 grid, centered) ---
     QGridLayout *actionsGrid = new QGridLayout();
     actionsGrid->setSpacing(10);
     actionsGrid->setColumnStretch(0, 1);
     actionsGrid->setColumnStretch(1, 1);
     actionsGrid->setColumnStretch(2, 1);
 
-    // New Game button
-    m_newButton = new QPushButton(tr("New Game"), m_content);
-    m_newButton->setObjectName("gridButton");
+    m_newButton = new QPushButton(tr("New Game"), this);
+    m_newButton->setObjectName("newGameButton");
     m_newButton->setMinimumHeight(55);
+    m_newButton->setToolTip(tr("Start a new game"));
     QFont actionFont = m_newButton->font();
     actionFont.setPointSize(13);
     actionFont.setBold(true);
     m_newButton->setFont(actionFont);
     actionsGrid->addWidget(m_newButton, 0, 0, Qt::AlignCenter);
 
-    // Create Character button
-    m_createCharacterButton = new QPushButton(tr("Create Character"), m_content);
-    m_createCharacterButton->setObjectName("gridButton");
+    m_createCharacterButton = new QPushButton(tr("Create Character"), this);
+    m_createCharacterButton->setObjectName("createCharacterButton");
     m_createCharacterButton->setMinimumHeight(55);
+    m_createCharacterButton->setToolTip(tr("Create a new character"));
     m_createCharacterButton->setFont(actionFont);
     actionsGrid->addWidget(m_createCharacterButton, 0, 1, Qt::AlignCenter);
 
-    // Assemble Party button
-    m_assemblePartyButton = new QPushButton(tr("Assemble Party"), m_content);
-    m_assemblePartyButton->setObjectName("gridButton");
+    m_assemblePartyButton = new QPushButton(tr("Assemble Party"), this);
+    m_assemblePartyButton->setObjectName("assemblePartyButton");
     m_assemblePartyButton->setMinimumHeight(55);
     m_assemblePartyButton->setFont(actionFont);
     actionsGrid->addWidget(m_assemblePartyButton, 0, 2, Qt::AlignCenter);
 
-    // Save Game button
-    m_saveButton = new QPushButton(tr("Save Game"), m_content);
-    m_saveButton->setObjectName("gridButton");
+    m_saveButton = new QPushButton(tr("Save Game"), this);
+    m_saveButton->setObjectName("saveGameButton");
     m_saveButton->setMinimumHeight(55);
     m_saveButton->setFont(actionFont);
     actionsGrid->addWidget(m_saveButton, 1, 0, Qt::AlignCenter);
 
-    // Load Game button
-    m_loadButton = new QPushButton(tr("Load Game"), m_content);
-    m_loadButton->setObjectName("gridButton");
+    m_loadButton = new QPushButton(tr("Load Game"), this);
+    m_loadButton->setObjectName("loadGameButton");
     m_loadButton->setMinimumHeight(55);
     m_loadButton->setFont(actionFont);
     actionsGrid->addWidget(m_loadButton, 1, 1, Qt::AlignCenter);
 
-    // Hall of Records button
-    m_recordsButton = new QPushButton(tr("Hall of Records"), m_content);
-    m_recordsButton->setObjectName("gridButtonSmall");
-    m_recordsButton->setMinimumHeight(50);
+    m_recordsButton = new QPushButton(tr("Hall of Records"), this);
+    m_recordsButton->setObjectName("recordsButton");
+    m_recordsButton->setMinimumHeight(55);
     QFont secondaryFont = m_recordsButton->font();
     secondaryFont.setPointSize(11);
     m_recordsButton->setFont(secondaryFont);
     actionsGrid->addWidget(m_recordsButton, 1, 2, Qt::AlignCenter);
 
-    m_contentLayout->addLayout(actionsGrid);
+    mainLayout->addLayout(actionsGrid);
 
-    // Footer
+    mainLayout->addStretch();
+
+    // --- Footer ---
     QHBoxLayout *footerLayout = new QHBoxLayout();
     footerLayout->setSpacing(8);
+
     footerLayout->addStretch(1);
 
-    m_optionsButton = new QPushButton(tr("Options"), m_content);
-    m_optionsButton->setObjectName("footerButton");
-    m_optionsButton->setMinimumHeight(40);
+    m_optionsButton = new QPushButton(tr("Options"), this);
+    m_optionsButton->setObjectName("optionsButton");
+    m_optionsButton->setMinimumHeight(55);
     footerLayout->addWidget(m_optionsButton);
 
-    m_multiplayerButton = new QPushButton(tr("Multiplayer"), m_content);
-    m_multiplayerButton->setObjectName("footerButton");
-    m_multiplayerButton->setMinimumHeight(40);
+    m_multiplayerButton = new QPushButton(tr("Multiplayer"), this);
+    m_multiplayerButton->setObjectName("multiplayerButton");
+    m_multiplayerButton->setMinimumHeight(55);
     m_multiplayerButton->setToolTip(tr("Connect to multiplayer server"));
     footerLayout->addWidget(m_multiplayerButton);
 
-    m_tutorialButton = new QPushButton(tr("Tutorial"), m_content);
-    m_tutorialButton->setObjectName("footerButton");
-    m_tutorialButton->setMinimumHeight(40);
+    m_tutorialButton = new QPushButton(tr("Tutorial"), this);
+    m_tutorialButton->setObjectName("tutorialButton");
+    m_tutorialButton->setMinimumHeight(55);
     m_tutorialButton->setToolTip(tr("Show a step-by-step guide (Ctrl+T)"));
     footerLayout->addWidget(m_tutorialButton);
 
-    m_quitButton = new QPushButton(tr("Quit"), m_content);
-    m_quitButton->setObjectName("footerButton");
-    m_quitButton->setMinimumHeight(40);
+    m_quitButton = new QPushButton(tr("Quit"), this);
+    m_quitButton->setObjectName("quitButton");
+    m_quitButton->setMinimumHeight(55);
     m_quitButton->setToolTip(tr("Exit the game"));
     footerLayout->addWidget(m_quitButton);
 
     footerLayout->addStretch(1);
-    m_contentLayout->addLayout(footerLayout);
 
-    // Press hint label (left)
-    m_pressHintLabel = new QLabel(tr("PRESS A TO SELECT"), m_content);
-    m_pressHintLabel->setObjectName("pressHintLabel");
-    m_pressHintLabel->setAlignment(Qt::AlignBottom | Qt::AlignLeft);
-    m_contentLayout->addWidget(m_pressHintLabel);
-
-    // Press hint label (right)
-    m_pressHintLabelRight = new QLabel(tr("PRESS A TO SELECT"), m_content);
-    m_pressHintLabelRight->setObjectName("pressHintLabelRight");
-    m_pressHintLabelRight->setAlignment(Qt::AlignBottom | Qt::AlignRight);
-    m_contentLayout->addWidget(m_pressHintLabelRight);
-
-    // Partner logos
-    m_logoLabel1 = new QLabel(m_content);
-    m_logoLabel1->setObjectName("logoLabel");
-    m_logoLabel1->setAlignment(Qt::AlignBottom | Qt::AlignRight);
-    QPixmap logo1(":/images/monolith.png");
-    if (!logo1.isNull()) {
-        m_logoLabel1->setPixmap(logo1.scaled(120, 60, Qt::KeepAspectRatio, Qt::SmoothTransformation));
-    } else {
-        m_logoLabel1->setText("Monolith");
-    }
-    m_contentLayout->addWidget(m_logoLabel1);
-
-    m_logoLabel2 = new QLabel(m_content);
-    m_logoLabel2->setObjectName("logoLabel");
-    m_logoLabel2->setAlignment(Qt::AlignBottom | Qt::AlignRight);
-    QPixmap logo2(":/images/warner.png");
-    if (!logo2.isNull()) {
-        m_logoLabel2->setPixmap(logo2.scaled(120, 60, Qt::KeepAspectRatio, Qt::SmoothTransformation));
-    } else {
-        m_logoLabel2->setText("Warner");
-    }
-    m_contentLayout->addWidget(m_logoLabel2);
-
-    // Add sidebar and content to main layout
-    mainLayout->addWidget(m_sidebar, 0, Qt::AlignTop);
-    mainLayout->addWidget(m_content, 1, Qt::AlignTop);
+    mainLayout->addLayout(footerLayout);
 
     // The menu's sizes and weights are its own typography; the family follows
     // the font the player chose in Options.
@@ -346,6 +215,7 @@ void GameMenu::setupUI() {
         showNormal();
     }
 }
+
 void GameMenu::syncFontsToAppFont() {
     const QFont appFont = QApplication::font();
     if (appFont.family().isEmpty())
@@ -356,10 +226,7 @@ void GameMenu::syncFontsToAppFont() {
     const QList<QWidget*> synced = {
         m_continueButton, m_newButton, m_createCharacterButton,
         m_assemblePartyButton, m_saveButton, m_loadButton,
-        m_recordsButton, m_optionsButton, m_multiplayerButton, m_quitButton,
-        m_sidebarContinueButton, m_sidebarNewGameButton,
-        m_sidebarLoadGameButton, m_sidebarOptionsButton,
-        m_sidebarExtrasButton, m_sidebarQuitButton
+        m_recordsButton, m_optionsButton, m_multiplayerButton, m_quitButton
     };
     for (QWidget *w : synced) {
         if (!w)
@@ -381,14 +248,6 @@ void GameMenu::setupConnections() {
     connect(m_multiplayerButton, &QPushButton::clicked, this, &GameMenu::onMultiplayerClicked);
     connect(m_tutorialButton, &QPushButton::clicked, this, &GameMenu::onTutorialClicked);
     connect(m_quitButton, &QPushButton::clicked, this, &GameMenu::quitGame);
-
-    // Sidebar Signals
-    connect(m_sidebarContinueButton, &QPushButton::clicked, this, &GameMenu::onContinueClicked);
-    connect(m_sidebarNewGameButton, &QPushButton::clicked, this, &GameMenu::startNewGame);
-    connect(m_sidebarLoadGameButton, &QPushButton::clicked, this, &GameMenu::loadGame);
-    connect(m_sidebarOptionsButton, &QPushButton::clicked, this, &GameMenu::onOptionsClicked);
-    connect(m_sidebarExtrasButton, &QPushButton::clicked, this, &GameMenu::onExtrasClicked);
-    connect(m_sidebarQuitButton, &QPushButton::clicked, this, &GameMenu::quitGame);
 
     // Engine Signals
     connect(EventManager::instance(), &EventManager::eventTriggered, this, &GameMenu::onEventTriggered);
@@ -629,7 +488,6 @@ void GameMenu::saveGame() {
 }
 
 void GameMenu::onCharacterCreated(const QString &characterName) {
-    Q_UNUSED(characterName);
     // CreateCharacterDialog already saved the character to data/characters/.
     // Return to the main menu so the user can assemble a party and start a game.
     // Do NOT save the game here — creating a character must not overwrite autosave.
@@ -656,11 +514,6 @@ void GameMenu::onMultiplayerClicked() {
 
 void GameMenu::onTutorialClicked() {
     (new TutorialDialog(this))->show();
-}
-
-void GameMenu::onExtrasClicked() {
-    // Placeholder: open extras menu or show a message
-    QMessageBox::about(this, tr("Extras"), tr("Extras functionality is under construction."));
 }
 
 void GameMenu::keyPressEvent(QKeyEvent *event) {
