@@ -51,6 +51,11 @@ struct Companion {
     int16_t M4EA1;
     int16_t M57E1;
     int16_t M4EEE;
+    // v6.22.0 substantial feature: companion abilities and resistances
+    QString ability;         // active ability name (e.g. "Bind", "Charm")
+    int resistanceFire = 0; // resistance percentages (0-100)
+    int resistanceCold = 0;
+    int resistanceMental = 0;
 };
 
 struct T57EF {

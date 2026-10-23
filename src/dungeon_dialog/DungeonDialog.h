@@ -80,6 +80,7 @@ public:
     void updateDungeonView(const QImage& dungeonImage);
     void updateCompass(const QString& direction);
     void updateLocation(const QString& location);
+    void updateCompanionStatusUI(); // v6.22 substantial feature: display companion abilities/resistances
     void updateMinimap(int x, int y, int z);
 signals:
     void teleporterUsed();

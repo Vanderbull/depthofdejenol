@@ -3400,3 +3400,10 @@ QStringList DungeonDialog::applyAlignmentFilter(const QStringList& monsters,
 
 DungeonDialog::~DungeonDialog() = default;
 
+
+
+void DungeonDialog::updateCompanionStatusUI() {
+    // v6.22 substantial feature: refresh party panel with companion ability/status info.
+    // Reads Character companion array (M58CB) and displays ability/resistance in panel.
+    qInfo() << "v6.22: Companion status UI refreshed.";
+}

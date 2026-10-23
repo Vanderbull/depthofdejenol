@@ -153,6 +153,12 @@ QVariantMap Character::toMap() const {
             QVariantMap slot;
             slot["Name"] = nm;
             slot["Level"] = companionLevel(ci);
+            // v6.22 substantial feature: serialize companion abilities/resistances
+            const Companion& c = M58CB[ci];
+            if (!c.ability.isEmpty()) slot["Ability"] = c.ability;
+            slot["ResFire"] = c.resistanceFire;
+            slot["ResCold"] = c.resistanceCold;
+            slot["ResMental"] = c.resistanceMental;
             compList.append(slot);
         }
     }
@@ -260,6 +266,10 @@ void Character::loadFromMap(const QVariantMap &map) {
                     if (M58CB[i].M548B.isEmpty()) {
                         M58CB[i].M548B = nm;
                         M58CB[i].M4ED4 = slot["Level"].toInt();
+                        M58CB[i].ability = slot.value("Ability", "").toString();
+                        M58CB[i].resistanceFire = slot.value("ResFire", 0).toInt();
+                        M58CB[i].resistanceCold = slot.value("ResCold", 0).toInt();
+                        M58CB[i].resistanceMental = slot.value("ResMental", 0).toInt();
                         break;
                     }
                 }
