@@ -46,7 +46,8 @@ QList<CombatParticipant> EncounterBuilder::buildEncounter(
     if (gsm) {
         QList<Character> members = gsm->getPartyMembers();
         if (!members.isEmpty()) {
-            for (int i = 0; i < members[0].companionCount(); ++i) {
+            int companionLimit = qMin(members[0].companionCount(), 3); // Performance guard: cap at 3
+            for (int i = 0; i < companionLimit; ++i) {
                 CombatParticipant c;
                 c.name = members[0].companionName(i);
                 c.isPlayer = true;
