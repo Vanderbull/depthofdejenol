@@ -323,7 +323,7 @@ lessThan(VERSION_INT, 0): VERSION_INT = 0
 # Bump MAJOR for the first finishable release or a fundamental rework.
 # Bump MINOR for new features/mechanics. Bump PATCH for fixes/balance/polish.
 SEMVER_MAJOR = 6
-SEMVER_MINOR = 18
+SEMVER_MINOR = 19
 SEMVER_PATCH = 0
 SEMVER = \"$${SEMVER_MAJOR}.$${SEMVER_MINOR}.$${SEMVER_PATCH}\"
 
@@ -352,4 +352,3 @@ check.depends = first
 check.commands = python3 $$quote($$PWD/tools/check_orphaned_systems.py)
 
 # Headless test environment guard
-check.commands += $(COPY_FILE) $$quote($$PWD/.env) $$quote($$PWD/.env) || $(SHELL) -c 'QT_QPA_PLATFORM=offscreen python3 $$quote($$PWD/tools/check_orphaned_systems.py)'
