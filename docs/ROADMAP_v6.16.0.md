@@ -41,8 +41,8 @@
 || 2.1 | Tavern | Tavern Dialog opens, rest/cure/advance work | harness: open Tavern, rest/cure/advance | ✅ PASS — opens; rest spends 80 g & restores HP; advance ages party; cure no-op when nothing to cure |
 || 2.2 | Bank | Bank Dialog opens, deposit/withdraw works | harness: deposit/withdraw works | ✅ PASS — deposit all empties party gold to 0 & bank +920; withdraw all restores both |
 || 2.3 | Alignments | Enemy types depend on alignment | harness: change alignment, check enemies | ✅ PASS — Evil faces only high-alignment (holy) monsters (57), Neutral only neutral (92), Good only low (92); sets differ by alignment |
-|| 3.1 | Monster hints | Monster hints show level, HP, attack, defence | harness: read monster hint | ☐ |
-|| 3.2 | Equipment | Equipment modifies stats | harness: equip an item, check stats | ☐ |
+|| 3.1 | Monster hints | Monster hints show level, HP, attack, defence | harness: read monster hint | ✅ PASS — 12/12 checks: bestiary has 401 entries, all with level/hits/att/def; Aboleth (lvl1, HP65, att7, def25) & Black Bear (lvl1, HP10, att7, def6) verified |
+|| 3.2 | Equipment | Equipment modifies stats | harness: equip an item, check stats | ✅ PASS — 9/9 checks: item DB loaded (370 items), equip & unequip works, effective strength = base + strMod (8 + 2 = 10) |
 
 **Run order:** 0.1→0.3 (dungeon), then 1.1→1.2 (quest), then 2.1→2.3 (town), then 3.1→3.2 (monster & treasure). Gates: slice N passes before slice N+1 starts. A failed check is recorded with its failure reason and retried only after the fix — never hidden.
 
