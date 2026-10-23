@@ -80,22 +80,8 @@ void GameMenu::setupUI() {
     mainLayout->setContentsMargins(40, 30, 40, 30);
     mainLayout->setSpacing(12);
 
-    // --- Title Section ---
-    m_titleLabel = new QLabel(tr("THE DEPTHS OF DEJENOL"), this);
-    QFont titleFont = m_titleLabel->font();
-    titleFont.setPointSize(28);
-    titleFont.setBold(true);
-    m_titleLabel->setFont(titleFont);
-    m_titleLabel->setAlignment(Qt::AlignCenter);
-    mainLayout->addWidget(m_titleLabel);
 
-    m_versionLabel = new QLabel(tr("BLACK LANDS — v5.0.0"), this);
-    QFont versionFont = m_versionLabel->font();
-    versionFont.setPointSize(12);
-    m_versionLabel->setFont(versionFont);
-    m_versionLabel->setAlignment(Qt::AlignCenter);
-    mainLayout->addWidget(m_versionLabel);
-
+    // Title and version removed per request.
     mainLayout->addSpacing(20);
 
     // --- Continue Section (primary, only when autosave exists) ---

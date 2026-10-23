@@ -51,8 +51,7 @@ private:
     void refreshContinueState();
     QString partyPreviewText() const;
 
-    QLabel *m_titleLabel = nullptr;
-    QLabel *m_versionLabel = nullptr;
+
     QLabel *m_partyPreviewLabel = nullptr;
     QPushButton *m_continueButton = nullptr;
     QPushButton *m_newButton = nullptr;
