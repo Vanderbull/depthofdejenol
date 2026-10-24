@@ -4,11 +4,14 @@
 #include <QWidget>
 #include <QDialog>
 #include <QSettings>
+#include <QVBoxLayout>
+#include <QHBoxLayout>
+#include <QGridLayout>
+#include <QPushButton>
+#include <QLabel>
 
 #include "./src/event/EventManager.h"
 
-class QLabel;
-class QPushButton;
 class QListWidget;
 
 class GameMenu : public QWidget {
@@ -39,6 +42,8 @@ private slots:
     void onAssemblePartyClicked();
     void onMultiplayerClicked();
     void onTutorialClicked();
+    // Called when the EXTRAS menu item is activated.
+    void onExtrasClicked();
     // Re-applies the app font's family to the widgets that carry a font of
     // their own, so the menu follows the font chosen in Options.
     void syncFontsToAppFont();
@@ -64,6 +69,25 @@ private:
     QPushButton *m_multiplayerButton = nullptr;
     QPushButton *m_tutorialButton = nullptr;
     QPushButton *m_quitButton = nullptr;
+    QLabel *m_pressHintLabel = nullptr;
+    QLabel *m_pressHintLabelRight = nullptr;
+    QWidget *m_sidebar = nullptr;
+    QVBoxLayout *m_sidebarLayout = nullptr;
+    QPushButton *m_sidebarContinueButton = nullptr;
+    QPushButton *m_sidebarNewGameButton = nullptr;
+    QPushButton *m_sidebarLoadGameButton = nullptr;
+    QPushButton *m_sidebarOptionsButton = nullptr;
+    QPushButton *m_sidebarExtrasButton = nullptr;
+    QPushButton *m_sidebarQuitButton = nullptr;
+    QWidget *m_content = nullptr;
+    QVBoxLayout *m_contentLayout = nullptr;
+    QLabel *m_continueSubtitleLabel = nullptr;
+    QLabel *m_sidebarContinueSubtitleLabel = nullptr;
+    QPushButton *m_extrasButton = nullptr;
+    QLabel *m_logoLabel1 = nullptr;
+    QLabel *m_logoLabel2 = nullptr;
+    QLabel *m_menuTitleLabel = nullptr;
+    QLabel *m_sidebarTitleLabel = nullptr;
     QSettings m_settings;
     QString m_subfolderName;
     QPixmap m_backgroundPixmap;
