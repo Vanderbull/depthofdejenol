@@ -20,11 +20,6 @@ public:
     explicit CharacterSheetDialog(QWidget *parent = nullptr);
     ~CharacterSheetDialog() override;
 
-private slots:
-    void onMemberChanged(int index);
-    void onExitClicked();
-    void onSpendStatPoint(int statIndex);
-
 private:
     void setupUi();
     void refreshSheet();
@@ -48,6 +43,17 @@ private:
     QPushButton *m_exitBtn = nullptr;
     // v3.0.0 slice 3.4: per-stat spend buttons, one per stats-table row
     QList<QPushButton*> m_spendButtons;
+
+    // v6.1.0 slice 6.1a: skill allocation
+    QTableWidget *m_skillTable = nullptr;
+    QPushButton *m_learnSkillButton = nullptr;
+    QLabel *m_skillPointsLabel = nullptr;
+
+private slots:
+    void onMemberChanged(int index);
+    void onExitClicked();
+    void onSpendStatPoint(int statIndex);
+    void onLearnSkill();
 };
 
 #endif // CHARACTERSHEETDIALOG_H

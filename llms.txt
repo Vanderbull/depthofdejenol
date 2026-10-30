@@ -1,0 +1,6 @@
+# BlackLands (depthofdejenol) – Repository Quick Index
+
+- Language: C++20, Qt 6
+- Skill system: src/skill (v6.1.0 slice 6.1a)
+- Test suite: test/ (run with `make check`)
+- Full reference: llms-full.txt

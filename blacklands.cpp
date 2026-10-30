@@ -508,14 +508,20 @@ GameMenu::~GameMenu() {
 }
 
 int main(int argc, char *argv[]) {
-    // Force X11 for Wayland compatibility
-    qputenv("QT_QPA_PLATFORM", "xcb");
+    // Determine platform based on command line argument
+    QString platform = "xcb"; // default for normal run
+    for (int i = 0; i < argc; ++i) {
+        if (QString::fromLocal8Bit(argv[i]) == "--selftest") {
+            platform = "offscreen";
+            break;
+        }
+    }
+    qputenv("QT_QPA_PLATFORM", qPrintable(platform));
     QApplication a(argc, argv);
 
     // Headless verification suite (`make check`). Runs without any GUI so it
     // can gate every change; see test/selftest.cpp.
     if (a.arguments().contains("--selftest")) {
-        qputenv("QT_QPA_PLATFORM", "offscreen");
         int rc = runSelfTest();
         if (rc != 0) return rc;
         return runEquipmentTest();

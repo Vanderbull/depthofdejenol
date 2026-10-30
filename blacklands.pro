@@ -70,7 +70,8 @@ SOURCES += \
     src/event/EventManager.cpp \
     src/update/UpdateManager.cpp \
     src/update/UpdateDialog.cpp \
-    character.cpp
+    character.cpp \
+    src/skill/SkillDatabase.cpp
 
 #--------------------------------------------------
 # Self-test harness
@@ -215,7 +216,8 @@ HEADERS += \
     src/dungeon_dialog/MinimapDialog.h \
     src/update/UpdateManager.h \
     src/update/UpdateDialog.h \
-    character.h
+    character.h \
+    src/skill/SkillDatabase.h
 
 HEADERS += src/spell_casting/SpellCastingDialog.h
 SOURCES += src/spell_casting/SpellCastingDialog.cpp
@@ -311,7 +313,7 @@ lessThan(VERSION_INT, 0): VERSION_INT = 0
 # Bump MAJOR for the first finishable release or a fundamental rework.
 # Bump MINOR for new features/mechanics. Bump PATCH for fixes/balance/polish.
 SEMVER_MAJOR = "6"
-SEMVER_MINOR = "0"
+SEMVER_MINOR = "1"
 SEMVER_PATCH = 0
 SEMVER = \"$${SEMVER_MAJOR}.$${SEMVER_MINOR}.$${SEMVER_PATCH}\"
 

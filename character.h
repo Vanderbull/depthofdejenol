@@ -93,6 +93,16 @@ struct Character {
     // than a random roll.
     int statPoints = 0;
 
+    // v6.1.0 slice 6.1a: skill acquisition
+    int m_skillPoints = 0;                // unspent skill points
+    QMap<QString, int> skillLevels;     // skill name -> level (0 = not learned)
+
+    // Skill acquisition
+    void addSkillPoints(int points);
+    int skillPoints() const;
+    int skillLevel(const QString& skillName) const;
+    bool learnSkill(const QString& skillName, int& newLevel, QString& error);
+
     // v3.0.0 slice 3.6: total play time in seconds. Persisted so the Hall of
     // Records can sort by it.
     int playTimeSeconds = 0;

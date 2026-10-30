@@ -3,8 +3,10 @@
 #include "character.h"
 #include "src/items/ItemDatabase.h"
 #include "src/spell_casting/SpellBook.h"
+#include "src/skill/SkillDatabase.h"
 #include <QtWidgets>
 #include <QMessageBox>
+#include <QAbstractItemView>
 
 CharacterSheetDialog::CharacterSheetDialog(QWidget *parent) : QDialog(parent) {
     setupUi();
@@ -93,6 +95,25 @@ void CharacterSheetDialog::setupUi() {
     m_spellsText->setMaximumHeight(100);
     spellsLayout->addWidget(m_spellsText);
     mainLayout->addWidget(spellsGroup);
+
+    // Skill Allocation
+    auto *skillGroup = new QGroupBox(tr("Skill Allocation"));
+    auto *skillLayout = new QVBoxLayout(skillGroup);
+
+    m_skillTable = new QTableWidget(0, 4);
+    m_skillTable->setHorizontalHeaderLabels({tr("Skill"), tr("Level"), tr("Prerequisite"), tr("Cost")});
+    m_skillTable->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    skillLayout->addWidget(m_skillTable);
+
+    m_skillPointsLabel = new QLabel(tr("Skill Points: 0"));
+    skillLayout->addWidget(m_skillPointsLabel);
+
+    m_learnSkillButton = new QPushButton(tr("Learn Selected Skill"));
+    skillLayout->addWidget(m_learnSkillButton);
+
+    mainLayout->addWidget(skillGroup);
+
+    connect(m_learnSkillButton, &QPushButton::clicked, this, &CharacterSheetDialog::onLearnSkill);
 
     // Exit
     m_exitBtn = new QPushButton(tr("Close"));
@@ -238,6 +259,22 @@ void CharacterSheetDialog::refreshSheet() {
     } else {
         m_spellsText->setPlainText(tr("Spell book not loaded."));
     }
+
+    // Skill Allocation
+    const QVector<SkillDef>& skills = skillDefs();
+    m_skillTable->setRowCount(skills.size());
+    for (int i = 0; i < skills.size(); ++i) {
+        const SkillDef& def = skills[i];
+        m_skillTable->setItem(i, 0, new QTableWidgetItem(def.name));
+        m_skillTable->setItem(i, 1, new QTableWidgetItem(QString::number(c.skillLevel(def.name))));
+        m_skillTable->setItem(i, 2, new QTableWidgetItem(def.prerequisite.isEmpty() ? tr("None") : def.prerequisite));
+        m_skillTable->setItem(i, 3, new QTableWidgetItem(QString::number(def.cost)));
+    }
+
+    m_skillPointsLabel->setText(tr("Skill Points: %1").arg(c.skillPoints()));
+
+    // Enable the learn button if the player has skill points
+    m_learnSkillButton->setEnabled(c.skillPoints() > 0);
 }
 
 void CharacterSheetDialog::onMemberChanged(int index) {
@@ -275,6 +312,38 @@ void CharacterSheetDialog::onSpendStatPoint(int statIndex) {
         else reason = tr("Cannot increase %1.").arg(statName);
         QMessageBox::warning(this, tr("Cannot Increase"), reason);
     }
+    refreshSheet();
+}
+
+void CharacterSheetDialog::onLearnSkill() {
+    auto *gsm = gameStateManager::instance();
+    auto& members = gsm->getPartyMembers();
+    if (members.isEmpty()) return;
+
+    int idx = m_memberCombo->currentIndex();
+    if (idx < 0 || idx >= members.size()) idx = 0;
+
+    Character& c = members[idx];
+
+    int row = m_skillTable->currentRow();
+    if (row < 0 || row >= m_skillTable->rowCount()) {
+        QMessageBox::warning(this, tr("No Skill Selected"),
+                             tr("Please select a skill to learn."));
+        return;
+    }
+
+    QString skillName = m_skillTable->item(row, 0)->text();
+
+    int newLevel = 0;
+    QString error;
+    if (c.learnSkill(skillName, newLevel, error)) {
+        QMessageBox::information(this, tr("Skill Learned"),
+                                 tr("Learned %1. New level: %2.")
+                                 .arg(skillName).arg(newLevel));
+    } else {
+        QMessageBox::warning(this, tr("Cannot Learn Skill"), error);
+    }
+
     refreshSheet();
 }
 

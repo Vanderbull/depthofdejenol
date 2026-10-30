@@ -103,6 +103,10 @@ namespace GameConstants {
 
     const int DEFAULT_ALIGNMENT_INDEX = 1; // Neutral
     const int DEFAULT_STAT_POINTS = 5;      //
+
+    // Skills
+    const int SKILL_POINTS_PER_LEVEL = 3; // skill points awarded per level-up
+
     // Character Options
     const QStringList STAT_NAMES = {"Strength", "Intelligence", "Wisdom", "Constitution", "Charisma", "Dexterity"};
     const QStringList ALIGNMENT_NAMES = {"Good", "Neutral", "Evil"};

@@ -2,6 +2,8 @@
 #include "src/items/ItemDatabase.h"
 #include "src/core/LevelTable.h"
 #include "src/race_data/RaceData.h"
+#include "src/skill/SkillDatabase.h"
+#include "src/core/GameConstants.h"
 
 // --- Character Implementation ---
 
@@ -86,6 +88,14 @@ QVariantMap Character::toMap() const {
     map["Charisma"]     = charisma;
     map["Dexterity"]    = dexterity;
     map["StatPoints"]   = statPoints;
+    map["SkillPoints"] = m_skillPoints;
+
+    // Serialize skill levels.
+    QVariantMap skillLevelMap;
+    for (auto it = skillLevels.constBegin(); it != skillLevels.constEnd(); ++it) {
+        skillLevelMap[it.key()] = it.value();
+    }
+    map["SkillLevels"] = skillLevelMap;
     map["PlayTimeSeconds"] = playTimeSeconds;
     map["Mana"]         = mana;
     map["MaxMana"]      = maxMana;
@@ -155,6 +165,12 @@ void Character::loadFromMap(const QVariantMap &map) {
     dexterity    = map.value("Dexterity").toInt();
     // Default 0: saves written before stat points existed simply have none.
     statPoints   = map.value("StatPoints", 0).toInt();
+    m_skillPoints  = map.value("SkillPoints", 0).toInt();
+    skillLevels.clear();
+    QVariantMap skillLevelMap = map.value("SkillLevels").toMap();
+    for (auto it = skillLevelMap.constBegin(); it != skillLevelMap.constEnd(); ++it) {
+        skillLevels[it.key()] = it.value().toInt();
+    }
     playTimeSeconds = map.value("PlayTimeSeconds", 0).toInt();
 
     mana         = map.value("Mana", 0).toInt();
@@ -457,6 +473,61 @@ bool Character::spendStatPoint(const QString& statName, int cap) {
     return true;
 }
 
+
+bool Character::learnSkill(const QString& skillName, int& newLevel, QString& error) {
+    const QVector<SkillDef>& skills = skillDefs();
+    bool found = false;
+    const SkillDef* def = nullptr;
+    for (const SkillDef& s : skills) {
+        if (s.name == skillName) {
+            def = &s;
+            found = true;
+            break;
+        }
+    }
+    if (!found) {
+        error = QStringLiteral("Unknown skill: %1").arg(skillName);
+        return false;
+    }
+
+    if (!def->prerequisite.isEmpty()) {
+        int prereqLevel = skillLevel(def->prerequisite);
+        if (prereqLevel < 1) {
+            error = QStringLiteral("Prerequisite skill '%1' not learned.").arg(def->prerequisite);
+            return false;
+        }
+    }
+
+    if (m_skillPoints < def->cost) {
+        error = QStringLiteral("Not enough skill points. Need %1, have %2.")
+                    .arg(def->cost).arg(m_skillPoints);
+        return false;
+    }
+
+    m_skillPoints -= def->cost;
+
+    int currentLevel = skillLevel(skillName);
+    newLevel = currentLevel + 1;
+    skillLevels[skillName] = newLevel;
+
+    error.clear();
+    return true;
+}
+
+void Character::addSkillPoints(int points) {
+    m_skillPoints += points;
+}
+
+int Character::skillPoints() const {
+    return m_skillPoints;
+    return m_skillPoints;
+    return m_skillPoints;
+}
+
+int Character::skillLevel(const QString& skillName) const {
+    return skillLevels.value(skillName, 0);
+}
+
 // --- Consumables ---
 
 bool Character::isConsumable(const HeldItem& item) {
@@ -632,6 +703,9 @@ void Character::addExperience(int amount) {
         hp = maxHp; // Heal on level up
         maxMana += 5;
         mana = maxMana;
+
+        // Award skill points on level up
+        m_skillPoints += GameConstants::SKILL_POINTS_PER_LEVEL;
     }
 }
 

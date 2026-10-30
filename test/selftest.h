@@ -15,5 +15,6 @@
 
 int runSelfTest();
 int runEquipmentTest();
+int runSkillTest();
 
 #endif // SELFTEST_H
