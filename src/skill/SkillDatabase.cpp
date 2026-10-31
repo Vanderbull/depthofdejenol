@@ -16,6 +16,14 @@ QVector<SkillDef> skillDefs()
                    QStringLiteral("Reduces detection chance"),
                    1, QString(), QStringLiteral("Stealth"), QStringLiteral("cloak.png")});
 
+    // --- Survival / thief skills ---
+    skills.append({QStringLiteral("Thievery"),
+                   QStringLiteral("Improves ability to pick locks and disarm traps"),
+                   1, QString(), QStringLiteral("Combat"), QStringLiteral("thief.png")});
+    skills.append({QStringLiteral("PickLock"),
+                   QStringLiteral("Improves ability to pick locks"),
+                   2, QString("Thievery"), QStringLiteral("Combat"), QStringLiteral("lockpick.png")});
+
     // --- Craft skills ---
     skills.append({QStringLiteral("Alchemy"),
                    QStringLiteral("Creates potions and poisons"),

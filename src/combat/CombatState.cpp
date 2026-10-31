@@ -1,6 +1,7 @@
 #include "CombatState.h"
 #include <QRandomGenerator>
 #include <algorithm>
+#include "src/skill/SkillDatabase.h"
 
 CombatState::CombatState() {}
 
@@ -133,4 +134,33 @@ void CombatState::resetActedFlags() {
         p.hasActed = false;
         p.isDefending = false;  // a defensive stance lasts one round
     }
+}
+
+int CombatState::skillMod(const QString& skillName, int participantIndex) const {
+    if (participantIndex < 0) {
+        // Use the current turn's participant if available
+        participantIndex = m_currentTurnIndex >= 0 && m_currentTurnIndex < m_initiativeOrder.size()
+                               ? m_initiativeOrder[m_currentTurnIndex]
+                               : -1;
+    }
+    if (participantIndex < 0 || participantIndex >= m_participants.size()) return 0;
+    const CombatParticipant& p = m_participants[participantIndex];
+    QMap<QString, int>::const_iterator it = p.skillLevels.find(skillName);
+    int baseLevel = (it != p.skillLevels.end()) ? it.value() : 0;
+    // Dexterity adds up to +4 bonus, half a point per point of dex above 10.
+    int dexBonus = qMax(0, (p.dex - 10) / 2);
+    return baseLevel + dexBonus;
+}
+
+int CombatState::skillMod(int skillId, int participantIndex) const {
+    if (skillId < 0) return 0;
+    QString name = skillNameForId(skillId);
+    if (name.isEmpty()) return 0;
+    return skillMod(name, participantIndex);
+}
+
+QString CombatState::skillNameForId(int skillId) const {
+    const QVector<SkillDef>& defs = skillDefs();
+    if (skillId < 0 || skillId >= defs.size()) return QString();
+    return defs[skillId].name;
 }

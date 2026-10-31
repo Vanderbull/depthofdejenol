@@ -4,6 +4,7 @@
 #include "DungeonHandlers.h"
 #include "../../gameStateManager.h"
 #include "src/items/ItemDatabase.h"
+#include "character.h"
 #include "src/core/DungeonThemes.h"
 #include "src/core/DungeonLevelState.h"
 #include "src/core/MonsterBalance.h"
@@ -1427,6 +1428,9 @@ bool DungeonDialog::startCombatAt(const QPair<int, int>& pos)
         }
 
         m_combatState->addParticipant(p);
+        // Copy the character's skill levels so skill checks can consult them.
+        CombatParticipant& combatParticipant = m_combatState->participant(m_combatState->participantCount() - 1);
+        combatParticipant.skillLevels = c.skillLevels;
     }
 
     // Add monsters
@@ -2233,35 +2237,42 @@ void DungeonDialog::on_disarmButton_clicked()
     QString trapType = m_trapPositions.value(pos);
     int floorLevel = gsm->getGameValue("DungeonLevel").toInt();
 
-    // Get character stats for disarm chance.
+    // Get the active party member's stats for the skill check.
     auto& members = gsm->getPartyMembers();
     if (members.isEmpty()) {
         logMessage("No party member to disarm the trap.");
         return;
     }
 
-    int dex = members[0].dexterity;
-    int wis = members[0].wisdom;
-    int gLvl = members[0].level;
-    int mLvl = floorLevel;  // monster level = floor level
-    int dLvl = floorLevel;  // dungeon level
+    // ----- Skill check (Thievery) -----
+    const Character& player = members[0];
+    int thieveryLevel = player.skillLevel("Thievery");
+    int dexMod = qMax(0, (player.dexterity - 10) / 2);
+    int mod = thieveryLevel + dexMod;
+    int difficulty = 10 + floorLevel; // increases with dungeon depth
+    int roll = QRandomGenerator::global()->bounded(1, 21);
+    int total = roll + mod;
+    bool success = total >= difficulty;
+    bool partialSuccess = total >= (difficulty - 5);
 
-    // Thief modifier: 1.0 for non-thieves, higher for thief/scavenger guilds.
-    double thiefMod = 1.0;
-    if (members[0].guildLevel("Thief") > 0 || members[0].guildLevel("Scavenger") > 0) {
-        thiefMod = 1.5;
-    }
+    CombatActions::SkillCheckResult checkResult = success ? CombatActions::SkillCheckResult::Success
+                                                          : (partialSuccess ? CombatActions::SkillCheckResult::PartialSuccess
+                                                                           : CombatActions::SkillCheckResult::Failure);
 
-    double chance = disarmTrapChance(dex, wis, gLvl, thiefMod, mLvl, dLvl);
-    int roll = QRandomGenerator::global()->bounded(1, 101);
+    // Notify the UI of the skill check result.
+    emit skillCheckResult("Thievery", checkResult);
 
-    if (roll <= static_cast<int>(chance)) {
-        // Success! Remove the trap.
+    if (success) {
+        // Disarm the trap.
         m_triggeredTraps.insert(pos);
         logMessage(QString("<font color='green'>You successfully disarm the %1 trap!</font>").arg(trapType));
         SoundEffects::instance()->play(SoundEffects::Type::SecretDoor);
+    } else if (partialSuccess) {
+        // Partial success: trap triggers but deals less damage.
+        logMessage(QString("<font color='orange'>You partially disarm the %1 trap; it triggers anyway!</font>").arg(trapType));
+        DungeonHandlers::handleTrap(this, pos.first, pos.second);
     } else {
-        // Failure! The trap triggers.
+        // Failure: trap fully triggers.
         logMessage(QString("<font color='red'>You fail to disarm the %1 trap!</font>").arg(trapType));
         DungeonHandlers::handleTrap(this, pos.first, pos.second);
     }

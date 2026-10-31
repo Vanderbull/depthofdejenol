@@ -12,6 +12,23 @@ class CombatActions {
 public:
     CombatActions(CombatState* state, TurnEngine* engine);
 
+    // Result of a skill check.
+    enum class SkillCheckResult { Success, PartialSuccess, Failure };
+
+    // Roll a skill check for the current participant using the skill identified
+    // by skillId, against the given difficulty. Sets result to a human-readable
+    // message. Returns the result.
+    SkillCheckResult skillCheck(int skillId, int targetIndex, int difficulty,
+                                QString& result) const;
+
+    // Convenience overload taking a skill name.
+    SkillCheckResult skillCheck(const QString& skillName, int targetIndex,
+                                int difficulty, QString& result) const;
+
+    // Attempt to disarm a trap. Uses the Thievery skill (skill id from
+    // src/skill/SkillDatabase). Returns true on success. Sets result message.
+    bool disarmTrap(int targetIndex, int difficulty, QString& result) const;
+
     // Attack: current participant attacks target at targetIndex.
     // Returns damage dealt, or -1 on miss/failure.
     int attack(int targetIndex, QString& result);

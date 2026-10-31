@@ -4,6 +4,7 @@
 #include "src/items/ItemDatabase.h"
 #include "src/spell_casting/SpellBook.h"
 #include "src/spell_casting/SpellMechanics.h"
+#include "src/skill/SkillDatabase.h"
 #include <QRandomGenerator>
 
 CombatActions::CombatActions(CombatState* state, TurnEngine* engine)
@@ -744,4 +745,76 @@ bool CombatActions::flee(QString& result) {
         result = QString("%1 fails to flee!").arg(fleer.name);
         return false;
     }
+}
+
+// Skill check implementations ----------------------------------------------
+CombatActions::SkillCheckResult CombatActions::skillCheck(int skillId, int targetIndex, int difficulty,
+                                           QString& result) const {
+    if (!m_state || !m_engine) {
+        result = QStringLiteral("No combat");
+        return CombatActions::SkillCheckResult::Failure;
+    }
+    int actorIdx = m_engine->currentParticipantIndex();
+    if (actorIdx < 0) {
+        result = QStringLiteral("No actor");
+        return CombatActions::SkillCheckResult::Failure;
+    }
+    const CombatParticipant& actor = m_state->participant(actorIdx);
+    int mod = m_state->skillMod(skillId, actorIdx);
+    int roll = QRandomGenerator::global()->bounded(1, 21);
+    int total = roll + mod;
+    bool success = total >= difficulty;
+    bool partial = total >= (difficulty - 5);
+    CombatActions::SkillCheckResult res = success ? CombatActions::SkillCheckResult::Success
+                                   : (partial ? CombatActions::SkillCheckResult::PartialSuccess
+                                             : CombatActions::SkillCheckResult::Failure);
+
+    result = QStringLiteral("%1 makes a %2 check (skill level %3, dex mod %4) — roll %5 "
+                            "vs difficulty %6: %7")
+                 .arg(actor.name)
+                 .arg(m_state->skillNameForId(skillId))
+                 .arg(mod)
+                 .arg(qMax(0, (actor.dex - 10) / 2))
+                 .arg(roll)
+                 .arg(difficulty)
+                 .arg(res == CombatActions::SkillCheckResult::Success ? QStringLiteral("SUCCESS")
+                        : (res == CombatActions::SkillCheckResult::PartialSuccess
+                               ? QStringLiteral("PARTIAL SUCCESS")
+                               : QStringLiteral("FAILURE")));
+
+    return res;
+}
+
+CombatActions::SkillCheckResult CombatActions::skillCheck(const QString& skillName, int targetIndex,
+                                           int difficulty, QString& result) const {
+    const QVector<SkillDef>& defs = skillDefs();
+    int skillId = -1;
+    for (int i = 0; i < defs.size(); ++i) {
+        if (defs[i].name == skillName) {
+            skillId = i;
+            break;
+        }
+    }
+    if (skillId < 0) {
+        result = QStringLiteral("Unknown skill: %1").arg(skillName);
+        return CombatActions::SkillCheckResult::Failure;
+    }
+    return skillCheck(skillId, targetIndex, difficulty, result);
+}
+
+bool CombatActions::disarmTrap(int targetIndex, int difficulty, QString& result) const {
+    const QVector<SkillDef>& defs = skillDefs();
+    int thieveryId = -1;
+    for (int i = 0; i < defs.size(); ++i) {
+        if (defs[i].name == QStringLiteral("Thievery")) {
+            thieveryId = i;
+            break;
+        }
+    }
+    if (thieveryId < 0) {
+        result = QStringLiteral("Thievery skill not found in skill database");
+        return false;
+    }
+    CombatActions::SkillCheckResult res = skillCheck(thieveryId, targetIndex, difficulty, result);
+    return res == CombatActions::SkillCheckResult::Success;
 }

@@ -7,6 +7,9 @@
 
 // Which line a combatant stands in. Melee reaches only the front row, so a
 // back-row caster is protected while a front-row fighter still stands.
+#include <QMap>
+#include <QString>
+
 enum class CombatRow { Front, Back };
 
 // A single combat participant (party member or monster).
@@ -60,6 +63,10 @@ struct CombatParticipant {
     bool canRegenerate = false;
     int regenerateAmount = 0;
     bool canCastSpells = false;
+
+    // Skill levels: skill name -> level. Populated by the UI when building a
+    // combat participant from a Character. Used by skillMod()/skillCheck().
+    QMap<QString, int> skillLevels;
 };
 
 // Pure combat state — no Qt UI dependency. Holds participants, initiative order,
@@ -99,6 +106,16 @@ public:
     // Direct access for combat resolution
     CombatParticipant& participant(int index) { return m_participants[index]; }
     const CombatParticipant& participant(int index) const { return m_participants[index]; }
+
+    // Skill checks: return skill level + dex bonus for a skill name.
+    // participantIndex defaults to the current turn's participant.
+    int skillMod(const QString& skillName, int participantIndex = -1) const;
+    int skillMod(int skillId, int participantIndex = -1) const;
+
+    // Query for the skill name associated with a skill id (index into
+    // src/skill/SkillDatabase::skillDefs()). Returns an empty string if the id
+    // is out of range.
+    QString skillNameForId(int skillId) const;
 
     // Mark a participant as having acted this round
     void markActed(int index);

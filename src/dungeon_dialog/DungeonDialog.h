@@ -74,6 +74,8 @@ signals:
     void teleporterUsed();
 
     void exitedDungeonToCity();
+
+    void skillCheckResult(const QString& skillName, CombatActions::SkillCheckResult result);
 public slots:
     void on_eatButton_clicked();
     void on_restButton_clicked();

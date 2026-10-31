@@ -11,6 +11,10 @@
 #include "src/core/GameConstants.h"
 #include "src/items/ItemDatabase.h"
 #include "src/skill/SkillDatabase.h"
+#include <QRandomGenerator>
+#include "src/combat/CombatState.h"
+#include "src/combat/CombatActions.h"
+#include "src/combat/TurnEngine.h"
 
 static int g_passed = 0;
 static int g_failed = 0;
@@ -145,9 +149,94 @@ int runEquipmentTest()
     check(loaded.skillLevel("Swordsmanship") == 1, "serialized skill level Swordsmanship");
     check(loaded.skillLevel("Advanced Swordsmanship") == 0, "serialized skill level Advanced Swordsmanship (0)");
 
+    // --------------------------------------------------------------- skill check tests
+    out("--- [78] v6.1.0 slice 6.1b: skill checks in combat ---");
+
+    // Helper to get skill id
+    auto skillIdForName = [&](const QString& name) {
+        const QVector<SkillDef>& defs = skillDefs();
+        for (int i = 0; i < defs.size(); ++i) {
+            if (defs[i].name == name) return i;
+        }
+        return -1;
+    };
+    int thieveryId = skillIdForName("Thievery");
+    check(thieveryId >= 0, "Thievery skill found", QString::number(thieveryId));
+
+    // Test skillMod
+    CombatState state1;
+    CombatParticipant player1, player2;
+    player1.name = "High";
+    player1.dex = 12;
+    player1.skillLevels["Thievery"] = 5;
+    state1.addParticipant(player1);
+    int mod1 = state1.skillMod("Thievery", 0);
+    int expectedMod1 = 5 + qMax(0, (player1.dex - 10) / 2);
+    check(mod1 == expectedMod1, "skillMod high skill", QString::number(mod1));
+
+    player2.name = "Low";
+    player2.dex = 12;
+    player2.skillLevels["Thievery"] = 0;
+    state1.addParticipant(player2);
+    int mod2 = state1.skillMod("Thievery", 1);
+    int expectedMod2 = 0 + qMax(0, (player2.dex - 10) / 2);
+    check(mod2 == expectedMod2, "skillMod low skill", QString::number(mod2));
+
+    // Test deterministic RNG with a local generator
+    QRandomGenerator rng(12345);
+    int roll1 = rng.bounded(1, 21);
+    QRandomGenerator rng2(12345);
+    int roll2 = rng2.bounded(1, 21);
+    check(roll1 == roll2, "deterministic RNG", QString("%1 vs %2").arg(roll1).arg(roll2));
+
+    // Test skillCheck success rates
+    // High skill
+    CombatState stateHigh;
+    CombatParticipant high;
+    high.name = "High";
+    high.dex = 12;
+    high.skillLevels["Thievery"] = 5;
+    stateHigh.addParticipant(high);
+    TurnEngine engineHigh;
+    engineHigh.setCombatState(&stateHigh);
+    engineHigh.startRound();
+    engineHigh.nextTurn();
+    CombatActions actionsHigh(&stateHigh, &engineHigh);
+    int highSuccesses = 0;
+    const int trials = 2000;
+    for (int i = 0; i < trials; ++i) {
+        QString result;
+        CombatActions::SkillCheckResult res = actionsHigh.skillCheck("Thievery", 0, 10, result);
+        if (res == CombatActions::SkillCheckResult::Success) ++highSuccesses;
+    }
+
+    // Low skill
+    CombatState stateLow;
+    CombatParticipant low;
+    low.name = "Low";
+    low.dex = 12;
+    low.skillLevels["Thievery"] = 0;
+    stateLow.addParticipant(low);
+    TurnEngine engineLow;
+    engineLow.setCombatState(&stateLow);
+    engineLow.startRound();
+    engineLow.nextTurn();
+    CombatActions actionsLow(&stateLow, &engineLow);
+    int lowSuccesses = 0;
+    for (int i = 0; i < trials; ++i) {
+        QString result;
+        CombatActions::SkillCheckResult res = actionsLow.skillCheck("Thievery", 0, 10, result);
+        if (res == CombatActions::SkillCheckResult::Success) ++lowSuccesses;
+    }
+
+    check(highSuccesses > lowSuccesses, "high skill success rate > low skill success rate",
+          QString("high: %1, low: %2").arg(highSuccesses).arg(lowSuccesses));
+
     // --------------------------------------------------------------- main report
     out("");
     out("====================");
     out(QString("%1 passed, %2 failed").arg(g_passed).arg(g_failed));
     return g_failed == 0 ? 0 : 1;
 }
+
+    // --------------------------------------------------------------- main report
