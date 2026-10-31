@@ -67,6 +67,7 @@ QString ReleaseInfo::banner() {
 
 QList<QPair<QString, QString>> ReleaseInfo::versionHistory() {
     return {
+        {"6.1.0", "2026-10-30 — Skill & Ability System Overhaul: skill database, Character skill-point management, and CharacterSheetDialog allocation UI"},
         {"6.0.0", "2026-10-12 — Spell & Balance Fix: mana +5/level, XP curve 30*n^1.2, Thunderclap/Storm spells, instant kill fix, monster XP fix"},
         {"5.9.0", "2026-10-12 — Dead Code Removal: removed 17 standalone prototype files from src/"},
         {"5.8.0", "2026-10-12 — Wire & Cleanup Round 4: removed dead SenderWindow class"},
