@@ -232,6 +232,166 @@ int runEquipmentTest()
     check(highSuccesses > lowSuccesses, "high skill success rate > low skill success rate",
           QString("high: %1, low: %2").arg(highSuccesses).arg(lowSuccesses));
 
+    // --------------------------------------------------------------- slice 6.1c feat tests
+    out("--- [79] v6.1.0 slice 6.1c: combat skill feats and maneuvers ---");
+
+    // The feat skills must exist as Combat-type skills with cost 0 and no
+    // prerequisite (they are granted by feats, not earned from the pool).
+    {
+        const QVector<SkillDef>& defs = skillDefs();
+        auto checkFeat = [&](int id, const QString& name) {
+            check(id >= 0, QString("%1 skill found").arg(name), QString::number(id));
+            if (id >= 0) {
+                const SkillDef& d = defs[id];
+                check(d.cost == 0, QString("%1 cost is 0").arg(name));
+                check(d.prerequisite.isEmpty(), QString("%1 has no prerequisite").arg(name));
+                check(d.type == QStringLiteral("Combat"), QString("%1 is Combat type").arg(name));
+            }
+        };
+        checkFeat(skillIdForName("Parry"), "Parry");
+        checkFeat(skillIdForName("Dodge"), "Dodge");
+        checkFeat(skillIdForName("DualWield"), "DualWield");
+        checkFeat(skillIdForName("ShieldBash"), "ShieldBash");
+    }
+
+    // Rate tests: a character with a high skill level succeeds far more often
+    // than a character with a low skill level.
+    int featTrials = 2000;
+    {
+        // Parry
+        auto makeState = [](int skillLevel) {
+            CombatState state;
+            CombatParticipant part;
+            part.name = "Feater";
+            part.dex = 12;
+            part.skillLevels["Parry"] = skillLevel;
+            state.addParticipant(part);
+            return state;
+        };
+        auto runParryTrials = [&](CombatState& state, int skillLevel) {
+            TurnEngine engine;
+            engine.setCombatState(&state);
+            engine.startRound();
+            engine.nextTurn();
+            CombatActions actions(&state, &engine);
+            int successes = 0;
+            for (int i = 0; i < featTrials; ++i) {
+                QString result;
+                CombatActions::SkillCheckResult res = actions.parry(0, 12, result);
+                if (res == CombatActions::SkillCheckResult::Success) ++successes;
+            }
+            return successes;
+        };
+        CombatState high = makeState(5);
+        CombatState low = makeState(0);
+        int highParry = runParryTrials(high, 5);
+        int lowParry = runParryTrials(low, 0);
+        check(highParry > lowParry, "Parry rate increases with skill",
+              QString("high: %1, low: %2").arg(highParry).arg(lowParry));
+    }
+    {
+        // Dodge
+        auto makeState = [](int skillLevel) {
+            CombatState state;
+            CombatParticipant part;
+            part.name = "Feater";
+            part.dex = 12;
+            part.skillLevels["Dodge"] = skillLevel;
+            state.addParticipant(part);
+            return state;
+        };
+        auto runDodgeTrials = [&](CombatState& state, int skillLevel) {
+            TurnEngine engine;
+            engine.setCombatState(&state);
+            engine.startRound();
+            engine.nextTurn();
+            CombatActions actions(&state, &engine);
+            int successes = 0;
+            for (int i = 0; i < featTrials; ++i) {
+                QString result;
+                CombatActions::SkillCheckResult res = actions.dodge(0, 10, result);
+                if (res == CombatActions::SkillCheckResult::Success) ++successes;
+            }
+            return successes;
+        };
+        CombatState high = makeState(5);
+        CombatState low = makeState(0);
+        int highDodge = runDodgeTrials(high, 5);
+        int lowDodge = runDodgeTrials(low, 0);
+        check(highDodge > lowDodge, "Dodge rate increases with skill",
+              QString("high: %1, low: %2").arg(highDodge).arg(lowDodge));
+    }
+    {
+        // DualWield
+        auto makeState = [](int skillLevel) {
+            CombatState state;
+            CombatParticipant part;
+            part.name = "Feater";
+            part.dex = 12;
+            part.skillLevels["DualWield"] = skillLevel;
+            state.addParticipant(part);
+            return state;
+        };
+        auto runDualTrials = [&](CombatState& state, int skillLevel) {
+            TurnEngine engine;
+            engine.setCombatState(&state);
+            engine.startRound();
+            engine.nextTurn();
+            CombatActions actions(&state, &engine);
+            int successes = 0;
+            for (int i = 0; i < featTrials; ++i) {
+                QString result;
+                CombatActions::SkillCheckResult res = actions.dualWield(0, 10, result);
+                if (res == CombatActions::SkillCheckResult::Success) ++successes;
+            }
+            return successes;
+        };
+        CombatState high = makeState(5);
+        CombatState low = makeState(0);
+        int highDual = runDualTrials(high, 5);
+        int lowDual = runDualTrials(low, 0);
+        check(highDual > lowDual, "DualWield rate increases with skill",
+              QString("high: %1, low: %2").arg(highDual).arg(lowDual));
+    }
+    {
+        // ShieldBash
+        auto makeState = [](int skillLevel) {
+            CombatState state;
+            CombatParticipant part;
+            part.name = "Feater";
+            part.dex = 12;
+            part.skillLevels["ShieldBash"] = skillLevel;
+            state.addParticipant(part);
+            CombatParticipant target;
+            target.name = "Mob";
+            target.hp = 50000;
+            target.maxHp = 50000;
+            target.row = CombatRow::Front;
+            state.addParticipant(target);
+            return state;
+        };
+        auto runBashTrials = [&](CombatState& state, int skillLevel) {
+            TurnEngine engine;
+            engine.setCombatState(&state);
+            engine.startRound();
+            engine.nextTurn();
+            CombatActions actions(&state, &engine);
+            int successes = 0;
+            for (int i = 0; i < featTrials; ++i) {
+                QString result;
+                CombatActions::SkillCheckResult res = actions.shieldBash(1, 10, result);
+                if (res == CombatActions::SkillCheckResult::Success) ++successes;
+            }
+            return successes;
+        };
+        CombatState high = makeState(5);
+        CombatState low = makeState(0);
+        int highBash = runBashTrials(high, 5);
+        int lowBash = runBashTrials(low, 0);
+        check(highBash > lowBash, "ShieldBash rate increases with skill",
+              QString("high: %1, low: %2").arg(highBash).arg(lowBash));
+    }
+
     // --------------------------------------------------------------- main report
     out("");
     out("====================");

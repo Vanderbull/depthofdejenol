@@ -28,6 +28,12 @@ struct CombatParticipant {
     bool hasFled = false;      // true once this monster has fled the fight
     bool deathAnnounced = false;  // true once the death message has been emitted
 
+    // v6.1c skill feats and maneuvers (cleared at every round start by
+    // resetActedFlags).
+    bool isParried = false;    // feat: the next hit against this target is halved
+    bool isDodged = false;     // feat: the next attack against this target misses
+    bool canDualWield = false; // feat: the next attack this round draws a second blow
+
     // Position: melee only reaches the front row; ranged attacks and spells
     // reach either. Monsters default to the front (they have no line to hide in).
     CombatRow row = CombatRow::Front;

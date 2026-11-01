@@ -47,5 +47,23 @@ QVector<SkillDef> skillDefs()
                    QStringLiteral("Heals allies faster"),
                    1, QString(), QStringLiteral("Survival"), QStringLiteral("medkit.png")});
 
+    // --- Combat skill feats and maneuvers ---
+    // Cost 0, no prerequisite: these are granted by feats or by training a
+    // special skill rather than by the skill point allocation pool. They are
+    // Combat-type skills so they appear in the skill menu, but they cannot be
+    // learned via spendSkillPoints().
+    skills.append({QStringLiteral("Parry"),
+                   QStringLiteral("Parry an attack: the next blow against you is halved"),
+                   0, QString(), QStringLiteral("Combat"), QStringLiteral("parry.png")});
+    skills.append({QStringLiteral("Dodge"),
+                   QStringLiteral("Dodge an attack: the next blow against you misses"),
+                   0, QString(), QStringLiteral("Combat"), QStringLiteral("dodge.png")});
+    skills.append({QStringLiteral("DualWield"),
+                   QStringLiteral("Ready two weapons: make one extra attack in this turn"),
+                   0, QString(), QStringLiteral("Combat"), QStringLiteral("dualwield.png")});
+    skills.append({QStringLiteral("ShieldBash"),
+                   QStringLiteral("Bash with a shield: stun the target and deal 1d6 shock damage"),
+                   0, QString(), QStringLiteral("Combat"), QStringLiteral("shieldbash.png")});
+
     return skills;
 }

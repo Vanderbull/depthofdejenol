@@ -126,6 +126,23 @@ public:
     // Check if current participant is a player (can take actions)
     bool isPlayerTurn() const;
 
+    // Feats and maneuvers (combat skills with cost 0 and no prerequisite).
+    // Each rolls a skill check against `difficulty`; on success it sets a
+    // per-round flag that modifies the next action in the same round:
+    //   Parry   - the target is marked parried: the next hit on them is halved.
+    //   Dodge   - the target is marked dodging: the next attack on them misses.
+    //   DualWield - the actor is marked ready: one extra attack follows in this
+    //               turn (handled by attack()).
+    //   ShieldBash - the target is bashed for 1d6 and stunned for one round.
+    CombatActions::SkillCheckResult parry(int targetIndex, int difficulty, QString& result) const;
+    CombatActions::SkillCheckResult dodge(int targetIndex, int difficulty, QString& result) const;
+    CombatActions::SkillCheckResult dualWield(int targetIndex, int difficulty, QString& result) const;
+    CombatActions::SkillCheckResult shieldBash(int targetIndex, int difficulty, QString& result) const;
+
+    // Look up the skill id for a skill name (index into skillDefs()); -1 if not
+    // found.
+    int skillIdForName(const QString& skillName) const;
+
 private:
     CombatState* m_state;
     TurnEngine* m_engine;

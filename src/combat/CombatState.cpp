@@ -133,6 +133,9 @@ void CombatState::resetActedFlags() {
     for (auto& p : m_participants) {
         p.hasActed = false;
         p.isDefending = false;  // a defensive stance lasts one round
+        p.isParried = false;
+        p.isDodged = false;
+        p.canDualWield = false;
     }
 }
 

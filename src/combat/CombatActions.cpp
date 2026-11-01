@@ -70,6 +70,13 @@ int CombatActions::attack(int targetIndex, QString& result) {
         }
     }
 
+    // Dodge: the target avoids the next attack entirely this round.
+    if (target.isDodged) {
+        target.isDodged = false;  // consumed by the save
+        result = QStringLiteral("%1 dodges the attack!").arg(target.name);
+        return -1;
+    }
+
     // To-hit. Att/Def in this game's data live on wildly different scales: a
     // monster's raw `def` column runs past 300 while a character's armor
     // defense tops out near 50, and monster rows carry no usable Dexterity at
@@ -95,6 +102,24 @@ int CombatActions::attack(int targetIndex, QString& result) {
         int baseDamage = qMax(1, static_cast<int>(attacker.att * attacker.swings * attacker.damageMod / 100.0 * levelMultiplier));
         int damage = baseDamage + QRandomGenerator::global()->bounded(0, 5);
         if (roll == 20) damage *= 2;  // crit
+        // Parry: a parried target takes half damage from this blow.
+        if (target.isParried) {
+            target.isParried = false;  // consumed by the rescue
+            damage = qMax(1, damage / 2);
+            target.hp -= damage;
+            if (target.hp <= 0) {
+                target.hp = 0;
+                target.isAlive = false;
+                result = QStringLiteral("%1 parries and halves the blow! %2 is slain!")
+                    .arg(target.name).arg(target.name);
+                SoundEffects::instance()->play(SoundEffects::Type::Hit);
+            } else {
+                result = QStringLiteral("%1 parries and halves the blow!")
+                    .arg(target.name);
+                SoundEffects::instance()->play(SoundEffects::Type::Hit);
+            }
+            return damage;
+        }
         if (target.isDefending) damage = qMax(1, damage / 2);  // stance halves damage
         target.hp -= damage;
         if (target.hp <= 0) {
@@ -110,10 +135,46 @@ int CombatActions::attack(int targetIndex, QString& result) {
         }
         return damage;
     } else {
-        result = QString("%1 misses %2 (roll %3 vs AC %4).")
+        result = QStringLiteral("%1 misses %2 (roll %3 vs AC %4).")
             .arg(attacker.name).arg(target.name).arg(roll).arg(targetAC);
         SoundEffects::instance()->play(SoundEffects::Type::Miss);
         return -1;
+    }
+
+    // Dual wield: the attacker may make one extra attack against the same
+    // target this turn.
+    if (attacker.canDualWield) {
+        attacker.canDualWield = false;  // consumed by the extra blow
+        int roll2 = QRandomGenerator::global()->bounded(1, 21);
+        int blindPenalty2 = (attacker.statusFlags & GameConstants::Blinded) ? 5 : 0;
+        int toHit2 = roll2 + attackerSkill(attacker) - blindPenalty2;
+        int targetAC2 = targetArmorClass(target);
+
+        if (roll2 == 1) {
+            result += QStringLiteral(" The second attack fumbles.");
+            SoundEffects::instance()->play(SoundEffects::Type::Miss);
+        } else if (roll2 == 20 || toHit2 >= targetAC2) {
+            double levelMultiplier2 = 1.0 + (attacker.levelScale * attacker.level) / 100.0;
+            int baseDamage2 = qMax(1, static_cast<int>(attacker.att * attacker.swings * attacker.damageMod / 100.0 * levelMultiplier2));
+            int damage2 = baseDamage2 + QRandomGenerator::global()->bounded(0, 5);
+            if (roll2 == 20) damage2 *= 2;
+            if (target.isDefending) damage2 = qMax(1, damage2 / 2);
+            target.hp -= damage2;
+            if (target.hp <= 0) {
+                target.hp = 0;
+                target.isAlive = false;
+                result += QStringLiteral(" The second attack kills %1 for %2 damage!")
+                    .arg(target.name).arg(damage2);
+                SoundEffects::instance()->play(SoundEffects::Type::Death);
+            } else {
+                result += QStringLiteral(" The second attack hits for %1 damage.")
+                    .arg(damage2);
+                SoundEffects::instance()->play(roll2 == 20 ? SoundEffects::Type::CriticalHit : SoundEffects::Type::Hit);
+            }
+        } else {
+            result += QStringLiteral(" The second attack misses.");
+            SoundEffects::instance()->play(SoundEffects::Type::Miss);
+        }
     }
 }
 
@@ -817,4 +878,192 @@ bool CombatActions::disarmTrap(int targetIndex, int difficulty, QString& result)
     }
     CombatActions::SkillCheckResult res = skillCheck(thieveryId, targetIndex, difficulty, result);
     return res == CombatActions::SkillCheckResult::Success;
+}
+
+// ---- Skill feat and maneuver checks -------------------------------------------------
+
+int CombatActions::skillIdForName(const QString& skillName) const {
+    const QVector<SkillDef>& defs = skillDefs();
+    for (int i = 0; i < defs.size(); ++i) {
+        if (defs[i].name == skillName) {
+            return i;
+        }
+    }
+    return -1;
+}
+
+CombatActions::SkillCheckResult CombatActions::parry(int targetIndex, int difficulty, QString& result) const {
+    // The defender at targetIndex rolls Parry against the incoming difficulty.
+    // On success the defender is marked parried: the next hit on them is
+    // halved for the rest of the round.
+    if (!m_state || !m_engine) {
+        result = QStringLiteral("No combat");
+        return SkillCheckResult::Failure;
+    }
+    if (targetIndex < 0 || targetIndex >= m_state->participantCount()) {
+        result = QStringLiteral("Invalid target");
+        return SkillCheckResult::Failure;
+    }
+    const CombatParticipant& defender = m_state->participant(targetIndex);
+    if (!defender.isAlive) {
+        result = QStringLiteral("Target is already dead");
+        return SkillCheckResult::Failure;
+    }
+    const int skillId = skillIdForName(QStringLiteral("Parry"));
+    if (skillId < 0) {
+        result = QStringLiteral("Parry skill not found in skill database");
+        return SkillCheckResult::Failure;
+    }
+    int mod = m_state->skillMod(skillId, targetIndex);
+    int roll = QRandomGenerator::global()->bounded(1, 21);
+    int total = roll + mod;
+    bool success = total >= difficulty;
+    bool partial = total >= (difficulty - 5);
+    SkillCheckResult res = success ? SkillCheckResult::Success
+                             : (partial ? SkillCheckResult::PartialSuccess
+                                       : SkillCheckResult::Failure);
+    result = QStringLiteral("%1 makes a %2 check (skill level %3, dex mod %4) — roll %5 "
+                            "vs difficulty %6: %7")
+                 .arg(defender.name)
+                 .arg(m_state->skillNameForId(skillId))
+                 .arg(mod)
+                 .arg(qMax(0, (defender.dex - 10) / 2))
+                 .arg(roll)
+                 .arg(difficulty)
+                 .arg(res == SkillCheckResult::Success ? QStringLiteral("SUCCESS")
+                           : (res == SkillCheckResult::PartialSuccess
+                                  ? QStringLiteral("PARTIAL SUCCESS")
+                                  : QStringLiteral("FAILURE")));
+    if (res == SkillCheckResult::Success) {
+        CombatParticipant& defenderRef = m_state->participant(targetIndex);
+        defenderRef.isParried = true;
+    }
+    return res;
+}
+
+CombatActions::SkillCheckResult CombatActions::dodge(int targetIndex, int difficulty, QString& result) const {
+    // The defender at targetIndex rolls Dodge against the incoming difficulty.
+    // On success the defender is marked dodging: the next attack on them misses.
+    if (!m_state || !m_engine) {
+        result = QStringLiteral("No combat");
+        return SkillCheckResult::Failure;
+    }
+    if (targetIndex < 0 || targetIndex >= m_state->participantCount()) {
+        result = QStringLiteral("Invalid target");
+        return SkillCheckResult::Failure;
+    }
+    const CombatParticipant& defender = m_state->participant(targetIndex);
+    if (!defender.isAlive) {
+        result = QStringLiteral("Target is already dead");
+        return SkillCheckResult::Failure;
+    }
+    const int skillId = skillIdForName(QStringLiteral("Dodge"));
+    if (skillId < 0) {
+        result = QStringLiteral("Dodge skill not found in skill database");
+        return SkillCheckResult::Failure;
+    }
+    int mod = m_state->skillMod(skillId, targetIndex);
+    int roll = QRandomGenerator::global()->bounded(1, 21);
+    int total = roll + mod;
+    bool success = total >= difficulty;
+    bool partial = total >= (difficulty - 5);
+    SkillCheckResult res = success ? SkillCheckResult::Success
+                             : (partial ? SkillCheckResult::PartialSuccess
+                                       : SkillCheckResult::Failure);
+    result = QStringLiteral("%1 makes a %2 check (skill level %3, dex mod %4) — roll %5 "
+                            "vs difficulty %6: %7")
+                 .arg(defender.name)
+                 .arg(m_state->skillNameForId(skillId))
+                 .arg(mod)
+                 .arg(qMax(0, (defender.dex - 10) / 2))
+                 .arg(roll)
+                 .arg(difficulty)
+                 .arg(res == SkillCheckResult::Success ? QStringLiteral("SUCCESS")
+                           : (res == SkillCheckResult::PartialSuccess
+                                  ? QStringLiteral("PARTIAL SUCCESS")
+                                  : QStringLiteral("FAILURE")));
+    if (res == SkillCheckResult::Success) {
+        CombatParticipant& defenderRef = m_state->participant(targetIndex);
+        defenderRef.isDodged = true;
+    }
+    return res;
+}
+
+CombatActions::SkillCheckResult CombatActions::dualWield(int targetIndex, int difficulty, QString& result) const {
+    // The current actor rolls DualWield; on success they may spend the
+    // dual-wield ready to make one extra attack against the same target this
+    // turn.
+    if (!m_state || !m_engine) {
+        result = QStringLiteral("No combat");
+        return SkillCheckResult::Failure;
+    }
+    if (targetIndex < 0 || targetIndex >= m_state->participantCount()) {
+        result = QStringLiteral("Invalid target");
+        return SkillCheckResult::Failure;
+    }
+    const int actorIdx = m_engine->currentParticipantIndex();
+    if (actorIdx < 0) {
+        result = QStringLiteral("No actor");
+        return SkillCheckResult::Failure;
+    }
+    const CombatParticipant& actor = m_state->participant(actorIdx);
+    if (!actor.isAlive) {
+        result = QStringLiteral("Actor is already dead");
+        return SkillCheckResult::Failure;
+    }
+    SkillCheckResult res = skillCheck(skillIdForName(QStringLiteral("DualWield")),
+                                       targetIndex, difficulty, result);
+    if (res == SkillCheckResult::Success) {
+        CombatParticipant& actorRef = m_state->participant(actorIdx);
+        actorRef.canDualWield = true;
+    }
+    return res;
+}
+
+CombatActions::SkillCheckResult CombatActions::shieldBash(int targetIndex, int difficulty, QString& result) const {
+    // The current actor rolls ShieldBash against the target; on success the
+    // target is bashed for 1d6 and stunned for one round.
+    if (!m_state || !m_engine) {
+        result = QStringLiteral("No combat");
+        return SkillCheckResult::Failure;
+    }
+    if (targetIndex < 0 || targetIndex >= m_state->participantCount()) {
+        result = QStringLiteral("Invalid target");
+        return SkillCheckResult::Failure;
+    }
+    const CombatParticipant& target = m_state->participant(targetIndex);
+    if (!target.isAlive) {
+        result = QStringLiteral("Target is already dead");
+        return SkillCheckResult::Failure;
+    }
+    const int actorIdx = m_engine->currentParticipantIndex();
+    if (actorIdx < 0) {
+        result = QStringLiteral("No actor");
+        return SkillCheckResult::Failure;
+    }
+    const CombatParticipant& actor = m_state->participant(actorIdx);
+    if (!actor.isAlive) {
+        result = QStringLiteral("Actor is already dead");
+        return SkillCheckResult::Failure;
+    }
+    SkillCheckResult res = skillCheck(skillIdForName(QStringLiteral("ShieldBash")),
+                                       targetIndex, difficulty, result);
+    if (res == SkillCheckResult::Success) {
+        CombatParticipant& targetRef = m_state->participant(targetIndex);
+        const int bashDamage = 1 + QRandomGenerator::global()->bounded(6);
+        targetRef.hp -= bashDamage;
+        if (targetRef.hp <= 0) {
+            targetRef.hp = 0;
+            targetRef.isAlive = false;
+            result = QStringLiteral("%1 is bashed by %2 for %3 damage and knocked prone!")
+                .arg(target.name).arg(actor.name).arg(bashDamage);
+            SoundEffects::instance()->play(SoundEffects::Type::Hit);
+        } else {
+            targetRef.stunDuration = 1;
+            result = QStringLiteral("%1 is bashed by %2 for %3 damage and stunned for a round!")
+                .arg(target.name).arg(actor.name).arg(bashDamage);
+            SoundEffects::instance()->play(SoundEffects::Type::Hit);
+        }
+    }
+    return res;
 }
