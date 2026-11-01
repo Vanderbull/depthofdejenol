@@ -1,4 +1,5 @@
 #include "SpellBook.h"
+#include "SpellMechanics.h"
 #include <QFile>
 #include <QJsonDocument>
 #include <QJsonObject>
@@ -123,6 +124,23 @@ QList<SpellDef> SpellBook::newlyLearned(const Character& c, const QString& guild
         if (!statsOk) continue;
 
         result.append(s);
+    }
+
+    // Increase school proficiency for each newly learned spell (slice 6.1d).
+    for (const SpellDef& s : result) {
+        QString school = s.category;
+        if (school.isEmpty()) {
+            // Fallback: derive school from spell name.
+            school = SpellMechanics::schoolName(SpellMechanics::schoolFor(s.name));
+        }
+        if (!school.isEmpty()) {
+            // Increase the character's proficiency in this school.
+            Character& mutableC = const_cast<Character&>(c);
+            int current = mutableC.schoolProficiencyFor(school);
+            if (current < 3) {
+                mutableC.setSchoolProficiency(school, current + 1);
+            }
+        }
     }
 
     return result;

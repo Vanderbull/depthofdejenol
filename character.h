@@ -65,6 +65,12 @@ struct T4E6B {
 
 // --- Character: runtime fields + all MTypes.h binary fields ---
 
+struct SpellSlot {
+    QString school;   // school name (e.g. "Fire", "Cold", "Lightning", "Mind")
+    int level = 1;    // slot level (1, 2, or 3)
+    int count = 0;    // number of spell slots at this level
+};
+
 struct Character {
 
     // ===== Runtime fields (existing) =====
@@ -102,6 +108,21 @@ struct Character {
     int skillPoints() const;
     int skillLevel(const QString& skillName) const;
     bool learnSkill(const QString& skillName, int& newLevel, QString& error);
+
+    // v6.1.0 slice 6.1d: Magic Proficiency & Spell Slots
+    QMap<QString, int> schoolProficiency;  // school name -> proficiency level (0-3)
+    // Spell slots: vector per slot level (index 1-3 = levels 1-3)
+    QVector<SpellSlot> spellSlots[4];
+
+    // School proficiency: the higher the level, the more spells can be cast.
+    int schoolProficiencyFor(const QString& school) const;
+    void setSchoolProficiency(const QString& school, int level);
+    void increaseSchoolProficiency(const QString& school);
+
+    // Spell slot management (slice 6.1d)
+    void addSpellSlot(const QString& school, int level, int count = 1);
+    int spellSlotCount(const QString& school, int level) const;
+    bool spendSpellSlot(const QString& school, int level);
 
     // v3.0.0 slice 3.6: total play time in seconds. Persisted so the Hall of
     // Records can sort by it.

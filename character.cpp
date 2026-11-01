@@ -96,6 +96,26 @@ QVariantMap Character::toMap() const {
         skillLevelMap[it.key()] = it.value();
     }
     map["SkillLevels"] = skillLevelMap;
+    // Serialize school proficiency (slice 6.1d).
+    QVariantMap proficiencyMap;
+    for (auto it = schoolProficiency.constBegin(); it != schoolProficiency.constEnd(); ++it) {
+        proficiencyMap[it.key()] = it.value();
+    }
+    map["SchoolProficiency"] = proficiencyMap;
+
+    // Serialize spell slots (slice 6.1d).
+    QVariantList slotList;
+    for (int lvl = 1; lvl <= 3; ++lvl) {
+        for (const SpellSlot& slot : spellSlots[lvl]) {
+            QVariantMap slotMap;
+            slotMap["school"] = slot.school;
+            slotMap["level"]  = slot.level;
+            slotMap["count"]  = slot.count;
+            slotList.append(slotMap);
+        }
+    }
+    map["SpellSlots"] = slotList;
+
     map["PlayTimeSeconds"] = playTimeSeconds;
     map["Mana"]         = mana;
     map["MaxMana"]      = maxMana;
@@ -167,6 +187,28 @@ void Character::loadFromMap(const QVariantMap &map) {
     statPoints   = map.value("StatPoints", 0).toInt();
     m_skillPoints  = map.value("SkillPoints", 0).toInt();
     skillLevels.clear();
+    // Load school proficiency (slice 6.1d).
+    schoolProficiency.clear();
+    QVariantMap proficiencyMap = map.value("SchoolProficiency").toMap();
+    for (auto it = proficiencyMap.constBegin(); it != proficiencyMap.constEnd(); ++it) {
+        schoolProficiency[it.key()] = it.value().toInt();
+    }
+
+    // Load spell slots (slice 6.1d).
+    spellSlots[1].clear();
+    spellSlots[2].clear();
+    spellSlots[3].clear();
+    QVariantList slotList = map.value("SpellSlots").toList();
+    for (const QVariant& s : slotList) {
+        SpellSlot slot;
+        slot.school = s.toMap().value("school").toString();
+        slot.level  = s.toMap().value("level").toInt();
+        slot.count  = s.toMap().value("count").toInt();
+        if (slot.level >= 1 && slot.level <= 3) {
+            spellSlots[slot.level].append(slot);
+        }
+    }
+
     QVariantMap skillLevelMap = map.value("SkillLevels").toMap();
     for (auto it = skillLevelMap.constBegin(); it != skillLevelMap.constEnd(); ++it) {
         skillLevels[it.key()] = it.value().toInt();
@@ -526,6 +568,61 @@ int Character::skillPoints() const {
 
 int Character::skillLevel(const QString& skillName) const {
     return skillLevels.value(skillName, 0);
+}
+
+
+// --- Spell slots (slice 6.1d): Magic Proficiency & Spell Slots ---
+
+int Character::schoolProficiencyFor(const QString& school) const {
+    return schoolProficiency.value(school, 0);
+}
+
+void Character::setSchoolProficiency(const QString& school, int level) {
+    schoolProficiency[school] = qBound(0, level, 3);
+}
+
+void Character::increaseSchoolProficiency(const QString& school) {
+    int current = schoolProficiency.value(school, 0);
+    if (current < 3) {
+        schoolProficiency[school] = current + 1;
+    }
+}
+
+void Character::addSpellSlot(const QString& school, int level, int count) {
+    if (level < 1 || level > 3) return;
+    if (count <= 0) return;
+    SpellSlot slot;
+    slot.school = school;
+    slot.level = level;
+    slot.count = count;
+    spellSlots[level].append(slot);
+}
+
+int Character::spellSlotCount(const QString& school, int level) const {
+    if (level < 1 || level > 3) return 0;
+    int total = 0;
+    for (const SpellSlot& slot : spellSlots[level]) {
+        if (slot.school == school) {
+            total += slot.count;
+        }
+    }
+    return total;
+}
+
+bool Character::spendSpellSlot(const QString& school, int level) {
+    if (level < 1 || level > 3) return false;
+    int count = spellSlotCount(school, level);
+    if (count <= 0) return false;
+    for (int i = 0; i < spellSlots[level].size(); ++i) {
+        if (spellSlots[level][i].school == school) {
+            spellSlots[level][i].count--;
+            if (spellSlots[level][i].count <= 0) {
+                spellSlots[level].removeAt(i);
+            }
+            return true;
+        }
+    }
+    return false;
 }
 
 // --- Consumables ---
