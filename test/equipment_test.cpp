@@ -360,6 +360,7 @@ int runEquipmentTest()
             CombatParticipant part;
             part.name = "Feater";
             part.dex = 12;
+            part.speed = 20; // high speed: ensures agent acts first (deterministic)
             part.skillLevels["ShieldBash"] = skillLevel;
             state.addParticipant(part);
             CombatParticipant target;
