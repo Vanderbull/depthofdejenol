@@ -29,6 +29,14 @@ public:
     // src/skill/SkillDatabase). Returns true on success. Sets result message.
     bool disarmTrap(int targetIndex, int difficulty, QString& result) const;
 
+    // Search for hidden items, tracks, and secrets. Returns true on success.
+    // Sets result message.
+    bool search(int targetIndex, int difficulty, QString& result) const;
+
+    // Forage for food and water from the environment. Returns true on success.
+    // Sets result message.
+    bool forage(int difficulty, QString& result) const;
+
     // Attack: current participant attacks target at targetIndex.
     // Returns damage dealt, or -1 on miss/failure.
     int attack(int targetIndex, QString& result);

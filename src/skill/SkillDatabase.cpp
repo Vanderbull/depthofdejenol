@@ -67,6 +67,21 @@ QVector<SkillDef> skillDefs()
     skills.append({QStringLiteral("First Aid"),
                    QStringLiteral("Heals allies faster"),
                    1, QString(), QStringLiteral("Survival"), QStringLiteral("medkit.png")});
+    skills.append({QStringLiteral("Survival"),
+                   QStringLiteral("Tracks creatures, finds food, and survives the wild"),
+                   1, QString(), QStringLiteral("Survival"), QStringLiteral("compass.png")});
+    skills.append({QStringLiteral("Detection"),
+                   QStringLiteral("Notice hidden doors, traps, and creatures"),
+                   1, QString(), QStringLiteral("Survival"), QStringLiteral("sight.png")});
+    skills.append({QStringLiteral("Search"),
+                   QStringLiteral("Find hidden items and tracks"),
+                   1, QString(), QStringLiteral("Survival"), QStringLiteral("search.png")});
+    skills.append({QStringLiteral("Forage"),
+                   QStringLiteral("Find food and water from the environment"),
+                   1, QString(), QStringLiteral("Survival"), QStringLiteral("forage.png")});
+    skills.append({QStringLiteral("DisarmTrap"),
+                   QStringLiteral("Disable a trap before it springs"),
+                   2, QString("Thievery"), QStringLiteral("Combat"), QStringLiteral("trap.png")});
 
     // --- Combat skill feats and maneuvers ---
     // Cost 0, no prerequisite: these are granted by feats or by training a

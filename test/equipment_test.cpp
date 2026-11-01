@@ -485,6 +485,57 @@ int runEquipmentTest()
         checkDesc(QStringLiteral("Religion"), QStringLiteral("religious"));
     }
 
+    // --------------------------------------------------------------- slice 6.1g survival skills tests
+    out("--- [82] v6.1.0 slice 6.1g: survival and exploration skills ---");
+
+    // Check that all 7 survival/exploration skills exist
+    {
+        const QVector<SkillDef>& defs = skillDefs();
+        auto checkSkill = [&](const QString& name) {
+            int id = skillIdForName(name);
+            check(id >= 0, QString("%1 skill found").arg(name), QString::number(id));
+            if (id >= 0) {
+                const SkillDef& d = defs[id];
+                check(d.cost >= 0, QString("%1 has non-neg cost").arg(name));
+                check(d.prerequisite.isEmpty() || d.prerequisite == QStringLiteral("Thievery"), QString("%1 has valid prerequisite").arg(name), d.prerequisite);
+            }
+        };
+        checkSkill(QStringLiteral("Stealth"));      // exist from 6.1a
+        checkSkill(QStringLiteral("Detection"));    // new 6.1g
+        checkSkill(QStringLiteral("Survival"));     // exist from 6.1a
+        checkSkill(QStringLiteral("Search"));       // new 6.1g
+        checkSkill(QStringLiteral("DisarmTrap"));   // new 6.1g
+        checkSkill(QStringLiteral("PickLock"));     // exist from 6.1b
+        checkSkill(QStringLiteral("Forage"));       // new 6.1g
+    }
+
+    // Verify specific skill types and prerequisites
+    {
+        const QVector<SkillDef>& defs = skillDefs();
+        auto checkType = [&](const QString& name, const QString& expectedType) {
+            int id = skillIdForName(name);
+            if (id >= 0) {
+                const SkillDef& d = defs[id];
+                check(d.type == expectedType, QString("%1 type is %2").arg(name).arg(expectedType), d.type);
+            }
+        };
+        checkType(QStringLiteral("Detection"), QStringLiteral("Survival"));
+        checkType(QStringLiteral("Search"), QStringLiteral("Survival"));
+        checkType(QStringLiteral("Forage"), QStringLiteral("Survival"));
+        checkType(QStringLiteral("DisarmTrap"), QStringLiteral("Combat"));
+        checkType(QStringLiteral("PickLock"), QStringLiteral("Combat"));
+    }
+
+    // Verify DisarmTrap prerequisite
+    {
+        const QVector<SkillDef>& defs = skillDefs();
+        int disarmId = skillIdForName(QStringLiteral("DisarmTrap"));
+        if (disarmId >= 0) {
+            const SkillDef& d = defs[disarmId];
+            check(d.prerequisite == QStringLiteral("Thievery"), QString("DisarmTrap prerequisite is Thievery"), d.prerequisite);
+        }
+    }
+
     // --------------------------------------------------------------- main report
     out("");
     out("====================");
