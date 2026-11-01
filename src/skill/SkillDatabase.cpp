@@ -124,3 +124,29 @@ QVector<CraftingRecipe> craftingRecipes()
     recipes.append({QStringLiteral("Chainmail"), QStringLiteral("Tailoring"), 3, QStringList{ QStringLiteral("Hides"), QStringLiteral("Iron Ingot") }, 0.60});
     return recipes;
 }
+
+QVector<CompanionSkill> companionSkills()
+{
+    QVector<CompanionSkill> skills;
+    // Guard: patrols and defends the party
+    skills.append({QStringLiteral("Guard"),
+                   QStringLiteral("Patrols and defends the party"),
+                   1, 1, QStringLiteral("Combat"), 100});
+    // Attack: attacks enemies with increased damage
+    skills.append({QStringLiteral("Attack"),
+                   QStringLiteral("Attacks enemies with increased damage"),
+                   1, 1, QStringLiteral("Combat"), 100});
+    // Heal: heals party members
+    skills.append({QStringLiteral("Heal"),
+                   QStringLiteral("Heals party members"),
+                   1, 1, QStringLiteral("Combat"), 100});
+    // Fetch: fetches items from the environment
+    skills.append({QStringLiteral("Fetch"),
+                   QStringLiteral("Fetches items from the environment"),
+                   1, 1, QStringLiteral("Survival"), 100});
+    // Follow: follows the player
+    skills.append({QStringLiteral("Follow"),
+                   QStringLiteral("Follows the player"),
+                   1, 1, QStringLiteral("Social"), 100});
+    return skills;
+}

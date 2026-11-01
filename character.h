@@ -9,6 +9,7 @@
 #include <cstdint>
 
 #include "src/core/GameConstants.h"
+#include "src/skill/SkillDatabase.h"
 
 // --- Supporting structs (from MTypes.h) ---
 
@@ -48,6 +49,9 @@ struct Companion {
     int16_t M57E1;
     int16_t M4EEE;
 };
+
+// CompanionSkill: defines trainable companion skills (defined in SkillDatabase.h)
+struct CompanionSkill;
 
 struct T57EF {
     int32_t M425F;
@@ -158,6 +162,22 @@ struct Character {
     QList<HeldItem> inventory;
     QList<HeldItem> bankInventory;
     QList<HeldItem> equipped;  // 12 slots, index = ItemSlot::Slot
+
+    // ===== Companion skill system (slice 6.1h) =====
+    // Companion skills: Guard, Attack, Heal, Fetch, Follow
+    CompanionSkill m_companionSkills[5];  // 5 companion slots
+
+    // Get companion skill definition
+    CompanionSkill& companionSkill(int index);
+
+    // Set companion skill level
+    void setCompanionSkillLevel(int index, int level);
+
+    // Command a companion: uses skill check and returns success
+    bool commandCompanion(int index, int targetIndex, int difficulty, QString& result);
+
+    // Train a companion: increase skill level using skill points
+    bool trainCompanion(int index, int skillId, int& newLevel, QString& error);
 
     // ===== MTypes.h binary fields (full record) =====
 

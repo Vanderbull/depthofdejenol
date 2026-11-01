@@ -536,6 +536,55 @@ int runEquipmentTest()
         }
     }
 
+    // --------------------------------------------------------------- slice 6.1h companion skills tests
+    out("--- [83] v6.1.0 slice 6.1h: companion training & command skills ---");
+
+    // Check that companion skills exist
+    {
+        const QVector<CompanionSkill>& cs = companionSkills();
+        check(cs.size() >= 5, "companionSkills has >= 5 entries", QString::number(cs.size()));
+        check(cs.size() <= 5, "companionSkills has <= 5 entries", QString::number(cs.size()));
+        // Verify key companion skills
+        auto findSkill = [&](const QString& name) -> const CompanionSkill* {
+            for (const auto& s : cs) {
+                if (s.name == name) return &s;
+            }
+            return nullptr;
+        };
+        check(findSkill(QStringLiteral("Guard")) != nullptr, "Guard skill exists");
+        check(findSkill(QStringLiteral("Attack")) != nullptr, "Attack skill exists");
+        check(findSkill(QStringLiteral("Heal")) != nullptr, "Heal skill exists");
+        check(findSkill(QStringLiteral("Fetch")) != nullptr, "Fetch skill exists");
+        check(findSkill(QStringLiteral("Follow")) != nullptr, "Follow skill exists");
+    }
+
+    // Verify companion skills have proper definitions
+    {
+        const QVector<CompanionSkill>& cs = companionSkills();
+        auto findSkill = [&](const QString& name) -> const CompanionSkill* {
+            for (const auto& s : cs) {
+                if (s.name == name) return &s;
+            }
+            return nullptr;
+        };
+        // Check Guard skill
+        const CompanionSkill* guard = findSkill(QStringLiteral("Guard"));
+        if (guard) {
+            check(guard->type == QStringLiteral("Combat"), "Guard type is Combat");
+            check(guard->level >= 1, "Guard level >= 1");
+        }
+        // Check Fetch skill
+        const CompanionSkill* fetch = findSkill(QStringLiteral("Fetch"));
+        if (fetch) {
+            check(fetch->type == QStringLiteral("Survival"), "Fetch type is Survival");
+        }
+        // Check Follow skill
+        const CompanionSkill* follow = findSkill(QStringLiteral("Follow"));
+        if (follow) {
+            check(follow->type == QStringLiteral("Social"), "Follow type is Social");
+        }
+    }
+
     // --------------------------------------------------------------- main report
     out("");
     out("====================");

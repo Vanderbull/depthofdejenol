@@ -571,6 +571,7 @@ int Character::skillLevel(const QString& skillName) const {
 }
 
 
+
 // --- Spell slots (slice 6.1d): Magic Proficiency & Spell Slots ---
 
 int Character::schoolProficiencyFor(const QString& school) const {
