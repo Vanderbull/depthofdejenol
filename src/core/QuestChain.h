@@ -19,6 +19,13 @@ struct QuestStep {
     QString requiresItem;       // carry this item
     int rewardGold = 0;
     int rewardXp = 0;
+
+    // Skill-based quest reward (slice 6.1i)
+    QString skillId;
+    int minSkillLevel = 0;
+    int skillBonusGold = 0;
+    int skillBonusXp = 0;
+    int skillBonusDivisor = 1;
 };
 
 // The main quest: a chain of steps from the first descent to the Prince.

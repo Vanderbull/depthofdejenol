@@ -91,8 +91,41 @@ QuestChainDriver::AdvanceResult QuestChainDriver::advance() {
                 // we use a game-state key to track it.
                 QString key = QString("QuestRewardGiven_%1").arg(step.id);
                 if (!gsm->getGameValue(key).toBool()) {
+                    // Base rewards
                     if (step.rewardGold > 0) gsm->addPartyGold(step.rewardGold);
                     if (step.rewardXp > 0) gsm->addExperienceToParty(step.rewardXp);
+
+                    // Skill-based bonus rewards (slice 6.1i)
+                    // Get the party's highest relevant skill level
+                    QStringList members = gsm->getGameValue("PartyMemberNames").toStringList();
+                    int skillLevel = 0;
+                    for (const QString& member : members) {
+                        // Get skill levels for this member
+                        QVariantMap skillMap = gsm->getGameValue(QStringLiteral("%1.SkillLevels").arg(member)).toMap();
+                        if (skillMap.contains(step.skillId)) {
+                            int level = skillMap[step.skillId].toInt();
+                            if (level > skillLevel) {
+                                skillLevel = level;
+                            }
+                        }
+                    }
+
+                    // Apply skill bonus if the player has enough skill
+                    if (skillLevel >= step.minSkillLevel && step.skillBonusGold > 0) {
+                        int bonus = step.skillBonusGold * ((skillLevel - step.minSkillLevel) / step.skillBonusDivisor + 1);
+                        gsm->addPartyGold(bonus);
+                        JournalDialog::addEntry(QStringLiteral("Quest"),
+                            QStringLiteral("Skill bonus: +%1 gold for %2 (skill level %3)")
+                                .arg(bonus).arg(step.skillId).arg(skillLevel));
+                    }
+                    if (skillLevel >= step.minSkillLevel && step.skillBonusXp > 0) {
+                        int bonus = step.skillBonusXp * ((skillLevel - step.minSkillLevel) / step.skillBonusDivisor + 1);
+                        gsm->addExperienceToParty(bonus);
+                        JournalDialog::addEntry(QStringLiteral("Quest"),
+                            QStringLiteral("Skill bonus: +%1 XP for %2 (skill level %3)")
+                                .arg(bonus).arg(step.skillId).arg(skillLevel));
+                    }
+
                     gsm->setGameValue(key, true);
 
                     StepReward r;

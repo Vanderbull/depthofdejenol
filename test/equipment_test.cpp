@@ -11,6 +11,7 @@
 #include "src/core/GameConstants.h"
 #include "src/items/ItemDatabase.h"
 #include "src/skill/SkillDatabase.h"
+#include "src/core/QuestChain.h"
 #include <QRandomGenerator>
 #include "src/combat/CombatState.h"
 #include "src/combat/CombatActions.h"
@@ -583,6 +584,36 @@ int runEquipmentTest()
         if (follow) {
             check(follow->type == QStringLiteral("Social"), "Follow type is Social");
         }
+    }
+
+    // --------------------------------------------------------------- main report
+    // --------------------------------------------------------------- slice 6.1i skill-based quest rewards tests
+    out("--- [84] v6.1.0 slice 6.1i: skill-based quest rewards ---");
+
+    // Verify QuestStep has skill-based reward fields
+    {
+        const QuestStep& step = QuestStep();
+        check(step.skillId.isEmpty(), "skillId starts empty");
+        check(step.minSkillLevel == 0, "minSkillLevel starts at 0");
+        check(step.skillBonusGold == 0, "skillBonusGold starts at 0");
+        check(step.skillBonusXp == 0, "skillBonusXp starts at 0");
+        check(step.skillBonusDivisor == 1, "skillBonusDivisor starts at 1");
+    }
+
+    // Verify that a QuestStep can hold skill-based reward data
+    {
+        QuestStep step;
+        step.skillId = "Smithing";
+        step.minSkillLevel = 3;
+        step.skillBonusGold = 500;
+        step.skillBonusXp = 200;
+        step.skillBonusDivisor = 2;
+
+        check(step.skillId == "Smithing", "skillId set correctly");
+        check(step.minSkillLevel == 3, "minSkillLevel set correctly");
+        check(step.skillBonusGold == 500, "skillBonusGold set correctly");
+        check(step.skillBonusXp == 200, "skillBonusXp set correctly");
+        check(step.skillBonusDivisor == 2, "skillBonusDivisor set correctly");
     }
 
     // --------------------------------------------------------------- main report
