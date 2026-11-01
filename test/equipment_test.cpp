@@ -446,6 +446,45 @@ int runEquipmentTest()
         check(true, "crafting skill checks pass", "OK");
     }
 
+    // --------------------------------------------------------------- slice 6.1f social skills tests
+    out("--- [81] v6.1.0 slice 6.1f: social and negotiation skills ---");
+
+    // Check that all 5 social skills exist
+    {
+        const QVector<SkillDef>& defs = skillDefs();
+        auto checkSkill = [&](const QString& name) {
+            int id = skillIdForName(name);
+            check(id >= 0, QString("%1 skill found").arg(name), QString::number(id));
+            if (id >= 0) {
+                const SkillDef& d = defs[id];
+                check(d.type == QStringLiteral("Social"), QString("%1 is Social type").arg(name));
+                check(d.cost >= 0, QString("%1 has non-neg cost").arg(name));
+                check(d.prerequisite.isEmpty(), QString("%1 has no prerequisite").arg(name));
+            }
+        };
+        checkSkill(QStringLiteral("Persuasion"));
+        checkSkill(QStringLiteral("Intimidation"));
+        checkSkill(QStringLiteral("Deception"));
+        checkSkill(QStringLiteral("Diplomacy"));
+        checkSkill(QStringLiteral("Religion"));
+    }
+
+    // Verify social skills have proper descriptions and icons
+    {
+        const QVector<SkillDef>& defs = skillDefs();
+        auto checkDesc = [&](const QString& name, const QString& expectedStr) {
+            int id = skillIdForName(name);
+            if (id >= 0) {
+                const SkillDef& d = defs[id];
+                check(d.description.contains(expectedStr), QString("%1 description valid").arg(name), d.description);
+            }
+        };
+        checkDesc(QStringLiteral("Intimidation"), QStringLiteral("intimidation"));
+        checkDesc(QStringLiteral("Deception"), QStringLiteral("deception"));
+        checkDesc(QStringLiteral("Diplomacy"), QStringLiteral("negotiation"));
+        checkDesc(QStringLiteral("Religion"), QStringLiteral("religious"));
+    }
+
     // --------------------------------------------------------------- main report
     out("");
     out("====================");

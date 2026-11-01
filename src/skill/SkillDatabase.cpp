@@ -45,6 +45,18 @@ QVector<SkillDef> skillDefs()
     skills.append({QStringLiteral("Persuasion"),
                    QStringLiteral("Improves persuasion rolls"),
                    1, QString(), QStringLiteral("Social"), QStringLiteral("speech.png")});
+    skills.append({QStringLiteral("Intimidation"),
+                   QStringLiteral("Improves intimidation rolls"),
+                   1, QString(), QStringLiteral("Social"), QStringLiteral("intimidate.png")});
+    skills.append({QStringLiteral("Deception"),
+                   QStringLiteral("Improves deception and lying rolls"),
+                   1, QString(), QStringLiteral("Social"), QStringLiteral("deceive.png")});
+    skills.append({QStringLiteral("Diplomacy"),
+                   QStringLiteral("Improves negotiation and diplomacy rolls"),
+                   1, QString(), QStringLiteral("Social"), QStringLiteral("diplomacy.png")});
+    skills.append({QStringLiteral("Religion"),
+                   QStringLiteral("Improves religious and ritual rolls"),
+                   1, QString(), QStringLiteral("Social"), QStringLiteral("religion.png")});
 
     // --- Advanced skills (require prerequisite) ---
     skills.append({QStringLiteral("Advanced Swordsmanship"),
