@@ -16,3 +16,16 @@ struct SkillDef {
 // Returns the static list of skill definitions.
 QVector<SkillDef> skillDefs();
 
+// CraftingRecipe: defines what can be created via artisan skills.
+struct CraftingRecipe
+{
+    QString itemName;           // Item that gets crafted
+    QString skill;              // Required artisan skill
+    int levelRequirement = 1;   // Minimum skill level required
+    QStringList ingredients;    // Required ingredients
+    double successRate = 0.75;  // Base success rate (0-1)
+};
+
+// Returns the craftingRecipe table (itemName -> recipe).
+QVector<CraftingRecipe> craftingRecipes();
+

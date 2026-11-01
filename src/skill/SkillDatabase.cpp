@@ -31,6 +31,15 @@ QVector<SkillDef> skillDefs()
     skills.append({QStringLiteral("Smithing"),
                    QStringLiteral("Creates and repairs weapons and armor"),
                    1, QString(), QStringLiteral("Craft"), QStringLiteral("hammer.png")});
+    skills.append({QStringLiteral("Enchanting"),
+                   QStringLiteral("Enchants items with magical properties"),
+                   1, QString(), QStringLiteral("Craft"), QStringLiteral("wand.png")});
+    skills.append({QStringLiteral("Tannery"),
+                   QStringLiteral("Converts hides into leather goods"),
+                   1, QString(), QStringLiteral("Craft"), QStringLiteral("leather.png")});
+    skills.append({QStringLiteral("Tailoring"),
+                   QStringLiteral("Creates and repairs clothing"),
+                   1, QString(), QStringLiteral("Craft"), QStringLiteral("sewing.png")});
 
     // --- Social skills ---
     skills.append({QStringLiteral("Persuasion"),
@@ -66,4 +75,25 @@ QVector<SkillDef> skillDefs()
                    0, QString(), QStringLiteral("Combat"), QStringLiteral("shieldbash.png")});
 
     return skills;
+}
+
+QVector<CraftingRecipe> craftingRecipes()
+{
+    QVector<CraftingRecipe> recipes;
+    // Alchemy recipes
+    recipes.append({QStringLiteral("Potion of Strength"), QStringLiteral("Alchemy"), 2, QStringList{ QStringLiteral("Herbs"), QStringLiteral("Spirit") }, 0.85});
+    recipes.append({QStringLiteral("Magic Potion"), QStringLiteral("Alchemy"), 3, QStringList{ QStringLiteral("Herbs"), QStringLiteral("Spirit"), QStringLiteral("Satchel") }, 0.75});
+    recipes.append({QStringLiteral("Poison Vial"), QStringLiteral("Alchemy"), 2, QStringList{ QStringLiteral("Herbs"), QStringLiteral("Venom") }, 0.65});
+    // Smithing recipes
+    recipes.append({QStringLiteral("Steel Sword"), QStringLiteral("Smithing"), 3, QStringList{ QStringLiteral("Iron Ingot"), QStringLiteral("Wood") }, 0.70});
+    recipes.append({QStringLiteral("Steel Shield"), QStringLiteral("Smithing"), 2, QStringList{ QStringLiteral("Iron Ingot"), QStringLiteral("Wood") }, 0.75});
+    // Enchanting recipes
+    recipes.append({QStringLiteral("Enchanted Bow"), QStringLiteral("Enchanting"), 3, QStringList{ QStringLiteral("Bow"), QStringLiteral("Magic Crystal") }, 0.60});
+    recipes.append({QStringLiteral("Enchanted Armor"), QStringLiteral("Enchanting"), 3, QStringList{ QStringLiteral("Chainmail"), QStringLiteral("Magic Crystal") }, 0.65});
+    // Tannery recipes
+    recipes.append({QStringLiteral("Leather Armor"), QStringLiteral("Tannery"), 2, QStringList{ QStringLiteral("Hides") }, 0.80});
+    // Tailoring recipes
+    recipes.append({QStringLiteral("Leather Armor"), QStringLiteral("Tailoring"), 1, QStringList{ QStringLiteral("Hides") }, 0.70});
+    recipes.append({QStringLiteral("Chainmail"), QStringLiteral("Tailoring"), 3, QStringList{ QStringLiteral("Hides"), QStringLiteral("Iron Ingot") }, 0.60});
+    return recipes;
 }
