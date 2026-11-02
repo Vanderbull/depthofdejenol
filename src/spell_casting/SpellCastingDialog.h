@@ -30,7 +30,7 @@ class SpellCastingDialog : public QDialog
 
 public:
     explicit SpellCastingDialog(QWidget *parent = nullptr, bool inCombat = false);
-    ~SpellCastingDialog();
+    virtual ~SpellCastingDialog();
 
     // Get the result of the last cast spell (for DungeonDialog to use)
     SpellResult getLastSpellResult() const { return m_lastResult; }
