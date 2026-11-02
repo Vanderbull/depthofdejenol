@@ -11,6 +11,13 @@
 CharacterSheetDialog::CharacterSheetDialog(QWidget *parent) : QDialog(parent) {
     setupUi();
     refreshSheet();
+    // Refresh when party data changes
+    connect(gameStateManager::instance(), &gameStateManager::gameValueChanged,
+            this, [this](const QString& key, const QVariant& value) {
+        if (key == "party_data") {
+            refreshSheet();
+        }
+    });
 }
 
 CharacterSheetDialog::~CharacterSheetDialog() = default;
