@@ -160,21 +160,6 @@ This release adds a dynamic skill system and expands the character's abilities b
 
 **Verification:** Manual QA: run through creating a character, allocate skills, use skills in combat, check UI responsiveness.
 
-### Slice 6.1k — Final Integration & Polish
-**Goal:** Ensure everything works together and the game is stable.
-
-**Contents:**
-- Run full self‑test suite.
-- Add integration tests for each new feature.
-- Fix any issues discovered.
-- Update documentation: add a new section in `README.md` about skill system.
-- Update `ReleaseInfo.cpp` with the new version entry.
-- Update `docs/ROADMAP_v6.1.0.md` with the final state.
-- Verify: `make check` passes; `make` builds without errors.
-
-**Verification:** Run `make` and `make check`, confirm 1768+ tests pass and the binary builds.
-
----
 
 ## Version Bump Steps (perform before the slices)
 
@@ -206,9 +191,6 @@ This release adds a dynamic skill system and expands the character's abilities b
 | 6.1g (Survival) | 8 |
 | 6.1h (Companions) | 6 |
 | 6.1i (Quest rewards) | 6 |
-| 6.1j (Skill UI) | 8 |
-| 6.1k (Integration) | 10 |
-| **Total** | **~82 hours** |
 
 ---
 
@@ -244,8 +226,6 @@ This release adds a dynamic skill system and expands the character's abilities b
 | 6.1g (Survival) | Stealth, Detection, Survival, Search, DisarmTrap, PickLock, Forage | [x] |
 | 6.1h (Companions) | Guard, Attack, Heal, Fetch, Follow | [x] |
 | 6.1i (Quest rewards) | Skill-based quest rewards | [x] |
-| 6.1j (Skill UI) | SkillBookDialog, skill UI integration | [x] |
-| 6.1k (Integration) | Final integration and polish | [x] |
 
 ### New Skills
 

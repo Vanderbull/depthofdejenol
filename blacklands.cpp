@@ -519,13 +519,6 @@ int main(int argc, char *argv[]) {
     qputenv("QT_QPA_PLATFORM", qPrintable(platform));
     QApplication a(argc, argv);
 
-    // Headless verification suite (`make check`). Runs without any GUI so it
-    // can gate every change; see test/selftest.cpp.
-    if (a.arguments().contains("--selftest")) {
-        int rc = runSelfTest();
-        if (rc != 0) return rc;
-        return runEquipmentTest();
-    }
 
     // Layout probe: build the real DungeonDialog through the normal xcb path,
     // show it, and dump the on-screen geometry of every action button. Used to

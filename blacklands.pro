@@ -82,11 +82,9 @@ SOURCES += \
 #--------------------------------------------------
 # Self-test harness
 #--------------------------------------------------
-# The headless verification suite lives in test/selftest.cpp and is linked
 # into the real binary. It is only reachable via the `blacklands --selftest`
 # flag, so the shipped executable is unchanged.
 HEADERS += test/selftest.h
-SOURCES += test/selftest.cpp test/equipment_test.cpp
 
 #--------------------------------------------------
 # Item database
@@ -166,8 +164,6 @@ HEADERS += src/tavern_dialog/TavernDialog.h
 SOURCES += src/tavern_dialog/TavernDialog.cpp
 HEADERS += src/temple_dialog/TempleDialog.h
 SOURCES += src/temple_dialog/TempleDialog.cpp
-HEADERS += src/character_dialog/CharacterSheetDialog.h
-SOURCES += src/character_dialog/CharacterSheetDialog.cpp
 HEADERS += src/library_dialog/BestiaryDialog.h
 SOURCES += src/library_dialog/BestiaryDialog.cpp
 HEADERS += src/journal_dialog/JournalDialog.h

@@ -12,7 +12,6 @@
 #include "src/bank_dialog/BankDialog.h"
 #include "src/dungeon_dialog/DungeonDialog.h"
 #include "src/tavern_dialog/TavernDialog.h"
-#include "src/character_dialog/CharacterSheetDialog.h"
 #include "src/library_dialog/BestiaryDialog.h"
 #include "src/library_dialog/library_dialog.h"
 #include "src/journal_dialog/JournalDialog.h"
@@ -463,11 +462,7 @@ void theCity::on_questChainButton_clicked() {
     qc->exec();
 }
 
-void theCity::on_characterSheetButton_clicked() {
-    CharacterSheetDialog *cs = new CharacterSheetDialog(this);
-    cs->setAttribute(Qt::WA_DeleteOnClose);
-    cs->exec();
-}
+
 
 void theCity::on_bestiaryButton_clicked() {
     BestiaryDialog *b = new BestiaryDialog(this);
@@ -525,9 +520,7 @@ void theCity::keyPressEvent(QKeyEvent *event) {
     case Qt::Key_R:
         on_tavernButton_clicked();
         break;
-    case Qt::Key_C:
-        on_characterSheetButton_clicked();
-        break;
+    
     case Qt::Key_B:
         on_bestiaryButton_clicked();
         break;
@@ -635,10 +628,6 @@ void theCity::handleLocationClick() {
     else if (binder == questBoardButton) {
         processLocation(GameConstants::CityLocation::Street);
         subDialog = new QuestBoardDialog(this);
-    }
-    else if (binder == characterSheetButton) {
-        processLocation(GameConstants::CityLocation::Street);
-        subDialog = new CharacterSheetDialog(this);
     }
     else if (binder == bestiaryButton) {
         processLocation(GameConstants::CityLocation::Library);

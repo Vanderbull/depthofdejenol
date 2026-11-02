@@ -43,7 +43,6 @@ private slots:
     void on_libraryButton_clicked();
     void on_questBoardButton_clicked();
     void on_questChainButton_clicked();
-    void on_characterSheetButton_clicked();
     void on_bestiaryButton_clicked();
     void on_journalButton_clicked();
     void on_npcButton_clicked();
