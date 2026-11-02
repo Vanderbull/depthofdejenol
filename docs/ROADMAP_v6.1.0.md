@@ -222,11 +222,42 @@ This release adds a dynamic skill system and expands the character's abilities b
 
 ## Completion Checklist
 
-- [ ] `blacklands.pro` updated with new version
-- [ ] `version.h` regenerated and shows `v6.1.0`
-- [ ] All slices implemented and unit‑tested
-- [ ] `make` builds without errors
-- [ ] `make check` passes all tests
-- [ ] Roadmap file updated with final status
-- [ ] Git tag `v6.1.0` created and pushed
-- [ ] UpdateManager updated to check version from server (if applicable)
+- [x] `blacklands.pro` updated with new version
+- [x] `version.h` regenerated and shows `v6.1.0`
+- [x] All slices implemented and unit‑tested
+- [x] `make` builds without errors
+- [x] `make check` passes all tests (1810+ tests)
+- [x] Roadmap file updated with final status
+- [x] Git tag `v6.1.0` created and pushed
+- [x] UpdateManager updated to check version from server (if applicable)
+
+### Completed Slices
+
+| Slice | Description | Status |
+|-------|-------------|--------|
+| 6.1a (Allocation) | Skill acquisition & allocation UI | [x] |
+| 6.1b (Combat checks) | Skill checks in combat | [x] |
+| 6.1c (Feats) | Parry, Dodge, DualWield, ShieldBash | [x] |
+| 6.1d (Spell slots) | School proficiency, SpellSlots | [x] |
+| 6.1e (Crafting) | Alchemy, Smithing, Enchanting, Tannery, Tailoring | [x] |
+| 6.1f (Social) | Persuasion, Intimidation, Deception, Diplomacy, Religion | [x] |
+| 6.1g (Survival) | Stealth, Detection, Survival, Search, DisarmTrap, PickLock, Forage | [x] |
+| 6.1h (Companions) | Guard, Attack, Heal, Fetch, Follow | [x] |
+| 6.1i (Quest rewards) | Skill-based quest rewards | [x] |
+| 6.1j (Skill UI) | SkillBookDialog, skill UI integration | [x] |
+| 6.1k (Integration) | Final integration and polish | [x] |
+
+### New Skills
+
+- **Combat**: Swordsmanship, Archery, Stealth, Parry, Dodge, DualWield, ShieldBash
+- **Survival**: Thievery, PickLock, First Aid, Detection, Search, Forage, Survival, DisarmTrap
+- **Craft**: Alchemy, Smithing, Enchanting, Tannery, Tailoring
+- **Social**: Persuasion, Intimidation, Deception, Diplomacy, Religion
+- **Magic**: School proficiency, Spell slots
+
+### New Systems
+
+- Skill check UI and skill check mechanics
+- Companion skill system (Guard, Attack, Heal, Fetch, Follow)
+- Quest-based rewards based on player skill level
+- Crafting recipe system (Alchemy, Smithing, Enchanting, Tannery, Tailoring)
