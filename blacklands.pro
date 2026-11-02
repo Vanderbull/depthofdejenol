@@ -26,7 +26,12 @@ UI_DIR = $$BUILD_DIR/ui
 #--------------------------------------------------
 QMAKE_RESOURCE_FLAGS += --root /
 
-INCLUDEPATH += _PRO_FILE_PWD_/include
+INCLUDEPATH += _PRO_FILE_PWD_
+INCLUDEPATH += _PRO_FILE_PWD_/src/include
+INCLUDEPATH += _PRO_FILE_PWD_
+INCLUDEPATH += _PRO_FILE_PWD_/src
+INCLUDEPATH += _PRO_FILE_PWD_
+INCLUDEPATH += _PRO_FILE_PWD_/src
 
 #--------------------------------------------------
 # Source Files
@@ -71,6 +76,7 @@ SOURCES += \
     src/update/UpdateManager.cpp \
     src/update/UpdateDialog.cpp \
     character.cpp \
+    src/skill_book_dialog/SkillBookDialog.cpp src/skill_book_dialog/SkillBookDialog.h \
     src/skill/SkillDatabase.cpp
 
 #--------------------------------------------------
