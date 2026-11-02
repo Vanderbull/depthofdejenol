@@ -167,8 +167,8 @@ struct Character {
     // Companion skills: Guard, Attack, Heal, Fetch, Follow
     CompanionSkill m_companionSkills[5];  // 5 companion slots
 
-    // Get companion skill definition
-    CompanionSkill& companionSkill(int index);
+    // Get companion skill definition (const)
+    const CompanionSkill& companionSkill(int index) const;
 
     // Set companion skill level
     void setCompanionSkillLevel(int index, int level);

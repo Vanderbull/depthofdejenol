@@ -493,6 +493,12 @@ int Character::raceCapForStat(const QString& statName) const {
     return 0;  // race or stat not found — "no cap known"
 }
 
+const CompanionSkill& Character::companionSkill(int index) const {
+    static CompanionSkill empty;
+    if (index < 0 || index >= 5) return empty;
+    return m_companionSkills[index];
+}
+
 bool Character::spendStatPoint(const QString& statName, int cap) {
     if (statPoints <= 0) return false;
 

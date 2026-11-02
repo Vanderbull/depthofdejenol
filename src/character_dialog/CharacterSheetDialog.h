@@ -36,6 +36,20 @@ private:
     QLabel *m_goldLabel = nullptr;
     QLabel *m_statPointsLabel = nullptr;
     QLabel *m_playTimeLabel = nullptr;
+
+    // v6.1k: Additional character data - spouse, children, status effects
+    QLabel *m_spouseLabel = nullptr;
+    QLabel *m_childrenLabel = nullptr;
+    QLabel *m_statusLabel = nullptr;
+
+    // v6.1k: Companion skills
+    QTableWidget *m_companionTable = nullptr;
+    QLabel *m_companionPointsLabel = nullptr;
+
+    // v6.1k: Inventory
+    QTableWidget *m_inventoryTable = nullptr;
+    QLabel *m_inventoryPointsLabel = nullptr;
+
     QTableWidget *m_statsTable = nullptr;
     QTableWidget *m_equipTable = nullptr;
     QTableWidget *m_guildTable = nullptr;

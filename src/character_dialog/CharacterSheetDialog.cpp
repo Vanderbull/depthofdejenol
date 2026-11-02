@@ -113,6 +113,53 @@ void CharacterSheetDialog::setupUi() {
 
     mainLayout->addWidget(skillGroup);
 
+    // ============================================================
+    // v6.1k: Additional character data
+    // ============================================================
+
+    // Spouse
+    auto *spouseGroup = new QGroupBox(tr("Spouse & Family"));
+    auto *spouseLayout = new QHBoxLayout(spouseGroup);
+    spouseLayout->addWidget(new QLabel(tr("Spouse:")));
+    m_spouseLabel = new QLabel;
+    spouseLayout->addWidget(m_spouseLabel);
+    spouseLayout->addStretch();
+    m_childrenLabel = new QLabel;
+    spouseLayout->addWidget(m_childrenLabel);
+    mainLayout->addWidget(spouseGroup);
+
+    // Status effects
+    auto *statusGroup = new QGroupBox(tr("Status"));
+    auto *statusLayout = new QHBoxLayout(statusGroup);
+    statusLayout->addWidget(new QLabel(tr("Status:")));
+    m_statusLabel = new QLabel;
+    statusLayout->addWidget(m_statusLabel);
+    statusLayout->addStretch();
+    mainLayout->addWidget(statusGroup);
+
+    // Companion skills
+    auto *companionGroup = new QGroupBox(tr("Companions"));
+    auto *companionLayout = new QVBoxLayout(companionGroup);
+    m_companionTable = new QTableWidget(5, 3);
+    m_companionTable->setHorizontalHeaderLabels({tr("Name"), tr("Level"), tr("Skill")});
+    m_companionTable->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    companionLayout->addWidget(m_companionTable);
+    m_companionPointsLabel = new QLabel(tr("Companion Points: 0"));
+    companionLayout->addWidget(m_companionPointsLabel);
+    mainLayout->addWidget(companionGroup);
+
+    // Inventory
+    auto *invGroup = new QGroupBox(tr("Inventory"));
+    auto *invLayout = new QVBoxLayout(invGroup);
+    m_inventoryTable = new QTableWidget(0, 3);
+    m_inventoryTable->setHorizontalHeaderLabels({tr("#" ), tr("Item"), tr("Status")});
+    m_inventoryTable->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    m_inventoryTable->setMaximumHeight(150);
+    invLayout->addWidget(m_inventoryTable);
+    m_inventoryPointsLabel = new QLabel;
+    invLayout->addWidget(m_inventoryPointsLabel);
+    mainLayout->addWidget(invGroup);
+
     connect(m_learnSkillButton, &QPushButton::clicked, this, &CharacterSheetDialog::onLearnSkill);
 
     // Exit
@@ -275,6 +322,74 @@ void CharacterSheetDialog::refreshSheet() {
 
     // Enable the learn button if the player has skill points
     m_learnSkillButton->setEnabled(c.skillPoints() > 0);
+
+    // ============================================================
+    // v6.1k: Additional character data
+    // ============================================================
+
+    // Spouse
+    m_spouseLabel->setText(c.spouse.isEmpty() ? tr("Spouse: None") : tr("Spouse: %1").arg(c.spouse));
+
+    // Children
+    if (c.children.isEmpty()) {
+        m_childrenLabel->setText(tr("Children: None"));
+    } else {
+        QStringList childList;
+        for (const QString& child : c.children) {
+            childList.append(child);
+        }
+        m_childrenLabel->setText(tr("Children: %1").arg(childList.join(", ")));
+    }
+
+    // Status effects
+    QStringList statusList;
+    if (c.isAlive) {
+        statusList.append(tr("Alive"));
+    } else {
+        statusList.append(tr("Dead"));
+    }
+    if (c.isStarving()) {
+        statusList.append(tr("Starving"));
+    }
+    // Note: statusFlags would need direct checking for Poisoned/Blinded/etc.
+    // These are accessed via gameStateManager in the full game
+    m_statusLabel->setText(statusList.isEmpty() ? tr("Status: Normal") : statusList.join(" | "));
+    m_statusLabel->setStyleSheet(statusList.contains(tr("Dead")) ? "color: #cc0000; font-weight: bold;" : QString());
+
+    // Companion skills
+    m_companionTable->setRowCount(5);
+    const char* companionNames[] = {"Guard", "Attack", "Heal", "Fetch", "Follow"};
+    for (int i = 0; i < 5; ++i) {
+        const auto& skill = c.companionSkill(i);
+        m_companionTable->setItem(i, 0, new QTableWidgetItem(companionNames[i]));
+        m_companionTable->setItem(i, 1, new QTableWidgetItem(QString::number(skill.level)));
+        m_companionTable->setItem(i, 2, new QTableWidgetItem(skill.name));
+    }
+
+    // Companion skill points
+    int totalCompanionPoints = 0;
+    for (int i = 0; i < 5; ++i) {
+        totalCompanionPoints += c.companionSkill(i).level;
+    }
+    m_companionPointsLabel->setText(tr("Companion Points: %1").arg(totalCompanionPoints));
+
+    // Inventory
+    m_inventoryTable->setRowCount(0);
+    int invCount = 0;
+    for (const auto& item : c.inventory) {
+        if (invCount >= 15) break; // Limit to 15 items to prevent overflow
+        int row = m_inventoryTable->rowCount();
+        m_inventoryTable->insertRow(row);
+        m_inventoryTable->setItem(row, 0, new QTableWidgetItem(QString::number(row + 1)));
+        m_inventoryTable->setItem(row, 1, new QTableWidgetItem(item.name));
+        m_inventoryTable->setItem(row, 2, new QTableWidgetItem(item.identified ? tr("Identified") : tr("Unknown")));
+        invCount++;
+    }
+    if (c.inventory.size() > 15) {
+        m_inventoryPointsLabel->setText(tr("Inventory: %1 more items not shown").arg(c.inventory.size() - 15));
+    } else {
+        m_inventoryPointsLabel->setText(tr("Inventory: %1 items").arg(c.inventory.size()));
+    }
 }
 
 void CharacterSheetDialog::onMemberChanged(int index) {
