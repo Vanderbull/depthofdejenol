@@ -10006,7 +10006,7 @@ int runSelfTest()
             QString t = lbl->text();
             if (t.contains("DEPTHS") || t.contains("Dejenol") || t.contains("Black Lands"))
                 hasTitle = true;
-            if (t.contains("5.0.0"))
+            if (t.contains("6.1.0"))
                 hasVersion = true;
         }
         check(hasTitle, "main menu shows the game title");

@@ -87,7 +87,7 @@ void GameMenu::setupUI() {
     m_titleLabel->setAlignment(Qt::AlignCenter);
     mainLayout->addWidget(m_titleLabel);
 
-    m_versionLabel = new QLabel(tr("BLACK LANDS — v5.0.0"), this);
+    m_versionLabel = new QLabel(tr("BLACK LANDS — v6.1.0"), this);
     QFont versionFont = m_versionLabel->font();
     versionFont.setPointSize(12);
     m_versionLabel->setFont(versionFont);
