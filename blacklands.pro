@@ -106,6 +106,7 @@ SOURCES += src/combat/CombatState.cpp
 HEADERS += src/combat/TurnEngine.h
 SOURCES += src/combat/TurnEngine.cpp
 HEADERS += src/combat/CombatActions.h
+HEADERS += src/skill_book_dialog/SkillBookDialog.h
 SOURCES += src/combat/CombatActions.cpp
 HEADERS += src/combat/MonsterAI.h
 SOURCES += src/combat/MonsterAI.cpp

@@ -3,6 +3,7 @@
 #include <QDialog>
 #include <QVector>
 #include <QString>
+#include <QTableWidget>
 #include "../skill/SkillDatabase.h"
 
 namespace Ui {
