@@ -26,7 +26,7 @@
 #include "src/loadingscreen/LoadingScreen.h"
 #include "src/storyDialog.h"
 #include "src/dungeon_dialog/DungeonDialog.h"
-#include "src/blacklands.h"
+#include "src/mainMenu.h"
 #include "src/theCity.h"
 
 int main(int argc, char *argv[]) {
