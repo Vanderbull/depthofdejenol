@@ -2,6 +2,7 @@
 #include "theCity.h"
 #include "src/core/game_resources.h"
 #include "src/network_manager/NetworkManager.h"
+#include "src/core/ResolutionScaler.h"
 #include "src/partyinfo_dialog/partyinfodialog.h"
 #include "src/general_store/GeneralStore.h"
 #include "src/temple_dialog/TempleDialog.h"

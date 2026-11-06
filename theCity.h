@@ -15,6 +15,7 @@
 #include <QPushButton>
 #include <QMediaPlayer>
 #include <QAudioOutput>
+#include "src/core/ResolutionScaler.h"
 
 class TempleDialog;
 
@@ -57,6 +58,13 @@ private slots:
 private:
     QMediaPlayer *m_cityPlayer;
     QAudioOutput *m_cityAudioOutput;
+    // Scaling members
+    float m_scaleFactor;
+    void setupScaleFactor();
+    void applyScaling();
+    void applyScalingToWidget(QWidget* widget);
+    void scaleFont(QFont& font);
+    void scaleLayout(QLayout* layout);
     // UI Elements - Header & Grid
     QLabel *titleLabel;
     QToolButton *generalStoreButton;
