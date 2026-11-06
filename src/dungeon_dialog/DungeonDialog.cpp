@@ -2,7 +2,7 @@
 #include "src/character_dialog/CharacterDialog.h"
 #include "DungeonDialog.h"
 #include "DungeonHandlers.h"
-#include "../../gameStateManager.h"
+#include "../core/gameStateManager.h"
 #include "src/items/ItemDatabase.h"
 #include "character.h"
 #include "src/core/DungeonThemes.h"

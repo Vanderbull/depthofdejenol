@@ -19,7 +19,7 @@
 #include <QTemporaryFile>
 
 #include "UpdateManager.h"
-#include "version.h"
+#include "src/version.h"
 
 static const int SERVER_PORT = 19877;
 

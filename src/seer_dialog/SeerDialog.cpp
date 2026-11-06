@@ -47,7 +47,7 @@ SeerDialog::SeerDialog(QWidget *parent)
     QFileInfo fileInfo(__FILE__);
     QString dir = fileInfo.absolutePath();
     // 2. Build the path to the .qss file in the same folder
-    QString qssPath = dir + "/SeerDialog.qss";
+    QString qssPath = dir + "/../qss/SeerDialog.qss";
     // 3. Load and apply the style
     QFile styleFile(qssPath);
     if (styleFile.open(QFile::ReadOnly | QFile::Text)) {

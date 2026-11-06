@@ -1,6 +1,6 @@
 #include "src/core/game_resources.h"
 #include "LoadingScreen.h"
-#include "../../gameStateManager.h"
+#include "../core/gameStateManager.h"
 #include <QPixmap>
 #include <QFont>
 #include <QColor>
@@ -85,7 +85,7 @@ LoadingScreen::LoadingScreen(QWidget *parent) :
 /*
 void LoadingScreen::checkSettingsFile()
 {
-    QSettings settings("game_settings.ini", QSettings::IniFormat);
+    QSettings settings("src/game_settings.ini", QSettings::IniFormat);
     bool configOK = settings.contains("Graphics/ResolutionWidth");
     m_loadingFiles << (configOK ? "Config OK." : "Config Missing.");
     gameStateManager::instance()->setGameValue("ConfigIntegrityOK", configOK);

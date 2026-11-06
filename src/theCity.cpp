@@ -330,7 +330,7 @@ void theCity::loadButtonIcons()
 
 void theCity::setupStyling()
 {
-    QFile styleFile("theCity.qss");
+    QFile styleFile("qss/theCity.qss");
     if (styleFile.open(QFile::ReadOnly | QFile::Text)) {
         this->setStyleSheet(QLatin1String(styleFile.readAll()));
         styleFile.close();

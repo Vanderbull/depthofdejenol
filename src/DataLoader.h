@@ -5,7 +5,7 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QJsonArray>
-#include "dataRegistry.h"
+#include "src/dataRegistry.h"
 #include "GameConstants.h"
 
 class DataLoader {

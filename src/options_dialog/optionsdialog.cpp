@@ -21,7 +21,7 @@ namespace {
 // short option name. Loading them back keeps the choices across restarts.
 void saveOption(const QString& key, bool checked)
 {
-    QSettings settings("game_settings.ini", QSettings::IniFormat);
+    QSettings settings("src/game_settings.ini", QSettings::IniFormat);
     settings.setValue("Game/" + key, checked);
 }
 } // namespace
@@ -119,7 +119,7 @@ OptionsDialog::OptionsDialog(QWidget *parent) : QDialog(parent) {
     // Each checkbox persists its state to game_settings.ini and restores it on
     // open, so the choice actually survives a restart.
     auto wireOption = [](QCheckBox* box, const QString& key) {
-        QSettings settings("game_settings.ini", QSettings::IniFormat);
+        QSettings settings("src/game_settings.ini", QSettings::IniFormat);
         box->setChecked(settings.value("Game/" + key, false).toBool());
         QObject::connect(box, &QCheckBox::toggled, box, [key](bool checked) {
             saveOption(key, checked);

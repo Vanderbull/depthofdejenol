@@ -2,7 +2,7 @@
 #include "gameStateManager.h"
 #include "audioManager.h"
 #include "src/theCity.h"
-#include "storyDialog.h"
+#include "src/storyDialog.h"
 
 // Dialog and UI Includes
 #include "src/hall_of_records/hallofrecordsdialog.h"
@@ -223,7 +223,7 @@ void GameMenu::setupConnections() {
 }
 
 void GameMenu::loadStyleSheet() {
-    QString qssPath = QFileInfo(__FILE__).absolutePath() + "/MainMenu.qss";
+    QString qssPath = QFileInfo(__FILE__).absolutePath() + "/src/qss/MainMenu.qss";
     QFile styleFile(qssPath);
     if (styleFile.open(QFile::ReadOnly | QFile::Text)) {
         setStyleSheet(QTextStream(&styleFile).readAll());
@@ -534,7 +534,7 @@ int main(int argc, char *argv[]) {
         // misses what the player sees.
         QWidget styleHost;
         {
-            QFile qss(QFileInfo(__FILE__).absolutePath() + "/MainMenu.qss");
+            QFile qss(QFileInfo(__FILE__).absolutePath() + "/../qss/MainMenu.qss");
             if (qss.open(QFile::ReadOnly | QFile::Text))
                 styleHost.setStyleSheet(QString::fromUtf8(qss.readAll()));
         }

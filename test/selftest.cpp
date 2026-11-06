@@ -61,7 +61,7 @@
 #include "src/spell_casting/SpellCastingDialog.h"
 #include "src/dungeon_dialog/DungeonHandlers.h"
 #include "src/general_store/GeneralStore.h"
-#include "version.h"
+#include "src/version.h"
 #include "src/traps_calculations.h"
 #include "audioManager.h"
 

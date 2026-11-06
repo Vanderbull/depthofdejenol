@@ -8,7 +8,7 @@
 #include "src/spell_casting/SpellBook.h"
 #include "src/items/ItemDatabase.h"
 
-#include "version.h"
+#include "src/version.h"
 //#include "fontManager.h"
 #include "src/race_data/RaceData.h"
 #include <QRandomGenerator>
@@ -2026,7 +2026,7 @@ bool gameStateManager::uncurseItem(int characterIndex, int inventoryIndex, QStri
 
 // Move from LoadingScreen to gameStateManager
 void gameStateManager::checkSettingsFile() {
-    QSettings settings("game_settings.ini", QSettings::IniFormat);
+    QSettings settings("src/game_settings.ini", QSettings::IniFormat);
     bool configOK = settings.contains("Graphics/ResolutionWidth");
     setGameValue("ConfigIntegrityOK", configOK);
 }

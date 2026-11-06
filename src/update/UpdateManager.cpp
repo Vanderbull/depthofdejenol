@@ -1,5 +1,5 @@
 #include "UpdateManager.h"
-#include "version.h"
+#include "src/version.h"
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
 #include <QTemporaryDir>

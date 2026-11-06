@@ -1,5 +1,5 @@
 #include "ReleaseInfo.h"
-#include "version.h"
+#include "src/version.h"
 #include <QPair>
 
 QString ReleaseInfo::version() {

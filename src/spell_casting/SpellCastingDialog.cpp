@@ -1,5 +1,5 @@
 #include "SpellCastingDialog.h"
-#include "../../gameStateManager.h"
+#include "../core/gameStateManager.h"
 
 #include <QVBoxLayout>
 #include <QHBoxLayout>

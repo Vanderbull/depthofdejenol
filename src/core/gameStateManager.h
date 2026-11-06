@@ -11,7 +11,7 @@ extern "C" {
 #include "src/core/GameConstants.h"
 #include "src/core/Endgame.h"
 #include "src/core/game_resources.h"
-#include "dataRegistry.h"
+#include "src/dataRegistry.h"
 #include "audioManager.h"
 #include "fontManager.h"
 #include "character.h"

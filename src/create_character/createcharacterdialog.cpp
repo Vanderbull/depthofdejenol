@@ -1,7 +1,7 @@
 
 #include "createcharacterdialog.h"
 #include "src/race_data/RaceData.h"
-#include "../../gameStateManager.h"
+#include "../core/gameStateManager.h"
 #include <QScreen>
 #include <QGuiApplication>
 #include <QMessageBox>
@@ -120,7 +120,7 @@ CreateCharacterDialog::CreateCharacterDialog(const QVector<RaceStats>& raceData,
     setWindowTitle("Create Character");
     QFileInfo fileInfo(__FILE__);
     QString dir = fileInfo.absolutePath();
-    QString qssPath = QDir(dir).filePath("createcharacterdialog.qss");
+    QString qssPath = QDir(dir).filePath("../../qss/createcharacterdialog.qss");
     QFile styleFile(qssPath);
     if (styleFile.open(QFile::ReadOnly | QFile::Text)) {
         QTextStream ts(&styleFile);

@@ -1,7 +1,7 @@
 #-------------------------------------------------- Project 
 # Configuration
 #--------------------------------------------------
-PRECOMPILED_HEADER = stable.h
+PRECOMPILED_HEADER = src/stable.h
 QT += core gui widgets multimedia network
 TARGET = blacklands
 
@@ -26,12 +26,13 @@ UI_DIR = $$BUILD_DIR/ui
 #--------------------------------------------------
 QMAKE_RESOURCE_FLAGS += --root /
 
-INCLUDEPATH += _PRO_FILE_PWD_
-INCLUDEPATH += _PRO_FILE_PWD_/src/include
-INCLUDEPATH += _PRO_FILE_PWD_
-INCLUDEPATH += _PRO_FILE_PWD_/src
-INCLUDEPATH += _PRO_FILE_PWD_
-INCLUDEPATH += _PRO_FILE_PWD_/src
+INCLUDEPATH += $$PWD
+INCLUDEPATH += $$PWD/src/include
+INCLUDEPATH += $$PWD
+INCLUDEPATH += $$PWD/src
+INCLUDEPATH += $$PWD
+INCLUDEPATH += $$PWD/src
+INCLUDEPATH += $$PWD/src/core
 
 #--------------------------------------------------
 # Source Files
@@ -40,7 +41,7 @@ SOURCES += \
     src/core/savegameVersion.cpp \
     src/core/gameStateManager.cpp \
     src/partymanager/PartyManager.cpp \
-    src/audio/audioManager.cpp \
+    src/core/audioManager.cpp \
     blacklands.cpp \
     src/theCity.cpp \
     src/network_manager/NetworkManager.cpp \
@@ -49,6 +50,7 @@ SOURCES += \
     src/character_dialog/CharacterDialog.cpp \
     src/message_window/MessageWindow.cpp \
     src/library_dialog/library_dialog.cpp \
+    src/fontManager.cpp \
     src/automap/automap_dialog.cpp \
     src/game_controller/game_controller.cpp \
     src/load_party_dialog/LoadPartyDialog.cpp \
@@ -75,7 +77,7 @@ SOURCES += \
     src/event/EventManager.cpp \
     src/update/UpdateManager.cpp \
     src/update/UpdateDialog.cpp \
-    character.cpp \
+    src/character.cpp \
     src/skill_book_dialog/SkillBookDialog.cpp src/skill_book_dialog/SkillBookDialog.h \
     src/skill/SkillDatabase.cpp
 
@@ -183,10 +185,10 @@ HEADERS += \
     src/core/gameStateManager.h \
     src/partymanager/PartyManager.h \
     src/core/GameConstants.h \
-    src/audio/audioManager.h \
+    src/core/audioManager.h \
     blacklands.h \
-    theCity.h \
-    storyDialog.h \
+    src/theCity.h \
+    src/storyDialog.h \
     src/network_manager/NetworkManager.h \
     src/hall_of_records/hallofrecordsdialog.h \
     src/create_character/createcharacterdialog.h \
@@ -219,14 +221,13 @@ HEADERS += \
     src/dungeon_dialog/MinimapDialog.h \
     src/update/UpdateManager.h \
     src/update/UpdateDialog.h \
-    character.h \
+    src/character.h \
     src/skill/SkillDatabase.h
 
 HEADERS += src/spell_casting/SpellCastingDialog.h
 SOURCES += src/spell_casting/SpellCastingDialog.cpp
 
-HEADERS += fontManager.h
-SOURCES += fontManager.cpp
+HEADERS += src/fontManager.h
 #--------------------------------------------------
 # Post-Link Operations
 #--------------------------------------------------
@@ -240,7 +241,7 @@ QMAKE_POST_LINK += $$escape_expand(\\n\\t) $(COPY_DIR) $$quote($$PWD/resources) 
 # Copy the main-menu background to build/bin/. GameMenu::loadBackgroundImage()
 # reads it via applicationDirPath(), so the binary in build/bin needs its own
 # copy — the one at the repo root only serves the root-level binary.
-QMAKE_POST_LINK += $$escape_expand(\\n\\t) $(COPY_FILE) $$quote($$PWD/introtitle.png) $$quote($$DESTDIR/introtitle.png)
+QMAKE_POST_LINK += $$escape_expand(\\n\\t) $(COPY_FILE) $$quote($$PWD/resources/images/introtitle.png) $$quote($$DESTDIR/introtitle.png)
 
 # Copy final binary back to root for easy execution
 QMAKE_POST_LINK += $$escape_expand(\\n\\t) $(COPY_FILE) $$quote($$DESTDIR/$$TARGET) $$quote($$PWD/$$TARGET)
@@ -321,7 +322,7 @@ SEMVER_PATCH = 0
 SEMVER = \"$${SEMVER_MAJOR}.$${SEMVER_MINOR}.$${SEMVER_PATCH}\"
 
 # 3. Tell qmake to use the template
-QMAKE_SUBSTITUTES += version.h.in
+QMAKE_SUBSTITUTES += src/version.h.in
 
 # 4. VERY IMPORTANT: Add literal quotes to the variables
 # This ensures they appear as "9629655" in version.h instead of 9629655
