@@ -120,7 +120,7 @@ CreateCharacterDialog::CreateCharacterDialog(const QVector<RaceStats>& raceData,
     setWindowTitle("Create Character");
     QFileInfo fileInfo(__FILE__);
     QString dir = fileInfo.absolutePath();
-    QString qssPath = QDir(dir).filePath("../../qss/createcharacterdialog.qss");
+    QString qssPath = QDir(dir).filePath("../qss/createcharacterdialog.qss");
     QFile styleFile(qssPath);
     if (styleFile.open(QFile::ReadOnly | QFile::Text)) {
         QTextStream ts(&styleFile);

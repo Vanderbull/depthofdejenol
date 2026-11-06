@@ -223,7 +223,7 @@ void GameMenu::setupConnections() {
 }
 
 void GameMenu::loadStyleSheet() {
-    QString qssPath = QFileInfo(__FILE__).absolutePath() + "/src/qss/MainMenu.qss";
+    QString qssPath = QFileInfo(__FILE__).absolutePath() + "/qss/MainMenu.qss";
     QFile styleFile(qssPath);
     if (styleFile.open(QFile::ReadOnly | QFile::Text)) {
         setStyleSheet(QTextStream(&styleFile).readAll());
@@ -507,7 +507,7 @@ GameMenu::~GameMenu() {
     qDebug() << "GameMenu Destructor.";
 }
 
-int main(int argc, char *argv[]) {
+int blacklandsMain(int argc, char *argv[]) {
     // Determine platform based on command line argument
     QString platform = "xcb"; // default for normal run
     for (int i = 0; i < argc; ++i) {
@@ -534,7 +534,7 @@ int main(int argc, char *argv[]) {
         // misses what the player sees.
         QWidget styleHost;
         {
-            QFile qss(QFileInfo(__FILE__).absolutePath() + "/../qss/MainMenu.qss");
+            QFile qss(QFileInfo(__FILE__).absolutePath() + "/qss/MainMenu.qss");
             if (qss.open(QFile::ReadOnly | QFile::Text))
                 styleHost.setStyleSheet(QString::fromUtf8(qss.readAll()));
         }

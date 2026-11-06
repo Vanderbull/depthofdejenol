@@ -42,7 +42,8 @@ SOURCES += \
     src/core/gameStateManager.cpp \
     src/partymanager/PartyManager.cpp \
     src/core/audioManager.cpp \
-    blacklands.cpp \
+    src/blacklands.cpp \
+    src/main.cpp \
     src/theCity.cpp \
     src/network_manager/NetworkManager.cpp \
     src/hall_of_records/hallofrecordsdialog.cpp \
@@ -186,7 +187,7 @@ HEADERS += \
     src/partymanager/PartyManager.h \
     src/core/GameConstants.h \
     src/core/audioManager.h \
-    blacklands.h \
+    src/blacklands.h \
     src/theCity.h \
     src/storyDialog.h \
     src/network_manager/NetworkManager.h \

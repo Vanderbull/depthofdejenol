@@ -1,7 +1,7 @@
 #include "selftest.h"
 
 #include "gameStateManager.h"
-#include "blacklands.h"
+#include "src/blacklands.h"
 #include "character.h"
 #include "src/items/ItemDatabase.h"
 #include "src/combat/CombatState.h"
