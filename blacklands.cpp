@@ -1,7 +1,7 @@
 #include "blacklands.h"
 #include "gameStateManager.h"
 #include "audioManager.h"
-#include "theCity.h"
+#include "src/theCity.h"
 #include "storyDialog.h"
 
 // Dialog and UI Includes

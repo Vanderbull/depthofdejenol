@@ -16,7 +16,7 @@
 #include "src/helplesson/helplesson.h"
 #include "src/options_dialog/optionsdialog.h"
 #include "character.h"
-#include "theCity.h"
+#include "src/theCity.h"
 #include "src/core/LevelTable.h"
 #include "src/core/AgingRules.h"
 #include "src/core/DungeonLevelState.h"

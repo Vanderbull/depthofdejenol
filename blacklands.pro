@@ -38,11 +38,11 @@ INCLUDEPATH += _PRO_FILE_PWD_/src
 #--------------------------------------------------
 SOURCES += \
     src/core/savegameVersion.cpp \
-    gameStateManager.cpp \
+    src/core/gameStateManager.cpp \
     src/partymanager/PartyManager.cpp \
-    audioManager.cpp \
+    src/audio/audioManager.cpp \
     blacklands.cpp \
-    theCity.cpp \
+    src/theCity.cpp \
     src/network_manager/NetworkManager.cpp \
     src/hall_of_records/hallofrecordsdialog.cpp \
     src/create_character/createcharacterdialog.cpp \
@@ -180,10 +180,10 @@ SOURCES += src/spell_casting/SpellBook.cpp
 #--------------------------------------------------
 HEADERS += \
     src/core/savegameVersion.h \
-    gameStateManager.h \
+    src/core/gameStateManager.h \
     src/partymanager/PartyManager.h \
     src/core/GameConstants.h \
-    audioManager.h \
+    src/audio/audioManager.h \
     blacklands.h \
     theCity.h \
     storyDialog.h \
