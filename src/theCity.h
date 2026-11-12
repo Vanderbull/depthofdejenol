@@ -28,6 +28,9 @@ public:
     ~theCity();
 
     void processLocation(GameConstants::CityLocation location);
+    void applyScaling(QWidget* widget);
+    void scaleFonts();
+    void scaleGeometry();
 
 private slots:
     void handleLocationClick();

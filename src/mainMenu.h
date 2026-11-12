@@ -44,6 +44,9 @@ private:
     void loadBackgroundImage();
     void refreshContinueState();
     QString partyPreviewText() const;
+    void applyScaling(QWidget* widget);
+    void scaleFonts();
+    void scaleGeometry();
 
     QLabel *m_titleLabel = nullptr;
     QLabel *m_versionLabel = nullptr;

@@ -84,3 +84,9 @@ data/characters/*
 /backup/
 bankpane/moc_*.cpp
 bankpane/moc_predefs.h
+
+# graphify build artifacts
+/graphify-out/
+graphify-out/
+**/graphify-out/
+graphify-out/**

@@ -44,6 +44,7 @@ SOURCES += \
     src/core/audioManager.cpp \
     src/main.cpp \
     src/mainMenu.cpp \
+    src/core/ResolutionScaler.cpp \
     src/theCity.cpp \
     src/network_manager/NetworkManager.cpp \
     src/hall_of_records/hallofrecordsdialog.cpp \

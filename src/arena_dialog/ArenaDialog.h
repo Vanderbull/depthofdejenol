@@ -46,6 +46,10 @@ private:
     void handleVictory();
     void handleDefeat();
     void recordScore();
+    void applyScaling(QWidget* widget);
+    void scaleFonts();
+    void scaleGeometry();
+    void resizeEvent(QResizeEvent* event) override;
 
     // UI elements
     QLabel* m_titleLabel = nullptr;

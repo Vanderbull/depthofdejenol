@@ -67,12 +67,14 @@ void theCity::processLocation(GameConstants::CityLocation location) {
 theCity::theCity(QWidget *parent) :
     QDialog(parent)
 {
-    //gameStateManager::instance()->playMusic("resources/waves/city.wav");
+    // Enable minimize/maximize window controls
+    setWindowFlags(Qt::Window | Qt::WindowTitleHint | Qt::WindowSystemMenuHint |
+                   Qt::WindowCloseButtonHint | Qt::WindowMinimizeButtonHint | Qt::WindowMaximizeButtonHint);
 
     setWindowTitle("The City - Online");
     setMinimumSize(1000, 800); // Larger default and minimum size
     resize(1000, 800);
-    
+    scaleGeometry();
     setupUi();
     loadButtonIcons();
     setupStyling();
@@ -108,6 +110,57 @@ theCity::theCity(QWidget *parent) :
     connectionTimer->start(3000); // Wait 3 seconds for server
 }
 
+void theCity::applyScaling(QWidget* widget) {
+    if (!widget) return;
+    // Scale fonts
+    if (widget->font().pointSizeF() > 0) {
+        QFont font = widget->font();
+        font.setPointSize(static_cast<int>(ResolutionScaler::instance().scaleFontSize(font.pointSizeF())));
+        widget->setFont(font);
+    }
+
+    // Scale minimum sizes
+    if (widget->minimumSize().width() > 0 || widget->minimumSize().height() > 0) {
+        QSize minSize = widget->minimumSize();
+        minSize = ResolutionScaler::instance().scaledSize(minSize);
+        widget->setMinimumSize(minSize);
+    }
+
+    // NOTE: Widget geometry is NOT scaled here - the layout system
+    // handles positioning based on the new window size
+
+    // Recurse into children
+    QList<QWidget*> children = widget->findChildren<QWidget*>();
+    for (QWidget* child : children) {
+        applyScaling(child);
+    }
+}
+
+void theCity::scaleFonts() {
+    applyScaling(this);
+}
+
+void theCity::scaleGeometry() {
+    QScreen* screen = QGuiApplication::primaryScreen();
+    if (!screen) return;
+
+    QRect available = screen->availableGeometry();
+    if (available.isEmpty()) return;
+
+    // Set window to full screen
+    setGeometry(available.x(), available.y(), available.width(), available.height());
+    setWindowState(Qt::WindowFullScreen);
+
+    // Scale all widgets
+    applyScaling(this);
+
+    // Refresh the layout to recalculate widget positions
+    if (layout()) {
+        layout()->invalidate();
+        layout()->activate();
+    }
+}
+
 void theCity::setupUi()
 {
     QVBoxLayout *mainLayout = new QVBoxLayout(this);
@@ -123,7 +176,7 @@ void theCity::setupUi()
     QHBoxLayout *midLayout = new QHBoxLayout();
     
     playerList = new QListWidget(this);
-    playerList->setFixedWidth(150);
+    playerList->setFixedWidth(ResolutionScaler::instance().scaleSize(150));
     playerList->setObjectName("playerList");
     midLayout->addWidget(playerList);
 
@@ -258,7 +311,8 @@ void theCity::sendChatMessage() {
 
 void theCity::loadButtonIcons()
 {
-    const QSize iconSize(200, 150); 
+    const QSize iconSize(ResolutionScaler::instance().scaleSize(200),
+                         ResolutionScaler::instance().scaleSize(150)); 
     generalStoreButton->setIcon(QIcon(GameResources::getPixmap("general_store")));
     generalStoreButton->setIconSize(iconSize);
     generalStoreButton->setToolTip("General Store");
@@ -486,13 +540,10 @@ void theCity::on_npcButton_clicked() {
 void theCity::on_arenaButton_clicked() {
     titleLabel->setText(Arena::arenaName());
     gameStateManager::instance()->enterLocation(GameConstants::CityLocation::Street);
-    // Arena dialog opens; when it closes, the title resets via the finished signal.
+    // Arena dialog opens as non-modal; closes automatically when window is closed.
     ArenaDialog *arena = new ArenaDialog(this);
     arena->setAttribute(Qt::WA_DeleteOnClose);
-    connect(arena, &QDialog::finished, this, [this]() {
-        processLocation(GameConstants::CityLocation::Street);
-    });
-    arena->exec();
+    arena->show();
 }
 
 void theCity::on_exitButton_clicked() {

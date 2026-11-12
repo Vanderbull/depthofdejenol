@@ -18,6 +18,7 @@
 #include <QRegularExpression>
 #include "src/race_data/RaceData.h"
 #include "src/core/DungeonLevelState.h"
+#include "src/core/ResolutionScaler.h"
 #include "test/selftest.h"
 #include "src/dungeon_dialog/DungeonDialog.h"
 #include <QPushButton>
@@ -69,6 +70,7 @@ GameMenu::GameMenu(QWidget *parent)
 
     // 4. Initial State
     refreshContinueState();
+    scaleGeometry();
     EventManager::instance()->update("GAME_START");
     emit logMessageTriggered("GameMenu has successfully initialized.");
 }
@@ -355,6 +357,55 @@ QString GameMenu::partyPreviewText() const {
         .arg(memberNames.join(", "))
         .arg(memberCount)
         .arg(totalLevel / memberCount);
+}
+
+void GameMenu::applyScaling(QWidget* widget) {
+    if (!widget) return;
+    // Scale fonts
+    QFont font = widget->font();
+    font.setPointSize(static_cast<int>(ResolutionScaler::instance().scaleFontSize(font.pointSizeF())));
+    widget->setFont(font);
+
+    // Scale minimum sizes
+    if (widget->minimumSize().width() > 0 || widget->minimumSize().height() > 0) {
+        QSize minSize = widget->minimumSize();
+        minSize = ResolutionScaler::instance().scaledSize(minSize);
+        widget->setMinimumSize(minSize);
+    }
+
+    // NOTE: Widget geometry is NOT scaled here - the layout system
+    // handles positioning based on the new window size
+
+    // Recurse into children
+    QList<QWidget*> children = widget->findChildren<QWidget*>();
+    for (QWidget* child : children) {
+        applyScaling(child);
+    }
+}
+
+void GameMenu::scaleFonts() {
+    applyScaling(this);
+}
+
+void GameMenu::scaleGeometry() {
+    QScreen* screen = QGuiApplication::primaryScreen();
+    if (!screen) return;
+
+    QRect available = screen->availableGeometry();
+    if (available.isEmpty()) return;
+
+    // Set window to full screen
+    setGeometry(available.x(), available.y(), available.width(), available.height());
+    setWindowState(Qt::WindowFullScreen);
+
+    // Scale all widgets
+    applyScaling(this);
+
+    // Refresh the layout to recalculate widget positions
+    if (layout()) {
+        layout()->invalidate();
+        layout()->activate();
+    }
 }
 
 void GameMenu::onContinueClicked() {

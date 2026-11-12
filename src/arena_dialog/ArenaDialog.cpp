@@ -8,6 +8,7 @@
 #include "src/combat/MonsterAI.h"
 #include "src/combat/CombatDeathHandler.h"
 #include "src/combat/EncounterBuilder.h"
+#include "src/core/ResolutionScaler.h"
 #include <QFile>
 #include <QJsonDocument>
 #include <QVariantMap>
@@ -27,20 +28,96 @@ ArenaDialog::ArenaDialog(QWidget *parent) : QDialog(parent) {
     m_combatActions = std::make_unique<CombatActions>(m_combatState.get(), m_turnEngine.get());
     m_monsterAI = std::make_unique<MonsterAI>(m_combatState.get(), m_turnEngine.get(), m_combatActions.get());
     m_deathHandler = std::make_unique<CombatDeathHandler>(m_combatState.get(), m_turnEngine.get(), m_combatActions.get());
+
+    // Enable minimize/maximize window controls
+    setWindowFlags(Qt::Window | Qt::WindowTitleHint | Qt::WindowSystemMenuHint |
+                   Qt::WindowCloseButtonHint | Qt::WindowMinimizeButtonHint | Qt::WindowMaximizeButtonHint);
+
     setupUi();
     updateUI();
+    scaleGeometry();
+}
+
+void ArenaDialog::applyScaling(QWidget* widget) {
+    if (!widget) return;
+    // Scale fonts
+    if (widget->font().pointSizeF() > 0) {
+        QFont font = widget->font();
+        font.setPointSize(static_cast<int>(ResolutionScaler::instance().scaleFontSize(font.pointSizeF())));
+        widget->setFont(font);
+    }
+
+    // Scale minimum sizes
+    if (widget->minimumSize().width() > 0 || widget->minimumSize().height() > 0) {
+        QSize minSize = widget->minimumSize();
+        minSize = ResolutionScaler::instance().scaledSize(minSize);
+        widget->setMinimumSize(minSize);
+    }
+
+    // Scale button heights
+    if (widget->isWidgetType() && qobject_cast<QPushButton*>(widget)) {
+        QPushButton* btn = static_cast<QPushButton*>(widget);
+        if (btn->minimumHeight() > 0) {
+            int newHeight = static_cast<int>(ResolutionScaler::instance().scaleSize(btn->minimumHeight()));
+            btn->setMinimumHeight(newHeight);
+        }
+    }
+
+    // Recurse into children
+    QList<QWidget*> children = widget->findChildren<QWidget*>();
+    for (QWidget* child : children) {
+        applyScaling(child);
+    }
+}
+
+void ArenaDialog::scaleFonts() {
+    applyScaling(this);
+}
+
+void ArenaDialog::scaleGeometry() {
+    QScreen* screen = QGuiApplication::primaryScreen();
+    if (!screen) return;
+
+    QRect available = screen->availableGeometry();
+    if (available.isEmpty()) return;
+
+    // Set window to full screen
+    setGeometry(available.x(), available.y(), available.width(), available.height());
+    setWindowState(Qt::WindowFullScreen);
+
+    // Scale all widgets (fonts, sizes, button heights)
+    // Note: widget geometry is NOT scaled here - the layout system
+    // handles positioning based on the new window size
+    applyScaling(this);
+
+    // Refresh the layout to recalculate widget positions
+    if (layout()) {
+        layout()->invalidate();
+        layout()->activate();
+    }
+}
+
+void ArenaDialog::resizeEvent(QResizeEvent* event) {
+    QDialog::resizeEvent(event);
+    
+    // Reapply scaling after the window has been resized
+    scaleGeometry();
+    // After scaling, call layout to update the layout
+    if (layout()) {
+        layout()->activate();
+    }
 }
 
 void ArenaDialog::setupUi() {
     setWindowTitle(Arena::arenaName());
-    setMinimumSize(600, 500);
+    setMinimumSize(ResolutionScaler::instance().scaleSize(600), ResolutionScaler::instance().scaleSize(500));
 
     QVBoxLayout* mainLayout = new QVBoxLayout(this);
 
     // Title
     m_titleLabel = new QLabel(Arena::arenaName(), this);
     m_titleLabel->setAlignment(Qt::AlignCenter);
-    QFont titleFont("Georgia", 24, QFont::Bold);
+    QFont titleFont("Georgia", static_cast<int>(ResolutionScaler::instance().scaleFontSize(24.0f)), QFont::Bold);
     m_titleLabel->setFont(titleFont);
     mainLayout->addWidget(m_titleLabel);
 
@@ -73,25 +150,52 @@ void ArenaDialog::setupUi() {
 
     // Buttons
     QHBoxLayout* btnLayout = new QHBoxLayout();
+    btnLayout->setSpacing(8);
+    btnLayout->setContentsMargins(0, 0, 0, 0);
 
     m_startBtn = new QPushButton("Start Arena", this);
-    m_fightBtn = new QPushButton("Fight", this);
-    m_fleeBtn = new QPushButton("Flee", this);
-    m_attackBtn = new QPushButton("Attack", this);
-    m_defendBtn = new QPushButton("Defend", this);
-    m_spellBtn = new QPushButton("Cast Spell", this);
-    m_useItemBtn = new QPushButton("Use Item", this);
-    m_nextWaveBtn = new QPushButton("Next Wave", this);
-    m_exitBtn = new QPushButton("Exit", this);
-
+    m_startBtn->setMinimumHeight(ResolutionScaler::instance().scaleSize(40));
+    m_startBtn->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
     btnLayout->addWidget(m_startBtn);
+
+    m_fightBtn = new QPushButton("Fight", this);
+    m_fightBtn->setMinimumHeight(ResolutionScaler::instance().scaleSize(40));
+    m_fightBtn->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
     btnLayout->addWidget(m_fightBtn);
+
+    m_fleeBtn = new QPushButton("Flee", this);
+    m_fleeBtn->setMinimumHeight(ResolutionScaler::instance().scaleSize(40));
+    m_fleeBtn->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
     btnLayout->addWidget(m_fleeBtn);
+
+    m_attackBtn = new QPushButton("Attack", this);
+    m_attackBtn->setMinimumHeight(ResolutionScaler::instance().scaleSize(40));
+    m_attackBtn->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
     btnLayout->addWidget(m_attackBtn);
+
+    m_defendBtn = new QPushButton("Defend", this);
+    m_defendBtn->setMinimumHeight(ResolutionScaler::instance().scaleSize(40));
+    m_defendBtn->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
     btnLayout->addWidget(m_defendBtn);
+
+    m_spellBtn = new QPushButton("Cast Spell", this);
+    m_spellBtn->setMinimumHeight(ResolutionScaler::instance().scaleSize(40));
+    m_spellBtn->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
     btnLayout->addWidget(m_spellBtn);
+
+    m_useItemBtn = new QPushButton("Use Item", this);
+    m_useItemBtn->setMinimumHeight(ResolutionScaler::instance().scaleSize(40));
+    m_useItemBtn->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
     btnLayout->addWidget(m_useItemBtn);
+
+    m_nextWaveBtn = new QPushButton("Next Wave", this);
+    m_nextWaveBtn->setMinimumHeight(ResolutionScaler::instance().scaleSize(40));
+    m_nextWaveBtn->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
     btnLayout->addWidget(m_nextWaveBtn);
+
+    m_exitBtn = new QPushButton("Exit", this);
+    m_exitBtn->setMinimumHeight(ResolutionScaler::instance().scaleSize(40));
+    m_exitBtn->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
     btnLayout->addWidget(m_exitBtn);
 
     mainLayout->addLayout(btnLayout);
