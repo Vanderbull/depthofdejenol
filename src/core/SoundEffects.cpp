@@ -20,18 +20,34 @@ bool SoundEffects::play(Type type) {
 
 bool SoundEffects::play(const QString& name) {
     if (name.isEmpty()) return false;
-    audioManager::instance()->playSound("resources/waves/" + name + ".wav");
-    return true;
+    // Try WAV first (original location)
+    if (QFile::exists("resources/waves/" + name + ".wav")) {
+        audioManager::instance()->playSound("resources/waves/" + name + ".wav");
+        return true;
+    }
+    // Try OGG format (new location)
+    if (QFile::exists("resources/audio/ogg/" + name + ".ogg")) {
+        audioManager::instance()->playSound("resources/audio/ogg/" + name + ".ogg");
+        return true;
+    }
+    return false;
 }
 
 QStringList SoundEffects::availableSounds() const {
     QStringList sounds;
-    QDir dir("resources/waves");
-    if (dir.exists()) {
-        QStringList filters;
-        filters << "*.wav";
-        for (const QString& file : dir.entryList(filters, QDir::Files)) {
-            sounds << file.left(file.lastIndexOf('.'));
+    // Collect from both WAV and OGG directories
+    QStringList dirs = {"resources/waves", "resources/audio/ogg"};
+    for (const QString& dirPath : dirs) {
+        QDir dir(dirPath);
+        if (dir.exists()) {
+            QStringList filters;
+            filters << "*.wav" << "*.ogg";
+            for (const QString& file : dir.entryList(filters, QDir::Files)) {
+                // Remove extension and path, just use the base name
+                QString base = file;
+                base = base.left(base.lastIndexOf('.'));
+                sounds << base;
+            }
         }
     }
     return sounds;

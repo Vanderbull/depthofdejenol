@@ -90,3 +90,57 @@ bankpane/moc_predefs.h
 graphify-out/
 **/graphify-out/
 graphify-out/**
+
+# Operating System Files
+.DS_Store
+Thumbs.db
+.DS_Store?
+
+# Temporary Files
+*.tmp
+*.temp
+*~
+*.swp
+*.swo
+*.bak
+
+# IDE Files
+.idea/
+*.user
+*.suo
+*.cproject
+*.project
+
+# Build and Compile Artifacts
+*.log
+*.tmp
+*.bin
+
+# Qt Creator
+*.qbs
+*.qmake.stash
+
+# Vim
+*.swp
+*~
+
+# Emacs
+*~
+\#*\#
+
+# Tar archives
+*.tar
+*.tar.gz
+*.zip
+
+# Python
+*.py[cod]
+*.egg-info/
+
+# Node.js
+node_modules/
+package-lock.json
+yarn.lock
+
+# nginx
+
